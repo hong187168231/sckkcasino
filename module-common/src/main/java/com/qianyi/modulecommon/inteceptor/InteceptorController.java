@@ -20,4 +20,10 @@ public class InteceptorController {
     public ResponseEntity authenticationNopass() {
         return ResponseUtil.authenticationNopass();
     }
+
+    @NoAuthentication
+    @RequestMapping("risk")
+    public ResponseEntity risk() {
+        return ResponseUtil.risk();
+    }
 }

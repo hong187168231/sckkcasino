@@ -6,6 +6,8 @@ public enum ResponseCode {
     ERROR(-1, "error"),
     SUCCESS(0, "success"),
     AUTHENTICATION_NOPASS(1, "认证失败"),
+    AUTHORIZATION_NOPASS(2, "授权失败"),
+    RISK(6, "风险操作"),
 
     //业务级代码（101-999）
     PARAMETER_NOTNULLL(101, "参数必填"),

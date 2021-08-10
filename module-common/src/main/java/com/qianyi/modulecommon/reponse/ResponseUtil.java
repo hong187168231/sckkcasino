@@ -25,4 +25,8 @@ public class ResponseUtil {
     public static ResponseEntity custom(String msg) {
         return new ResponseEntity(msg);
     }
+
+    public static ResponseEntity risk() {
+        return new ResponseEntity(ResponseCode.RISK);
+    }
 }

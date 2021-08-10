@@ -23,3 +23,6 @@ spring:
       pool-name: DatebookHikariCP
       maximum-pool-size: 16
       connection-test-query: select 1
+
+project:
+  title: 支付平台
