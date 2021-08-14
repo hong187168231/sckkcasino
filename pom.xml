@@ -16,7 +16,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>module-customtools</module>
         <module>module-common</module>
         <module>module-jjwt</module>
         <module>module-swagger2</module>

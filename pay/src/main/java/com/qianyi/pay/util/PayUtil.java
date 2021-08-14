@@ -1,11 +1,14 @@
 package com.qianyi.pay.util;
 
+import com.qianyi.modulecommon.util.IpUtil;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.util.ObjectUtils;
 
+import javax.servlet.http.HttpServletRequest;
+
 public class PayUtil {
 
-    public final static String salt="f44grgr";
+    public final static String salt = "f44grgr";
 
     //获取当前操作者的身份
     public static Long getAuthId() {
@@ -30,8 +33,12 @@ public class PayUtil {
     }
 
     //校验加密
-    public static boolean checkBcrypt(String value,String bcryptValue) {
+    public static boolean checkBcrypt(String value, String bcryptValue) {
         return BCrypt.checkpw(value, bcryptValue);
     }
 
+    public static String getCapatchKey(HttpServletRequest request, String code) {
+        String ip = IpUtil.getIp(request);
+        return ip + code;
+    }
 }

@@ -14,7 +14,11 @@
     <description>module-common</description>
 
     <dependencies>
-
+        <dependency>
+            <groupId>net.jodah</groupId>
+            <artifactId>expiringmap</artifactId>
+            <version>0.5.8</version>
+        </dependency>
     </dependencies>
 
 

@@ -1,4 +1,4 @@
-package com.qianyi.modulecustomtools;
+package com.qianyi.modulecommon.util;
 
 public class MoneyUtils {
 
