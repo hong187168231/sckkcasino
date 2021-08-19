@@ -23,4 +23,12 @@ public class UserService {
 
         return null;
     }
+
+    public User findByAccount(String account) {
+        return userRepository.findByAccount(account);
+    }
+
+    public void setSecretById(Long id,String secret) {
+        userRepository.setSecretById(id, secret);
+    }
 }

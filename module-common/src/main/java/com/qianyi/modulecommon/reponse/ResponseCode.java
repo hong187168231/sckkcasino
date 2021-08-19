@@ -7,6 +7,7 @@ public enum ResponseCode {
     SUCCESS(0, "success"),
     AUTHENTICATION_NOPASS(1, "认证失败"),
     AUTHORIZATION_NOPASS(2, "授权失败"),
+    GOOGLEAUTH_NOPASS(3, "谷歌身份认证码错误"),
     RISK(6, "风险操作"),
 
     //业务级代码（101-999）

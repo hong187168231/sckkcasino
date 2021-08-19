@@ -19,6 +19,7 @@
         <module>module-common</module>
         <module>module-jjwt</module>
         <module>module-swagger2</module>
+        <module>module-authenticator</module>
         <module>pay</module>
     </modules>
 

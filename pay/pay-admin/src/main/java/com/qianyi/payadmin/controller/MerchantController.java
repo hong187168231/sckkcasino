@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Api(tags = "商户控制器")
+@Api(tags = "商户中心")
 @RestController
 @RequestMapping("merchant")
 @Slf4j
@@ -50,7 +50,7 @@ public class MerchantController {
         Long userId = PayUtil.getAuthId();
         User user = userService.findById(userId);
 
-        if(User.checkUser(user)){
+        if(!User.checkUser(user)){
             return ResponseUtil.custom("此帐号不可操作");
         }
 

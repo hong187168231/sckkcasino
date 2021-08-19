@@ -1,15 +1,16 @@
 package com.qianyi.payadmin.controller;
 
 import com.google.code.kaptcha.Producer;
+import com.qianyi.moduleauthenticator.GoogleAuthUtil;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.ExpiringMapUtil;
+import com.qianyi.modulejjwt.JjwtUtil;
 import com.qianyi.payadmin.util.PayUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import com.qianyi.paycore.model.User;
+import com.qianyi.paycore.service.UserService;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +26,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-@Api(tags = "认证中心 控制器")
+@Api(tags = "认证中心")
 @RestController
 @RequestMapping("auth")
 public class AuthController {
@@ -34,8 +35,11 @@ public class AuthController {
     @Autowired
     Producer captchaProducer;
 
+    @Autowired
+    UserService userService;
+
     @NoAuthentication
-    @ApiOperation("帐密登陆.仅限总控")
+    @ApiOperation("帐密登陆.谷歌验证码")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "account", value = "帐号", required = true),
             @ApiImplicitParam(name = "password", value = "密码", required = true),
@@ -43,13 +47,82 @@ public class AuthController {
             @ApiImplicitParam(name = "captchaText", value = "验证码文本", required = true),
     })
     @PostMapping("loginA")
-    public ResponseEntity loginA(String account, String password, String captchaCode, String captchaText) {
+    public ResponseEntity loginA(
+            String account,
+            String password,
+            String captchaCode,
+            String captchaText) {
         if (ObjectUtils.isEmpty(account) || ObjectUtils.isEmpty(password) || ObjectUtils.isEmpty(captchaCode) || ObjectUtils.isEmpty(captchaText)) {
             return ResponseUtil.parameterNotNull();
         }
 
-        return ResponseUtil.success();
+        User user = userService.findByAccount(account);
+        if (user == null) {
+            return new ResponseEntity("帐号或密码错误");
+        }
+
+        String bcryptPassword = user.getPassword();
+        boolean bcrypt = PayUtil.checkBcrypt(password, bcryptPassword);
+        if (!bcrypt) {
+            return new ResponseEntity("帐号或密码错误");
+        }
+
+        boolean flag = User.checkUser(user);
+        if (!flag) {
+            return ResponseUtil.custom("该帐号不可操作");
+        }
+
+        String token = JjwtUtil.generic(user.getId() + "");
+        return ResponseUtil.success(token);
     }
+
+    @NoAuthentication
+    @ApiOperation("帐密登陆.谷歌身份验证器")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "account", value = "帐号", required = true),
+            @ApiImplicitParam(name = "password", value = "密码", required = true),
+            @ApiImplicitParam(name = "code", value = "验证码", required = true),
+    })
+    @PostMapping("loginB")
+    public ResponseEntity loginB(String account, String password, Integer code) {
+        if (ObjectUtils.isEmpty(account) || ObjectUtils.isEmpty(password) || ObjectUtils.isEmpty(code)) {
+            return ResponseUtil.parameterNotNull();
+        }
+
+        boolean length=User.checkLength(account,password);
+        if(!length){
+            return ResponseUtil.custom("帐号,密码长度3-15位");
+        }
+
+        User user = userService.findByAccount(account);
+        if (user == null) {
+            return new ResponseEntity("帐号或密码错误");
+        }
+
+        String bcryptPassword = user.getPassword();
+        boolean bcrypt = PayUtil.checkBcrypt(password, bcryptPassword);
+        if (!bcrypt) {
+            return new ResponseEntity("帐号或密码错误");
+        }
+
+        boolean flag = User.checkUser(user);
+        if (!flag) {
+            return ResponseUtil.custom("该帐号不可操作");
+        }
+
+        String secret = user.getSecret();
+        if (PayUtil.checkNull(secret)) {
+            return ResponseUtil.custom("请先绑定谷歌身份验证器");
+        }
+        boolean checkCode = GoogleAuthUtil.check_code(secret, code);
+        if (!checkCode) {
+            return ResponseUtil.googleAuthNoPass();
+        }
+
+        String token = JjwtUtil.generic(user.getId() + "");
+        return ResponseUtil.success(token);
+    }
+
 
     @ApiOperation("谷歌图形验证码")
     @ApiImplicitParam(name = "code", value = "code前端可随机数或者时间戮，以降低冲突的次数", required = true)
@@ -62,7 +135,7 @@ public class AuthController {
         //生产验证码字符串并保存到session中
         String createText = captchaProducer.createText();
 
-        String key = PayUtil.getCapatchKey(request, code);
+        String key = PayUtil.getCaptchaKey(request, code);
         ExpiringMapUtil.putMap(key, createText);
 
         ByteArrayOutputStream jpegOutputStream = new ByteArrayOutputStream();
@@ -81,5 +154,61 @@ public class AuthController {
         responseOutputStream.write(captchaChallengeAsJpeg);
         responseOutputStream.flush();
         responseOutputStream.close();
+    }
+
+    @GetMapping("google/auth/bind")
+    @NoAuthentication
+    @ApiOperation("绑定谷歌身份验证器")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "account", value = "帐号", required = true),
+            @ApiImplicitParam(name = "password", value = "密码", required = true)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "返回二维码地址")
+    })
+    public ResponseEntity bindGoogleAuth(String account, String password) {
+        if (PayUtil.checkNull(account) || PayUtil.checkNull(password)) {
+            return ResponseUtil.parameterNotNull();
+        }
+
+        User user = userService.findByAccount(account);
+        if (user == null) {
+            return new ResponseEntity("帐号或密码错误");
+        }
+
+        String bcryptPassword = user.getPassword();
+        boolean bcrypt = PayUtil.checkBcrypt(password, bcryptPassword);
+        if (!bcrypt) {
+            return new ResponseEntity("帐号或密码错误");
+        }
+
+        boolean flag = User.checkUser(user);
+        if (!flag) {
+            return ResponseUtil.custom("该帐号不可操作");
+        }
+
+        String secret = user.getSecret();
+
+        if (PayUtil.checkNull(secret)) {
+            secret = GoogleAuthUtil.generateSecretKey();
+        }
+        userService.setSecretById(user.getId(), secret);
+        String qrcode = GoogleAuthUtil.getQcode(account, secret);
+        return ResponseUtil.success(qrcode);
+
+    }
+
+    @GetMapping("getJwtToken")
+    @ApiOperation("开发者通过此令牌调试接口。不可用于正式请求")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "固定值。", required = true),
+    })
+    @NoAuthentication
+    public ResponseEntity getJwtToken(String token) {
+        if (!("dashan".equals(token) || "xiaoxiannv".equals(token))) {
+            return ResponseUtil.custom("找管理员拿token");
+        }
+        String jwt = JjwtUtil.generic("1", 3 * 24 * 60 * 60 * 1000);
+        return ResponseUtil.success(jwt);
     }
 }

@@ -15,15 +15,24 @@ import java.util.UUID;
 public class JjwtUtil {
 
     private final static String secrect = "fda#$&%$3t55v785A45DF$^&#*JGRstTRG";
-    private final static long ttl = 1 * 60 * 60 * 1000;
+    private static long ttl = 1 * 60 * 60 * 1000;
     private final static String iss = "dashan";
+
+    //开发用。不可用于正式项目
+    public static String generic(String userId,long testTtl) {
+       return genericJwt(userId,testTtl);
+    }
+
+    public static String generic(String userId) {
+        return genericJwt(userId,ttl);
+    }
 
     /**
      * 生成JWT令牌
      *
      * @return
      */
-    public static String generic(String userId) {
+    private static String genericJwt(String userId,long ttl) {
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
 
@@ -47,7 +56,7 @@ public class JjwtUtil {
      * @param token
      * @return
      */
-    public static Claims parse(String token) {
+    public static String parse(String token) {
         try {
             Claims body = Jwts.parser()
                     // 验证签发者字段iss 必须是 大山
@@ -55,7 +64,7 @@ public class JjwtUtil {
                     .setSigningKey(secrect)
                     .parseClaimsJws(token)
                     .getBody();
-            return body;
+            return body.getSubject();
         } catch (Exception e) {
             return null;
         }
@@ -64,11 +73,7 @@ public class JjwtUtil {
     public static boolean check(String token) {
 
         try {
-            Claims claims = parse(token);
-            if (claims == null) {
-                return false;
-            }
-            String subject = claims.getSubject();
+            String subject = parse(token);
             if (ObjectUtils.isEmpty(subject)) {
                 return false;
             }
@@ -77,4 +82,12 @@ public class JjwtUtil {
             return false;
         }
     }
+
+   /* public static void main(String[] args) {
+        String generic = JjwtUtil.generic("1",3*24 * 60 * 60 * 1000);
+        System.out.println(generic);
+        String subject = JjwtUtil.parse(generic);
+        System.out.println(subject);
+
+    }*/
 }

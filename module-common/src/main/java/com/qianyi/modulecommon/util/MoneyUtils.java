@@ -127,6 +127,6 @@ public class MoneyUtils {
 
     public static void main(String[] args) {
         MoneyUtils moneyUtil = new MoneyUtils();
-        System.out.println(moneyUtil.toChinese("1100009000"));
+        System.out.println(moneyUtil.toChinese("100250"));
     }
 }

@@ -29,4 +29,8 @@ public class ResponseUtil {
     public static ResponseEntity risk() {
         return new ResponseEntity(ResponseCode.RISK);
     }
+
+    public static ResponseEntity googleAuthNoPass() {
+        return new ResponseEntity(ResponseCode.GOOGLEAUTH_NOPASS);
+    }
 }
