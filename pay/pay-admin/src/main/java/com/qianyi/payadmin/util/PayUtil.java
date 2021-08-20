@@ -1,6 +1,5 @@
 package com.qianyi.payadmin.util;
 
-import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.IpUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
 import org.springframework.security.crypto.bcrypt.BCrypt;

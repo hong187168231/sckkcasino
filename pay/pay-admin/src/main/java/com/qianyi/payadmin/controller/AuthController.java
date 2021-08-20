@@ -58,13 +58,13 @@ public class AuthController {
 
         User user = userService.findByAccount(account);
         if (user == null) {
-            return new ResponseEntity("帐号或密码错误");
+            return ResponseUtil.custom("帐号或密码错误");
         }
 
         String bcryptPassword = user.getPassword();
         boolean bcrypt = PayUtil.checkBcrypt(password, bcryptPassword);
         if (!bcrypt) {
-            return new ResponseEntity("帐号或密码错误");
+            return ResponseUtil.custom("帐号或密码错误");
         }
 
         boolean flag = User.checkUser(user);
@@ -89,20 +89,20 @@ public class AuthController {
             return ResponseUtil.parameterNotNull();
         }
 
-        boolean length=User.checkLength(account,password);
-        if(!length){
+        boolean length = User.checkLength(account, password);
+        if (!length) {
             return ResponseUtil.custom("帐号,密码长度3-15位");
         }
 
         User user = userService.findByAccount(account);
         if (user == null) {
-            return new ResponseEntity("帐号或密码错误");
+            return ResponseUtil.custom("帐号或密码错误");
         }
 
         String bcryptPassword = user.getPassword();
         boolean bcrypt = PayUtil.checkBcrypt(password, bcryptPassword);
         if (!bcrypt) {
-            return new ResponseEntity("帐号或密码错误");
+            return ResponseUtil.custom("帐号或密码错误");
         }
 
         boolean flag = User.checkUser(user);
@@ -120,6 +120,7 @@ public class AuthController {
         }
 
         String token = JjwtUtil.generic(user.getId() + "");
+
         return ResponseUtil.success(token);
     }
 
@@ -173,13 +174,13 @@ public class AuthController {
 
         User user = userService.findByAccount(account);
         if (user == null) {
-            return new ResponseEntity("帐号或密码错误");
+            return ResponseUtil.custom("帐号或密码错误");
         }
 
         String bcryptPassword = user.getPassword();
         boolean bcrypt = PayUtil.checkBcrypt(password, bcryptPassword);
         if (!bcrypt) {
-            return new ResponseEntity("帐号或密码错误");
+            return ResponseUtil.custom("帐号或密码错误");
         }
 
         boolean flag = User.checkUser(user);
