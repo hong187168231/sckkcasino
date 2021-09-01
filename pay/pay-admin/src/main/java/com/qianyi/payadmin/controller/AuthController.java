@@ -5,9 +5,12 @@ import com.qianyi.moduleauthenticator.GoogleAuthUtil;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.ExpiringMapUtil;
+import com.qianyi.modulecommon.util.IpUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
 import com.qianyi.payadmin.util.PayUtil;
+import com.qianyi.paycore.job.LoginLogJob;
 import com.qianyi.paycore.model.User;
 import com.qianyi.paycore.service.UserService;
 import io.swagger.annotations.*;
@@ -121,6 +124,10 @@ public class AuthController {
 
         String token = JjwtUtil.generic(user.getId() + "");
 
+        //记录登陆日志
+        String ip = IpUtil.getIp(PayUtil.getRequest());
+        new Thread(new LoginLogJob(ip, user.getAccount(), user.getId(), "admin")).start();
+
         return ResponseUtil.success(token);
     }
 
@@ -192,8 +199,9 @@ public class AuthController {
 
         if (PayUtil.checkNull(secret)) {
             secret = GoogleAuthUtil.generateSecretKey();
+            userService.setSecretById(user.getId(), secret);
         }
-        userService.setSecretById(user.getId(), secret);
+
         String qrcode = GoogleAuthUtil.getQcode(account, secret);
         return ResponseUtil.success(qrcode);
 
@@ -209,7 +217,22 @@ public class AuthController {
         if (!("dashan".equals(token) || "xiaoxiannv".equals(token))) {
             return ResponseUtil.custom("找管理员拿token");
         }
-        String jwt = JjwtUtil.generic("1", 3 * 24 * 60 * 60 * 1000);
+        String jwt = JjwtUtil.generic("1");
         return ResponseUtil.success(jwt);
+    }
+
+    @PostMapping("rjt")
+    @ApiOperation("JWT过期后，30分钟内可颁发新的token")
+    @NoAuthentication
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "旧TOKEN", required = true),
+    })
+    public ResponseEntity refreshJwtToken(String token) {
+        String refreshToken = JjwtUtil.refreshToken(token);
+        if (ObjectUtils.isEmpty(refreshToken)) {
+            return ResponseUtil.authenticationNopass();
+        }
+
+        return ResponseUtil.success(refreshToken);
     }
 }

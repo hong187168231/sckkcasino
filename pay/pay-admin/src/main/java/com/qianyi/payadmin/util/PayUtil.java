@@ -2,6 +2,9 @@ package com.qianyi.payadmin.util;
 
 import com.qianyi.modulecommon.util.IpUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -61,6 +64,27 @@ public class PayUtil {
 
     public static HttpServletRequest getRequest() {
         return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+    }
+
+    public static Pageable setPageable(Integer pageCode, Integer pageSize, Sort sort) {
+
+        if (pageSize == null || pageCode == null) {
+            pageCode=1;
+            pageSize=10;
+        }
+
+        if (pageCode < 1 || pageSize < 1) {
+            pageCode=1;
+            pageSize=10;
+        }
+
+       Pageable pageable = PageRequest.of(pageCode-1, pageSize,sort);
+        return pageable;
+    }
+
+    public static Pageable setPageable(Integer pageCode, Integer pageSize) {
+
+        return setPageable(pageCode, pageSize, null);
     }
 
 }

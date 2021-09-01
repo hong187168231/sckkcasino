@@ -35,7 +35,6 @@ public class User extends BaseEntity {
 
     /**
      * 校验用户信息。长度3-15位
-     * @param str
      * @return
      */
     public static boolean checkLength(String... strs) {

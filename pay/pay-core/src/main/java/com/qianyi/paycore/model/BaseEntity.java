@@ -1,6 +1,7 @@
 package com.qianyi.paycore.model;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -21,10 +22,12 @@ public abstract class BaseEntity implements Serializable {
     private Long id;
 
     @CreatedDate
+    @JsonFormat(shape=JsonFormat.Shape.STRING,pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
     @CreatedBy
     private String createBy;
     @LastModifiedDate
+    @JsonFormat(shape=JsonFormat.Shape.STRING,pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date updateTime;
     @LastModifiedBy
     private String updateBy;

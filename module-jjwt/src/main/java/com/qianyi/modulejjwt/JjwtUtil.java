@@ -5,26 +5,23 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.util.ObjectUtils;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class JjwtUtil {
 
     private final static String secrect = "fda#$&%$3t55v785A45DF$^&#*JGRstTRG";
-    private static long ttl = 1 * 60 * 60 * 1000;
+//    private final static long ttl = 5 * 60 * 1000;
+private final static long ttl = 24*60 * 60 * 1000;
+    private final static Long refresh_ttl = 30 * 60L;//秒
     private final static String iss = "dashan";
 
-    //开发用。不可用于正式项目
-    public static String generic(String userId,long testTtl) {
-       return genericJwt(userId,testTtl);
-    }
-
     public static String generic(String userId) {
-        return genericJwt(userId,ttl);
+        return genericJwt(userId, ttl);
     }
 
     /**
@@ -32,7 +29,7 @@ public class JjwtUtil {
      *
      * @return
      */
-    private static String genericJwt(String userId,long ttl) {
+    private static String genericJwt(String userId, long ttl) {
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
 
@@ -83,11 +80,90 @@ public class JjwtUtil {
         }
     }
 
-   /* public static void main(String[] args) {
-        String generic = JjwtUtil.generic("1",3*24 * 60 * 60 * 1000);
-        System.out.println(generic);
-        String subject = JjwtUtil.parse(generic);
-        System.out.println(subject);
+    public static String refreshToken(String token) {
+        return refreshToken(token, ttl);
+    }
 
-    }*/
+    public static String refreshToken(String token, Long ttl) {
+        try {
+            Long exp = getExp(token);
+            if (exp == null) {
+                return null;
+            }
+            String iss = getIss(token);
+            if (!(JjwtUtil.iss.equals(iss))) {
+                return null;
+            }
+
+            String subject = getSubject(token);
+            if (subject == null) {
+                return null;
+            }
+
+            Long now = System.currentTimeMillis();
+            Long diff = now / 1000 - exp;
+            if (diff > refresh_ttl) {
+                return null;
+            }
+
+            return genericJwt(subject, ttl);
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static Long getExp(String token) {
+
+        try {
+            JSONObject jsonObject = decodeBase64(token);
+            return jsonObject.getLong("exp");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    private static String getSubject(String token) {
+
+        try {
+            JSONObject jsonObject = decodeBase64(token);
+            return jsonObject.getString("sub");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static String getIss(String token) {
+
+        try {
+            JSONObject jsonObject = decodeBase64(token);
+            return jsonObject.getString("iss");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static JSONObject decodeBase64(String token) throws Exception {
+        if (token == null) {
+            return null;
+        }
+
+        String[] split = token.split("\\.");
+        String tokenBody = split[1];
+        byte[] bytes = Base64.decodeBase64(tokenBody);
+        String decode = new String(bytes, "utf-8");
+        JSONObject jsonObject = JSONObject.parseObject(decode);
+        return jsonObject;
+    }
+
+    public static void main(String[] args) throws UnsupportedEncodingException {
+        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIxNmUzZTFkMi0zOTY2LTRjMGQtYmNmOS1mYWVhNmRhNzI4NDEiLCJzdWIiOiIxIiwiaXNzIjoiZGFzaGFuIiwiaWF0IjoxNjI5OTUyMzgxLCJleHAiOjE2MzAyMTE1ODF9.RtBHmfCQU1Hu-AiQ9_OOqeb38DCrjeygBpNmxJClhlc";
+
+        Long ext = JjwtUtil.getExp(token);
+        System.out.println("======:" + ext);
+    }
 }

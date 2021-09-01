@@ -16,7 +16,7 @@ public class ExpiringMapUtil {
     //        清零过期时间也就是重置过期时间，重新计算过期时间.
     private static ExpiringMap<String, String> map = ExpiringMap.builder()
             .maxSize(1000)
-            .expiration(60, TimeUnit.SECONDS)
+            .expiration(80, TimeUnit.SECONDS)
 //            .variableExpiration()
             .expirationPolicy(ExpirationPolicy.ACCESSED).build();
 

@@ -1,5 +1,8 @@
 package com.qianyi.modulecommon.util;
 
+import org.springframework.util.ObjectUtils;
+
+import java.util.Locale;
 import java.util.Random;
 
 public class CommonUtil {
@@ -18,4 +21,26 @@ public class CommonUtil {
         return randomStr;
     }
 
+    public static Boolean isWindows() {
+        String os = System.getProperty("os.name");
+        System.out.println(os);
+        if (os.toLowerCase().startsWith("win")) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean checkNull(String... args) {
+        if (args == null || args.length == 0) {
+            return true;
+        }
+
+        for (String arg : args) {
+            if (ObjectUtils.isEmpty(arg)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
