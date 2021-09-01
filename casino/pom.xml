@@ -17,6 +17,7 @@
     <modules>
         <module>casino-core</module>
         <module>casino-web</module>
+        <module>casino-admin</module>
         <module>live-wm</module>
     </modules>
 
@@ -30,6 +31,5 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
     </dependencies>
-
 
 </project>

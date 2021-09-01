@@ -1,7 +1,7 @@
 package com.qianyi.casinoweb.controller;
 
-import com.qianyi.casinocore.model.LunboPic;
-import com.qianyi.casinocore.service.PictureService;
+import com.qianyi.casinocore.model.Notice;
+import com.qianyi.casinocore.service.NoticeService;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -15,18 +15,23 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("pic")
-@Api(tags = "图片控制器")
-public class PictureController {
+@RequestMapping("notice")
+@Api(tags = "公告中心")
+public class NoticeController {
 
     @Autowired
-    PictureService pictureService;
+    NoticeService noticeService;
 
-    @ApiOperation("轮播图.返回的URL为相对路径。需加上项目域名访问 ")
-    @GetMapping("lunbo")
+    /**
+     * 最新公告
+     *
+     * @return
+     */
+    @GetMapping("newest")
+    @ApiOperation("公告/活动")
     @NoAuthentication
-    public ResponseEntity lunbo() {
-        List<LunboPic> list = pictureService.findAll();
+    public ResponseEntity newest() {
+        List<Notice> list = noticeService.newest();
         return ResponseUtil.success(list);
     }
 }

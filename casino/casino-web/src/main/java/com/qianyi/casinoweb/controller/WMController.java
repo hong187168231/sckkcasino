@@ -16,6 +16,8 @@ import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.DateUtil;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +50,11 @@ public class WMController {
 
     @ApiOperation("开游戏")
     @PostMapping("openGame")
-    public ResponseEntity openGame() {
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "gameType", value = "默认：大厅。1.百家乐。2.龙虎 3. 轮盘 4. 骰宝 " +
+                    "5. 牛牛  6. 三公  7. 番摊  8. 色碟 9. 鱼虾蟹 10. 炸金花 11. 牌九 12. 二八杠", required = false),
+    })
+    public ResponseEntity openGame(Integer gameType) {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
@@ -87,7 +93,9 @@ public class WMController {
             lang = 0;
         }
         //开游戏
-        String url = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4);
+        String model = getModel(gameType);
+
+        String url = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, model);
         if (CommonUtil.checkNull(url)) {
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
@@ -118,6 +126,56 @@ public class WMController {
         }
 
         return ResponseUtil.success(url);
+    }
+
+    private String getModel(Integer gameType) {
+        if (gameType == null) {
+            return null;
+        }
+        String model = "";
+// 默认：大厅。1.百家乐。2.龙虎 3. 轮盘 4. 骰宝 5. 牛牛  6. 三公  7. 番摊  8. 色碟 9. 鱼虾蟹 10. 炸金花 11. 牌九 12. 二八杠",
+        switch (gameType) {
+            case 1:
+                model = "onlybac";
+                break;
+            case 2:
+                model = "onlydgtg";
+                break;
+            case 3:
+                model = "onlyrou";
+                break;
+            case 4:
+                model = "onlysicbo";
+                break;
+            case 5:
+                model = "onlyniuniu";
+                break;
+            case 6:
+                model = "onlysamgong";
+                break;
+            case 7:
+                model = "onlyfantan";
+                break;
+            case 8:
+                model = "onlysedie";
+                break;
+            case 9:
+                model = "onlyfishshrimpcrab";
+                break;
+            case 10:
+                model = "onlygoldenflower";
+                break;
+            case 11:
+                model = "onlypaigow";
+                break;
+            case 12:
+                model = "onlythisbar";
+                break;
+            default:
+
+        }
+
+        return model;
     }
 
     /**
