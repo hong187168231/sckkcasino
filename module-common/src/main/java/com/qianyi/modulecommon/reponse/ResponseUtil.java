@@ -33,4 +33,8 @@ public class ResponseUtil {
     public static ResponseEntity googleAuthNoPass() {
         return new ResponseEntity(ResponseCode.GOOGLEAUTH_NOPASS);
     }
+
+    public static ResponseEntity fail() {
+        return new ResponseEntity(ResponseCode.FAIL);
+    }
 }

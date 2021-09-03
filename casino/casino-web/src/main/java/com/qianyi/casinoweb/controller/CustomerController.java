@@ -1,13 +1,15 @@
 package com.qianyi.casinoweb.controller;
 
-import com.qianyi.casinocore.model.Notice;
-import com.qianyi.casinocore.service.NoticeService;
+import com.qianyi.casinocore.model.Customer;
+import com.qianyi.casinocore.service.CustomerService;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.CommonUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,18 +17,18 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("notice")
-@Api(tags = "公告中心")
-public class NoticeController {
+@RequestMapping("customer")
+@Api(tags = "客服中心")
+public class CustomerController {
 
     @Autowired
-    NoticeService noticeService;
+    CustomerService customerService;
 
-    @GetMapping("newest")
-    @ApiOperation("公告/活动")
+    @GetMapping("contact")
+    @ApiOperation("客服联系方式")
     @NoAuthentication
-    public ResponseEntity newest() {
-        List<Notice> list = noticeService.newest();
-        return ResponseUtil.success(list);
+    public ResponseEntity contact() {
+        Customer customer = customerService.findFirst();
+        return ResponseUtil.success(customer);
     }
 }

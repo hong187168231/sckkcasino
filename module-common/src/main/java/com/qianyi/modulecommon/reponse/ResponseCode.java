@@ -3,6 +3,7 @@ package com.qianyi.modulecommon.reponse;
 public enum ResponseCode {
 
     //系统级代码，上限100
+    FAIL(-2,"fail"),
     ERROR(-1, "error"),
     SUCCESS(0, "success"),
     AUTHENTICATION_NOPASS(1, "认证失败"),

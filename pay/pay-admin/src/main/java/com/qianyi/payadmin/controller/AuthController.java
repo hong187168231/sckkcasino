@@ -210,14 +210,15 @@ public class AuthController {
     @GetMapping("getJwtToken")
     @ApiOperation("开发者通过此令牌调试接口。不可用于正式请求")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "token", value = "固定值。", required = true),
+            @ApiImplicitParam(name = "account", value = "已注册的帐号", required = true),
     })
     @NoAuthentication
-    public ResponseEntity getJwtToken(String token) {
-        if (!("dashan".equals(token) || "xiaoxiannv".equals(token))) {
-            return ResponseUtil.custom("找管理员拿token");
+    public ResponseEntity getJwtToken(String account) {
+        User user = userService.findByAccount(account);
+        if (user == null) {
+            return ResponseUtil.fail();
         }
-        String jwt = JjwtUtil.generic("1");
+        String jwt = JjwtUtil.generic(user.getId()+"");
         return ResponseUtil.success(jwt);
     }
 

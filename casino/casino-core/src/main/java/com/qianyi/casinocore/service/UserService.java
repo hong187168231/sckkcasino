@@ -42,4 +42,8 @@ public class UserService {
             userRepository.addMoney(id,money);
         }
     }
+
+    public Integer countByIp(String ip) {
+        return userRepository.countByRegisterIp(ip);
+    }
 }

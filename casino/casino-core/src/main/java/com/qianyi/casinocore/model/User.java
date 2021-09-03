@@ -17,6 +17,7 @@ public class User extends BaseEntity {
     private String password;
     private String phone;
     private Integer language;
+    private String headImg;
 
     //帐号状态（1：启用，其他：禁用）
     private Integer state;

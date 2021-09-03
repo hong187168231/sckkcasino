@@ -57,6 +57,13 @@ public class AuthController {
     public ResponseEntity register(String account, String password, String phone,
                                    HttpServletRequest request, String captchaCode,
                                    String captchaText) {
+        String ip = IpUtil.getIp(request);
+        //一个IP最多5个帐号
+        int  num=userService.countByIp(ip);
+        if (num > 5) {
+            return ResponseUtil.custom("IP帐号限制");
+        }
+
         boolean checkNull = CommonUtil.checkNull(account, password, phone, captchaCode, captchaText);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
@@ -88,7 +95,6 @@ public class AuthController {
         user.setPassword(CasinoWebUtil.bcrypt(password));
         user.setPhone(phone);
         user.setState(Constants.open);
-        String ip = IpUtil.getIp(request);
         user.setRegisterIp(ip);
 
         userService.save(user);
