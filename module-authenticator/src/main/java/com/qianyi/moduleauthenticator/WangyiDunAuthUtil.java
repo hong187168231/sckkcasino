@@ -2,7 +2,6 @@ package com.qianyi.moduleauthenticator;
 
 import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.HttpClient4Util;
-import com.sun.deploy.net.HttpUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.UnsupportedEncodingException;
