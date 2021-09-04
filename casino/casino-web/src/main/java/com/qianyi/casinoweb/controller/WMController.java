@@ -1,5 +1,14 @@
 package com.qianyi.casinoweb.controller;
 
+import java.math.BigDecimal;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.model.Order;
 import com.qianyi.casinocore.model.User;
@@ -9,27 +18,18 @@ import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.service.UserThirdService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.livewm.api.PublicWMApi;
-import com.qianyi.livewm.api.SingleWMApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
-import com.qianyi.modulecommon.util.DateUtil;
+import com.qianyi.modulecommon.util.DateUtils;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.lang.reflect.Array;
-import java.math.BigDecimal;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("wm")
@@ -215,7 +215,7 @@ public class WMController {
         JSONObject json = new JSONObject();
         json.put("user", user);
         json.put("money", String.valueOf(money));
-        json.put("responseDate", DateUtil.today("yyyy-MM-dd HH:mm:ss"));
+        json.put("responseDate", DateUtils.today("yyyy-MM-dd HH:mm:ss"));
 
         entity.setErrorCode(0);
         entity.setErrorMessage("success");
