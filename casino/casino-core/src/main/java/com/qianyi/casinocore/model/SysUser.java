@@ -5,8 +5,10 @@ import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import java.util.Date;
 
 /**
@@ -20,6 +22,7 @@ public class SysUser extends BaseEntity {
     /**
      * 管理员账号
      */
+    @Column(unique = true)
     private String userName;
 
     /**
