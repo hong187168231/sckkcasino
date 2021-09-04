@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
-import com.qianyi.modulecommon.util.DateUtil;
+import com.qianyi.modulecommon.util.DateUtils;
 import com.qianyi.paycore.model.Merchant;
 import com.qianyi.paycore.model.User;
 import com.qianyi.paycore.service.MerchantService;
@@ -80,7 +80,7 @@ public class MerchantController {
 
     //生成商户号(yyyyMMddHHmmss+三位随机数)
     private String getMerchantNo() {
-        String today = DateUtil.today("yyyyMMddHHmmss");
+        String today = DateUtils.today("yyyyMMddHHmmss");
 
         String random = CommonUtil.random(3);
         return today + random;
