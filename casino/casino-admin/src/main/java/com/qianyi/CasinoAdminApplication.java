@@ -1,4 +1,4 @@
-package com.qianyi.casinoadmin;
+package com.qianyi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
