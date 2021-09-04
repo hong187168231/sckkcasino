@@ -19,15 +19,15 @@ import javax.annotation.Resource;
 @Api(tags = "测试demo")
 public class DemoController {
 
-//    @Autowired
-//    private CustomerService customerService;
-//
-//    @GetMapping("contact")
-//    @ApiOperation("测试案例")
-//    @NoAuthentication
-//    public ResponseEntity contact() {
-//        Customer customer = customerService.findFirst();
-//        return ResponseUtil.success(customer);
-//    }
+    @Autowired
+    private CustomerService customerService;
+
+    @GetMapping("test")
+    @ApiOperation("测试案例")
+    @NoAuthentication
+    public ResponseEntity contact() {
+        Customer customer = customerService.findFirst();
+        return ResponseUtil.success(customer);
+    }
 
 }
