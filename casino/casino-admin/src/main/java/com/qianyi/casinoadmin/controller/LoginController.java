@@ -14,6 +14,7 @@ import com.qianyi.modulecommon.util.IpUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -135,6 +136,19 @@ public class LoginController {
         return ResponseUtil.success(token);
     }
 
+//    public static void main(String[] args) {
+//        //用户密码
+//        String password = "123456";
+//        //密码加密
+//        BCryptPasswordEncoder passwordEncoder=new BCryptPasswordEncoder();
+//        //加密
+//        String newPassword = passwordEncoder.encode(password);
+//        System.out.println("加密密码为："+newPassword);
+//        //对比这两个密码是否是同一个密码
+//        boolean matches = passwordEncoder.matches(password, newPassword);
+//        System.out.println("两个密码一致:"+matches);
+//    }
+
 //    @ApiOperation("谷歌图形验证码")
 //    @ApiImplicitParam(name = "code", value = "code前端可随机数或者时间戮，以降低冲突的次数", required = true)
 //    @GetMapping("captcha")
@@ -241,4 +255,5 @@ public class LoginController {
 
         return ResponseUtil.success(refreshToken);
     }
+
 }
