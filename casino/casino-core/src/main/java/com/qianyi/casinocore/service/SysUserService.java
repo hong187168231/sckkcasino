@@ -1,10 +1,7 @@
 package com.qianyi.casinocore.service;
 
-import com.qianyi.casinocore.model.Customer;
 import com.qianyi.casinocore.model.SysUser;
-import com.qianyi.casinocore.model.SysUserLoginLog;
 import com.qianyi.casinocore.repository.SysUserRepository;
-import com.qianyi.casinocore.utils.LoginUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

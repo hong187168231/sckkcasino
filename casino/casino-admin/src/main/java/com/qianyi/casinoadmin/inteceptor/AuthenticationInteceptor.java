@@ -1,6 +1,6 @@
 package com.qianyi.casinoadmin.inteceptor;
 
-import com.qianyi.casinocore.utils.LoginUtil;
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.modulecommon.inteceptor.AbstractAuthenticationInteceptor;
 import com.qianyi.modulejjwt.JjwtUtil;
 import org.springframework.stereotype.Component;

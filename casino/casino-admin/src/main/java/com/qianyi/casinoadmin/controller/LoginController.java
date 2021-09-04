@@ -2,7 +2,7 @@ package com.qianyi.casinoadmin.controller;
 
 import com.google.code.kaptcha.Producer;
 import com.qianyi.casinocore.service.SysUserLoginLogService;
-import com.qianyi.casinocore.utils.LoginUtil;
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.model.SysUserLoginLog;
 import com.qianyi.casinocore.service.SysUserService;
@@ -10,7 +10,6 @@ import com.qianyi.moduleauthenticator.GoogleAuthUtil;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
-import com.qianyi.modulecommon.util.ExpiringMapUtil;
 import com.qianyi.modulecommon.util.IpUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
 import io.swagger.annotations.*;
@@ -21,13 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.imageio.ImageIO;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 /**
  * 用户谷歌验证登录
@@ -143,37 +135,37 @@ public class LoginController {
         return ResponseUtil.success(token);
     }
 
-    @ApiOperation("谷歌图形验证码")
-    @ApiImplicitParam(name = "code", value = "code前端可随机数或者时间戮，以降低冲突的次数", required = true)
-    @GetMapping("captcha")
-    @NoAuthentication
-    public void captcha(String code, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (LoginUtil.checkNull(code)) {
-            return;
-        }
-        //生产验证码字符串并保存到session中
-        String createText = captchaProducer.createText();
-
-        String key = LoginUtil.getCaptchaKey(request, code);
-        ExpiringMapUtil.putMap(key, createText);
-
-        ByteArrayOutputStream jpegOutputStream = new ByteArrayOutputStream();
-        ServletOutputStream responseOutputStream = response.getOutputStream();
-
-        //使用生产的验证码字符串返回一个BufferedImage对象并转为byte写入到byte数组中
-        BufferedImage challenge = captchaProducer.createImage(createText);
-        ImageIO.write(challenge, "jpg", jpegOutputStream);
-        byte[] captchaChallengeAsJpeg = jpegOutputStream.toByteArray();
-        response.setHeader("Cache-Control", "no-store");
-        response.setHeader("Pragma", "no-cache");
-        response.setDateHeader("Expires", 0);
-        response.setContentType("image/jpeg");
-
-        //定义response输出类型为image/jpeg类型，使用response输出流输出图片的byte数组
-        responseOutputStream.write(captchaChallengeAsJpeg);
-        responseOutputStream.flush();
-        responseOutputStream.close();
-    }
+//    @ApiOperation("谷歌图形验证码")
+//    @ApiImplicitParam(name = "code", value = "code前端可随机数或者时间戮，以降低冲突的次数", required = true)
+//    @GetMapping("captcha")
+//    @NoAuthentication
+//    public void captcha(String code, HttpServletRequest request, HttpServletResponse response) throws IOException {
+//        if (LoginUtil.checkNull(code)) {
+//            return;
+//        }
+//        //生产验证码字符串并保存到session中
+//        String createText = captchaProducer.createText();
+//
+//        String key = LoginUtil.getCaptchaKey(request, code);
+//        ExpiringMapUtil.putMap(key, createText);
+//
+//        ByteArrayOutputStream jpegOutputStream = new ByteArrayOutputStream();
+//        ServletOutputStream responseOutputStream = response.getOutputStream();
+//
+//        //使用生产的验证码字符串返回一个BufferedImage对象并转为byte写入到byte数组中
+//        BufferedImage challenge = captchaProducer.createImage(createText);
+//        ImageIO.write(challenge, "jpg", jpegOutputStream);
+//        byte[] captchaChallengeAsJpeg = jpegOutputStream.toByteArray();
+//        response.setHeader("Cache-Control", "no-store");
+//        response.setHeader("Pragma", "no-cache");
+//        response.setDateHeader("Expires", 0);
+//        response.setContentType("image/jpeg");
+//
+//        //定义response输出类型为image/jpeg类型，使用response输出流输出图片的byte数组
+//        responseOutputStream.write(captchaChallengeAsJpeg);
+//        responseOutputStream.flush();
+//        responseOutputStream.close();
+//    }
 
 
     @GetMapping("google/auth/bind")

@@ -1,4 +1,4 @@
-package com.qianyi.casinocore.utils;
+package com.qianyi.casinoadmin.util;
 
 import com.qianyi.modulecommon.util.IpUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
