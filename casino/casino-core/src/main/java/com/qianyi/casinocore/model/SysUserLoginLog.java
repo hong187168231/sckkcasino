@@ -1,0 +1,26 @@
+package com.qianyi.casinocore.model;
+
+import lombok.Builder;
+import lombok.Data;
+import javax.persistence.Entity;
+
+@Entity
+@Data
+public class SysUserLoginLog extends BaseEntity{
+
+    private String ip;
+    private String userName;
+    private Long userId;
+    private String description;
+    private String address;
+
+    public SysUserLoginLog(String ip, String userName, Long userId, String description) {
+        this.ip = ip;
+        this.userName = userName;
+        this.userId = userId;
+        this.description = description;
+    }
+
+    public SysUserLoginLog() {
+    }
+}

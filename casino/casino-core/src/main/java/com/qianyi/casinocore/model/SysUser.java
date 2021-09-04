@@ -1,14 +1,14 @@
 package com.qianyi.casinocore.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.qianyi.modulecommon.Constants;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.util.ObjectUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import java.util.Date;
 
 /**
@@ -61,22 +61,18 @@ public class SysUser extends BaseEntity {
     private Integer deptId;
 
     /**
-     * 是否锁定 0：正常 1：锁定
+     * 是否锁定 1：正常 2：锁定, 3：删除
      */
-    private Integer lockFlag;
+    private Integer userFlag;
+
 
     /**
-     * 0：正常，1：删除
-     */
-    private Integer delFlag;
-
-    /**
-     * 在线状态 默认0离线，1：在线
+     * 在线状态 默认1离线，2：在线
      */
     private Integer currentState;
 
     /**
-     * 谷歌状态 默认0开启， 1关闭
+     * 谷歌状态 默认1开启， 2关闭
      */
     private Integer gaStatus;
 
@@ -86,7 +82,7 @@ public class SysUser extends BaseEntity {
     private String gaKey;
 
     /**
-     * 谷歌验证码是否绑定0=未绑定，1=已绑定
+     * 谷歌验证码是否绑定1=未绑定，2=已绑定
      */
     private String gaBind;
 
@@ -110,4 +106,38 @@ public class SysUser extends BaseEntity {
      * 在线时长
      */
     private String onLineTime;
+
+    //校验用户帐号权限
+    public static boolean checkUser(SysUser user) {
+        if (user == null) {
+            return false;
+        }
+
+        if (Constants.open != user.getUserFlag()) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 校验用户信息。长度3-15位
+     * @return
+     */
+    public static boolean checkLength(String... strs) {
+        if (ObjectUtils.isEmpty(strs)) {
+            return false;
+        }
+        for(String str:strs){
+            if (ObjectUtils.isEmpty(strs)) {
+                return false;
+            }
+
+            int length=str.length();
+            if (length < 3 || length > 15) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
