@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.qianyi.modulecommon.exception.StaffPointsException;
 
 /**
  * 自定义 断言工具类
@@ -19,9 +20,20 @@ public class Assert extends org.springframework.util.Assert {
 	public static void hasValue(Object value, String msg) {
 		Assert.notNull(value, msg);
 		Assert.hasLength(value.toString(), msg);
-
 	}
 
+	/**
+	 * 判断 object 为空
+	 *
+	 * @param object
+	 * @param message
+	 */
+	public static void isNull(Object object, String message) {
+		if(null == object) {
+			throw new StaffPointsException(message);
+		}
+	}
+	
 	/**
 	 * 判断 jsonObject 是否为空
 	 *
@@ -33,7 +45,7 @@ public class Assert extends org.springframework.util.Assert {
 		Assert.notEmpty(jsonObject, message);
 
 		if (!jsonObject.containsKey(key)) {
-			throw new IllegalArgumentException(message);
+			throw new StaffPointsException(message);
 		}
 	}
 
@@ -61,7 +73,7 @@ public class Assert extends org.springframework.util.Assert {
 			JSONObject jsonObject = JSONObject.parseObject(jsonStr);
 			isNotNull(jsonObject, key, message);
 		} else {
-			throw new IllegalArgumentException(message);
+			throw new StaffPointsException(message);
 		}
 	}
 
@@ -97,7 +109,7 @@ public class Assert extends org.springframework.util.Assert {
 	public static void listIsNull(List jsonArray, String message) {
 
 		if (jsonArray != null && jsonArray.size() > 0) {
-			throw new IllegalArgumentException(message);
+			throw new StaffPointsException(message);
 		}
 	}
 
@@ -112,7 +124,7 @@ public class Assert extends org.springframework.util.Assert {
 		Assert.notNull(jsonArray, message);
 
 		if (jsonArray.size() < 1) {
-			throw new IllegalArgumentException(message);
+			throw new StaffPointsException(message);
 		}
 	}
 
@@ -127,7 +139,7 @@ public class Assert extends org.springframework.util.Assert {
 		Assert.notNull(jsonArray, message);
 
 		if (jsonArray.size() != 1) {
-			throw new IllegalArgumentException(message);
+			throw new StaffPointsException(message);
 		}
 	}
 
@@ -142,7 +154,7 @@ public class Assert extends org.springframework.util.Assert {
 		Assert.notNull(targetList, message);
 
 		if (targetList.size() < 1) {
-			throw new IllegalArgumentException(message);
+			throw new StaffPointsException(message);
 		}
 	}
 
@@ -156,7 +168,7 @@ public class Assert extends org.springframework.util.Assert {
 		Assert.notNull(targetList, message);
 
 		if (targetList.size() != 1) {
-			throw new IllegalArgumentException(message);
+			throw new StaffPointsException(message);
 		}
 	}
 
@@ -170,7 +182,7 @@ public class Assert extends org.springframework.util.Assert {
 		Assert.isNull(targetMap, message);
 
 		if (targetMap.size() < 1) {
-			throw new IllegalArgumentException(message);
+			throw new StaffPointsException(message);
 		}
 
 	}
@@ -183,7 +195,7 @@ public class Assert extends org.springframework.util.Assert {
 	 */
 	public static void isJsonObject(String strValue, String message) {
 		if (!isJsonObject(strValue)) {
-			throw new IllegalArgumentException(message);
+			throw new StaffPointsException(message);
 		}
 	}
 
@@ -222,7 +234,7 @@ public class Assert extends org.springframework.util.Assert {
 	 */
 	public static void isInteger(String text, String msg) {
 		if (!StringUtils.isNumeric(text)) {
-			throw new IllegalArgumentException(msg);
+			throw new StaffPointsException(msg);
 		}
 	}
 
@@ -236,7 +248,7 @@ public class Assert extends org.springframework.util.Assert {
 		Pattern pattern = java.util.regex.Pattern.compile("^(([1-9]{1}\\d*)|([0]{1}))(\\.(\\d){0,2})?$"); // 判断小数点后2位的数字的正则表达式
 		Matcher match = pattern.matcher(str);
 		if (!match.matches()) {
-			throw new IllegalArgumentException(msg);
+			throw new StaffPointsException(msg);
 		}
 	}
 
@@ -266,7 +278,7 @@ public class Assert extends org.springframework.util.Assert {
 	 */
 	public static void designatedArea(String str, String message, int start, int end) {
 		if(str.length() < start || str.length() > end) {
-			throw new IllegalArgumentException(message);
+			throw new StaffPointsException(message);
 		}
 	}
 

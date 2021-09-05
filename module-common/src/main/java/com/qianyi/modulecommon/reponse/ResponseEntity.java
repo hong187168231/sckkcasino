@@ -1,10 +1,17 @@
 package com.qianyi.modulecommon.reponse;
 
-public class ResponseEntity {
+import java.io.Serializable;
 
-    private int code;
+public class ResponseEntity implements Serializable {
+
+	private static final long serialVersionUID = 6073226655373040149L;
+	
+	private int code;
     private String msg;
     private Object data;
+    
+    public ResponseEntity() {
+    }
     
     public ResponseEntity(int code, String msg) {
         this.code=ResponseCode.CUSTOM.getCode();

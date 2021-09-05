@@ -1,5 +1,10 @@
 package com.qianyi.modulecommon.reponse;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
+@Getter
 public enum ResponseCode {
 
     //系统级代码，上限100
@@ -17,30 +22,4 @@ public enum ResponseCode {
 
     private int code;
     private String msg;
-
-    private ResponseCode(String msg) {
-        this.code = 999;
-        this.msg = msg;
-    }
-
-    private ResponseCode(int code, String msg) {
-        this.code = code;
-        this.msg = msg;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
 }

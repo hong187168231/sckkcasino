@@ -50,7 +50,7 @@ public class BankcardsCustomerController {
     	if(StringUtils.isNullOrEmpty(user.getAccount())) {
     		return ResponseUtil.success(bankcardsCustomerService.findByExample(bankcardsCustomer));
     	}
-    	return ResponseUtil.error(9999, "未知异常，请联系客服！");
+    	return ResponseUtil.error(999, "未知异常，请联系客服！");
     }
 
     @PostMapping("/boundBank")
