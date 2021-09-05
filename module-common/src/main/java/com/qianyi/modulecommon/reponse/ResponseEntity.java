@@ -5,6 +5,11 @@ public class ResponseEntity {
     private int code;
     private String msg;
     private Object data;
+    
+    public ResponseEntity(int code, String msg) {
+        this.code=ResponseCode.CUSTOM.getCode();
+        this.msg = msg;
+    }
 
     public ResponseEntity(String msg) {
         this.code=ResponseCode.CUSTOM.getCode();

@@ -9,11 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mysql.cj.util.StringUtils;
 import com.qianyi.casinocore.model.BankcardsCustomer;
-import com.qianyi.casinocore.model.Customer;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.BankcardsCustomerService;
-import com.qianyi.casinocore.service.CustomerService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
@@ -24,7 +22,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping("customer")
+@RequestMapping("/customer")
 @Api(tags = "用户绑定银行卡相关接口")
 public class BankcardsCustomerController {
 	
@@ -52,7 +50,7 @@ public class BankcardsCustomerController {
     	if(StringUtils.isNullOrEmpty(user.getAccount())) {
     		return ResponseUtil.success(bankcardsCustomerService.findByExample(bankcardsCustomer));
     	}
-    	return null;
+    	return ResponseUtil.error(9999, "未知异常，请联系客服！");
     }
 
     @PostMapping("/boundBank")
