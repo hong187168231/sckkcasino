@@ -148,4 +148,5 @@ public class UserDetailController {
         return userDetailService.getUserDetail(userName);
     }
 
+
 }

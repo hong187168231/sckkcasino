@@ -264,8 +264,8 @@ public class LoginController {
             @ApiImplicitParam(name = "nickName", value = "昵称", required = true),
             @ApiImplicitParam(name = "password", value = "密码", required = true),
     })
-    @PostMapping("sava")
-    public ResponseEntity loginB(String userName, String password, String nickName) {
+    @PostMapping("save")
+    public ResponseEntity save(String userName, String password, String nickName) {
         if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(password) || StringUtils.isEmpty(nickName)) {
             return ResponseUtil.parameterNotNull();
         }
