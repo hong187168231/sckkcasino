@@ -53,11 +53,6 @@ public class UserDetail extends BaseEntity{
     private String generalAgent;
 
     /**
-     * 下线人数
-     */
-    private Integer downLineTotal;
-
-    /**
      * 风险等级
      * 0黑名单，1：白名单，2：灰名单
      */

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 @RestController
 @RequestMapping("user")
@@ -30,9 +31,46 @@ public class UserDetailController {
     private UserService userService;
 
     @ApiOperation("用户中心列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "size", value = "每页大小", required = true),
+            @ApiImplicitParam(name = "current", value = "当前页", required = true),
+            @ApiImplicitParam(name = "registerStartTime", value = "开始时间"),
+            @ApiImplicitParam(name = "registerEndTime", value = "结束时间"),
+            @ApiImplicitParam(name = "captchaText", value = "结束时间"),
+            @ApiImplicitParam(name = "captchaText", value = "结束时间"),
+            @ApiImplicitParam(name = "agentLevel", value = "客户身份"),
+            @ApiImplicitParam(name = "riskLevel", value = "风险等级"),
+            @ApiImplicitParam(name = "vipLevel", value = "VIP等级"),
+            @ApiImplicitParam(name = "vipLevel", value = "VIP等级"),
+            @ApiImplicitParam(name = "status", value = "用户状态"),
+            @ApiImplicitParam(name = "userId", value = "用户ID"),
+            @ApiImplicitParam(name = "userName", value = "用户名称"),
+    })
     @GetMapping(value = "/findUserPage")
-    public ResponseEntity findUserPage(@RequestBody UserDetailRequest userDetailRequest){
+    public ResponseEntity findUserPage(Integer size,
+                                       Integer current,
+                                       Date registerStartTime,
+                                       Date registerEndTime,
+                                       Integer agentLevel,
+                                       Integer riskLevel,
+                                       Integer vipLevel,
+                                       Integer status,
+                                       String userId,
+                                       String userName
+                                       ){
         try {
+            UserDetailRequest userDetailRequest =  UserDetailRequest.builder()
+                    .status(status)
+                    .size(size)
+                    .current(current)
+                    .registerStartTime(registerStartTime)
+                    .registerEndTime(registerEndTime)
+                    .agentLevel(agentLevel)
+                    .riskLevel(riskLevel)
+                    .vipLevel(vipLevel)
+                    .userId(userId)
+                    .userName(userName)
+                    .build();
             return ResponseUtil.success(userDetailService.findUserPage(userDetailRequest));
         }catch (Exception e){
             log.error("userDetail findUserPage error", e);

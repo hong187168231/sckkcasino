@@ -2,6 +2,7 @@ package com.qianyi.casinocore.vo.request;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -9,6 +10,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Data
+@Builder
 @ApiModel(value = "用户列表")
 public class UserDetailRequest implements Serializable {
 
