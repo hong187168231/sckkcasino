@@ -96,8 +96,16 @@ public class BankcardsCustomerService {
 	 * @return
 	 */
 	public Integer unBound(BankcardsCustomer bankcardsCustomer) {
+		
+		// 1.查询用户当前ID是否存在 
+		boolean bankAccountExists = bankcardsCustomerRepository.exists(Example.of(bankcardsCustomer));
+		// 如果不存在，报错
+		Assert.isTrue(!bankAccountExists, "用户当前银行卡不存在");
+		
+		// 2.执行删除银行卡
 		Long id = (long)bankcardsCustomer.getId();
 		bankcardsCustomerRepository.deleteById(id);
+		
 		// TODO:解绑后需要做的业务处理
 		return 1;
 	}
