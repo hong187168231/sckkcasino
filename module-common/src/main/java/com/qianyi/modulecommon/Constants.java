@@ -16,5 +16,9 @@ public class Constants {
     public final static Integer order_success = 2;//确认成功
     public final static Integer order_fail = 3;//确认失败
 
+    /** 单个用户银行卡最大绑定数量 */
+    public final static Integer BANK_USER_BOUND_MAX = 6;
+
+    
 
 }
