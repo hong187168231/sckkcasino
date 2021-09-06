@@ -1,22 +1,16 @@
-package com.qianyi.casinocore.model;
+package com.qianyi.casinocore.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
-/**
- * 用户详细信息
- */
-@Entity
 @Data
-@ApiModel("用户详情表")
-public class UserDetail extends BaseEntity{
+public class UserMoreDetailVo implements Serializable {
 
     /**
      * 用户ID
@@ -81,13 +75,11 @@ public class UserDetail extends BaseEntity{
     /**
      * 账户余额
      */
-    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal balance;
 
     /**
      * 可用余额
      */
-    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal availableBalance;
 
     /**
@@ -109,4 +101,14 @@ public class UserDetail extends BaseEntity{
      * 冻结备注
      */
     private String frozenRemark;
+
+    /**
+     * 手机号码
+     */
+    private String phone;
+
+    /**
+     * 下线人数
+     */
+    private Long downLineCount;
 }

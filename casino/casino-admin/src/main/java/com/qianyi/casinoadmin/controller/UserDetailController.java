@@ -92,6 +92,22 @@ public class UserDetailController {
         return userService.resetPassword(userName);
     }
 
-
+    /**
+     * 用户详细信息
+     *
+     * @return
+     */
+    @NoAuthentication
+    @ApiOperation("用户详细信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userName", value = "用户名", required = true),
+    })
+    @PostMapping("getUserDetail")
+    private ResponseEntity getUserDetail(String userName){
+        if(StringUtils.isEmpty(userName)){
+            return ResponseUtil.parameterNotNull();
+        }
+        return userDetailService.getUserDetail(userName);
+    }
 
 }
