@@ -30,7 +30,7 @@ public class UserDetailController {
     private UserService userService;
 
     @ApiOperation("用户中心列表")
-    @RequestMapping(value = "/findUserPage", method = {RequestMethod.GET, RequestMethod.POST})
+    @GetMapping(value = "/findUserPage")
     public ResponseEntity findUserPage(@RequestBody UserDetailRequest userDetailRequest){
         try {
             return ResponseUtil.success(userDetailService.findUserPage(userDetailRequest));
@@ -46,7 +46,7 @@ public class UserDetailController {
             @ApiImplicitParam(name = "userName", value = "用户名", required = true),
             @ApiImplicitParam(name = "status", value = "用户状态", required = true),
     })
-    @RequestMapping(value = "/lockUser", method = {RequestMethod.GET, RequestMethod.POST})
+    @PostMapping(value = "/lockUser")
     public ResponseEntity lockUser(String userName, Integer status){
         if(StringUtils.isEmpty(userName) || status == null){
             return ResponseUtil.parameterNotNull();
@@ -102,7 +102,7 @@ public class UserDetailController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userName", value = "用户名", required = true),
     })
-    @PostMapping("getUserDetail")
+    @GetMapping("getUserDetail")
     private ResponseEntity getUserDetail(String userName){
         if(StringUtils.isEmpty(userName)){
             return ResponseUtil.parameterNotNull();
