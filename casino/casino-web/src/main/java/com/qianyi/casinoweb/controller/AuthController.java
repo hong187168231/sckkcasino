@@ -5,6 +5,7 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoweb.job.LoginLogJob;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
+import com.qianyi.moduleauthenticator.WangyiDunAuthUtil;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -51,28 +52,26 @@ public class AuthController {
             @ApiImplicitParam(name = "account", value = "帐号", required = true),
             @ApiImplicitParam(name = "password", value = "密码", required = true),
             @ApiImplicitParam(name = "phone", value = "电话号码", required = true),
-            @ApiImplicitParam(name = "captchaCode", value = "验证码代号", required = true),
-            @ApiImplicitParam(name = "captchaText", value = "验证码文本", required = true),
+            @ApiImplicitParam(name = "validate", value = "网易易顿", required = true),
     })
     public ResponseEntity register(String account, String password, String phone,
-                                   HttpServletRequest request, String captchaCode,
-                                   String captchaText) {
-        String ip = IpUtil.getIp(request);
-        //一个IP最多5个帐号
-        int  num=userService.countByIp(ip);
-        if (num > 5) {
-            return ResponseUtil.custom("IP帐号限制");
-        }
-
-        boolean checkNull = CommonUtil.checkNull(account, password, phone, captchaCode, captchaText);
+                                   HttpServletRequest request, String validate) {
+        boolean checkNull = CommonUtil.checkNull(account, password, phone, validate);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
+
+
         //验证码校验
-        boolean captcha = CasinoWebUtil.checkCaptcha(captchaCode, captchaText);
-        if (!captcha) {
+//        boolean captcha = CasinoWebUtil.checkCaptcha(captchaCode, captchaText);
+//        if (!captcha) {
+//            return ResponseUtil.custom("验证码错误");
+//        }
+        boolean wangyidun = WangyiDunAuthUtil.verify(validate);
+        if (!wangyidun) {
             return ResponseUtil.custom("验证码错误");
         }
+
 
         //卫语句校验
         boolean checkAccountLength = User.checkAccountLength(account);
@@ -83,6 +82,13 @@ public class AuthController {
         boolean checkPasswordLength = User.checkPasswordLength(password);
         if (!checkPasswordLength) {
             return ResponseUtil.custom("密码长度6-15位,由字母，数字，下划线组成");
+        }
+
+        String ip = IpUtil.getIp(request);
+        //一个IP最多5个帐号
+        int num = userService.countByIp(ip);
+        if (num > 5) {
+            return ResponseUtil.custom("IP帐号限制");
         }
 
         User user = userService.findByAccount(account);
@@ -106,22 +112,26 @@ public class AuthController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "account", value = "帐号", required = true),
             @ApiImplicitParam(name = "password", value = "密码", required = true),
-            @ApiImplicitParam(name = "captchaCode", value = "验证码代号", required = true),
-            @ApiImplicitParam(name = "captchaText", value = "验证码文本", required = true),
+            @ApiImplicitParam(name = "validate", value = "网易易顿", required = true),
     })
     @PostMapping("loginA")
     public ResponseEntity loginA(
             String account,
             String password,
-            String captchaCode,
-            String captchaText) {
-        if (ObjectUtils.isEmpty(account) || ObjectUtils.isEmpty(password) || ObjectUtils.isEmpty(captchaCode) || ObjectUtils.isEmpty(captchaText)) {
+            String validate) {
+        if (CasinoWebUtil.checkNull(account, password, validate)) {
             return ResponseUtil.parameterNotNull();
         }
 
+//        //验证码校验
+//        boolean captcha = CasinoWebUtil.checkCaptcha(captchaCode, captchaText);
+//        if (!captcha) {
+//            return ResponseUtil.custom("验证码错误");
+//        }
+
         //验证码校验
-        boolean captcha = CasinoWebUtil.checkCaptcha(captchaCode, captchaText);
-        if (!captcha) {
+        boolean wangyidun = WangyiDunAuthUtil.verify(validate);
+        if (!wangyidun) {
             return ResponseUtil.custom("验证码错误");
         }
 

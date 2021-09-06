@@ -1,5 +1,6 @@
 package com.qianyi.moduleauthenticator;
 
+import com.alibaba.fastjson.JSONObject;
 import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.HttpClient4Util;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -14,7 +15,7 @@ import java.util.Map;
  */
 public class WangyiDunAuthUtil {
 
-    public static void verify(String validate) {
+    public static boolean  verify(String validate) {
         String url = "http://c.dun.163.com/api/v2/verify";
         String timestamp = System.currentTimeMillis() + "";
         String nonce = timestamp + CommonUtil.random(5);
@@ -37,6 +38,13 @@ public class WangyiDunAuthUtil {
 
         String s = HttpClient4Util.doPost(url, params);
         System.out.println(s);
+        if (CommonUtil.checkNull(s)) {
+            return false;
+        }
+        JSONObject jsonObject = JSONObject.parseObject(s);
+        Boolean result = jsonObject.getBoolean("result");
+        return result;
+
     }
 
     private static String genSignature(String secretKey, Map<String, Object> params) throws UnsupportedEncodingException {
@@ -54,6 +62,12 @@ public class WangyiDunAuthUtil {
 
         // 4. MD5是128位长度的摘要算法，转换为十六进制之后长度为32字符
         return DigestUtils.md5Hex(sb.toString().getBytes("UTF-8"));
+    }
+
+    public static void main(String[] args) {
+        String validate = "CN31_rZQV0bADDvXR9M-rDZOpvek9z74AXeIitoNmpWybrNJR5p6Mx_lnYEWtEuazD909yB2N6NL8aBBjh1Y8K9po5jfAviNQ77GV0s2Qbay9N.ch1NmrRPAOEH.6ckkelZ59hjspq00Zmnzar7YrngTdVS.dyua6oqmojTweeFU5CHFU2UCN_gQx4VwAlq8P4PpJTPkTMZUq_iIJI7oLIkZIJqHeh.gckuEAtSdMuYrOtoBmxUDdHQpMKPKV1MhGVxqxBpAGeGcNllI6CShNTA_vXXwzHxLcVSJkUYTLtnjmwX-zCk82wNQMbOkXWwpckos.7oNVOrRPtsgwf7Mh7lqjEQ4DhfPMvZCyXZME650tHLkOTnIyHbpC47IIjRpuV.4EFS6sjK.dV2-_uLCGl_L9n.wtzEowxUVjzxW1wiLoEuOcdfQuULgSyFvuCkZkUBDEKydmExUVNtLVVx07MAYws69pGib0e9JE5fcLdv4CH_9tw0A4iqnbmh7Uu0j3";
+        boolean verify = WangyiDunAuthUtil.verify(validate);
+        System.out.println(verify);
     }
 
 }
