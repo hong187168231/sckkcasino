@@ -84,60 +84,70 @@ public class BankcardsCustomerController {
     @ApiImplicitParams({
         @ApiImplicitParam(name = "bankName", value = "银行名", required = true),
         @ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
-        @ApiImplicitParam(name = "bankAccount", value = "用户的银行/支付宝账号", required = true),
+        @ApiImplicitParam(name = "bankAccount", value = "用户的银行账号", required = true),
 //        @ApiImplicitParam(name = "province", value = "省", required = true),
 //        @ApiImplicitParam(name = "city", value = "市区", required = true),
         @ApiImplicitParam(name = "address", value = "支行名,开户地址", required = true),
-        @ApiImplicitParam(name = "realName", value = "开户名", required = true)})
+        @ApiImplicitParam(name = "realName", value = "开户名")})
 	public ResponseEntity bound(String bankName, Integer bankId, String bankAccount, String province, String city,
 			String address, String realName) {
-    	BankcardsCustomer bankcardsCustomer = new BankcardsCustomer();
-    	bankcardsCustomer.setBankName(bankName);
-    	bankcardsCustomer.setBankId(bankId);
-    	bankcardsCustomer.setBankAccount(bankAccount);
-    	bankcardsCustomer.setProvince(province);
-    	bankcardsCustomer.setCity(city);
-    	bankcardsCustomer.setAddress(address);
-    	bankcardsCustomer.setRealName(realName);
     	
-    	User user = userService.findById(CasinoWebUtil.getAuthId());
-    	bankcardsCustomer.setAccount(user.getAccount());
+    	// 必要的字段进行合法判断
+		Assert.isStringNotEmpty(address, "开户地址不能为空！");
+		Assert.isStringNotEmpty(bankName, "银行名不能为空！");
+		Assert.isStringNotEmpty(bankAccount, "银行账号不能为空！");
+		Assert.designatedArea(bankAccount, "长度只能在16~20位！", 16, 20);
+
+    	BankcardsCustomer bankcardsCustomer = new BankcardsCustomer();
     	
     	// 1.查询银行卡是否存在
 		BankInfo bankInfo = new BankInfo();
-		bankInfo.setId(bankcardsCustomer.getBankId());
+		bankInfo.setId(bankId);
 		Boolean noBankExists = bankInfoRepository.exists(Example.of(bankInfo));
 		Assert.isTrue(noBankExists, "不支持该银行，请更换银行卡");
+		
 		// 2.查询当前卡号是否存在
+		User user = userService.findById(CasinoWebUtil.getAuthId());
+    	
 		BankcardsCustomer bankAccountCrad = new BankcardsCustomer();
-		bankAccountCrad.setBankAccount(bankcardsCustomer.getBankAccount());
+		bankAccountCrad.setBankAccount(bankAccount);
+		
 		// 当前用户是否已经绑定过，可以删除：同一张卡不同用户绑定
-		bankAccountCrad.setAccount(bankcardsCustomer.getAccount());
+		bankAccountCrad.setAccount(user.getAccount());
 		Boolean bankAccountExists = bankcardsCustomerRepository.exists(Example.of(bankAccountCrad));
 		Assert.isTrue(!bankAccountExists, "当前银行卡已经被绑定，请换一张卡");
 		
 		// 3.查看已绑定的数量 不可大于最大数量
-		int findByAccountCount = bankcardsCustomerRepository.findByAccountCount(bankcardsCustomer.getAccount());
+		int findByAccountCount = bankcardsCustomerRepository.findByAccountCount(user.getAccount());
 		Assert.greaterOrEqual(findByAccountCount, Constants.BANK_USER_BOUND_MAX, "最多绑定" + Constants.BANK_USER_BOUND_MAX + "张银行卡，已超出限制。");
+    	
+		// 4.设置用户真实姓名 ,如果是第一张默认为当前传入的名字
+		if (findByAccountCount == 0) {
+			Assert.isStringNotEmpty(realName, "真实姓名不能为空！");
+			bankcardsCustomer.setRealName(realName);
+		} else {
+			// 获取一张卡的真实名字
+			bankcardsCustomer.setRealName(bankcardsCustomerRepository.findByAccountOne(user.getAccount()));
+		}		
 		
-		// 4.必要的字段进行合法判断
-		Assert.isNull(bankcardsCustomer.getAddress(), "开户地址不能为空！");
-		Assert.isNull(bankcardsCustomer.getRealName(), "真实姓名不能为空！");
-		Assert.isNull(bankcardsCustomer.getBankName(), "银行名不能为空！");
-		Assert.isNull(bankcardsCustomer.getBankAccount(), "银行账号不能为空！");
-		Assert.designatedArea(bankcardsCustomer.getBankAccount(), "长度只能在16~20位！", 16, 20);
 		//TODO : 其余代码具体业务逻辑待定 例如：同一张卡的重复绑定 或者 其他相关业务的处理
 
-		// 4.执行保存
+		// 5.执行保存
 		Date now = new Date();
+		bankcardsCustomer.setAccount(user.getAccount());
 		bankcardsCustomer.setUpdateTime(now);
 		bankcardsCustomer.setCreateTime(now);
+		
+    	bankcardsCustomer.setBankName(bankName);
+    	bankcardsCustomer.setBankId(bankId);
+    	bankcardsCustomer.setBankAccount(bankAccount);
+    	bankcardsCustomer.setAddress(address);
 		
 		BankcardsCustomer fristBank = new BankcardsCustomer();
 		fristBank.setAccount(bankcardsCustomer.getAccount());
 		bankcardsCustomer.setDefaultCard(0);
 		// 如果当前用户没有绑定过卡,默认第一张卡位主卡
-		boolean fristBankExists = bankInfoRepository.exists(Example.of(bankInfo));
+		boolean fristBankExists = bankcardsCustomerRepository.exists(Example.of(fristBank));
 		if(!fristBankExists) {
 			bankcardsCustomer.setDefaultCard(1);
 		}

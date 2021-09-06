@@ -55,7 +55,31 @@ public class Assert extends org.springframework.util.Assert {
 	 * @param message
 	 */
 	public static void isNull(Object object, String message) {
+		if(null != object) {
+			throw new StaffPointsException(message);
+		}
+	}
+	
+	/**
+	 * 判断 object 不为空
+	 *
+	 * @param object
+	 * @param message
+	 */
+	public static void isNotNull(Object object, String message) {
 		if(null == object) {
+			throw new StaffPointsException(message);
+		}
+	}
+	
+	/**
+	 * 判断 str 不为空
+	 *
+	 * @param str
+	 * @param message
+	 */
+	public static void isStringNotEmpty(String str, String message) {
+		if(StringUtils.isEmpty(str)) {
 			throw new StaffPointsException(message);
 		}
 	}
