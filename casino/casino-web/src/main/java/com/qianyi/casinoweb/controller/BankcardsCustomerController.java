@@ -2,6 +2,7 @@ package com.qianyi.casinoweb.controller;
 
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mysql.cj.util.StringUtils;
 import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.BankcardsCustomer;
 import com.qianyi.casinocore.model.User;
@@ -25,7 +25,6 @@ import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
-import com.qianyi.modulecommon.util.Assert;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -70,7 +69,7 @@ public class BankcardsCustomerController {
     @ResponseBody
     public ResponseEntity boundList() {
         User user = userService.findById(CasinoWebUtil.getAuthId());
-    	if(StringUtils.isNullOrEmpty(user.getAccount())) {
+    	if(StringUtils.isNotEmpty(user.getAccount())) {
     		BankcardsCustomer bankcardsCustomer = new BankcardsCustomer();
     		bankcardsCustomer.setAccount(user.getAccount());
     		return ResponseUtil.success(bankcardsCustomerService.findByExample(bankcardsCustomer));
@@ -85,26 +84,25 @@ public class BankcardsCustomerController {
         @ApiImplicitParam(name = "bankName", value = "银行名", required = true),
         @ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
         @ApiImplicitParam(name = "bankAccount", value = "用户的银行账号", required = true),
-//        @ApiImplicitParam(name = "province", value = "省", required = true),
-//        @ApiImplicitParam(name = "city", value = "市区", required = true),
-        @ApiImplicitParam(name = "address", value = "支行名,开户地址", required = true),
+        @ApiImplicitParam(name = "address", value = "开户地址", required = true),
         @ApiImplicitParam(name = "realName", value = "开户名")})
-	public ResponseEntity bound(String bankName, Integer bankId, String bankAccount, String province, String city,
-			String address, String realName) {
+	public ResponseEntity bound(String bankName, Long bankId, String bankAccount, String address, String realName) {
     	
     	// 必要的字段进行合法判断
-		Assert.isStringNotEmpty(address, "开户地址不能为空！");
-		Assert.isStringNotEmpty(bankName, "银行名不能为空！");
-		Assert.isStringNotEmpty(bankAccount, "银行账号不能为空！");
-		Assert.designatedArea(bankAccount, "长度只能在16~20位！", 16, 20);
+		String checkParamFroBound = BankcardsCustomer.checkParamFroBound(bankName, bankId, bankAccount, address);
+		if (StringUtils.isNotEmpty(checkParamFroBound)) {
+			return ResponseUtil.custom(checkParamFroBound);
+		}
 
     	BankcardsCustomer bankcardsCustomer = new BankcardsCustomer();
     	
     	// 1.查询银行卡是否存在
 		BankInfo bankInfo = new BankInfo();
 		bankInfo.setId(bankId);
-		Boolean noBankExists = bankInfoRepository.exists(Example.of(bankInfo));
-		Assert.isTrue(noBankExists, "不支持该银行，请更换银行卡");
+		Boolean bankExists = bankInfoRepository.exists(Example.of(bankInfo));
+		if(!bankExists) {
+			return ResponseUtil.custom("不支持该银行，请更换银行卡");
+		}
 		
 		// 2.查询当前卡号是否存在
 		User user = userService.findById(CasinoWebUtil.getAuthId());
@@ -115,19 +113,25 @@ public class BankcardsCustomerController {
 		// 当前用户是否已经绑定过，可以删除：同一张卡不同用户绑定
 		bankAccountCrad.setAccount(user.getAccount());
 		Boolean bankAccountExists = bankcardsCustomerRepository.exists(Example.of(bankAccountCrad));
-		Assert.isTrue(!bankAccountExists, "当前银行卡已经被绑定，请换一张卡");
+		if(bankAccountExists) {
+			return ResponseUtil.custom("当前银行卡已经被绑定，请换一张卡");
+		}
 		
 		// 3.查看已绑定的数量 不可大于最大数量
-		int findByAccountCount = bankcardsCustomerRepository.findByAccountCount(user.getAccount());
-		Assert.greaterOrEqual(findByAccountCount, Constants.BANK_USER_BOUND_MAX, "最多绑定" + Constants.BANK_USER_BOUND_MAX + "张银行卡，已超出限制。");
-    	
+		int findByAccountCount = bankcardsCustomerService.countByAccount(user.getAccount());
+		if(findByAccountCount >= Constants.BANK_USER_BOUND_MAX) {
+			return ResponseUtil.custom("最多绑定" + Constants.BANK_USER_BOUND_MAX + "张银行卡，已超出限制。");
+		}
+		
 		// 4.设置用户真实姓名 ,如果是第一张默认为当前传入的名字
 		if (findByAccountCount == 0) {
-			Assert.isStringNotEmpty(realName, "真实姓名不能为空！");
+			if(StringUtils.isEmpty(realName)) {
+				return ResponseUtil.custom("真实姓名不能为空！");
+			}
 			bankcardsCustomer.setRealName(realName);
 		} else {
 			// 获取一张卡的真实名字
-			bankcardsCustomer.setRealName(bankcardsCustomerRepository.findByAccountOne(user.getAccount()));
+			bankcardsCustomer.setRealName(bankcardsCustomerService.findByAccountOne(user.getAccount()));
 		}		
 		
 		//TODO : 其余代码具体业务逻辑待定 例如：同一张卡的重复绑定 或者 其他相关业务的处理
@@ -160,12 +164,19 @@ public class BankcardsCustomerController {
 	@ApiOperation("用户解绑银行卡")
 	@NoAuthentication
 	@ApiImplicitParams({@ApiImplicitParam(name = "id", value = "id", required = true)})
-	public ResponseEntity unBound(Integer id) {
+	public ResponseEntity unBound(Long id) {
 		BankcardsCustomer bankcardsCustomer = new BankcardsCustomer();
 		bankcardsCustomer.setId(id);
 		
 		User user = userService.findById(CasinoWebUtil.getAuthId());
 		bankcardsCustomer.setAccount(user.getAccount());
+		// 1.查询用户当前银行ID是否存在 
+		boolean bankAccountExists = bankcardsCustomerRepository.exists(Example.of(bankcardsCustomer));
+		// 如果不存在，报错
+		if(!bankAccountExists) {
+			return ResponseUtil.custom("用户当前银行卡不存在");
+		}
+		
 		Integer count = bankcardsCustomerService.unBound(bankcardsCustomer);
 		return ResponseUtil.success(count);
 	}

@@ -24,8 +24,7 @@ public interface BankcardsCustomerRepository extends JpaRepository<BankcardsCust
 	 */
 	List<BankcardsCustomer> findByAccountAndBankName(String account, String bankName);
 	
-	@Query(value = "select count(*) from bankcards_customer where account = ?",nativeQuery = true)
-	int findByAccountCount(String account);
+	int countByAccount(String account);
 
 	@Query(value = "select real_name from bankcards_customer where account = ? limit 1",nativeQuery = true)
 	String findByAccountOne(String account);

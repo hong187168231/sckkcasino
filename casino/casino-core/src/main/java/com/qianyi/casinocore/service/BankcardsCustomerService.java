@@ -5,13 +5,10 @@ import java.util.List;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import com.qianyi.casinocore.model.BankcardsCustomer;
-import com.qianyi.casinocore.repository.BankInfoRepository;
 import com.qianyi.casinocore.repository.BankcardsCustomerRepository;
-import com.qianyi.modulecommon.util.Assert;
 
 @Service
 public class BankcardsCustomerService {
@@ -19,14 +16,19 @@ public class BankcardsCustomerService {
     @Autowired
     private BankcardsCustomerRepository bankcardsCustomerRepository;
     
-    @Autowired
-    private BankInfoRepository bankInfoRepository;
-
     public List<BankcardsCustomer> findByExample(BankcardsCustomer bankcardsCustomer) {
     	List<BankcardsCustomer> findByAccountAndBankName = bankcardsCustomerRepository.findByAccountAndBankName("jordan", "中国银行");
     	return findByAccountAndBankName;
     }
 
+    public String findByAccountOne(String account) {
+    	return bankcardsCustomerRepository.findByAccountOne(account);
+    }
+    
+    public int countByAccount(String account) {
+    	return bankcardsCustomerRepository.countByAccount(account);
+    }
+    
 	/**
 	 * 绑定用户的银行卡
 	 * @param bankcardsCustomer
@@ -61,11 +63,7 @@ public class BankcardsCustomerService {
 	 */
 	public Integer unBound(BankcardsCustomer bankcardsCustomer) {
 		
-		// 1.查询用户当前ID是否存在 
-		boolean bankAccountExists = bankcardsCustomerRepository.exists(Example.of(bankcardsCustomer));
-		// 如果不存在，报错
-		Assert.isTrue(!bankAccountExists, "用户当前银行卡不存在");
-		
+	
 		// 2.执行删除银行卡
 		Long id = (long)bankcardsCustomer.getId();
 		bankcardsCustomerRepository.deleteById(id);
