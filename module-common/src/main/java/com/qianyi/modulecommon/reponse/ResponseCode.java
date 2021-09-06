@@ -18,7 +18,8 @@ public enum ResponseCode {
 
     //业务级代码（101-999）
     PARAMETER_NOTNULLL(101, "参数必填"),
-    CUSTOM(999, "自定义");
+    CUSTOM(999, "自定义"),
+    FINDUSER_PAGE(100, "用户信息错误");
 
     private int code;
     private String msg;

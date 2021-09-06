@@ -13,6 +13,7 @@ import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.IpUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
 import io.swagger.annotations.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.ObjectUtils;
@@ -254,6 +255,22 @@ public class LoginController {
         }
 
         return ResponseUtil.success(refreshToken);
+    }
+
+    @NoAuthentication
+    @ApiOperation("添加管理员用户")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userName", value = "帐号", required = true),
+            @ApiImplicitParam(name = "nickName", value = "昵称", required = true),
+            @ApiImplicitParam(name = "password", value = "密码", required = true),
+    })
+    @PostMapping("sava")
+    public ResponseEntity loginB(String userName, String password, String nickName) {
+        if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(password) || StringUtils.isEmpty(nickName)) {
+            return ResponseUtil.parameterNotNull();
+        }
+        sysUserService.saveSysUser(userName, password, nickName);
+        return ResponseUtil.success();
     }
 
 }
