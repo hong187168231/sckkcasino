@@ -18,7 +18,7 @@ public class LoginUtil {
     public final static String auth_header = "authorization";
 
     //获取当前操作者的身份
-    public static Long getAuthId() {
+    public static Long getLoginUserId() {
         String token = getToken();
         String subject = JjwtUtil.parse(token);
         return Long.parseLong(subject);
