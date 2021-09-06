@@ -16,5 +16,8 @@ public class Constants {
     public final static Integer order_success = 2;//确认成功
     public final static Integer order_fail = 3;//确认失败
 
-
+    //会员状态
+    public final static Integer USER_NORMAL = 1; //正常
+    public final static Integer USER_LOCK_BALANCE = 2; //冻结资金
+    public final static Integer USER_LOCK_ACCOUNT = 3; //冻结账户
 }
