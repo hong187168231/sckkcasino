@@ -3,6 +3,8 @@ package com.qianyi.casinocore.service;
 import java.util.Date;
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
@@ -23,7 +25,8 @@ public class BankcardsCustomerService {
     private BankInfoRepository bankInfoRepository;
 
     public List<BankcardsCustomer> findByExample(BankcardsCustomer bankcardsCustomer) {
-    	return bankcardsCustomerRepository.findAll(Example.of(bankcardsCustomer));
+    	List<BankcardsCustomer> findByAccountAndBankName = bankcardsCustomerRepository.findByAccountAndBankName("jordan", "中国银行");
+    	return findByAccountAndBankName;
     }
 
 	/**
@@ -31,7 +34,8 @@ public class BankcardsCustomerService {
 	 * @param bankcardsCustomer
 	 * @return
 	 */
-	public Integer boundBank(BankcardsCustomer bankcardsCustomer) {
+    @Transactional
+	public Integer bound(BankcardsCustomer bankcardsCustomer) {
 		// 1.查询银行卡是否存在
 		BankInfo bankInfo = new BankInfo();
 		bankInfo.setId(bankcardsCustomer.getBankId());
@@ -52,11 +56,49 @@ public class BankcardsCustomerService {
 		Assert.designatedArea(bankcardsCustomer.getBankAccount(), "长度只能在16~20位！", 16, 20);
 		//TODO : 其余代码具体业务逻辑待定 例如：会员最大绑定数量，同一张卡的重复绑定
 		
-		// 执行保存
+//		
+//		bankcardsCustomer.setAccount("农村娃");
+//    	bankcardsCustomer.setBankName("中国银行");
+//    	bankcardsCustomer.setBankId(1);
+//    	bankcardsCustomer.setBankAccount("161261056156056");
+//    	bankcardsCustomer.setProvince("上海");
+//    	bankcardsCustomer.setCity("闵行");
+//    	bankcardsCustomer.setAddress("人民东路");
+//    	bankcardsCustomer.setDisable(0);
+//    	bankcardsCustomer.setUpdateBy("jordan");
+//    	bankcardsCustomer.setDefaultCard(1);
+//    	bankcardsCustomer.setRealName("打工人");
+//    	bankcardsCustomer.setCreateTime(new Date());
+//    	bankcardsCustomer.setUpdateTime(new Date());
+//    	bankcardsCustomerRepository.save(bankcardsCustomer);
+		
+		// 4.执行保存
 		Date now = new Date();
 		bankcardsCustomer.setUpdateTime(now);
 		bankcardsCustomer.setCreateTime(now);
+		
+		BankcardsCustomer fristBank = new BankcardsCustomer();
+		fristBank.setAccount(bankcardsCustomer.getAccount());
+		bankcardsCustomer.setDefaultCard(0);
+		// 如果当前用户没有绑定过卡,默认第一张卡位主卡
+		boolean fristBankExists = bankInfoRepository.exists(Example.of(bankInfo));
+		if(!fristBankExists) {
+			bankcardsCustomer.setDefaultCard(1);
+		}
+		
 		BankcardsCustomer save = bankcardsCustomerRepository.save(bankcardsCustomer);
+		return 1;
+	}
+
+	/**
+	 * 解除绑定银行卡
+	 * @param bankcardsCustomer
+	 * @return
+	 */
+	public Integer unBound(BankcardsCustomer bankcardsCustomer) {
+		Long id = (long)bankcardsCustomer.getId();
+		bankcardsCustomerRepository.deleteById(id);
+		// TODO:解绑后需要做的业务处理
 		return 1;
 	}
 }

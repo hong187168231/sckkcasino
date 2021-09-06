@@ -4,7 +4,11 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
@@ -16,6 +20,7 @@ public class BankcardsCustomer {
 
 	@Column(unique = true)
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	/**
@@ -66,6 +71,7 @@ public class BankcardsCustomer {
 	/**
 	 * 创建时间/绑定时间
 	 */
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date createTime;
 
 	/**
@@ -76,6 +82,11 @@ public class BankcardsCustomer {
 	/**
 	 * 更新时间
 	 */
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date updateTime;
-
+	
+	/**
+	 * 默认卡，主卡
+	 */
+	private Integer defaultCard;
 }

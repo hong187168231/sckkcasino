@@ -4,7 +4,11 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
@@ -19,6 +23,7 @@ public class BankInfo {
 
 	@Id
 	@Column(unique = true)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Integer id;
 
 	/**
@@ -35,6 +40,7 @@ public class BankInfo {
 	private Integer bankType;
 
 	/** 创建时间 */
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date createTime;
 
 	/** 创建人 */
