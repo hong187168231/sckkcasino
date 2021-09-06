@@ -22,6 +22,32 @@ public class Assert extends org.springframework.util.Assert {
 		Assert.hasLength(value.toString(), msg);
 	}
 
+	
+	public static void greaterOrEqual (int a, int b, String message) {
+		if(a >= b) {
+			throw new StaffPointsException(message);
+		}
+	}
+	
+	public static void lessOrEqual(int a, int b, String message) {
+		if(a <= b) {
+			throw new StaffPointsException(message);
+		}
+	}
+
+	
+	/**
+	 * 判断 object 为空
+	 *
+	 * @param object
+	 * @param message
+	 */
+	public static void isTrue(Boolean boo, String message) {
+		if(!boo) {
+			throw new StaffPointsException(message);
+		}
+	}
+	
 	/**
 	 * 判断 object 为空
 	 *
