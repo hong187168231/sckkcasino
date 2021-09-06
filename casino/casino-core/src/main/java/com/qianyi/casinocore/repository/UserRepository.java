@@ -20,4 +20,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Integer countByRegisterIp(String ip);
 
+    User getByName(String userName);
 }

@@ -99,4 +99,9 @@ public class UserDetail extends BaseEntity{
      * 备注
      */
     private String remark;
+
+    /**
+     * 冻结备注
+     */
+    private String frozenRemark;
 }

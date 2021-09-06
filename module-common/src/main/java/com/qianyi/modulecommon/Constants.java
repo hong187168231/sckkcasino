@@ -20,4 +20,8 @@ public class Constants {
     public final static Integer USER_NORMAL = 1; //正常
     public final static Integer USER_LOCK_BALANCE = 2; //冻结资金
     public final static Integer USER_LOCK_ACCOUNT = 3; //冻结账户
+
+    public final static String USER_SET_PASSWORD = "888888"; //重置密码
+
+
 }

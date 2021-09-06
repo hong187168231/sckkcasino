@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.vo.request.UserDetailRequest;
 import com.qianyi.casinocore.service.UserDetailService;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
@@ -25,6 +26,9 @@ public class UserDetailController {
     @Autowired
     private UserDetailService userDetailService;
 
+    @Autowired
+    private UserService userService;
+
     @ApiOperation("用户中心列表")
     @RequestMapping(value = "/findUserPage", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity findUserPage(@RequestBody UserDetailRequest userDetailRequest){
@@ -37,14 +41,13 @@ public class UserDetailController {
     }
 
     @NoAuthentication
-    @ApiOperation("帐密登陆.谷歌身份验证器")
+    @ApiOperation("修改用户状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userName", value = "用户名", required = true),
             @ApiImplicitParam(name = "status", value = "用户状态", required = true),
-            @ApiImplicitParam(name = "frozenBalance", value = "冻结金额"),
     })
     @RequestMapping(value = "/lockUser", method = {RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity lockUser(String userName, Integer status, BigDecimal frozenBalance){
+    public ResponseEntity lockUser(String userName, Integer status){
         if(StringUtils.isEmpty(userName) || status == null){
             return ResponseUtil.parameterNotNull();
         }
@@ -55,4 +58,40 @@ public class UserDetailController {
             return ResponseUtil.fail();
         }
     }
+
+    @NoAuthentication
+    @ApiOperation("修改用户风险等级")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userName", value = "用户名", required = true),
+            @ApiImplicitParam(name = "riskLevel", value = "风险等级", required = true),
+    })
+    @PostMapping("updateRiskLevel")
+    public ResponseEntity updateRiskLevel(String userName, Integer riskLevel){
+        if(StringUtils.isEmpty(userName) || riskLevel == null){
+            return ResponseUtil.parameterNotNull();
+        }
+        return userDetailService.updateRiskLevel(userName, riskLevel);
+    }
+
+
+    /**
+     * 重置密码，默认是 888888
+     * @param userName
+     * @return
+     */
+    @NoAuthentication
+    @ApiOperation("重置用户密码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userName", value = "用户名", required = true),
+    })
+    @PostMapping("resetPassword")
+    public ResponseEntity resetPassword(String userName){
+        if(StringUtils.isEmpty(userName)){
+            return ResponseUtil.parameterNotNull();
+        }
+        return userService.resetPassword(userName);
+    }
+
+
+
 }
