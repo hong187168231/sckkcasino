@@ -61,30 +61,31 @@ public class UserDetailService {
         Specification<UserDetail> specification = new Specification<UserDetail>(){
             @Override
             public Predicate toPredicate(Root<UserDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                List<UserDetail> userDetailList = new ArrayList<>();
+                List<Predicate> list = new ArrayList<Predicate>();
                 if(StringUtils.isNotBlank(userDetailRequest.getUserName())){
-                    userDetailList.add((UserDetail) cb.equal(root.get("userName").as(String.class), userDetailRequest.getUserName()));
+                    Predicate userName = cb.equal(root.get("userName").as(String.class), userDetailRequest.getUserName());
+                    list.add( cb.equal(root.get("userName").as(String.class), userDetailRequest.getUserName()));
                 }
                 if(StringUtils.isNotBlank(userDetailRequest.getUserId())){
-                    userDetailList.add((UserDetail) cb.equal(root.get("userId").as(String.class), userDetailRequest.getUserId()));
+                    list.add(cb.equal(root.get("userId").as(String.class), userDetailRequest.getUserId()));
                 }
                 if(userDetailRequest.getStatus() != null){
-                    userDetailList.add((UserDetail) cb.equal(root.get("status").as(String.class), userDetailRequest.getStatus()));
+                    list.add(cb.equal(root.get("status").as(String.class), userDetailRequest.getStatus()));
                 }
                 if(userDetailRequest.getVipLevel() != null){
-                    userDetailList.add((UserDetail) cb.equal(root.get("vipLevel").as(String.class), userDetailRequest.getVipLevel()));
+                    list.add(cb.equal(root.get("vipLevel").as(String.class), userDetailRequest.getVipLevel()));
                 }
                 if(userDetailRequest.getRiskLevel() != null){
-                    userDetailList.add((UserDetail) cb.equal(root.get("riskLevel").as(String.class), userDetailRequest.getRiskLevel()));
+                    list.add(cb.equal(root.get("riskLevel").as(String.class), userDetailRequest.getRiskLevel()));
                 }
                 if(userDetailRequest.getAgentLevel() != null){
-                    userDetailList.add((UserDetail) cb.equal(root.get("agentLevel").as(String.class), userDetailRequest.getAgentLevel()));
+                    list.add(cb.equal(root.get("agentLevel").as(String.class), userDetailRequest.getAgentLevel()));
                 }
                 if(userDetailRequest.getRegisterStartTime() != null && userDetailRequest.getRegisterEndTime() != null){
-                    userDetailList.add((UserDetail) cb.ge(root.get("registerTime").as(Long.class), userDetailRequest.getRegisterStartTime().getTime()));
-                    userDetailList.add((UserDetail) cb.le(root.get("registerTime").as(Long.class), userDetailRequest.getRegisterEndTime().getTime()));
+                    list.add(cb.ge(root.get("registerTime").as(Long.class), userDetailRequest.getRegisterStartTime().getTime()));
+                    list.add(cb.le(root.get("registerTime").as(Long.class), userDetailRequest.getRegisterEndTime().getTime()));
                 }
-                return cb.and(userDetailList.toArray(new Predicate[userDetailList.size()]));
+                return cb.and(list.toArray(new Predicate[list.size()]));
             }
         };
         return specification;
@@ -181,11 +182,11 @@ public class UserDetailService {
         Specification<UserDetail> specification = new Specification<UserDetail>(){
             @Override
             public Predicate toPredicate(Root<UserDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                List<UserDetail> userDetailList = new ArrayList<>();
+                List<Predicate> list = new ArrayList<Predicate>();
                 if(StringUtils.isNotBlank(userDetail.getUserId())){
-                    userDetailList.add((UserDetail) cb.like(root.get("agentLine").as(String.class), "%" + userDetail.getAgentLine() + "%"));
+                    list.add(cb.like(root.get("agentLine").as(String.class), "%" + userDetail.getAgentLine() + "%"));
                 }
-                return cb.and(userDetailList.toArray(new Predicate[userDetailList.size()]));
+                return cb.and(list.toArray(new Predicate[list.size()]));
             }
         };
         return userDetailRepository.count(specification);
