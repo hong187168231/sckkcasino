@@ -1,9 +1,11 @@
 package com.qianyi.casinoadmin.controller;
 
 
+import com.qianyi.casinoadmin.config.PreReadUploadConfig;
 import com.qianyi.casinocore.model.Banner;
 import com.qianyi.casinocore.service.BannerService;
 import com.qianyi.casinoadmin.util.CommonConst;
+import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -11,10 +13,7 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
@@ -31,6 +30,8 @@ public class BannerController {
     private static final Logger logger = LoggerFactory.getLogger(BannerService.class);
     @Autowired
     private BannerService bannerService;
+    @Autowired
+    private PreReadUploadConfig uploadConfig;
 
     @ApiOperation("修改Banner")
     @PostMapping("/updateBanner")
@@ -67,7 +68,7 @@ public class BannerController {
         banner.setFirstMap(map.get(CommonConst.NUMBER_0));
         banner.setSecondMap(map.get(CommonConst.NUMBER_1));
         banner.setThirdlyMap(map.get(CommonConst.NUMBER_2));
-        banner.setFirstMap(map.get(CommonConst.NUMBER_3));
+        banner.setFourthlyMap(map.get(CommonConst.NUMBER_3));
         banner.setFifthMap(map.get(CommonConst.NUMBER_4));
         bannerService.saveBanner(banner);
         return CommonConst.SUCCESS;
@@ -93,7 +94,6 @@ public class BannerController {
     }
 
     private Map<Integer,String> getfilePaths(HttpServletRequest request){
-        String filePath;
         Map<Integer,String> map = new HashMap<>();
         try {
             request.setCharacterEncoding("utf-8"); //设置编码
@@ -108,25 +108,13 @@ public class BannerController {
             Iterator<String> iterator = req.getFileNames();
             while (iterator.hasNext()) {
                 List<MultipartFile> files = req.getFiles(iterator.next());
-                if (files == null||files.size() >= 5){
+                if (files == null||files.size() >= CommonConst.NUMBER_6){
                     return map;
                 }
                 int limit = 0;
                 for(MultipartFile file:files){
-                    String fileName = file.getOriginalFilename();
-                    //真正写到磁盘上
-                    String uuid = UUID.randomUUID().toString().replace("-", "");
-                    String kzm = fileName.substring(fileName.lastIndexOf("."));
-                    String filename = uuid + kzm;
-                    File file1 = new File(realPath + filename);
-                    OutputStream out = new FileOutputStream(file1);
-                    out.write(file.getBytes());
-                    out.close();
-                    filePath = request.getScheme() + "://" +
-                            request.getServerName() + ":"
-                            + request.getServerPort()
-                            + "/uploadFile/" + filename;
-                    map.put(limit++,filePath);
+                    String fileUrl = UploadAndDownloadUtil.fileUpload(uploadConfig.getBasePath(), file);
+                    map.put(limit++,fileUrl);
                 }
             }
         } catch (Exception e) {
