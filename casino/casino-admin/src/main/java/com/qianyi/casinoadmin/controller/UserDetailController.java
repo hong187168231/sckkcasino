@@ -70,7 +70,7 @@ public class UserDetailController {
             return ResponseUtil.success(userDetailService.findUserPage(userDetailRequest));
         }catch (Exception e){
             log.error("userDetail findUserPage error", e);
-            return ResponseUtil.userError();
+            return ResponseUtil.success();
         }
     }
 
