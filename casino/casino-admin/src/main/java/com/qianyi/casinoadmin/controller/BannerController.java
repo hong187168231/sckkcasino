@@ -1,9 +1,11 @@
 package com.qianyi.casinoadmin.controller;
 
 
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.Banner;
 import com.qianyi.casinocore.service.BannerService;
 import com.qianyi.casinoadmin.util.CommonConst;
+import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import io.swagger.annotations.Api;
@@ -28,6 +30,8 @@ public class BannerController {
     private static final Logger logger = LoggerFactory.getLogger(BannerService.class);
     @Autowired
     private BannerService bannerService;
+    @Autowired
+    private UserService userService;
 
     @ApiOperation("修改Banner")
     @PostMapping("/updateBanner")
@@ -43,7 +47,7 @@ public class BannerController {
         if (map.size() == CommonConst.NUMBER_0){
             return CommonConst.PICTURENOTUP;
         }
-        bannerService.updateById(id,articleLink,map);
+        bannerService.updateById(id,articleLink,userService.findById(LoginUtil.getLoginUserId()).getAccount(),map);
         return CommonConst.SUCCESS;
     }
     @ApiOperation("新增Banner")
@@ -66,6 +70,7 @@ public class BannerController {
         banner.setThirdlyMap(map.get(CommonConst.NUMBER_2));
         banner.setFourthlyMap(map.get(CommonConst.NUMBER_3));
         banner.setFifthMap(map.get(CommonConst.NUMBER_4));
+        banner.setLastUpdatedBy(userService.findById(LoginUtil.getLoginUserId()).getAccount());
         bannerService.saveBanner(banner);
         return CommonConst.SUCCESS;
     }

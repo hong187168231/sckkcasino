@@ -21,8 +21,8 @@ public class BannerService {
         bannerRepository.deleteById(id);
     }
 
-    public void updateById(Integer id, String articleLink, Map<Integer,String> map) {
-        bannerRepository.updateById(id,map.get(0), map.get(1),map.get(2),map.get(3), map.get(4),articleLink);
+    public void updateById(Integer id, String articleLink, String account,Map<Integer,String> map) {
+        bannerRepository.updateById(id,map.get(0), map.get(1),map.get(2),map.get(3), map.get(4),articleLink,account);
     }
 
     public void saveBanner(Banner banner) {
