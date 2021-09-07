@@ -103,27 +103,4 @@ public class User extends BaseEntity {
 
         return true;
     }
-
-
-    /**
-     * 查询条件拼接，灵活添加条件
-     * @param user
-     * @return
-     */
-    public static Specification<User> getCondition(User user) {
-        Specification<User> specification = new Specification<User>(){
-            @Override
-            public Predicate toPredicate(Root<User> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                List<Predicate> list = new ArrayList<Predicate>();
-                if(StringUtils.isNotBlank(user.getName())){
-                    list.add( cb.equal(root.get("name").as(String.class), user.getName()));
-                }
-                if(user.getId() != null){
-                    list.add(cb.equal(root.get("id").as(Long.class), user.getId()));
-                }
-                return cb.and(list.toArray(new Predicate[list.size()]));
-            }
-        };
-        return specification;
-    }
 }
