@@ -39,10 +39,10 @@ public class UserController {
      */
     @ApiOperation("用户列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = true),
-            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = true),
-            @ApiImplicitParam(name = "name", value = "用户名", required = true),
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+            @ApiImplicitParam(name = "name", value = "用户名", required = false),
+            @ApiImplicitParam(name = "id", value = "用户id", required = false),
     })
     @GetMapping("findUserPage")
     public ResponseEntity findUserPage(Integer pageSize,Integer pageCode,String name,Long id){
@@ -56,4 +56,6 @@ public class UserController {
         Page<User> userPage = userService.findUserPage(pageable, user);
         return ResponseUtil.success(userPage);
     }
+
+
 }
