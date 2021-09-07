@@ -22,7 +22,7 @@ public class UploadAndDownloadUtil {
         } catch (Exception e) {
             return "";
         }
-        String url = "/static/" + fileName;
+        String url = "/public/img/" + fileName;
         return url;
 
     }

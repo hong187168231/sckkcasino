@@ -40,7 +40,7 @@ public class Banner {
     /**
      * 最后操作时间
      */
-//    @LastModifiedDate
+    @LastModifiedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastUpdatedTime;
