@@ -38,7 +38,7 @@ public class BannerController {
             @ApiImplicitParam(name = "id", value = "banner主键", required = true),
             @ApiImplicitParam(name = "articleLink", value = "文章链接", required = true),
     })
-    public String uploadPicture(Integer id,String articleLink,HttpServletRequest request) throws Exception {
+    public String uploadPicture(Integer id,String articleLink,HttpServletRequest request) {
         if (id == null){
             return CommonConst.IDNOTNULL;
         }
@@ -55,7 +55,7 @@ public class BannerController {
             @ApiImplicitParam(name = "theShowEnd", value = "展示端 1 web 2 app", required = true),
             @ApiImplicitParam(name = "articleLink", value = "文章链接", required = true),
     })
-    public String saveBanner(Integer theShowEnd,String articleLink, HttpServletRequest request) throws Exception {
+    public String saveBanner(Integer theShowEnd,String articleLink, HttpServletRequest request){
         Map<Integer,String> map = this.getfilePaths(request);
         if (map.size() == CommonConst.NUMBER_0){
             return CommonConst.PICTURENOTUP;
@@ -78,7 +78,7 @@ public class BannerController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "主键id", required = true),
     })
-    public String deleteBanner(Integer id) throws Exception {
+    public String deleteBanner(Integer id){
         if (id == null){
             return CommonConst.IDNOTNULL;
         }
@@ -88,21 +88,21 @@ public class BannerController {
 
     @ApiOperation("查找Banner")
     @GetMapping("/findByBannerList")
-    public List<Banner> findByBannerList() throws Exception {
+    public List<Banner> findByBannerList(){
         return bannerService.findByBannerList();
     }
 
-    private Map<Integer,String> getfilePaths(HttpServletRequest request)throws Exception {
-        String filePath = "";
-        Map<Integer,String> map = new HashMap<Integer,String>();
-        request.setCharacterEncoding("utf-8"); //设置编码
-        String realPath = request.getSession().getServletContext().getRealPath("/uploadFile/");
-        File dir = new File(realPath);
-        //文件目录不存在，就创建一个
-        if (!dir.isDirectory()) {
-            dir.mkdirs();
-        }
+    private Map<Integer,String> getfilePaths(HttpServletRequest request){
+        String filePath;
+        Map<Integer,String> map = new HashMap<>();
         try {
+            request.setCharacterEncoding("utf-8"); //设置编码
+            String realPath = request.getSession().getServletContext().getRealPath("/uploadFile/");
+            File dir = new File(realPath);
+            //文件目录不存在，就创建一个
+            if (!dir.isDirectory()) {
+                dir.mkdirs();
+            }
             StandardMultipartHttpServletRequest req = (StandardMultipartHttpServletRequest) request;
             //获取formdata的值
             Iterator<String> iterator = req.getFileNames();

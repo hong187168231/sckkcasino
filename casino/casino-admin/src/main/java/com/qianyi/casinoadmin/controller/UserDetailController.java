@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 
 @RestController
-@RequestMapping("user")
-@Api(tags = "用户中心")
+@RequestMapping("userDetail")
+@Api(tags = "用户详情中心，暂时不用")
 @Slf4j
 public class UserDetailController {
 
@@ -70,7 +70,7 @@ public class UserDetailController {
             return ResponseUtil.success(userDetailService.findUserPage(userDetailRequest));
         }catch (Exception e){
             log.error("userDetail findUserPage error", e);
-            return ResponseUtil.userError();
+            return ResponseUtil.success();
         }
     }
 
