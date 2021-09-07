@@ -1,4 +1,4 @@
-package com.qianyi.modulecommon.util;
+package com.qianyi.casinoadmin.util;
 
 /**
  公共常量类
@@ -54,5 +54,10 @@ public class CommonConst {
     public static final int NUMBER_9 = 9;
     public static final int NUMBER_10 = 10;
     public static final String SUCCESS = "SUCCESS";
+
+    public static final String IDNOTNULL = "id不能为空";
+    public static final String PICTURENOTUP = "图片不符合规格";
+
+
 
 }
