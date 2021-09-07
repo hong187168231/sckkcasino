@@ -101,7 +101,7 @@ public class UserDetailService {
     public ResponseEntity lockUser(String userName, Integer status) {
         UserDetail userDetail = userDetailRepository.findByUserName(userName);
         if(userDetail == null){
-            return ResponseUtil.userError();
+            return ResponseUtil.success();
         }
         if(status == Constants.USER_NORMAL && userDetail.getStatus() != Constants.USER_NORMAL){ //正常
             userDetail.setStatus(status);
@@ -143,7 +143,7 @@ public class UserDetailService {
     public ResponseEntity updateRiskLevel(String userName, Integer riskLevel) {
         UserDetail userDetail = userDetailRepository.findByUserName(userName);
         if(userDetail == null){
-            return ResponseUtil.userError();
+            return ResponseUtil.success();
         }
         userDetail.setRiskLevel(riskLevel);
         userDetailRepository.save(userDetail);
@@ -159,12 +159,12 @@ public class UserDetailService {
     public ResponseEntity getUserDetail(String userName) {
         UserDetail userDetail = userDetailRepository.findByUserName(userName);
         if(userDetail == null){
-            return ResponseUtil.userError();
+            return ResponseUtil.success();
         }
 
         User user = userService.findByAccount(userName);
         if(user == null){
-            return ResponseUtil.userError();
+            return ResponseUtil.success();
         }
         UserMoreDetailVo userMoreDetailVo = new UserMoreDetailVo();
         BeanUtils.copyProperties(userDetail, userMoreDetailVo, UserMoreDetailVo.class);
@@ -200,7 +200,7 @@ public class UserDetailService {
 
         UserDetail userDetail = userDetailRepository.findByUserId(userId);
         if(userDetail == null){
-            return ResponseUtil.userError();
+            return ResponseUtil.success();
         }
         if(userDetail.getStatus() == Constants.USER_LOCK_ACCOUNT){
             userDetail.setStatus(Constants.USER_NORMAL);

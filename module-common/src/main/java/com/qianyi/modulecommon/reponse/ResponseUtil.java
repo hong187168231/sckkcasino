@@ -39,10 +39,6 @@ public class ResponseUtil {
         return new ResponseEntity(ResponseCode.GOOGLEAUTH_NOPASS);
     }
 
-    public static ResponseEntity userError() {
-        return new ResponseEntity(ResponseCode.FINDUSER_PAGE);
-    }
-
     public static ResponseEntity fail() {
         return new ResponseEntity(ResponseCode.FAIL);
     }

@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 
 @RestController
-@RequestMapping("user")
-@Api(tags = "用户中心")
+@RequestMapping("userDetail")
+@Api(tags = "用户详情中心，暂时不用")
 @Slf4j
 public class UserDetailController {
 
