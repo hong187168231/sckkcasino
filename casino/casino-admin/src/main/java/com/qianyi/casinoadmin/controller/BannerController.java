@@ -6,6 +6,8 @@ import com.qianyi.casinocore.model.Banner;
 import com.qianyi.casinocore.service.BannerService;
 import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.modulecommon.reponse.ResponseEntity;
+import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import io.swagger.annotations.Api;
@@ -39,16 +41,16 @@ public class BannerController {
             @ApiImplicitParam(name = "id", value = "banner主键", required = true),
             @ApiImplicitParam(name = "articleLink", value = "文章链接", required = true),
     })
-    public String uploadPicture(Integer id,String articleLink,HttpServletRequest request) {
+    public ResponseEntity uploadPicture(Integer id,String articleLink,HttpServletRequest request) {
         if (id == null){
-            return CommonConst.IDNOTNULL;
+            return ResponseUtil.custom(CommonConst.IDNOTNULL);
         }
         Map<Integer,String> map = this.getfilePaths(request);
         if (map.size() == CommonConst.NUMBER_0){
-            return CommonConst.PICTURENOTUP;
+            return ResponseUtil.custom(CommonConst.PICTURENOTUP);
         }
         bannerService.updateById(id,articleLink,userService.findById(LoginUtil.getLoginUserId()).getAccount(),map);
-        return CommonConst.SUCCESS;
+        return ResponseUtil.success();
     }
     @ApiOperation("新增Banner")
     @PostMapping("/saveBanner")
@@ -56,10 +58,10 @@ public class BannerController {
             @ApiImplicitParam(name = "theShowEnd", value = "展示端 1 web 2 app", required = true),
             @ApiImplicitParam(name = "articleLink", value = "文章链接", required = true),
     })
-    public String saveBanner(Integer theShowEnd,String articleLink, HttpServletRequest request){
+    public ResponseEntity saveBanner(Integer theShowEnd,String articleLink, HttpServletRequest request){
         Map<Integer,String> map = this.getfilePaths(request);
         if (map.size() == CommonConst.NUMBER_0){
-            return CommonConst.PICTURENOTUP;
+            return ResponseUtil.custom(CommonConst.PICTURENOTUP);
         }
         Banner banner = new Banner();
         banner.setTheShowEnd(theShowEnd);
@@ -72,7 +74,7 @@ public class BannerController {
         banner.setFifthMap(map.get(CommonConst.NUMBER_4));
         banner.setLastUpdatedBy(userService.findById(LoginUtil.getLoginUserId()).getAccount());
         bannerService.saveBanner(banner);
-        return CommonConst.SUCCESS;
+        return ResponseUtil.success();
     }
 
     @ApiOperation("删除Banner")
@@ -80,18 +82,18 @@ public class BannerController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "主键id", required = true),
     })
-    public String deleteBanner(Integer id){
+    public ResponseEntity deleteBanner(Integer id){
         if (id == null){
-            return CommonConst.IDNOTNULL;
+            return ResponseUtil.custom(CommonConst.IDNOTNULL);
         }
         bannerService.deleteById(id);
-        return CommonConst.SUCCESS;
+        return ResponseUtil.success();
     }
 
     @ApiOperation("查找Banner")
     @GetMapping("/findByBannerList")
-    public List<Banner> findByBannerList(){
-        return bannerService.findByBannerList();
+    public ResponseEntity findByBannerList(){
+        return ResponseUtil.success(bannerService.findByBannerList());
     }
 
     private Map<Integer,String> getfilePaths(HttpServletRequest request){
