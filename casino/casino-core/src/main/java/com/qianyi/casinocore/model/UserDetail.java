@@ -69,7 +69,7 @@ public class UserDetail extends BaseEntity{
     private Integer vipLevel;
 
     /**
-     * 用户状态， 1：正常，2：冻结资金，3：冻结账户
+     * 用户状态， 1：正常，2：冻结账户
      */
     private Integer status;
 

@@ -1,36 +1,26 @@
 package com.qianyi.casinocore.model;
 
-import java.util.Date;
-
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+
+import org.apache.commons.lang3.StringUtils;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-@Entity
 @Data
+@Entity
 @ApiModel("用户绑定的银行卡")
-public class BankcardsCustomer {
+public class BankcardsCustomer extends BaseEntity {
 
-	@Column(unique = true)
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@ApiModelProperty(value = "id")
-	private Integer id;
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * 用户名
 	 */
 	@ApiModelProperty(value = "用户名")
 	private String account;
-	
+
 	/**
 	 * 银行名
 	 */
@@ -41,30 +31,18 @@ public class BankcardsCustomer {
 	 * 银行卡id
 	 */
 	@ApiModelProperty(value = "银行卡id")
-	private Integer bankId;
+	private Long bankId;
 
 	/**
 	 * 用户的银行/支付宝账号
 	 */
-	@ApiModelProperty(value = "用户的银行/支付宝账号")
+	@ApiModelProperty(value = "用户的银行账号")
 	private String bankAccount;
 
 	/**
-	 * 省
+	 * 开户地址
 	 */
-	@ApiModelProperty(value = "省")
-	private String province;
-
-	/**
-	 * 市区
-	 */
-	@ApiModelProperty(value = "市区")
-	private String city;
-
-	/**
-	 * 支行名,开户地址
-	 */
-	@ApiModelProperty(value = "支行名,开户地址")
+	@ApiModelProperty(value = "开户地址")
 	private String address;
 
 	/**
@@ -80,28 +58,39 @@ public class BankcardsCustomer {
 	private Integer disable;
 
 	/**
-	 * 创建时间/绑定时间
-	 */
-	@ApiModelProperty(value = "创建时间/绑定时间")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date createTime;
-
-	/**
-	 * 更新人
-	 */
-	@ApiModelProperty(value = "更新人")
-	private String updateBy;
-
-	/**
-	 * 更新时间
-	 */
-	@ApiModelProperty(value = "更新时间")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date updateTime;
-	
-	/**
 	 * 默认卡，主卡
 	 */
 	@ApiModelProperty(value = "默认卡，主卡= 1")
 	private Integer defaultCard;
+	
+	
+	
+	/**
+	 *  针对绑定银行卡接口的参数合法性校验 
+	 * @param bankName
+	 * @param bankId
+	 * @param bankAccount
+	 * @param address
+	 * @return
+	 */
+	public static String checkParamFroBound(String bankName, Long bankId, String bankAccount,
+			String address) {
+		if (StringUtils.isEmpty(bankName)) {
+			return "银行名不能为空！";
+		}
+		if (bankId == null) {
+			return "银行id不能为空！";
+		}
+		if (StringUtils.isEmpty(address)) {
+			return "开户地址不能为空！";
+		}
+		if (StringUtils.isEmpty(bankAccount)) {
+			return "银行账号不能为空！";
+		}
+		if (bankAccount.length() > 20 || bankAccount.length() < 16) {
+			return "长度只能在16~20位！";
+		}
+		return null;
+	}
+	
 }
