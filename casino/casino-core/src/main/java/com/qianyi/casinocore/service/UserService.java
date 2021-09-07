@@ -96,7 +96,7 @@ public class UserService {
      * @param user
      * @return
      */
-    public static Specification<User> getCondition(User user) {
+    public Specification<User> getCondition(User user) {
         Specification<User> specification = new Specification<User>(){
             @Override
             public Predicate toPredicate(Root<User> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
