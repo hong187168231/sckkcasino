@@ -1,11 +1,17 @@
 package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.model.UserDetail;
 import com.qianyi.casinocore.repository.UserRepository;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -64,6 +70,20 @@ public class UserService {
         user.setPassword(newPassword);
         userRepository.save(user);
         return ResponseUtil.success("保存成功");
+    }
+
+
+    /**
+     * 用户列表查询
+     *
+     * @param current
+     * @param size
+     * @param user
+     * @return
+     */
+    public Page<User> findUserPage(Integer current, Integer size, User user) {
+        Pageable pageable = PageRequest.of(current, size, Sort.Direction.DESC, "id");
+        return userRepository.findAll(User.getCondition(user), pageable);
     }
 
 }

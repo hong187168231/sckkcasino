@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -9,6 +10,8 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,12 +37,17 @@ public class UserController {
             @ApiImplicitParam(name = "size", value = "每页大小", required = true),
             @ApiImplicitParam(name = "current", value = "当前页", required = true),
             @ApiImplicitParam(name = "name", value = "用户名", required = true),
-            @ApiImplicitParam(name = "id", value = "当前页", required = true),
+            @ApiImplicitParam(name = "id", value = "用户id", required = true),
     })
+    @GetMapping("findUserPage")
     public ResponseEntity findUserPage(Integer size,Integer current,String name,Long id){
         if(size == null || current == null){
             return ResponseUtil.parameterNotNull();
         }
-        return ResponseUtil.success();
+        //后续扩展加参数。
+        User user = new User();
+        user.setId(id);
+        user.setName(name);
+        return ResponseUtil.success(userService.findUserPage(current, size, user));
     }
 }
