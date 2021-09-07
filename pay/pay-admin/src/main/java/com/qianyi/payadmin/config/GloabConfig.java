@@ -1,9 +1,11 @@
 package com.qianyi.payadmin.config;
 
+import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.payadmin.inteceptor.AuthenticationInteceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration

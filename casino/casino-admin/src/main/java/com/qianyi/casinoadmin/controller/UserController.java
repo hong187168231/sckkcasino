@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
+
 /**
  * 对用户表进行增删改查操作
  */
@@ -82,7 +84,7 @@ public class UserController {
             user.setName(name);
         }
 
-        user.setState(Constants.USER_NORMAL);
+        user.setState(Constants.open);
 
         if(!LoginUtil.checkNull(phone)){
             user.setPhone(phone);
@@ -96,9 +98,6 @@ public class UserController {
         String bcryptPassword = LoginUtil.bcrypt(password);
         user.setPassword(bcryptPassword);
 
-        //获取ip
-        String ip = IpUtil.getIp(LoginUtil.getRequest());
-        user.setRegisterIp(ip);
         userService.save(user);
 
         JSONObject jsonObject = new JSONObject();
@@ -116,7 +115,7 @@ public class UserController {
      * @param phone
      * @return
      */
-    @ApiOperation("修改用户")
+    @ApiOperation("修改用户电话")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "用户id", required = true),
             @ApiImplicitParam(name = "phone", value = "电话号码", required = true),
@@ -144,7 +143,7 @@ public class UserController {
     public ResponseEntity deteleUser(Long id){
         User user = userService.findById(id);
         if(user == null){
-            ResponseUtil.custom("账户不存在");
+            return ResponseUtil.custom("账户不存在");
         }
         userService.deleteById(id);
         return ResponseUtil.success();

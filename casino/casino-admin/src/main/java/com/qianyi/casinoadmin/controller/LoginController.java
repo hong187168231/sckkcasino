@@ -7,6 +7,7 @@ import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.model.SysUserLoginLog;
 import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.moduleauthenticator.GoogleAuthUtil;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.PostConstruct;
 
 
 /**
@@ -41,43 +44,43 @@ public class LoginController {
     @Autowired
     private SysUserLoginLogService sysUserLoginLogService;
 
-    @NoAuthentication
-    @ApiOperation("帐密登陆.谷歌验证码")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userName", value = "帐号", required = true),
-            @ApiImplicitParam(name = "password", value = "密码", required = true),
-            @ApiImplicitParam(name = "captchaCode", value = "验证码代号", required = true),
-            @ApiImplicitParam(name = "captchaText", value = "验证码文本", required = true),
-    })
-    @PostMapping("loginA")
-    public ResponseEntity loginA(
-            String userName,
-            String password,
-            String captchaCode,
-            String captchaText) {
-        if (ObjectUtils.isEmpty(userName) || ObjectUtils.isEmpty(password) || ObjectUtils.isEmpty(captchaCode) || ObjectUtils.isEmpty(captchaText)) {
-            return ResponseUtil.parameterNotNull();
-        }
-
-        SysUser user = sysUserService.findByUserName(userName);
-        if (user == null) {
-            return ResponseUtil.custom("帐号或密码错误");
-        }
-
-        String bcryptPassword = user.getPassWord();
-        boolean bcrypt = LoginUtil.checkBcrypt(password, bcryptPassword);
-        if (!bcrypt) {
-            return ResponseUtil.custom("帐号或密码错误");
-        }
-
-        boolean flag = user.checkUser(user);
-        if (!flag) {
-            return ResponseUtil.custom("该帐号不可操作");
-        }
-
-        String token = JjwtUtil.generic(user.getId() + "");
-        return ResponseUtil.success(token);
-    }
+//    @NoAuthentication
+//    @ApiOperation("帐密登陆.谷歌验证码")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "userName", value = "帐号", required = true),
+//            @ApiImplicitParam(name = "password", value = "密码", required = true),
+//            @ApiImplicitParam(name = "captchaCode", value = "验证码代号", required = true),
+//            @ApiImplicitParam(name = "captchaText", value = "验证码文本", required = true),
+//    })
+//    @PostMapping("loginA")
+//    public ResponseEntity loginA(
+//            String userName,
+//            String password,
+//            String captchaCode,
+//            String captchaText) {
+//        if (ObjectUtils.isEmpty(userName) || ObjectUtils.isEmpty(password) || ObjectUtils.isEmpty(captchaCode) || ObjectUtils.isEmpty(captchaText)) {
+//            return ResponseUtil.parameterNotNull();
+//        }
+//
+//        SysUser user = sysUserService.findByUserName(userName);
+//        if (user == null) {
+//            return ResponseUtil.custom("帐号或密码错误");
+//        }
+//
+//        String bcryptPassword = user.getPassWord();
+//        boolean bcrypt = LoginUtil.checkBcrypt(password, bcryptPassword);
+//        if (!bcrypt) {
+//            return ResponseUtil.custom("帐号或密码错误");
+//        }
+//
+//        boolean flag = user.checkUser(user);
+//        if (!flag) {
+//            return ResponseUtil.custom("该帐号不可操作");
+//        }
+//
+//        String token = JjwtUtil.generic(user.getId() + "");
+//        return ResponseUtil.success(token);
+//    }
 
     @NoAuthentication
     @ApiOperation("帐密登陆.谷歌身份验证器")
@@ -187,8 +190,8 @@ public class LoginController {
     @NoAuthentication
     @ApiOperation("绑定谷歌身份验证器")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userName", value = "帐号", required = true),
-            @ApiImplicitParam(name = "password", value = "密码", required = true)
+            @ApiImplicitParam(name = "password", value = "密码", required = true),
+            @ApiImplicitParam(name = "userName", value = "帐号", required = true)
     })
     @ApiResponses({
             @ApiResponse(code = 0, message = "返回二维码地址")
@@ -261,15 +264,23 @@ public class LoginController {
     @ApiOperation("添加管理员用户")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userName", value = "帐号", required = true),
-            @ApiImplicitParam(name = "nickName", value = "昵称", required = true),
+            @ApiImplicitParam(name = "nickName", value = "昵称", required = false),
             @ApiImplicitParam(name = "password", value = "密码", required = true),
     })
     @PostMapping("save")
     public ResponseEntity save(String userName, String password, String nickName) {
-        if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(password) || StringUtils.isEmpty(nickName)) {
+        if(LoginUtil.checkNull(nickName)){
             return ResponseUtil.parameterNotNull();
         }
-        sysUserService.saveSysUser(userName, password, nickName);
+
+        //加密
+        String bcryptPassword = LoginUtil.bcrypt(password);
+        SysUser sysUser = new SysUser();
+        sysUser.setUserName(userName);
+        sysUser.setNickName(nickName);
+        sysUser.setPassWord(bcryptPassword);
+        sysUser.setUserFlag(Constants.open);
+        sysUserService.save(sysUser);
         return ResponseUtil.success();
     }
 
