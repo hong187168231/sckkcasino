@@ -25,7 +25,6 @@ import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
-import com.qianyi.modulecommon.util.Assert;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;

@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import com.qianyi.casinocore.model.BankcardsCustomer;
 import com.qianyi.casinocore.repository.BankInfoRepository;
 import com.qianyi.casinocore.repository.BankcardsCustomerRepository;
-import com.qianyi.modulecommon.util.Assert;
 
 @Service
 public class BankcardsCustomerService {
