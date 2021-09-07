@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
+
 /**
  * 对用户表进行增删改查操作
  */
@@ -96,9 +98,6 @@ public class UserController {
         String bcryptPassword = LoginUtil.bcrypt(password);
         user.setPassword(bcryptPassword);
 
-        //获取ip
-        long systemId = LoginUtil.getLoginUserId();
-        user.setRegisterIp(systemId + "");
         userService.save(user);
 
         JSONObject jsonObject = new JSONObject();
