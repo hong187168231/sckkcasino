@@ -116,7 +116,7 @@ public class UserController {
      * @param phone
      * @return
      */
-    @ApiOperation("修改用户")
+    @ApiOperation("修改用户电话")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "用户id", required = true),
             @ApiImplicitParam(name = "phone", value = "电话号码", required = true),
