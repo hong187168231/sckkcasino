@@ -43,4 +43,13 @@ public class CommonUtil {
 
         return false;
     }
+
+    public static String getLocalPicPath() {
+        String os = System.getProperty("os.name");
+        if (os.toLowerCase().startsWith("win")) {
+            return "D:/pic/";
+        } else {
+            return "/usr/path";
+        }
+    }
 }

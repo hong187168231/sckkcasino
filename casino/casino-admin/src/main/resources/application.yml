@@ -28,10 +28,4 @@ spring:
       connection-test-query: select 1
 project:
   title: 后台管理
-#文件上传路径配置
-upload:
-  uri-map:
-    localtion: D:/pic/
-    windows: D:/pic/
-    linux: /usr/pic/
 
