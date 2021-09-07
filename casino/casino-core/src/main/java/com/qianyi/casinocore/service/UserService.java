@@ -54,7 +54,7 @@ public class UserService {
     public ResponseEntity resetPassword(String userName) {
         User user = userRepository.getByName(userName);
         if(user == null){
-            return ResponseUtil.userError();
+            return ResponseUtil.success();
         }
         //重置密码
         String password = Constants.USER_SET_PASSWORD;
