@@ -54,6 +54,10 @@ public class UserService {
         }
     }
 
+    public void deleteById(Long id) {
+        userRepository.deleteById(id);
+    }
+
     public void addMoney(Long id, BigDecimal money) {
         synchronized (id) {
             userRepository.addMoney(id,money);
@@ -96,13 +100,13 @@ public class UserService {
      * @param user
      * @return
      */
-    public Specification<User> getCondition(User user) {
+    private Specification<User> getCondition(User user) {
         Specification<User> specification = new Specification<User>(){
             @Override
             public Predicate toPredicate(Root<User> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
-                if(StringUtils.isNotBlank(user.getName())){
-                    list.add( cb.equal(root.get("name").as(String.class), user.getName()));
+                if(StringUtils.isNotBlank(user.getAccount())){
+                    list.add(cb.equal(root.get("account").as(String.class), user.getAccount()));
                 }
                 if(user.getId() != null){
                     list.add(cb.equal(root.get("id").as(Long.class), user.getId()));
