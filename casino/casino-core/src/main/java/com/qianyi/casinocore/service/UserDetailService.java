@@ -191,4 +191,23 @@ public class UserDetailService {
         };
         return userDetailRepository.count(specification);
     }
+
+    /**
+     * 修改用户状态
+     * 1：正常，2：冻结
+     */
+    public ResponseEntity updateUserStatus(String userId) {
+
+        UserDetail userDetail = userDetailRepository.findByUserId(userId);
+        if(userDetail == null){
+            return ResponseUtil.userError();
+        }
+        if(userDetail.getStatus() == Constants.USER_LOCK_ACCOUNT){
+            userDetail.setStatus(Constants.USER_NORMAL);
+        }else{
+            userDetail.setStatus(Constants.USER_LOCK_ACCOUNT);
+        }
+        userDetailRepository.save(userDetail);
+        return ResponseUtil.success();
+    }
 }

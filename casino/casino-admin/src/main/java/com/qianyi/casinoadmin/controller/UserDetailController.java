@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 @RestController
@@ -36,11 +35,8 @@ public class UserDetailController {
             @ApiImplicitParam(name = "current", value = "当前页", required = true),
             @ApiImplicitParam(name = "registerStartTime", value = "开始时间"),
             @ApiImplicitParam(name = "registerEndTime", value = "结束时间"),
-            @ApiImplicitParam(name = "captchaText", value = "结束时间"),
-            @ApiImplicitParam(name = "captchaText", value = "结束时间"),
             @ApiImplicitParam(name = "agentLevel", value = "客户身份"),
             @ApiImplicitParam(name = "riskLevel", value = "风险等级"),
-            @ApiImplicitParam(name = "vipLevel", value = "VIP等级"),
             @ApiImplicitParam(name = "vipLevel", value = "VIP等级"),
             @ApiImplicitParam(name = "status", value = "用户状态"),
             @ApiImplicitParam(name = "userId", value = "用户ID"),
@@ -81,16 +77,15 @@ public class UserDetailController {
     @NoAuthentication
     @ApiOperation("修改用户状态")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userName", value = "用户名", required = true),
-            @ApiImplicitParam(name = "status", value = "用户状态", required = true),
+            @ApiImplicitParam(name = "userId", value = "用户Id", required = true),
     })
     @PostMapping(value = "/lockUser")
-    public ResponseEntity lockUser(String userName, Integer status){
-        if(StringUtils.isEmpty(userName) || status == null){
+    public ResponseEntity lockUser(String userId, Integer status){
+        if(StringUtils.isEmpty(userId) || status == null){
             return ResponseUtil.parameterNotNull();
         }
         try {
-            return userDetailService.lockUser(userName, status);
+            return userDetailService.updateUserStatus(userId);
         }catch (Exception e){
             log.error("用户状态修改操作异常" , e);
             return ResponseUtil.fail();
