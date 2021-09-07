@@ -29,16 +29,8 @@ public class SysUserService {
         sysUserRepository.setSecretById(id, gaKey);
     }
 
-    public void saveSysUser(String userName, String password, String nickName) {
-        //密码进行加密处理
-        BCryptPasswordEncoder passwordEncoder=new BCryptPasswordEncoder();
-        //加密
-        String newPassword = passwordEncoder.encode(password);
-        SysUser sysUser = new SysUser();
-        sysUser.setUserName(userName);
-        sysUser.setNickName(nickName);
-        sysUser.setPassWord(password);
-        sysUser.setUserFlag(Constants.open);
+
+    public void save(SysUser sysUser) {
         sysUserRepository.save(sysUser);
     }
 }
