@@ -22,10 +22,15 @@ public class Constants {
     
     //会员状态
     public final static Integer USER_NORMAL = 1; //正常
-    public final static Integer USER_LOCK_BALANCE = 3; //冻结资金
     public final static Integer USER_LOCK_ACCOUNT = 2; //冻结账户
+    public final static Integer USER_LOCK_BALANCE = 3; //冻结资金
 
-    public final static String USER_SET_PASSWORD = "888888"; //重置密码
+    public final static Integer USER_LANGUAGE_CH = 1; //默认中文
+
+
+    public final static Integer MIN_PASSWORD_NUM = 6; //密码最小位数
+    public final static Integer MAX_PASSWORD_NUM = 12; //密码最大位数
+
 
 
 }

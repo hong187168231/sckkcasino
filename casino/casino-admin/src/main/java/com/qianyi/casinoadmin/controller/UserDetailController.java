@@ -108,24 +108,6 @@ public class UserDetailController {
 
 
     /**
-     * 重置密码，默认是 888888
-     * @param userName
-     * @return
-     */
-    @NoAuthentication
-    @ApiOperation("重置用户密码")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userName", value = "用户名", required = true),
-    })
-    @PostMapping("resetPassword")
-    public ResponseEntity resetPassword(String userName){
-        if(StringUtils.isEmpty(userName)){
-            return ResponseUtil.parameterNotNull();
-        }
-        return userService.resetPassword(userName);
-    }
-
-    /**
      * 用户详细信息
      *
      * @return

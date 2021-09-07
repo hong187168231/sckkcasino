@@ -68,21 +68,6 @@ public class UserService {
         return userRepository.countByRegisterIp(ip);
     }
 
-    public ResponseEntity resetPassword(String userName) {
-        User user = userRepository.getByName(userName);
-        if(user == null){
-            return ResponseUtil.success();
-        }
-        //重置密码
-        String password = Constants.USER_SET_PASSWORD;
-        BCryptPasswordEncoder passwordEncoder=new BCryptPasswordEncoder();
-        //加密
-        String newPassword = passwordEncoder.encode(password);
-        user.setPassword(newPassword);
-        userRepository.save(user);
-        return ResponseUtil.success("保存成功");
-    }
-
 
     /**
      * 用户列表查询

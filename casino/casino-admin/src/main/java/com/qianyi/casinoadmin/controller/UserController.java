@@ -1,6 +1,8 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinoadmin.util.passwordUtil;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.Constants;
@@ -63,16 +65,10 @@ public class UserController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "account", value = "用户名", required = true),
             @ApiImplicitParam(name = "name", value = "用户昵称", required = false),
-            @ApiImplicitParam(name = "state", value = "用户状态(1：启用，其他：禁用)", required = false),
             @ApiImplicitParam(name = "phone", value = "电话号码", required = false),
-            @ApiImplicitParam(name = "headImg", value = "用户头像", required = false),
-            @ApiImplicitParam(name = "password", value = "用户密码", required = false),
-            @ApiImplicitParam(name = "language", value = "语言", required = false),
-
     })
     @PostMapping("saveUser")
-    public ResponseEntity saveUser(String account, String name, Integer state, String phone,
-                                   String headImg, String password, Integer language){
+    public ResponseEntity saveUser(String account, String name, String phone){
         User us = userService.findByAccount(account);
         if(us != null){
             return ResponseUtil.custom("账户已存在");
@@ -86,27 +82,17 @@ public class UserController {
             user.setName(name);
         }
 
-        if(LoginUtil.checkNull(state)){
-            user.setState(Constants.USER_NORMAL);
-        }else{
-            user.setState(state);
-        }
+        user.setState(Constants.USER_NORMAL);
 
         if(!LoginUtil.checkNull(phone)){
             user.setPhone(phone);
         }
 
-        if(!LoginUtil.checkNull(headImg)){
-            user.setHeadImg(headImg);
-        }
+        //默认中文
+        user.setLanguage(Constants.USER_LANGUAGE_CH);
 
-        if(!LoginUtil.checkNull(language)){
-            user.setLanguage(language);
-        }
-        //默认密码是
-        if(LoginUtil.checkNull(password)){
-            password = Constants.USER_SET_PASSWORD;
-        }
+        //随机生成
+        String password = passwordUtil.getRandomPwd();
         String bcryptPassword = LoginUtil.bcrypt(password);
         user.setPassword(bcryptPassword);
 
@@ -114,37 +100,38 @@ public class UserController {
         String ip = IpUtil.getIp(LoginUtil.getRequest());
         user.setRegisterIp(ip);
         userService.save(user);
-        return ResponseUtil.success();
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("account", account);
+        jsonObject.put("password", password);
+        return ResponseUtil.success(jsonObject);
     }
 
     /**
      * 修改用户
+     * 只有修改电话功能，那电话不能为空
      *
      * @param id
      * @param state
      * @param phone
-     * @param headImg
      * @return
      */
     @ApiOperation("修改用户")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "用户id", required = true),
-            @ApiImplicitParam(name = "state", value = "用户状态(1：启用，其他：禁用)", required = false),
-            @ApiImplicitParam(name = "phone", value = "电话号码", required = false),
-            @ApiImplicitParam(name = "headImg", value = "用户头像", required = false),
-            @ApiImplicitParam(name = "password", value = "用户密码", required = false),
+            @ApiImplicitParam(name = "phone", value = "电话号码", required = true),
 
     })
     @PostMapping("updateUser")
-    public ResponseEntity updateUser(Long id, Integer state, String phone, String headImg, String password){
+    public ResponseEntity updateUser(Long id, Integer state, String phone){
         //权限功能会过滤权限,此处不用
 
         //查询用户信息
         User user = userService.findById(id);
         if(user == null){
-            return ResponseUtil.parameterNotNull();
+            return ResponseUtil.custom("账户不存在");
         }
-        this.setUserParams(user, state, phone, headImg, password);
+        user.setPhone(phone);
         userService.save(user);
         return ResponseUtil.success();
     }
@@ -163,21 +150,44 @@ public class UserController {
         return ResponseUtil.success();
     }
 
-    private void setUserParams(User user, Integer state, String phone, String headImg, String password) {
-        if(!LoginUtil.checkNull(state)){
-            user.setState(state);
+    @ApiOperation("修改用户状态")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+    })
+    @PostMapping("updateUserStatus")
+    public ResponseEntity updateUserStatus(Long id){
+        User user = userService.findById(id);
+        if(user == null){
+            ResponseUtil.custom("账户不存在");
         }
-        if(!LoginUtil.checkNull(phone)){
-            user.setPhone(phone);
+        //开启状态，冻结
+        if(user.getState() == Constants.USER_NORMAL){
+            user.setState(Constants.USER_LOCK_ACCOUNT);
+        }else{
+            user.setState(Constants.USER_NORMAL);
         }
-        if(!LoginUtil.checkNull(headImg)){
-            user.setHeadImg(headImg);
-        }
-        if(!LoginUtil.checkNull(password)){
-            String bcryptPassword = LoginUtil.bcrypt(password);
-            user.setPassword(bcryptPassword);
-        }
+        userService.save(user);
+        return ResponseUtil.success();
     }
 
+    @ApiOperation("重置用户密码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+    })
+    @PostMapping("resetPassword")
+    public ResponseEntity resetPassword(Long id){
+        User user = userService.findById(id);
+        if(user == null){
+            ResponseUtil.custom("账户不存在");
+        }
+        //随机生成
+        String password = passwordUtil.getRandomPwd();
+        String bcryptPassword = LoginUtil.bcrypt(password);
+        user.setPassword(bcryptPassword);
 
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("account", user.getAccount());
+        jsonObject.put("password", password);
+        return ResponseUtil.success(jsonObject);
+    }
 }
