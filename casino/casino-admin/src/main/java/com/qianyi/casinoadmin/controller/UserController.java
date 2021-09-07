@@ -30,12 +30,13 @@ public class UserController {
 
     /**
      * 查询操作
+     * 注意：jpa 是从第0页开始的
      * @return
      */
     @ApiOperation("用户列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "size", value = "每页大小", required = true),
-            @ApiImplicitParam(name = "current", value = "当前页", required = true),
+            @ApiImplicitParam(name = "size", value = "每页大小(默认10条)", required = true),
+            @ApiImplicitParam(name = "current", value = "当前页(默认第一页)", required = true),
             @ApiImplicitParam(name = "name", value = "用户名", required = true),
             @ApiImplicitParam(name = "id", value = "用户id", required = true),
     })
