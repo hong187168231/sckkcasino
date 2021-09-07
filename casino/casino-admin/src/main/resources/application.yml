@@ -28,4 +28,8 @@ spring:
       connection-test-query: select 1
 project:
   title: 后台管理
+  username: admin
+  password: 123456
+
+
 
