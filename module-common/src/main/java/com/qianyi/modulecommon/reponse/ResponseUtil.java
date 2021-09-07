@@ -5,11 +5,6 @@ public class ResponseUtil {
     public static ResponseEntity error() {
         return new ResponseEntity(ResponseCode.ERROR);
     }
-    
-    public static ResponseEntity error(int code, String msg) {
-        return new ResponseEntity(code, msg);
-    }
-
 
     public static ResponseEntity success() {
         return new ResponseEntity(ResponseCode.SUCCESS);
