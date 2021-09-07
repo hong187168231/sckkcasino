@@ -82,7 +82,7 @@ public class UserController {
             user.setName(name);
         }
 
-        user.setState(Constants.USER_NORMAL);
+        user.setState(Constants.open);
 
         if(!LoginUtil.checkNull(phone)){
             user.setPhone(phone);
@@ -97,8 +97,8 @@ public class UserController {
         user.setPassword(bcryptPassword);
 
         //获取ip
-        String ip = IpUtil.getIp(LoginUtil.getRequest());
-        user.setRegisterIp(ip);
+        long systemId = LoginUtil.getLoginUserId();
+        user.setRegisterIp(systemId + "");
         userService.save(user);
 
         JSONObject jsonObject = new JSONObject();
