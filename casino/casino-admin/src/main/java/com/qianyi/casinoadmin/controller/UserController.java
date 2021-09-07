@@ -143,7 +143,7 @@ public class UserController {
     public ResponseEntity deteleUser(Long id){
         User user = userService.findById(id);
         if(user == null){
-            ResponseUtil.custom("账户不存在");
+            return ResponseUtil.custom("账户不存在");
         }
         userService.deleteById(id);
         return ResponseUtil.success();
