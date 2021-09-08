@@ -4,12 +4,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.qianyi.modulecommon.Constants;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.util.ObjectUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import java.util.Date;
 
 /**
  * 管理后台用户表
