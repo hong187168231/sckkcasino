@@ -61,10 +61,10 @@ public class BankcardsService {
                     list.add(cb.equal(root.get("bankId").as(Long.class), bankcards.getBankId()));
                 }
                 if(StringUtils.hasLength(bankcards.getRealName())){
-                    list.add(cb.equal(root.get("realName").as(Long.class), bankcards.getRealName()));
+                    list.add(cb.equal(root.get("realName").as(String.class), bankcards.getRealName()));
                 }
                 if(StringUtils.hasLength(bankcards.getBankAccount())){
-                    list.add(cb.equal(root.get("bankAccount").as(Long.class), bankcards.getBankAccount()));
+                    list.add(cb.equal(root.get("bankAccount").as(String.class), bankcards.getBankAccount()));
                 }
                 return cb.and(list.toArray(new Predicate[list.size()]));
             }
