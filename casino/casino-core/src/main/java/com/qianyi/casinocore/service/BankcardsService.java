@@ -15,7 +15,7 @@ public class BankcardsService {
     BankcardsRepository bankcardsRepository;
 
     public List<Bankcards> findBankcardsByUserId(Long userId){
-        return bankcardsRepository.findBankcardsById(userId);
+        return bankcardsRepository.findBankcardsByUserIdOrderByDefaultCardDesc(userId);
     }
 
     public Bankcards boundCard(Bankcards bankcards){
@@ -23,6 +23,10 @@ public class BankcardsService {
     }
 
     public Bankcards findBankCardsInByUserId(Long userId) {
-        return bankcardsRepository.findBankcardsInUserCardByUserId(userId);
+        return bankcardsRepository.findFirstByUserId(userId);
+    }
+
+    public int countByUserId(Long userId){
+        return bankcardsRepository.countByUserId(userId);
     }
 }

@@ -64,9 +64,19 @@ public class BankCardsController {
             return ResponseUtil.custom(checkParamFroBound);
         }
 
+        if(isGreatThan6()){
+            return ResponseUtil.custom("已经超过6张银行卡");
+        }
+
         Bankcards bankcards = boundCard(bankId,bankAccount,address,realName);
-        boolean isSuccess= bankcardsService.boundCard(bankcards)==null?true:false;
-        return ResponseUtil.success(isSuccess);
+        bankcards= bankcardsService.boundCard(bankcards);
+        return ResponseUtil.success(bankcards);
+    }
+
+    private boolean isGreatThan6(){
+        Long userId = CasinoWebUtil.getAuthId();
+        int count = bankcardsService.countByUserId(userId);
+        return count>=6;
     }
 
     private Bankcards boundCard(Long bankId, String bankAccount, String address, String realName){

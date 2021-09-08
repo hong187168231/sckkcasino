@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface BankcardsRepository extends JpaRepository<Bankcards,Long> {
 
-    @Query(value = "select * from bankcards where user_id = ? order by default_card desc", nativeQuery = true)
-    List<Bankcards> findBankcardsById(Long userId);
+    List<Bankcards> findBankcardsByUserIdOrderByDefaultCardDesc(Long userId);
 
-    @Query(value = "select * from bankcards where user_id = ? limit 1", nativeQuery = true)
-    Bankcards findBankcardsInUserCardByUserId(Long userId);
+    Bankcards findFirstByUserId(Long userId);
+
+    int countByUserId(Long userId);
 }
