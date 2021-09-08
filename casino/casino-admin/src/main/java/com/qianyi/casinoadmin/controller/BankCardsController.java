@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.BankcardsService;
@@ -42,6 +43,30 @@ public class BankCardsController {
     })
     public ResponseEntity boundList(Long userId) {
         List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(userId);
+        return ResponseUtil.success(bankcardsList);
+    }
+
+    /**
+     * 可以灵活添加参数，满足后续添加的需求
+     *
+     * @param bankAccount
+     * @param realName
+     * @return
+     */
+    @GetMapping("/boundList")
+    @ApiOperation("用户已绑定银行卡列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "bankAccount", value = "银行卡号", required = false),
+            @ApiImplicitParam(name = "realName", value = "开户名", required = false),
+    })
+    public ResponseEntity peggBankCard(String bankAccount, String realName){
+        if(LoginUtil.checkNull(bankAccount, realName)){
+            return ResponseUtil.parameterNotNull();
+        }
+        Bankcards bankcards = new Bankcards();
+        bankcards.setBankAccount(bankAccount);
+        bankcards.setRealName(realName);
+        List<Bankcards> bankcardsList = bankcardsService.findUserBank(bankcards);
         return ResponseUtil.success(bankcardsList);
     }
 
