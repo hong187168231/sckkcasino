@@ -27,6 +27,6 @@ spring:
       maximum-pool-size: 16
       connection-test-query: select 1
 project:
-  title: ????
+  title: 千亿科技
   vendorId: qy01twapi
   signature: f76aecd01a78c8c2021c91d833ca50c6
