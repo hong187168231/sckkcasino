@@ -100,12 +100,6 @@ public class BannerController {
         Map<Integer,String> map = new HashMap<>();
         try {
             request.setCharacterEncoding("utf-8"); //设置编码
-            String realPath = request.getSession().getServletContext().getRealPath("/uploadFile/");
-            File dir = new File(realPath);
-            //文件目录不存在，就创建一个
-            if (!dir.isDirectory()) {
-                dir.mkdirs();
-            }
             StandardMultipartHttpServletRequest req = (StandardMultipartHttpServletRequest) request;
             //获取formdata的值
             Iterator<String> iterator = req.getFileNames();
