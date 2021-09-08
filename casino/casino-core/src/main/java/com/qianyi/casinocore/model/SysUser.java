@@ -4,12 +4,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.qianyi.modulecommon.Constants;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.util.ObjectUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import java.util.Date;
 
 /**
  * 管理后台用户表
@@ -87,20 +85,9 @@ public class SysUser extends BaseEntity {
     private String gaBind;
 
     /**
-     * 最后登录时间
+     * 最后登录ip
      */
     private String LastLoginIp;
-
-    @CreatedDate
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date lastLoginTime;
-
-    /**
-     * 最后登出时间
-     */
-    @CreatedDate
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date lastLogoutTime;
 
     /**
      * 在线时长

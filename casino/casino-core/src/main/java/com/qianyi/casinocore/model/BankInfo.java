@@ -13,7 +13,6 @@ import lombok.Data;
 @ApiModel("银行列表")
 public class BankInfo extends BaseEntity {
 
-	private static final long serialVersionUID = 1L;
 
 	/**
 	 * 银行名

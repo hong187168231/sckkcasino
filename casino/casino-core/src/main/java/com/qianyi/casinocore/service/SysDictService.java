@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
-import com.qianyi.casinocore.model.SysDict;
 import com.qianyi.casinocore.repository.SysDictRepository;
 
 @Service
