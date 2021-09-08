@@ -49,9 +49,9 @@ public class PictureController {
         try {
             String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
             lunboPic.setUrl(fileUrl);
-//            String userName = sysUserService.findAllById(LoginUtil.getLoginUserId()).getUserName();
-//            lunboPic.setCreateBy(userName);
-//            lunboPic.setUpdateBy(userName);
+            String userName = sysUserService.findAllById(LoginUtil.getLoginUserId()).getUserName();
+            lunboPic.setCreateBy(userName);
+            lunboPic.setUpdateBy(userName);
             lunboPic.setCreateTime(new Date());
             lunboPic.setUpdateTime(new Date());
         } catch (Exception e) {
@@ -91,7 +91,7 @@ public class PictureController {
         try {
             String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
             lunboPic.setUrl(fileUrl);
-//            lunboPic.setUpdateBy(sysUserService.findAllById(LoginUtil.getLoginUserId()).getUserName());
+            lunboPic.setUpdateBy(sysUserService.findAllById(LoginUtil.getLoginUserId()).getUserName());
             lunboPic.setUpdateTime(new Date());
         } catch (Exception e) {
             return ResponseUtil.custom(CommonConst.PICTURENOTUP);
