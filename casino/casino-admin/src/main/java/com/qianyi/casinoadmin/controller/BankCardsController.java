@@ -54,7 +54,7 @@ public class BankCardsController {
      * @return
      */
     @GetMapping("/peggBankCard")
-    @ApiOperation("用户已绑定银行卡列表")
+    @ApiOperation("银行卡/开户名反查")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "bankAccount", value = "银行卡号", required = false),
             @ApiImplicitParam(name = "realName", value = "开户名", required = false),
