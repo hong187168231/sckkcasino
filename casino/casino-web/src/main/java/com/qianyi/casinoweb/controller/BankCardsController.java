@@ -34,7 +34,6 @@ public class BankCardsController {
 
     @GetMapping("/banklist")
     @ApiOperation("银行列表")
-    @NoAuthentication
     @ResponseBody
     public ResponseEntity bankList() {
         return ResponseUtil.success(bankInfoService.findAll());
@@ -42,7 +41,6 @@ public class BankCardsController {
 
     @GetMapping("/boundList")
     @ApiOperation("用户已绑定银行卡列表")
-    @NoAuthentication
     @ResponseBody
     public ResponseEntity boundList() {
         Long userId =  CasinoWebUtil.getAuthId();
@@ -52,7 +50,6 @@ public class BankCardsController {
 
     @PostMapping("/bound")
     @ApiOperation("用户增加银行卡")
-    @NoAuthentication
     @ApiImplicitParams({
             @ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
             @ApiImplicitParam(name = "bankAccount", value = "银行账号", required = true),
@@ -101,7 +98,7 @@ public class BankCardsController {
     }
 
     private Integer isFirstCard(Bankcards bankcards){
-        return bankcards==null?0:1;
+        return bankcards==null?1:0;
     }
 
 
