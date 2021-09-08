@@ -1,6 +1,7 @@
 package com.qianyi.casinoweb.controller;
 
 import com.google.code.kaptcha.Producer;
+import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoweb.job.LoginLogJob;
@@ -295,10 +296,11 @@ public class AuthController {
     })
     @NoAuthentication
     public ResponseEntity getJwtToken(String token) {
-        if (!("dashan".equals(token) || "xiaoxiannv".equals(token)) || "xiaoben".equals(token)) {
-            return ResponseUtil.custom("找管理员拿token");
+        User user = userService.findByAccount(token);
+        if (user == null) {
+            return ResponseUtil.fail();
         }
-        String jwt = JjwtUtil.generic("1");
+        String jwt = JjwtUtil.generic(user.getId()+"");
         return ResponseUtil.success(jwt);
     }
 

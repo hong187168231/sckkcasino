@@ -4,6 +4,10 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.repository.UserRepository;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -21,6 +25,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
+@CacheConfig(cacheNames = {"user"})
 public class UserService {
 
     @Autowired
@@ -48,6 +53,7 @@ public class UserService {
         }
     }
 
+    @CacheEvict
     public void deleteById(Long id) {
         userRepository.deleteById(id);
     }
