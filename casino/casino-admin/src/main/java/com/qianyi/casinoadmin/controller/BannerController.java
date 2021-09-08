@@ -103,6 +103,7 @@ public class BannerController {
             banner.setLastUpdatedTime(new Date());
         } catch (Exception e) {
             logger.error("处理图片出错", e);
+            return ResponseUtil.custom(CommonConst.PICTURENOTUP);
         }
         bannerService.saveBanner(banner);
         return ResponseUtil.success();
