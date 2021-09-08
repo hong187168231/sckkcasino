@@ -9,7 +9,6 @@ import com.qianyi.casinocore.vo.request.UserDetailRequest;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -62,13 +61,13 @@ public class UserDetailService {
             @Override
             public Predicate toPredicate(Root<UserDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
-                if(StringUtils.isNotBlank(userDetailRequest.getUserName())){
-                    Predicate userName = cb.equal(root.get("userName").as(String.class), userDetailRequest.getUserName());
-                    list.add( cb.equal(root.get("userName").as(String.class), userDetailRequest.getUserName()));
-                }
-                if(StringUtils.isNotBlank(userDetailRequest.getUserId())){
-                    list.add(cb.equal(root.get("userId").as(String.class), userDetailRequest.getUserId()));
-                }
+//                if(StringUtils.isNotBlank(userDetailRequest.getUserName())){
+//                    Predicate userName = cb.equal(root.get("userName").as(String.class), userDetailRequest.getUserName());
+//                    list.add( cb.equal(root.get("userName").as(String.class), userDetailRequest.getUserName()));
+//                }
+//                if(StringUtils.isNotBlank(userDetailRequest.getUserId())){
+//                    list.add(cb.equal(root.get("userId").as(String.class), userDetailRequest.getUserId()));
+//                }
                 if(userDetailRequest.getStatus() != null){
                     list.add(cb.equal(root.get("status").as(String.class), userDetailRequest.getStatus()));
                 }
@@ -183,9 +182,9 @@ public class UserDetailService {
             @Override
             public Predicate toPredicate(Root<UserDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
-                if(StringUtils.isNotBlank(userDetail.getUserId())){
-                    list.add(cb.like(root.get("agentLine").as(String.class), "%" + userDetail.getAgentLine() + "%"));
-                }
+//                if(StringUtils.isNotBlank(userDetail.getUserId())){
+//                    list.add(cb.like(root.get("agentLine").as(String.class), "%" + userDetail.getAgentLine() + "%"));
+//                }
                 return cb.and(list.toArray(new Predicate[list.size()]));
             }
         };

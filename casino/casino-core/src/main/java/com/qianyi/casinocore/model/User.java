@@ -1,19 +1,10 @@
 package com.qianyi.casinocore.model;
 
 import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.ObjectUtils;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @Entity

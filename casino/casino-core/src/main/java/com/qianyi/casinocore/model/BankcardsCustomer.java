@@ -2,8 +2,6 @@ package com.qianyi.casinocore.model;
 
 import javax.persistence.Entity;
 
-import org.apache.commons.lang3.StringUtils;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -65,32 +63,32 @@ public class BankcardsCustomer extends BaseEntity {
 	
 	
 	
-	/**
-	 *  针对绑定银行卡接口的参数合法性校验 
-	 * @param bankName
-	 * @param bankId
-	 * @param bankAccount
-	 * @param address
-	 * @return
-	 */
-	public static String checkParamFroBound(String bankName, Long bankId, String bankAccount,
-			String address) {
-		if (StringUtils.isEmpty(bankName)) {
-			return "银行名不能为空！";
-		}
-		if (bankId == null) {
-			return "银行id不能为空！";
-		}
-		if (StringUtils.isEmpty(address)) {
-			return "开户地址不能为空！";
-		}
-		if (StringUtils.isEmpty(bankAccount)) {
-			return "银行账号不能为空！";
-		}
-		if (bankAccount.length() > 20 || bankAccount.length() < 16) {
-			return "长度只能在16~20位！";
-		}
-		return null;
-	}
+//	/**
+//	 *  针对绑定银行卡接口的参数合法性校验
+//	 * @param bankName
+//	 * @param bankId
+//	 * @param bankAccount
+//	 * @param address
+//	 * @return
+//	 */
+//	public static String checkParamFroBound(String bankName, Long bankId, String bankAccount,
+//			String address) {
+//		if (StringUtils.isEmpty(bankName)) {
+//			return "银行名不能为空！";
+//		}
+//		if (bankId == null) {
+//			return "银行id不能为空！";
+//		}
+//		if (StringUtils.isEmpty(address)) {
+//			return "开户地址不能为空！";
+//		}
+//		if (StringUtils.isEmpty(bankAccount)) {
+//			return "银行账号不能为空！";
+//		}
+//		if (bankAccount.length() > 20 || bankAccount.length() < 16) {
+//			return "长度只能在16~20位！";
+//		}
+//		return null;
+//	}
 	
 }

@@ -3,10 +3,6 @@ package com.qianyi.casinocore.service;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserDetail;
 import com.qianyi.casinocore.repository.UserRepository;
-import com.qianyi.modulecommon.Constants;
-import com.qianyi.modulecommon.reponse.ResponseEntity;
-import com.qianyi.modulecommon.reponse.ResponseUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -90,9 +86,9 @@ public class UserService {
             @Override
             public Predicate toPredicate(Root<User> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
-                if(StringUtils.isNotBlank(user.getAccount())){
-                    list.add(cb.equal(root.get("account").as(String.class), user.getAccount()));
-                }
+//                if(StringUtils.isNotBlank(user.getAccount())){
+//                    list.add(cb.equal(root.get("account").as(String.class), user.getAccount()));
+//                }
                 if(user.getId() != null){
                     list.add(cb.equal(root.get("id").as(Long.class), user.getId()));
                 }

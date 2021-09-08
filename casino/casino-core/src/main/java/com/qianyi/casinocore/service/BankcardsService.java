@@ -3,7 +3,6 @@ package com.qianyi.casinocore.service;
 import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.repository.BankcardsRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -64,12 +63,12 @@ public class BankcardsService {
                 if(bankcards.getBankId() != null){
                     list.add(cb.equal(root.get("bankId").as(Long.class), bankcards.getBankId()));
                 }
-                if(StringUtils.isNotBlank(bankcards.getRealName())){
-                    list.add(cb.equal(root.get("realName").as(Long.class), bankcards.getRealName()));
-                }
-                if(StringUtils.isNotBlank(bankcards.getBankAccount())){
-                    list.add(cb.equal(root.get("bankAccount").as(Long.class), bankcards.getBankAccount()));
-                }
+//                if(StringUtils.isNotBlank(bankcards.getRealName())){
+//                    list.add(cb.equal(root.get("realName").as(Long.class), bankcards.getRealName()));
+//                }
+//                if(StringUtils.isNotBlank(bankcards.getBankAccount())){
+//                    list.add(cb.equal(root.get("bankAccount").as(Long.class), bankcards.getBankAccount()));
+//                }
                 return cb.and(list.toArray(new Predicate[list.size()]));
             }
         };

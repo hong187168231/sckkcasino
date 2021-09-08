@@ -13,7 +13,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -84,8 +83,8 @@ public class BankCardsController {
             @ApiImplicitParam(name = "address", value = "开户地址", required = true),
             @ApiImplicitParam(name = "realName", value = "持卡人姓名")})
     public ResponseEntity bound(Long userId, String bankId, String bankAccount, String address, String realName){
-        String checkParamFroBound = Bankcards.checkParamFroBound(realName, bankId, bankAccount, address);
-        if (StringUtils.isNotEmpty(checkParamFroBound)) {
+        String checkParamFroBound = this.checkParamFroBound(realName, bankId, bankAccount, address);
+        if (LoginUtil.checkNull(checkParamFroBound)) {
             return ResponseUtil.custom(checkParamFroBound);
         }
 
@@ -102,6 +101,26 @@ public class BankCardsController {
         Bankcards bankcards = boundCard(userId, bankId,bankAccount,address,realName);
         boolean isSuccess= bankcardsService.boundCard(bankcards)==null?true:false;
         return ResponseUtil.success(isSuccess);
+    }
+
+    private String checkParamFroBound(String accountName,String bankId, String bankAccount,
+                                      String address) {
+        if(LoginUtil.checkNull(accountName)){
+            return "持卡人不能为空";
+        }
+        if (bankId == null) {
+            return "银行id不能为空！";
+        }
+        if (LoginUtil.checkNull(address)) {
+            return "开户地址不能为空！";
+        }
+        if (LoginUtil.checkNull(bankAccount)) {
+            return "银行账号不能为空！";
+        }
+        if (bankAccount.length() > 20 || bankAccount.length() < 16) {
+            return "长度只能在16~20位！";
+        }
+        return null;
     }
 
     private boolean isGreatThan6(Long userId) {

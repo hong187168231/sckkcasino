@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.vo.request.UserDetailRequest;
 import com.qianyi.casinocore.service.UserDetailService;
@@ -11,7 +12,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -81,7 +81,7 @@ public class UserDetailController {
     })
     @PostMapping(value = "/lockUser")
     public ResponseEntity lockUser(String userId, Integer status){
-        if(StringUtils.isEmpty(userId) || status == null){
+        if(LoginUtil.checkNull(userId) || status == null){
             return ResponseUtil.parameterNotNull();
         }
         try {
@@ -100,7 +100,7 @@ public class UserDetailController {
     })
     @PostMapping("updateRiskLevel")
     public ResponseEntity updateRiskLevel(String userName, Integer riskLevel){
-        if(StringUtils.isEmpty(userName) || riskLevel == null){
+        if(LoginUtil.checkNull(userName) || riskLevel == null){
             return ResponseUtil.parameterNotNull();
         }
         return userDetailService.updateRiskLevel(userName, riskLevel);
@@ -119,7 +119,7 @@ public class UserDetailController {
     })
     @GetMapping("getUserDetail")
     private ResponseEntity getUserDetail(String userName){
-        if(StringUtils.isEmpty(userName)){
+        if(LoginUtil.checkNull(userName)){
             return ResponseUtil.parameterNotNull();
         }
         return userDetailService.getUserDetail(userName);
