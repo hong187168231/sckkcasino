@@ -34,6 +34,7 @@ public class Constants {
     public final static Integer BANK_CLOSE = 1; //银行卡禁用
     public final static Integer BANK_OPEN = 0; //银行卡禁用
 
+    public final static Integer MAX_BANK_NUM = 6; //银行卡禁用
 
 
 }

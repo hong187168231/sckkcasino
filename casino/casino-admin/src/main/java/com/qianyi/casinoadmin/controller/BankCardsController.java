@@ -2,8 +2,10 @@ package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.Bankcards;
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.BankcardsService;
+import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -28,6 +30,9 @@ public class BankCardsController {
 
     @Autowired
     private BankcardsService bankcardsService;
+
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/banklist")
     @ApiOperation("银行列表")
@@ -84,9 +89,24 @@ public class BankCardsController {
             return ResponseUtil.custom(checkParamFroBound);
         }
 
+        //判断是否存在该用户
+        User user = userService.findById(userId);
+        if(user == null){
+            return ResponseUtil.custom("不存在该会员");
+        }
+
+        if(isGreatThan6(userId)){
+            return ResponseUtil.custom("已经超过6张银行卡");
+        }
+
         Bankcards bankcards = boundCard(userId, bankId,bankAccount,address,realName);
         boolean isSuccess= bankcardsService.boundCard(bankcards)==null?true:false;
         return ResponseUtil.success(isSuccess);
+    }
+
+    private boolean isGreatThan6(Long userId) {
+        int count = bankcardsService.countByUserId(userId);
+        return count>=Constants.MAX_BANK_NUM;
     }
 
     @PostMapping("/disable")
@@ -127,7 +147,7 @@ public class BankCardsController {
         bankcards.setRealName(getRealName(firstBankcard,realName));
         bankcards.setUpdateTime(now);
         bankcards.setCreateTime(now);
-        bankcards.setDisable(0);
+        bankcards.setDisable(Constants.BANK_OPEN);
         bankcards.setDefaultCard(isFirstCard(firstBankcard));
         return bankcards;
     }
