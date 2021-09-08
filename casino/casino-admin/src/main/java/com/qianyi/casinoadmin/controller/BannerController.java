@@ -33,11 +33,7 @@ public class BannerController {
     private SysUserService sysUserService;
 
     @ApiOperation("修改Banner")
-    @PostMapping(value = "updateBanner",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "修改Banner")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "id", value = "banner主键", required = true),
-//            @ApiImplicitParam(name = "articleLink", value = "文章链接", required = true),
-//    })
+    @PostMapping(value = "/updateBanner",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "修改Banner")
     public ResponseEntity updateBanner(@RequestPart("files") MultipartFile[] files,@RequestParam(value = "id") Integer id,@RequestParam(value = "文章链接") String articleLink) {
         if (id == null){
             return ResponseUtil.custom(CommonConst.IDNOTNULL);
@@ -47,11 +43,7 @@ public class BannerController {
         return this.getfilePaths(files,banner);
     }
     @ApiOperation("新增Banner")
-    @PostMapping(value = "saveBanner",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增Banner")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "theShowEnd", value = "展示端 1 web 2 app", required = true),
-//            @ApiImplicitParam(name = "articleLink", value = "文章链接", required = true),
-//    })
+    @PostMapping(value = "/saveBanner",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增Banner")
     public ResponseEntity saveBanner(@RequestPart(value = "file") MultipartFile[] files,@RequestParam(value = "展示端1 web 2 app") Integer theShowEnd,
                                      @RequestParam(value = "文章链接") String articleLink){
         Banner banner = new Banner();
