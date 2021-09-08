@@ -1,19 +1,12 @@
 package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.UserDetail;
 import com.qianyi.casinocore.repository.UserRepository;
-import com.qianyi.modulecommon.Constants;
-import com.qianyi.modulecommon.reponse.ResponseEntity;
-import com.qianyi.modulecommon.reponse.ResponseUtil;
-import org.apache.commons.lang3.StringUtils;
+import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -32,6 +25,7 @@ public class UserService {
 
     @Autowired
     UserRepository userRepository;
+
     public User findByAccount(String account) {
         return userRepository.findByAccount(account);
     }
@@ -50,7 +44,7 @@ public class UserService {
 
     public void subMoney(Long id, BigDecimal money) {
         synchronized (id) {
-            userRepository.subMoney(id,money);
+            userRepository.subMoney(id, money);
         }
     }
 
@@ -60,7 +54,7 @@ public class UserService {
 
     public void addMoney(Long id, BigDecimal money) {
         synchronized (id) {
-            userRepository.addMoney(id,money);
+            userRepository.addMoney(id, money);
         }
     }
 
@@ -82,18 +76,19 @@ public class UserService {
 
     /**
      * 查询条件拼接，灵活添加条件
+     *
      * @param user
      * @return
      */
     private Specification<User> getCondition(User user) {
-        Specification<User> specification = new Specification<User>(){
+        Specification<User> specification = new Specification<User>() {
             @Override
             public Predicate toPredicate(Root<User> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
-                if(StringUtils.isNotBlank(user.getAccount())){
+                if (CommonUtil.checkNull(user.getAccount())) {
                     list.add(cb.equal(root.get("account").as(String.class), user.getAccount()));
                 }
-                if(user.getId() != null){
+                if (user.getId() != null) {
                     list.add(cb.equal(root.get("id").as(Long.class), user.getId()));
                 }
                 return cb.and(list.toArray(new Predicate[list.size()]));
