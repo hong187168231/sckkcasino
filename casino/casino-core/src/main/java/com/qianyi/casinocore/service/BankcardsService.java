@@ -2,6 +2,7 @@ package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.repository.BankcardsRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @Service
 public class BankcardsService {
 
@@ -26,6 +28,7 @@ public class BankcardsService {
     }
 
     public Bankcards boundCard(Bankcards bankcards){
+        log.info("{}",bankcards);
         return bankcardsRepository.save(bankcards);
     }
 
