@@ -1,6 +1,5 @@
 package com.qianyi.modulecommon.util;
 
-
 import java.lang.management.ManagementFactory;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,7 +7,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
-public class DateUtils {
+public class DateUtils  {
 
     private static Map<String, ThreadLocal<SimpleDateFormat>> sdfMap = new HashMap<>();
 
@@ -156,35 +155,6 @@ public class DateUtils {
 //        System.out.println(startStr);
 //    }
 
-//    /**
-//     * 日期路径 即年/月/日 如2018/08/08
-//     */
-//    public static final String datePath() {
-//        Date now = new Date();
-//        return .format(now, "yyyy/MM/dd");
-//    }
-//
-//    /**
-//     * 日期路径 即年/月/日 如20180808
-//     */
-//    public static final String dateTime() {
-//        Date now = new Date();
-//        return DateFormatUtils.format(now, "yyyyMMdd");
-//    }
-
-//    /**
-//     * 日期型字符串转化为日期 格式
-//     */
-//    public static Date parseDate(Object str) {
-//        if (str == null) {
-//            return null;
-//        }
-//        try {
-//            return parseDate(str.toString(), parsePatterns);
-//        } catch (ParseException e) {
-//            return null;
-//        }
-//    }
 
     /**
      * 返回下个月的第n天
@@ -676,10 +646,6 @@ public class DateUtils {
         return cal.getTime();
     }
 
-//    public static String getMonth() {
-//        String date = datePath();
-//        return date.substring(date.indexOf("/") + 1, date.lastIndexOf("/"));
-//    }
 
     public static Integer getMonth(Date date) {
 
@@ -711,13 +677,6 @@ public class DateUtils {
         return c1.get(Calendar.YEAR);
     }
 
-//    public static String getLastMonth() {
-//        Integer currentMonth = Integer.valueOf(getMonth());
-//        if ((currentMonth.intValue() - 1) <= 0)
-//            return "12";
-//        String lastMonth = "00" + (currentMonth - 1);
-//        return lastMonth.substring(lastMonth.length() - 2);
-//    }
 
     /**
      * 处理时间	 * @param oldTime  原时间	 * @param add  增加时间	 * @return	 * @throws ParseException

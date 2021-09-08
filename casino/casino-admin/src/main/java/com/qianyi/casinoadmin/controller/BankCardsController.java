@@ -1,7 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.BankcardsService;
