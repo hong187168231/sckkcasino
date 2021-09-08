@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.math.BigDecimal;
 
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
+
     User findByAccount(String account);
 
     @Query("update User u set u.money=u.money-?2 where u.id=?1")
