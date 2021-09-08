@@ -13,16 +13,15 @@ public class BannerService {
     @Autowired
     private BannerRepository bannerRepository;
 
+    public Banner findAllById(Integer id){
+        return bannerRepository.findAllById(id);
+    }
     public List<Banner> findByBannerList(){
         return bannerRepository.findByBannerList();
     }
 
     public void deleteById(Integer id){
         bannerRepository.deleteById(id);
-    }
-
-    public void updateById(Integer id, String articleLink, String account,Map<Integer,String> map) {
-        bannerRepository.updateById(id,map.get(0), map.get(1),map.get(2),map.get(3), map.get(4),articleLink,account);
     }
 
     public void saveBanner(Banner banner) {

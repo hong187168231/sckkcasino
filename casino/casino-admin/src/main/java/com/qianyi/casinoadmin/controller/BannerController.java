@@ -5,7 +5,7 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.Banner;
 import com.qianyi.casinocore.service.BannerService;
 import com.qianyi.casinoadmin.util.CommonConst;
-import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -17,12 +17,9 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.util.*;
 
 @RestController
@@ -33,48 +30,35 @@ public class BannerController {
     @Autowired
     private BannerService bannerService;
     @Autowired
-    private UserService userService;
+    private SysUserService sysUserService;
 
     @ApiOperation("修改Banner")
-    @PostMapping("/updateBanner")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "banner主键", required = true),
-            @ApiImplicitParam(name = "articleLink", value = "文章链接", required = true),
-    })
-    public ResponseEntity uploadPicture(Integer id,String articleLink,HttpServletRequest request) {
+    @PostMapping(value = "updateBanner",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "修改Banner")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "id", value = "banner主键", required = true),
+//            @ApiImplicitParam(name = "articleLink", value = "文章链接", required = true),
+//    })
+    public ResponseEntity updateBanner(@RequestPart("files") MultipartFile[] files,@RequestParam(value = "id") Integer id,@RequestParam(value = "文章链接") String articleLink) {
         if (id == null){
             return ResponseUtil.custom(CommonConst.IDNOTNULL);
         }
-        Map<Integer,String> map = this.getfilePaths(request);
-        if (map.size() == CommonConst.NUMBER_0){
-            return ResponseUtil.custom(CommonConst.PICTURENOTUP);
-        }
-        bannerService.updateById(id,articleLink,userService.findById(LoginUtil.getLoginUserId()).getAccount(),map);
-        return ResponseUtil.success();
+        Banner banner = bannerService.findAllById(id);
+        banner.setArticleLink(articleLink);
+        return this.getfilePaths(files,banner);
     }
     @ApiOperation("新增Banner")
-    @PostMapping("/saveBanner")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "theShowEnd", value = "展示端 1 web 2 app", required = true),
-            @ApiImplicitParam(name = "articleLink", value = "文章链接", required = true),
-    })
-    public ResponseEntity saveBanner(Integer theShowEnd,String articleLink, HttpServletRequest request){
-        Map<Integer,String> map = this.getfilePaths(request);
-        if (map.size() == CommonConst.NUMBER_0){
-            return ResponseUtil.custom(CommonConst.PICTURENOTUP);
-        }
+    @PostMapping(value = "saveBanner",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增Banner")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "theShowEnd", value = "展示端 1 web 2 app", required = true),
+//            @ApiImplicitParam(name = "articleLink", value = "文章链接", required = true),
+//    })
+    public ResponseEntity saveBanner(@RequestPart(value = "file") MultipartFile[] files,@RequestParam(value = "展示端1 web 2 app") Integer theShowEnd,
+                                     @RequestParam(value = "文章链接") String articleLink){
         Banner banner = new Banner();
         banner.setTheShowEnd(theShowEnd);
         banner.setArticleLink(articleLink);
         banner.setHits(CommonConst.NUMBER_0);
-        banner.setFirstMap(map.get(CommonConst.NUMBER_0));
-        banner.setSecondMap(map.get(CommonConst.NUMBER_1));
-        banner.setThirdlyMap(map.get(CommonConst.NUMBER_2));
-        banner.setFourthlyMap(map.get(CommonConst.NUMBER_3));
-        banner.setFifthMap(map.get(CommonConst.NUMBER_4));
-        banner.setLastUpdatedBy(userService.findById(LoginUtil.getLoginUserId()).getAccount());
-        bannerService.saveBanner(banner);
-        return ResponseUtil.success();
+        return this.getfilePaths(files,banner);
     }
 
     @ApiOperation("删除Banner")
@@ -96,27 +80,31 @@ public class BannerController {
         return ResponseUtil.success(bannerService.findByBannerList());
     }
 
-    private Map<Integer,String> getfilePaths(HttpServletRequest request){
+    private ResponseEntity getfilePaths(MultipartFile[] files,Banner banner){
         Map<Integer,String> map = new HashMap<>();
         try {
-            request.setCharacterEncoding("utf-8"); //设置编码
-            StandardMultipartHttpServletRequest req = (StandardMultipartHttpServletRequest) request;
-            //获取formdata的值
-            Iterator<String> iterator = req.getFileNames();
-            while (iterator.hasNext()) {
-                List<MultipartFile> files = req.getFiles(iterator.next());
-                if (files == null||files.size() >= CommonConst.NUMBER_6){
-                    return map;
-                }
-                int limit = 0;
-                for(MultipartFile file:files){
-                    String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
-                    map.put(limit++,fileUrl);
-                }
+            if (files == null||files.length >= CommonConst.NUMBER_6){
+                return ResponseUtil.custom(CommonConst.PICTURENOTUP);
             }
+            int limit = CommonConst.NUMBER_0;
+            for(MultipartFile file:files){
+                String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
+                map.put(limit++,fileUrl);
+            }
+            if (map.size() == CommonConst.NUMBER_0){
+                return ResponseUtil.custom(CommonConst.PICTURENOTUP);
+            }
+            banner.setFirstMap(map.get(CommonConst.NUMBER_0));
+            banner.setSecondMap(map.get(CommonConst.NUMBER_1));
+            banner.setThirdlyMap(map.get(CommonConst.NUMBER_2));
+            banner.setFourthlyMap(map.get(CommonConst.NUMBER_3));
+            banner.setFifthMap(map.get(CommonConst.NUMBER_4));
+            banner.setLastUpdatedBy(sysUserService.findAllById(LoginUtil.getLoginUserId()).getUserName());
+            banner.setLastUpdatedTime(new Date());
         } catch (Exception e) {
             logger.error("处理图片出错", e);
         }
-        return map;
+        bannerService.saveBanner(banner);
+        return ResponseUtil.success();
     }
 }
