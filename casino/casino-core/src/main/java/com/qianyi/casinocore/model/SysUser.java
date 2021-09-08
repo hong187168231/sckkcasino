@@ -87,20 +87,9 @@ public class SysUser extends BaseEntity {
     private String gaBind;
 
     /**
-     * 最后登录时间
+     * 最后登录ip
      */
     private String LastLoginIp;
-
-    @CreatedDate
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date lastLoginTime;
-
-    /**
-     * 最后登出时间
-     */
-    @CreatedDate
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date lastLogoutTime;
 
     /**
      * 在线时长
