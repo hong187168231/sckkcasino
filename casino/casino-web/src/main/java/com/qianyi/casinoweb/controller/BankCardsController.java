@@ -55,7 +55,7 @@ public class BankCardsController {
             @ApiImplicitParam(name = "bankAccount", value = "银行账号", required = true),
             @ApiImplicitParam(name = "address", value = "开户地址", required = true),
             @ApiImplicitParam(name = "realName", value = "持卡人姓名")})
-    public ResponseEntity bound(Long bankId, String bankAccount, String address, String realName){
+    public ResponseEntity bound(String bankId, String bankAccount, String address, String realName){
         String checkParamFroBound = Bankcards.checkParamFroBound(realName, bankId, bankAccount, address);
         if (StringUtils.isNotEmpty(checkParamFroBound)) {
             return ResponseUtil.custom(checkParamFroBound);
@@ -76,7 +76,7 @@ public class BankCardsController {
         return count>=6;
     }
 
-    private Bankcards boundCard(Long bankId, String bankAccount, String address, String realName){
+    private Bankcards boundCard(String bankId, String bankAccount, String address, String realName){
         Long userId = CasinoWebUtil.getAuthId();
         Bankcards firstBankcard = bankcardsService.findBankCardsInByUserId(userId);
         Date now = new Date();

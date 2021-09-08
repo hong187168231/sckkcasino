@@ -22,7 +22,7 @@ public class Bankcards extends BaseEntity{
      * 银行卡id
      */
     @ApiModelProperty(value = "银行卡id")
-    private Long bankId;
+    private String bankId;
 
     /**
      * 用户的银行/支付宝账号
@@ -61,7 +61,7 @@ public class Bankcards extends BaseEntity{
      * @param address
      * @return
      */
-    public static String checkParamFroBound(String accountName,Long bankId, String bankAccount,
+    public static String checkParamFroBound(String accountName,String bankId, String bankAccount,
                                             String address) {
         if(StringUtils.isEmpty(accountName)){
             return "持卡人不能为空";

@@ -20,6 +20,7 @@
         <module>module-jjwt</module>
         <module>module-swagger2</module>
         <module>module-authenticator</module>
+        <module>module-springcache-redis</module>
         <module>pay</module>
         <module>casino</module>
     </modules>
@@ -59,13 +60,6 @@
             <artifactId>fastjson</artifactId>
             <version>1.2.75</version>
         </dependency>
-
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>${commons.lang.version}</version>
-		</dependency>
-
         <!-- https://mvnrepository.com/artifact/junit/junit -->
         <dependency>
             <groupId>junit</groupId>
