@@ -2,6 +2,7 @@ package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.repository.BankcardsRepository;
+import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -60,10 +61,10 @@ public class BankcardsService {
                 if(bankcards.getBankId() != null){
                     list.add(cb.equal(root.get("bankId").as(Long.class), bankcards.getBankId()));
                 }
-                if(StringUtils.hasLength(bankcards.getRealName())){
+                if(CommonUtil.checkNull(bankcards.getRealName())){
                     list.add(cb.equal(root.get("realName").as(String.class), bankcards.getRealName()));
                 }
-                if(StringUtils.hasLength(bankcards.getBankAccount())){
+                if(CommonUtil.checkNull(bankcards.getBankAccount())){
                     list.add(cb.equal(root.get("bankAccount").as(String.class), bankcards.getBankAccount()));
                 }
                 return cb.and(list.toArray(new Predicate[list.size()]));
