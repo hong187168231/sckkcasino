@@ -3,6 +3,7 @@ package com.qianyi.casinoadmin.controller;
 import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.BankcardsService;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -62,6 +63,33 @@ public class BankCardsController {
         boolean isSuccess= bankcardsService.boundCard(bankcards)==null?true:false;
         return ResponseUtil.success(isSuccess);
     }
+
+    @PostMapping("/disable")
+    @ApiOperation("禁用/启用")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId", value = "用户id", required = true),
+            @ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
+
+    })
+    public ResponseEntity disable(Long userId, Long bankId){
+        Bankcards bankcards = new Bankcards();
+        bankcards.setUserId(userId);
+        bankcards.setBankId(bankId);
+        //查询银行卡
+        List<Bankcards> bankcardsList = bankcardsService.findUserBank(bankcards);
+        if(bankcardsList == null || bankcardsList.size()<= 0){
+            return ResponseUtil.custom("用户未绑定银行卡");
+        }
+        Bankcards bank = bankcardsList.get(0);
+        if(bank.getDisable() == Constants.BANK_CLOSE){
+            bank.setDisable(Constants.BANK_OPEN);
+        }else{
+            bank.setDisable(Constants.BANK_CLOSE);
+        }
+        boolean isSuccess= bankcardsService.boundCard(bank)==null?true:false;
+        return ResponseUtil.success(isSuccess);
+    }
+
 
     private Bankcards boundCard(Long userId, Long bankId, String bankAccount, String address, String realName){
         Bankcards firstBankcard = bankcardsService.findBankCardsInByUserId(userId);
