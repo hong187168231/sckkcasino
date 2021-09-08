@@ -55,9 +55,8 @@ public class CommonConst {
     public static final int NUMBER_10 = 10;
     public static final String SUCCESS = "SUCCESS";
 
-    public static final String IDNOTNULL = "id不能为空";
+    public static final String IDNOTNULL = "无效id";
     public static final String PICTURENOTUP = "图片不符合规格";
-
 
 
 }
