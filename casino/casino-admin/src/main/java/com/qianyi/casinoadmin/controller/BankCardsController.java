@@ -21,7 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/bankcard")
-@Api(tags = "银行卡")
+@Api(tags = "银行卡管理")
 public class BankCardsController {
 
     @Autowired
@@ -82,7 +82,7 @@ public class BankCardsController {
             @ApiImplicitParam(name = "bankAccount", value = "银行账号", required = true),
             @ApiImplicitParam(name = "address", value = "开户地址", required = true),
             @ApiImplicitParam(name = "realName", value = "持卡人姓名")})
-    public ResponseEntity bound(Long userId, Long bankId, String bankAccount, String address, String realName){
+    public ResponseEntity bound(Long userId, String bankId, String bankAccount, String address, String realName){
         String checkParamFroBound = Bankcards.checkParamFroBound(realName, bankId, bankAccount, address);
         if (StringUtils.isNotEmpty(checkParamFroBound)) {
             return ResponseUtil.custom(checkParamFroBound);
@@ -115,7 +115,7 @@ public class BankCardsController {
             @ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
 
     })
-    public ResponseEntity disable(Long userId, Long bankId){
+    public ResponseEntity disable(Long userId, String bankId){
         Bankcards bankcards = new Bankcards();
         bankcards.setUserId(userId);
         bankcards.setBankId(bankId);
@@ -135,7 +135,7 @@ public class BankCardsController {
     }
 
 
-    private Bankcards boundCard(Long userId, Long bankId, String bankAccount, String address, String realName){
+    private Bankcards boundCard(Long userId, String bankId, String bankAccount, String address, String realName){
         Bankcards firstBankcard = bankcardsService.findBankCardsInByUserId(userId);
         Date now = new Date();
         Bankcards bankcards = new Bankcards();
