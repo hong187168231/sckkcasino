@@ -22,6 +22,9 @@ public class CasinoWebUtil {
     //获取当前操作者的身份
     public static Long getAuthId() {
         String token = getToken();
+        if (checkNull(token)) {
+            return null;
+        }
         String subject = JjwtUtil.parse(token);
         return Long.parseLong(subject);
     }
@@ -71,16 +74,16 @@ public class CasinoWebUtil {
     public static Pageable setPageable(Integer pageCode, Integer pageSize, Sort sort) {
 
         if (pageSize == null || pageCode == null) {
-            pageCode=1;
-            pageSize=10;
+            pageCode = 1;
+            pageSize = 10;
         }
 
         if (pageCode < 1 || pageSize < 1) {
-            pageCode=1;
-            pageSize=10;
+            pageCode = 1;
+            pageSize = 10;
         }
 
-       Pageable pageable = PageRequest.of(pageCode-1, pageSize,sort);
+        Pageable pageable = PageRequest.of(pageCode - 1, pageSize, sort);
         return pageable;
     }
 

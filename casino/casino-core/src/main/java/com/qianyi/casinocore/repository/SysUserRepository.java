@@ -9,6 +9,8 @@ public interface SysUserRepository extends JpaRepository<SysUser,Long> {
 
     SysUser findByUserName(String userName);
 
+    SysUser findAllById(Long id);
+
     @Query("update SysUser u set u.gaKey=?2 where u.id=?1")
     @Modifying
     void setSecretById(Long id, String gaKey);

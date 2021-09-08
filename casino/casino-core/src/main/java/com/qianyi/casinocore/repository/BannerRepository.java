@@ -12,15 +12,13 @@ public interface BannerRepository extends JpaRepository<Banner,Long> {
     @Query("from Banner b order by b.lastUpdatedTime desc")
     List<Banner> findByBannerList();
 
+    Banner findAllById(Integer id);
+
     @Modifying
     @Transactional
     void deleteById(Integer id);
 
-    @Query("update Banner b set b.firstMap=?2,b.secondMap=?3,b.thirdlyMap=?4,b.fourthlyMap=?5,b.fifthMap=?6,b.articleLink=?7,b.lastUpdatedBy=?8 where b.id=?1")
     @Modifying
     @Transactional
-    void updateById(Integer id, String firstMap,String secondMap,String thirdlyMap,String fourthlyMap,String fifthMap,String articleLink,String account);
-
-    @Modifying
     Banner saveAndFlush(Banner banner);
 }

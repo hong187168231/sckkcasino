@@ -20,6 +20,9 @@ public class LoginUtil {
     //获取当前操作者的身份
     public static Long getLoginUserId() {
         String token = getToken();
+        if(checkNull(token)){
+            return null;
+        }
         String subject = JjwtUtil.parse(token);
         return Long.parseLong(subject);
     }

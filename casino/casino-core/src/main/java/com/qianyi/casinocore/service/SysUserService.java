@@ -29,8 +29,11 @@ public class SysUserService {
         sysUserRepository.setSecretById(id, gaKey);
     }
 
-
     public void save(SysUser sysUser) {
         sysUserRepository.save(sysUser);
+    }
+
+    public SysUser findAllById(Long id){
+        return sysUserRepository.findAllById(id);
     }
 }
