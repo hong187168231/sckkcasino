@@ -1,7 +1,6 @@
 package com.qianyi.casinocore.repository;
 
 import com.qianyi.casinocore.model.Bankcards;
-import com.qianyi.casinocore.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
