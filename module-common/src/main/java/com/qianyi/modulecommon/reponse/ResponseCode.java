@@ -14,6 +14,7 @@ public enum ResponseCode {
     AUTHENTICATION_NOPASS(1, "认证失败"),
     AUTHORIZATION_NOPASS(2, "授权失败"),
     GOOGLEAUTH_NOPASS(3, "谷歌身份验证码错误"),
+    REQUEST_LIMIT(4, "规定时间超过请求次数"),
     RISK(6, "风险操作"),
 
     //业务级代码（101-999）
