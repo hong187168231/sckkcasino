@@ -28,7 +28,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/loginLog")
-@Api(tags = "用户登录日志")
+@Api(tags = "用户管理")
 public class LoginLogController {
     @Autowired
     private LoginLogService loginLogService;
