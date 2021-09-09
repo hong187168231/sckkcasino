@@ -9,4 +9,9 @@ import java.util.List;
 public interface NoticeRepository extends JpaRepository<Notice, Long> {
     @Query("from Notice n where n.isShelves=true order by n.createTime desc")
     List<Notice> newest();
+
+    @Query("from Notice n order by n.updateTime desc")
+    List<Notice> findByNoticeList();
+
+    Notice findAllById(Long id);
 }
