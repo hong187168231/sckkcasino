@@ -74,7 +74,7 @@ public class OrderController {
         return ResponseUtil.success();
     }
 
-    @ApiOperation("添加订单")
+    @ApiOperation("修改订单")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "no", value = "订单号", required = true),
             @ApiImplicitParam(name = "status", value = "订单状态", required = true),
@@ -93,5 +93,7 @@ public class OrderController {
         orderService.save(order);
         return ResponseUtil.success();
     }
+
+
 
 }
