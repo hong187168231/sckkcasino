@@ -34,7 +34,7 @@ public class WithdrawController {
     }
 
     @GetMapping("/banklist")
-    @ApiOperation("获取银行列表")
+    @ApiOperation("获取用户已绑定银行卡")
     @ResponseBody
     public ResponseEntity getWithdrawBank(){
         Long userId = CasinoWebUtil.getAuthId();
