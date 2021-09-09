@@ -35,14 +35,14 @@ public class BankCardsController {
         return ResponseUtil.success(bankInfoService.findAll());
     }
 
-    @GetMapping("/boundList")
-    @ApiOperation("用户已绑定银行卡列表")
-    @ResponseBody
-    public ResponseEntity boundList() {
-        Long userId =  CasinoWebUtil.getAuthId();
-        List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(userId);
-        return ResponseUtil.success(bankcardsList);
-    }
+//    @GetMapping("/boundList")
+//    @ApiOperation("用户已绑定银行卡列表")
+//    @ResponseBody
+//    public ResponseEntity boundList() {
+//        Long userId =  CasinoWebUtil.getAuthId();
+//        List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(userId);
+//        return ResponseUtil.success(bankcardsList);
+//    }
 
     @PostMapping("/bound")
     @ApiOperation("用户增加银行卡")

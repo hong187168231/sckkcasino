@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-@Api(tags = "提现")
+@Api(tags = "用户中心")
 @RestController
 @RequestMapping("withdraw")
 public class WithdrawController {
