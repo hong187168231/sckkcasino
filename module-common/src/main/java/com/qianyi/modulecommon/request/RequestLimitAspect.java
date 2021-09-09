@@ -39,7 +39,7 @@ public class RequestLimitAspect {
         ExpiringMap<String, Integer> uc = book.getOrDefault(request.getRequestURI(), ExpiringMap.builder().variableExpiration().build());
         Integer count =  uc.getOrDefault(request.getRemoteAddr(), 0);
 
-        if (count > requestLimit.limit()) { // 超过次数，不执行目标方法
+        if (count >= requestLimit.limit()) { // 超过次数，不执行目标方法
             return ResponseUtil.requestLimit();
         }
 //第一次请求时，设置有效时间
