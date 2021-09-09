@@ -275,6 +275,10 @@ public class LoginController {
         if(LoginUtil.checkNull(nickName)){
             return ResponseUtil.parameterNotNull();
         }
+        SysUser sys = sysUserService.findByUserName(userName);
+        if(sys != null){
+            return ResponseUtil.custom("账户已经存在");
+        }
 
         //加密
         String bcryptPassword = LoginUtil.bcrypt(password);
