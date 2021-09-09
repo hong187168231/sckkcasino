@@ -156,7 +156,6 @@ public class AuthController {
         String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
         new Thread(new LoginLogJob(ip, user.getAccount(), user.getId(), "casino-web")).start();
 
-
         String token = JjwtUtil.generic(user.getId() + "");
         return ResponseUtil.success(token);
     }

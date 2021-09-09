@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/bankcard")
-@Api(tags = "银行卡")
+@Api(tags = "用户中心")
 public class BankCardsController {
 
     @Autowired

@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("wm")
-@Api("WM游戏厅")
+@Api(tags = "WM游戏厅")
 @Slf4j
 public class WMController {
     @Autowired
