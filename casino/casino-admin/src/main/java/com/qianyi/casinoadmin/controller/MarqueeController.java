@@ -20,7 +20,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/marquee")
-@Api(tags = "跑马灯设置")
+@Api(tags = "公告管理")
 public class MarqueeController {
     @Autowired
     private MarqueeService marqueeService;
