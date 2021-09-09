@@ -14,6 +14,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BankcardsService {
@@ -35,6 +36,10 @@ public class BankcardsService {
 
     public int countByUserId(Long userId){
         return bankcardsRepository.countByUserId(userId);
+    }
+
+    public List<Map<String,Object>> findForBankcardsByUserId(Long userId){
+        return bankcardsRepository.findForBankcards(userId);
     }
 
 

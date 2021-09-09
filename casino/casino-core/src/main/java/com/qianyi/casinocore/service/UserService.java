@@ -68,6 +68,10 @@ public class UserService {
         return userRepository.countByRegisterIp(ip);
     }
 
+    public User findUserByIdUseLock(Long userId){
+        return userRepository.findUserByUserIdUseLock(userId);
+    }
+
 
     /**
      * 用户列表查询

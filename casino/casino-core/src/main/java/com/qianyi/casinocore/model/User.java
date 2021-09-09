@@ -24,6 +24,11 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal money;
 
+    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    private BigDecimal withdrawMoney;
+
+    private String withdrawPassword;
+
     //校验用户帐号权限
     public static boolean checkUser(User user) {
         if (user == null) {
