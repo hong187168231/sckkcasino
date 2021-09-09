@@ -3,6 +3,7 @@ package com.qianyi.casinoweb.controller;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import com.qianyi.modulecommon.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,6 @@ import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
-import com.qianyi.modulecommon.util.DateUtils;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -215,7 +215,7 @@ public class WMController {
         JSONObject json = new JSONObject();
         json.put("user", user);
         json.put("money", String.valueOf(money));
-        json.put("responseDate", DateUtils.today("yyyy-MM-dd HH:mm:ss"));
+        json.put("responseDate", DateUtil.today("yyyy-MM-dd HH:mm:ss"));
 
         entity.setErrorCode(0);
         entity.setErrorMessage("success");

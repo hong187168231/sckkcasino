@@ -9,6 +9,7 @@ import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.moduleauthenticator.WangyiDunAuthUtil;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
+import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -49,6 +50,8 @@ public class AuthController {
     @PostMapping("register")
     @ApiOperation("用户注册")
     @NoAuthentication
+    //1分钟3次
+    @RequestLimit(limit = 3,timeout = 60)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "account", value = "帐号", required = true),
             @ApiImplicitParam(name = "password", value = "密码", required = true),
