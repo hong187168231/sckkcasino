@@ -156,7 +156,7 @@ public class UserController {
     public ResponseEntity updateUserStatus(Long id){
         User user = userService.findById(id);
         if(user == null){
-            ResponseUtil.custom("账户不存在");
+            return ResponseUtil.custom("账户不存在");
         }
         //开启状态，冻结
         if(user.getState() == Constants.USER_NORMAL){
@@ -176,7 +176,7 @@ public class UserController {
     public ResponseEntity resetPassword(Long id){
         User user = userService.findById(id);
         if(user == null){
-            ResponseUtil.custom("账户不存在");
+            return ResponseUtil.custom("账户不存在");
         }
         //随机生成
         String password = passwordUtil.getRandomPwd();
