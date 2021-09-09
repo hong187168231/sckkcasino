@@ -3,14 +3,16 @@ package com.qianyi.casinocore.model;
 import lombok.Data;
 
 import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.Table;
 
 /**
  * 登陆日志
  */
 @Entity
 @Data
+@Table(indexes = {@Index(columnList = "userId"), @Index(columnList = "account"), @Index(columnList = "ip"), @Index(columnList = "createTime")})
 public class LoginLog extends BaseEntity{
-
     private String ip;
     private Long userId;
     private String account;
