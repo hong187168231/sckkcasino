@@ -29,7 +29,7 @@ import java.util.Date;
  */
 @RestController
 @RequestMapping("user")
-@Api(tags = "用户中心")
+@Api(tags = "用户管理")
 @Slf4j
 public class UserController {
 
