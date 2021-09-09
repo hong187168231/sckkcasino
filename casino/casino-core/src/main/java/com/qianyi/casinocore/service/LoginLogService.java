@@ -23,6 +23,10 @@ public class LoginLogService {
         return loginLogRepository.save(loginLog);
     }
 
+    public Page<LoginLog> findLoginLogPage(Specification<LoginLog> condition,Pageable pageable){
+        return loginLogRepository.findAll(condition,pageable);
+    }
+
     public Page<LoginLog> pageByCondition(LoginLog loginLog, Pageable pageable) {
         Specification<LoginLog> specification=(Specification<LoginLog>) (root,query,builder)->{
             List<Predicate> list = new ArrayList<>();

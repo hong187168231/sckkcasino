@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("pic")
-@Api(tags = "图片控制器")
+@Api(tags = "轮播图")
 public class PictureController {
 
     @Autowired

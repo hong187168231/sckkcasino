@@ -22,4 +22,20 @@ public class NoticeService {
     public List<Notice> newest() {
         return noticeRepository.newest();
     }
+
+    public void saveNotice(Notice notice){
+        noticeRepository.save(notice);
+    }
+
+    public List<Notice> findByNoticeList(){
+        return noticeRepository.findByNoticeList();
+    }
+
+    public void deleteById(Long id){
+        noticeRepository.deleteById(id);
+    }
+
+    public Notice findNoticeById(Long id){
+        return  noticeRepository.findAllById(id);
+    }
 }

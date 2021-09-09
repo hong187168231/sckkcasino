@@ -27,7 +27,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/picture")
-@Api(tags = "Banner设置")
+@Api(tags = "公告管理")
 public class PictureController {
     @Autowired
     private PictureService pictureService;

@@ -9,6 +9,7 @@ import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.moduleauthenticator.GoogleAuthUtil;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
+import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.IpUtil;
@@ -183,7 +184,8 @@ public class LoginController {
 //        responseOutputStream.close();
 //    }
 
-
+    //1分钟3次
+    @RequestLimit(limit = 3,timeout = 60)
     @GetMapping("google/auth/bind")
     @NoAuthentication
     @ApiOperation("绑定谷歌身份验证器")
@@ -227,7 +229,8 @@ public class LoginController {
 
     }
 
-
+    //1分钟3次
+    @RequestLimit(limit = 3,timeout = 60)
     @GetMapping("getJwtToken")
     @ApiOperation("开发者通过此令牌调试接口。不可用于正式请求")
     @ApiImplicitParams({
@@ -258,6 +261,8 @@ public class LoginController {
         return ResponseUtil.success(refreshToken);
     }
 
+    //1分钟3次
+    @RequestLimit(limit = 3,timeout = 60)
     @NoAuthentication
     @ApiOperation("添加管理员用户")
     @ApiImplicitParams({
