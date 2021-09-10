@@ -56,7 +56,7 @@ public class WithdrawController {
             return ResponseUtil.custom("金额类型错误");
         }
 
-        User user = withdrawBusiness.getUserByLock(CasinoWebUtil.getAuthId());
+        User user = withdrawBusiness.getUserById(CasinoWebUtil.getAuthId());
 
         String checkResult = withdrawBusiness.checkParams(withdrawPwd,decMoney,user);
         if(!CasinoWebUtil.checkNull(checkResult)){
@@ -64,7 +64,7 @@ public class WithdrawController {
         }
 
         //进行提币
-        user = withdrawBusiness.processWithdraw(decMoney, user);
+        user = withdrawBusiness.processWithdraw(decMoney, bankId, CasinoWebUtil.getAuthId());
 
         return ResponseUtil.success(user);
     }
