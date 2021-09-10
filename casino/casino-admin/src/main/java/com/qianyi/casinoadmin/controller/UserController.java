@@ -168,6 +168,27 @@ public class UserController {
         return ResponseUtil.success();
     }
 
+    @ApiOperation("重置用户提现密码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+    })
+    @PostMapping("withdrawPassword")
+    public ResponseEntity withdrawPassword(Long id){
+        User user = userService.findById(id);
+        if(user == null){
+            return ResponseUtil.custom("账户不存在");
+        }
+        //随机生成
+        String withdrawPassword = passwordUtil.getRandomPwd();
+        String bcryptPassword = LoginUtil.bcrypt(withdrawPassword);
+        user.setWithdrawPassword(bcryptPassword);
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("account", user.getAccount());
+        jsonObject.put("withdrawPassword", withdrawPassword);
+        return ResponseUtil.success(jsonObject);
+    }
+
     @ApiOperation("重置用户密码")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "用户id", required = true),
