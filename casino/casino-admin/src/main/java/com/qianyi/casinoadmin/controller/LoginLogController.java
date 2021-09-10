@@ -44,7 +44,7 @@ public class LoginLogController {
             @ApiImplicitParam(name = "startTime", value = "搜素起始时间", required = false),
             @ApiImplicitParam(name = "endTime", value = "搜素结束时间", required = false),
     })
-    public ResponseEntity findGameReportPage(Integer pageSize, Integer pageCode,String ip,Long userId,String account,
+    public ResponseEntity findLoginLogPage(Integer pageSize, Integer pageCode,String ip,Long userId,String account,
                                              Date startTime,Date endTime){
         Sort sort = Sort.by("createTime").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
