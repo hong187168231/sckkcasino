@@ -32,9 +32,9 @@ public class Constants {
     public final static Integer MAX_PASSWORD_NUM = 12; //密码最大位数
 
     public final static Integer BANK_CLOSE = 1; //银行卡禁用
-    public final static Integer BANK_OPEN = 0; //银行卡禁用
+    public final static Integer BANK_OPEN = 0; //银行卡启用
 
-    public final static Integer MAX_BANK_NUM = 6; //银行卡禁用
+    public final static Integer MAX_BANK_NUM = 6; //绑定银行卡最多数
 
 
 }
