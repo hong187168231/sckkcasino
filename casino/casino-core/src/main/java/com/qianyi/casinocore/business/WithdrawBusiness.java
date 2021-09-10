@@ -2,9 +2,12 @@ package com.qianyi.casinocore.business;
 
 import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.model.WithdrawOrder;
 import com.qianyi.casinocore.repository.BankcardsRepository;
 import com.qianyi.casinocore.service.BankcardsService;
+import com.qianyi.casinocore.service.OrderService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.service.WithdrawOrderService;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +23,16 @@ import java.util.Map;
 public class WithdrawBusiness {
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    BankcardsService bankcardsService;
+    private BankcardsService bankcardsService;
+
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private WithdrawOrderService withdrawOrderService;
 
     public String getWithdrawFullMoney(Long userId){
         User user = userService.findById(userId);
@@ -32,6 +41,10 @@ public class WithdrawBusiness {
 
     public List<Map<String,Object>> getWithdrawBankcardsList(Long userId){
         return bankcardsService.findForBankcardsByUserId(userId);
+    }
+
+    public User getUserById(Long userId){
+        return userService.findById(userId);
     }
 
     public User getUserByLock(Long userId){
@@ -71,11 +84,24 @@ public class WithdrawBusiness {
     * 进行转账
     * */
     @Transactional
-    public User processWithdraw(BigDecimal money,User user){
+    public User processWithdraw(BigDecimal money, String bankId,Long userId){
+        WithdrawOrder withdrawOrder = getWidrawOrder(money,bankId,userId);
+        withdrawOrderService.saveOrder(withdrawOrder);
+        User user = userService.findUserByIdUseLock(userId);
         log.info("money is {}, draw money is {}",money,user.getWithdrawMoney());
         user.setWithdrawMoney(user.getWithdrawMoney().subtract(money));
         userService.save(user);
         return user;
+    }
+
+    private WithdrawOrder getWidrawOrder(BigDecimal money, String bankId, Long userId){
+        WithdrawOrder withdrawOrder = new WithdrawOrder();
+        withdrawOrder.setWithdrawMoney(money);
+        withdrawOrder.setBankId(bankId);
+        withdrawOrder.setUserId(userId);
+        withdrawOrder.setNo(orderService.getOrderNo());
+        withdrawOrder.setStatus(0);
+        return withdrawOrder;
     }
 
 }
