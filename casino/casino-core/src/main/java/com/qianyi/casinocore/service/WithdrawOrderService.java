@@ -12,6 +12,6 @@ public class WithdrawOrderService {
     private WithdrawOrderRepository withdrawOrderRepository;
 
     public WithdrawOrder saveOrder(WithdrawOrder entity){
-        withdrawOrderRepository.save(entity);
+        return withdrawOrderRepository.save(entity);
     }
 }
