@@ -5,6 +5,7 @@ import com.qianyi.casinocore.model.LoginLog;
 import com.qianyi.casinocore.service.LoginLogService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.CommonUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -43,7 +44,7 @@ public class LoginLogController {
             @ApiImplicitParam(name = "startTime", value = "搜素起始时间", required = false),
             @ApiImplicitParam(name = "endTime", value = "搜素结束时间", required = false),
     })
-    public ResponseEntity findGameReportPage(Integer pageSize, Integer pageCode,String ip,Long userId,String account,
+    public ResponseEntity findLoginLogPage(Integer pageSize, Integer pageCode,String ip,Long userId,String account,
                                              Date startTime,Date endTime){
         Sort sort = Sort.by("createTime").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
@@ -65,13 +66,13 @@ public class LoginLogController {
             public Predicate toPredicate(Root<LoginLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 Predicate predicate = cb.conjunction();
                 List<Predicate> list = new ArrayList<Predicate>();
-                if (ip !=null && ip != "") {
+                if (!CommonUtil.checkNull(ip)) {
                     list.add(cb.equal(root.get("ip").as(String.class), ip));
                 }
                 if (userId !=null) {
                     list.add(cb.equal(root.get("userId").as(Long.class), userId));
                 }
-                if (account != null && account != "") {
+                if (!CommonUtil.checkNull(account)) {
                     list.add(cb.equal(root.get("account").as(String.class), account));
                 }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));

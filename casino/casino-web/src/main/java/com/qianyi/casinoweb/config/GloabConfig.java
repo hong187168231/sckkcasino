@@ -1,6 +1,7 @@
 package com.qianyi.casinoweb.config;
 
 import com.qianyi.casinoweb.inteceptor.AuthenticationInteceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -26,9 +27,12 @@ public class GloabConfig implements WebMvcConfigurer {
                 .exposedHeaders("*");
     }
 
+    @Autowired
+    AuthenticationInteceptor authenticationInteceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new AuthenticationInteceptor()).addPathPatterns("/**")
+        registry.addInterceptor(authenticationInteceptor).addPathPatterns("/**")
                 .excludePathPatterns("/js/**")
                 .excludePathPatterns("/swagger**/**")
                 .excludePathPatterns("/webjars/**")

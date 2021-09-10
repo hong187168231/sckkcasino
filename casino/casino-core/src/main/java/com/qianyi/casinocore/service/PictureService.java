@@ -35,4 +35,8 @@ public class PictureService {
     public void save(LunboPic lunboPic){
         pictureRepository.save(lunboPic);
     }
+
+    public List<LunboPic> findByTheShowEnd(Integer theShowEnd) {
+        return pictureRepository.findByTheShowEnd(theShowEnd);
+    }
 }

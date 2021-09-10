@@ -2,13 +2,13 @@ package com.qianyi.modulecommon.reponse;
 
 import java.io.Serializable;
 
-public class ResponseEntity implements Serializable {
+public class ResponseEntity<T> implements Serializable {
 
 	private static final long serialVersionUID = 6073226655373040149L;
 
 	private int code;
     private String msg;
-    private Object data;
+    private T data;
     
     public ResponseEntity(String msg) {
         this.code=ResponseCode.CUSTOM.getCode();
@@ -20,7 +20,7 @@ public class ResponseEntity implements Serializable {
         this.msg = responseCode.getMsg();
     }
 
-    public ResponseEntity(ResponseCode responseCode, Object data) {
+    public ResponseEntity(ResponseCode responseCode, T data) {
         this.code=responseCode.getCode();
         this.msg=responseCode.getMsg();
         this.data=data;
@@ -42,11 +42,11 @@ public class ResponseEntity implements Serializable {
         this.msg = msg;
     }
 
-    public Object getData() {
+    public T getData() {
         return data;
     }
 
-    public void setData(Object data) {
+    public void setData(T data) {
         this.data = data;
     }
 }

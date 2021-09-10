@@ -83,6 +83,10 @@ public class CasinoWebUtil {
             pageSize = 10;
         }
 
+        if (pageSize > 100) {
+            pageSize = 100;
+        }
+
         Pageable pageable = PageRequest.of(pageCode - 1, pageSize, sort);
         return pageable;
     }

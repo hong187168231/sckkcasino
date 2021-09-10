@@ -49,7 +49,7 @@ public class CommonUtil {
         if (os.toLowerCase().startsWith("win")) {
             return "D:/pic/";
         } else {
-            return "/usr/path";
+            return "/usr/path/";
         }
     }
 }

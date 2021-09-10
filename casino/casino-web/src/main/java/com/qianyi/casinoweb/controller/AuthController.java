@@ -150,11 +150,6 @@ public class AuthController {
             return ResponseUtil.custom("帐号或密码错误");
         }
 
-        boolean flag = User.checkUser(user);
-        if (!flag) {
-            return ResponseUtil.custom("该帐号不可操作");
-        }
-
         //记录登陆日志
         String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
         new Thread(new LoginLogJob(ip, user.getAccount(), user.getId(), "casino-web")).start();

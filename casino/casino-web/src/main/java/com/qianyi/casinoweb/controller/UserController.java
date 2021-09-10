@@ -4,6 +4,7 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.vo.UserVo;
+import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -23,7 +24,7 @@ public class UserController {
 
     @GetMapping("info")
     @ApiOperation("获取当前用户的基本信息")
-    public ResponseEntity info() {
+    public ResponseEntity<UserVo> info() {
         Long authId = CasinoWebUtil.getAuthId();
         User user = userService.findById(authId);
         UserVo vo = new UserVo();
@@ -34,7 +35,8 @@ public class UserController {
 
         //TODO 设置可提金额，未完成流水
 
-        return ResponseUtil.success(vo);
+//        return ResponseUtil.success(vo);
+        return new ResponseEntity(ResponseCode.SUCCESS, vo);
     }
 
 }

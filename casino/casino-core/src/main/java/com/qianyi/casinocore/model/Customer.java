@@ -1,10 +1,12 @@
 package com.qianyi.casinocore.model;
 
+import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import javax.persistence.Entity;
 
 @Entity
 @Data
+@ApiModel("联系客服")
 public class Customer extends BaseEntity {
     private String qq;
     private String telegram;
