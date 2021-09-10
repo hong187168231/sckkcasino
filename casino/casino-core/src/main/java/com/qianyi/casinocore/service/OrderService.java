@@ -55,7 +55,7 @@ public class OrderService {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
-                if (CommonUtil.checkNull(order.getNo())) {
+                if (!CommonUtil.checkNull(order.getNo())) {
                     list.add(cb.equal(root.get("no").as(String.class), order.getNo()));
                 }
                 if(order.getUserId() != null){
