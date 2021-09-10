@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.model;
 
+import com.qianyi.modulecommon.Constants;
 import lombok.Data;
 import org.springframework.util.ObjectUtils;
 import javax.persistence.Column;
@@ -35,7 +36,7 @@ public class User extends BaseEntity {
             return false;
         }
 
-        if (1 != user.getState()) {
+        if (Constants.yes != user.getState()) {
             return false;
         }
         return true;

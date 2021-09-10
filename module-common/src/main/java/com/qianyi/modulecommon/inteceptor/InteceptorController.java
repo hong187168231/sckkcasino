@@ -22,6 +22,11 @@ public class InteceptorController implements ErrorController {
         return ResponseUtil.authenticationNopass();
     }
 
+    @RequestMapping("authenticationBan")
+    public ResponseEntity authenticationBan() {
+        return ResponseUtil.custom("帐号被封");
+    }
+
     @NoAuthentication
     @RequestMapping("risk")
     public ResponseEntity risk() {

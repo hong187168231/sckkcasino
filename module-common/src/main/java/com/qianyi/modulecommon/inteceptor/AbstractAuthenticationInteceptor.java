@@ -22,6 +22,12 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
         NoAuthentication annotation = method.getAnnotation(NoAuthentication.class);
         if (annotation == null) {
             if (hasPermission(request)) {
+
+                //帐号封号拦截
+                if(hasBan()){
+                    response.sendRedirect(request.getContextPath()+"/authenticationBan");
+                    return false;
+                }
                 return true;
             }
             response.sendRedirect(request.getContextPath()+"/authenticationNopass");
@@ -32,6 +38,8 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
 
 
     }
+
+    protected abstract boolean hasBan();
 
     public abstract boolean hasPermission(HttpServletRequest request);
 
