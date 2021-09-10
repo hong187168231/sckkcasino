@@ -22,7 +22,7 @@ public class BankInfo extends BaseEntity {
 	/** 银行编码 */
 	private String bankCode;
 
-	private String bankLog;
+	private String bankLogo;
 
 	/** 银行类型：默认0:银行卡，1：支付宝，2：微信，3：QQ */
 	private Integer bankType;

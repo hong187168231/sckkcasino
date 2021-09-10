@@ -1,7 +1,10 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.Bankcards;
+import com.qianyi.casinocore.model.LunboPic;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.BankcardsService;
@@ -9,12 +12,16 @@ import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.CommonUtil;
+import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
@@ -40,6 +47,50 @@ public class BankCardsController {
         return ResponseUtil.success(bankInfoService.findAll());
     }
 
+    @ApiOperation("新增银行")
+    @PostMapping(value = "/saveBankInfo",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增银行")
+    public ResponseEntity saveBankInfo(@RequestPart(value = "bankLogo银行图标") MultipartFile file, @RequestParam(value = "银行名称") String bankName,
+                                        @RequestParam(value = "银行编码") String bankCode,@RequestParam(value = "0:银行卡，1：支付宝，2：微信，3：QQ") Integer bankType,
+                                       @RequestParam(value = "0:未禁用 1：禁用") Integer disable,@RequestParam(value = "备注")String remark){
+        BankInfo bankInfo = new BankInfo();
+        return this.saveAndUpdate(file,bankName,bankCode,bankType,disable,remark,bankInfo);
+    }
+    @ApiOperation("修改银行")
+    @PostMapping(value = "/updateBankInfo",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "修改银行")
+    public ResponseEntity updateBankInfo(@RequestPart(value = "bankLogo银行图标") MultipartFile file, @RequestParam(value = "银行名称") String bankName,
+                                       @RequestParam(value = "银行编码") String bankCode,@RequestParam(value = "0:银行卡，1：支付宝，2：微信，3：QQ") Integer bankType,
+                                       @RequestParam(value = "0:未禁用 1：禁用") Integer disable,@RequestParam(value = "备注")String remark,
+                                         @RequestParam(value = "id")  Long id){
+        BankInfo bankInfo = new BankInfo();
+        bankInfo.setId(id);
+        return this.saveAndUpdate(file,bankName,bankCode,bankType,disable,remark,bankInfo);
+
+    }
+    private ResponseEntity saveAndUpdate(MultipartFile file,String bankName, String bankCode, Integer bankType,
+                                         Integer disable,String remark,BankInfo bankInfo){
+        bankInfo.setBankName(bankName);
+        bankInfo.setBankCode(bankCode);
+        bankInfo.setBankType(bankType);
+        bankInfo.setDisable(disable);
+        bankInfo.setRemark(remark);
+        try {
+            String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
+            bankInfo.setBankLogo(fileUrl);
+            bankInfoService.saveBankInfo(bankInfo);
+        } catch (Exception e) {
+            return ResponseUtil.custom(CommonConst.PICTURENOTUP);
+        }
+        return ResponseUtil.success();
+    }
+    @GetMapping("/deleteBankInfo")
+    @ApiOperation("删除银行")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "银行id", required = true),
+    })
+    public ResponseEntity deleteBankInfo(Long id) {
+        bankInfoService.deleteBankInfo(id);
+        return ResponseUtil.success();
+    }
     @GetMapping("/boundList")
     @ApiOperation("用户已绑定银行卡列表")
     @ApiImplicitParams({

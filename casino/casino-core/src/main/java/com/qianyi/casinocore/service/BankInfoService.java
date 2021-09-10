@@ -17,4 +17,11 @@ public class BankInfoService {
     public List<BankInfo> findAll() {
         return bankInfoRepository.findAll();
     }
+
+    public void saveBankInfo(BankInfo bankInfo){
+        bankInfoRepository.save(bankInfo);
+    }
+    public void deleteBankInfo(Long id){
+        bankInfoRepository.deleteById(id);
+    }
 }
