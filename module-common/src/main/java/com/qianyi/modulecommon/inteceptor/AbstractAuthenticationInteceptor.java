@@ -25,6 +25,10 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
 
                 //帐号封号拦截
                 if(hasBan()){
+                    String url=request.getServletPath();
+                    if(url.contains("authenticationBan")){
+                        return true;
+                    }
                     response.sendRedirect(request.getContextPath()+"/authenticationBan");
                     return false;
                 }
