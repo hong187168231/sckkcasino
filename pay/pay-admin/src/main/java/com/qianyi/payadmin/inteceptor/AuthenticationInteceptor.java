@@ -11,6 +11,11 @@ import javax.servlet.http.HttpServletRequest;
 public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
 
     @Override
+    protected boolean hasBan() {
+        return false;
+    }
+
+    @Override
     public boolean hasPermission(HttpServletRequest request) {
         String token = PayUtil.getToken();
 
