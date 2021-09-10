@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 @Component
 public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
 
+
     @Autowired
     SysUserService sysUserService;
 
