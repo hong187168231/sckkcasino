@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.SysUser;
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.repository.SysUserRepository;
 import com.qianyi.modulecommon.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -35,5 +37,13 @@ public class SysUserService {
 
     public SysUser findAllById(Long id){
         return sysUserRepository.findAllById(id);
+    }
+
+    public SysUser findById(Long id){
+        Optional<SysUser> optional = sysUserRepository.findById(id);
+        if (optional.isPresent()) {
+            return optional.get();
+        }
+        return null;
     }
 }
