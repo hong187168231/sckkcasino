@@ -36,5 +36,7 @@ public class Constants {
 
     public final static Integer MAX_BANK_NUM = 6; //绑定银行卡最多数
 
-
+    public final static Integer WITHDRAW_PASS = 1;
+    public final static Integer WITHDRAW_REFUSE = 2;
+    public final static Integer WITHDRAW_ORDER = 3;
 }

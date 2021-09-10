@@ -16,7 +16,7 @@ public class WithdrawOrder extends BaseEntity {
     @ApiModelProperty(value = "用户id")
     private Long userId;
     @ApiModelProperty(value = "状态")
-    private int status;
+    private Integer status;
     @ApiModelProperty(value = "订单号")
     private String no;
 

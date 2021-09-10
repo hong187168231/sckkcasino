@@ -95,7 +95,7 @@ public class UserService {
             @Override
             public Predicate toPredicate(Root<User> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
-                if (CommonUtil.checkNull(user.getAccount())) {
+                if (!CommonUtil.checkNull(user.getAccount())) {
                     list.add(cb.equal(root.get("account").as(String.class), user.getAccount()));
                 }
                 if (user.getId() != null) {
