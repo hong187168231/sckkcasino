@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.WithdrawOrder;
 import com.qianyi.casinocore.service.UserService;
@@ -32,6 +33,9 @@ public class WithdrawOrderController {
 
     @Autowired
     private WithdrawOrderService withdrawOrderService;
+
+    @Autowired
+    private WithdrawBusiness withdrawBusiness;
 
     @Autowired
     private UserService userService;
@@ -86,23 +90,11 @@ public class WithdrawOrderController {
         }
         //提现拒绝，钱要退回给用户
         if(status == Constants.WITHDRAW_REFUSE){
-            return updateWithdrawAndUser(withdrawOrder);
+
+            return withdrawBusiness.updateWithdrawAndUser(withdrawOrder);
         }
         return ResponseUtil.fail();
     }
 
-    @Transactional
-    public ResponseEntity updateWithdrawAndUser(WithdrawOrder withdrawOrder) {
-        Long userId = withdrawOrder.getUserId();
-        //对用户数据进行行锁
-        User user = userService.findUserByIdUseLock(userId);
-        if (user == null) {
-            return ResponseUtil.custom("用户不存在");
-        }
-        user.setWithdrawMoney(user.getWithdrawMoney().add(withdrawOrder.getWithdrawMoney()));
-        WithdrawOrder withdraw = withdrawOrderService.saveOrder(withdrawOrder);
-        log.info("user sum money is {}, add withdrawMoney is {}",user.getWithdrawMoney(), withdrawOrder.getWithdrawMoney());
-        User save = userService.save(user);
-        return ResponseUtil.success(withdraw);
-    }
+
 }

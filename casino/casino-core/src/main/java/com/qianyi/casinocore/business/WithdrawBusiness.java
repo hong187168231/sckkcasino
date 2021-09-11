@@ -8,6 +8,7 @@ import com.qianyi.casinocore.service.BankcardsService;
 import com.qianyi.casinocore.service.OrderService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.service.WithdrawOrderService;
+import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,4 +105,18 @@ public class WithdrawBusiness {
         return withdrawOrder;
     }
 
+    @Transactional
+    public ResponseEntity updateWithdrawAndUser(WithdrawOrder withdrawOrder) {
+        Long userId = withdrawOrder.getUserId();
+        //对用户数据进行行锁
+        User user = userService.findUserByIdUseLock(userId);
+        if (user == null) {
+            return ResponseUtil.custom("用户不存在");
+        }
+        user.setWithdrawMoney(user.getWithdrawMoney().add(withdrawOrder.getWithdrawMoney()));
+        WithdrawOrder withdraw = withdrawOrderService.saveOrder(withdrawOrder);
+        log.info("user sum money is {}, add withdrawMoney is {}",user.getWithdrawMoney(), withdrawOrder.getWithdrawMoney());
+        User save = userService.save(user);
+        return ResponseUtil.success(withdraw);
+    }
 }
