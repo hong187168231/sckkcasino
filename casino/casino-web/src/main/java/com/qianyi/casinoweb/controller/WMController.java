@@ -3,6 +3,7 @@ package com.qianyi.casinoweb.controller;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,6 +50,7 @@ public class WMController {
     String signature;
 
     @ApiOperation("开游戏")
+    @RequestLimit(limit = 1,timeout = 5)
     @PostMapping("openGame")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "gameType", value = "默认：大厅。1.百家乐。2.龙虎 3. 轮盘 4. 骰宝 " +

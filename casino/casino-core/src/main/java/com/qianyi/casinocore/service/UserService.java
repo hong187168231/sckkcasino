@@ -4,10 +4,7 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.repository.UserRepository;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -35,10 +32,12 @@ public class UserService {
         return userRepository.findByAccount(account);
     }
 
+    @CachePut(key="#result.id",condition = "#result != null")
     public User save(User user) {
         return userRepository.save(user);
     }
 
+    @Cacheable(key = "#id")
     public User findById(Long id) {
         Optional<User> optional = userRepository.findById(id);
         if (optional.isPresent()) {
@@ -47,17 +46,19 @@ public class UserService {
         return null;
     }
 
+    @CacheEvict(key = "#id")
     public void subMoney(Long id, BigDecimal money) {
         synchronized (id) {
             userRepository.subMoney(id, money);
         }
     }
 
-    @CacheEvict
+    @CacheEvict(key="#id")
     public void deleteById(Long id) {
         userRepository.deleteById(id);
     }
 
+    @CacheEvict(key = "#id")
     public void addMoney(Long id, BigDecimal money) {
         synchronized (id) {
             userRepository.addMoney(id, money);
@@ -68,7 +69,7 @@ public class UserService {
         return userRepository.countByRegisterIp(ip);
     }
 
-    public User findUserByIdUseLock(Long userId){
+    public User findUserByIdUseLock(Long userId) {
         return userRepository.findUserByUserIdUseLock(userId);
     }
 

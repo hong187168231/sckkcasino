@@ -32,7 +32,7 @@ public class PictureController {
     @NoAuthentication
     public ResponseEntity lunbo(Integer type) {
         if (type == null) {
-            type=1;
+            type = 1;
         }
         List<LunboPic> list = pictureService.findByTheShowEnd(type);
         return ResponseUtil.success(list);
