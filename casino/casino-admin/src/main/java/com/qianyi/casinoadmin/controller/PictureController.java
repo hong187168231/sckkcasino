@@ -51,7 +51,7 @@ public class PictureController {
         AppNo.add(CommonConst.NUMBER_4);
         AppNo.add(CommonConst.NUMBER_5);
     }
-    @ApiOperation("新增PC端轮播图")
+    @ApiOperation("新增修改PC端轮播图")
     @PostMapping(value = "/savePCPicture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增PC端轮播图")
     public ResponseEntity savePCPicture(@RequestPart(value = "file") MultipartFile file,@RequestParam(value = "序号6-10") Integer no){
         LunboPic lunboPic = new LunboPic();
@@ -61,7 +61,7 @@ public class PictureController {
         }
         return this.savePicture(file,no,lunboPic);
     }
-    @ApiOperation("新增移动端轮播图")
+    @ApiOperation("新增修改移动端轮播图")
     @PostMapping(value = "/saveAppPicture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增移动端轮播图")
     public ResponseEntity saveAppPicture(@RequestPart(value = "file") MultipartFile file,@RequestParam(value = "序号1-5") Integer no){
         LunboPic lunboPic = new LunboPic();
@@ -80,68 +80,13 @@ public class PictureController {
         try {
             String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
             lunboPic.setUrl(fileUrl);
-            String userName = sysUserService.findAllById(LoginUtil.getLoginUserId()).getUserName();
-            lunboPic.setCreateBy(userName);
-            lunboPic.setUpdateBy(userName);
-            lunboPic.setCreateTime(new Date());
-            lunboPic.setUpdateTime(new Date());
-        } catch (Exception e) {
-            return ResponseUtil.custom(CommonConst.PICTURENOTUP);
-        }
-        Specification<LunboPic> specification = new Specification<LunboPic>() {
-            @Override
-            public Predicate toPredicate(Root<LunboPic> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                Predicate predicate = cb.conjunction();
-                List<Predicate> list = new ArrayList<Predicate>();
-                list.add(cb.equal(root.get("theShowEnd").as(String.class),lunboPic.getTheShowEnd()));
-                list.add(cb.equal(root.get("no").as(Integer.class), lunboPic.getNo()));
-                predicate = cb.and(list.toArray(new Predicate[list.size()]));
-                return predicate;
-            }
-        };
-        return this.savePicture(specification,lunboPic);
-    }
-    private synchronized ResponseEntity savePicture(Specification<LunboPic> specification,LunboPic lunboPic){
-        List<LunboPic> allPicture = pictureService.findAll(specification);
-        if (allPicture != null && allPicture.size() != CommonConst.NUMBER_0){
-            return ResponseUtil.custom(CommonConst.TOOMANYPICTURESONTHECLIENT);
-        }
-        pictureService.save(lunboPic);
-        return ResponseUtil.success();
-    }
-    @ApiOperation("修改Picture")
-    @PostMapping(value = "/updatePicture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "修改Picture")
-    public ResponseEntity updatePicture(@RequestPart("file") MultipartFile file,@RequestParam(value = "id") Long id) {
-        if (id == null){
-            return ResponseUtil.custom(CommonConst.IDNOTNULL);
-        }
-        LunboPic lunboPic = pictureService.findLunboPicbyId(id);
-        if (lunboPic == null){
-            return ResponseUtil.custom(CommonConst.IDNOTNULL);
-        }
-        try {
-            String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
-            lunboPic.setUrl(fileUrl);
-            lunboPic.setUpdateBy(sysUserService.findAllById(LoginUtil.getLoginUserId()).getUserName());
-            lunboPic.setUpdateTime(new Date());
         } catch (Exception e) {
             return ResponseUtil.custom(CommonConst.PICTURENOTUP);
         }
         pictureService.save(lunboPic);
         return ResponseUtil.success();
     }
-//    @ApiOperation("删除picture")
-//    @GetMapping("/deletePicture")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "id", value = "主键id", required = true),
-//    })
-//    public ResponseEntity deletePicture(Long id){
-//        if (id == null){
-//            return ResponseUtil.custom(CommonConst.IDNOTNULL);
-//        }
-//        pictureService.deleteById(id);
-//        return ResponseUtil.success();
-//    }
+
 
     @ApiOperation("查找Banner")
     @GetMapping("/findByBannerList")
@@ -150,7 +95,7 @@ public class PictureController {
     })
     public ResponseEntity findByBannerList(Integer theShowEnd){
         Specification<LunboPic> condition = this.getCondition(theShowEnd);
-        Sort sort=Sort.by("no").ascending();
+        Sort sort=Sort.by("id").ascending();
         return ResponseUtil.success(pictureService.findByLunboPicList(condition,sort));
     }
 
