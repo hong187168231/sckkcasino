@@ -34,23 +34,27 @@ import java.util.List;
 public class LoginLogController {
     @Autowired
     private LoginLogService loginLogService;
+    /**
+     * 分页查询用户登录日志
+     *
+     * @param ip 会员登录ip
+     * @param userId 会员id
+     * @param account 会员账号
+     * @return
+     */
     @ApiOperation("分页查询用户登录日志")
     @GetMapping("/findLoginLogPage")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "ip", value = "ip", required = false),
-            @ApiImplicitParam(name = "userId", value = "用户id", required = false),
-            @ApiImplicitParam(name = "account", value = "用户账号", required = false),
-            @ApiImplicitParam(name = "startTime", value = "搜素起始时间", required = false),
-            @ApiImplicitParam(name = "endTime", value = "搜素结束时间", required = false),
+            @ApiImplicitParam(name = "ip", value = "会员登录ip", required = false),
+            @ApiImplicitParam(name = "userId", value = "会员id", required = false),
+            @ApiImplicitParam(name = "account", value = "会员账号", required = false),
     })
-    public ResponseEntity findLoginLogPage(Integer pageSize, Integer pageCode, String ip, Long userId, String account,
-                                           @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startTime,
-                                           @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endTime){
+    public ResponseEntity findLoginLogPage(Integer pageSize, Integer pageCode, String ip, Long userId, String account){
         Sort sort = Sort.by("createTime").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
-        Specification<LoginLog> condition = this.getCondition(ip,userId,account,startTime,endTime);
+        Specification<LoginLog> condition = this.getCondition(ip,userId,account);
         Page<LoginLog> loginLogPage = loginLogService.findLoginLogPage(condition, pageable);
         return ResponseUtil.success(loginLogPage);
 
@@ -61,8 +65,7 @@ public class LoginLogController {
      * @param
      * @return
      */
-    private Specification<LoginLog> getCondition(String ip,Long userId,String account,
-                                                 Date startTime,Date endTime) {
+    private Specification<LoginLog> getCondition(String ip,Long userId,String account) {
         Specification<LoginLog> specification = new Specification<LoginLog>() {
             @Override
             public Predicate toPredicate(Root<LoginLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -76,12 +79,6 @@ public class LoginLogController {
                 }
                 if (!CommonUtil.checkNull(account)) {
                     list.add(cb.equal(root.get("account").as(String.class), account));
-                }
-                if (startTime != null) {
-                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startTime));
-                }
-                if (endTime != null) {
-                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endTime));
                 }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));
                 return predicate;

@@ -24,12 +24,19 @@ import java.util.List;
 public class NoticeController {
     @Autowired
     private NoticeService noticeService;
-
+    /**
+     * 新增公告
+     * @param title 公告内容
+     * @param isShelves 是否上架 是true 否false
+     * @param url 详情访问页
+     * @param introduction 简介
+     * @return
+     */
     @ApiOperation("新增公告")
     @PostMapping("/saveNotice")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "title", value = "内容", required = true),
-            @ApiImplicitParam(name = "isShelves", value = "是否上架 true false", required = true),
+            @ApiImplicitParam(name = "title", value = "公告内容", required = true),
+            @ApiImplicitParam(name = "isShelves", value = "是否上架 是true 否false", required = true),
             @ApiImplicitParam(name = "url", value = "详情访问页", required = true),
             @ApiImplicitParam(name = "introduction", value = "简介", required = true),
     })
@@ -52,22 +59,36 @@ public class NoticeController {
         noticeService. saveNotice(notice);
         return ResponseUtil.success();
     }
+    /**
+     * 删除公告
+     * @param id 公告id
+     * @return
+     */
     @ApiOperation("删除公告")
     @GetMapping("/deleteNotice")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "id主键", required = true),
+            @ApiImplicitParam(name = "id", value = "公告id", required = true),
     })
     public ResponseEntity deleteNotice(Long id){
         noticeService.deleteById(id);
         return ResponseUtil.success();
     }
+    /**
+     * 修改公告
+     * @param id 公告id
+     * @param title 公告内容
+     * @param isShelves 是否上架 是true 否false
+     * @param url 详情访问页url
+     * @param introduction 简介
+     * @return
+     */
     @ApiOperation("修改公告")
     @PostMapping("/updateNotice")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "id主键", required = true),
-            @ApiImplicitParam(name = "title", value = "内容", required = true),
-            @ApiImplicitParam(name = "isShelves", value = "是否上架 true false", required = true),
-            @ApiImplicitParam(name = "url", value = "详情访问页", required = true),
+            @ApiImplicitParam(name = "id", value = "公告id", required = true),
+            @ApiImplicitParam(name = "title", value = "公告内容", required = true),
+            @ApiImplicitParam(name = "isShelves", value = "是否上架 是true 否false", required = true),
+            @ApiImplicitParam(name = "url", value = "详情访问页url", required = true),
             @ApiImplicitParam(name = "introduction", value = "简介", required = true),
     })
     public ResponseEntity updateNotice(String title,Boolean isShelves,String introduction,String url,Long id){
@@ -83,8 +104,11 @@ public class NoticeController {
         noticeService.saveNotice(notice);
         return ResponseUtil.success();
     }
-
-    @ApiOperation("查询所有")
+    /**
+     * 查询所有 最多十条
+     * @return
+     */
+    @ApiOperation("查询所有公告")
     @GetMapping("/findNotice")
     public ResponseEntity findNotice(){
         List<Notice> noticeList = noticeService.findByNoticeList();
