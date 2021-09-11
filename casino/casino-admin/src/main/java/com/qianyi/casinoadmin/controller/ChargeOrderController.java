@@ -47,6 +47,14 @@ public class ChargeOrderController {
     private ChargeOrderService chargeOrderService;
     @Autowired
     private ChargeBusiness chargeBusiness;
+    /**
+     * 充值申请列表
+     *
+     * @param status 状态(0未确认 1已确认)
+     * @param orderNo 充值订单号
+     * @param userId 会员id userId
+     * @return
+     */
     @ApiOperation("充值申请列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
@@ -54,23 +62,22 @@ public class ChargeOrderController {
             @ApiImplicitParam(name = "status", value = "状态(0未确认 1已确认)", required = false),
             @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
             @ApiImplicitParam(name = "userId", value = "会员ID", required = false),
-            @ApiImplicitParam(name = "sponsorStartTime", value = "发起起始时间", required = false),
-            @ApiImplicitParam(name = "sponsorEndTime", value = "发起结束时间", required = false),
-            @ApiImplicitParam(name = "affirmStartTime", value = "确认起始时间", required = false),
-            @ApiImplicitParam(name = "affirmEndTime", value = "确认结束时间", required = false),
     })
     @GetMapping("/chargeOrderList")
-    public ResponseEntity chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String orderNo, Long userId,
-                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date sponsorStartTime,
-                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date sponsorEndTime,
-                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date affirmStartTime,
-                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date affirmEndTime){
+    public ResponseEntity chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String orderNo, Long userId){
         Sort sort = Sort.by("createTime").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
-        Specification<ChargeOrder> condition = this.getCondition(status,orderNo,userId,sponsorStartTime,sponsorEndTime,affirmStartTime,affirmEndTime);
+        Specification<ChargeOrder> condition = this.getCondition(status,orderNo,userId);
         Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(condition, pageable);
         return ResponseUtil.success(chargeOrderPage);
     }
+    /**
+     * 充值申请列表
+     *
+     * @param id 充值订单id
+     * @param status 充值订单审核状态 0：未确认，1：已确认
+     * @return
+     */
     @ApiOperation("后台充值上分")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "订单id", required = true),
@@ -94,8 +101,7 @@ public class ChargeOrderController {
      * @param
      * @return
      */
-    private Specification<ChargeOrder> getCondition(Integer status, String orderNo, Long userId,Date sponsorStartTime,Date sponsorEndTime,Date affirmStartTime,
-                                                    Date affirmEndTime) {
+    private Specification<ChargeOrder> getCondition(Integer status, String orderNo, Long userId) {
         Specification<ChargeOrder> specification = new Specification<ChargeOrder>() {
             @Override
             public Predicate toPredicate(Root<ChargeOrder> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -109,18 +115,6 @@ public class ChargeOrderController {
                 }
                 if (userId != null ) {
                     list.add(cb.equal(root.get("userId").as(Long.class), userId));
-                }
-                if (sponsorStartTime != null) {
-                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), sponsorStartTime));
-                }
-                if (sponsorEndTime != null) {
-                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), sponsorEndTime));
-                }
-                if (affirmStartTime != null) {
-                    list.add(cb.greaterThanOrEqualTo(root.get("updateTime").as(Date.class), affirmStartTime));
-                }
-                if (affirmEndTime != null) {
-                    list.add(cb.greaterThanOrEqualTo(root.get("updateTime").as(Date.class), affirmEndTime));
                 }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));
 
