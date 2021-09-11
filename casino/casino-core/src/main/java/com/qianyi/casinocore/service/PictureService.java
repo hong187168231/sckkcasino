@@ -3,6 +3,7 @@ package com.qianyi.casinocore.service;
 import com.qianyi.casinocore.model.LunboPic;
 import com.qianyi.casinocore.repository.PictureRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +24,8 @@ public class PictureService {
     public List<LunboPic> findAll(Specification<LunboPic> condition) {
         return pictureRepository.findAll(condition);
     }
-    public List<LunboPic> findByLunboPicList(){
-        return pictureRepository.findByLunboPicList();
+    public List<LunboPic> findByLunboPicList(Specification<LunboPic> condition, Sort sort){
+        return pictureRepository.findAll(condition,sort);
     }
     public LunboPic findLunboPicbyId(Long id){
         return pictureRepository.findAllById(id);

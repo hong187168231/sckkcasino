@@ -11,8 +11,8 @@ import java.util.List;
 public interface PictureRepository extends JpaRepository<LunboPic,Long> , JpaSpecificationExecutor<LunboPic> {
     LunboPic findAllById(Long id);
 
-    @Query("from LunboPic l order by l.updateTime desc")
-    List<LunboPic> findByLunboPicList();
+//    @Query("from LunboPic l order by l.updateTime desc")
+//    List<LunboPic> findByLunboPicList();
 
     List<LunboPic> findByTheShowEnd(Integer theShowEnd);
 }

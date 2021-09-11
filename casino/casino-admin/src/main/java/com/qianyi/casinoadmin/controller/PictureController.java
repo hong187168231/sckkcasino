@@ -3,6 +3,7 @@ package com.qianyi.casinoadmin.controller;
 import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.LunboPic;
+import com.qianyi.casinocore.model.WithdrawOrder;
 import com.qianyi.casinocore.service.PictureService;
 import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -14,6 +15,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -119,7 +122,26 @@ public class PictureController {
 
     @ApiOperation("查找Banner")
     @GetMapping("/findByBannerList")
-    public ResponseEntity findByBannerList(){
-        return ResponseUtil.success(pictureService.findByLunboPicList());
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "theShowEnd", value = "1 web 2 app", required = false),
+    })
+    public ResponseEntity findByBannerList(Integer theShowEnd){
+        Specification<LunboPic> condition = this.getCondition(theShowEnd);
+        Sort sort=Sort.by("no").ascending();
+        return ResponseUtil.success(pictureService.findByLunboPicList(condition,sort));
+    }
+
+    private Specification<LunboPic> getCondition(Integer theShowEnd) {
+        Specification<LunboPic> specification = new Specification<LunboPic>() {
+            List<Predicate> list = new ArrayList<Predicate>();
+            @Override
+            public Predicate toPredicate(Root<LunboPic> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                if (theShowEnd != null) {
+                    list.add(cb.equal(root.get("theShowEnd").as(Integer.class), theShowEnd));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
     }
 }
