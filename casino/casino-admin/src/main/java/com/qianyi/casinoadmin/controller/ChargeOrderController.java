@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -60,8 +61,10 @@ public class ChargeOrderController {
     })
     @GetMapping("/chargeOrderList")
     public ResponseEntity chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String orderNo, Long userId,
-                                       Date sponsorStartTime,Date sponsorEndTime,Date affirmStartTime,
-                                       Date affirmEndTime){
+                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date sponsorStartTime,
+                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date sponsorEndTime,
+                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date affirmStartTime,
+                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date affirmEndTime){
         Sort sort = Sort.by("createTime").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Specification<ChargeOrder> condition = this.getCondition(status,orderNo,userId,sponsorStartTime,sponsorEndTime,affirmStartTime,affirmEndTime);
@@ -107,19 +110,20 @@ public class ChargeOrderController {
                 if (userId != null ) {
                     list.add(cb.equal(root.get("userId").as(Long.class), userId));
                 }
-                predicate = cb.and(list.toArray(new Predicate[list.size()]));
                 if (sponsorStartTime != null) {
-                    predicate.getExpressions().add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), sponsorStartTime));
+                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), sponsorStartTime));
                 }
                 if (sponsorEndTime != null) {
-                    predicate.getExpressions().add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), sponsorEndTime));
+                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), sponsorEndTime));
                 }
                 if (affirmStartTime != null) {
-                    predicate.getExpressions().add(cb.greaterThanOrEqualTo(root.get("updateTime").as(Date.class), affirmStartTime));
+                    list.add(cb.greaterThanOrEqualTo(root.get("updateTime").as(Date.class), affirmStartTime));
                 }
                 if (affirmEndTime != null) {
-                    predicate.getExpressions().add(cb.lessThanOrEqualTo(root.get("updateTime").as(Date.class), affirmEndTime));
+                    list.add(cb.greaterThanOrEqualTo(root.get("updateTime").as(Date.class), affirmEndTime));
                 }
+                predicate = cb.and(list.toArray(new Predicate[list.size()]));
+
                 return predicate;
             }
         };

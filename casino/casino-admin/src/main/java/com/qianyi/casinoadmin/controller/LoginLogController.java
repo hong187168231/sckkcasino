@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,8 +45,9 @@ public class LoginLogController {
             @ApiImplicitParam(name = "startTime", value = "搜素起始时间", required = false),
             @ApiImplicitParam(name = "endTime", value = "搜素结束时间", required = false),
     })
-    public ResponseEntity findLoginLogPage(Integer pageSize, Integer pageCode,String ip,Long userId,String account,
-                                             Date startTime,Date endTime){
+    public ResponseEntity findLoginLogPage(Integer pageSize, Integer pageCode, String ip, Long userId, String account,
+                                           @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startTime,
+                                           @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endTime){
         Sort sort = Sort.by("createTime").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Specification<LoginLog> condition = this.getCondition(ip,userId,account,startTime,endTime);
@@ -75,13 +77,13 @@ public class LoginLogController {
                 if (!CommonUtil.checkNull(account)) {
                     list.add(cb.equal(root.get("account").as(String.class), account));
                 }
-                predicate = cb.and(list.toArray(new Predicate[list.size()]));
                 if (startTime != null) {
-                    predicate.getExpressions().add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startTime));
+                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startTime));
                 }
                 if (endTime != null) {
-                    predicate.getExpressions().add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endTime));
+                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), endTime));
                 }
+                predicate = cb.and(list.toArray(new Predicate[list.size()]));
                 return predicate;
             }
         };
