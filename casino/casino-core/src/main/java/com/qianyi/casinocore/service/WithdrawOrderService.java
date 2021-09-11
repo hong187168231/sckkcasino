@@ -28,6 +28,10 @@ public class WithdrawOrderService {
         return withdrawOrderRepository.save(entity);
     }
 
+    public WithdrawOrder findUserByIdUseLock(Long userId){
+        return withdrawOrderRepository.findUserByWithdrawIdOrderLock(userId);
+    }
+
     public WithdrawOrder findById(Long id) {
         Optional<WithdrawOrder> optional = withdrawOrderRepository.findById(id);
         if (optional.isPresent()) {

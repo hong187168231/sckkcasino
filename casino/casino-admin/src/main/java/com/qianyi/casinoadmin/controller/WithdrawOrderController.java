@@ -72,9 +72,12 @@ public class WithdrawOrderController {
         if(status <= 0 || status > 3){
             return ResponseUtil.custom("参数不合法");
         }
-        WithdrawOrder withdrawOrder = withdrawOrderService.findById(id);
+        WithdrawOrder withdrawOrder = withdrawOrderService.findUserByIdUseLock(id);
         if(withdrawOrder == null){
             return ResponseUtil.custom("订单不存在");
+        }
+        if(withdrawOrder.getStatus() != 0){
+            return ResponseUtil.custom("订单已被处理");
         }
         //提现通过或其他
         withdrawOrder.setStatus(status);
