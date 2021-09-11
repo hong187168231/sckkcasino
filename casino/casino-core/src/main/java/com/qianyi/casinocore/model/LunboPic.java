@@ -15,8 +15,4 @@ public class LunboPic extends BaseEntity{
      * 展示端 1 web 2 app
      */
     private Integer theShowEnd;
-    /**
-     * 点击量
-     */
-    private Integer hits;
 }

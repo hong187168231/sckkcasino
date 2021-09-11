@@ -35,27 +35,23 @@ public class PictureController {
     private SysUserService sysUserService;
     @ApiOperation("新增PC端轮播图")
     @PostMapping(value = "/savePCPicture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增PC端轮播图")
-    public ResponseEntity savePCPicture(@RequestPart(value = "file") MultipartFile file,@RequestParam(value = "文章链接") String remark,
-                                        @RequestParam(value = "序号1-5") Integer no){
+    public ResponseEntity savePCPicture(@RequestPart(value = "file") MultipartFile file,@RequestParam(value = "序号1-5") Integer no){
         LunboPic lunboPic = new LunboPic();
         lunboPic.setTheShowEnd(CommonConst.NUMBER_1);//PC端 1
-        return this.savePicture(file,remark,no,lunboPic);
+        return this.savePicture(file,no,lunboPic);
     }
     @ApiOperation("新增移动端轮播图")
     @PostMapping(value = "/saveAppPicture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增移动端轮播图")
-    public ResponseEntity saveAppPicture(@RequestPart(value = "file") MultipartFile file,@RequestParam(value = "文章链接") String remark,
-                                        @RequestParam(value = "序号1-5") Integer no){
+    public ResponseEntity saveAppPicture(@RequestPart(value = "file") MultipartFile file,@RequestParam(value = "序号1-5") Integer no){
         LunboPic lunboPic = new LunboPic();
         lunboPic.setTheShowEnd(CommonConst.NUMBER_2);//APP端 2
-        return this.savePicture(file,remark,no,lunboPic);
+        return this.savePicture(file,no,lunboPic);
     }
-    public ResponseEntity savePicture(MultipartFile file,String remark,Integer no,LunboPic lunboPic){
-        if (file == null|| no == null||CommonUtil.checkNull(remark)){
+    public ResponseEntity savePicture(MultipartFile file,Integer no,LunboPic lunboPic){
+        if (file == null|| no == null){
             return ResponseUtil.custom(CommonConst.PICTURENOTUP);
         }
-        lunboPic.setRemark(remark);
         lunboPic.setNo(no);
-        lunboPic.setHits(CommonConst.NUMBER_0);
         try {
             String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
             lunboPic.setUrl(fileUrl);
@@ -88,7 +84,7 @@ public class PictureController {
     @ApiOperation("修改Picture")
     @PostMapping(value = "/updatePicture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "修改Picture")
     public ResponseEntity updatePicture(@RequestPart("file") MultipartFile file,@RequestParam(value = "id") Long id
-            ,@RequestParam(value = "文章链接") String remark,@RequestParam(value = "序号1-5") Integer no) {
+            ,@RequestParam(value = "序号1-5") Integer no) {
         if (id == null){
             return ResponseUtil.custom(CommonConst.IDNOTNULL);
         }
@@ -96,7 +92,6 @@ public class PictureController {
         if (lunboPic == null){
             return ResponseUtil.custom(CommonConst.IDNOTNULL);
         }
-        lunboPic.setRemark(remark);
         lunboPic.setNo(no);
         try {
             String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
