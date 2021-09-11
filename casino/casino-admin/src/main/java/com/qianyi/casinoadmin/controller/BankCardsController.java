@@ -39,28 +39,51 @@ public class BankCardsController {
 
     @Autowired
     private UserService userService;
-
+    /**
+     * 查询所有银行列表
+     * @return
+     */
     @GetMapping("/banklist")
     @ApiOperation("银行列表")
     @ResponseBody
     public ResponseEntity bankList() {
         return ResponseUtil.success(bankInfoService.findAll());
     }
-
+    /**
+     * 新增银行
+     * @param file 银行图标logo
+     * @param bankName 银行名称
+     * @param bankCode 银行编码
+     * @param bankType 类型0:银行卡，1：支付宝，2：微信，3：QQ
+     * @param disable 0:未禁用 1：禁用
+     * @param remark 备注
+     * @return
+     */
     @ApiOperation("新增银行")
     @PostMapping(value = "/saveBankInfo",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增银行")
     public ResponseEntity saveBankInfo(@RequestPart(value = "bankLogo银行图标") MultipartFile file, @RequestParam(value = "银行名称") String bankName,
-                                        @RequestParam(value = "银行编码") String bankCode,@RequestParam(value = "0:银行卡，1：支付宝，2：微信，3：QQ") Integer bankType,
+                                        @RequestParam(value = "银行编码") String bankCode,@RequestParam(value = "类型0:银行卡，1：支付宝，2：微信，3：QQ") Integer bankType,
                                        @RequestParam(value = "0:未禁用 1：禁用") Integer disable,@RequestParam(value = "备注")String remark){
         BankInfo bankInfo = new BankInfo();
         return this.saveAndUpdate(file,bankName,bankCode,bankType,disable,remark,bankInfo);
     }
+    /**
+     * 修改银行信息
+     * @param file 银行图标logo
+     * @param bankName 银行名称
+     * @param bankCode 银行编码
+     * @param bankType 类型0:银行卡，1：支付宝，2：微信，3：QQ
+     * @param disable 0:未禁用 1：禁用
+     * @param remark 备注
+     * @param id 银行id
+     * @return
+     */
     @ApiOperation("修改银行")
     @PostMapping(value = "/updateBankInfo",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "修改银行")
     public ResponseEntity updateBankInfo(@RequestPart(value = "bankLogo银行图标") MultipartFile file, @RequestParam(value = "银行名称") String bankName,
                                        @RequestParam(value = "银行编码") String bankCode,@RequestParam(value = "0:银行卡，1：支付宝，2：微信，3：QQ") Integer bankType,
                                        @RequestParam(value = "0:未禁用 1：禁用") Integer disable,@RequestParam(value = "备注")String remark,
-                                         @RequestParam(value = "id")  Long id){
+                                         @RequestParam(value = "银行id")  Long id){
         BankInfo bankInfo = new BankInfo();
         bankInfo.setId(id);
         return this.saveAndUpdate(file,bankName,bankCode,bankType,disable,remark,bankInfo);
@@ -82,6 +105,11 @@ public class BankCardsController {
         }
         return ResponseUtil.success();
     }
+    /**
+     * 删除银行信息
+     * @param id 银行id
+     * @return
+     */
     @GetMapping("/deleteBankInfo")
     @ApiOperation("删除银行")
     @ApiImplicitParams({
