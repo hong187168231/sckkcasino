@@ -80,7 +80,7 @@ public class WithdrawOrderController {
         if(withdrawOrder == null){
             return ResponseUtil.custom("订单不存在");
         }
-        if(withdrawOrder.getStatus() != 0){
+        if(withdrawOrder.getStatus() == Constants.WITHDRAW_PASS || withdrawOrder.getStatus() == status){
             return ResponseUtil.custom("订单已被处理");
         }
         //提现通过或其他
