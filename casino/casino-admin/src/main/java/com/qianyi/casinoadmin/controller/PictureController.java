@@ -53,30 +53,33 @@ public class PictureController {
     }
     @ApiOperation("新增修改PC端轮播图")
     @PostMapping(value = "/savePCPicture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增PC端轮播图")
-    public ResponseEntity savePCPicture(@RequestPart(value = "file") MultipartFile file,@RequestParam(value = "序号6-10") Integer no){
+    public ResponseEntity savePCPicture(@RequestPart(value = "file") MultipartFile file,@RequestParam(value = "序号6-10") Integer no,
+                                        @RequestParam(value = "备注") String remark){
         LunboPic lunboPic = new LunboPic();
         lunboPic.setTheShowEnd(CommonConst.NUMBER_1);//PC端 1
         if (!PCNo.contains(no)){
             return ResponseUtil.custom("序号只能设置6-10");
         }
-        return this.savePicture(file,no,lunboPic);
+        return this.savePicture(file,no,lunboPic, remark);
     }
     @ApiOperation("新增修改移动端轮播图")
     @PostMapping(value = "/saveAppPicture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增移动端轮播图")
-    public ResponseEntity saveAppPicture(@RequestPart(value = "file") MultipartFile file,@RequestParam(value = "序号1-5") Integer no){
+    public ResponseEntity saveAppPicture(@RequestPart(value = "file") MultipartFile file,@RequestParam(value = "序号1-5") Integer no,
+            @RequestParam(value = "备注") String remark){
         LunboPic lunboPic = new LunboPic();
         lunboPic.setTheShowEnd(CommonConst.NUMBER_2);//APP端 2
         if (!AppNo.contains(no)){
             return ResponseUtil.custom("序号只能设置1-5");
         }
-        return this.savePicture(file,no,lunboPic);
+        return this.savePicture(file,no,lunboPic, remark);
     }
-    public ResponseEntity savePicture(MultipartFile file,Integer no,LunboPic lunboPic){
+    public ResponseEntity savePicture(MultipartFile file,Integer no,LunboPic lunboPic, String remark){
         if (file == null){
             return ResponseUtil.custom(CommonConst.PICTURENOTUP);
         }
         lunboPic.setId(no.longValue());
         lunboPic.setNo(no);
+        lunboPic.setRemark(remark + "");
         try {
             String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
             lunboPic.setUrl(fileUrl);
