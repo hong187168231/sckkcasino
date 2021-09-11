@@ -54,7 +54,7 @@ public class PictureController {
     @ApiOperation("新增修改PC端轮播图")
     @PostMapping(value = "/savePCPicture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增PC端轮播图")
     public ResponseEntity savePCPicture(@RequestPart(value = "file") MultipartFile file,@RequestParam(value = "序号6-10") Integer no,
-                                        @RequestParam(value = "备注") String remark){
+                                        @RequestParam(value = "备注", required = false) String remark){
         LunboPic lunboPic = new LunboPic();
         lunboPic.setTheShowEnd(CommonConst.NUMBER_1);//PC端 1
         if (!PCNo.contains(no)){
@@ -65,7 +65,7 @@ public class PictureController {
     @ApiOperation("新增修改移动端轮播图")
     @PostMapping(value = "/saveAppPicture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增移动端轮播图")
     public ResponseEntity saveAppPicture(@RequestPart(value = "file") MultipartFile file,@RequestParam(value = "序号1-5") Integer no,
-            @RequestParam(value = "备注") String remark){
+            @RequestParam(value = "备注", required = false) String remark){
         LunboPic lunboPic = new LunboPic();
         lunboPic.setTheShowEnd(CommonConst.NUMBER_2);//APP端 2
         if (!AppNo.contains(no)){
