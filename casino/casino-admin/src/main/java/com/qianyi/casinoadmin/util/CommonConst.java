@@ -57,6 +57,6 @@ public class CommonConst {
 
     public static final String IDNOTNULL = "无效id";
     public static final String PICTURENOTUP = "图片不符合规格";
-    public static final String TOOMANYPICTURESONTHECLIENT = "当前客户端图片过多";
+    public static final String TOOMANYPICTURESONTHECLIENT = "当前客户端图片序号冲突";
     public static final String THENUMBERISLIMITEDTO10 = "数量限制为10条";
 }
