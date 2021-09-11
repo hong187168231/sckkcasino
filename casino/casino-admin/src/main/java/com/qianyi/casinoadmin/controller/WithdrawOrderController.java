@@ -91,7 +91,8 @@ public class WithdrawOrderController {
     @Transactional
     public ResponseEntity updateWithdrawAndUser(WithdrawOrder withdrawOrder) {
         Long userId = withdrawOrder.getUserId();
-        User user = userService.findById(userId);
+        //对用户数据进行行锁
+        User user = userService.findUserByIdUseLock(userId);
         if (user == null) {
             return ResponseUtil.custom("用户不存在");
         }
