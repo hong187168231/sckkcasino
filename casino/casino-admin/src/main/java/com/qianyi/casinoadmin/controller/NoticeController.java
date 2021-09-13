@@ -3,6 +3,7 @@ package com.qianyi.casinoadmin.controller;
 import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinocore.model.Notice;
 import com.qianyi.casinocore.service.NoticeService;
+import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -95,6 +96,6 @@ public class NoticeController {
     @GetMapping("/findNotice")
     public ResponseEntity findNotice(){
         List<Notice> noticeList = noticeService.findByNoticeList();
-        return ResponseUtil.success(noticeList);
+        return new ResponseEntity(ResponseCode.SUCCESS, noticeList);
     }
 }
