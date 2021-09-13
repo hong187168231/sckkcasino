@@ -39,8 +39,6 @@ public class NoticeController {
         notice.setIntroduction(introduction);
         notice.setIsShelves(isShelves);
         notice.setUrl(url);
-        notice.setUpdateTime(new Date());
-        notice.setCreateTime(new Date());
         return this.saveNotice(notice);
     }
 
@@ -52,13 +50,23 @@ public class NoticeController {
         noticeService. saveNotice(notice);
         return ResponseUtil.success();
     }
-    @ApiOperation("删除公告")
+    @ApiOperation("上架下架活动")
     @GetMapping("/deleteNotice")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id主键", required = true),
     })
     public ResponseEntity deleteNotice(Long id){
-        noticeService.deleteById(id);
+        Notice notice = noticeService.findNoticeById(id);
+        if(notice == null){
+            return ResponseUtil.custom("不存在该活动");
+        }
+        boolean isShelves = notice.getIsShelves();
+        if(isShelves == true){
+            notice.setIsShelves(false);
+        }else{
+            notice.setIsShelves(true);
+        }
+        noticeService.saveNotice(notice);
         return ResponseUtil.success();
     }
     @ApiOperation("修改公告")
@@ -79,7 +87,6 @@ public class NoticeController {
         notice.setIsShelves(isShelves);
         notice.setIntroduction(introduction);
         notice.setTitle(title);
-        notice.setUpdateTime(new Date());
         noticeService.saveNotice(notice);
         return ResponseUtil.success();
     }
