@@ -24,48 +24,38 @@ import java.util.List;
 public class NoticeController {
     @Autowired
     private NoticeService noticeService;
-    /**
-     * 新增公告
-     * @param title 公告内容
-     * @param isShelves 是否上架 是true 否false
-     * @param url 详情访问页
-     * @param introduction 简介
-     * @return
-     */
-    @ApiOperation("新增公告/活动")
+
+    @ApiOperation("新增公告")
     @PostMapping("/saveNotice")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "title", value = "公告内容", required = true),
-            @ApiImplicitParam(name = "isShelves", value = "是否上架 是true 否false", required = true),
+            @ApiImplicitParam(name = "title", value = "内容", required = true),
+            @ApiImplicitParam(name = "isShelves", value = "是否上架 true false", required = true),
             @ApiImplicitParam(name = "url", value = "详情访问页", required = true),
             @ApiImplicitParam(name = "introduction", value = "简介", required = true),
     })
-    public ResponseEntity<Notice> saveNotice(String title,Boolean isShelves,String introduction,String url){
+    public ResponseEntity saveNotice(String title,Boolean isShelves,String introduction,String url){
         Notice notice = new Notice();
         notice.setTitle(title);
         notice.setIntroduction(introduction);
         notice.setIsShelves(isShelves);
         notice.setUrl(url);
-        notice.setUpdateTime(new Date());
-        notice.setCreateTime(new Date());
         return this.saveNotice(notice);
     }
 
-    private synchronized ResponseEntity<Notice> saveNotice(Notice notice){
+    private synchronized ResponseEntity saveNotice(Notice notice){
         List<Notice> byNoticeList = noticeService.findByNoticeList();
         if (byNoticeList != null && byNoticeList.size() >= CommonConst.NUMBER_10){
             return ResponseUtil.custom(CommonConst.THENUMBERISLIMITEDTO10);
         }
-        Notice no = noticeService.saveNotice(notice);
-        return ResponseUtil.success(no);
+        noticeService. saveNotice(notice);
+        return ResponseUtil.success();
     }
-
-    @ApiOperation("上架下架活动/公告")
+    @ApiOperation("上架下架活动")
     @GetMapping("/deleteNotice")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id主键", required = true),
     })
-    public ResponseEntity<Notice> deleteNotice(Long id){
+    public ResponseEntity deleteNotice(Long id){
         Notice notice = noticeService.findNoticeById(id);
         if(notice == null){
             return ResponseUtil.custom("不存在该活动");
@@ -76,28 +66,19 @@ public class NoticeController {
         }else{
             notice.setIsShelves(true);
         }
-        Notice no = noticeService.saveNotice(notice);
-        return ResponseUtil.success(no);
+        noticeService.saveNotice(notice);
+        return ResponseUtil.success();
     }
-    /**
-     * 修改公告
-     * @param id 公告id
-     * @param title 公告内容
-     * @param isShelves 是否上架 是true 否false
-     * @param url 详情访问页url
-     * @param introduction 简介
-     * @return
-     */
-    @ApiOperation("修改公告/活动")
+    @ApiOperation("修改公告")
     @PostMapping("/updateNotice")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "公告id", required = true),
-            @ApiImplicitParam(name = "title", value = "公告内容", required = true),
-            @ApiImplicitParam(name = "isShelves", value = "是否上架 是true 否false", required = true),
-            @ApiImplicitParam(name = "url", value = "详情访问页url", required = true),
+            @ApiImplicitParam(name = "id", value = "id主键", required = true),
+            @ApiImplicitParam(name = "title", value = "内容", required = true),
+            @ApiImplicitParam(name = "isShelves", value = "是否上架 true false", required = true),
+            @ApiImplicitParam(name = "url", value = "详情访问页", required = true),
             @ApiImplicitParam(name = "introduction", value = "简介", required = true),
     })
-    public ResponseEntity<Notice> updateNotice(String title,Boolean isShelves,String introduction,String url,Long id){
+    public ResponseEntity updateNotice(String title,Boolean isShelves,String introduction,String url,Long id){
         Notice notice = noticeService.findNoticeById(id);
         if (notice == null){
             return ResponseUtil.custom(CommonConst.IDNOTNULL);
@@ -106,17 +87,13 @@ public class NoticeController {
         notice.setIsShelves(isShelves);
         notice.setIntroduction(introduction);
         notice.setTitle(title);
-        notice.setUpdateTime(new Date());
-        Notice no = noticeService.saveNotice(notice);
-        return ResponseUtil.success(no);
+        noticeService.saveNotice(notice);
+        return ResponseUtil.success();
     }
-    /**
-     * 查询所有 最多十条
-     * @return
-     */
-    @ApiOperation("查询公告/活动")
+
+    @ApiOperation("查询所有")
     @GetMapping("/findNotice")
-    public ResponseEntity<Notice> findNotice(){
+    public ResponseEntity findNotice(){
         List<Notice> noticeList = noticeService.findByNoticeList();
         return ResponseUtil.success(noticeList);
     }
