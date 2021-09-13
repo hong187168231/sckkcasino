@@ -26,4 +26,7 @@ public class CustomerService {
 
         return all.get(0);
     }
+    public void save(Customer customer){
+        customerRepository.save(customer);
+    }
 }
