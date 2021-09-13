@@ -59,18 +59,24 @@ public class NoticeController {
         noticeService. saveNotice(notice);
         return ResponseUtil.success();
     }
-    /**
-     * 删除公告
-     * @param id 公告id
-     * @return
-     */
-    @ApiOperation("删除公告")
+
+    @ApiOperation("上架下架活动")
     @GetMapping("/deleteNotice")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "公告id", required = true),
+            @ApiImplicitParam(name = "id", value = "id主键", required = true),
     })
     public ResponseEntity deleteNotice(Long id){
-        noticeService.deleteById(id);
+        Notice notice = noticeService.findNoticeById(id);
+        if(notice == null){
+            return ResponseUtil.custom("不存在该活动");
+        }
+        boolean isShelves = notice.getIsShelves();
+        if(isShelves == true){
+            notice.setIsShelves(false);
+        }else{
+            notice.setIsShelves(true);
+        }
+        noticeService.saveNotice(notice);
         return ResponseUtil.success();
     }
     /**
