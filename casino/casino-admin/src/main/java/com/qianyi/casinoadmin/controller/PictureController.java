@@ -79,7 +79,7 @@ public class PictureController {
         lunboPic.setRemark(remark + "");
         try {
             if(file == null){
-                lunboPic.setUrl("");
+                lunboPic.setUrl(null);
             }else{
                 String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
                 lunboPic.setUrl(fileUrl);
