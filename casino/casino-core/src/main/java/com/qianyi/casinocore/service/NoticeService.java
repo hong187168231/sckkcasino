@@ -23,8 +23,8 @@ public class NoticeService {
         return noticeRepository.newest();
     }
 
-    public void saveNotice(Notice notice){
-        noticeRepository.save(notice);
+    public Notice saveNotice(Notice notice){
+        return noticeRepository.save(notice);
     }
 
     public List<Notice> findByNoticeList(){

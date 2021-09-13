@@ -32,7 +32,7 @@ public class NoticeController {
      * @param introduction 简介
      * @return
      */
-    @ApiOperation("新增公告")
+    @ApiOperation("新增公告/活动")
     @PostMapping("/saveNotice")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "title", value = "公告内容", required = true),
@@ -40,7 +40,7 @@ public class NoticeController {
             @ApiImplicitParam(name = "url", value = "详情访问页", required = true),
             @ApiImplicitParam(name = "introduction", value = "简介", required = true),
     })
-    public ResponseEntity saveNotice(String title,Boolean isShelves,String introduction,String url){
+    public ResponseEntity<Notice> saveNotice(String title,Boolean isShelves,String introduction,String url){
         Notice notice = new Notice();
         notice.setTitle(title);
         notice.setIntroduction(introduction);
@@ -51,13 +51,13 @@ public class NoticeController {
         return this.saveNotice(notice);
     }
 
-    private synchronized ResponseEntity saveNotice(Notice notice){
+    private synchronized ResponseEntity<Notice> saveNotice(Notice notice){
         List<Notice> byNoticeList = noticeService.findByNoticeList();
         if (byNoticeList != null && byNoticeList.size() >= CommonConst.NUMBER_10){
             return ResponseUtil.custom(CommonConst.THENUMBERISLIMITEDTO10);
         }
-        noticeService. saveNotice(notice);
-        return ResponseUtil.success();
+        Notice no = noticeService.saveNotice(notice);
+        return ResponseUtil.success(no);
     }
 
     @ApiOperation("上架下架活动")
@@ -65,7 +65,7 @@ public class NoticeController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id主键", required = true),
     })
-    public ResponseEntity deleteNotice(Long id){
+    public ResponseEntity<Notice> deleteNotice(Long id){
         Notice notice = noticeService.findNoticeById(id);
         if(notice == null){
             return ResponseUtil.custom("不存在该活动");
@@ -76,8 +76,8 @@ public class NoticeController {
         }else{
             notice.setIsShelves(true);
         }
-        noticeService.saveNotice(notice);
-        return ResponseUtil.success();
+        Notice no = noticeService.saveNotice(notice);
+        return ResponseUtil.success(no);
     }
     /**
      * 修改公告
@@ -97,7 +97,7 @@ public class NoticeController {
             @ApiImplicitParam(name = "url", value = "详情访问页url", required = true),
             @ApiImplicitParam(name = "introduction", value = "简介", required = true),
     })
-    public ResponseEntity updateNotice(String title,Boolean isShelves,String introduction,String url,Long id){
+    public ResponseEntity<Notice> updateNotice(String title,Boolean isShelves,String introduction,String url,Long id){
         Notice notice = noticeService.findNoticeById(id);
         if (notice == null){
             return ResponseUtil.custom(CommonConst.IDNOTNULL);
@@ -107,8 +107,8 @@ public class NoticeController {
         notice.setIntroduction(introduction);
         notice.setTitle(title);
         notice.setUpdateTime(new Date());
-        noticeService.saveNotice(notice);
-        return ResponseUtil.success();
+        Notice no = noticeService.saveNotice(notice);
+        return ResponseUtil.success(no);
     }
     /**
      * 查询所有 最多十条
@@ -116,7 +116,7 @@ public class NoticeController {
      */
     @ApiOperation("查询所有公告")
     @GetMapping("/findNotice")
-    public ResponseEntity findNotice(){
+    public ResponseEntity<Notice> findNotice(){
         List<Notice> noticeList = noticeService.findByNoticeList();
         return ResponseUtil.success(noticeList);
     }
