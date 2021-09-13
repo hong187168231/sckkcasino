@@ -291,4 +291,19 @@ public class LoginController {
         return ResponseUtil.success();
     }
 
+    //1分钟3次
+    @RequestLimit(limit = 3,timeout = 60)
+    @ApiOperation("获取当前登录用户")
+    @PostMapping("getSysUser")
+    public ResponseEntity<SysUser> getSysUser() {
+        Long loginUserId = LoginUtil.getLoginUserId();
+        SysUser sys = sysUserService.findById(loginUserId);
+        if(sys == null){
+            return ResponseUtil.custom("用户不存在");
+        }else{
+            return ResponseUtil.success(sys);
+        }
+    }
+
+
 }
