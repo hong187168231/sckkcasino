@@ -1,10 +1,12 @@
 package com.qianyi.casinoweb.config;
 
 import com.qianyi.casinoweb.inteceptor.AuthenticationInteceptor;
+import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -40,4 +42,10 @@ public class GloabConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/doc.html");
     }
 
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        String path = CommonUtil.getLocalPicPath();
+        //本地资源映射
+        registry.addResourceHandler("/public/img/**").addResourceLocations("file:" + path);
+    }
 }
