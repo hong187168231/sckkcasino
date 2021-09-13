@@ -67,6 +67,13 @@ public class CasinoWebUtil {
         return token;
     }
 
+    public static String getToken(String token) {
+        if (!checkNull(token)) {
+            token = token.replaceAll("Bearer ", "");
+        }
+        return token;
+    }
+
     public static HttpServletRequest getRequest() {
         return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
     }
