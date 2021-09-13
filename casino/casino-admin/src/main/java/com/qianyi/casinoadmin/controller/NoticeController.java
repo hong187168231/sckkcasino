@@ -60,7 +60,7 @@ public class NoticeController {
         return ResponseUtil.success(no);
     }
 
-    @ApiOperation("上架下架活动")
+    @ApiOperation("上架下架活动/公告")
     @GetMapping("/deleteNotice")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id主键", required = true),
@@ -88,7 +88,7 @@ public class NoticeController {
      * @param introduction 简介
      * @return
      */
-    @ApiOperation("修改公告")
+    @ApiOperation("修改公告/活动")
     @PostMapping("/updateNotice")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "公告id", required = true),
@@ -114,7 +114,7 @@ public class NoticeController {
      * 查询所有 最多十条
      * @return
      */
-    @ApiOperation("查询所有公告")
+    @ApiOperation("查询公告/活动")
     @GetMapping("/findNotice")
     public ResponseEntity<Notice> findNotice(){
         List<Notice> noticeList = noticeService.findByNoticeList();
