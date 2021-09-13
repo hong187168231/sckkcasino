@@ -40,12 +40,12 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.info("请求头类型： " + request.getContentType());
+        log.debug("请求头类型： " + request.getContentType());
         if ((request.getContentType() == null && request.getContentLength() > 0) || (request.getContentType() != null && !request.getContentType().contains(Constants.REQUEST_HEADERS_CONTENT_TYPE))) {
             filterChain.doFilter(request, response);
             return;
         }
-        log.info("进行request，respone的转换");
+        log.debug("进行request，respone的转换");
         MultiReadHttpServletRequest wrappedRequest = new MultiReadHttpServletRequest(request);
         MultiReadHttpServletResponse wrappedResponse = new MultiReadHttpServletResponse(response);
         StopWatch stopWatch = new StopWatch();
@@ -56,10 +56,10 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
 
             // 前后端分离情况下，前端登录后将token储存在cookie中，每次访问接口时通过token去拿用户权限
             String jwtToken = wrappedRequest.getHeader(Constants.REQUEST_HEADER);
-            log.info("后台检查令牌:{}", jwtToken);
+            log.debug("后台检查令牌:{}", jwtToken);
             if (StringUtils.hasLength(jwtToken)) {
                 String strUserId = JjwtUtil.parse(CasinoWebUtil.getToken(jwtToken));
-                log.info("userid is {}",strUserId);
+                log.debug("userid is {}",strUserId);
                 SpringSecurityUserDetailsService.SecurityUser securityUser = (SpringSecurityUserDetailsService.SecurityUser) userDetailsService.getUserDetaisByUserId(Long.parseLong(strUserId));
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(securityUser, null, securityUser.getAuthorities());
@@ -89,9 +89,9 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
             try {
                 String bodyJson = wrapper.getBodyJsonStrByJson(request);
                 String url = wrapper.getRequestURI().replace("//", "/");
-                System.out.println("-------------------------------- 请求url: " + url + " --------------------------------");
+                log.debug("-------------------------------- 请求url: " + url + " --------------------------------");
                 Constants.URL_MAPPING_MAP.put(url, url);
-                log.info("`{}` 接收到的参数: {}", url, bodyJson);
+                log.debug("`{}` 接收到的参数: {}", url, bodyJson);
                 return bodyJson;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -111,7 +111,7 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
                 } catch (UnsupportedEncodingException ex) {
                     payload = "[unknown]";
                 }
-                log.info("`{}`  耗时:{}ms  返回的参数: {}", Constants.URL_MAPPING_MAP.get(request.getRequestURI()), useTime, payload);
+                log.debug("`{}`  耗时:{}ms  返回的参数: {}", Constants.URL_MAPPING_MAP.get(request.getRequestURI()), useTime, payload);
             }
         }
     }
