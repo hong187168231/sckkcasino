@@ -38,6 +38,6 @@ public class PictureService {
     }
 
     public List<LunboPic> findByTheShowEnd(Integer theShowEnd) {
-        return pictureRepository.findByTheShowEnd(theShowEnd);
+        return pictureRepository.findByTheShowEndAndUrlNotNull(theShowEnd);
     }
 }

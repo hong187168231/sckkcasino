@@ -7,6 +7,7 @@ import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -107,6 +108,7 @@ public class WMController {
         BigDecimal money = user.getMoney();
         if (money != null && money.compareTo(BigDecimal.ZERO) == 1) {
             //扣款
+            //TODO 扣款时考虑当前用户余额不能大于平台在三方的余额
             userService.subMoney(authId, money);
 
             Order order = new Order();
@@ -180,50 +182,75 @@ public class WMController {
         return model;
     }
 
-    /**
-     * 取余额
-     *
-     * @return
-     */
-    @RequestMapping("callBalance")
-    public RespEntity callBalance(String cmd, String signature, String user, String requestDate) {
-        log.info(this.getClass().getSimpleName() + "==>callBalance:cmd{},signature:{},user:{},requestDate:{}", cmd, signature, user, requestDate);
-        RespEntity entity = new RespEntity();
-        if (!"CallBalance".equals(cmd)) {
-            entity.setErrorCode(1);
-            entity.setErrorMessage("参数错误");
-            return entity;
+//    /**
+//     * 取余额
+//     *
+//     * @return
+//     */
+//    @RequestMapping("callBalance")
+//    public RespEntity callBalance(String cmd, String signature, String user, String requestDate) {
+//        log.info(this.getClass().getSimpleName() + "==>callBalance:cmd{},signature:{},user:{},requestDate:{}", cmd, signature, user, requestDate);
+//        RespEntity entity = new RespEntity();
+//        if (!"CallBalance".equals(cmd)) {
+//            entity.setErrorCode(1);
+//            entity.setErrorMessage("参数错误");
+//            return entity;
+//        }
+//
+//        if (!this.signature.equals(signature)) {
+//            entity.setErrorCode(2);
+//            entity.setErrorMessage("参数错误");
+//            return entity;
+//        }
+//
+//        UserThird third = userThirdService.findByAccount(user);
+//        if (third == null || CommonUtil.checkNull(third.getAccount())) {
+//            entity.setErrorCode(3);
+//            entity.setErrorMessage("参数错误");
+//            return entity;
+//        }
+//
+//        User weUser = userService.findById(third.getUserId());
+//        BigDecimal money = weUser.getMoney();
+//        if (money == null) {
+//            money = BigDecimal.ZERO;
+//        }
+//
+//        JSONObject json = new JSONObject();
+//        json.put("user", user);
+//        json.put("money", String.valueOf(money));
+//        json.put("responseDate", DateUtil.today("yyyy-MM-dd HH:mm:ss"));
+//
+//        entity.setErrorCode(0);
+//        entity.setErrorMessage("success");
+//        entity.setResult(json);
+//
+//        return entity;
+//    }
+
+    @ApiOperation("查询WM余额")
+    @RequestLimit(limit = 1,timeout = 5)
+    @GetMapping("getWmBalance")
+    public ResponseEntity getWmBalance() {
+        //获取登陆用户
+        Long authId = CasinoWebUtil.getAuthId();
+        UserThird third = userThirdService.findByUserId(authId);
+        if (third == null) {
+            return ResponseUtil.custom("当前用户未在第三方注册,请注册后再重试");
         }
-
-        if (!this.signature.equals(signature)) {
-            entity.setErrorCode(2);
-            entity.setErrorMessage("参数错误");
-            return entity;
+        User user = userService.findById(authId);
+        Integer lang = user.getLanguage();
+        if (lang == null) {
+            lang = 0;
         }
-
-        UserThird third = userThirdService.findByAccount(user);
-        if (third == null || CommonUtil.checkNull(third.getAccount())) {
-            entity.setErrorCode(3);
-            entity.setErrorMessage("参数错误");
-            return entity;
+        BigDecimal balance = null;
+        try {
+            balance = wmApi.getBalance(third.getAccount(), lang);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseUtil.custom(e.getMessage());
         }
-
-        User weUser = userService.findById(third.getUserId());
-        BigDecimal money = weUser.getMoney();
-        if (money == null) {
-            money = BigDecimal.ZERO;
-        }
-
-        JSONObject json = new JSONObject();
-        json.put("user", user);
-        json.put("money", String.valueOf(money));
-        json.put("responseDate", DateUtil.today("yyyy-MM-dd HH:mm:ss"));
-
-        entity.setErrorCode(0);
-        entity.setErrorMessage("success");
-        entity.setResult(json);
-
-        return entity;
+        return ResponseUtil.success(balance);
     }
 
 
