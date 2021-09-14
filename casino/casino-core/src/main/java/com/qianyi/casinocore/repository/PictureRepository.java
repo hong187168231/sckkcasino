@@ -14,5 +14,5 @@ public interface PictureRepository extends JpaRepository<LunboPic,Long> , JpaSpe
 //    @Query("from LunboPic l order by l.updateTime desc")
 //    List<LunboPic> findByLunboPicList();
 
-    List<LunboPic> findByTheShowEnd(Integer theShowEnd);
+    List<LunboPic> findByTheShowEndAndUrlNotNull(Integer theShowEnd);
 }

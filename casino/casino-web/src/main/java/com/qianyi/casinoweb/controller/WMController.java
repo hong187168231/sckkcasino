@@ -108,6 +108,7 @@ public class WMController {
         BigDecimal money = user.getMoney();
         if (money != null && money.compareTo(BigDecimal.ZERO) == 1) {
             //扣款
+            //TODO 扣款时考虑当前用户余额不能大于平台在三方的余额
             userService.subMoney(authId, money);
 
             Order order = new Order();
