@@ -4,17 +4,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.HttpClient4Util;
 import lombok.Data;
-import org.aspectj.weaver.ast.Var;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class PublicWMApi {
@@ -216,6 +213,55 @@ public class PublicWMApi {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 报表查询需间隔30秒，未搜寻到数据需间隔10秒。
+     * 如欲查询全部用户就不用输入user，会以时间区间进行呈现。
+     * 如果报表是要搜寻到起始时间到现在，endTime即可以不用代值，只需带startTime
+     * @param user 帐号
+     * @param startTime 例:20170809130500 (2017年08月09日 13点05分00秒)
+     * @param endTime 	例:20170809130600 (2017年08月09日 13点06分00秒)
+     * @param syslang 0:中文, 1:英文(非必要)
+     * @param timetype 0:抓下注时间, 1:抓结算时间
+     * @param datatype 0:输赢报表, 1:小费报表, 2:全部
+     * @param gameno1 期数
+     * @param gameno2 局号 (非必要)
+     * @return
+     * @throws Exception
+     */
+    public String getDateTimeReport(String user, String startTime, String endTime, Integer syslang, Integer timetype, Integer datatype, Integer gameno1, Integer gameno2) throws Exception {
+        String cmd = "GetDateTimeReport";
+        Map<String, Object> params = new HashMap<>();
+        params.put("cmd", cmd);
+        params.put("vendorId", vendorId);
+        params.put("signature", signature);
+        if (!ObjectUtils.isEmpty(user)) {
+            params.put("user", user);
+        }
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        params.put("timestamp", getTimestamp());
+        params.put("timetype", timetype);
+        params.put("datatype", datatype);
+        if (syslang != null) {
+            params.put("syslang", syslang);
+        }
+        if (gameno1 != null) {
+            params.put("gameno1", gameno1);
+        }
+        if (gameno2 != null) {
+            params.put("gameno2", gameno2);
+        }
+        String s = HttpClient4Util.doPost(url, params);
+        if (CommonUtil.checkNull(s)) {
+            return null;
+        }
+        ResponseEntity entity = entity(s);
+        if (entity.getErrorCode() == 0) {
+            return String.valueOf(entity.getResult());
+        }
+        throw new Exception(String.valueOf(entity));
     }
 
     private Integer getTimestamp() {
