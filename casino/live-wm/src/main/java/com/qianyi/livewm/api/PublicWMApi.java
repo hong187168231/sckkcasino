@@ -240,7 +240,9 @@ public class PublicWMApi {
             params.put("user", user);
         }
         params.put("startTime", startTime);
-        params.put("endTime", endTime);
+        if(!ObjectUtils.isEmpty(endTime)){
+            params.put("endTime", endTime);
+        }
         params.put("timestamp", getTimestamp());
         params.put("timetype", timetype);
         params.put("datatype", datatype);
