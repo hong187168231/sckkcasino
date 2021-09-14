@@ -28,7 +28,7 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
         SpringSecurityUserDetailsService.SecurityUser userInfo = (SpringSecurityUserDetailsService.SecurityUser) userDetailsService.loadUserByUsername(userName);
         boolean isValid = CasinoWebUtil.checkBcrypt(password, userInfo.getUser().getPassword());
         if(!isValid){
-            throw new BadCredentialsException("密码错误！");
+            throw new BadCredentialsException("帐号或密码错误");
         }
         String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
         new Thread(new LoginLogJob(ip, userInfo.getUser().getAccount(), userInfo.getUser().getId(), "casino-web")).start();

@@ -2,7 +2,6 @@ package com.qianyi.casinoweb.config.security.filter;
 
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoweb.config.security.exception.ValidateCodeException;
-import com.qianyi.casinoweb.config.security.exception.ValidateCodeNotRightException;
 import com.qianyi.casinoweb.config.security.login.CusAuthenticationFailureHandler;
 import com.qianyi.casinoweb.config.security.util.MultiReadHttpServletRequest;
 import com.qianyi.casinoweb.config.security.vo.PostUser;
@@ -11,8 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.filter.OncePerRequestFilter;
 

@@ -3,6 +3,8 @@ package com.qianyi.casinoweb.config.security.login;
 import com.qianyi.casinocore.service.SpringSecurityUserDetailsService;
 import com.qianyi.casinoweb.config.security.util.ApiResult;
 import com.qianyi.casinoweb.config.security.util.ResponseUtils;
+import com.qianyi.modulecommon.reponse.ResponseEntity;
+import com.qianyi.modulecommon.reponse.ResponseUtil;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -17,6 +19,7 @@ public class CusAuthenticationSuccessHandler implements AuthenticationSuccessHan
     @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
         SpringSecurityUserDetailsService.SecurityUser securityUser = (SpringSecurityUserDetailsService.SecurityUser) authentication.getPrincipal();
-        ResponseUtils.out(httpServletResponse, ApiResult.ok("登录成功！",securityUser.getToken()));
+        ResponseEntity responseEntity = ResponseUtil.success(securityUser.getToken());
+        ResponseUtils.out(httpServletResponse, responseEntity);
     }
 }
