@@ -7,6 +7,7 @@ import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -224,6 +225,34 @@ public class WMController {
         entity.setResult(json);
 
         return entity;
+    }
+
+    @ApiOperation("查询当前登录用户余额")
+    @RequestLimit(limit = 1,timeout = 5)
+    @GetMapping("getBalanceByUser")
+    public ResponseEntity getBalanceByUser() {
+        //获取登陆用户
+        Long authId = CasinoWebUtil.getAuthId();
+        if (authId == null) {
+            return ResponseUtil.custom("未获取到登录用户信息");
+        }
+        UserThird third = userThirdService.findByUserId(authId);
+        if (third == null) {
+            return ResponseUtil.custom("当前用户未在第三方注册,请注册后再重试");
+        }
+        User user = userService.findById(authId);
+        Integer lang = user.getLanguage();
+        if (lang == null) {
+            lang = 0;
+        }
+        BigDecimal balance = null;
+        try {
+            balance = wmApi.getBalance(third.getAccount(), lang);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseUtil.custom(e.getMessage());
+        }
+        return ResponseUtil.success(balance);
     }
 
 

@@ -179,8 +179,9 @@ public class PublicWMApi {
         }
         ResponseEntity entity = entity(s);
         if (entity.getErrorCode() == 0) {
-            float balance = (float) entity.getResult();
-            BigDecimal decimal = new BigDecimal(Float.toString(balance));
+//            float balance = (float) entity.getResult();
+//            BigDecimal decimal = new BigDecimal(Float.toString(balance));
+            BigDecimal decimal = new BigDecimal(String.valueOf(entity.getResult()));
             return decimal.setScale(2);
         }
         throw new Exception("未获取到信息");
