@@ -182,61 +182,58 @@ public class WMController {
         return model;
     }
 
-    /**
-     * 取余额
-     *
-     * @return
-     */
-    @RequestMapping("callBalance")
-    public RespEntity callBalance(String cmd, String signature, String user, String requestDate) {
-        log.info(this.getClass().getSimpleName() + "==>callBalance:cmd{},signature:{},user:{},requestDate:{}", cmd, signature, user, requestDate);
-        RespEntity entity = new RespEntity();
-        if (!"CallBalance".equals(cmd)) {
-            entity.setErrorCode(1);
-            entity.setErrorMessage("参数错误");
-            return entity;
-        }
+//    /**
+//     * 取余额
+//     *
+//     * @return
+//     */
+//    @RequestMapping("callBalance")
+//    public RespEntity callBalance(String cmd, String signature, String user, String requestDate) {
+//        log.info(this.getClass().getSimpleName() + "==>callBalance:cmd{},signature:{},user:{},requestDate:{}", cmd, signature, user, requestDate);
+//        RespEntity entity = new RespEntity();
+//        if (!"CallBalance".equals(cmd)) {
+//            entity.setErrorCode(1);
+//            entity.setErrorMessage("参数错误");
+//            return entity;
+//        }
+//
+//        if (!this.signature.equals(signature)) {
+//            entity.setErrorCode(2);
+//            entity.setErrorMessage("参数错误");
+//            return entity;
+//        }
+//
+//        UserThird third = userThirdService.findByAccount(user);
+//        if (third == null || CommonUtil.checkNull(third.getAccount())) {
+//            entity.setErrorCode(3);
+//            entity.setErrorMessage("参数错误");
+//            return entity;
+//        }
+//
+//        User weUser = userService.findById(third.getUserId());
+//        BigDecimal money = weUser.getMoney();
+//        if (money == null) {
+//            money = BigDecimal.ZERO;
+//        }
+//
+//        JSONObject json = new JSONObject();
+//        json.put("user", user);
+//        json.put("money", String.valueOf(money));
+//        json.put("responseDate", DateUtil.today("yyyy-MM-dd HH:mm:ss"));
+//
+//        entity.setErrorCode(0);
+//        entity.setErrorMessage("success");
+//        entity.setResult(json);
+//
+//        return entity;
+//    }
 
-        if (!this.signature.equals(signature)) {
-            entity.setErrorCode(2);
-            entity.setErrorMessage("参数错误");
-            return entity;
-        }
-
-        UserThird third = userThirdService.findByAccount(user);
-        if (third == null || CommonUtil.checkNull(third.getAccount())) {
-            entity.setErrorCode(3);
-            entity.setErrorMessage("参数错误");
-            return entity;
-        }
-
-        User weUser = userService.findById(third.getUserId());
-        BigDecimal money = weUser.getMoney();
-        if (money == null) {
-            money = BigDecimal.ZERO;
-        }
-
-        JSONObject json = new JSONObject();
-        json.put("user", user);
-        json.put("money", String.valueOf(money));
-        json.put("responseDate", DateUtil.today("yyyy-MM-dd HH:mm:ss"));
-
-        entity.setErrorCode(0);
-        entity.setErrorMessage("success");
-        entity.setResult(json);
-
-        return entity;
-    }
-
-    @ApiOperation("查询当前登录用户余额")
+    @ApiOperation("查询WM余额")
     @RequestLimit(limit = 1,timeout = 5)
-    @GetMapping("getBalanceByUser")
-    public ResponseEntity getBalanceByUser() {
+    @GetMapping("getWmBalance")
+    public ResponseEntity getWmBalance() {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
-        if (authId == null) {
-            return ResponseUtil.custom("未获取到登录用户信息");
-        }
         UserThird third = userThirdService.findByUserId(authId);
         if (third == null) {
             return ResponseUtil.custom("当前用户未在第三方注册,请注册后再重试");
