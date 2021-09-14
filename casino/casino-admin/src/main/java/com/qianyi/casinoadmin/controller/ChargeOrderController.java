@@ -65,7 +65,7 @@ public class ChargeOrderController {
     })
     @GetMapping("/chargeOrderList")
     public ResponseEntity chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String orderNo, Long userId){
-        Sort sort = Sort.by("createTime").descending();
+        Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Specification<ChargeOrder> condition = this.getCondition(status,orderNo,userId);
         Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(condition, pageable);
