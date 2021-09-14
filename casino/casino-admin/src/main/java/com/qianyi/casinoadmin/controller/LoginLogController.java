@@ -52,7 +52,7 @@ public class LoginLogController {
             @ApiImplicitParam(name = "account", value = "会员账号", required = false),
     })
     public ResponseEntity findLoginLogPage(Integer pageSize, Integer pageCode, String ip, Long userId, String account){
-        Sort sort = Sort.by("createTime").descending();
+        Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Specification<LoginLog> condition = this.getCondition(ip,userId,account);
         Page<LoginLog> loginLogPage = loginLogService.findLoginLogPage(condition, pageable);

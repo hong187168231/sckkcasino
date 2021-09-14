@@ -3,6 +3,7 @@ package com.qianyi.casinocore.service;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.repository.UserRepository;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 
+@Slf4j
 @Service("userDetailsService")
 public class SpringSecurityUserDetailsService implements UserDetailsService {
 
@@ -28,7 +30,8 @@ public class SpringSecurityUserDetailsService implements UserDetailsService {
         if(user != null){
             return new SecurityUser(user);
         }
-        throw new UsernameNotFoundException("用户名不存在");
+        log.info("User is {}",user);
+        throw new UsernameNotFoundException("帐号或密码错误");
     }
 
     public UserDetails getUserDetaisByUserId(Long userid){

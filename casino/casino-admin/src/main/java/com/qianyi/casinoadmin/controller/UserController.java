@@ -47,14 +47,12 @@ public class UserController {
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "account", value = "用户名", required = false),
-            @ApiImplicitParam(name = "id", value = "用户id", required = false),
     })
     @GetMapping("findUserList")
-    public ResponseEntity findUserList(Integer pageSize,Integer pageCode,String account,Long id){
+    public ResponseEntity findUserList(Integer pageSize,Integer pageCode,String account){
 
         //后续扩展加参数。
         User user = new User();
-        user.setId(id);
         user.setAccount(account);
         Sort sort=Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
