@@ -5,6 +5,7 @@ import com.qianyi.casinocore.model.Notice;
 import com.qianyi.casinocore.service.BetRatioConfigService;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
+import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Slf4j
@@ -33,14 +35,34 @@ public class BetRatioConfigController {
         return new ResponseEntity(ResponseCode.SUCCESS, betRatioConfigList);
     }
 
-    @ApiOperation("查询所有")
+    @ApiOperation("编辑打码倍率")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id主键", required = false),
             @ApiImplicitParam(name = "name", value = "名称", required = true),
             @ApiImplicitParam(name = "codeTimes", value = "打码倍率", required = true)
     })
     @GetMapping("/update")
-    public ResponseEntity<BetRatioConfig> update(){
-        return null;
+    public ResponseEntity<BetRatioConfig> update(Long id, String name, Float codeTimes){
+        BetRatioConfig betRatioConfig = null;
+        if(id != null){
+            betRatioConfig = betRatioConfigService.findById(id);
+        }else{
+            List<BetRatioConfig> betRatioConfigList =  betRatioConfigService.findAll();
+            if(betRatioConfigList != null){
+                if(betRatioConfigList.size() >= 1){
+                    return ResponseUtil.custom("数据错误");
+                }else{
+                    betRatioConfig = betRatioConfigList.get(0);
+                }
+            }else{
+                betRatioConfig = new BetRatioConfig();
+            }
+
+            betRatioConfig.setName(name);
+            betRatioConfig.setCodeTimes(codeTimes);
+            betRatioConfigService.save(betRatioConfig);
+        }
+
+        return new ResponseEntity(ResponseCode.SUCCESS, betRatioConfig);
     }
 }
