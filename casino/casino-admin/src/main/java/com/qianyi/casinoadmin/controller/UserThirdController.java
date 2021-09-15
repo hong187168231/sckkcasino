@@ -1,6 +1,8 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserThird;
+import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.service.UserThirdService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -19,15 +21,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserThirdController {
     @Autowired
     private UserThirdService userThirdService;
+    @Autowired
+    private UserService userService;
 
-    @ApiOperation("根据我方用户id查询三方账号")
+    @ApiOperation("根据我方用户账号查询三方账号")
     @GetMapping("/findUserThird")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "我方用户id(目前只有一个参数，后续可以会加)", required = true),
+            @ApiImplicitParam(name = "userAccount", value = "我方用户账号(目前只有一个参数，后续可以会加)", required = true),
     })
-    public ResponseEntity findUserThird(Long userId){
-        UserThird byUserId = userThirdService.findByUserId(userId);
-        return ResponseUtil.success(byUserId.getAccount());
+    public ResponseEntity findUserThird(String userAccount){
+        User user = userService.findByAccount(userAccount);
+        UserThird userThird = userThirdService.findByUserId(user.getId());
+        return ResponseUtil.success(userThird.getAccount());
 
     }
 }

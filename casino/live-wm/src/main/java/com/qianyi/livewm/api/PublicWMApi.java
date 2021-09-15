@@ -262,6 +262,8 @@ public class PublicWMApi {
         ResponseEntity entity = entity(s);
         if (entity.getErrorCode() == 0) {
             return String.valueOf(entity.getResult());
+        }else if(entity.getErrorCode() == 107){
+            return null;
         }
         throw new Exception(String.valueOf(entity));
     }
