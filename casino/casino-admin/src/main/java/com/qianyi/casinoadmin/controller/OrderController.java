@@ -2,7 +2,6 @@ package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.Order;
-import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.OrderService;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -86,10 +85,12 @@ public class OrderController {
         if(order == null){
             return ResponseUtil.custom("订单不存在");
         }
+
         order.setState(status);
         if(LoginUtil.checkNull(remark)){
             order.setRemark(remark);
         }
+
         orderService.save(order);
         return ResponseUtil.success();
     }

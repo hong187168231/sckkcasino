@@ -18,7 +18,7 @@ public class ChargeOrder extends BaseEntity{
     private Integer status;
 
     private String remitter;
-
+    //0.未确认。 1.成功   2.失败, 3.失效
     private Integer remitType;
 
     private BigDecimal chargeAmount;

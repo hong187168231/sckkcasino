@@ -1,5 +1,6 @@
 package com.qianyi.casinoweb.config.security.filter;
 
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.SpringSecurityUserDetailsService;
 import com.qianyi.casinoweb.config.security.util.Constants;
 import com.qianyi.casinoweb.config.security.util.MultiReadHttpServletRequest;
@@ -60,9 +61,9 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
             String strUserId = JjwtUtil.parse(CasinoWebUtil.getToken(jwtToken));
             if (StringUtils.hasLength(strUserId)) {
                 log.debug("userid is {}",strUserId);
-                SpringSecurityUserDetailsService.SecurityUser securityUser = (SpringSecurityUserDetailsService.SecurityUser) userDetailsService.getUserDetaisByUserId(Long.parseLong(strUserId));
+                User user = (User) userDetailsService.getUserDetaisByUserId(Long.parseLong(strUserId));
 
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(securityUser, null, securityUser.getAuthorities());
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                 // 全局注入角色权限信息和登录用户基本信息
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }

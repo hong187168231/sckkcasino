@@ -28,7 +28,7 @@ public class SpringSecurityUserDetailsService implements UserDetailsService {
 
         User user = userRepository.findByAccount(userName);
         if(user != null){
-            return new SecurityUser(user);
+            return user;
         }
         log.info("User is {}",user);
         throw new UsernameNotFoundException("帐号或密码错误");
@@ -39,58 +39,6 @@ public class SpringSecurityUserDetailsService implements UserDetailsService {
         if(user == null){
             throw new BadCredentialsException("TOKEN已过期，请重新登录!");
         }
-        return new SecurityUser(user);
-    }
-
-    @Data
-    public class SecurityUser implements UserDetails{
-
-        private User user;
-
-        private String token;
-
-        public SecurityUser(){}
-
-        public SecurityUser(User user){
-            this.user = user;
-        }
-
-        @Override
-        public Collection<? extends GrantedAuthority> getAuthorities() {
-            Collection<GrantedAuthority> authorities = new ArrayList<>();
-            SimpleGrantedAuthority authority = new SimpleGrantedAuthority("admin");
-            authorities.add(authority);
-            return authorities;
-        }
-
-        @Override
-        public String getPassword() {
-            return user.getPassword();
-        }
-
-        @Override
-        public String getUsername() {
-            return user.getName();
-        }
-
-        @Override
-        public boolean isAccountNonExpired() {
-            return true;
-        }
-
-        @Override
-        public boolean isAccountNonLocked() {
-            return true;
-        }
-
-        @Override
-        public boolean isCredentialsNonExpired() {
-            return true;
-        }
-
-        @Override
-        public boolean isEnabled() {
-            return true;
-        }
+        return user;
     }
 }

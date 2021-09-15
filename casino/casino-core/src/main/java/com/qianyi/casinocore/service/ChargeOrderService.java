@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ChargeOrderService {
 
@@ -26,5 +28,9 @@ public class ChargeOrderService {
     public ChargeOrder findChargeOrderByIdUseLock(Long id){
         ChargeOrder chargeOrder = chargeOrderRepository.findChargeOrderByIdUseLock(id);
         return chargeOrder;
+    }
+
+    public List<ChargeOrder> findChargeOrdersUseLock(Integer status,String time){
+        return chargeOrderRepository.findChargeOrdersUseLock(status,time);
     }
 }
