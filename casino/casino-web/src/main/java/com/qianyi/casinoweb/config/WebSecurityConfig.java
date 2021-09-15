@@ -56,7 +56,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.addFilterAt(cusAuthenticationProcessingFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(myAuthenticationFilter, BasicAuthenticationFilter.class)
-                .addFilterBefore(validateCodeFilter, CusAuthenticationProcessingFilter.class)
+//                .addFilterBefore(validateCodeFilter, CusAuthenticationProcessingFilter.class)
         ;
     }
 }
