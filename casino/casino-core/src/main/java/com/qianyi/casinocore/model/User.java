@@ -19,6 +19,9 @@ public class User extends BaseEntity {
     private Integer language;
     private String headImg;
 
+    //打码量
+    private BigDecimal betSumary;
+
     //帐号状态（1：启用，其他：禁用）
     private Integer state;
     private String registerIp;
