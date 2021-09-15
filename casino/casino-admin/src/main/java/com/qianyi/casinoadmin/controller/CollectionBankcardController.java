@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * 用户谷歌验证登录
  */
-@Api(tags = "资金管理")
+@Api(tags = "资金中心")
 @RestController
 @RequestMapping("collection")
 public class CollectionBankcardController {

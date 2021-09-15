@@ -30,7 +30,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/picture")
-@Api(tags = "公告管理")
+@Api(tags = "公告中心")
 public class PictureController {
     @Autowired
     private PictureService pictureService;

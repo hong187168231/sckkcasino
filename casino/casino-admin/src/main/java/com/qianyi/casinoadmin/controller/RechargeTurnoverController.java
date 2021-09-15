@@ -1,11 +1,8 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.model.Notice;
 import com.qianyi.casinocore.model.RechargeTurnover;
-import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.RechargeTurnoverService;
-import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -20,11 +17,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/rechargeTurnover")
-@Api(tags = "资金管理")
+@Api(tags = "资金中心")
 public class RechargeTurnoverController {
 
     @Autowired

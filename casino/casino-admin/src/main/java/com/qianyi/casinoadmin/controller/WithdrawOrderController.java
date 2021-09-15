@@ -28,7 +28,7 @@ import javax.transaction.Transactional;
 @Slf4j
 @RestController
 @RequestMapping("/withdraw")
-@Api(tags = "资金管理")
+@Api(tags = "资金中心")
 public class WithdrawOrderController {
 
     @Autowired
