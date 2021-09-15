@@ -17,11 +17,6 @@ import java.util.Date;
 public class GameRecord extends BaseEntity{
 
     /**
-     * 数据拉取结束时间
-     */
-    private String endTime;
-
-    /**
      * 账号
      */
     private String user;
