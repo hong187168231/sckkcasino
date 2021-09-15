@@ -23,7 +23,7 @@ public class BackChargeOrderTask {
         try {
             chargeBusiness.updateChargeOrderStatus(0,format);
         }catch (Exception e){
-            log.info("修改超时充值订单出错=============================================》");
+            log.error("修改超时充值订单出错=============================================》");
         }
     }
 }
