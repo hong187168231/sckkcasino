@@ -36,7 +36,7 @@ public class GameRecordJob {
             Date date = format.parse(startTime);
             Calendar now = Calendar.getInstance();
             now.setTime(date);
-            now.add(Calendar.MINUTE, 5);
+            now.add(Calendar.MINUTE, 30);//延后几分钟时间区间闭合
             Date afterFiveMin = now.getTime();
             String endTime = format.format(afterFiveMin);
             String result = wmApi.getDateTimeReport(null, startTime, null, 0, 0, 2, null, null);
