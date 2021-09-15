@@ -11,7 +11,5 @@ import java.math.BigDecimal;
 
 public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, JpaSpecificationExecutor<GameRecord> {
 
-    @Query(value = "SELECT end_time from game_record ORDER BY end_time desc limit 1",nativeQuery = true)
-    String findEndTime();
-
+    GameRecord findFirstByOrderByEndTimeDesc();
 }

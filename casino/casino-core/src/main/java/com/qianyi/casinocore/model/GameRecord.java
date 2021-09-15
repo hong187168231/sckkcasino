@@ -15,15 +15,7 @@ import java.util.Date;
 @Data
 @Entity
 @ApiModel("游戏记录")
-public class GameRecord{
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @CreatedDate
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date createTime;
+public class GameRecord extends BaseEntity{
 
     /**
      * 数据拉取结束时间
