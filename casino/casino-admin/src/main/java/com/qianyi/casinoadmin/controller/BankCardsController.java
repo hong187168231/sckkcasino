@@ -163,7 +163,7 @@ public class BankCardsController {
             @ApiImplicitParam(name = "realName", value = "持卡人姓名")})
     public ResponseEntity bound(Long userId, String bankId, String bankAccount, String address, String realName){
         String checkParamFroBound = this.checkParamFroBound(realName, bankId, bankAccount, address);
-        if (LoginUtil.checkNull(checkParamFroBound)) {
+        if (!LoginUtil.checkNull(checkParamFroBound)) {
             return ResponseUtil.custom(checkParamFroBound);
         }
 

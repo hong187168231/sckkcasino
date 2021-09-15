@@ -15,10 +15,9 @@ public class GameRecordService {
     @Autowired
     GameRecordRepository gameRecordRepository;
 
-    public String findEndTime(){
-        return gameRecordRepository.findEndTime();
+    public GameRecord findFirstByOrderByEndTimeDesc(){
+        return gameRecordRepository.findFirstByOrderByEndTimeDesc();
     }
-
     public void saveAll(List<GameRecord> list){
         gameRecordRepository.saveAll(list);
     }
