@@ -6,14 +6,12 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Data
 @Entity
+@Table(name ="game_record",uniqueConstraints={@UniqueConstraint(columnNames={"betId"})})
 @ApiModel("游戏记录")
 public class GameRecord extends BaseEntity{
 
