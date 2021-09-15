@@ -75,5 +75,18 @@ public class ChargeBusiness {
         log.info("账变结束orderNo is {},money is {}",chargeOrder.getOrderNo(),user.getMoney());
         return ResponseUtil.success(chargeOrder);
     }
+    /**
+     * 管理后台定时清除超时充值订单
+     */
+    @Transactional
+    public void updateChargeOrderStatus(Integer status,String time){
+        List<ChargeOrder> chargeOrdersUseLock = chargeOrderService.findChargeOrdersUseLock(status, time);
+        if (chargeOrdersUseLock !=null && chargeOrdersUseLock.size()==0)
+            return;
+        for (ChargeOrder chargeOrder:chargeOrdersUseLock){
+            chargeOrder.setStatus(3);
+            chargeOrderService.saveOrder(chargeOrder);
+        }
+    }
 
 }

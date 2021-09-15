@@ -1,5 +1,6 @@
 package com.qianyi.casinoweb.config.security.login;
 
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.SpringSecurityUserDetailsService;
 import com.qianyi.casinoweb.job.LoginLogJob;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
@@ -25,15 +26,15 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
         String userName = (String) authentication.getPrincipal();
         String password = (String) authentication.getCredentials();
 
-        SpringSecurityUserDetailsService.SecurityUser userInfo = (SpringSecurityUserDetailsService.SecurityUser) userDetailsService.loadUserByUsername(userName);
-        boolean isValid = CasinoWebUtil.checkBcrypt(password, userInfo.getUser().getPassword());
+        User userInfo = (User) userDetailsService.loadUserByUsername(userName);
+        boolean isValid = CasinoWebUtil.checkBcrypt(password, userInfo.getPassword());
         if(!isValid){
             throw new BadCredentialsException("帐号或密码错误");
         }
         String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
-        new Thread(new LoginLogJob(ip, userInfo.getUser().getAccount(), userInfo.getUser().getId(), "casino-web")).start();
+        new Thread(new LoginLogJob(ip, userInfo.getAccount(), userInfo.getId(), "casino-web")).start();
 
-        String token = JjwtUtil.generic(userInfo.getUser().getId() + "");
+        String token = JjwtUtil.generic(userInfo.getId() + "");
         userInfo.setToken(token);
         return new UsernamePasswordAuthenticationToken(userInfo, password, userInfo.getAuthorities());
     }
