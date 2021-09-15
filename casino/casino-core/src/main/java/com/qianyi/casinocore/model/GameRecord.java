@@ -7,6 +7,7 @@ import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
@@ -43,16 +44,19 @@ public class GameRecord extends BaseEntity{
     /**
      * 下注金额
      */
+    @ApiModelProperty(value = "下注金额")
     private String bet;
 
     /**
      * 有效下注
      */
+    @ApiModelProperty(value = "有效下注")
     private String validbet;
 
     /**
      * 退水金额
      */
+    @ApiModelProperty(value = "退水金额")
     private String water;
 
     /**
@@ -73,11 +77,13 @@ public class GameRecord extends BaseEntity{
     /**
      * 下注退水金额
      */
+    @ApiModelProperty(value = "下注退水金额")
     private String waterbet;
 
     /**
      * 输赢金额
      */
+    @ApiModelProperty(value = "输赢金额")
     private String winLoss;
 
     /**
@@ -135,5 +141,14 @@ public class GameRecord extends BaseEntity{
      */
     private String slotGameId;
 
+    public GameRecord(BigDecimal bet,BigDecimal validbet,BigDecimal water,BigDecimal waterbet,BigDecimal winLoss){
+        this.bet = bet.toString();
+        this.validbet = validbet.toString();
+        this.water = water.toString();
+        this.waterbet = waterbet.toString();
+        this.winLoss = winLoss.toString();
+    }
+    public GameRecord(){
 
+    }
 }
