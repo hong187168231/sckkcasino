@@ -30,7 +30,7 @@ public class GameRecordJob {
         try {
             String startTime = gameRecordService.findEndTime();
             if (ObjectUtils.isEmpty(startTime)) {
-                startTime = "20210914000000";
+                startTime = "20210915000000";
             }
             SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
             Date date = format.parse(startTime);
