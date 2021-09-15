@@ -53,3 +53,4 @@ security:
       - /**/*.css
       - /**/*.png
       - /**/*.ico
+      - /public/img/**
