@@ -1,6 +1,8 @@
 package com.qianyi.casinocore.model;
 
 import com.qianyi.modulecommon.Constants;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.util.ObjectUtils;
 import javax.persistence.Column;
@@ -9,6 +11,7 @@ import java.math.BigDecimal;
 
 @Data
 @Entity
+@ApiModel("用户表")
 public class User extends BaseEntity {
 
     private String name;
@@ -22,8 +25,12 @@ public class User extends BaseEntity {
     //帐号状态（1：启用，其他：禁用）
     private Integer state;
     private String registerIp;
+    @ApiModelProperty(value = "用户金额")
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal money;
+    @ApiModelProperty(value = "打码量")
+    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    private BigDecimal codeNum;
 
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal withdrawMoney;
