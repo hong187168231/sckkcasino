@@ -20,4 +20,9 @@ public class BetRatioConfigService {
         }
         return null;
     }
+
+    public List<BetRatioConfig> findAll() {
+        List<BetRatioConfig> betRatioConfigList = betRatioConfigRepository.findAll();
+        return betRatioConfigList;
+    }
 }
