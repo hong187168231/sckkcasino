@@ -2,14 +2,20 @@ package com.qianyi.casinocore.model;
 
 import com.qianyi.modulecommon.Constants;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.ObjectUtils;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Transient;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Data
 @Entity
-public class User extends BaseEntity {
+public class User extends BaseEntity implements UserDetails {
 
     private String name;
     @Column(unique = true)
@@ -29,6 +35,9 @@ public class User extends BaseEntity {
     private BigDecimal withdrawMoney;
 
     private String withdrawPassword;
+
+    @Transient
+    private String token;
 
     //校验用户帐号权限
     public static boolean checkUser(User user) {
@@ -98,6 +107,39 @@ public class User extends BaseEntity {
             return false;
         }
 
+        return true;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("admin");
+        authorities.add(authority);
+        return authorities;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.getUsername();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
         return true;
     }
 }

@@ -1,5 +1,6 @@
 package com.qianyi.casinoweb.config.security.login;
 
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.SpringSecurityUserDetailsService;
 import com.qianyi.casinoweb.config.security.util.ApiResult;
 import com.qianyi.casinoweb.config.security.util.ResponseUtils;
@@ -18,8 +19,8 @@ import java.io.IOException;
 public class CusAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
-        SpringSecurityUserDetailsService.SecurityUser securityUser = (SpringSecurityUserDetailsService.SecurityUser) authentication.getPrincipal();
-        ResponseEntity responseEntity = ResponseUtil.success(securityUser.getToken());
+        User user = (User) authentication.getPrincipal();
+        ResponseEntity responseEntity = ResponseUtil.success(user.getToken());
         ResponseUtils.out(httpServletResponse, responseEntity);
     }
 }
