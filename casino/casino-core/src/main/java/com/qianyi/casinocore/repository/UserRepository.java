@@ -26,4 +26,12 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 //    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     @Query(value = "select * from User u where u.id = ? for update",nativeQuery = true)
     User findUserByUserIdUseLock(Long userId);
+
+    @Query("update User u set u.codeNum=u.codeNum-?2 where u.id=?1")
+    @Modifying
+    void subCodeNum(Long id, BigDecimal codeNum);
+
+    @Query("update User u set u.codeNum=u.codeNum+?2 where u.id=?1")
+    @Modifying
+    void addCodeNum(Long id, BigDecimal codeNum);
 }

@@ -65,6 +65,21 @@ public class UserService {
         }
     }
 
+    @CacheEvict(key = "#id")
+    public void subCodeNum(Long id, BigDecimal codeNum) {
+        synchronized (id) {
+            userRepository.subCodeNum(id, codeNum);
+        }
+    }
+
+    @CacheEvict(key = "#id")
+    public void addCodeNum(Long id, BigDecimal codeNum) {
+        synchronized (id) {
+            userRepository.addCodeNum(id, codeNum);
+        }
+    }
+
+
     public Integer countByIp(String ip) {
         return userRepository.countByRegisterIp(ip);
     }
