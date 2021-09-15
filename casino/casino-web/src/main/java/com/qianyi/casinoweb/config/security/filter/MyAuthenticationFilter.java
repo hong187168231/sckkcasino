@@ -57,8 +57,8 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
             // 前后端分离情况下，前端登录后将token储存在cookie中，每次访问接口时通过token去拿用户权限
             String jwtToken = wrappedRequest.getHeader(Constants.REQUEST_HEADER);
             log.debug("后台检查令牌:{}", jwtToken);
-            if (StringUtils.hasLength(jwtToken)) {
-                String strUserId = JjwtUtil.parse(CasinoWebUtil.getToken(jwtToken));
+            String strUserId = JjwtUtil.parse(CasinoWebUtil.getToken(jwtToken));
+            if (StringUtils.hasLength(strUserId)) {
                 log.debug("userid is {}",strUserId);
                 SpringSecurityUserDetailsService.SecurityUser securityUser = (SpringSecurityUserDetailsService.SecurityUser) userDetailsService.getUserDetaisByUserId(Long.parseLong(strUserId));
 
