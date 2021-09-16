@@ -39,10 +39,11 @@ public class BetRatioConfigController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id主键", required = false),
             @ApiImplicitParam(name = "name", value = "名称", required = true),
-            @ApiImplicitParam(name = "codeTimes", value = "打码倍率", required = true)
+            @ApiImplicitParam(name = "codeTimes", value = "打码倍率", required = true),
+            @ApiImplicitParam(name = "minMoney", value = "最低金额重置打码量", required = true)
     })
     @GetMapping("/update")
-    public ResponseEntity<BetRatioConfig> update(Long id, String name, Float codeTimes){
+    public ResponseEntity<BetRatioConfig> update(Long id, String name, Float codeTimes, BigDecimal minMoney){
         BetRatioConfig betRatioConfig = null;
         if(id != null){
             betRatioConfig = betRatioConfigService.findById(id);
@@ -60,6 +61,7 @@ public class BetRatioConfigController {
 
             betRatioConfig.setName(name);
             betRatioConfig.setCodeTimes(codeTimes);
+            betRatioConfig.setMinMoney(minMoney);
             betRatioConfigService.save(betRatioConfig);
         }
 

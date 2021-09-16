@@ -4,7 +4,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import java.math.BigDecimal;
 
 @Entity
 @Data
@@ -17,4 +19,7 @@ public class BetRatioConfig extends BaseEntity {
     @ApiModelProperty("打码倍率")
     private Float codeTimes;
 
+    @ApiModelProperty("最低金额重置打码量")
+    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    private BigDecimal minMoney;
 }
