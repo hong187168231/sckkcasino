@@ -114,8 +114,10 @@ public class LoginController {
         if (!flag) {
             return ResponseUtil.custom("该帐号不可操作");
         }
-
-        String token = JjwtUtil.generic(user.getId() + "");
+        JjwtUtil.Subject subject = new JjwtUtil.Subject();
+        subject.setUserId(user.getId() + "");
+        subject.setBcryptPassword(user.getPassWord());
+        String token = JjwtUtil.generic(subject);
 
 //        if(Constants.open != user.getGaStatus()){//谷歌验证关闭
 //            return ResponseUtil.success(token);
@@ -242,7 +244,10 @@ public class LoginController {
         if (user == null) {
             return ResponseUtil.fail();
         }
-        String jwt = JjwtUtil.generic(user.getId()+"");
+        JjwtUtil.Subject subject = new JjwtUtil.Subject();
+        subject.setUserId(user.getId() + "");
+        subject.setBcryptPassword(user.getPassWord());
+        String jwt = JjwtUtil.generic(subject);
         return ResponseUtil.success(jwt);
     }
 
@@ -253,7 +258,9 @@ public class LoginController {
             @ApiImplicitParam(name = "token", value = "旧TOKEN", required = true),
     })
     public ResponseEntity refreshJwtToken(String token) {
-        String refreshToken = JjwtUtil.refreshToken(token);
+        JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
+        SysUser sysUser = sysUserService.findAllById(Long.parseLong(subject.getUserId()));
+        String refreshToken = JjwtUtil.refreshToken(token,sysUser.getPassWord());
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();
         }
