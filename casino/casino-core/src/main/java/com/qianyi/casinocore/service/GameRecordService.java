@@ -68,13 +68,6 @@ public class GameRecordService {
         }
     }
 
-    public static void main(String[] args) {
-        BigDecimal codeNum = new BigDecimal("-1");
-        if(codeNum.compareTo(BigDecimal.ZERO)> -1){
-            System.out.println(1);
-        }
-    }
-
     public Page<GameRecord> findGameRecordPage(Specification<GameRecord> condition, Pageable pageable){
         return gameRecordRepository.findAll(condition,pageable);
     }

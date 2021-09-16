@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("user")
 @Api(tags = "用户中心")
@@ -33,10 +35,18 @@ public class UserController {
         vo.setName(user.getName());
         vo.setHeadImg(user.getHeadImg());
 
-        //TODO 设置可提金额，未完成流水
-
+        //TODO 查询可提金额，未完成流水(打码量)
+        BigDecimal codeNum = user.getCodeNum().setScale(2, BigDecimal.ROUND_HALF_UP);
+        vo.setUnfinshTurnover(codeNum);
+        //打码量为0时才有可提现金额
+        if (codeNum.compareTo(BigDecimal.ZERO) < 1) {
+            BigDecimal money = user.getMoney().setScale(2, BigDecimal.ROUND_HALF_UP);
+            vo.setDrawMoney(money);
+        } else {
+            BigDecimal zero = BigDecimal.ZERO.setScale(2, BigDecimal.ROUND_HALF_UP);
+            vo.setDrawMoney(zero);
+        }
 //        return ResponseUtil.success(vo);
         return new ResponseEntity(ResponseCode.SUCCESS, vo);
     }
-
 }
