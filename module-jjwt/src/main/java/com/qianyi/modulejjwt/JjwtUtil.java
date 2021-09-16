@@ -208,7 +208,7 @@ public class JjwtUtil {
 
 
     @Data
-    static class Subject {
+    public static class Subject {
 
         private String userId;
         private String bcryptPassword;
