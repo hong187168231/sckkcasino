@@ -75,13 +75,13 @@ public class CollectionBankcardController {
             return ResponseUtil.custom("银行卡不存在");
         }
 
-        if(LoginUtil.checkNull(bankNo)){
+        if(!LoginUtil.checkNull(bankNo)){
            collectionBankcard.setBankNo(bankNo);
         }
-        if(LoginUtil.checkNull(bankId)){
+        if(!LoginUtil.checkNull(bankId)){
            collectionBankcard.setBankId(bankId);
         }
-        if(LoginUtil.checkNull(accountName)){
+        if(!LoginUtil.checkNull(accountName)){
            collectionBankcard.setAccountName(accountName);
         }
         if(disable != null){
