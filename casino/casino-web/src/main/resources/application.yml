@@ -26,6 +26,12 @@ spring:
       pool-name: DatebookHikariCP
       maximum-pool-size: 16
       connection-test-query: select 1
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    # password:
+    timeout: 3000
 project:
   title: 千亿科技
   vendorId: qy01twapi
