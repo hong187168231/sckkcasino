@@ -1,5 +1,7 @@
 package com.qianyi.casinoweb.config.security.login;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.SpringSecurityUserDetailsService;
 import com.qianyi.casinoweb.job.LoginLogJob;
@@ -34,7 +36,11 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
         String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
         new Thread(new LoginLogJob(ip, userInfo.getAccount(), userInfo.getId(), "casino-web")).start();
 
-        String token = JjwtUtil.generic(userInfo.getId() + "");
+        JSONObject json=new JSONObject();
+        json.put("userId",userInfo.getId());
+        json.put("password",userInfo.getPassword());
+        String userInfoStr = json.toJSONString();
+        String token = JjwtUtil.generic(userInfoStr);
         userInfo.setToken(token);
         return new UsernamePasswordAuthenticationToken(userInfo, password, userInfo.getAuthorities());
     }

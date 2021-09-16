@@ -20,8 +20,8 @@ public class JjwtUtil {
     private final static Long refresh_ttl = 30 * 60L;//秒
     private final static String iss = "dashan";
 
-    public static String generic(String userId) {
-        return genericJwt(userId, ttl);
+    public static String generic(String userInfo) {
+        return genericJwt(userInfo, ttl);
     }
 
     /**
@@ -29,7 +29,7 @@ public class JjwtUtil {
      *
      * @return
      */
-    private static String genericJwt(String userId, long ttl) {
+    private static String genericJwt(String userInfo, long ttl) {
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
 
@@ -37,7 +37,7 @@ public class JjwtUtil {
                 .setId(UUID.randomUUID() + "")
                 // 头部
                 .setHeaderParam("typ", "JWT")
-                .setSubject(userId)
+                .setSubject(userInfo)
                 //用于设置签发时间
                 .setIssuer(iss)
                 .setIssuedAt(now)

@@ -14,10 +14,16 @@ public class BetRatioConfigService {
     @Autowired
     private BetRatioConfigRepository betRatioConfigRepository;
 
+    private static BetRatioConfig betRatioConfig = null;
+
     public BetRatioConfig findOneBetRatioConfig() {
+        if (betRatioConfig != null) {
+            return betRatioConfig;
+        }
         List<BetRatioConfig> betRatioConfigList = betRatioConfigRepository.findAll();
-        if(betRatioConfigList !=null && betRatioConfigList.size() > 0){
-            return betRatioConfigList.get(0);
+        if (betRatioConfigList != null && betRatioConfigList.size() > 0) {
+            betRatioConfig = betRatioConfigList.get(0);
+            return betRatioConfig;
         }
         return null;
     }

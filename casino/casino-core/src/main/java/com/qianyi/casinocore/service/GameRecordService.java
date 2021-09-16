@@ -1,8 +1,6 @@
 package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.GameRecord;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.repository.GameRecordRepository;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,45 +26,10 @@ public class GameRecordService {
     @Autowired
     private GameRecordRepository gameRecordRepository;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private UserThirdService userThirdService;
-
     @PersistenceContext
     private EntityManager entityManager;
 
-    public void saveAll(List<GameRecord> list) {
-        for (GameRecord gameRecord : list) {
-            try {
-                //有数据会重复注单id唯一约束会报错，所以一条一条保存，避免影响后面的
-                gameRecordRepository.save(gameRecord);
-                //游戏记录保存成功后扣减打码量
-                UserThird account = userThirdService.findByAccount(gameRecord.getUser());
-                if (account == null) {
-                    continue;
-                }
-                Long userId = account.getUserId();
-                User user = userService.findById(userId);
-                if (user == null) {
-                    continue;
-                }
-                BigDecimal codeNum = user.getCodeNum();
-                if (codeNum.compareTo(BigDecimal.ZERO) < 1) {
-                    continue;
-                }
-                BigDecimal validbet = new BigDecimal(gameRecord.getValidbet());
-                if (validbet.compareTo(codeNum) > -1) {
-                    userService.subCodeNum(userId, codeNum);
-                } else {
-                    userService.subCodeNum(userId, validbet);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
+
 
     public Page<GameRecord> findGameRecordPage(Specification<GameRecord> condition, Pageable pageable){
         return gameRecordRepository.findAll(condition,pageable);
@@ -113,5 +76,9 @@ public class GameRecordService {
 //                .orderBy(builder.desc(root.get("contactUserNums")));
         List<GameRecord> list = entityManager.createQuery(query).getResultList();
         return list;
+    }
+
+    public void save(GameRecord gameRecord) {
+        gameRecordRepository.save(gameRecord);
     }
 }

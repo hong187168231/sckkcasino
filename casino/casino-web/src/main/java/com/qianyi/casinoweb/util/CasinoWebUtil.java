@@ -1,5 +1,7 @@
 package com.qianyi.casinoweb.util;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.qianyi.modulecommon.util.ExpiringMapUtil;
 import com.qianyi.modulecommon.util.IpUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
@@ -26,7 +28,20 @@ public class CasinoWebUtil {
             return null;
         }
         String subject = JjwtUtil.parse(token);
-        return Long.parseLong(subject);
+        JSONObject jsonObject = JSON.parseObject(subject);
+        Long userId = jsonObject.getLong("userId");
+        return userId;
+    }
+
+    //获取当前操作者的身份
+    public static JSONObject getAuthInfo() {
+        String token = getToken();
+        if (checkNull(token)) {
+            return null;
+        }
+        String subject = JjwtUtil.parse(token);
+        JSONObject jsonObject = JSON.parseObject(subject);
+        return jsonObject;
     }
 
     public static boolean checkNull(Object... obj) {

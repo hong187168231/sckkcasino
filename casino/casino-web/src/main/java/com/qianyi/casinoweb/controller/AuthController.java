@@ -1,5 +1,6 @@
 package com.qianyi.casinoweb.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.code.kaptcha.Producer;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.model.User;
@@ -154,7 +155,11 @@ public class AuthController {
         String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
         new Thread(new LoginLogJob(ip, user.getAccount(), user.getId(), "casino-web")).start();
 
-        String token = JjwtUtil.generic(user.getId() + "");
+        JSONObject json=new JSONObject();
+        json.put("userId",user.getId());
+        json.put("password",user.getPassword());
+        String userInfoStr = json.toJSONString();
+        String token = JjwtUtil.generic(userInfoStr);
         return ResponseUtil.success(token);
     }
 
@@ -297,7 +302,11 @@ public class AuthController {
         if (user == null) {
             return ResponseUtil.fail();
         }
-        String jwt = JjwtUtil.generic(user.getId()+"");
+        JSONObject json=new JSONObject();
+        json.put("userId",user.getId());
+        json.put("password",user.getPassword());
+        String userInfoStr = json.toJSONString();
+        String jwt = JjwtUtil.generic(userInfoStr);
         return ResponseUtil.success(jwt);
     }
 
@@ -308,6 +317,14 @@ public class AuthController {
             @ApiImplicitParam(name = "token", value = "旧TOKEN", required = true),
     })
     public ResponseEntity refreshJwtToken(String token) {
+        //获取登陆用户
+        JSONObject authInfo = CasinoWebUtil.getAuthInfo();
+        Long userId = authInfo.getLong("userId");
+        User user = userService.findById(userId);
+        String password = authInfo.getString("password");
+        if(!user.getPassword().equals(password)){
+            return ResponseUtil.authenticationNopass();
+        }
         String refreshToken = JjwtUtil.refreshToken(token);
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();
