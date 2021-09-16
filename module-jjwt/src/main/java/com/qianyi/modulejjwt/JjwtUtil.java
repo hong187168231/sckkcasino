@@ -1,5 +1,6 @@
 package com.qianyi.modulejjwt;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
@@ -26,7 +27,7 @@ public class JjwtUtil {
                 || ObjectUtils.isEmpty(subject.getBcryptPassword())) {
             return null;
         }
-        return genericJwt(subject.getUserId(), subject.getBcryptPassword(), ttl);
+        return genericJwt(subject, ttl);
     }
 
     /**
@@ -34,21 +35,16 @@ public class JjwtUtil {
      *
      * @return
      */
-    private static String genericJwt(String userId, String bcryptPassword, long ttl) {
+    private static String genericJwt(Subject subject, long ttl) {
 
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
-
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("userId", userId);
-        jsonObject.put("bcryptPassword", bcryptPassword);
-        String subject = jsonObject.toJSONString();
-
+        String sub = JSON.toJSONString(subject);
         JwtBuilder builder = Jwts.builder()
                 .setId(UUID.randomUUID() + "")
                 // 头部
                 .setHeaderParam("typ", "JWT")
-                .setSubject(subject)
+                .setSubject(sub)
                 //用于设置签发时间
                 .setIssuer(iss)
                 .setIssuedAt(now)

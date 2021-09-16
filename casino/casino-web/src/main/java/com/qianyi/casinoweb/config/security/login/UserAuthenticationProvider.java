@@ -35,12 +35,10 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
         }
         String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
         new Thread(new LoginLogJob(ip, userInfo.getAccount(), userInfo.getId(), "casino-web")).start();
-
-        JSONObject json=new JSONObject();
-        json.put("userId",userInfo.getId());
-        json.put("password",userInfo.getPassword());
-        String userInfoStr = json.toJSONString();
-        String token = JjwtUtil.generic(userInfoStr);
+        JjwtUtil.Subject subject=new JjwtUtil.Subject();
+        subject.setUserId(String.valueOf(userInfo.getId()));
+        subject.setBcryptPassword(userInfo.getPassword());
+        String token = JjwtUtil.generic(subject);
         userInfo.setToken(token);
         return new UsernamePasswordAuthenticationToken(userInfo, password, userInfo.getAuthorities());
     }

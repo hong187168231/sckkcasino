@@ -2,7 +2,9 @@ package com.qianyi.casinocore.business;
 
 import com.qianyi.casinocore.model.BetRatioConfig;
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.service.BetRatioConfigService;
+import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -23,6 +25,8 @@ public class UserCodeNumBusiness {
     @Autowired
     private UserService userService;
     @Autowired
+    private UserMoneyService userMoneyService;
+    @Autowired
     private BetRatioConfigService betRatioConfigService;
 
     //默认最小清零打码量
@@ -35,7 +39,7 @@ public class UserCodeNumBusiness {
      */
     @Transactional
     public ResponseEntity subCodeNum(BigDecimal validbet, Long userId) {
-        User user = userService.findUserByIdUseLock(userId);
+        UserMoney user = userMoneyService.findUserByUserIdUseLock(userId);
         if (user == null) {
             return ResponseUtil.fail();
         }
@@ -49,21 +53,21 @@ public class UserCodeNumBusiness {
         if(betRatioConfig!=null){
             //剩余打码量小于等于最小清零打码量时 直接清0
             if (codeNum.compareTo(betRatioConfig.getMinMoney()) < 1) {
-                userService.subCodeNum(userId, codeNum);
+                userMoneyService.updateCodeNum(userId, codeNum.negate());
                 return ResponseUtil.success();
             }
         }else{
             if (codeNum.compareTo(DEFAULT_CLEAR) < 1) {
-                userService.subCodeNum(userId, codeNum);
+                userMoneyService.updateCodeNum(userId, codeNum.negate());
                 return ResponseUtil.success();
             }
         }
         //有效投注额大于等于等于剩余打码量
         if (validbet.compareTo(codeNum) > -1) {
-            userService.subCodeNum(userId, codeNum);
+            userMoneyService.updateCodeNum(userId, codeNum.negate());
         } else {
             //有效投注额小于剩余打码量
-            userService.subCodeNum(userId, validbet);
+            userMoneyService.updateCodeNum(userId, validbet.negate());
         }
         return ResponseUtil.success();
     }

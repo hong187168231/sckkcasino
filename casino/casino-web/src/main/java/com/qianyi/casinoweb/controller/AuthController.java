@@ -155,11 +155,10 @@ public class AuthController {
         String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
         new Thread(new LoginLogJob(ip, user.getAccount(), user.getId(), "casino-web")).start();
 
-        JSONObject json=new JSONObject();
-        json.put("userId",user.getId());
-        json.put("password",user.getPassword());
-        String userInfoStr = json.toJSONString();
-        String token = JjwtUtil.generic(userInfoStr);
+        JjwtUtil.Subject subject=new JjwtUtil.Subject();
+        subject.setUserId(String.valueOf(user.getId()));
+        subject.setBcryptPassword(user.getPassword());
+        String token = JjwtUtil.generic(subject);
         return ResponseUtil.success(token);
     }
 
@@ -302,11 +301,10 @@ public class AuthController {
         if (user == null) {
             return ResponseUtil.fail();
         }
-        JSONObject json=new JSONObject();
-        json.put("userId",user.getId());
-        json.put("password",user.getPassword());
-        String userInfoStr = json.toJSONString();
-        String jwt = JjwtUtil.generic(userInfoStr);
+        JjwtUtil.Subject subject=new JjwtUtil.Subject();
+        subject.setUserId(String.valueOf(user.getId()));
+        subject.setBcryptPassword(user.getPassword());
+        String jwt = JjwtUtil.generic(subject);
         return ResponseUtil.success(jwt);
     }
 
@@ -318,14 +316,9 @@ public class AuthController {
     })
     public ResponseEntity refreshJwtToken(String token) {
         //获取登陆用户
-        JSONObject authInfo = CasinoWebUtil.getAuthInfo();
-        Long userId = authInfo.getLong("userId");
-        User user = userService.findById(userId);
-        String password = authInfo.getString("password");
-        if(!user.getPassword().equals(password)){
-            return ResponseUtil.authenticationNopass();
-        }
-        String refreshToken = JjwtUtil.refreshToken(token);
+        JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
+        User user = userService.findById(Long.parseLong(subject.getUserId()));
+        String refreshToken = JjwtUtil.refreshToken(token,user.getPassword());
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();
         }

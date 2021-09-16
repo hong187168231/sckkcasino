@@ -27,21 +27,10 @@ public class CasinoWebUtil {
         if (checkNull(token)) {
             return null;
         }
-        String subject = JjwtUtil.parse(token);
-        JSONObject jsonObject = JSON.parseObject(subject);
-        Long userId = jsonObject.getLong("userId");
+        String subStr = JjwtUtil.parse(token);
+        JjwtUtil.Subject subject = JSON.parseObject(subStr, JjwtUtil.Subject.class);
+        Long userId = Long.parseLong(subject.getUserId());
         return userId;
-    }
-
-    //获取当前操作者的身份
-    public static JSONObject getAuthInfo() {
-        String token = getToken();
-        if (checkNull(token)) {
-            return null;
-        }
-        String subject = JjwtUtil.parse(token);
-        JSONObject jsonObject = JSON.parseObject(subject);
-        return jsonObject;
     }
 
     public static boolean checkNull(Object... obj) {
