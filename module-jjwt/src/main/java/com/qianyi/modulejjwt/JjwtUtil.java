@@ -91,8 +91,8 @@ public class JjwtUtil {
         }
     }
 
-    public static String refreshToken(String token, String userPassword) {
-        return refreshToken(token, userPassword, ttl);
+    public static String refreshToken(String token, String bcryptPassword) {
+        return refreshToken(token, bcryptPassword, ttl);
     }
 
     private static String refreshToken(String token, String bcryptPassword, Long ttl) {
