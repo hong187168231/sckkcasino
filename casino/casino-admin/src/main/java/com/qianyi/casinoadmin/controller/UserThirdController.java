@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/userThird")
-@Api(tags = "用户管理")
+@Api(tags = "客户中心")
 public class UserThirdController {
     @Autowired
     private UserThirdService userThirdService;

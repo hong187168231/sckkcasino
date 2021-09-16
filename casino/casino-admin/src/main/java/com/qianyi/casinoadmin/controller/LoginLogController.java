@@ -30,7 +30,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/loginLog")
-@Api(tags = "用户管理")
+@Api(tags = "客户中心")
 public class LoginLogController {
     @Autowired
     private LoginLogService loginLogService;

@@ -4,7 +4,6 @@ import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.Bankcards;
-import com.qianyi.casinocore.model.LunboPic;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.BankcardsService;
@@ -28,7 +27,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/bankcard")
-@Api(tags = "用户管理")
+@Api(tags = "资金中心")
 public class BankCardsController {
 
     @Autowired

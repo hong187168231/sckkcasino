@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/customer")
-@Api(tags = "客服管理")
+@Api(tags = "客服中心")
 public class CustomerController {
     @Autowired
     private CustomerService customerService;

@@ -11,6 +11,9 @@ public interface ChargeOrderRepository extends JpaRepository<ChargeOrder,Long>, 
     @Query(value = "select * from charge_order c where c.id = ? for update",nativeQuery = true)
     ChargeOrder findChargeOrderByIdUseLock(Long id);
 
-    @Query(value = "select * from charge_order c where c.status = ?1 and c.create_time <=?2 for update",nativeQuery = true)
+    @Query(value = "select * from charge_order where id in (select id from charge_order c where c.status = ?1 and c.create_time <=?2 ) for update",nativeQuery = true)
     List<ChargeOrder> findChargeOrdersUseLock(Integer status,String time);
+
+//    @Query(value = "select * from charge_order c where c.status = ?1 and c.create_time <=?2",nativeQuery = true)
+//    List<ChargeOrder> findChargeOrders(Integer status,String time);
 }

@@ -21,7 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/notice")
-@Api(tags = "公告管理")
+@Api(tags = "公告中心")
 public class NoticeController {
     @Autowired
     private NoticeService noticeService;

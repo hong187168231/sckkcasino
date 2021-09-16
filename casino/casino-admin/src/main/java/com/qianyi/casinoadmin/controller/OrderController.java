@@ -24,7 +24,7 @@ import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("user")
-@Api(tags = "资金管理")
+@Api(tags = "资金中心")
 @Slf4j
 public class OrderController {
 

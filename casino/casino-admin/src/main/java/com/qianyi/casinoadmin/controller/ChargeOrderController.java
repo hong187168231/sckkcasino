@@ -41,7 +41,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/chargeOrder")
-@Api(tags = "资金管理")
+@Api(tags = "资金中心")
 public class ChargeOrderController {
     @Autowired
     private ChargeOrderService chargeOrderService;
