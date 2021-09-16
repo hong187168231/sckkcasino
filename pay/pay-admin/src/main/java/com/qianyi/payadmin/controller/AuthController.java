@@ -75,7 +75,10 @@ public class AuthController {
             return ResponseUtil.custom("该帐号不可操作");
         }
 
-        String token = JjwtUtil.generic(user.getId() + "");
+        JjwtUtil.Subject subject = new JjwtUtil.Subject();
+        subject.setUserId(user.getId() + "");
+        subject.setBcryptPassword(user.getPassword());
+        String token = JjwtUtil.generic(subject);
         return ResponseUtil.success(token);
     }
 
@@ -122,7 +125,10 @@ public class AuthController {
             return ResponseUtil.googleAuthNoPass();
         }
 
-        String token = JjwtUtil.generic(user.getId() + "");
+        JjwtUtil.Subject subject = new JjwtUtil.Subject();
+        subject.setUserId(user.getId() + "");
+        subject.setBcryptPassword(user.getPassword());
+        String token = JjwtUtil.generic(subject);
 
         //记录登陆日志
         String ip = IpUtil.getIp(PayUtil.getRequest());
@@ -218,8 +224,11 @@ public class AuthController {
         if (user == null) {
             return ResponseUtil.fail();
         }
-        String jwt = JjwtUtil.generic(user.getId()+"");
-        return ResponseUtil.success(jwt);
+        JjwtUtil.Subject subject = new JjwtUtil.Subject();
+        subject.setUserId(user.getId() + "");
+        subject.setBcryptPassword(user.getPassword());
+        String token = JjwtUtil.generic(subject);
+        return ResponseUtil.success(token);
     }
 
     @PostMapping("rjt")
@@ -229,7 +238,10 @@ public class AuthController {
             @ApiImplicitParam(name = "token", value = "旧TOKEN", required = true),
     })
     public ResponseEntity refreshJwtToken(String token) {
-        String refreshToken = JjwtUtil.refreshToken(token);
+        JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
+        User user = userService.findById(Long.parseLong(subject.getUserId()));
+
+        String refreshToken = JjwtUtil.refreshToken(token,user.getPassword());
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();
         }

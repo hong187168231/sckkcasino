@@ -144,7 +144,7 @@ public class JjwtUtil {
 
     }
 
-    private static Subject getSubject(String token) {
+    public static Subject getSubject(String token) {
 
         try {
             JSONObject jsonObject = decodeBase64(token);
