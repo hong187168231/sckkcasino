@@ -31,11 +31,11 @@ public class GameRecordService {
 
 
 
-    public Page<GameRecord> findGameRecordPage(Specification<GameRecord> condition, Pageable pageable){
-        return gameRecordRepository.findAll(condition,pageable);
+    public Page<GameRecord> findGameRecordPage(Specification<GameRecord> condition, Pageable pageable) {
+        return gameRecordRepository.findAll(condition, pageable);
     }
 
-    public List findRecordRecordSum(String user,String betId,String gname,Integer gid ){
+    public List findRecordRecordSum(String user, String betId, String gname, Integer gid) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<GameRecord> query = builder.createQuery(GameRecord.class);
         Root<GameRecord> root = query.from(GameRecord.class);

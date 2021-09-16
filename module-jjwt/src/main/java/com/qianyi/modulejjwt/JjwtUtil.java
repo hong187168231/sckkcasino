@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.Data;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.util.ObjectUtils;
 
@@ -15,13 +16,17 @@ import java.util.UUID;
 public class JjwtUtil {
 
     private final static String secrect = "fda#$&%$3t55v785A45DF$^&#*JGRstTRG";
-//        private final static long ttl = 5 * 60 * 1000;
+    //        private final static long ttl = 5 * 60 * 1000;
     private final static long ttl = 24 * 60 * 60 * 1000;
     private final static Long refresh_ttl = 30 * 60L;//秒
     private final static String iss = "dashan";
 
-    public static String generic(String userInfo) {
-        return genericJwt(userInfo, ttl);
+    public static String generic(Subject subject) {
+        if (ObjectUtils.isEmpty(subject) || ObjectUtils.isEmpty(subject.getUserId())
+                || ObjectUtils.isEmpty(subject.getBcryptPassword())) {
+            return null;
+        }
+        return genericJwt(subject.getUserId(), subject.getBcryptPassword(), ttl);
     }
 
     /**
@@ -29,15 +34,21 @@ public class JjwtUtil {
      *
      * @return
      */
-    private static String genericJwt(String userInfo, long ttl) {
+    private static String genericJwt(String userId, String bcryptPassword, long ttl) {
+
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("userId", userId);
+        jsonObject.put("bcryptPassword", bcryptPassword);
+        String subject = jsonObject.toJSONString();
 
         JwtBuilder builder = Jwts.builder()
                 .setId(UUID.randomUUID() + "")
                 // 头部
                 .setHeaderParam("typ", "JWT")
-                .setSubject(userInfo)
+                .setSubject(subject)
                 //用于设置签发时间
                 .setIssuer(iss)
                 .setIssuedAt(now)
@@ -80,11 +91,14 @@ public class JjwtUtil {
         }
     }
 
-    public static String refreshToken(String token) {
-        return refreshToken(token, ttl);
+    public static String refreshToken(String token, String bcryptPassword) {
+        return refreshToken(token, bcryptPassword, ttl);
     }
 
-    public static String refreshToken(String token, Long ttl) {
+    private static String refreshToken(String token, String bcryptPassword, Long ttl) {
+        if (ObjectUtils.isEmpty(token) || ObjectUtils.isEmpty(bcryptPassword)) {
+            return null;
+        }
         try {
             Long exp = getExp(token);
             if (exp == null) {
@@ -95,8 +109,13 @@ public class JjwtUtil {
                 return null;
             }
 
-            String subject = getSubject(token);
+            Subject subject = getSubject(token);
             if (subject == null) {
+                return null;
+            }
+
+            String bcrypt = subject.getBcryptPassword();
+            if (!(bcryptPassword.equals(bcrypt))) {
                 return null;
             }
 
@@ -106,7 +125,7 @@ public class JjwtUtil {
                 return null;
             }
 
-            return genericJwt(subject, ttl);
+            return generic(subject);
 
         } catch (Exception e) {
             return null;
@@ -125,11 +144,15 @@ public class JjwtUtil {
 
     }
 
-    private static String getSubject(String token) {
+    private static Subject getSubject(String token) {
 
         try {
             JSONObject jsonObject = decodeBase64(token);
-            return jsonObject.getString("sub");
+            JSONObject sub = jsonObject.getJSONObject("sub");
+            Subject subject = new Subject();
+            subject.setUserId(sub.getString("userId"));
+            subject.setBcryptPassword(sub.getString("bcryptPassword"));
+            return subject;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -153,6 +176,9 @@ public class JjwtUtil {
         }
 
         String[] split = token.split("\\.");
+        if (split.length < 1) {
+            return null;
+        }
         String tokenBody = split[1];
         byte[] bytes = Base64.decodeBase64(tokenBody);
         String decode = new String(bytes, "utf-8");
@@ -161,9 +187,32 @@ public class JjwtUtil {
     }
 
     public static void main(String[] args) throws UnsupportedEncodingException {
-        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIxNmUzZTFkMi0zOTY2LTRjMGQtYmNmOS1mYWVhNmRhNzI4NDEiLCJzdWIiOiIxIiwiaXNzIjoiZGFzaGFuIiwiaWF0IjoxNjI5OTUyMzgxLCJleHAiOjE2MzAyMTE1ODF9.RtBHmfCQU1Hu-AiQ9_OOqeb38DCrjeygBpNmxJClhlc";
+        Subject subject = new Subject();
+        subject.setUserId("1");
+        subject.setBcryptPassword("aadaa");
 
-        Long ext = JjwtUtil.getExp(token);
-        System.out.println("======:" + ext);
+        String token = generic(subject);
+        System.out.println(token);
+        String parse = parse(token);
+        System.out.println(parse);
+
+        boolean check = check(token);
+        System.out.println(check);
+
+        String s = refreshToken(token, subject.getBcryptPassword());
+        System.out.println(s);
+
+//        Long ext = JjwtUtil.getExp(token);
+//        System.out.println("======:" + ext);
     }
+
+
+    @Data
+    static class Subject {
+
+        private String userId;
+        private String bcryptPassword;
+    }
+
 }
+

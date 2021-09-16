@@ -15,11 +15,11 @@ public class SpringSecurityAuditorAware implements AuditorAware<String> {
     @Override
     public Optional<String> getCurrentAuditor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication ==null){
+        if (authentication == null) {
             return Optional.empty();
         }
-        log.info("authentication princial {}",authentication.getPrincipal().toString());
-        Long authId= CasinoWebUtil.getAuthId();
-        return Optional.of(authId+"");
+        log.info("authentication princial {}", authentication.getPrincipal().toString());
+        Long authId = CasinoWebUtil.getAuthId();
+        return Optional.of(authId + "");
     }
 }
