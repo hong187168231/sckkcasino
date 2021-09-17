@@ -47,12 +47,12 @@ public class ChargeOrderBusiness {
         }
         order = chargeOrderService.saveOrder(order);
         //计算打码量
-        userMoneyService.updateMoney(user.getId(), order.getChargeAmount());
+        userMoneyService.addCodeNum(user.getId(), order.getChargeAmount());
         BetRatioConfig betRatioConfig = betRatioConfigService.findOneBetRatioConfig();
         //默认2倍
         float codeTimes = (betRatioConfig == null || betRatioConfig.getCodeTimes() == null) ? 2F : betRatioConfig.getCodeTimes();
         BigDecimal codeNum = order.getChargeAmount().multiply(BigDecimal.valueOf(codeTimes));
-        userMoneyService.updateCodeNum(user.getId(), codeNum);
+        userMoneyService.addCodeNum(user.getId(), codeNum);
         //流水表记录
         RechargeTurnover turnover = getRechargeTurnover(order, codeNum, codeTimes);
         rechargeTurnoverService.save(turnover);

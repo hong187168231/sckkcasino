@@ -5,6 +5,9 @@ import com.qianyi.casinocore.repository.UserMoneyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -31,18 +34,6 @@ public class UserMoneyService {
     public void subMoney(Long userId, BigDecimal money) {
         synchronized (userId) {
             userMoneyRepository.subMoney(userId, money);
-        }
-    }
-
-    /**
-     *
-     * @param userId 用户id
-     * @param money 用户金额
-     */
-    @CacheEvict(key = "#userId")
-    public void updateMoney(Long userId, BigDecimal money) {
-        synchronized (userId) {
-            userMoneyRepository.updateMoney(userId, money);
         }
     }
 
