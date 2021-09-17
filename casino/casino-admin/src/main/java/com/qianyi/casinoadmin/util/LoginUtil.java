@@ -24,7 +24,8 @@ public class LoginUtil {
             return null;
         }
         JjwtUtil.Subject parse = JjwtUtil.parse(token);
-        return Long.parseLong(parse.toString());
+        Long userId = Long.parseLong(parse.getUserId());
+        return userId;
     }
 
     public static boolean checkNull(Object... obj) {
