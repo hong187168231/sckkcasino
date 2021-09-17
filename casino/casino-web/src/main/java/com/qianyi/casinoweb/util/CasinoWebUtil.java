@@ -30,14 +30,14 @@ public class CasinoWebUtil {
     //获取当前操作者的身份
     public static Long getAuthId(String token) {
         if (checkNull(token)) {
-           throw new ValidateCodeException("token为空");
+           throw new ValidateCodeException("认证失败,请重新登录");
         }
         JjwtUtil.Subject parse = JjwtUtil.parse(token);
         if (parse == null) {
-            throw new ValidateCodeException("token解析结果为空");
+            throw new ValidateCodeException("认证失败,请重新登录");
         }
         if(ObjectUtils.isEmpty(parse.getUserId())||ObjectUtils.isEmpty(parse.getBcryptPassword())){
-            throw new ValidateCodeException("token解析错误,请重新登录");
+            throw new ValidateCodeException("认证失败,请重新登录");
         }
         Long userId = Long.parseLong(parse.getUserId());
         return userId;

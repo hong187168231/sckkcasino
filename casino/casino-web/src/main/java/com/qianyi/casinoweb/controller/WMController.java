@@ -263,25 +263,42 @@ public class WMController {
     @GetMapping("oneKeyRecover")
     public ResponseEntity oneKeyRecover() {
         //获取登陆用户
-        Long authId = CasinoWebUtil.getAuthId();
-        UserThird third = userThirdService.findByUserId(authId);
+        Long userId = CasinoWebUtil.getAuthId();
+        UserThird third = userThirdService.findByUserId(userId);
         if (third == null) {
             return ResponseUtil.custom("当前用户未在第三方注册,请注册后再重试");
         }
-        User user = userService.findById(authId);
+        User user = userService.findById(userId);
         Integer lang = user.getLanguage();
         if (lang == null) {
             lang = 0;
         }
         //先退出游戏
-        BigDecimal balance = null;
+        BigDecimal balance = BigDecimal.ZERO;
+        String account = third.getAccount();
         try {
-            balance = wmApi.getBalance(third.getAccount(), lang);
+            Boolean aBoolean = wmApi.logoutGame(account, lang);
+            if (!aBoolean) {
+                return ResponseUtil.custom("退出游戏异常");
+            }
+            //查询用户在wm的余额
+            balance = wmApi.getBalance(account, lang);
+            if (balance.compareTo(BigDecimal.ZERO) < 1) {
+                return ResponseUtil.success();
+            }
+            //调用加扣点接口扣减wm余额
+            Boolean changeBalance = wmApi.changeBalance(account, balance, null, lang);
+            if (!changeBalance) {
+                return ResponseUtil.custom("扣减wm余额异常");
+            }
+            //把额度加回本地
+            UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+            userMoneyService.addMoney(userId, balance);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseUtil.custom(e.getMessage());
         }
-        return ResponseUtil.success(balance);
+        return ResponseUtil.success();
     }
 
     @Data
