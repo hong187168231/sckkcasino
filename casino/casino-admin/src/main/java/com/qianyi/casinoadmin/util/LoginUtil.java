@@ -23,8 +23,8 @@ public class LoginUtil {
         if(checkNull(token)){
             return null;
         }
-        String subject = JjwtUtil.parse(token);
-        return Long.parseLong(subject);
+        JjwtUtil.Subject parse = JjwtUtil.parse(token);
+        return Long.parseLong(parse.toString());
     }
 
     public static boolean checkNull(Object... obj) {
