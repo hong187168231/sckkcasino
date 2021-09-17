@@ -73,13 +73,7 @@ public class JjwtUtil {
                 return null;
             }
 
-            JSONObject jsonObject = JSONObject.parseObject(json);
-            String userId = jsonObject.getString("userId");
-            String password = jsonObject.getString("bcryptPassword");
-            Subject subject = new Subject();
-            subject.setUserId(userId);
-            subject.setBcryptPassword(password);
-
+            Subject subject = JSON.parseObject(json, Subject.class);
             return subject;
 
         } catch (Exception e) {

@@ -27,9 +27,8 @@ public class CasinoWebUtil {
         if (checkNull(token)) {
             return null;
         }
-        String subStr = JjwtUtil.parse(token);
-        JjwtUtil.Subject subject = JSON.parseObject(subStr, JjwtUtil.Subject.class);
-        Long userId = Long.parseLong(subject.getUserId());
+        JjwtUtil.Subject parse = JjwtUtil.parse(token);
+        Long userId = Long.parseLong(parse.getUserId());
         return userId;
     }
 
