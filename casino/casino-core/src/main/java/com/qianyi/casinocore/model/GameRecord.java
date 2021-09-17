@@ -137,11 +137,11 @@ public class GameRecord extends BaseEntity{
     private String slotGameId;
 
     public GameRecord(BigDecimal bet,BigDecimal validbet,BigDecimal water,BigDecimal waterbet,BigDecimal winLoss){
-        this.bet = bet.toString();
-        this.validbet = validbet.toString();
-        this.water = water.toString();
-        this.waterbet = waterbet.toString();
-        this.winLoss = winLoss.toString();
+        this.bet = bet==null?"0":bet.toString();
+        this.validbet = validbet==null?"0":validbet.toString();
+        this.water = water==null?"0":water.toString();
+        this.waterbet = waterbet==null?"0":waterbet.toString();
+        this.winLoss = winLoss==null?"0":winLoss.toString();
     }
     public GameRecord(){
 
