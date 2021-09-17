@@ -28,6 +28,9 @@ public class CasinoWebUtil {
             return null;
         }
         JjwtUtil.Subject parse = JjwtUtil.parse(token);
+        if (parse == null) {
+            return null;
+        }
         Long userId = Long.parseLong(parse.getUserId());
         return userId;
     }

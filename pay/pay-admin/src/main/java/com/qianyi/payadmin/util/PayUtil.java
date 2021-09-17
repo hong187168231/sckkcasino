@@ -19,9 +19,11 @@ public class PayUtil {
 
     //获取当前操作者的身份
     public static Long getAuthId() {
-        String token = getToken();
-        String subject = JjwtUtil.parse(token);
-        return Long.parseLong(subject);
+//        String token = getToken();
+//        String subject = JjwtUtil.parse(token);
+//        return Long.parseLong(subject);
+        //TODO
+        return null;
     }
 
     public static boolean checkNull(Object... obj) {
