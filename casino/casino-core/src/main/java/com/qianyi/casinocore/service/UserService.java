@@ -46,19 +46,19 @@ public class UserService {
         return null;
     }
 
-    @CacheEvict(key = "#id")
+   /* @CacheEvict(key = "#id")
     public void subMoney(Long id, BigDecimal money) {
         synchronized (id) {
             userRepository.subMoney(id, money);
         }
-    }
+    }*/
 
     @CacheEvict(key="#id")
     public void deleteById(Long id) {
         userRepository.deleteById(id);
     }
 
-    @CacheEvict(key = "#id")
+   /* @CacheEvict(key = "#id")
     public void addMoney(Long id, BigDecimal money) {
         synchronized (id) {
             userRepository.addMoney(id, money);
@@ -77,7 +77,7 @@ public class UserService {
         synchronized (id) {
             userRepository.addCodeNum(id, codeNum);
         }
-    }
+    }*/
 
 
     public Integer countByIp(String ip) {

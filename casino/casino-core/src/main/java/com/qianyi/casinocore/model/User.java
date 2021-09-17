@@ -29,12 +29,12 @@ public class User extends BaseEntity implements UserDetails {
     //帐号状态（1：启用，其他：禁用）
     private Integer state;
     private String registerIp;
-    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
-    private BigDecimal money;
-
-    @ApiModelProperty(value = "打码量")
-    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
-    private BigDecimal codeNum;
+//    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+//    private BigDecimal money;
+//
+//    @ApiModelProperty(value = "打码量")
+//    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+//    private BigDecimal codeNum;
 
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal withdrawMoney;

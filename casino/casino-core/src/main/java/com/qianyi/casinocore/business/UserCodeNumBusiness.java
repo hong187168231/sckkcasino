@@ -1,7 +1,6 @@
 package com.qianyi.casinocore.business;
 
 import com.qianyi.casinocore.model.BetRatioConfig;
-import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.service.BetRatioConfigService;
 import com.qianyi.casinocore.service.UserMoneyService;
@@ -53,21 +52,21 @@ public class UserCodeNumBusiness {
         if(betRatioConfig!=null){
             //剩余打码量小于等于最小清零打码量时 直接清0
             if (codeNum.compareTo(betRatioConfig.getMinMoney()) < 1) {
-                userMoneyService.updateCodeNum(userId, codeNum.negate());
+                userMoneyService.subCodeNum(userId, codeNum);
                 return ResponseUtil.success();
             }
         }else{
             if (codeNum.compareTo(DEFAULT_CLEAR) < 1) {
-                userMoneyService.updateCodeNum(userId, codeNum.negate());
+                userMoneyService.subCodeNum(userId, codeNum);
                 return ResponseUtil.success();
             }
         }
         //有效投注额大于等于等于剩余打码量
         if (validbet.compareTo(codeNum) > -1) {
-            userMoneyService.updateCodeNum(userId, codeNum.negate());
+            userMoneyService.subCodeNum(userId, codeNum);
         } else {
             //有效投注额小于剩余打码量
-            userMoneyService.updateCodeNum(userId, validbet.negate());
+            userMoneyService.subCodeNum(userId, validbet);
         }
         return ResponseUtil.success();
     }

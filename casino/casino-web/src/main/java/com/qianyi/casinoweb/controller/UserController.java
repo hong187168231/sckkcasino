@@ -1,6 +1,8 @@
 package com.qianyi.casinoweb.controller;
 
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.model.UserMoney;
+import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.vo.UserVo;
@@ -23,6 +25,8 @@ public class UserController {
 
     @Autowired
     UserService userService;
+    @Autowired
+    UserMoneyService userMoneyService;
 
     @GetMapping("info")
     @ApiOperation("获取当前用户的基本信息")
@@ -34,13 +38,14 @@ public class UserController {
         vo.setAccount(user.getAccount());
         vo.setName(user.getName());
         vo.setHeadImg(user.getHeadImg());
+        UserMoney userMoney = userMoneyService.findByUserId(user.getId());
 
         //TODO 查询可提金额，未完成流水(打码量)
-        BigDecimal codeNum = user.getCodeNum().setScale(2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal codeNum = userMoney.getCodeNum().setScale(2, BigDecimal.ROUND_HALF_UP);
         vo.setUnfinshTurnover(codeNum);
         //打码量为0时才有可提现金额
         if (codeNum.compareTo(BigDecimal.ZERO) < 1) {
-            BigDecimal money = user.getMoney().setScale(2, BigDecimal.ROUND_HALF_UP);
+            BigDecimal money = userMoney.getMoney().setScale(2, BigDecimal.ROUND_HALF_UP);
             vo.setDrawMoney(money);
         } else {
             BigDecimal zero = BigDecimal.ZERO.setScale(2, BigDecimal.ROUND_HALF_UP);

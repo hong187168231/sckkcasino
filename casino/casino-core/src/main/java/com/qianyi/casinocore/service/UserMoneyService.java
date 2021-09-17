@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.service;
 
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.repository.UserMoneyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +26,55 @@ public class UserMoneyService {
     /**
      *
      * @param userId 用户id
-     * @param codeNum 打码量 充值传正数，扣减传负数
+     * @param money 金额
      */
     @CacheEvict(key = "#userId")
-    public void updateCodeNum(Long userId, BigDecimal codeNum) {
+    public void subMoney(Long userId, BigDecimal money) {
         synchronized (userId) {
-            userMoneyRepository.updateCodeNum(userId, codeNum);
+            userMoneyRepository.subMoney(userId, money);
         }
+    }
+
+    /**
+     *
+     * @param userId 用户id
+     * @param money 金额
+     */
+    @CacheEvict(key = "#userId")
+    public void addMoney(Long userId, BigDecimal money) {
+        synchronized (userId) {
+            userMoneyRepository.addMoney(userId, money);
+        }
+    }
+
+    /**
+     *
+     * @param userId 用户id
+     * @param codeNum 打码量
+     */
+    @CacheEvict(key = "#userId")
+    public void subCodeNum(Long userId, BigDecimal codeNum) {
+        synchronized (userId) {
+            userMoneyRepository.subCodeNum(userId, codeNum);
+        }
+    }
+
+    /**
+     *
+     * @param userId 用户id
+     * @param codeNum 打码量
+     */
+    @CacheEvict(key = "#userId")
+    public void addCodeNum(Long userId, BigDecimal codeNum) {
+        synchronized (userId) {
+            userMoneyRepository.addCodeNum(userId, codeNum);
+        }
+    }
+    public UserMoney findByUserId(Long userId){
+        return userMoneyRepository.findByUserId(userId);
+    }
+
+    public void save(UserMoney userMoney) {
+        userMoneyRepository.save(userMoney);
     }
 }

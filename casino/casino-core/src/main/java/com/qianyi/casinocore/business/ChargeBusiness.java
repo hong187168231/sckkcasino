@@ -3,10 +3,8 @@ package com.qianyi.casinocore.business;
 import com.qianyi.casinocore.model.ChargeOrder;
 import com.qianyi.casinocore.model.CollectionBankcard;
 import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.service.ChargeOrderService;
-import com.qianyi.casinocore.service.CollectionBankcardService;
-import com.qianyi.casinocore.service.OrderService;
-import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.model.UserMoney;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +31,8 @@ public class ChargeBusiness {
 
     @Autowired
     private UserService userService;
-
+    @Autowired
+    private UserMoneyService userMoneyService;
     public List<CollectionBankcard> getCollectionBankcards(){
         return collectionBankcardService.getCollectionBandcards();
     }
@@ -68,11 +67,15 @@ public class ChargeBusiness {
         if (user == null) {
             return ResponseUtil.custom("用户不存在");
         }
-        log.info("账变开始orderNo is {},chargeAmount is {} userMoney is {}",chargeOrder.getOrderNo(),chargeOrder.getChargeAmount(),user.getMoney());
-        user.setMoney(user.getMoney().add(chargeOrder.getChargeAmount()));
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        if(userMoney == null){
+            return ResponseUtil.custom("用户额度表不存在");
+        }
+        log.info("账变开始orderNo is {},chargeAmount is {} userMoney is {}",chargeOrder.getOrderNo(),chargeOrder.getChargeAmount(),userMoney.getMoney());
+        userMoney.setMoney(userMoney.getMoney().add(chargeOrder.getChargeAmount()));
         chargeOrderService.saveOrder(chargeOrder);
-        userService.save(user);
-        log.info("账变结束orderNo is {},money is {}",chargeOrder.getOrderNo(),user.getMoney());
+        userMoneyService.save(userMoney);
+        log.info("账变结束orderNo is {},money is {}",chargeOrder.getOrderNo(),userMoney.getMoney());
         return ResponseUtil.success(chargeOrder);
     }
     /**

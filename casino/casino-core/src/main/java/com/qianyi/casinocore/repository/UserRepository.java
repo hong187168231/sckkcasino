@@ -11,13 +11,13 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     User findByAccount(String account);
 
-    @Query("update User u set u.money=u.money-?2 where u.id=?1")
+   /* @Query("update User u set u.money=u.money-?2 where u.id=?1")
     @Modifying
     void subMoney(Long id, BigDecimal money);
 
     @Query("update User u set u.money=u.money+?2 where u.id=?1")
     @Modifying
-    void addMoney(Long id, BigDecimal money);
+    void addMoney(Long id, BigDecimal money);*/
 
     Integer countByRegisterIp(String ip);
 
@@ -27,11 +27,11 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Query(value = "select * from User u where u.id = ? for update",nativeQuery = true)
     User findUserByUserIdUseLock(Long userId);
 
-    @Query("update User u set u.codeNum=u.codeNum-?2 where u.id=?1")
+/*    @Query("update User u set u.codeNum=u.codeNum-?2 where u.id=?1")
     @Modifying
     void subCodeNum(Long id, BigDecimal codeNum);
 
     @Query("update User u set u.codeNum=u.codeNum+?2 where u.id=?1")
     @Modifying
-    void addCodeNum(Long id, BigDecimal codeNum);
+    void addCodeNum(Long id, BigDecimal codeNum);*/
 }

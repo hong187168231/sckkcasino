@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.code.kaptcha.Producer;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.model.UserMoney;
+import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoweb.job.LoginLogJob;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
@@ -47,6 +49,8 @@ public class AuthController {
 
     @Autowired
     UserService userService;
+    @Autowired
+    UserMoneyService userMoneyService;
 
     @PostMapping("register")
     @ApiOperation("用户注册")
@@ -108,7 +112,11 @@ public class AuthController {
         user.setState(Constants.open);
         user.setRegisterIp(ip);
 
-        userService.save(user);
+        User save = userService.save(user);
+        //userMoney表初始化数据
+        UserMoney userMoney=new UserMoney();
+        userMoney.setUserId(save.getId());
+        userMoneyService.save(userMoney);
         return ResponseUtil.success();
     }
 
@@ -316,8 +324,8 @@ public class AuthController {
     })
     public ResponseEntity refreshJwtToken(String token) {
         //获取登陆用户
-        JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
-        User user = userService.findById(Long.parseLong(subject.getUserId()));
+        Long authId = CasinoWebUtil.getAuthId(token);
+        User user = userService.findById(authId);
         String refreshToken = JjwtUtil.refreshToken(token,user.getPassword());
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();

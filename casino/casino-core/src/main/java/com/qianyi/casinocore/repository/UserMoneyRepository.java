@@ -15,5 +15,19 @@ public interface UserMoneyRepository extends JpaRepository<UserMoney,Long> {
 
     @Modifying
     @Query("update UserMoney u set u.codeNum=u.codeNum+?2 where u.userId=?1")
-    void updateCodeNum(Long userId, BigDecimal codeNum);
+    void addCodeNum(Long userId, BigDecimal codeNum);
+
+    @Modifying
+    @Query("update UserMoney u set u.codeNum=u.codeNum-?2 where u.userId=?1")
+    void subCodeNum(Long userId, BigDecimal codeNum);
+
+    @Modifying
+    @Query("update UserMoney u set u.money=u.money+?2 where u.userId=?1")
+    void addMoney(Long userId, BigDecimal money);
+
+    @Modifying
+    @Query("update UserMoney u set u.money=u.money-?2 where u.userId=?1")
+    void subMoney(Long userId, BigDecimal money);
+
+    UserMoney findByUserId(Long userId);
 }

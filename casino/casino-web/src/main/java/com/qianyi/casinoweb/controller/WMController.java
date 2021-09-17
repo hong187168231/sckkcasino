@@ -3,6 +3,8 @@ package com.qianyi.casinoweb.controller;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import com.qianyi.casinocore.model.UserMoney;
+import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,8 @@ import lombok.extern.slf4j.Slf4j;
 public class WMController {
     @Autowired
     UserService userService;
+    @Autowired
+    UserMoneyService userMoneyService;
     @Autowired
     UserThirdService userThirdService;
     @Autowired
@@ -105,11 +109,12 @@ public class WMController {
 
         //自动转帐,子线程处理
 //        new Thread(new OrderBetJob()).start();
-        BigDecimal money = user.getMoney();
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(authId);
+        BigDecimal money = userMoney.getMoney();
         if (money != null && money.compareTo(BigDecimal.ZERO) == 1) {
             //扣款
             //TODO 扣款时考虑当前用户余额不能大于平台在三方的余额
-            userService.subMoney(authId, money);
+            userMoneyService.subMoney(authId, money);
 
             Order order = new Order();
             order.setMoney(money);
@@ -125,7 +130,7 @@ public class WMController {
 
             //加款
             if (!isSucc) {
-                userService.addMoney(authId, money);
+                userMoneyService.addMoney(authId, money);
             }
         }
 
@@ -228,7 +233,7 @@ public class WMController {
 //        return entity;
 //    }
 
-    @ApiOperation("查询WM余额")
+    @ApiOperation("查询当前登录用户WM余额")
     @RequestLimit(limit = 1,timeout = 5)
     @GetMapping("getWmBalance")
     public ResponseEntity getWmBalance() {
@@ -253,6 +258,31 @@ public class WMController {
         return ResponseUtil.success(balance);
     }
 
+    @ApiOperation("一键回收当前登录用户WM余额")
+    @RequestLimit(limit = 1,timeout = 5)
+    @GetMapping("oneKeyRecover")
+    public ResponseEntity oneKeyRecover() {
+        //获取登陆用户
+        Long authId = CasinoWebUtil.getAuthId();
+        UserThird third = userThirdService.findByUserId(authId);
+        if (third == null) {
+            return ResponseUtil.custom("当前用户未在第三方注册,请注册后再重试");
+        }
+        User user = userService.findById(authId);
+        Integer lang = user.getLanguage();
+        if (lang == null) {
+            lang = 0;
+        }
+        //先退出游戏
+        BigDecimal balance = null;
+        try {
+            balance = wmApi.getBalance(third.getAccount(), lang);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseUtil.custom(e.getMessage());
+        }
+        return ResponseUtil.success(balance);
+    }
 
     @Data
     class RespEntity {

@@ -97,6 +97,32 @@ public class PublicWMApi {
         return (String) entity.getResult();
     }
 
+    public Boolean logoutGame(String user,Integer syslang){
+        String cmd = "LogoutGame";
+        Integer timestamp = getTimestamp();
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("cmd", cmd);
+        params.put("vendorId", vendorId);
+        params.put("signature", signature);
+        params.put("user", user);
+        params.put("timestamp", timestamp);
+        if (syslang != null) {
+            params.put("syslang", syslang);
+        }
+        String s = HttpClient4Util.doPost(url, params);
+        if (CommonUtil.checkNull(s)) {
+            return null;
+        }
+        ResponseEntity entity = entity(s);
+        if (entity.getErrorCode() == 0) {
+            return true;
+        }
+
+        return false;
+
+    }
+
     //加扣点
     public Boolean changeBalance(String user, BigDecimal money, String order, Integer syslang) {
         String cmd = "ChangeBalance";
@@ -108,7 +134,9 @@ public class PublicWMApi {
         params.put("signature", signature);
         params.put("user", user);
         params.put("money", money.floatValue());
-        params.put("order", order);
+        if(!ObjectUtils.isEmpty(order)){
+            params.put("order", order);
+        }
         params.put("timestamp", timestamp);
         if (syslang != null) {
             params.put("syslang", syslang);
