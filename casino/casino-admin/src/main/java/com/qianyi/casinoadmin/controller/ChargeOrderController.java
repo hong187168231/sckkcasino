@@ -3,6 +3,7 @@ package com.qianyi.casinoadmin.controller;
 import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.business.ChargeBusiness;
+import com.qianyi.casinocore.business.ChargeOrderBusiness;
 import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.ChargeOrder;
 import com.qianyi.casinocore.model.User;
@@ -22,10 +23,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -47,6 +46,10 @@ public class ChargeOrderController {
     private ChargeOrderService chargeOrderService;
     @Autowired
     private ChargeBusiness chargeBusiness;
+
+    @Autowired
+    private ChargeOrderBusiness chargeOrderBusiness;
+
     /**
      * 充值申请列表
      *
@@ -71,6 +74,7 @@ public class ChargeOrderController {
         Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(condition, pageable);
         return ResponseUtil.success(chargeOrderPage);
     }
+
     /**
      * 充值申请列表
      *
@@ -81,19 +85,22 @@ public class ChargeOrderController {
     @ApiOperation("后台充值上分")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "订单id", required = true),
-            @ApiImplicitParam(name = "status", value = "审核状态，0：未确认，1：已确认", required = true),
+            @ApiImplicitParam(name = "status", value = "审核状态:0.未确认,1.成功,2.失败,3.失效", required = true),
     })
     @PostMapping("/saveChargeOrder")
     public ResponseEntity saveChargeOrder(Long id, Integer status){
-        if(status != CommonConst.NUMBER_1){
+        if(status <= CommonConst.NUMBER_0 || status > CommonConst.NUMBER_3){
             return ResponseUtil.custom("参数不合法");
         }
         ChargeOrder chargeOrder = chargeOrderService.findChargeOrderByIdUseLock(id);
-        if(chargeOrder == null||chargeOrder.getStatus() != CommonConst.NUMBER_0){
-            return ResponseUtil.custom("充值订单已失效");
+        if(chargeOrder == null || chargeOrder.getStatus() != CommonConst.NUMBER_0){
+            return ResponseUtil.custom("订单不存在或已被处理");
         }
         chargeOrder.setStatus(status);
-        return chargeBusiness.updateChargeOrderAndUser(chargeOrder);
+        if(status == CommonConst.NUMBER_3 || status == CommonConst.NUMBER_2){
+            return ResponseUtil.success(chargeOrderService.saveOrder(chargeOrder));
+        }
+        return chargeOrderBusiness.checkOrderSuccess(chargeOrder);
     }
 
     /**

@@ -27,13 +27,16 @@ public class ChargeOrderBusiness {
     @Autowired
     private RechargeTurnoverService rechargeTurnoverService;
 
+    @Autowired
+    private UserMoneyService userMoneyService;
+
     /**
      * 成功订单确认
      * @param order
      */
     @Transactional
     public ResponseEntity checkOrderSuccess(ChargeOrder order) {
-        User user = userService.findById(order.getUserId());
+        UserMoney user = userMoneyService.findUserByUserIdUseLock(order.getUserId());
         if(user == null){
             return ResponseUtil.custom("用户不存在");
         }
