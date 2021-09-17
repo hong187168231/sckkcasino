@@ -2,12 +2,10 @@ package com.qianyi.casinocore.business;
 
 import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.model.WithdrawOrder;
 import com.qianyi.casinocore.repository.BankcardsRepository;
-import com.qianyi.casinocore.service.BankcardsService;
-import com.qianyi.casinocore.service.OrderService;
-import com.qianyi.casinocore.service.UserService;
-import com.qianyi.casinocore.service.WithdrawOrderService;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +32,9 @@ public class WithdrawBusiness {
 
     @Autowired
     private WithdrawOrderService withdrawOrderService;
+
+    @Autowired
+    private UserMoneyService userMoneyService;
 
     public String getWithdrawFullMoney(Long userId){
         User user = userService.findById(userId);
@@ -109,14 +110,14 @@ public class WithdrawBusiness {
     public ResponseEntity updateWithdrawAndUser(WithdrawOrder withdrawOrder) {
         Long userId = withdrawOrder.getUserId();
         //对用户数据进行行锁
-        User user = userService.findUserByIdUseLock(userId);
-        if (user == null) {
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        if (userMoney == null) {
             return ResponseUtil.custom("用户不存在");
         }
-        user.setWithdrawMoney(user.getWithdrawMoney().add(withdrawOrder.getWithdrawMoney()));
+        userMoney.setMoney(userMoney.getMoney().add(withdrawOrder.getWithdrawMoney()));
         WithdrawOrder withdraw = withdrawOrderService.saveOrder(withdrawOrder);
-        log.info("user sum money is {}, add withdrawMoney is {}",user.getWithdrawMoney(), withdrawOrder.getWithdrawMoney());
-        User save = userService.save(user);
+        log.info("user sum money is {}, add withdrawMoney is {}",userMoney.getMoney(), withdrawOrder.getWithdrawMoney());
+        userMoneyService.save(userMoney);
         return ResponseUtil.success(withdraw);
     }
 }

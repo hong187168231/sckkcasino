@@ -10,8 +10,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -82,5 +85,31 @@ public class UserMoneyService {
 
     public void save(UserMoney userMoney) {
         userMoneyRepository.save(userMoney);
+    }
+
+    public List<UserMoney> findAll(List<Long> userIds) {
+        Specification<UserMoney> condition = getCondition(userIds);
+        List<UserMoney> userMoneyList = userMoneyRepository.findAll(condition);
+        return userMoneyList;
+    }
+
+    private Specification<UserMoney> getCondition(List<Long> userIds) {
+        Specification<UserMoney> specification = new Specification<UserMoney>() {
+            @Override
+            public Predicate toPredicate(Root<UserMoney> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                Predicate predicate = cb.conjunction();
+                if (userIds != null && userIds.size() > 0) {
+                    Path<Object> userId = root.get("userId");
+                    CriteriaBuilder.In<Object> in = cb.in(userId);
+                    for (Long id : userIds) {
+                        in.value(id);
+                    }
+                    list.add(cb.and(cb.in(in)));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
     }
 }
