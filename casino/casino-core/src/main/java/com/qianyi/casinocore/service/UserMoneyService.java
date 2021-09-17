@@ -22,6 +22,11 @@ public class UserMoneyService {
         return userMoneyRepository.findUserByUserIdUseLock(userId);
     }
 
+    /**
+     *
+     * @param userId 用户id
+     * @param codeNum 打码量 充值传正数，扣减传负数
+     */
     @CacheEvict(key = "#userId")
     public void updateCodeNum(Long userId, BigDecimal codeNum) {
         synchronized (userId) {
