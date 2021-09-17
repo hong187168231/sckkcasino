@@ -82,14 +82,12 @@ public class ChargeBusiness {
      * 管理后台定时清除超时充值订单
      */
     @Transactional
-    public void updateChargeOrderStatus(Integer status,String time){
-        List<ChargeOrder> chargeOrdersUseLock = chargeOrderService.findChargeOrdersUseLock(status, time);
-        if (chargeOrdersUseLock !=null && chargeOrdersUseLock.size()==0)
+    public void updateChargeOrderStatus(Long id){
+        ChargeOrder chargeOrder = chargeOrderService.findChargeOrderByIdUseLock(id);
+        if (chargeOrder !=null && chargeOrder.getStatus()!=0)
             return;
-        for (ChargeOrder chargeOrder:chargeOrdersUseLock){
-            chargeOrder.setStatus(3);
-            chargeOrderService.saveOrder(chargeOrder);
-        }
+        chargeOrder.setStatus(3);
+        chargeOrderService.saveOrder(chargeOrder);
     }
 
 }

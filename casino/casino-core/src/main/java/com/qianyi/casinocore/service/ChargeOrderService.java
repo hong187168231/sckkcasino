@@ -30,7 +30,7 @@ public class ChargeOrderService {
         return chargeOrder;
     }
 
-    public List<ChargeOrder> findChargeOrdersUseLock(Integer status,String time){
-        return chargeOrderRepository.findChargeOrdersUseLock(status,time);
+    public List<ChargeOrder> findChargeOrders(Integer status,String time){
+        return chargeOrderRepository.findChargeOrders(status,time);
     }
 }
