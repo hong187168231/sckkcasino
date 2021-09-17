@@ -33,4 +33,16 @@ public class UserMoneyService {
             userMoneyRepository.updateCodeNum(userId, codeNum);
         }
     }
+
+    /**
+     *
+     * @param userId 用户id
+     * @param money 用户金额
+     */
+    @CacheEvict(key = "#userId")
+    public void updateMoney(Long userId, BigDecimal money) {
+        synchronized (userId) {
+            userMoneyRepository.updateMoney(userId, money);
+        }
+    }
 }

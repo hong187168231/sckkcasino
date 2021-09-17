@@ -88,7 +88,7 @@ public class ChargeOrderController {
      * @param status 汇款状态，0.未确认。 1.成功   2.失败, 3.失效
      * @return
      */
-    @ApiOperation("后台充值上分")
+    @ApiOperation("审核充值订单")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "订单id", required = true),
             @ApiImplicitParam(name = "status", value = "汇款状态，0.未确认。 1.成功   2.失败, 3.失效", required = true),
