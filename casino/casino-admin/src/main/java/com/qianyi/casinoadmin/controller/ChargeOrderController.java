@@ -4,7 +4,6 @@ import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.business.ChargeBusiness;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
-import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.ChargeOrder;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.ChargeOrderService;
@@ -23,17 +22,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -88,7 +83,7 @@ public class ChargeOrderController {
      * @param status 汇款状态，0.未确认。 1.成功   2.失败, 3.失效
      * @return
      */
-    @ApiOperation("后台充值上分")
+    @ApiOperation("审核充值订单")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "订单id", required = true),
             @ApiImplicitParam(name = "status", value = "汇款状态，0.未确认。 1.成功   2.失败, 3.失效", required = true),
@@ -99,16 +94,11 @@ public class ChargeOrderController {
         if(status != CommonConst.NUMBER_1){
             return ResponseUtil.custom("参数不合法");
         }
-        ChargeOrder chargeOrder = chargeOrderService.findChargeOrderByIdUseLock(id);
-        if(chargeOrder == null || chargeOrder.getStatus() != CommonConst.NUMBER_0){
-            return ResponseUtil.custom("订单不存在或已被处理");
-        }
-        chargeOrder.setStatus(status);
-        chargeOrder.setRemark(remark);
-        if(status == CommonConst.NUMBER_3 || status == CommonConst.NUMBER_2){
-            return ResponseUtil.success(chargeOrderService.saveOrder(chargeOrder));
-        }
-        return chargeOrderBusiness.checkOrderSuccess(chargeOrder);
+//
+//        if(status == CommonConst.NUMBER_3 || status == CommonConst.NUMBER_2){
+//            return ResponseUtil.success(chargeOrderService.saveOrder(chargeOrder));
+//        }
+        return chargeOrderBusiness.checkOrderSuccess(id,status,remark);
     }
     /**
      * 后台新增充值订单

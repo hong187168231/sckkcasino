@@ -1,6 +1,5 @@
 package com.qianyi.casinocore.service;
 
-import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.repository.UserMoneyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +32,22 @@ public class UserMoneyService {
         synchronized (userId) {
             userMoneyRepository.subMoney(userId, money);
         }
+    }
+
+    /**
+     *
+     * @param userId 用户id
+     * @param money 用户金额
+     */
+    @CacheEvict(key = "#userId")
+    public void updateMoney(Long userId, BigDecimal money) {
+        synchronized (userId) {
+            userMoneyRepository.updateMoney(userId, money);
+        }
+    }
+
+    public Page<UserMoney> findUserMoneyPage(Specification<UserMoney> condition, Pageable pageable){
+        return userMoneyRepository.findAll(condition,pageable);
     }
 
     /**
