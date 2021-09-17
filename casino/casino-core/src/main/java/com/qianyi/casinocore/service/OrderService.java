@@ -19,6 +19,7 @@ import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -67,4 +68,11 @@ public class OrderService {
         return specification;
     }
 
+    public Order findById(Long id) {
+        Optional<Order> optional = orderRepository.findById(id);
+        if (optional.isPresent()) {
+            return optional.get();
+        }
+        return null;
+    }
 }

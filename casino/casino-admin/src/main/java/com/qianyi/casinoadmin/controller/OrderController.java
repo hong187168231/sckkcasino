@@ -75,13 +75,13 @@ public class OrderController {
 
     @ApiOperation("修改订单")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "no", value = "订单号", required = true),
+            @ApiImplicitParam(name = "id", value = "订单id", required = true),
             @ApiImplicitParam(name = "status", value = "订单状态", required = true),
             @ApiImplicitParam(name = "remark", value = "备注", required = false),
     })
     @PostMapping("updateOrder")
-    public ResponseEntity updateOrder(String no, Integer status, String remark){
-        Order order = orderService.findByNo(no);
+    public ResponseEntity updateOrder(Long id, Integer status, String remark){
+        Order order = orderService.findById(id);
         if(order == null){
             return ResponseUtil.custom("订单不存在");
         }
