@@ -94,16 +94,11 @@ public class ChargeOrderController {
         if(status != CommonConst.NUMBER_1){
             return ResponseUtil.custom("参数不合法");
         }
-        ChargeOrder chargeOrder = chargeOrderService.findChargeOrderByIdUseLock(id);
-        if(chargeOrder == null || chargeOrder.getStatus() != CommonConst.NUMBER_0){
-            return ResponseUtil.custom("订单不存在或已被处理");
-        }
-        chargeOrder.setStatus(status);
-        chargeOrder.setRemark(remark);
-        if(status == CommonConst.NUMBER_3 || status == CommonConst.NUMBER_2){
-            return ResponseUtil.success(chargeOrderService.saveOrder(chargeOrder));
-        }
-        return chargeOrderBusiness.checkOrderSuccess(chargeOrder);
+//
+//        if(status == CommonConst.NUMBER_3 || status == CommonConst.NUMBER_2){
+//            return ResponseUtil.success(chargeOrderService.saveOrder(chargeOrder));
+//        }
+        return chargeOrderBusiness.checkOrderSuccess(id,status,remark);
     }
     /**
      * 后台新增充值订单

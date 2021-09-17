@@ -29,17 +29,25 @@ public class ChargeOrderBusiness {
 
     /**
      * 成功订单确认
-     * @param order
+     * @param id 充值订单id
+     * @param status 充值订单id状态
+     * @param remark 充值订单备注
      */
     @Transactional
-    public ResponseEntity checkOrderSuccess(ChargeOrder order) {
+    public ResponseEntity checkOrderSuccess(Long id, Integer status,String remark) {
+        ChargeOrder order = chargeOrderService.findChargeOrderByIdUseLock(id);
+        if(order == null || order.getStatus() != 0){
+            return ResponseUtil.custom("订单不存在或已被处理");
+        }
+        order.setStatus(status);
+        order.setRemark(remark);
         UserMoney user = userMoneyService.findUserByUserIdUseLock(order.getUserId());
         if(user == null){
             return ResponseUtil.custom("用户钱包不存在");
         }
-        ChargeOrder orde = chargeOrderService.saveOrder(order);
+        order = chargeOrderService.saveOrder(order);
         //计算打码量
-        userMoneyService.updateMoney(user.getId(), orde.getChargeAmount());
+        userMoneyService.updateMoney(user.getId(), order.getChargeAmount());
         BetRatioConfig betRatioConfig = betRatioConfigService.findOneBetRatioConfig();
         //默认2倍
         float codeTimes = (betRatioConfig == null || betRatioConfig.getCodeTimes() == null) ? 2F : betRatioConfig.getCodeTimes();
