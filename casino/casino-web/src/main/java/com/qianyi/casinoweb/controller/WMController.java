@@ -273,10 +273,10 @@ public class WMController {
         if (lang == null) {
             lang = 0;
         }
-        //先退出游戏
         BigDecimal balance = BigDecimal.ZERO;
         String account = third.getAccount();
         try {
+            //先退出游戏
             Boolean aBoolean = wmApi.logoutGame(account, lang);
             if (!aBoolean) {
                 return ResponseUtil.custom("退出游戏异常");
@@ -287,7 +287,7 @@ public class WMController {
                 return ResponseUtil.success();
             }
             //调用加扣点接口扣减wm余额
-            Boolean changeBalance = wmApi.changeBalance(account, balance, null, lang);
+            Boolean changeBalance = wmApi.changeBalance(account, balance.negate(), null, lang);
             if (!changeBalance) {
                 return ResponseUtil.custom("扣减wm余额异常");
             }
