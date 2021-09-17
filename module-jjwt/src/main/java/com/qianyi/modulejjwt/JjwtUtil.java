@@ -60,7 +60,7 @@ public class JjwtUtil {
      * @param token
      * @return
      */
-    public static String parse(String token) {
+    public static Subject parse(String token) {
         try {
             Claims body = Jwts.parser()
                     // 验证签发者字段iss 必须是 大山
@@ -68,8 +68,22 @@ public class JjwtUtil {
                     .setSigningKey(secrect)
                     .parseClaimsJws(token)
                     .getBody();
-            return body.getSubject();
+            String json = body.getSubject();
+            if (ObjectUtils.isEmpty(json)) {
+                return null;
+            }
+
+            JSONObject jsonObject = JSONObject.parseObject(json);
+            String userId = jsonObject.getString("userId");
+            String password = jsonObject.getString("bcryptPassword");
+            Subject subject = new Subject();
+            subject.setUserId(userId);
+            subject.setBcryptPassword(password);
+
+            return subject;
+
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -77,7 +91,7 @@ public class JjwtUtil {
     public static boolean check(String token) {
 
         try {
-            String subject = parse(token);
+            Subject subject = parse(token);
             if (ObjectUtils.isEmpty(subject)) {
                 return false;
             }
@@ -189,14 +203,14 @@ public class JjwtUtil {
 
         String token = generic(subject);
         System.out.println(token);
-        String parse = parse(token);
-        System.out.println(parse);
-
-        boolean check = check(token);
-        System.out.println(check);
-
-        String s = refreshToken(token, subject.getBcryptPassword());
-        System.out.println(s);
+//        String parse = parse(token);
+//        System.out.println(parse);
+//
+//        boolean check = check(token);
+//        System.out.println(check);
+//
+//        String s = refreshToken(token, subject.getBcryptPassword());
+//        System.out.println(s);
 
 //        Long ext = JjwtUtil.getExp(token);
 //        System.out.println("======:" + ext);
