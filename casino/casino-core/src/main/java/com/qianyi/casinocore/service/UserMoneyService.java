@@ -5,6 +5,9 @@ import com.qianyi.casinocore.repository.UserMoneyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -44,5 +47,9 @@ public class UserMoneyService {
         synchronized (userId) {
             userMoneyRepository.updateMoney(userId, money);
         }
+    }
+
+    public Page<UserMoney> findUserMoneyPage(Specification<UserMoney> condition, Pageable pageable){
+        return userMoneyRepository.findAll(condition,pageable);
     }
 }
