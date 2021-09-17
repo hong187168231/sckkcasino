@@ -8,6 +8,7 @@ import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.ChargeOrder;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.ChargeOrderService;
+import com.qianyi.casinocore.service.OrderService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -30,6 +31,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -50,6 +52,10 @@ public class ChargeOrderController {
     @Autowired
     private ChargeOrderBusiness chargeOrderBusiness;
 
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private OrderService orderService;
     /**
      * 充值申请列表
      *
@@ -79,17 +85,18 @@ public class ChargeOrderController {
      * 充值申请列表
      *
      * @param id 充值订单id
-     * @param status 充值订单审核状态 0：未确认，1：已确认
+     * @param status 汇款状态，0.未确认。 1.成功   2.失败, 3.失效
      * @return
      */
     @ApiOperation("后台充值上分")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "订单id", required = true),
-            @ApiImplicitParam(name = "status", value = "审核状态:0.未确认,1.成功,2.失败,3.失效", required = true),
+            @ApiImplicitParam(name = "status", value = "汇款状态，0.未确认。 1.成功   2.失败, 3.失效", required = true),
+            @ApiImplicitParam(name = "remark", value = "备注", required = false),
     })
-    @PostMapping("/saveChargeOrder")
-    public ResponseEntity saveChargeOrder(Long id, Integer status){
-        if(status <= CommonConst.NUMBER_0 || status > CommonConst.NUMBER_3){
+    @PostMapping("/updateChargeOrder")
+    public ResponseEntity updateChargeOrder(Long id, Integer status,String remark){
+        if(status != CommonConst.NUMBER_1){
             return ResponseUtil.custom("参数不合法");
         }
         ChargeOrder chargeOrder = chargeOrderService.findChargeOrderByIdUseLock(id);
@@ -97,12 +104,46 @@ public class ChargeOrderController {
             return ResponseUtil.custom("订单不存在或已被处理");
         }
         chargeOrder.setStatus(status);
+        chargeOrder.setRemark(remark);
         if(status == CommonConst.NUMBER_3 || status == CommonConst.NUMBER_2){
             return ResponseUtil.success(chargeOrderService.saveOrder(chargeOrder));
         }
         return chargeOrderBusiness.checkOrderSuccess(chargeOrder);
     }
-
+    /**
+     * 后台新增充值订单
+     *
+     * @param account 会员账号
+     * @param remitter 汇款人姓名
+     * @param chargeAmount 汇款金额
+     * @param remark 汇款备注
+     * @return
+     */
+    @ApiOperation("后台新增充值订单")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "account", value = "会员账号", required = true),
+            @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = true),
+            @ApiImplicitParam(name = "chargeAmount", value = "汇款金额", required = true),
+            @ApiImplicitParam(name = "remark", value = "汇款备注", required = false),
+    })
+    @PostMapping("/saveChargeOrder")
+    public ResponseEntity saveChargeOrder(String account,String remitter,String remark, BigDecimal chargeAmount){
+        User user = userService.findByAccount(account);
+        if (user==null){
+            return ResponseUtil.custom("没有这个会员");
+        }
+        ChargeOrder chargeOrder = new ChargeOrder();
+        chargeOrder.setUserId(user.getId());
+        chargeOrder.setRemitter(remitter);
+        chargeOrder.setRemark(remark);
+        chargeOrder.setRemitType(CommonConst.NUMBER_0);
+        chargeOrder.setOrderNo(orderService.getOrderNo());
+        chargeOrder.setChargeAmount(chargeAmount);
+        chargeOrder.setType(CommonConst.NUMBER_2);//管理员新增
+        chargeOrder.setStatus(CommonConst.NUMBER_0);
+        chargeOrderService.saveOrder(chargeOrder);
+        return ResponseUtil.success();
+    }
     /**
      * 查询条件拼接，灵活添加条件
      * @param
