@@ -42,6 +42,10 @@ public class ChargeOrderBusiness {
         }
         order.setStatus(status);
         order.setRemark(remark);
+        if(status != Constants.yes){//拒绝订单直接保存
+            order = chargeOrderService.saveOrder(order);
+            return ResponseUtil.success(order);
+        }
         return this.saveOrder(order);
     }
     /**
@@ -54,10 +58,6 @@ public class ChargeOrderBusiness {
     }
 
     private ResponseEntity saveOrder(ChargeOrder chargeOrder){
-        if(chargeOrder.getStatus() != Constants.yes){
-            chargeOrder = chargeOrderService.saveOrder(chargeOrder);
-            return ResponseUtil.success(chargeOrder);
-        }
         UserMoney user = userMoneyService.findUserByUserIdUseLock(chargeOrder.getUserId());
         if(user == null){
             return ResponseUtil.custom("用户钱包不存在");

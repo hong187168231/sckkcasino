@@ -91,7 +91,7 @@ public class ChargeOrderController {
     })
     @PostMapping("/updateChargeOrder")
     public ResponseEntity updateChargeOrder(Long id, Integer status,String remark){
-        if(status != CommonConst.NUMBER_1){
+        if(status != CommonConst.NUMBER_1||status != CommonConst.NUMBER_2){
             return ResponseUtil.custom("参数不合法");
         }
         return chargeOrderBusiness.checkOrderSuccess(id,status,remark);
