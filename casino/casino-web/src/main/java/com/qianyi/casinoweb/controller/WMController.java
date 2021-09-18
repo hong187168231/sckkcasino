@@ -253,7 +253,7 @@ public class WMController {
             balance = wmApi.getBalance(third.getAccount(), lang);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseUtil.custom(e.getMessage());
+            return ResponseUtil.custom("服务器异常,请重新操作");
         }
         return ResponseUtil.success(balance);
     }
@@ -279,7 +279,7 @@ public class WMController {
             //先退出游戏
             Boolean aBoolean = wmApi.logoutGame(account, lang);
             if (!aBoolean) {
-                return ResponseUtil.custom("退出游戏异常");
+                return ResponseUtil.custom("服务器异常,请重新操作");
             }
             //查询用户在wm的余额
             balance = wmApi.getBalance(account, lang);
@@ -289,14 +289,14 @@ public class WMController {
             //调用加扣点接口扣减wm余额
             Boolean changeBalance = wmApi.changeBalance(account, balance.negate(), null, lang);
             if (!changeBalance) {
-                return ResponseUtil.custom("扣减wm余额异常");
+                return ResponseUtil.custom("服务器异常,请重新操作");
             }
             //把额度加回本地
             UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
             userMoneyService.addMoney(userId, balance);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseUtil.custom(e.getMessage());
+            return ResponseUtil.custom("服务器异常,请重新操作");
         }
         return ResponseUtil.success();
     }
