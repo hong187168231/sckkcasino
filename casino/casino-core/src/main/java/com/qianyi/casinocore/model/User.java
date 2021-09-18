@@ -2,6 +2,7 @@ package com.qianyi.casinocore.model;
 
 import com.qianyi.modulecommon.Constants;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,8 +32,11 @@ public class User extends BaseEntity implements UserDetails {
     private String registerIp;
 
     @Transient
-    private BigDecimal money;
+    @Builder.Default
+    private BigDecimal money = BigDecimal.ZERO;
+
     @Transient
+    @ApiModelProperty("剩余打码量")
     private BigDecimal codeNum;
 
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
