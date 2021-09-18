@@ -38,10 +38,6 @@ public class User extends BaseEntity implements UserDetails {
     @ApiModelProperty("剩余打码量")
     private BigDecimal codeNum;
 
-//    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
-    @Transient
-    private BigDecimal withdrawMoney;
-
     private String withdrawPassword;
 
     @Transient

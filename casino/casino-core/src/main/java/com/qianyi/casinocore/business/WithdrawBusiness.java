@@ -119,7 +119,7 @@ public class WithdrawBusiness {
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         log.info("money is {}, draw money is {}",money,userMoney.getMoney());
         userMoneyService.subMoney(userId,money);
-        user.setWithdrawMoney(userMoney.getMoney().subtract(money));
+//        user.setWithdrawMoney(userMoney.getMoney().subtract(money));
         return user;
     }
 
