@@ -14,6 +14,8 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 用户谷歌验证登录
  */
@@ -44,9 +46,16 @@ public class CollectionBankcardController {
         if(disable < Constants.BANK_OPEN || disable > Constants.BANK_CLOSE){
             return ResponseUtil.custom("参数不合法");
         }
-        CollectionBankcard collectionBankcard = collectionBankcardService.findByBankNo(bankNo);
-        if(collectionBankcard != null){
-            return ResponseUtil.custom("银行卡已存在");
+
+        List<CollectionBankcard> collectionBankcardList = collectionBankcardService.findAll();
+        if(collectionBankcardList.size() >= 6){
+            return ResponseUtil.custom("银行卡最多绑定6张");
+        }
+        for (CollectionBankcard collectionBankcard : collectionBankcardList) {
+            if(collectionBankcard.getBankNo().equalsIgnoreCase(bankNo)){
+                return ResponseUtil.custom("银行卡已存在");
+
+            }
         }
         CollectionBankcard bankcard = new CollectionBankcard();
         bankcard.setBankNo(bankNo);
