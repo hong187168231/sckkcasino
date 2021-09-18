@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 
 @Api(tags = "认证中心")
 @RestController
@@ -116,6 +117,8 @@ public class AuthController {
         //userMoney表初始化数据
         UserMoney userMoney=new UserMoney();
         userMoney.setUserId(save.getId());
+        userMoney.setCodeNum(BigDecimal.ZERO);
+        userMoney.setMoney(BigDecimal.ZERO);
         userMoneyService.save(userMoney);
         return ResponseUtil.success();
     }
