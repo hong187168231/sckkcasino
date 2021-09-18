@@ -72,6 +72,8 @@ public class ChargeBusiness {
             return ResponseUtil.custom("用户额度表不存在");
         }
         log.info("账变开始orderNo is {},chargeAmount is {} userMoney is {}",chargeOrder.getOrderNo(),chargeOrder.getChargeAmount(),userMoney.getMoney());
+        BigDecimal money = userMoney.getMoney() == null ? BigDecimal.ZERO : userMoney.getMoney();
+        userMoney.setMoney(money);
         userMoney.setMoney(userMoney.getMoney().add(chargeOrder.getChargeAmount()));
         chargeOrderService.saveOrder(chargeOrder);
         userMoneyService.save(userMoney);

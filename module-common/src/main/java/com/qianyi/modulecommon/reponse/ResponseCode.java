@@ -16,6 +16,7 @@ public enum ResponseCode {
     GOOGLEAUTH_NOPASS(3, "谷歌身份验证码错误"),
     REQUEST_LIMIT(4, "规定时间超过请求次数"),
     RISK(6, "风险操作"),
+    EMPTY_TWITHDRAWMONEY(7, "未设置交易密码"),
 
     //业务级代码（101-999）
     PARAMETER_NOTNULLL(101, "参数必填"),

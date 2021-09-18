@@ -1,10 +1,14 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.util.passwordUtil;
+import com.qianyi.casinocore.business.ChargeOrderBusiness;
+import com.qianyi.casinocore.model.ChargeOrder;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
+import com.qianyi.casinocore.service.OrderService;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.Constants;
@@ -45,7 +49,11 @@ public class UserController {
     @Autowired
     private UserMoneyService userMoneyService;
 
+    @Autowired
+    private OrderService orderService;
 
+    @Autowired
+    private ChargeOrderBusiness chargeOrderBusiness;
     /**
      * 查询操作
      * 注意：jpa 是从第0页开始的
@@ -237,5 +245,39 @@ public class UserController {
         jsonObject.put("account", user.getAccount());
         jsonObject.put("password", password);
         return ResponseUtil.success(jsonObject);
+    }
+
+    /**
+     * 后台新增充值订单
+     *
+     * @param account 会员账号
+     * @param remitter 汇款人姓名
+     * @param chargeAmount 汇款金额
+     * @param remark 汇款备注
+     * @return
+     */
+    @ApiOperation("后台新增充值订单")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "account", value = "会员账号", required = true),
+            @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = true),
+            @ApiImplicitParam(name = "chargeAmount", value = "汇款金额", required = true),
+            @ApiImplicitParam(name = "remark", value = "汇款备注", required = false),
+    })
+    @PostMapping("/saveChargeOrder")
+    public ResponseEntity saveChargeOrder(String account,String remitter,String remark, BigDecimal chargeAmount){
+        User user = userService.findByAccount(account);
+        if (user==null){
+            return ResponseUtil.custom("没有这个会员");
+        }
+        ChargeOrder chargeOrder = new ChargeOrder();
+        chargeOrder.setUserId(user.getId());
+        chargeOrder.setRemitter(remitter);
+        chargeOrder.setRemark(remark);
+        chargeOrder.setRemitType(CommonConst.NUMBER_0);
+        chargeOrder.setOrderNo(orderService.getOrderNo());
+        chargeOrder.setChargeAmount(chargeAmount);
+        chargeOrder.setType(CommonConst.NUMBER_2);//管理员新增
+        chargeOrder.setStatus(CommonConst.NUMBER_1);
+        return chargeOrderBusiness.saveOrderSuccess(chargeOrder);
     }
 }

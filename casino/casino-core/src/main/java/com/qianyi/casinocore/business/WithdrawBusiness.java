@@ -6,6 +6,7 @@ import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.model.WithdrawOrder;
 import com.qianyi.casinocore.repository.BankcardsRepository;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -109,13 +110,37 @@ public class WithdrawBusiness {
         return withdrawOrder;
     }
 
+//    @Transactional
+//    public ResponseEntity updateWithdrawAndUser(WithdrawOrder withdrawOrder) {
+//        Long userId = withdrawOrder.getUserId();
+//        //对用户数据进行行锁
+//        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+//        if (userMoney == null) {
+//            return ResponseUtil.custom("用户不存在");
+//        }
+//        userMoney.setMoney(userMoney.getMoney().add(withdrawOrder.getWithdrawMoney()));
+//        WithdrawOrder withdraw = withdrawOrderService.saveOrder(withdrawOrder);
+//        log.info("user sum money is {}, add withdrawMoney is {}",userMoney.getMoney(), withdrawOrder.getWithdrawMoney());
+//        userMoneyService.save(userMoney);
+//        return ResponseUtil.success(withdraw);
+//    }
     @Transactional
-    public ResponseEntity updateWithdrawAndUser(WithdrawOrder withdrawOrder) {
+    public ResponseEntity updateWithdrawAndUser(Long id, Integer status) {
+        WithdrawOrder withdrawOrder = withdrawOrderService.findUserByIdUseLock(id);
+        if(withdrawOrder == null && withdrawOrder.getStatus() != 0){
+            return ResponseUtil.custom("订单已被处理");
+        }
+        //提现通过或其他
+        withdrawOrder.setStatus(status);
+        if(status != Constants.WITHDRAW_REFUSE){
+            withdrawOrderService.saveOrder(withdrawOrder);
+            return ResponseUtil.success();
+        }
         Long userId = withdrawOrder.getUserId();
         //对用户数据进行行锁
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         if (userMoney == null) {
-            return ResponseUtil.custom("用户不存在");
+            return ResponseUtil.custom("用户钱包不存在");
         }
         userMoney.setMoney(userMoney.getMoney().add(withdrawOrder.getWithdrawMoney()));
         WithdrawOrder withdraw = withdrawOrderService.saveOrder(withdrawOrder);

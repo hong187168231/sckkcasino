@@ -20,7 +20,7 @@ public class WithdrawOrder extends BaseEntity {
     @ApiModelProperty(value = "订单号")
     private String no;
 
-    @ApiModelProperty(value = "状态")
+    @ApiModelProperty(value = "金额")
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal withdrawMoney;
 
