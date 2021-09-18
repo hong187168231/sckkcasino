@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -123,6 +124,8 @@ public class UserController {
         //userMoney表初始化数据
         UserMoney userMoney=new UserMoney();
         userMoney.setUserId(save.getId());
+        userMoney.setMoney(BigDecimal.ZERO);
+        userMoney.setCodeNum(BigDecimal.ZERO);
         userMoneyService.save(userMoney);
 
         JSONObject jsonObject = new JSONObject();
