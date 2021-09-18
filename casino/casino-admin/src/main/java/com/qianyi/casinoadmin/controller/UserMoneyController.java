@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
@@ -24,6 +25,9 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/userMoney")
 @Api(tags = "客户中心")
@@ -60,7 +64,21 @@ public class UserMoneyController {
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Specification<UserMoney> condition = this.getCondition(userMoney);
         Page<UserMoney> userMoneyPage = userMoneyService.findUserMoneyPage(condition, pageable);
+        List<UserMoney> userMoneyList = userMoneyPage.getContent();
+        if (userMoneyList != null && userMoneyList.size()== CommonConst.NUMBER_0){
+            return ResponseUtil.success(userMoneyPage);
+        }
+        List<Long> userIds = userMoneyList.stream().map(UserMoney::getUserId).collect(Collectors.toList());
+        List<User> userList = userService.findAll(userIds);
+        userList.stream().forEach(user-> {
+            userMoneyList.stream().forEach(money -> {
+                if(user.getId().equals(money.getUserId())){
+                    money.setCreateBy(user.getAccount());
+                }
+            });
+        });
         return ResponseUtil.success(userMoneyPage);
+
     }
     /**
      * 查询条件拼接，灵活添加条件
