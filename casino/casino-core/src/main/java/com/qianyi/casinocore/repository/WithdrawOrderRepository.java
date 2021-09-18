@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface WithdrawOrderRepository extends JpaRepository<WithdrawOrder,Long>, JpaSpecificationExecutor<WithdrawOrder> {
 
-    @Query(value = "select * from WithdrawOrder u where u.id = ? for update",nativeQuery = true)
+    @Query(value = "select * from withdraw_order u where u.id = ? for update",nativeQuery = true)
     WithdrawOrder findUserByWithdrawIdOrderLock(Long id);
 }

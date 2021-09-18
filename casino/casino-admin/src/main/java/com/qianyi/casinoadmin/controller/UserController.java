@@ -73,7 +73,7 @@ public class UserController {
             if(userMoneyList != null && userMoneyList.size() > 0){
                 userList.stream().forEach(u -> {
                     userMoneyList.stream().forEach(userMoney -> {
-                        if(u.getId().equals(userMoney.getUserId().intValue())){
+                        if(u.getId().equals(userMoney.getUserId())){
                             u.setMoney(userMoney.getMoney());
                             u.setCodeNum(userMoney.getCodeNum());
                         }
