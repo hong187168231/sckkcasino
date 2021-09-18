@@ -81,9 +81,9 @@ public class WithdrawBusiness {
         if (userMoney == null) {
             return defaultVal;
         }
-        BigDecimal codeNum = userMoney.getCodeNum() == null ? defaultVal : userMoney.getCodeNum();
+        BigDecimal codeNum = userMoney.getCodeNum();
         //打码量为0时才有可提现金额
-        if (BigDecimal.ZERO.compareTo(codeNum) == 0) {
+        if (codeNum != null && BigDecimal.ZERO.compareTo(codeNum) == 0) {
             BigDecimal money = userMoney.getMoney() == null ? defaultVal : userMoney.getMoney();
             return money.setScale(2, BigDecimal.ROUND_HALF_UP);
         }
