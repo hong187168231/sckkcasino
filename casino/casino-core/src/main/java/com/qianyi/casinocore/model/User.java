@@ -2,6 +2,7 @@ package com.qianyi.casinocore.model;
 
 import com.qianyi.modulecommon.Constants;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,12 +30,13 @@ public class User extends BaseEntity implements UserDetails {
     //帐号状态（1：启用，其他：禁用）
     private Integer state;
     private String registerIp;
-//    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
-//    private BigDecimal money;
-//
-//    @ApiModelProperty(value = "打码量")
-//    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
-//    private BigDecimal codeNum;
+
+    @Transient
+    private BigDecimal money = BigDecimal.ZERO;
+
+    @Transient
+    @ApiModelProperty("剩余打码量")
+    private BigDecimal codeNum;
 
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal withdrawMoney;
@@ -43,7 +45,6 @@ public class User extends BaseEntity implements UserDetails {
 
     @Transient
     private String token;
-
     //校验用户帐号权限
     public static boolean checkUser(User user) {
         if (user == null) {

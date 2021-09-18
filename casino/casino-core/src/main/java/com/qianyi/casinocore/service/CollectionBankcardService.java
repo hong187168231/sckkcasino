@@ -34,4 +34,8 @@ public class CollectionBankcardService {
         }
         return null;
     }
+
+    public List<CollectionBankcard> findAll() {
+        return collectionBankCardRepository.findAll();
+    }
 }

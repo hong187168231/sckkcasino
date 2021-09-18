@@ -2,6 +2,7 @@ package com.qianyi.casinocore.business;
 
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -41,24 +42,39 @@ public class ChargeOrderBusiness {
         }
         order.setStatus(status);
         order.setRemark(remark);
-        UserMoney user = userMoneyService.findUserByUserIdUseLock(order.getUserId());
+        if(status != Constants.yes){//拒绝订单直接保存
+            order = chargeOrderService.saveOrder(order);
+            return ResponseUtil.success(order);
+        }
+        return this.saveOrder(order);
+    }
+    /**
+     * 新增充值订单，直接充钱
+     * @param  chargeOrder 充值订单
+     */
+    @Transactional
+    public ResponseEntity saveOrderSuccess(ChargeOrder chargeOrder) {
+        return this.saveOrder(chargeOrder);
+    }
+
+    private ResponseEntity saveOrder(ChargeOrder chargeOrder){
+        UserMoney user = userMoneyService.findUserByUserIdUseLock(chargeOrder.getUserId());
         if(user == null){
             return ResponseUtil.custom("用户钱包不存在");
         }
-        order = chargeOrderService.saveOrder(order);
+        chargeOrder = chargeOrderService.saveOrder(chargeOrder);
         //计算打码量
-        userMoneyService.addCodeNum(user.getId(), order.getChargeAmount());
+        userMoneyService.addMoney(user.getUserId(), chargeOrder.getChargeAmount());
         BetRatioConfig betRatioConfig = betRatioConfigService.findOneBetRatioConfig();
         //默认2倍
         float codeTimes = (betRatioConfig == null || betRatioConfig.getCodeTimes() == null) ? 2F : betRatioConfig.getCodeTimes();
-        BigDecimal codeNum = order.getChargeAmount().multiply(BigDecimal.valueOf(codeTimes));
-        userMoneyService.addCodeNum(user.getId(), codeNum);
+        BigDecimal codeNum = chargeOrder.getChargeAmount().multiply(BigDecimal.valueOf(codeTimes));
+        userMoneyService.addCodeNum(user.getUserId(), codeNum);
         //流水表记录
-        RechargeTurnover turnover = getRechargeTurnover(order, codeNum, codeTimes);
+        RechargeTurnover turnover = getRechargeTurnover(chargeOrder, codeNum, codeTimes);
         rechargeTurnoverService.save(turnover);
         return ResponseUtil.success();
     }
-
     private RechargeTurnover getRechargeTurnover(ChargeOrder order, BigDecimal codeNum, float codeTimes) {
         RechargeTurnover rechargeTurnover = new RechargeTurnover();
         rechargeTurnover.setCodeNum(codeNum);
