@@ -48,9 +48,9 @@ public class CollectionBankcardController {
         }
 
         List<CollectionBankcard> collectionBankcardList = collectionBankcardService.findAll();
-        if(collectionBankcardList.size() >= 6){
-            return ResponseUtil.custom("银行卡最多绑定6张");
-        }
+//        if(collectionBankcardList.size() >= 6){
+//            return ResponseUtil.custom("银行卡最多绑定6张");
+//        }
         for (CollectionBankcard collectionBankcard : collectionBankcardList) {
             if(collectionBankcard.getBankNo().equalsIgnoreCase(bankNo)){
                 return ResponseUtil.custom("银行卡已存在");
