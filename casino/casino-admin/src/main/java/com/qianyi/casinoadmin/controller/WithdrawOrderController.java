@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.User;
@@ -81,28 +82,10 @@ public class WithdrawOrderController {
     })
     @PostMapping("saveWithdraw")
     public ResponseEntity saveWithdraw(Long id, Integer status){
-        if(status <= 0 || status > 3){
+        if(status != CommonConst.NUMBER_1 && status != CommonConst.NUMBER_2 && status != CommonConst.NUMBER_3){
             return ResponseUtil.custom("参数不合法");
         }
-        WithdrawOrder withdrawOrder = withdrawOrderService.findUserByIdUseLock(id);
-        if(withdrawOrder == null){
-            return ResponseUtil.custom("订单不存在");
-        }
-        if(withdrawOrder.getStatus() == Constants.WITHDRAW_PASS || withdrawOrder.getStatus() == status){
-            return ResponseUtil.custom("订单已被处理");
-        }
-        //提现通过或其他
-        withdrawOrder.setStatus(status);
-        if(status == Constants.WITHDRAW_PASS || status == Constants.WITHDRAW_ORDER){
-            withdrawOrderService.saveOrder(withdrawOrder);
-            return ResponseUtil.success();
-        }
-        //提现拒绝，钱要退回给用户
-        if(status == Constants.WITHDRAW_REFUSE){
-
-            return withdrawBusiness.updateWithdrawAndUser(withdrawOrder);
-        }
-        return ResponseUtil.fail();
+        return withdrawBusiness.updateWithdrawAndUser(id,status);
     }
     @ApiOperation("模拟提现")
     @ApiImplicitParams({
