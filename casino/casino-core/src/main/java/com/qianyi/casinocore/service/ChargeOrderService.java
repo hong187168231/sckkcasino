@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -30,7 +31,8 @@ public class ChargeOrderService {
         return chargeOrder;
     }
 
-    public List<ChargeOrder> findChargeOrders(Integer status,String time){
-        return chargeOrderRepository.findChargeOrders(status,time);
+    @Transactional
+    public void updateChargeOrders(Integer status,String time){
+        chargeOrderRepository.updateChargeOrders(status,time);
     }
 }
