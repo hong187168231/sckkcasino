@@ -37,34 +37,20 @@ public class BetRatioConfigController {
 
     @ApiOperation("编辑打码倍率")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "id主键", required = false),
             @ApiImplicitParam(name = "name", value = "名称", required = true),
             @ApiImplicitParam(name = "codeTimes", value = "打码倍率", required = true),
             @ApiImplicitParam(name = "minMoney", value = "最低金额重置打码量", required = true)
     })
     @GetMapping("/update")
-    public ResponseEntity<BetRatioConfig> update(Long id, String name, Float codeTimes, BigDecimal minMoney){
-        BetRatioConfig betRatioConfig = null;
-        if(id != null){
-            betRatioConfig = betRatioConfigService.findById(id);
-        }else{
-            List<BetRatioConfig> betRatioConfigList =  betRatioConfigService.findAll();
-            if(betRatioConfigList != null){
-                if(betRatioConfigList.size() >= 1){
-                    return ResponseUtil.custom("数据错误");
-                }else{
-                    betRatioConfig = betRatioConfigList.get(0);
-                }
-            }else{
-                betRatioConfig = new BetRatioConfig();
-            }
-
-            betRatioConfig.setName(name);
-            betRatioConfig.setCodeTimes(codeTimes);
-            betRatioConfig.setMinMoney(minMoney);
-            betRatioConfigService.save(betRatioConfig);
+    public ResponseEntity<BetRatioConfig> update( String name, Float codeTimes, BigDecimal minMoney){
+        BetRatioConfig betRatioConfig = betRatioConfigService.findById(1L);
+        if(betRatioConfig == null){
+            betRatioConfig = new BetRatioConfig();
         }
-
+        betRatioConfig.setName(name);
+        betRatioConfig.setCodeTimes(codeTimes);
+        betRatioConfig.setMinMoney(minMoney);
+        betRatioConfigService.save(betRatioConfig);
         return new ResponseEntity(ResponseCode.SUCCESS, betRatioConfig);
     }
 }
