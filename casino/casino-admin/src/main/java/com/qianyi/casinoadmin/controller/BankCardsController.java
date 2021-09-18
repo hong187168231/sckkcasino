@@ -152,6 +152,16 @@ public class BankCardsController {
         return ResponseUtil.success(bankcardsList);
     }
 
+    /**
+     * 用户最多只能绑定6张银行卡
+     *
+     * @param userId
+     * @param bankId
+     * @param bankAccount
+     * @param address
+     * @param realName
+     * @return
+     */
     @PostMapping("/bound")
     @ApiOperation("用户增加银行卡")
     @ApiImplicitParams({
