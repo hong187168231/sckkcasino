@@ -172,8 +172,17 @@ public class BankCardsController {
             return ResponseUtil.custom("不存在该会员");
         }
 
-        if(isGreatThan6(userId)){
-            return ResponseUtil.custom("已经超过6张银行卡");
+        //得到第一张银行卡，判断用户输入的姓名是否一致
+        List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(userId);
+        if(bankcardsList.size() > 0){
+            String realNa = bankcardsList.get(0).getRealName();
+            if(!realName.equals(realNa)){
+                return ResponseUtil.custom("持卡人姓名错误");
+            }
+        }
+
+        if(bankcardsList.size()>=Constants.MAX_BANK_NUM){
+            return ResponseUtil.custom("最多只能绑定6张银行卡");
         }
 
         Bankcards bankcards = boundCard(userId, bankId,bankAccount,address,realName);
@@ -199,11 +208,6 @@ public class BankCardsController {
             return "长度只能在16~20位！";
         }
         return null;
-    }
-
-    private boolean isGreatThan6(Long userId) {
-        int count = bankcardsService.countByUserId(userId);
-        return count>=Constants.MAX_BANK_NUM;
     }
 
     @PostMapping("/disable")
