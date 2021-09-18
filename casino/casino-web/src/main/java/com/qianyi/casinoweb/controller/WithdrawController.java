@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -55,14 +56,26 @@ public class WithdrawController {
         if(decMoney.compareTo(BigDecimal.valueOf(-1))==0){
             return ResponseUtil.custom("金额类型错误");
         }
-
         User user = withdrawBusiness.getUserById(CasinoWebUtil.getAuthId());
 
-        String checkResult = withdrawBusiness.checkParams(withdrawPwd,decMoney,user);
-        if(!CasinoWebUtil.checkNull(checkResult)){
-            return ResponseUtil.custom(checkResult);
+        if (user != null && ObjectUtils.isEmpty(user.getWithdrawMoney())) {
+            return ResponseUtil.emptytWithdrawMoney();
         }
-
+        boolean bcrypt = CasinoWebUtil.checkBcrypt(withdrawPwd, user.getWithdrawPassword());
+        if (!bcrypt) {
+            return ResponseUtil.custom("交易密码错误");
+        }
+        if (ObjectUtils.isEmpty(user.getWithdrawMoney())) {
+            return ResponseUtil.custom("没有可提现额度");
+        }
+        //判断是否大于可提金额
+        if (decMoney.compareTo(user.getWithdrawMoney()) >= 0) {
+            return ResponseUtil.custom("超过可提金额");
+        }
+//        String checkResult = withdrawBusiness.checkParams(withdrawPwd,decMoney,user);
+//        if(!CasinoWebUtil.checkNull(checkResult)){
+//            return ResponseUtil.custom(checkResult);
+//        }
         //进行提币
         user = withdrawBusiness.processWithdraw(decMoney, bankId, CasinoWebUtil.getAuthId());
 

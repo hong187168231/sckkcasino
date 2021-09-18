@@ -41,4 +41,8 @@ public class ResponseUtil {
     public static ResponseEntity fail() {
         return new ResponseEntity(ResponseCode.FAIL);
     }
+
+    public static ResponseEntity emptytWithdrawMoney() {
+        return new ResponseEntity(ResponseCode.EMPTY_TWITHDRAWMONEY);
+    }
 }
