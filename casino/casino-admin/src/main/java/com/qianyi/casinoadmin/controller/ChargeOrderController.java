@@ -94,10 +94,6 @@ public class ChargeOrderController {
         if(status != CommonConst.NUMBER_1){
             return ResponseUtil.custom("参数不合法");
         }
-//
-//        if(status == CommonConst.NUMBER_3 || status == CommonConst.NUMBER_2){
-//            return ResponseUtil.success(chargeOrderService.saveOrder(chargeOrder));
-//        }
         return chargeOrderBusiness.checkOrderSuccess(id,status,remark);
     }
     /**
@@ -130,9 +126,8 @@ public class ChargeOrderController {
         chargeOrder.setOrderNo(orderService.getOrderNo());
         chargeOrder.setChargeAmount(chargeAmount);
         chargeOrder.setType(CommonConst.NUMBER_2);//管理员新增
-        chargeOrder.setStatus(CommonConst.NUMBER_0);
-        chargeOrderService.saveOrder(chargeOrder);
-        return ResponseUtil.success();
+        chargeOrder.setStatus(CommonConst.NUMBER_1);
+        return chargeOrderBusiness.saveOrderSuccess(chargeOrder);
     }
     /**
      * 查询条件拼接，灵活添加条件
