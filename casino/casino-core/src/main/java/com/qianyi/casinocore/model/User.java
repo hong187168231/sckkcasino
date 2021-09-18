@@ -32,7 +32,7 @@ public class User extends BaseEntity implements UserDetails {
     private String registerIp;
 
     @Transient
-    private BigDecimal money;
+    private BigDecimal money = BigDecimal.ZERO;
 
     @Transient
     @ApiModelProperty("剩余打码量")
