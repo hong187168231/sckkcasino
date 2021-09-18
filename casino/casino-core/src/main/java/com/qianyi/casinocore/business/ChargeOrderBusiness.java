@@ -2,6 +2,7 @@ package com.qianyi.casinocore.business;
 
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +54,10 @@ public class ChargeOrderBusiness {
     }
 
     private ResponseEntity saveOrder(ChargeOrder chargeOrder){
+        if(chargeOrder.getStatus() != Constants.yes){
+            chargeOrder = chargeOrderService.saveOrder(chargeOrder);
+            return ResponseUtil.success(chargeOrder);
+        }
         UserMoney user = userMoneyService.findUserByUserIdUseLock(chargeOrder.getUserId());
         if(user == null){
             return ResponseUtil.custom("用户钱包不存在");
