@@ -3,7 +3,10 @@ package com.qianyi.casinoadmin.controller;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.model.WithdrawOrder;
+import com.qianyi.casinocore.service.OrderService;
+import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.service.WithdrawOrderService;
 import com.qianyi.modulecommon.Constants;
@@ -21,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 
 /**
  * 提现记录表
@@ -39,6 +43,10 @@ public class WithdrawOrderController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private UserMoneyService userMoneyService;
 
     @ApiOperation("提现列表")
     @ApiImplicitParams({
@@ -87,6 +95,7 @@ public class WithdrawOrderController {
         withdrawOrder.setStatus(status);
         if(status == Constants.WITHDRAW_PASS || status == Constants.WITHDRAW_ORDER){
             withdrawOrderService.saveOrder(withdrawOrder);
+            return ResponseUtil.success();
         }
         //提现拒绝，钱要退回给用户
         if(status == Constants.WITHDRAW_REFUSE){
@@ -95,6 +104,26 @@ public class WithdrawOrderController {
         }
         return ResponseUtil.fail();
     }
-
+    @ApiOperation("模拟提现")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+            @ApiImplicitParam(name = "bigDecimal", value = "提现金额", required = true),
+    })
+    @GetMapping("save")
+    public ResponseEntity save(Long id,BigDecimal bigDecimal){
+        UserMoney byUserId = userMoneyService.findByUserId(id);
+        if (byUserId.getMoney().compareTo(bigDecimal)<=0){
+            return ResponseUtil.custom("余额不足");
+        }
+        WithdrawOrder withdrawOrder = new WithdrawOrder();
+        withdrawOrder.setWithdrawMoney(bigDecimal);
+        withdrawOrder.setBankId("156464168464654646");
+        withdrawOrder.setUserId(id);
+        withdrawOrder.setNo(orderService.getOrderNo());
+        withdrawOrder.setStatus(0);
+        withdrawOrderService.saveOrder(withdrawOrder);
+        userMoneyService.subMoney(id,bigDecimal);
+        return ResponseUtil.success();
+    }
 
 }
