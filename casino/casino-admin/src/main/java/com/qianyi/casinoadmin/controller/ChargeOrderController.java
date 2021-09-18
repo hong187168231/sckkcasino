@@ -41,16 +41,9 @@ import java.util.List;
 public class ChargeOrderController {
     @Autowired
     private ChargeOrderService chargeOrderService;
-    @Autowired
-    private ChargeBusiness chargeBusiness;
 
     @Autowired
     private ChargeOrderBusiness chargeOrderBusiness;
-
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private OrderService orderService;
     /**
      * 充值申请列表
      *
@@ -95,39 +88,6 @@ public class ChargeOrderController {
             return ResponseUtil.custom("参数不合法");
         }
         return chargeOrderBusiness.checkOrderSuccess(id,status,remark);
-    }
-    /**
-     * 后台新增充值订单
-     *
-     * @param account 会员账号
-     * @param remitter 汇款人姓名
-     * @param chargeAmount 汇款金额
-     * @param remark 汇款备注
-     * @return
-     */
-    @ApiOperation("后台新增充值订单")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "account", value = "会员账号", required = true),
-            @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = true),
-            @ApiImplicitParam(name = "chargeAmount", value = "汇款金额", required = true),
-            @ApiImplicitParam(name = "remark", value = "汇款备注", required = false),
-    })
-    @PostMapping("/saveChargeOrder")
-    public ResponseEntity saveChargeOrder(String account,String remitter,String remark, BigDecimal chargeAmount){
-        User user = userService.findByAccount(account);
-        if (user==null){
-            return ResponseUtil.custom("没有这个会员");
-        }
-        ChargeOrder chargeOrder = new ChargeOrder();
-        chargeOrder.setUserId(user.getId());
-        chargeOrder.setRemitter(remitter);
-        chargeOrder.setRemark(remark);
-        chargeOrder.setRemitType(CommonConst.NUMBER_0);
-        chargeOrder.setOrderNo(orderService.getOrderNo());
-        chargeOrder.setChargeAmount(chargeAmount);
-        chargeOrder.setType(CommonConst.NUMBER_2);//管理员新增
-        chargeOrder.setStatus(CommonConst.NUMBER_1);
-        return chargeOrderBusiness.saveOrderSuccess(chargeOrder);
     }
     /**
      * 查询条件拼接，灵活添加条件
