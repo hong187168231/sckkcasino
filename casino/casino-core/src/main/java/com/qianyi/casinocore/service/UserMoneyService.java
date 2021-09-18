@@ -105,7 +105,7 @@ public class UserMoneyService {
                     for (Long id : userIds) {
                         in.value(id);
                     }
-                    list.add(cb.and(cb.in(in)));
+                    list.add(cb.and(cb.and(in)));
                 }
                 return cb.and(list.toArray(new Predicate[list.size()]));
             }
