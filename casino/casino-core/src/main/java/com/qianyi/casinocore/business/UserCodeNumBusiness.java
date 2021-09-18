@@ -38,8 +38,11 @@ public class UserCodeNumBusiness {
      */
     @Transactional
     public ResponseEntity subCodeNum(BigDecimal validbet, Long userId) {
+        if (validbet == null || userId == null) {
+            return ResponseUtil.fail();
+        }
         UserMoney user = userMoneyService.findUserByUserIdUseLock(userId);
-        if (user == null) {
+        if (user == null || user.getCodeNum() == null) {
             return ResponseUtil.fail();
         }
         BigDecimal codeNum = user.getCodeNum();
@@ -49,7 +52,7 @@ public class UserCodeNumBusiness {
         }
         //最小清零打码量
         BetRatioConfig betRatioConfig = betRatioConfigService.findOneBetRatioConfig();
-        if(betRatioConfig!=null){
+        if (betRatioConfig != null && betRatioConfig.getMinMoney() != null) {
             //剩余打码量小于等于最小清零打码量时 直接清0
             if (codeNum.compareTo(betRatioConfig.getMinMoney()) < 1) {
                 userMoneyService.subCodeNum(userId, codeNum);
