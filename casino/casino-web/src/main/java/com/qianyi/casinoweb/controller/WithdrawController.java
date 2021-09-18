@@ -50,7 +50,10 @@ public class WithdrawController {
             @ApiImplicitParam(name = "bankId", value = "银行id", required = true),
             @ApiImplicitParam(name = "withdrawPwd", value = "提币密码", required = true)})
     public ResponseEntity withdraw(String money, String bankId,String withdrawPwd){
-
+        boolean checkNull = CasinoWebUtil.checkNull(money, bankId, withdrawPwd);
+        if(checkNull){
+            return ResponseUtil.parameterNotNull();
+        }
         //判断是否数字
         BigDecimal decMoney = withdrawBusiness.checkMoney(money);
         if(decMoney.compareTo(BigDecimal.valueOf(-1))==0){
@@ -58,18 +61,16 @@ public class WithdrawController {
         }
         User user = withdrawBusiness.getUserById(CasinoWebUtil.getAuthId());
 
-        if (user != null && ObjectUtils.isEmpty(user.getWithdrawMoney())) {
+        if (user != null && ObjectUtils.isEmpty(user.getWithdrawPassword())) {
             return ResponseUtil.emptytWithdrawMoney();
         }
         boolean bcrypt = CasinoWebUtil.checkBcrypt(withdrawPwd, user.getWithdrawPassword());
         if (!bcrypt) {
             return ResponseUtil.custom("交易密码错误");
         }
-        if (ObjectUtils.isEmpty(user.getWithdrawMoney())) {
-            return ResponseUtil.custom("没有可提现额度");
-        }
+        BigDecimal withdrawMoney = withdrawBusiness.getWithdrawMoneyByUserId(user.getId());
         //判断是否大于可提金额
-        if (decMoney.compareTo(user.getWithdrawMoney()) >= 0) {
+        if (decMoney.compareTo(withdrawMoney) >= 0) {
             return ResponseUtil.custom("超过可提金额");
         }
 //        String checkResult = withdrawBusiness.checkParams(withdrawPwd,decMoney,user);

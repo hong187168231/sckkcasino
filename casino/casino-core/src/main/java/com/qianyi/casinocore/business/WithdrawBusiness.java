@@ -6,6 +6,7 @@ import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.model.WithdrawOrder;
 import com.qianyi.casinocore.repository.BankcardsRepository;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +40,8 @@ public class WithdrawBusiness {
     public String getWithdrawFullMoney(Long userId){
         User user = userService.findById(userId);
         if (user != null) {
-            return user.getWithdrawMoney() == null ? "0" : user.getWithdrawMoney().toString();
+            BigDecimal withdrawMoney = getWithdrawMoneyByUserId(userId);
+            return withdrawMoney.toString();
         }
         return "0";
     }
@@ -67,6 +69,26 @@ public class WithdrawBusiness {
         return decMoney;
     }
 
+    /**
+     * 获取用户的可提现金额
+     * @param userId
+     * @return
+     */
+    public BigDecimal getWithdrawMoneyByUserId(Long userId) {
+        UserMoney userMoney = userMoneyService.findByUserId(userId);
+        BigDecimal defaultVal = BigDecimal.ZERO.setScale(2);
+        if (userMoney == null) {
+            return defaultVal;
+        }
+        BigDecimal codeNum = userMoney.getCodeNum() == null ? defaultVal : userMoney.getCodeNum();
+        //打码量为0时才有可提现金额
+        if (BigDecimal.ZERO.compareTo(codeNum) == 0) {
+            BigDecimal money = userMoney.getMoney() == null ? defaultVal : userMoney.getMoney();
+            return money.setScale(2, BigDecimal.ROUND_HALF_UP);
+        }
+        return defaultVal;
+    }
+
     /*
     * 检测参数
     * */
@@ -75,11 +97,11 @@ public class WithdrawBusiness {
         if(!withdrawPwd.equals(user.getWithdrawPassword())){
             return "交易密码错误";
         }
-
-        log.info("bigdecimal is devid is {}",decMoney.compareTo(user.getWithdrawMoney()));
+        BigDecimal withdrawMoney = getWithdrawMoneyByUserId(user.getId());
+        log.info("bigdecimal is devid is {}",decMoney.compareTo(withdrawMoney));
 
         //判断是否大于可提金额
-        if(decMoney.compareTo(user.getWithdrawMoney())>=0){
+        if(decMoney.compareTo(withdrawMoney)>=0){
             return "超过可提金额";
         }
         return null;
@@ -90,12 +112,13 @@ public class WithdrawBusiness {
     * */
     @Transactional
     public User processWithdraw(BigDecimal money, String bankId,Long userId){
+        User user = userService.findById(userId);
         WithdrawOrder withdrawOrder = getWidrawOrder(money,bankId,userId);
         withdrawOrderService.saveOrder(withdrawOrder);
-        User user = userService.findUserByIdUseLock(userId);
-        log.info("money is {}, draw money is {}",money,user.getWithdrawMoney());
-        user.setWithdrawMoney(user.getWithdrawMoney().subtract(money));
-        userService.save(user);
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        log.info("money is {}, draw money is {}",money,userMoney.getMoney());
+        userMoneyService.subMoney(userId,money);
+        user.setWithdrawMoney(userMoney.getMoney().subtract(money));
         return user;
     }
 

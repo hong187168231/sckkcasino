@@ -110,8 +110,8 @@ public class WMController {
         //自动转帐,子线程处理
 //        new Thread(new OrderBetJob()).start();
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(authId);
-        if (userMoney != null && BigDecimal.ZERO.compareTo(userMoney.getMoney()) == 1) {
-            BigDecimal money = user.getMoney();
+        if (userMoney != null && BigDecimal.ZERO.compareTo(userMoney.getMoney()) == -1) {
+            BigDecimal money = userMoney.getMoney();
             //扣款
             //TODO 扣款时考虑当前用户余额不能大于平台在三方的余额
             userMoneyService.subMoney(authId, money);
