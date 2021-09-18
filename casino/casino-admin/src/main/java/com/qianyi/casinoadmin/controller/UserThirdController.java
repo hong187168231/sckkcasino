@@ -31,7 +31,13 @@ public class UserThirdController {
     })
     public ResponseEntity findUserThird(String userAccount){
         User user = userService.findByAccount(userAccount);
+        if (user==null){
+            return ResponseUtil.custom("账户不存在");
+        }
         UserThird userThird = userThirdService.findByUserId(user.getId());
+        if (userThird==null){
+            return ResponseUtil.custom("三方账号不存在");
+        }
         return ResponseUtil.success(userThird.getAccount());
 
     }

@@ -38,18 +38,22 @@ public class UserController {
         vo.setAccount(user.getAccount());
         vo.setName(user.getName());
         vo.setHeadImg(user.getHeadImg());
-        UserMoney userMoney = userMoneyService.findByUserId(user.getId());
-
         //TODO 查询可提金额，未完成流水(打码量)
-        BigDecimal codeNum = userMoney.getCodeNum().setScale(2, BigDecimal.ROUND_HALF_UP);
-        vo.setUnfinshTurnover(codeNum);
+        UserMoney userMoney = userMoneyService.findByUserId(user.getId());
+        BigDecimal defaultVal = BigDecimal.ZERO.setScale(2);
+        if (userMoney == null) {
+            vo.setUnfinshTurnover(defaultVal);
+            vo.setDrawMoney(defaultVal);
+            return new ResponseEntity(ResponseCode.SUCCESS, vo);
+        }
+        BigDecimal codeNum = userMoney.getCodeNum() == null ? defaultVal : userMoney.getCodeNum();
+        vo.setUnfinshTurnover(codeNum.setScale(2, BigDecimal.ROUND_HALF_UP));
         //打码量为0时才有可提现金额
         if (codeNum.compareTo(BigDecimal.ZERO) < 1) {
-            BigDecimal money = userMoney.getMoney().setScale(2, BigDecimal.ROUND_HALF_UP);
-            vo.setDrawMoney(money);
+            BigDecimal money = userMoney.getMoney() == null ? defaultVal : userMoney.getMoney();
+            vo.setDrawMoney(money.setScale(2, BigDecimal.ROUND_HALF_UP));
         } else {
-            BigDecimal zero = BigDecimal.ZERO.setScale(2, BigDecimal.ROUND_HALF_UP);
-            vo.setDrawMoney(zero);
+            vo.setDrawMoney(defaultVal);
         }
 //        return ResponseUtil.success(vo);
         return new ResponseEntity(ResponseCode.SUCCESS, vo);

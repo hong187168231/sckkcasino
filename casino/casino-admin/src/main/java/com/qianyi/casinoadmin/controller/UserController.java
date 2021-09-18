@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.util.passwordUtil;
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.model.UserMoney;
+import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -13,6 +15,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +25,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 对用户表进行增删改查操作
@@ -35,6 +40,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserMoneyService userMoneyService;
 
 
     /**
@@ -57,6 +65,22 @@ public class UserController {
         Sort sort=Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<User> userPage = userService.findUserPage(pageable, user);
+        List<User> userList = userPage.getContent();
+        if(userList != null && userList.size() > 0){
+            List<Long> userIds = userList.stream().map(User::getId).collect(Collectors.toList());
+            List<UserMoney> userMoneyList =  userMoneyService.findAll(userIds);
+            if(userMoneyList != null && userMoneyList.size() > 0){
+                userList.stream().forEach(u -> {
+                    userMoneyList.stream().forEach(userMoney -> {
+                        if(u.getId().equals(userMoney.getUserId().intValue())){
+                            u.setMoney(userMoney.getMoney());
+                            u.setCodeNum(userMoney.getCodeNum());
+                        }
+                    });
+                });
+            }
+        }
+
         return ResponseUtil.success(userPage);
     }
 
@@ -95,7 +119,11 @@ public class UserController {
         String bcryptPassword = LoginUtil.bcrypt(password);
         user.setPassword(bcryptPassword);
 
-        userService.save(user);
+        User save = userService.save(user);
+        //userMoney表初始化数据
+        UserMoney userMoney=new UserMoney();
+        userMoney.setUserId(save.getId());
+        userMoneyService.save(userMoney);
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("account", account);
@@ -132,19 +160,19 @@ public class UserController {
         return ResponseUtil.success();
     }
 
-    @ApiOperation("删除用户")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
-    })
-    @PostMapping("deteleUser")
-    public ResponseEntity deteleUser(Long id){
-        User user = userService.findById(id);
-        if(user == null){
-            return ResponseUtil.custom("账户不存在");
-        }
-        userService.deleteById(id);
-        return ResponseUtil.success();
-    }
+//    @ApiOperation("删除用户")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+//    })
+//    @PostMapping("deteleUser")
+//    public ResponseEntity deteleUser(Long id){
+//        User user = userService.findById(id);
+//        if(user == null){
+//            return ResponseUtil.custom("账户不存在");
+//        }
+//        userService.deleteById(id);
+//        return ResponseUtil.success();
+//    }
 
     @ApiOperation("修改用户状态")
     @ApiImplicitParams({

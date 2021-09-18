@@ -325,6 +325,9 @@ public class AuthController {
     public ResponseEntity refreshJwtToken(String token) {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId(token);
+        if (authId == null) {
+            return ResponseUtil.authenticationNopass();
+        }
         User user = userService.findById(authId);
         String refreshToken = JjwtUtil.refreshToken(token,user.getPassword());
         if (ObjectUtils.isEmpty(refreshToken)) {
