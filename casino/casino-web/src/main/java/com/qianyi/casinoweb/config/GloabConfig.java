@@ -34,12 +34,12 @@ public class GloabConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(authenticationInteceptor).addPathPatterns("/**")
-                .excludePathPatterns("/js/**")
-                .excludePathPatterns("/swagger**/**")
-                .excludePathPatterns("/webjars/**")
-                .excludePathPatterns("/v3/**")
-                .excludePathPatterns("/doc.html");
+//        registry.addInterceptor(authenticationInteceptor).addPathPatterns("/**")
+//                .excludePathPatterns("/js/**")
+//                .excludePathPatterns("/swagger**/**")
+//                .excludePathPatterns("/webjars/**")
+//                .excludePathPatterns("/v3/**")
+//                .excludePathPatterns("/doc.html");
     }
 
     @Override
