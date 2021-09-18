@@ -38,7 +38,10 @@ public class WithdrawBusiness {
 
     public String getWithdrawFullMoney(Long userId){
         User user = userService.findById(userId);
-        return user==null?"0":user.getWithdrawMoney().toString();
+        if (user != null) {
+            return user.getWithdrawMoney() == null ? "0" : user.getWithdrawMoney().toString();
+        }
+        return "0";
     }
 
     public List<Map<String,Object>> getWithdrawBankcardsList(Long userId){
