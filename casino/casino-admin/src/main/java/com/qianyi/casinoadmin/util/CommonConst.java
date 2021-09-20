@@ -53,6 +53,7 @@ public class CommonConst {
     public static final int NUMBER_8 = 8;
     public static final int NUMBER_9 = 9;
     public static final int NUMBER_10 = 10;
+    public static final int NUMBER_100 = 100;
     public static final String SUCCESS = "SUCCESS";
     public static final Long LONG_1 = 1L;
 
