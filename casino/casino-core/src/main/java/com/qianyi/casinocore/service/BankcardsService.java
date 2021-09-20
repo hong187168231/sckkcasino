@@ -6,6 +6,7 @@ import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -15,6 +16,7 @@ import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class BankcardsService {
@@ -76,5 +78,19 @@ public class BankcardsService {
             }
         };
         return specification;
+    }
+
+    public Bankcards findById(Long id) {
+        Optional<Bankcards> optional = bankcardsRepository.findById(id);
+        if (optional != null && optional.isPresent()) {
+            Bankcards bankcards = optional.get();
+            return bankcards;
+        }
+        return null;
+    }
+
+    @Transactional
+    public void deleteBankCardById(Long id) {
+        bankcardsRepository.deleteById(id);
     }
 }

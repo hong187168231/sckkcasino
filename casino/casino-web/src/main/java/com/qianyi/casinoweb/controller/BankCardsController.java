@@ -66,6 +66,32 @@ public class BankCardsController {
         return ResponseUtil.success(bankcards);
     }
 
+    /**
+     * 根据ID删除银行卡
+     * @param id 银行卡id
+     * @return
+     */
+    @GetMapping("/deleteBankCardById")
+    @ApiOperation("根据ID删除银行卡")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "银行卡id", required = true),
+    })
+    public ResponseEntity deleteBankCardById(Long id) {
+        if (CasinoWebUtil.checkNull(id)) {
+            return ResponseUtil.parameterNotNull();
+        }
+        Bankcards bankcards = bankcardsService.findById(id);
+        if (bankcards == null) {
+            return ResponseUtil.custom("当前银行卡不存在");
+        }
+        Long authId = CasinoWebUtil.getAuthId();
+        if (!authId.equals(bankcards.getUserId())) {
+            return ResponseUtil.custom("当前银行卡不属于登录用户");
+        }
+        bankcardsService.deleteBankCardById(id);
+        return ResponseUtil.success();
+    }
+
     private boolean isGreatThan6(){
         Long userId = CasinoWebUtil.getAuthId();
         int count = bankcardsService.countByUserId(userId);
