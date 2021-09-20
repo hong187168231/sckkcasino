@@ -63,10 +63,10 @@ public class WithdrawOrderController {
         if(status != null){
             withdrawOrder.setStatus(status);
         }
-        if(LoginUtil.checkNull(no)){
+        if(!LoginUtil.checkNull(no)){
             withdrawOrder.setNo(no);
         }
-        if(LoginUtil.checkNull(bankId)){
+        if(!LoginUtil.checkNull(bankId)){
             withdrawOrder.setBankId(bankId);
         }
         Sort sort=Sort.by("id").descending();
