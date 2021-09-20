@@ -8,9 +8,11 @@ import com.qianyi.casinocore.business.ChargeOrderBusiness;
 import com.qianyi.casinocore.model.ChargeOrder;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
+import com.qianyi.casinocore.model.WithdrawOrder;
 import com.qianyi.casinocore.service.OrderService;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.service.WithdrawOrderService;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -54,6 +56,9 @@ public class UserController {
 
     @Autowired
     private ChargeOrderBusiness chargeOrderBusiness;
+
+    @Autowired
+    private WithdrawOrderService withdrawOrderService;
     /**
      * 查询操作
      * 注意：jpa 是从第0页开始的
@@ -80,6 +85,12 @@ public class UserController {
             List<UserMoney> userMoneyList =  userMoneyService.findAll(userIds);
             if(userMoneyList != null && userMoneyList.size() > 0){
                 userList.stream().forEach(u -> {
+                    WithdrawOrder withdrawOrder = new WithdrawOrder();
+                    withdrawOrder.setStatus(CommonConst.NUMBER_3);
+                    withdrawOrder.setUserId(u.getId());
+                    List<WithdrawOrder> orderList = withdrawOrderService.findOrderList(withdrawOrder);
+                    BigDecimal withdrawMoney = orderList.stream().map(WithdrawOrder::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
+                    u.setWithdrawMoney(withdrawMoney);
                     userMoneyList.stream().forEach(userMoney -> {
                         if(u.getId().equals(userMoney.getUserId())){
                             u.setMoney(userMoney.getMoney());

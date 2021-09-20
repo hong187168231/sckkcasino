@@ -45,6 +45,11 @@ public class WithdrawOrderService {
         return withdrawOrderRepository.findAll(condition, pageable);
     }
 
+    public List<WithdrawOrder> findOrderList( WithdrawOrder withdrawOrder) {
+        Specification<WithdrawOrder> condition = this.getCondition(withdrawOrder);
+        return withdrawOrderRepository.findAll(condition);
+    }
+
     private Specification<WithdrawOrder> getCondition(WithdrawOrder withdrawOrder) {
         Specification<WithdrawOrder> specification = new Specification<WithdrawOrder>() {
             List<Predicate> list = new ArrayList<Predicate>();
