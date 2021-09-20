@@ -269,6 +269,9 @@ public class UserController {
         if (user==null){
             return ResponseUtil.custom("没有这个会员");
         }
+        if (chargeAmount.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
+            return ResponseUtil.custom("测试环境加钱不能超过100RMB");
+        }
         ChargeOrder chargeOrder = new ChargeOrder();
         chargeOrder.setUserId(user.getId());
         chargeOrder.setRemitter(remitter);
