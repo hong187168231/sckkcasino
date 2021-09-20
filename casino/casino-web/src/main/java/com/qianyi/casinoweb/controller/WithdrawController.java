@@ -91,17 +91,17 @@ public class WithdrawController {
             @ApiImplicitParam(name = "newWithdrawPassword", value = "新取款密码", required = true),
             @ApiImplicitParam(name = "confirmWithdrawPassword", value = "确认取款密码", required = true)})
     public ResponseEntity updateWithdrawPassword(String oldWithdrawPassword, String newWithdrawPassword, String confirmWithdrawPassword) {
+        Long userId = CasinoWebUtil.getAuthId();
+        User user = withdrawBusiness.getUserById(userId);
+        if (user == null) {
+            return ResponseUtil.custom("用户不存在");
+        }
         boolean checkNull = CasinoWebUtil.checkNull(newWithdrawPassword, confirmWithdrawPassword);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
         if (!newWithdrawPassword.equals(confirmWithdrawPassword)) {
             return ResponseUtil.custom("两次密码输入不一致");
-        }
-        Long userId = CasinoWebUtil.getAuthId();
-        User user = withdrawBusiness.getUserById(userId);
-        if (user == null) {
-            return ResponseUtil.custom("用户不存在");
         }
         if (!ObjectUtils.isEmpty(user.getWithdrawPassword())) {
             if (ObjectUtils.isEmpty(oldWithdrawPassword)) {
@@ -127,17 +127,17 @@ public class WithdrawController {
             @ApiImplicitParam(name = "newLoginPassword", value = "新登录密码", required = true),
             @ApiImplicitParam(name = "confirmLoginPassword", value = "确认登录密码", required = true)})
     public ResponseEntity updateLoginPassword(String oldLoginPassword, String newLoginPassword, String confirmLoginPassword) {
+        Long userId = CasinoWebUtil.getAuthId();
+        User user = withdrawBusiness.getUserById(userId);
+        if (user == null) {
+            return ResponseUtil.custom("用户不存在");
+        }
         boolean checkNull = CasinoWebUtil.checkNull(oldLoginPassword, newLoginPassword, confirmLoginPassword);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
         if (!newLoginPassword.equals(confirmLoginPassword)) {
             return ResponseUtil.custom("两次密码输入不一致");
-        }
-        Long userId = CasinoWebUtil.getAuthId();
-        User user = withdrawBusiness.getUserById(userId);
-        if (user == null) {
-            return ResponseUtil.custom("用户不存在");
         }
         boolean checkBcrypt = CasinoWebUtil.checkBcrypt(oldLoginPassword, user.getPassword());
         if(!checkBcrypt){
