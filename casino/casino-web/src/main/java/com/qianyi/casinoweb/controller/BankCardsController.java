@@ -92,6 +92,41 @@ public class BankCardsController {
         return ResponseUtil.success();
     }
 
+    /**
+     * 根据ID设置默认银行卡
+     * @param id 银行卡id
+     * @return
+     */
+    @GetMapping("/setDefaultBankCardById")
+    @ApiOperation("根据ID设置默认银行卡")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "银行卡id", required = true),
+    })
+    public ResponseEntity setDefaultBankCardById(Long id) {
+        if (CasinoWebUtil.checkNull(id)) {
+            return ResponseUtil.parameterNotNull();
+        }
+        Bankcards bankcards = bankcardsService.findById(id);
+        if (bankcards == null) {
+            return ResponseUtil.custom("当前银行卡不存在");
+        }
+        Long authId = CasinoWebUtil.getAuthId();
+        if (!authId.equals(bankcards.getUserId())) {
+            return ResponseUtil.custom("当前银行卡不属于登录用户");
+        }
+        Bankcards defaultBankcards = bankcardsService.findByUserIdAndDefaultCard(authId, 1);
+        if (defaultBankcards != null) {
+            if (defaultBankcards.getId().equals(bankcards.getId())) {
+                return ResponseUtil.success();
+            }
+            defaultBankcards.setDefaultCard(null);
+            bankcardsService.updateBankCards(defaultBankcards);
+        }
+        bankcards.setDefaultCard(1);
+        bankcardsService.updateBankCards(bankcards);
+        return ResponseUtil.success();
+    }
+
     private boolean isGreatThan6(){
         Long userId = CasinoWebUtil.getAuthId();
         int count = bankcardsService.countByUserId(userId);

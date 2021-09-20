@@ -20,4 +20,6 @@ public interface BankcardsRepository extends JpaRepository<Bankcards,Long> , Jpa
             "join bank_info bi on b.bank_id = bi.id\n" +
             "where b.user_id = ?", nativeQuery = true)
     List<Map<String,Object>> findForBankcards(Long userId);
+
+    Bankcards findByUserIdAndDefaultCard(Long userId, int defaultCard);
 }

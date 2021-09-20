@@ -93,4 +93,14 @@ public class BankcardsService {
     public void deleteBankCardById(Long id) {
         bankcardsRepository.deleteById(id);
     }
+
+    public Bankcards findByUserIdAndDefaultCard(Long userId, int defaultCard) {
+        Bankcards bankcards=bankcardsRepository.findByUserIdAndDefaultCard(userId,defaultCard);
+        return bankcards;
+    }
+
+    @Transactional
+    public void updateBankCards(Bankcards bankcards) {
+        bankcardsRepository.save(bankcards);
+    }
 }
