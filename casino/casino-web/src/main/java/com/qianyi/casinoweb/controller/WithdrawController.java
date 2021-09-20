@@ -3,6 +3,7 @@ package com.qianyi.casinoweb.controller;
 import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -78,8 +79,26 @@ public class WithdrawController {
 //            return ResponseUtil.custom(checkResult);
 //        }
         //进行提币
-        user = withdrawBusiness.processWithdraw(decMoney, bankId, CasinoWebUtil.getAuthId());
+        UserMoney userMoney = withdrawBusiness.processWithdraw(decMoney, bankId, CasinoWebUtil.getAuthId());
 
-        return ResponseUtil.success(user);
+        return ResponseUtil.success(userMoney);
+    }
+
+    @PostMapping("/setWithdrawPassword")
+    @ApiOperation("当前登录用户设置支付密码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "withdrawPassword", value = "支付密码", required = true)})
+    public ResponseEntity setWithdrawPassword(String withdrawPassword) {
+        boolean checkNull = CasinoWebUtil.checkNull(withdrawPassword);
+        if (checkNull) {
+            return ResponseUtil.parameterNotNull();
+        }
+        String bcryptWithdrawPassword = CasinoWebUtil.bcrypt(withdrawPassword);
+        Long userId = CasinoWebUtil.getAuthId();
+        ResponseEntity info = withdrawBusiness.setWithdrawPassword(userId, bcryptWithdrawPassword);
+        if (info != null) {
+            return info;
+        }
+        return ResponseUtil.success();
     }
 }

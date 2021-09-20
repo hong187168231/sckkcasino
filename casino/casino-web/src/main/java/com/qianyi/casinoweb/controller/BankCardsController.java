@@ -97,7 +97,7 @@ public class BankCardsController {
      * @param id 银行卡id
      * @return
      */
-    @GetMapping("/setDefaultBankCardById")
+    @PostMapping("/setDefaultBankCardById")
     @ApiOperation("根据ID设置默认银行卡")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "银行卡id", required = true),

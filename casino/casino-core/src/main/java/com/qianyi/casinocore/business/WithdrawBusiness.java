@@ -112,15 +112,13 @@ public class WithdrawBusiness {
     * 进行转账
     * */
     @Transactional
-    public User processWithdraw(BigDecimal money, String bankId,Long userId){
-        User user = userService.findById(userId);
+    public UserMoney processWithdraw(BigDecimal money, String bankId,Long userId){
         WithdrawOrder withdrawOrder = getWidrawOrder(money,bankId,userId);
         withdrawOrderService.saveOrder(withdrawOrder);
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         log.info("money is {}, draw money is {}",money,userMoney.getMoney());
         userMoneyService.subMoney(userId,money);
-//        user.setWithdrawMoney(userMoney.getMoney().subtract(money));
-        return user;
+        return userMoney;
     }
 
     private WithdrawOrder getWidrawOrder(BigDecimal money, String bankId, Long userId){
@@ -170,5 +168,16 @@ public class WithdrawBusiness {
         log.info("user sum money is {}, add withdrawMoney is {}",userMoney.getMoney(), withdrawOrder.getWithdrawMoney());
         userMoneyService.save(userMoney);
         return ResponseUtil.success(withdraw);
+    }
+
+    @Transactional
+    public ResponseEntity setWithdrawPassword(Long userId, String withdrawPassword) {
+        User user = userService.findById(userId);
+        if (user == null) {
+            return ResponseUtil.custom("当前用户不存在");
+        }
+        user.setWithdrawPassword(withdrawPassword);
+        userService.save(user);
+        return null;
     }
 }
