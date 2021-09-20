@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -89,6 +90,15 @@ public class BankCardsController {
             return ResponseUtil.custom("当前银行卡不属于登录用户");
         }
         bankcardsService.deleteBankCardById(id);
+        //如果删除的是默认银行卡,重新再设置一张卡为默认卡
+        if (bankcards.getDefaultCard() == 1) {
+            List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(authId);
+            if (!CollectionUtils.isEmpty(bankcardsList)) {
+                Bankcards bankcards1 = bankcardsList.get(0);
+                bankcards1.setDefaultCard(1);
+                bankcardsService.updateBankCards(bankcards1);
+            }
+        }
         return ResponseUtil.success();
     }
 

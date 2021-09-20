@@ -171,13 +171,7 @@ public class WithdrawBusiness {
     }
 
     @Transactional
-    public ResponseEntity setWithdrawPassword(Long userId, String withdrawPassword) {
-        User user = userService.findById(userId);
-        if (user == null) {
-            return ResponseUtil.custom("当前用户不存在");
-        }
-        user.setWithdrawPassword(withdrawPassword);
+    public void save(User user) {
         userService.save(user);
-        return null;
     }
 }
