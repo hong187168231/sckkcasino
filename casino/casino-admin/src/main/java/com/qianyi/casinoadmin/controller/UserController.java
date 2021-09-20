@@ -258,14 +258,14 @@ public class UserController {
      */
     @ApiOperation("后台新增充值订单")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "account", value = "会员账号", required = true),
+            @ApiImplicitParam(name = "id", value = "会员id", required = true),
             @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = true),
             @ApiImplicitParam(name = "chargeAmount", value = "汇款金额", required = true),
             @ApiImplicitParam(name = "remark", value = "汇款备注", required = false),
     })
     @PostMapping("/saveChargeOrder")
-    public ResponseEntity saveChargeOrder(String account,String remitter,String remark, BigDecimal chargeAmount){
-        User user = userService.findByAccount(account);
+    public ResponseEntity saveChargeOrder(Long id,String remitter,String remark, BigDecimal chargeAmount){
+        User user = userService.findUserByIdUseLock(id);
         if (user==null){
             return ResponseUtil.custom("没有这个会员");
         }
