@@ -292,7 +292,12 @@ public class WMController {
             }
             //把额度加回本地
             userMoneyService.findUserByUserIdUseLock(userId);
-            userMoneyService.addMoney(userId, balance);
+            //wm余额大于0
+            if(BigDecimal.ZERO.compareTo(balance) == -1){
+                userMoneyService.addMoney(userId, balance);
+            }else if(BigDecimal.ZERO.compareTo(balance) == 1){//wm余额小于0
+                userMoneyService.subMoney(userId, balance.abs());
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseUtil.custom("服务器异常,请重新操作");
