@@ -78,7 +78,7 @@ public class WithdrawOrderController {
     @ApiOperation("提现审核")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "订单id", required = true),
-            @ApiImplicitParam(name = "status", value = "审核状态，1：通过，2：拒绝，3：其他", required = true),
+            @ApiImplicitParam(name = "status", value = "审核状态，1：通过，2：拒绝，3：冻结", required = true),
     })
     @PostMapping("saveWithdraw")
     public ResponseEntity saveWithdraw(Long id, Integer status){
