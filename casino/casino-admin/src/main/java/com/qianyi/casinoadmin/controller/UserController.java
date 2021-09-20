@@ -5,14 +5,8 @@ import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.util.passwordUtil;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
-import com.qianyi.casinocore.model.ChargeOrder;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.UserMoney;
-import com.qianyi.casinocore.model.WithdrawOrder;
-import com.qianyi.casinocore.service.OrderService;
-import com.qianyi.casinocore.service.UserMoneyService;
-import com.qianyi.casinocore.service.UserService;
-import com.qianyi.casinocore.service.WithdrawOrderService;
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -33,7 +27,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -59,6 +55,12 @@ public class UserController {
 
     @Autowired
     private WithdrawOrderService withdrawOrderService;
+
+    @Autowired
+    private BankcardsService bankcardsService;
+
+    @Autowired
+    private LoginLogService loginLogService;
     /**
      * 查询操作
      * 注意：jpa 是从第0页开始的
@@ -289,5 +291,37 @@ public class UserController {
         chargeOrder.setType(CommonConst.NUMBER_2);//管理员新增
         chargeOrder.setStatus(CommonConst.NUMBER_1);
         return chargeOrderBusiness.saveOrderSuccess(chargeOrder);
+    }
+
+    /**
+     * 查询操作
+     * 注意：jpa 是从第0页开始的
+     @param tag tag 反差类型 0 ip地址 1 银行卡号
+     @param context 搜索内容
+     * @return
+     */
+    @ApiOperation("客户反查")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "tag", value = "tag 反差类型 0 ip地址 1 银行卡号", required = true),
+            @ApiImplicitParam(name = "context", value = "context 搜索内容", required = true),
+    })
+    @GetMapping("findUserPegging")
+    public ResponseEntity findUserPegging(Integer tag,String context){
+        if (tag == CommonConst.NUMBER_0){//反查ip
+            User user = new User();
+            user.setRegisterIp(context);
+            List<User> userList = userService.findUserList(user);
+            List<LoginLog> loginLogList = loginLogService.findLoginLogList(context);
+            Map<String,Object> map = new HashMap<>();
+            map.put("register",userList);
+            map.put("login",loginLogList);
+            return ResponseUtil.success(map);
+        }else if(tag == CommonConst.NUMBER_1){//反查银行卡号
+            Bankcards bankcards = new Bankcards();
+            bankcards.setBankAccount(context);
+            List<Bankcards> userBank = bankcardsService.findUserBank(bankcards);
+            return ResponseUtil.success(userBank);
+        }
+        return ResponseUtil.fail();
     }
 }

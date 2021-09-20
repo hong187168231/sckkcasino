@@ -71,6 +71,16 @@ public class UserService {
     }
 
     /**
+     * 根据注册ip用户列表查询
+     *
+     * @param user
+     * @return
+     */
+    public List<User> findUserList(User user) {
+        Specification<User> condition = this.getCondition(user);
+        return userRepository.findAll(condition);
+    }
+    /**
      * 查询条件拼接，灵活添加条件
      *
      * @param user
@@ -83,6 +93,9 @@ public class UserService {
                 List<Predicate> list = new ArrayList<Predicate>();
                 if (!CommonUtil.checkNull(user.getAccount())) {
                     list.add(cb.equal(root.get("account").as(String.class), user.getAccount()));
+                }
+                if (!CommonUtil.checkNull(user.getRegisterIp())) {
+                    list.add(cb.equal(root.get("registerIp").as(String.class), user.getRegisterIp()));
                 }
                 if (user.getId() != null) {
                     list.add(cb.equal(root.get("id").as(Long.class), user.getId()));

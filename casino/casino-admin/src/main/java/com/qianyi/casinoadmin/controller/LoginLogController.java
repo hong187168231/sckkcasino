@@ -54,36 +54,14 @@ public class LoginLogController {
     public ResponseEntity findLoginLogPage(Integer pageSize, Integer pageCode, String ip, Long userId, String account){
         Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
-        Specification<LoginLog> condition = this.getCondition(ip,userId,account);
-        Page<LoginLog> loginLogPage = loginLogService.findLoginLogPage(condition, pageable);
+        LoginLog loginLog = new LoginLog();
+        loginLog.setIp(ip);
+        loginLog.setAccount(account);
+        loginLog.setUserId(userId);
+        Page<LoginLog> loginLogPage = loginLogService.findLoginLogPage(loginLog, pageable);
         return ResponseUtil.success(loginLogPage);
 
     }
 
-    /**
-     * 查询条件拼接，灵活添加条件
-     * @param
-     * @return
-     */
-    private Specification<LoginLog> getCondition(String ip,Long userId,String account) {
-        Specification<LoginLog> specification = new Specification<LoginLog>() {
-            @Override
-            public Predicate toPredicate(Root<LoginLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                Predicate predicate = cb.conjunction();
-                List<Predicate> list = new ArrayList<Predicate>();
-                if (!CommonUtil.checkNull(ip)) {
-                    list.add(cb.equal(root.get("ip").as(String.class), ip));
-                }
-                if (userId !=null) {
-                    list.add(cb.equal(root.get("userId").as(Long.class), userId));
-                }
-                if (!CommonUtil.checkNull(account)) {
-                    list.add(cb.equal(root.get("account").as(String.class), account));
-                }
-                predicate = cb.and(list.toArray(new Predicate[list.size()]));
-                return predicate;
-            }
-        };
-        return specification;
-    }
+
 }
