@@ -265,15 +265,11 @@ public class UserController {
     })
     @PostMapping("/saveChargeOrder")
     public ResponseEntity saveChargeOrder(Long id,String remitter,String remark, BigDecimal chargeAmount){
-        User user = userService.findById(id);
-        if (user==null){
-            return ResponseUtil.custom("没有这个会员");
-        }
         if (chargeAmount.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
             return ResponseUtil.custom("测试环境加钱不能超过100RMB");
         }
         ChargeOrder chargeOrder = new ChargeOrder();
-        chargeOrder.setUserId(user.getId());
+        chargeOrder.setUserId(id);
         chargeOrder.setRemitter(remitter);
         chargeOrder.setRemark(remark);
         chargeOrder.setRemitType(CommonConst.NUMBER_0);
