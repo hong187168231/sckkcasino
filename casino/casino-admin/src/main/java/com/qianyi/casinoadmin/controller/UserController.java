@@ -250,7 +250,7 @@ public class UserController {
     /**
      * 后台新增充值订单
      *
-     * @param account 会员账号
+     * @param id 会员id
      * @param remitter 汇款人姓名
      * @param chargeAmount 汇款金额
      * @param remark 汇款备注
@@ -265,7 +265,7 @@ public class UserController {
     })
     @PostMapping("/saveChargeOrder")
     public ResponseEntity saveChargeOrder(Long id,String remitter,String remark, BigDecimal chargeAmount){
-        User user = userService.findUserByIdUseLock(id);
+        User user = userService.findById(id);
         if (user==null){
             return ResponseUtil.custom("没有这个会员");
         }
