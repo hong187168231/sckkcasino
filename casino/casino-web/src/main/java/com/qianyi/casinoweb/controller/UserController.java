@@ -46,7 +46,11 @@ public class UserController {
             vo.setDrawMoney(defaultVal);
             return new ResponseEntity(ResponseCode.SUCCESS, vo);
         }
-        BigDecimal codeNum = userMoney.getCodeNum() == null ? defaultVal : userMoney.getCodeNum();
+        if (userMoney.getCodeNum() == null) {
+            vo.setUnfinshTurnover(defaultVal);
+            vo.setDrawMoney(defaultVal);
+        }
+        BigDecimal codeNum = userMoney.getCodeNum();
         vo.setUnfinshTurnover(codeNum.setScale(2, BigDecimal.ROUND_HALF_UP));
         //打码量为0时才有可提现金额
         if (codeNum.compareTo(BigDecimal.ZERO) < 1) {
