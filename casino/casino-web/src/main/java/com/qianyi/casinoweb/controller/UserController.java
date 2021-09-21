@@ -89,6 +89,8 @@ public class UserController {
             user.setWebChat(value);
         } else if ("3".equals(type)) {
             user.setQq(value);
+        } else{
+            return ResponseUtil.custom("type字段值仅限于0,1,2,3");
         }
         userService.save(user);
         return ResponseUtil.success();
