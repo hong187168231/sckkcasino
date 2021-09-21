@@ -63,9 +63,14 @@ public class AuthController {
             @ApiImplicitParam(name = "password", value = "密码", required = true),
             @ApiImplicitParam(name = "phone", value = "电话号码", required = true),
             @ApiImplicitParam(name = "validate", value = "网易易顿", required = true),
+            @ApiImplicitParam(name = "email", value = "邮箱", required = false),
+            @ApiImplicitParam(name = "birthday", value = "出生日期", required = false),
+            @ApiImplicitParam(name = "qq", value = "QQ", required = false),
+            @ApiImplicitParam(name = "webChat", value = "微信", required = false),
     })
     public ResponseEntity register(String account, String password, String phone,
-                                   HttpServletRequest request, String validate) {
+                                   HttpServletRequest request, String validate,
+                                   String email,String birthday,String qq,String webChat) {
         boolean checkNull = CommonUtil.checkNull(account, password, phone, validate);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
@@ -112,6 +117,10 @@ public class AuthController {
         user.setPhone(phone);
         user.setState(Constants.open);
         user.setRegisterIp(ip);
+        user.setEmail(email);
+        user.setBirthday(birthday);
+        user.setQq(qq);
+        user.setWebChat(webChat);
 
         User save = userService.save(user);
         //userMoney表初始化数据

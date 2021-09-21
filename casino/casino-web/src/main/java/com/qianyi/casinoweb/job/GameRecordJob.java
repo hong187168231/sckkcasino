@@ -45,7 +45,7 @@ public class GameRecordJob {
     @Autowired
     UserService userService;
     @Autowired
-    UserCodeNumBusiness subCodeNumBusiness;
+    UserCodeNumBusiness userCodeNumBusiness;
 
     //每隔5分钟执行一次
     @Scheduled(fixedRate = 1000 * 60 * 5)
@@ -112,7 +112,7 @@ public class GameRecordJob {
                             continue;
                         }
                         BigDecimal validbet = new BigDecimal(gameRecord.getValidbet());
-                        subCodeNumBusiness.subCodeNum(validbet, account.getUserId());
+                        userCodeNumBusiness.subCodeNum(validbet, account.getUserId());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

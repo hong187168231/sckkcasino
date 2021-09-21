@@ -40,6 +40,9 @@ public class RechargeTurnoverService {
             @Override
             public Predicate toPredicate(Root<RechargeTurnover> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
+                if (rechargeTurnover.getUserId() != null ) {
+                    list.add(cb.equal(root.get("userId").as(Long.class), rechargeTurnover.getUserId()));
+                }
                 return cb.and(list.toArray(new Predicate[list.size()]));
             }
         };

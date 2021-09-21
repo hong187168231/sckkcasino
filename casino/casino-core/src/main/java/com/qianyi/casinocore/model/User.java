@@ -44,6 +44,14 @@ public class User extends BaseEntity implements UserDetails {
 
     private String withdrawPassword;
 
+    private String email;
+
+    private String birthday;
+
+    private String qq;
+
+    private String webChat;
+
     @Transient
     private String token;
     //校验用户帐号权限
