@@ -56,6 +56,12 @@ public class WithdrawConfigController {
     })
     @PostMapping("/saveWithdrawConfig")
     public ResponseEntity saveWithdrawConfig(Integer status, BigDecimal fixedAmount, Float percentage, BigDecimal maxMoney, BigDecimal minMoney){
+        if (fixedAmount != null && percentage != null){
+            return ResponseUtil.custom("参数错误");
+        }
+        if (percentage != null && (percentage > CommonConst.FLOAT_1 || percentage < CommonConst.FLOAT_0)){
+            return ResponseUtil.custom("百分比金额设置错误");
+        }
         AmountConfig amountConfig = new AmountConfig(status,fixedAmount,percentage,maxMoney,minMoney);
         amountConfig.setId(CommonConst.withdraw);
         amountConfigService.save(amountConfig);
