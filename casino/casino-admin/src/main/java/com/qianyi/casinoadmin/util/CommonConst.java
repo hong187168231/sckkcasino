@@ -61,4 +61,8 @@ public class CommonConst {
     public static final String PICTURENOTUP = "图片不符合规格";
     public static final String TOOMANYPICTURESONTHECLIENT = "当前客户端图片序号冲突";
     public static final String THENUMBERISLIMITEDTO10 = "数量限制为10条";
+
+    //AmountConfig id
+    public final static Long charge = 1L;//充值
+    public final static Long withdraw = 2L;//提现
 }
