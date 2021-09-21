@@ -153,9 +153,13 @@ public class WithdrawBusiness {
         }
         //提现通过或其他
         withdrawOrder.setStatus(status);
-        if(status != Constants.WITHDRAW_REFUSE){
-            if(status == Constants.WITHDRAW_PASS){//通过提现审核的计算手续费
-                AmountConfig amountConfig = amountConfigService.findAmountConfigById(2L);
+        if(status == Constants.WITHDRAW_ORDER){//冻结提现金额
+            withdrawOrderService.saveOrder(withdrawOrder);
+            return ResponseUtil.success();
+        }
+        if(status == Constants.WITHDRAW_PASS){//通过提现审核的计算手续费
+            AmountConfig amountConfig = amountConfigService.findAmountConfigById(2L);
+            if (amountConfig != null){
                 //得到手续费
                 BigDecimal serviceCharge = amountConfig.getServiceCharge(withdrawOrder.getWithdrawMoney());
                 BigDecimal withdrawMoney = withdrawOrder.getWithdrawMoney().subtract(serviceCharge);
