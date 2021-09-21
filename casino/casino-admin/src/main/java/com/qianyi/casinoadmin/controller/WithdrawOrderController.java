@@ -82,6 +82,9 @@ public class WithdrawOrderController {
     })
     @PostMapping("saveWithdraw")
     public ResponseEntity saveWithdraw(Long id, Integer status){
+        if (id == null || status == null){
+            return ResponseUtil.custom("参数不合法");
+        }
         if(status != CommonConst.NUMBER_1 && status != CommonConst.NUMBER_2 && status != CommonConst.NUMBER_3){
             return ResponseUtil.custom("参数不合法");
         }
@@ -94,6 +97,9 @@ public class WithdrawOrderController {
     })
     @GetMapping("save")
     public ResponseEntity save(Long id,BigDecimal bigDecimal){
+        if (id == null || bigDecimal == null){
+            return ResponseUtil.custom("参数不合法");
+        }
         UserMoney byUserId = userMoneyService.findByUserId(id);
         if (byUserId.getMoney().compareTo(bigDecimal)<=0){
             return ResponseUtil.custom("余额不足");

@@ -282,6 +282,9 @@ public class UserController {
     })
     @PostMapping("/saveChargeOrder")
     public ResponseEntity saveChargeOrder(Long id,String remitter,String remark, BigDecimal chargeAmount){
+        if (id == null || chargeAmount == null){
+            return ResponseUtil.custom("参数不合法");
+        }
         if (chargeAmount.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
             return ResponseUtil.custom("测试环境加钱不能超过100RMB");
         }
