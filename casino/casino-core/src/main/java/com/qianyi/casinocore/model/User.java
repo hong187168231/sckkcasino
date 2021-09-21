@@ -46,8 +46,6 @@ public class User extends BaseEntity implements UserDetails {
 
     private String email;
 
-    private String birthday;
-
     private String qq;
 
     private String webChat;
