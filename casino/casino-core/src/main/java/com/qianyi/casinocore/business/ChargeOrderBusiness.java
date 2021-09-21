@@ -28,6 +28,9 @@ public class ChargeOrderBusiness {
     @Autowired
     private UserMoneyService userMoneyService;
 
+    @Autowired
+    private AmountConfigService amountConfigService;
+
     /**
      * 成功订单确认
      * @param id 充值订单id
@@ -63,24 +66,31 @@ public class ChargeOrderBusiness {
             return ResponseUtil.custom("用户钱包不存在");
         }
         chargeOrder = chargeOrderService.saveOrder(chargeOrder);
-        //计算打码量
-        userMoneyService.addMoney(user.getUserId(), chargeOrder.getChargeAmount());
+        AmountConfig amountConfig = amountConfigService.findAmountConfigById(1L);
+        BigDecimal serviceCharge = BigDecimal.ZERO;
+        if (amountConfig != null){
+            //得到手续费
+            serviceCharge = amountConfig.getServiceCharge(chargeOrder.getChargeAmount());
+        }
+        //计算余额
+        userMoneyService.addMoney(user.getUserId(), chargeOrder.getChargeAmount().subtract(serviceCharge));
         BetRatioConfig betRatioConfig = betRatioConfigService.findOneBetRatioConfig();
         //默认2倍
         float codeTimes = (betRatioConfig == null || betRatioConfig.getCodeTimes() == null) ? 2F : betRatioConfig.getCodeTimes();
         BigDecimal codeNum = chargeOrder.getChargeAmount().multiply(BigDecimal.valueOf(codeTimes));
+        //计算打码量
         userMoneyService.addCodeNum(user.getUserId(), codeNum);
         //流水表记录
-        RechargeTurnover turnover = getRechargeTurnover(chargeOrder, user, codeNum, codeTimes);
+        RechargeTurnover turnover = getRechargeTurnover(chargeOrder,serviceCharge, user, codeNum, codeTimes);
         rechargeTurnoverService.save(turnover);
         return ResponseUtil.success();
     }
-    private RechargeTurnover getRechargeTurnover(ChargeOrder order,UserMoney user, BigDecimal codeNum, float codeTimes) {
+    private RechargeTurnover getRechargeTurnover(ChargeOrder order,BigDecimal serviceCharge,UserMoney user, BigDecimal codeNum, float codeTimes) {
         RechargeTurnover rechargeTurnover = new RechargeTurnover();
         rechargeTurnover.setCodeNum(codeNum);
         rechargeTurnover.setCodeNums(user.getCodeNum().add(codeNum));
         rechargeTurnover.setCodeTimes(codeTimes);
-        rechargeTurnover.setOrderMoney(order.getChargeAmount());
+        rechargeTurnover.setOrderMoney(order.getChargeAmount().subtract(serviceCharge));
         rechargeTurnover.setOrderId(order.getId());
         rechargeTurnover.setRemitType(order.getRemitType());
         rechargeTurnover.setUserId(order.getUserId());

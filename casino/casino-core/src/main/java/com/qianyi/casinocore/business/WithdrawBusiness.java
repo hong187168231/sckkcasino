@@ -1,9 +1,6 @@
 package com.qianyi.casinocore.business;
 
-import com.qianyi.casinocore.model.Bankcards;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.UserMoney;
-import com.qianyi.casinocore.model.WithdrawOrder;
+import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.repository.BankcardsRepository;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.modulecommon.Constants;
@@ -37,6 +34,9 @@ public class WithdrawBusiness {
 
     @Autowired
     private UserMoneyService userMoneyService;
+
+    @Autowired
+    private AmountConfigService amountConfigService;
 
     public String getWithdrawFullMoney(Long userId){
         User user = userService.findById(userId);
@@ -154,6 +154,13 @@ public class WithdrawBusiness {
         //提现通过或其他
         withdrawOrder.setStatus(status);
         if(status != Constants.WITHDRAW_REFUSE){
+            if(status == Constants.WITHDRAW_PASS){//通过提现审核的计算手续费
+                AmountConfig amountConfig = amountConfigService.findAmountConfigById(2L);
+                //得到手续费
+                BigDecimal serviceCharge = amountConfig.getServiceCharge(withdrawOrder.getWithdrawMoney());
+                BigDecimal withdrawMoney = withdrawOrder.getWithdrawMoney().subtract(serviceCharge);
+                withdrawOrder.setWithdrawMoney(withdrawMoney);
+            }
             withdrawOrderService.saveOrder(withdrawOrder);
             return ResponseUtil.success();
         }

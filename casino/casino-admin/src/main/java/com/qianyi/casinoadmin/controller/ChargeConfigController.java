@@ -38,7 +38,6 @@ public class ChargeConfigController {
 
     /**
      * 充值设置修改
-     * @param status 状态 0免手续费 1 有手续费
      * @param fixedAmount 固定金额
      * @param percentage 百分比金额
      * @param maxMoney 最大金额
@@ -47,21 +46,20 @@ public class ChargeConfigController {
      */
     @ApiOperation("充值设置修改")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "status", value = "状态 0免手续费 1 有手续费", required = false),
             @ApiImplicitParam(name = "fixedAmount", value = "固定金额", required = false),
-            @ApiImplicitParam(name = "percentage", value = "百分比金额", required = false),
+            @ApiImplicitParam(name = "percentage", value = "百分比金额只能传0到1之间", required = false),
             @ApiImplicitParam(name = "maxMoney", value = "最大金额", required = false),
             @ApiImplicitParam(name = "minMoney", value = "最小金额", required = false),
     })
     @PostMapping("/saveChargeConfig")
-    public ResponseEntity saveChargeConfig(Integer status, BigDecimal fixedAmount, Float percentage, BigDecimal maxMoney, BigDecimal minMoney){
+    public ResponseEntity saveChargeConfig(BigDecimal fixedAmount, Float percentage, BigDecimal maxMoney, BigDecimal minMoney){
         if (fixedAmount != null && percentage != null){
             return ResponseUtil.custom("参数错误");
         }
         if (percentage != null && (percentage > CommonConst.FLOAT_1 || percentage < CommonConst.FLOAT_0)){
             return ResponseUtil.custom("百分比金额设置错误");
         }
-        AmountConfig amountConfig = new AmountConfig(status,fixedAmount,percentage,maxMoney,minMoney);
+        AmountConfig amountConfig = new AmountConfig(fixedAmount,percentage,maxMoney,minMoney);
         amountConfig.setId(CommonConst.charge);
         amountConfigService.save(amountConfig);
         return ResponseUtil.success();

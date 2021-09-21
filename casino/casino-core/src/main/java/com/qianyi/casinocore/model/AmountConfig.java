@@ -44,15 +44,19 @@ public class AmountConfig extends BaseEntity {
     public AmountConfig(){
 
     }
-    public AmountConfig(Integer status, BigDecimal fixedAmount, Float percentage, BigDecimal maxMoney, BigDecimal minMoney){
-        this.status = status==null?0:status;
+    public AmountConfig(BigDecimal fixedAmount, Float percentage, BigDecimal maxMoney, BigDecimal minMoney){
+        if (fixedAmount !=null || percentage !=null){
+            this.status = 1;
+        }else {
+            this.status = 0;
+        }
         this.fixedAmount = fixedAmount==null?BigDecimal.ZERO:fixedAmount;
         this.percentage = percentage==null?0F:percentage;
         this.maxMoney = maxMoney;
         this.minMoney = minMoney;
     }
     //得到手续费用
-    private BigDecimal getServiceCharge(BigDecimal money){
+    public BigDecimal getServiceCharge(BigDecimal money){
         if (this.status == 0){
             return BigDecimal.ZERO;
         }
