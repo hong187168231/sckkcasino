@@ -285,7 +285,7 @@ public class UserController {
         chargeOrder.setUserId(id);
         chargeOrder.setRemitter(remitter);
         chargeOrder.setRemark(remark);
-        chargeOrder.setRemitType(CommonConst.NUMBER_0);
+        chargeOrder.setRemitType(CommonConst.NUMBER_1);
         chargeOrder.setOrderNo(orderService.getOrderNo());
         chargeOrder.setChargeAmount(chargeAmount);
         chargeOrder.setType(CommonConst.NUMBER_2);//管理员新增
