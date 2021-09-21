@@ -25,7 +25,7 @@ public class ChargeOrder extends BaseEntity{
     @ApiModelProperty(value = "汇款人")
     private String remitter;
 
-    @ApiModelProperty(value = "汇款方式")
+    @ApiModelProperty(value = "汇款方式 1银行卡 2支付宝 3微信")
     private Integer remitType;
 
     @ApiModelProperty(value = "汇款金额")

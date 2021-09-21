@@ -71,16 +71,19 @@ public class ChargeOrderBusiness {
         BigDecimal codeNum = chargeOrder.getChargeAmount().multiply(BigDecimal.valueOf(codeTimes));
         userMoneyService.addCodeNum(user.getUserId(), codeNum);
         //流水表记录
-        RechargeTurnover turnover = getRechargeTurnover(chargeOrder, codeNum, codeTimes);
+        RechargeTurnover turnover = getRechargeTurnover(chargeOrder, user, codeNum, codeTimes);
         rechargeTurnoverService.save(turnover);
         return ResponseUtil.success();
     }
-    private RechargeTurnover getRechargeTurnover(ChargeOrder order, BigDecimal codeNum, float codeTimes) {
+    private RechargeTurnover getRechargeTurnover(ChargeOrder order,UserMoney user, BigDecimal codeNum, float codeTimes) {
         RechargeTurnover rechargeTurnover = new RechargeTurnover();
         rechargeTurnover.setCodeNum(codeNum);
+        rechargeTurnover.setCodeNums(user.getCodeNum().add(codeNum));
         rechargeTurnover.setCodeTimes(codeTimes);
         rechargeTurnover.setOrderMoney(order.getChargeAmount());
         rechargeTurnover.setOrderId(order.getId());
+        rechargeTurnover.setRemitType(order.getRemitType());
+        rechargeTurnover.setUserId(order.getUserId());
         return rechargeTurnover;
     }
 }
