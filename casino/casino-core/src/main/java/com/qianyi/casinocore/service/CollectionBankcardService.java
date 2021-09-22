@@ -38,4 +38,8 @@ public class CollectionBankcardService {
     public List<CollectionBankcard> findAll() {
         return collectionBankCardRepository.findAll();
     }
+
+    public List<CollectionBankcard> findByDisable(Integer disable){
+        return collectionBankCardRepository.findByDisable(disable);
+    }
 }
