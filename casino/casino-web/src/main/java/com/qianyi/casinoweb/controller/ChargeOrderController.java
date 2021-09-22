@@ -43,7 +43,7 @@ public class ChargeOrderController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "status", value = "状态:1.入款审核中,2.入款成功，3.入款已取消", required = false),
+            @ApiImplicitParam(name = "status", value = "状态:全部.不传值，1.入款审核中,2.入款成功，3.入款已取消", required = false),
     })
     @GetMapping("/chargeOrderList")
     public ResponseEntity chargeOrderList(Integer pageSize, Integer pageCode, Integer status){
