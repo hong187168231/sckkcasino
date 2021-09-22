@@ -73,24 +73,25 @@ public class ChargeOrderBusiness {
             serviceCharge = amountConfig.getServiceCharge(chargeOrder.getChargeAmount());
         }
         //计算余额
-        userMoneyService.addMoney(user.getUserId(), chargeOrder.getChargeAmount().subtract(serviceCharge));
+        BigDecimal subtract = chargeOrder.getChargeAmount().subtract(serviceCharge);
+        user.setMoney(user.getMoney().add(subtract));
+        //计算打码量 默认2倍
         BetRatioConfig betRatioConfig = betRatioConfigService.findOneBetRatioConfig();
-        //默认2倍
         float codeTimes = (betRatioConfig == null || betRatioConfig.getCodeTimes() == null) ? 2F : betRatioConfig.getCodeTimes();
         BigDecimal codeNum = chargeOrder.getChargeAmount().multiply(BigDecimal.valueOf(codeTimes));
-        //计算打码量
-        userMoneyService.addCodeNum(user.getUserId(), codeNum);
+        user.setCodeNum(user.getCodeNum().add(codeNum));
+        userMoneyService.save(user);
         //流水表记录
-        RechargeTurnover turnover = getRechargeTurnover(chargeOrder,serviceCharge, user, codeNum, codeTimes);
+        RechargeTurnover turnover = getRechargeTurnover(chargeOrder,subtract, user, codeNum, codeTimes);
         rechargeTurnoverService.save(turnover);
         return ResponseUtil.success();
     }
-    private RechargeTurnover getRechargeTurnover(ChargeOrder order,BigDecimal serviceCharge,UserMoney user, BigDecimal codeNum, float codeTimes) {
+    private RechargeTurnover getRechargeTurnover(ChargeOrder order,BigDecimal subtract,UserMoney user, BigDecimal codeNum, float codeTimes) {
         RechargeTurnover rechargeTurnover = new RechargeTurnover();
         rechargeTurnover.setCodeNum(codeNum);
         rechargeTurnover.setCodeNums(user.getCodeNum().add(codeNum));
         rechargeTurnover.setCodeTimes(codeTimes);
-        rechargeTurnover.setOrderMoney(order.getChargeAmount().subtract(serviceCharge));
+        rechargeTurnover.setOrderMoney(subtract);
         rechargeTurnover.setOrderId(order.getId());
         rechargeTurnover.setRemitType(order.getRemitType());
         rechargeTurnover.setUserId(order.getUserId());
