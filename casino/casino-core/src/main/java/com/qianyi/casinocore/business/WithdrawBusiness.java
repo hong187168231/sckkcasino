@@ -144,6 +144,7 @@ public class WithdrawBusiness {
         withdrawOrder.setUserId(userId);
         withdrawOrder.setNo(orderService.getOrderNo());
         withdrawOrder.setStatus(0);
+        withdrawOrder.setRemitType(1);
         return withdrawOrder;
     }
 
