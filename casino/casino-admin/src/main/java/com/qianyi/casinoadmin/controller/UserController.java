@@ -389,7 +389,9 @@ public class UserController {
             User user = new User();
             user.setRegisterIp(context);
             List<User> userList = userService.findUserList(user);
-            List<LoginLog> loginLogList = loginLogService.findLoginLogList(context);
+            LoginLog loginLog = new LoginLog();
+            loginLog.setIp(context);
+            List<LoginLog> loginLogList = loginLogService.findLoginLogList(loginLog);
             Map<String,Object> map = new HashMap<>();
             map.put("register",userList);
             map.put("login",loginLogList);

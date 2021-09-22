@@ -6,9 +6,12 @@ import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -23,6 +26,9 @@ public class LoginLogService {
     @Autowired
     LoginLogRepository loginLogRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     public LoginLog save(LoginLog loginLog) {
         return loginLogRepository.save(loginLog);
     }
@@ -32,8 +38,10 @@ public class LoginLogService {
         return loginLogRepository.findAll(condition,pageable);
     }
 
-    public List<LoginLog> findLoginLogList(String ip){
-        return loginLogRepository.findLoginLogList(ip);
+    public List<LoginLog> findLoginLogList(LoginLog loginLog){
+        Sort sort = Sort.by("id").descending();
+        Specification<LoginLog> condition = getCondition(loginLog);
+        return loginLogRepository.findAll(condition,sort);
     }
     /**
      * 查询条件拼接，灵活添加条件
