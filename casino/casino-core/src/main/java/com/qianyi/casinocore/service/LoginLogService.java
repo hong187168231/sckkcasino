@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -23,6 +25,9 @@ public class LoginLogService {
     @Autowired
     LoginLogRepository loginLogRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     public LoginLog save(LoginLog loginLog) {
         return loginLogRepository.save(loginLog);
     }
@@ -34,6 +39,27 @@ public class LoginLogService {
 
     public List<LoginLog> findLoginLogList(String ip){
         return loginLogRepository.findLoginLogList(ip);
+    }
+
+    public List findLoginLogGroupBy(String ip) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<LoginLog> query = builder.createQuery(LoginLog.class);
+        Root<LoginLog> root = query.from(LoginLog.class);
+
+        List<Predicate> predicates = new ArrayList();
+
+        if (!CommonUtil.checkNull(ip)) {
+            predicates.add(
+                    builder.equal(root.get("ip").as(String.class), ip)
+            );
+        }
+        query
+                .where(predicates.toArray(new Predicate[predicates.size()]))
+                .orderBy(builder.desc(root.get("createTime")))
+                .groupBy(root.get("account"));
+
+        List<LoginLog> list = entityManager.createQuery(query).getResultList();
+        return list;
     }
     /**
      * 查询条件拼接，灵活添加条件
