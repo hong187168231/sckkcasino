@@ -39,6 +39,10 @@ public class User extends BaseEntity implements UserDetails {
 
     @Transient
     @ApiModelProperty("冻结余额")
+    private BigDecimal freezeMoney;
+
+    @Transient
+    @ApiModelProperty("可提现余额")
     private BigDecimal withdrawMoney;
 
     @Transient

@@ -5,6 +5,7 @@ import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.util.passwordUtil;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
+import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.livewm.api.PublicWMApi;
@@ -62,6 +63,9 @@ public class UserController {
     private LoginLogService loginLogService;
 
     @Autowired
+    private WithdrawBusiness withdrawBusiness;
+
+    @Autowired
     UserThirdService userThirdService;
 
     @Autowired
@@ -94,7 +98,6 @@ public class UserController {
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<User> userPage = userService.findUserPage(pageable, user,startDate,endDate);
         List<User> userList = userPage.getContent();
-
         if(userList != null && userList.size() > 0){
             List<Long> userIds = userList.stream().map(User::getId).collect(Collectors.toList());
             List<UserMoney> userMoneyList =  userMoneyService.findAll(userIds);
@@ -104,12 +107,13 @@ public class UserController {
                     withdrawOrder.setStatus(CommonConst.NUMBER_3);
                     withdrawOrder.setUserId(u.getId());
                     List<WithdrawOrder> orderList = withdrawOrderService.findOrderList(withdrawOrder);
-                    BigDecimal withdrawMoney = orderList.stream().map(WithdrawOrder::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
-                    u.setWithdrawMoney(withdrawMoney);
+                    BigDecimal freezeMoney = orderList.stream().map(WithdrawOrder::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
+                    u.setFreezeMoney(freezeMoney);//冻结余额
                     userMoneyList.stream().forEach(userMoney -> {
                         if(u.getId().equals(userMoney.getUserId())){
                             u.setMoney(userMoney.getMoney());
                             u.setCodeNum(userMoney.getCodeNum());
+                            u.setWithdrawMoney(userMoney.getWithdrawMoney());//可以提现金额
                         }
                     });
                 });
@@ -320,7 +324,7 @@ public class UserController {
      * @param remark 汇款备注
      * @return
      */
-    @ApiOperation("后台新增充值订单")
+    @ApiOperation("后台新增充值订单 上分")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "会员id", required = true),
             @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = true),
@@ -346,7 +350,27 @@ public class UserController {
         chargeOrder.setStatus(CommonConst.NUMBER_1);
         return chargeOrderBusiness.saveOrderSuccess(chargeOrder);
     }
-
+    /**
+     * 后台新增提现订单
+     *
+     * @param id 会员id
+     * @param withdrawMoney 提现金额
+     * @param bankId 银行id
+     * @return
+     */
+    @ApiOperation("后台新增提现订单 下分")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+            @ApiImplicitParam(name = "withdrawMoney", value = "提现金额", required = true),
+            @ApiImplicitParam(name = "bankId", value = "银行id", required = true),
+    })
+    @PostMapping("/saveWithdrawOrder")
+    public ResponseEntity saveWithdrawOrder(Long id,BigDecimal withdrawMoney,String bankId){
+        if (id == null || withdrawMoney == null|| bankId == null){
+            return ResponseUtil.custom("参数不合法");
+        }
+        return withdrawBusiness.updateWithdrawAndUser(id,withdrawMoney,bankId);
+    }
     /**
      * 查询操作
      * 注意：jpa 是从第0页开始的
