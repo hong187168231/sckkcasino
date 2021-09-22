@@ -5,6 +5,7 @@ import com.qianyi.casinocore.model.Customer;
 import com.qianyi.casinocore.service.CustomerService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.CommonUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -40,14 +41,25 @@ public class CustomerController {
             @ApiImplicitParam(name = "onlineUrl", value = "客服onlineUrl号", required = false),
     })
     public ResponseEntity updateKeyCustomer(String qq,String telegram,String skype,String whatsApp,String facebook,String onlineUrl){
-        Customer customer = new Customer();
-        customer.setId(CommonConst.LONG_1);
-        customer.setQq(qq);
-        customer.setTelegram(telegram);
-        customer.setSkype(skype);
-        customer.setWhatsApp(whatsApp);
-        customer.setFacebook(facebook);
-        customer.setOnlineUrl(onlineUrl);
+        Customer customer = customerService.findFirst();
+        if (!CommonUtil.checkNull(qq)){
+            customer.setQq(qq);
+        }
+        if (!CommonUtil.checkNull(telegram)){
+            customer.setTelegram(telegram);
+        }
+        if (!CommonUtil.checkNull(skype)){
+            customer.setSkype(skype);
+        }
+        if (!CommonUtil.checkNull(whatsApp)){
+            customer.setWhatsApp(whatsApp);
+        }
+        if (!CommonUtil.checkNull(facebook)){
+            customer.setFacebook(facebook);
+        }
+        if (!CommonUtil.checkNull(onlineUrl)){
+            customer.setOnlineUrl(onlineUrl);
+        }
         customerService.save(customer);
         return ResponseUtil.success();
     }
