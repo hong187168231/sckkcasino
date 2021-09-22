@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+
 import com.qianyi.casinocore.model.RiskConfig;
 import com.qianyi.casinocore.service.RiskConfigService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -14,14 +15,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/riskConfig")
+@RequestMapping("/managementRisk")
 @Api(tags = "客户中心")
-public class RiskConfigController {
+public class RiskManagementController {
     @Autowired
     private RiskConfigService riskConfigService;
     /**
