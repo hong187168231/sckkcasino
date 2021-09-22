@@ -60,6 +60,9 @@ public class UserController {
 
     @Autowired
     private LoginLogService loginLogService;
+
+    @Autowired
+    private WithdrawBusiness withdrawBusiness;
     /**
      * 查询操作
      * 注意：jpa 是从第0页开始的
@@ -275,7 +278,7 @@ public class UserController {
      * @param remark 汇款备注
      * @return
      */
-    @ApiOperation("后台新增充值订单")
+    @ApiOperation("后台新增充值订单 上分")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "会员id", required = true),
             @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = true),
@@ -301,7 +304,27 @@ public class UserController {
         chargeOrder.setStatus(CommonConst.NUMBER_1);
         return chargeOrderBusiness.saveOrderSuccess(chargeOrder);
     }
-
+    /**
+     * 后台新增提现订单
+     *
+     * @param id 会员id
+     * @param withdrawMoney 提现金额
+     * @param bankId 银行id
+     * @return
+     */
+    @ApiOperation("后台新增提现订单 下分")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+            @ApiImplicitParam(name = "withdrawMoney", value = "提现金额", required = true),
+            @ApiImplicitParam(name = "bankId", value = "银行id", required = true),
+    })
+    @PostMapping("/saveWithdrawOrder")
+    public ResponseEntity saveWithdrawOrder(Long id,BigDecimal withdrawMoney,String bankId){
+        if (id == null || withdrawMoney == null|| bankId == null){
+            return ResponseUtil.custom("参数不合法");
+        }
+        return withdrawBusiness.updateWithdrawAndUser(id,withdrawMoney,bankId);
+    }
     /**
      * 查询操作
      * 注意：jpa 是从第0页开始的

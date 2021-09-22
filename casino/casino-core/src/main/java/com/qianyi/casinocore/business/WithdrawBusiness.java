@@ -161,6 +161,29 @@ public class WithdrawBusiness {
 //        userMoneyService.save(userMoney);
 //        return ResponseUtil.success(withdraw);
 //    }
+    //后台直接下分
+    @Transactional
+    public ResponseEntity updateWithdrawAndUser(Long userId, BigDecimal withdrawMoney,String bankId) {
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        if(userMoney == null){
+            return ResponseUtil.custom("用户钱包不存在");
+        }
+        if (userMoney.getMoney().compareTo(withdrawMoney)<=0){
+            return ResponseUtil.custom("余额不足");
+        }
+        WithdrawOrder withdrawOrder = new WithdrawOrder();
+        withdrawOrder.setWithdrawMoney(withdrawMoney);
+        withdrawOrder.setBankId(bankId);
+        withdrawOrder.setUserId(userId);
+        withdrawOrder.setNo(orderService.getOrderNo());
+        withdrawOrder.setStatus(Constants.withdrawOrder_success);
+        withdrawOrderService.saveOrder(withdrawOrder);
+        BigDecimal money = userMoney.getMoney().subtract(withdrawMoney);
+        userMoney.setMoney(money);
+        userMoneyService.save(userMoney);
+        return ResponseUtil.success(userMoney);
+    }
+
     @Transactional
     public ResponseEntity updateWithdrawAndUser(Long id, Integer status) {
         WithdrawOrder withdrawOrder = withdrawOrderService.findUserByIdUseLock(id);
