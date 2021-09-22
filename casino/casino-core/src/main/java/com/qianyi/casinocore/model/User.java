@@ -2,7 +2,6 @@ package com.qianyi.casinocore.model;
 
 import com.qianyi.modulecommon.Constants;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Builder;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -41,6 +40,10 @@ public class User extends BaseEntity implements UserDetails {
     @Transient
     @ApiModelProperty("冻结余额")
     private BigDecimal withdrawMoney;
+
+    @Transient
+    @ApiModelProperty("WM余额")
+    private BigDecimal wmMoney;
 
     private String withdrawPassword;
 

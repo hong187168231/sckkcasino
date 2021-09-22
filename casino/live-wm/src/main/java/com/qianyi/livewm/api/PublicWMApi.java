@@ -18,9 +18,9 @@ public class PublicWMApi {
 
     private String url = "https://api.a45.me/api/public/Gateway.php";
 
-    @Value("${project.vendorId}")
+    @Value("${project.vendorId:0}")
     String vendorId;
-    @Value("${project.signature}")
+    @Value("${project.signature:0}")
     String signature;
 
     //注册

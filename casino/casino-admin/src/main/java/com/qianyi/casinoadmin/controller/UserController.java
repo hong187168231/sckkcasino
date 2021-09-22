@@ -7,6 +7,7 @@ import com.qianyi.casinoadmin.util.passwordUtil;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -15,7 +16,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -59,6 +60,13 @@ public class UserController {
 
     @Autowired
     private LoginLogService loginLogService;
+
+    @Autowired
+    UserThirdService userThirdService;
+
+    @Autowired
+    PublicWMApi wmApi;
+
     /**
      * 查询操作
      * 注意：jpa 是从第0页开始的
@@ -86,6 +94,7 @@ public class UserController {
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<User> userPage = userService.findUserPage(pageable, user,startDate,endDate);
         List<User> userList = userPage.getContent();
+
         if(userList != null && userList.size() > 0){
             List<Long> userIds = userList.stream().map(User::getId).collect(Collectors.toList());
             List<UserMoney> userMoneyList =  userMoneyService.findAll(userIds);
@@ -105,9 +114,47 @@ public class UserController {
                     });
                 });
             }
+            this.setWMMoney(userList);
         }
-
         return ResponseUtil.success(userPage);
+    }
+
+    public void setWMMoney(List<User> userList) {
+
+        log.info("query WM money data：【{}】 ", userList);
+        List<CompletableFuture<User>> completableFutures = new ArrayList<>();
+        for (User user : userList) {
+            UserThird third = userThirdService.findByUserId(user.getId());
+            if (third == null) {
+                continue;
+            }
+            CompletableFuture<User> completableFuture =  CompletableFuture.supplyAsync(() -> {
+                return getWMonetUser(user, third);
+            });
+            completableFutures.add(completableFuture);
+        }
+        CompletableFuture<Void> voidCompletableFuture = CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[]{}));
+        try {
+            voidCompletableFuture.join();
+        }catch (Exception e){
+            //打印日志
+            log.error("query User WM money error：【{}】", e);
+        }
+    }
+
+    private User getWMonetUser(User user, UserThird third) {
+        Integer lang = user.getLanguage();
+        if (lang == null) {
+            lang = 0;
+        }
+        BigDecimal balance = null;
+        try {
+            balance = wmApi.getBalance(third.getAccount(), lang);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        user.setWmMoney(balance);
+        return user;
     }
 
     @ApiOperation("添加用户")

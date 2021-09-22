@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.google.code.kaptcha.Producer;
+import com.qianyi.casinoadmin.vo.SysUserVo;
 import com.qianyi.casinocore.service.SysUserLoginLogService;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.SysUser;
@@ -187,7 +188,7 @@ public class LoginController {
 //    }
 
     //1分钟3次
-    @RequestLimit(limit = 3,timeout = 60)
+    @RequestLimit(limit = 6,timeout = 60)
     @GetMapping("google/auth/bind")
     @NoAuthentication
     @ApiOperation("绑定谷歌身份验证器")
@@ -231,8 +232,48 @@ public class LoginController {
 
     }
 
+    @GetMapping("getSysUser")
+    @ApiOperation("绑定谷歌验证码标记")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "account", value = "已注册的帐号", required = true),
+    })
+    @NoAuthentication
+    public ResponseEntity getSysUser(String account) {
+        SysUser user = sysUserService.findByUserName(account);
+        if (user == null) {
+            return ResponseUtil.fail();
+        }
+        SysUserVo userVo = SysUserVo.builder()
+                .userName(user.getUserName())
+                .gaBind(user.getGaBind() + "")
+                .build();
+
+        return ResponseUtil.success(userVo);
+
+    }
+
+    @GetMapping("gaBind")
+    @ApiOperation("绑定谷歌验证码标记")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "account", value = "已注册的帐号", required = true),
+    })
+    @NoAuthentication
+    public ResponseEntity gaBind(String account) {
+        SysUser user = sysUserService.findByUserName(account);
+        if (user == null) {
+            return ResponseUtil.fail();
+        }
+        if(LoginUtil.checkNull(user.getGaBind()) || !user.getGaBind().equals("2")){
+            user.setGaBind("2");
+            sysUserService.save(user);
+            return ResponseUtil.success(user);
+        }else{
+            return ResponseUtil.custom("已经绑定谷歌验证码");
+        }
+    }
+
     //1分钟3次
-    @RequestLimit(limit = 3,timeout = 60)
+    @RequestLimit(limit = 5,timeout = 60)
     @GetMapping("getJwtToken")
     @ApiOperation("开发者通过此令牌调试接口。不可用于正式请求")
     @ApiImplicitParams({
