@@ -5,6 +5,7 @@ import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.util.passwordUtil;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
+import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.modulecommon.Constants;
@@ -95,12 +96,13 @@ public class UserController {
                     withdrawOrder.setStatus(CommonConst.NUMBER_3);
                     withdrawOrder.setUserId(u.getId());
                     List<WithdrawOrder> orderList = withdrawOrderService.findOrderList(withdrawOrder);
-                    BigDecimal withdrawMoney = orderList.stream().map(WithdrawOrder::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
-                    u.setWithdrawMoney(withdrawMoney);
+                    BigDecimal freezeMoney = orderList.stream().map(WithdrawOrder::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
+                    u.setFreezeMoney(freezeMoney);//冻结余额
                     userMoneyList.stream().forEach(userMoney -> {
                         if(u.getId().equals(userMoney.getUserId())){
                             u.setMoney(userMoney.getMoney());
                             u.setCodeNum(userMoney.getCodeNum());
+                            u.setWithdrawMoney(userMoney.getWithdrawMoney());//可以提现金额
                         }
                     });
                 });
