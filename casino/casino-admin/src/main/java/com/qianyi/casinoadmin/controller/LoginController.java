@@ -233,7 +233,7 @@ public class LoginController {
     }
 
     @GetMapping("getSysUser")
-    @ApiOperation("绑定谷歌验证码标记")
+    @ApiOperation("查询用户数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "account", value = "已注册的帐号", required = true),
     })
