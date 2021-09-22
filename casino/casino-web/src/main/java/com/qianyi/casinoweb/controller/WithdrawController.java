@@ -79,9 +79,9 @@ public class WithdrawController {
 //            return ResponseUtil.custom(checkResult);
 //        }
         //进行提币
-        UserMoney userMoney = withdrawBusiness.processWithdraw(decMoney, bankId, CasinoWebUtil.getAuthId());
+        ResponseEntity responseEntity = withdrawBusiness.processWithdraw(decMoney, bankId, CasinoWebUtil.getAuthId());
 
-        return ResponseUtil.success(userMoney);
+        return responseEntity;
     }
 
     @PostMapping("/updateWithdrawPassword")

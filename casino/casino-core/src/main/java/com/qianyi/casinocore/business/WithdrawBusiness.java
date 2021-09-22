@@ -112,13 +112,29 @@ public class WithdrawBusiness {
     * 进行转账
     * */
     @Transactional
-    public UserMoney processWithdraw(BigDecimal money, String bankId,Long userId){
+    public ResponseEntity processWithdraw(BigDecimal money, String bankId,Long userId){
+        if (money == null) {
+            return ResponseUtil.custom("提现金额不允许为空");
+        }
+        //查询提现金额限制
+        AmountConfig amountConfig = amountConfigService.findAmountConfigById(2L);
+        if (amountConfig != null) {
+            BigDecimal minMoney = amountConfig.getMinMoney();
+            BigDecimal maxMoney = amountConfig.getMaxMoney();
+            if (minMoney != null && money.compareTo(minMoney) == -1) {
+                return ResponseUtil.custom("提现金额小于最低提现金额,最低提现金额为:" + minMoney);
+            }
+            if (maxMoney != null && money.compareTo(maxMoney) == 1) {
+                return ResponseUtil.custom("提现金额大于最高提现金额,最高提现金额为:" + maxMoney);
+            }
+        }
         WithdrawOrder withdrawOrder = getWidrawOrder(money,bankId,userId);
         withdrawOrderService.saveOrder(withdrawOrder);
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         log.info("money is {}, draw money is {}",money,userMoney.getMoney());
         userMoneyService.subMoney(userId,money);
-        return userMoney;
+        userMoney.setMoney(userMoney.getMoney().subtract(money));
+        return ResponseUtil.success(userMoney);
     }
 
     private WithdrawOrder getWidrawOrder(BigDecimal money, String bankId, Long userId){

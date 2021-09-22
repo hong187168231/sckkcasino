@@ -36,10 +36,10 @@ public class ChargeController {
             @ApiImplicitParam(name = "remitterName", value = "汇款人", required = true),
     })
     public ResponseEntity submitCharge(String chargeAmount,Integer remitType,String remitterName){
-
-
-        ChargeOrder chargeOrder = chargeBusiness.submitOrder(chargeAmount,remitType,remitterName, CasinoWebUtil.getAuthId());
-
-        return ResponseUtil.success(chargeOrder);
+        if (CasinoWebUtil.checkNull(chargeAmount,remitType,remitterName)) {
+            return ResponseUtil.parameterNotNull();
+        }
+        ResponseEntity responseEntity = chargeBusiness.submitOrder(chargeAmount, remitType, remitterName, CasinoWebUtil.getAuthId());
+        return responseEntity;
     }
 }

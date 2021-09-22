@@ -310,7 +310,7 @@ public class AuthController {
     public ResponseEntity getJwtToken(String token) {
         User user = userService.findByAccount(token);
         if (user == null) {
-            return ResponseUtil.fail();
+            return ResponseUtil.custom("账号不存在");
         }
         JjwtUtil.Subject subject=new JjwtUtil.Subject();
         subject.setUserId(String.valueOf(user.getId()));
