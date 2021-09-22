@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RiskConfigService {
@@ -18,5 +19,13 @@ public class RiskConfigService {
 
     public RiskConfig save(RiskConfig riskConfig){
         return riskConfigRepository.save(riskConfig);
+    }
+
+    public RiskConfig findById(Long id) {
+        Optional<RiskConfig> optional = riskConfigRepository.findById(id);
+        if (optional != null && optional.isPresent()) {
+            return optional.get();
+        }
+        return null;
     }
 }

@@ -2,9 +2,11 @@ package com.qianyi.casinoweb.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.code.kaptcha.Producer;
+import com.qianyi.casinocore.model.RiskConfig;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
+import com.qianyi.casinocore.service.RiskConfigService;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoweb.job.LoginLogJob;
@@ -24,6 +26,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,6 +41,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Api(tags = "认证中心")
 @RestController
@@ -52,6 +56,9 @@ public class AuthController {
     UserService userService;
     @Autowired
     UserMoneyService userMoneyService;
+    @Autowired
+    RiskConfigService riskConfigService;
+
 
     @PostMapping("register")
     @ApiOperation("用户注册")
@@ -95,12 +102,24 @@ public class AuthController {
         }
 
         String ip = IpUtil.getIp(request);
-        //一个IP最多5个帐号
-        int num = userService.countByIp(ip);
-        if (num > 5) {
-            return ResponseUtil.custom("IP帐号限制");
+        //查询ip注册账号限制
+        if (!ObjectUtils.isEmpty(ip)) {
+            RiskConfig riskConfig = riskConfigService.findById(1L);
+            if (riskConfig != null) {
+                Integer timeLimit = riskConfig.getTimeLimit();
+                if (timeLimit != null) {
+                    List<User> userList = userService.findByRegisterIp(ip);
+                    if (!CollectionUtils.isEmpty(userList) && userList.size() > timeLimit) {
+                        //同 1 IP注册的账号禁用
+                        for (User u : userList) {
+                            u.setState(0);
+                            userService.save(u);
+                        }
+                        return ResponseUtil.custom("当前IP帐号注册超过限制");
+                    }
+                }
+            }
         }
-
         User user = userService.findByAccount(account);
         if (user != null && !CommonUtil.checkNull(user.getPassword())) {
             return ResponseUtil.custom("该帐号已存在");

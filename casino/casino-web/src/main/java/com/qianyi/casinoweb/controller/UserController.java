@@ -46,8 +46,11 @@ public class UserController {
         if (userMoney == null) {
             vo.setUnfinshTurnover(defaultVal);
             vo.setDrawMoney(defaultVal);
+            vo.setMoney(defaultVal);
             return new ResponseEntity(ResponseCode.SUCCESS, vo);
         }
+        BigDecimal money = userMoney.getMoney() == null ? defaultVal : userMoney.getMoney();
+        vo.setMoney(money);
         if (userMoney.getCodeNum() == null) {
             vo.setUnfinshTurnover(defaultVal);
             vo.setDrawMoney(defaultVal);
@@ -56,7 +59,6 @@ public class UserController {
         vo.setUnfinshTurnover(codeNum.setScale(2, BigDecimal.ROUND_HALF_UP));
         //打码量为0时才有可提现金额
         if (codeNum.compareTo(BigDecimal.ZERO) < 1) {
-            BigDecimal money = userMoney.getMoney() == null ? defaultVal : userMoney.getMoney();
             vo.setDrawMoney(money.setScale(2, BigDecimal.ROUND_HALF_UP));
         } else {
             vo.setDrawMoney(defaultVal);

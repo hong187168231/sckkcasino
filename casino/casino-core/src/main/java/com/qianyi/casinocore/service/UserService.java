@@ -141,4 +141,8 @@ public class UserService {
         };
         return specification;
     }
+
+    public List<User> findByRegisterIp(String ip) {
+        return userRepository.findByRegisterIp(ip);
+    }
 }

@@ -241,7 +241,7 @@ public class WMController {
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
         if (third == null) {
-            return ResponseUtil.custom("当前用户未在第三方注册,请注册后再重试");
+            return ResponseUtil.success(BigDecimal.ZERO);
         }
         User user = userService.findById(authId);
         Integer lang = user.getLanguage();
