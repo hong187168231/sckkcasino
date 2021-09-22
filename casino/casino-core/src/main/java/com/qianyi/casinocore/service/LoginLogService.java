@@ -6,6 +6,7 @@ import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -37,29 +38,10 @@ public class LoginLogService {
         return loginLogRepository.findAll(condition,pageable);
     }
 
-    public List<LoginLog> findLoginLogList(String ip){
-        return loginLogRepository.findLoginLogList(ip);
-    }
-
-    public List findLoginLogGroupBy(String ip) {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<LoginLog> query = builder.createQuery(LoginLog.class);
-        Root<LoginLog> root = query.from(LoginLog.class);
-
-        List<Predicate> predicates = new ArrayList();
-
-        if (!CommonUtil.checkNull(ip)) {
-            predicates.add(
-                    builder.equal(root.get("ip").as(String.class), ip)
-            );
-        }
-        query
-                .where(predicates.toArray(new Predicate[predicates.size()]))
-                .orderBy(builder.desc(root.get("createTime")))
-                .groupBy(root.get("account"));
-
-        List<LoginLog> list = entityManager.createQuery(query).getResultList();
-        return list;
+    public List<LoginLog> findLoginLogList(LoginLog loginLog){
+        Sort sort = Sort.by("id").descending();
+        Specification<LoginLog> condition = getCondition(loginLog);
+        return loginLogRepository.findAll(condition,sort);
     }
     /**
      * 查询条件拼接，灵活添加条件
