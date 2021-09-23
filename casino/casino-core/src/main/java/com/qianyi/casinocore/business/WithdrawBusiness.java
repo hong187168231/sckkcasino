@@ -1,9 +1,6 @@
 package com.qianyi.casinocore.business;
 
-import com.qianyi.casinocore.model.Bankcards;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.UserMoney;
-import com.qianyi.casinocore.model.WithdrawOrder;
+import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.repository.BankcardsRepository;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.modulecommon.Constants;
@@ -38,14 +35,8 @@ public class WithdrawBusiness {
     @Autowired
     private UserMoneyService userMoneyService;
 
-    public String getWithdrawFullMoney(Long userId){
-        User user = userService.findById(userId);
-        if (user != null) {
-            BigDecimal withdrawMoney = getWithdrawMoneyByUserId(userId);
-            return withdrawMoney.toString();
-        }
-        return "0.00";
-    }
+    @Autowired
+    private AmountConfigService amountConfigService;
 
     public List<Map<String,Object>> getWithdrawBankcardsList(Long userId){
         return bankcardsService.findForBankcardsByUserId(userId);
@@ -75,8 +66,9 @@ public class WithdrawBusiness {
      * @param userId
      * @return
      */
+    @Transactional
     public BigDecimal getWithdrawMoneyByUserId(Long userId) {
-        UserMoney userMoney = userMoneyService.findByUserId(userId);
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         BigDecimal defaultVal = BigDecimal.ZERO.setScale(2);
         if (userMoney == null) {
             return defaultVal;
@@ -112,13 +104,42 @@ public class WithdrawBusiness {
     * 进行转账
     * */
     @Transactional
-    public UserMoney processWithdraw(BigDecimal money, String bankId,Long userId){
+    public ResponseEntity processWithdraw(BigDecimal money, String bankId,Long userId){
+        if (money == null) {
+            return ResponseUtil.custom("提现金额不允许为空");
+        }
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        if (userMoney == null || userMoney.getCodeNum() == null || userMoney.getMoney() == null) {
+            return ResponseUtil.custom("用户钱包不存在");
+
+        }
+        BigDecimal codeNum = userMoney.getCodeNum();
+        //打码量未清0没有可提现金额
+        if (codeNum.compareTo(BigDecimal.ZERO) == 1) {
+            return ResponseUtil.custom("当前用户可提现金额为0");
+        }
+        BigDecimal withdrawMoney = userMoney.getMoney();
+        if (money.compareTo(withdrawMoney) == 1) {
+            return ResponseUtil.custom("超过可提金额");
+        }
+        //查询提现金额限制
+        AmountConfig amountConfig = amountConfigService.findAmountConfigById(2L);
+        if (amountConfig != null) {
+            BigDecimal minMoney = amountConfig.getMinMoney();
+            BigDecimal maxMoney = amountConfig.getMaxMoney();
+            if (minMoney != null && money.compareTo(minMoney) == -1) {
+                return ResponseUtil.custom("提现金额小于最低提现金额,最低提现金额为:" + minMoney);
+            }
+            if (maxMoney != null && money.compareTo(maxMoney) == 1) {
+                return ResponseUtil.custom("提现金额大于最高提现金额,最高提现金额为:" + maxMoney);
+            }
+        }
         WithdrawOrder withdrawOrder = getWidrawOrder(money,bankId,userId);
         withdrawOrderService.saveOrder(withdrawOrder);
-        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         log.info("money is {}, draw money is {}",money,userMoney.getMoney());
         userMoneyService.subMoney(userId,money);
-        return userMoney;
+        userMoney.setMoney(userMoney.getMoney().subtract(money));
+        return ResponseUtil.success(userMoney);
     }
 
     private WithdrawOrder getWidrawOrder(BigDecimal money, String bankId, Long userId){
@@ -128,6 +149,7 @@ public class WithdrawBusiness {
         withdrawOrder.setUserId(userId);
         withdrawOrder.setNo(orderService.getOrderNo());
         withdrawOrder.setStatus(0);
+        withdrawOrder.setRemitType(1);
         return withdrawOrder;
     }
 
@@ -145,6 +167,29 @@ public class WithdrawBusiness {
 //        userMoneyService.save(userMoney);
 //        return ResponseUtil.success(withdraw);
 //    }
+    //后台直接下分
+    @Transactional
+    public ResponseEntity updateWithdrawAndUser(Long userId, BigDecimal withdrawMoney,String bankId) {
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        if(userMoney == null){
+            return ResponseUtil.custom("用户钱包不存在");
+        }
+        if (userMoney.getMoney().compareTo(withdrawMoney)<=0){
+            return ResponseUtil.custom("余额不足");
+        }
+        WithdrawOrder withdrawOrder = new WithdrawOrder();
+        withdrawOrder.setWithdrawMoney(withdrawMoney);
+        withdrawOrder.setBankId(bankId);
+        withdrawOrder.setUserId(userId);
+        withdrawOrder.setNo(orderService.getOrderNo());
+        withdrawOrder.setStatus(Constants.withdrawOrder_success);
+        withdrawOrderService.saveOrder(withdrawOrder);
+        BigDecimal money = userMoney.getMoney().subtract(withdrawMoney);
+        userMoney.setMoney(money);
+        userMoneyService.save(userMoney);
+        return ResponseUtil.success(userMoney);
+    }
+
     @Transactional
     public ResponseEntity updateWithdrawAndUser(Long id, Integer status) {
         WithdrawOrder withdrawOrder = withdrawOrderService.findUserByIdUseLock(id);
@@ -153,7 +198,18 @@ public class WithdrawBusiness {
         }
         //提现通过或其他
         withdrawOrder.setStatus(status);
-        if(status != Constants.WITHDRAW_REFUSE){
+        if(status == Constants.WITHDRAW_ORDER){//冻结提现金额
+            withdrawOrderService.saveOrder(withdrawOrder);
+            return ResponseUtil.success();
+        }
+        if(status == Constants.WITHDRAW_PASS){//通过提现审核的计算手续费
+            AmountConfig amountConfig = amountConfigService.findAmountConfigById(2L);
+            if (amountConfig != null){
+                //得到手续费
+                BigDecimal serviceCharge = amountConfig.getServiceCharge(withdrawOrder.getWithdrawMoney());
+                BigDecimal withdrawMoney = withdrawOrder.getWithdrawMoney().subtract(serviceCharge);
+                withdrawOrder.setWithdrawMoney(withdrawMoney);
+            }
             withdrawOrderService.saveOrder(withdrawOrder);
             return ResponseUtil.success();
         }

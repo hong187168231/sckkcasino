@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface LoginLogRepository extends JpaRepository<LoginLog,Long>, JpaSpecificationExecutor<LoginLog> {
-    @Query(value = "select * from login_log l where l.ip = ?  group by l.account",nativeQuery = true)
+    @Query(value = "select * from login_log l where l.ip = ?",nativeQuery = true)
     List<LoginLog> findLoginLogList(String ip);
 }

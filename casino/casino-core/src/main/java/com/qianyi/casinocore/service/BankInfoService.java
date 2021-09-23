@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,5 +24,13 @@ public class BankInfoService {
     }
     public void deleteBankInfo(Long id){
         bankInfoRepository.deleteById(id);
+    }
+
+    public BankInfo findById(Long id) {
+        Optional<BankInfo> info = bankInfoRepository.findById(id);
+        if (info != null && info.isPresent()) {
+            return info.get();
+        }
+        return null;
     }
 }

@@ -14,6 +14,8 @@ public class UserVo {
     private String name;
     private String account;
     private String headImg;
+    @ApiModelProperty("账户余额")
+    private BigDecimal money;
     @ApiModelProperty("可提款金额")
     private BigDecimal drawMoney;
     @ApiModelProperty("未完成流水")

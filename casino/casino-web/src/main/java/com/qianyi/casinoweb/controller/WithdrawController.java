@@ -27,14 +27,6 @@ public class WithdrawController {
     @Autowired
     private WithdrawBusiness withdrawBusiness;
 
-    @GetMapping("/money")
-    @ApiOperation("获取提币金额")
-    @ResponseBody
-    public ResponseEntity getWithdrawMoney(){
-        Long userId = CasinoWebUtil.getAuthId();
-        return ResponseUtil.success(withdrawBusiness.getWithdrawFullMoney(userId));
-    }
-
     @GetMapping("/banklist")
     @ApiOperation("获取用户已绑定银行卡")
     @ResponseBody
@@ -57,7 +49,7 @@ public class WithdrawController {
         }
         //判断是否数字
         BigDecimal decMoney = withdrawBusiness.checkMoney(money);
-        if(decMoney.compareTo(BigDecimal.valueOf(-1))==0){
+        if(decMoney.compareTo(BigDecimal.ZERO)<1){//不能小于等于0
             return ResponseUtil.custom("金额类型错误");
         }
         User user = withdrawBusiness.getUserById(CasinoWebUtil.getAuthId());
@@ -69,38 +61,33 @@ public class WithdrawController {
         if (!bcrypt) {
             return ResponseUtil.custom("交易密码错误");
         }
-        BigDecimal withdrawMoney = withdrawBusiness.getWithdrawMoneyByUserId(user.getId());
-        //判断是否大于可提金额
-        if (decMoney.compareTo(withdrawMoney) >= 0) {
-            return ResponseUtil.custom("超过可提金额");
-        }
 //        String checkResult = withdrawBusiness.checkParams(withdrawPwd,decMoney,user);
 //        if(!CasinoWebUtil.checkNull(checkResult)){
 //            return ResponseUtil.custom(checkResult);
 //        }
         //进行提币
-        UserMoney userMoney = withdrawBusiness.processWithdraw(decMoney, bankId, CasinoWebUtil.getAuthId());
+        ResponseEntity responseEntity = withdrawBusiness.processWithdraw(decMoney, bankId, CasinoWebUtil.getAuthId());
 
-        return ResponseUtil.success(userMoney);
+        return responseEntity;
     }
 
     @PostMapping("/updateWithdrawPassword")
     @ApiOperation("当前登录用户修改取款密码")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "oldWithdrawPassword", value = "原取款密码", required = false),
-            @ApiImplicitParam(name = "newWithdrawPassword", value = "新取款密码", required = true),
+            @ApiImplicitParam(name = "newsWithdrawPassword", value = "新取款密码", required = true),
             @ApiImplicitParam(name = "confirmWithdrawPassword", value = "确认取款密码", required = true)})
-    public ResponseEntity updateWithdrawPassword(String oldWithdrawPassword, String newWithdrawPassword, String confirmWithdrawPassword) {
+    public ResponseEntity updateWithdrawPassword(String oldWithdrawPassword, String newsWithdrawPassword, String confirmWithdrawPassword) {
         Long userId = CasinoWebUtil.getAuthId();
         User user = withdrawBusiness.getUserById(userId);
         if (user == null) {
             return ResponseUtil.custom("用户不存在");
         }
-        boolean checkNull = CasinoWebUtil.checkNull(newWithdrawPassword, confirmWithdrawPassword);
+        boolean checkNull = CasinoWebUtil.checkNull(newsWithdrawPassword, confirmWithdrawPassword);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
-        if (!newWithdrawPassword.equals(confirmWithdrawPassword)) {
+        if (!newsWithdrawPassword.equals(confirmWithdrawPassword)) {
             return ResponseUtil.custom("两次密码输入不一致");
         }
         if (!ObjectUtils.isEmpty(user.getWithdrawPassword())) {
@@ -113,7 +100,7 @@ public class WithdrawController {
                 }
             }
         }
-        String bcryptWithdrawPassword = CasinoWebUtil.bcrypt(newWithdrawPassword);
+        String bcryptWithdrawPassword = CasinoWebUtil.bcrypt(newsWithdrawPassword);
         user.setWithdrawPassword(bcryptWithdrawPassword);
         withdrawBusiness.save(user);
         return ResponseUtil.success();
@@ -124,26 +111,26 @@ public class WithdrawController {
     @ApiOperation("当前登录用户修改登录密码")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "oldLoginPassword", value = "原登录密码", required = true),
-            @ApiImplicitParam(name = "newLoginPassword", value = "新登录密码", required = true),
+            @ApiImplicitParam(name = "newsLoginPassword", value = "新登录密码", required = true),
             @ApiImplicitParam(name = "confirmLoginPassword", value = "确认登录密码", required = true)})
-    public ResponseEntity updateLoginPassword(String oldLoginPassword, String newLoginPassword, String confirmLoginPassword) {
+    public ResponseEntity updateLoginPassword(String oldLoginPassword, String newsLoginPassword, String confirmLoginPassword) {
         Long userId = CasinoWebUtil.getAuthId();
         User user = withdrawBusiness.getUserById(userId);
         if (user == null) {
             return ResponseUtil.custom("用户不存在");
         }
-        boolean checkNull = CasinoWebUtil.checkNull(oldLoginPassword, newLoginPassword, confirmLoginPassword);
+        boolean checkNull = CasinoWebUtil.checkNull(oldLoginPassword, newsLoginPassword, confirmLoginPassword);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
-        if (!newLoginPassword.equals(confirmLoginPassword)) {
+        if (!newsLoginPassword.equals(confirmLoginPassword)) {
             return ResponseUtil.custom("两次密码输入不一致");
         }
         boolean checkBcrypt = CasinoWebUtil.checkBcrypt(oldLoginPassword, user.getPassword());
         if(!checkBcrypt){
             return ResponseUtil.custom("原登录密码填写错误");
         }
-        String bcryptLoginPassword = CasinoWebUtil.bcrypt(newLoginPassword);
+        String bcryptLoginPassword = CasinoWebUtil.bcrypt(newsLoginPassword);
         user.setPassword(bcryptLoginPassword);
         withdrawBusiness.save(user);
         return ResponseUtil.success();

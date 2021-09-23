@@ -15,6 +15,7 @@ import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,8 +66,8 @@ public class UserService {
      * @param user
      * @return
      */
-    public Page<User> findUserPage(Pageable pageable, User user) {
-        Specification<User> condition = this.getCondition(user);
+    public Page<User> findUserPage(Pageable pageable, User user, Date startDate,Date endDate) {
+        Specification<User> condition = this.getCondition(user,startDate,endDate);
         return userRepository.findAll(condition, pageable);
     }
 
@@ -77,7 +78,7 @@ public class UserService {
      * @return
      */
     public List<User> findUserList(User user) {
-        Specification<User> condition = this.getCondition(user);
+        Specification<User> condition = this.getCondition(user,null,null);
         return userRepository.findAll(condition);
     }
     /**
@@ -86,7 +87,7 @@ public class UserService {
      * @param user
      * @return
      */
-    private Specification<User> getCondition(User user) {
+    private Specification<User> getCondition(User user,Date startDate,Date endDate) {
         Specification<User> specification = new Specification<User>() {
             @Override
             public Predicate toPredicate(Root<User> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -97,8 +98,17 @@ public class UserService {
                 if (!CommonUtil.checkNull(user.getRegisterIp())) {
                     list.add(cb.equal(root.get("registerIp").as(String.class), user.getRegisterIp()));
                 }
+                if (user.getState() != null) {
+                    list.add(cb.equal(root.get("state").as(String.class), user.getState()));
+                }
                 if (user.getId() != null) {
                     list.add(cb.equal(root.get("id").as(Long.class), user.getId()));
+                }
+                if (startDate != null) {
+                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+                }
+                if (endDate != null) {
+                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
                 }
                 return cb.and(list.toArray(new Predicate[list.size()]));
             }
@@ -130,5 +140,9 @@ public class UserService {
             }
         };
         return specification;
+    }
+
+    public List<User> findByRegisterIp(String ip) {
+        return userRepository.findByRegisterIp(ip);
     }
 }

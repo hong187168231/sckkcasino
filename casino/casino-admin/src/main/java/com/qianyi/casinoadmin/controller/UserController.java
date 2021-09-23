@@ -5,8 +5,10 @@ import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.util.passwordUtil;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
+import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -15,21 +17,19 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -61,6 +61,16 @@ public class UserController {
 
     @Autowired
     private LoginLogService loginLogService;
+
+    @Autowired
+    private WithdrawBusiness withdrawBusiness;
+
+    @Autowired
+    UserThirdService userThirdService;
+
+    @Autowired
+    PublicWMApi wmApi;
+
     /**
      * 查询操作
      * 注意：jpa 是从第0页开始的
@@ -71,16 +81,22 @@ public class UserController {
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "account", value = "用户名", required = false),
+            @ApiImplicitParam(name = "state", value = "1：启用，其他：禁用", required = false),
+            @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
     })
     @GetMapping("findUserList")
-    public ResponseEntity findUserList(Integer pageSize,Integer pageCode,String account){
+    public ResponseEntity findUserList(Integer pageSize, Integer pageCode, String account,Integer state,
+                                       @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
+                                       @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
 
         //后续扩展加参数。
         User user = new User();
         user.setAccount(account);
+        user.setState(state);
         Sort sort=Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
-        Page<User> userPage = userService.findUserPage(pageable, user);
+        Page<User> userPage = userService.findUserPage(pageable, user,startDate,endDate);
         List<User> userList = userPage.getContent();
         if(userList != null && userList.size() > 0){
             List<Long> userIds = userList.stream().map(User::getId).collect(Collectors.toList());
@@ -91,19 +107,58 @@ public class UserController {
                     withdrawOrder.setStatus(CommonConst.NUMBER_3);
                     withdrawOrder.setUserId(u.getId());
                     List<WithdrawOrder> orderList = withdrawOrderService.findOrderList(withdrawOrder);
-                    BigDecimal withdrawMoney = orderList.stream().map(WithdrawOrder::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
-                    u.setWithdrawMoney(withdrawMoney);
+                    BigDecimal freezeMoney = orderList.stream().map(WithdrawOrder::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
+                    u.setFreezeMoney(freezeMoney);//冻结余额
                     userMoneyList.stream().forEach(userMoney -> {
                         if(u.getId().equals(userMoney.getUserId())){
                             u.setMoney(userMoney.getMoney());
                             u.setCodeNum(userMoney.getCodeNum());
+                            u.setWithdrawMoney(userMoney.getWithdrawMoney());//可以提现金额
                         }
                     });
                 });
             }
+            this.setWMMoney(userList);
         }
-
         return ResponseUtil.success(userPage);
+    }
+
+    public void setWMMoney(List<User> userList) {
+
+        log.info("query WM money data：【{}】 ", userList);
+        List<CompletableFuture<User>> completableFutures = new ArrayList<>();
+        for (User user : userList) {
+            UserThird third = userThirdService.findByUserId(user.getId());
+            if (third == null) {
+                continue;
+            }
+            CompletableFuture<User> completableFuture =  CompletableFuture.supplyAsync(() -> {
+                return getWMonetUser(user, third);
+            });
+            completableFutures.add(completableFuture);
+        }
+        CompletableFuture<Void> voidCompletableFuture = CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[]{}));
+        try {
+            voidCompletableFuture.join();
+        }catch (Exception e){
+            //打印日志
+            log.error("query User WM money error：【{}】", e);
+        }
+    }
+
+    private User getWMonetUser(User user, UserThird third) {
+        Integer lang = user.getLanguage();
+        if (lang == null) {
+            lang = 0;
+        }
+        BigDecimal balance = null;
+        try {
+            balance = wmApi.getBalance(third.getAccount(), lang);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        user.setWmMoney(balance);
+        return user;
     }
 
     @ApiOperation("添加用户")
@@ -269,7 +324,7 @@ public class UserController {
      * @param remark 汇款备注
      * @return
      */
-    @ApiOperation("后台新增充值订单")
+    @ApiOperation("后台新增充值订单 上分")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "会员id", required = true),
             @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = true),
@@ -278,6 +333,9 @@ public class UserController {
     })
     @PostMapping("/saveChargeOrder")
     public ResponseEntity saveChargeOrder(Long id,String remitter,String remark, BigDecimal chargeAmount){
+        if (id == null || chargeAmount == null){
+            return ResponseUtil.custom("参数不合法");
+        }
         if (chargeAmount.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
             return ResponseUtil.custom("测试环境加钱不能超过100RMB");
         }
@@ -285,14 +343,34 @@ public class UserController {
         chargeOrder.setUserId(id);
         chargeOrder.setRemitter(remitter);
         chargeOrder.setRemark(remark);
-        chargeOrder.setRemitType(CommonConst.NUMBER_0);
+        chargeOrder.setRemitType(CommonConst.NUMBER_1);
         chargeOrder.setOrderNo(orderService.getOrderNo());
         chargeOrder.setChargeAmount(chargeAmount);
         chargeOrder.setType(CommonConst.NUMBER_2);//管理员新增
         chargeOrder.setStatus(CommonConst.NUMBER_1);
         return chargeOrderBusiness.saveOrderSuccess(chargeOrder);
     }
-
+    /**
+     * 后台新增提现订单
+     *
+     * @param id 会员id
+     * @param withdrawMoney 提现金额
+     * @param bankId 银行id
+     * @return
+     */
+    @ApiOperation("后台新增提现订单 下分")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+            @ApiImplicitParam(name = "withdrawMoney", value = "提现金额", required = true),
+            @ApiImplicitParam(name = "bankId", value = "银行id", required = true),
+    })
+    @PostMapping("/saveWithdrawOrder")
+    public ResponseEntity saveWithdrawOrder(Long id,BigDecimal withdrawMoney,String bankId){
+        if (id == null || withdrawMoney == null|| bankId == null){
+            return ResponseUtil.custom("参数不合法");
+        }
+        return withdrawBusiness.updateWithdrawAndUser(id,withdrawMoney,bankId);
+    }
     /**
      * 查询操作
      * 注意：jpa 是从第0页开始的
@@ -311,7 +389,9 @@ public class UserController {
             User user = new User();
             user.setRegisterIp(context);
             List<User> userList = userService.findUserList(user);
-            List<LoginLog> loginLogList = loginLogService.findLoginLogList(context);
+            LoginLog loginLog = new LoginLog();
+            loginLog.setIp(context);
+            List<LoginLog> loginLogList = loginLogService.findLoginLogList(loginLog);
             Map<String,Object> map = new HashMap<>();
             map.put("register",userList);
             map.put("login",loginLogList);

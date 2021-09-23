@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -40,6 +41,33 @@ public class RechargeTurnoverService {
             @Override
             public Predicate toPredicate(Root<RechargeTurnover> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
+                if (rechargeTurnover.getUserId() != null ) {
+                    list.add(cb.equal(root.get("userId").as(Long.class), rechargeTurnover.getUserId()));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
+    }
+
+
+    public Page<RechargeTurnover> findUserPage(Pageable pageable, Long userId,String startTime,String endTime) {
+        Specification<RechargeTurnover> condition = this.getCondition(userId,startTime,endTime);
+        Page<RechargeTurnover> rechargeTurnoverPage = rechargeTurnoverRepository.findAll(condition, pageable);
+        return rechargeTurnoverPage;
+    }
+
+    private Specification<RechargeTurnover> getCondition(Long userId,String startTime,String endTime) {
+        Specification<RechargeTurnover> specification = new Specification<RechargeTurnover>() {
+            @Override
+            public Predicate toPredicate(Root<RechargeTurnover> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (userId != null ) {
+                    list.add(cb.equal(root.get("userId").as(Long.class), userId));
+                }
+                if(!ObjectUtils.isEmpty(startTime)&&!ObjectUtils.isEmpty(endTime)){
+                    list.add(cb.between(root.get("createTime").as(String.class), startTime,endTime));
+                }
                 return cb.and(list.toArray(new Predicate[list.size()]));
             }
         };

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.*;
 import javax.persistence.LockModeType;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
@@ -19,4 +20,5 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Query(value = "select * from User u where u.id = ? for update",nativeQuery = true)
     User findUserByUserIdUseLock(Long userId);
 
+    List<User> findByRegisterIp(String ip);
 }

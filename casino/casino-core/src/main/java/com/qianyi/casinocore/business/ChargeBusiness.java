@@ -1,15 +1,13 @@
 package com.qianyi.casinocore.business;
 
-import com.qianyi.casinocore.model.ChargeOrder;
-import com.qianyi.casinocore.model.CollectionBankcard;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.UserMoney;
+import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
@@ -31,19 +29,38 @@ public class ChargeBusiness {
 
     @Autowired
     private UserService userService;
+
     @Autowired
     private UserMoneyService userMoneyService;
+
+    @Autowired
+    private AmountConfigService amountConfigService;
+
     public List<CollectionBankcard> getCollectionBankcards(){
         return collectionBankcardService.getCollectionBandcards();
     }
 
 
-    public ChargeOrder submitOrder(String chargeAmount,Integer remitType,String remitterName,Long userId){
-
+    public ResponseEntity submitOrder(String chargeAmount,Integer remitType,String remitterName,Long userId){
+        if(ObjectUtils.isEmpty(chargeAmount)){
+            return ResponseUtil.custom("充值金额不允许为空");
+        }
         BigDecimal decChargeAmount = new BigDecimal(chargeAmount);
-
+        //查询充值金额限制
+        AmountConfig amountConfig = amountConfigService.findAmountConfigById(1L);
+        if (amountConfig != null) {
+            BigDecimal minMoney = amountConfig.getMinMoney();
+            BigDecimal maxMoney = amountConfig.getMaxMoney();
+            if (minMoney != null && decChargeAmount.compareTo(minMoney) == -1) {
+                return ResponseUtil.custom("充值金额小于最低充值金额,最低充值金额为:" + minMoney);
+            }
+            if (maxMoney != null && decChargeAmount.compareTo(maxMoney) == 1) {
+                return ResponseUtil.custom("充值金额大于最高充值金额,最高充值金额为:" + maxMoney);
+            }
+        }
         ChargeOrder chargeOrder = getChargeOrder(decChargeAmount,remitType,remitterName,userId);
-        return chargeOrderService.saveOrder(chargeOrder);
+        ChargeOrder saveOrder = chargeOrderService.saveOrder(chargeOrder);
+        return ResponseUtil.success(saveOrder);
     }
 
     private ChargeOrder getChargeOrder(BigDecimal chargeAmount,Integer remitType,String remitterName,Long userId){
