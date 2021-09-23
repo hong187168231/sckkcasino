@@ -57,10 +57,10 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
 
             // 前后端分离情况下，前端登录后将token储存在cookie中，每次访问接口时通过token去拿用户权限
             String jwtToken = wrappedRequest.getHeader(Constants.REQUEST_HEADER);
-            log.debug("后台检查令牌:{}", jwtToken);
+            log.info("后台检查令牌:{}", jwtToken);
             if (jwtToken != null) {
                 Long userId = CasinoWebUtil.getAuthId();
-                log.debug("userid is {}",userId);
+                log.info("userid is {}",userId);
                 User user = (User) userDetailsService.getUserDetaisByUserId(userId);
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
