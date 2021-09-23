@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.service;
 
+import com.qianyi.casinocore.model.RechargeTurnover;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.WithdrawOrder;
 import com.qianyi.casinocore.repository.WithdrawOrderRepository;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -73,4 +75,27 @@ public class WithdrawOrderService {
         return specification;
     }
 
+    public Page<WithdrawOrder> findUserPage(Pageable pageable, Long userId,Integer status, String startTime, String endTime) {
+        Specification<WithdrawOrder> condition = this.getCondition(userId,status,startTime,endTime);
+        return withdrawOrderRepository.findAll(condition, pageable);
+    }
+    private Specification<WithdrawOrder> getCondition(Long userId,Integer status, String startTime, String endTime) {
+        Specification<WithdrawOrder> specification = new Specification<WithdrawOrder>() {
+            @Override
+            public Predicate toPredicate(Root<WithdrawOrder> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (userId != null ) {
+                    list.add(cb.equal(root.get("userId").as(Long.class), userId));
+                }
+                if (status != null ) {
+                    list.add(cb.equal(root.get("status").as(Integer.class), status));
+                }
+                if(!ObjectUtils.isEmpty(startTime)&&!ObjectUtils.isEmpty(endTime)){
+                    list.add(cb.between(root.get("createTime").as(String.class), startTime,endTime));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
+    }
 }

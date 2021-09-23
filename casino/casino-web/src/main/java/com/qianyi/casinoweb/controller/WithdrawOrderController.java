@@ -5,6 +5,7 @@ import com.qianyi.casinocore.service.WithdrawOrderService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.DateUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -35,18 +36,26 @@ public class WithdrawOrderController {
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "status", value = "订单状态：全部：不传值，0: 正在出款 1：成功出款，2：退回出款，3：已经锁定", required = false),
+            @ApiImplicitParam(name = "date", value = "时间：全部：不传值，0：今天，1：昨天，2：一个月内", required = false)
     })
     @GetMapping("/withdrawList")
-    public ResponseEntity withdrawList(Integer pageSize, Integer pageCode, Integer status) {
+    public ResponseEntity withdrawList(Integer pageSize, Integer pageCode, Integer status, String date) {
         Long userId = CasinoWebUtil.getAuthId();
-        WithdrawOrder withdrawOrder = new WithdrawOrder();
-        withdrawOrder.setUserId(userId);
-        if (status != null) {
-            withdrawOrder.setStatus(status);
-        }
         Sort sort = Sort.by("id").descending();
         Pageable pageable = CasinoWebUtil.setPageable(pageCode, pageSize, sort);
-        Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, withdrawOrder);
+        String startTime = null;
+        String endTime = null;
+        if ("0".equals(date)) {
+            startTime = DateUtil.getStartTime(0);
+            endTime = DateUtil.getEndTime(0);
+        } else if ("1".equals(date)) {
+            startTime = DateUtil.getStartTime(-1);
+            endTime = DateUtil.getEndTime(-1);
+        } else if ("2".equals(date)) {
+            startTime = DateUtil.getMonthAgoStartTime(-1);
+            endTime = DateUtil.getEndTime(0);
+        }
+        Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, userId,status,startTime,endTime);
         return ResponseUtil.success(withdrawOrderPage);
     }
 }

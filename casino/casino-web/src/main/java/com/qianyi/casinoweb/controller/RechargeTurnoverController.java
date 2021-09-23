@@ -5,6 +5,7 @@ import com.qianyi.casinocore.service.RechargeTurnoverService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.DateUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -44,16 +45,15 @@ public class RechargeTurnoverController {
         Pageable pageable = CasinoWebUtil.setPageable(pageCode, pageSize, sort);
         String startTime = null;
         String endTime = null;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if ("0".equals(date)) {
-            startTime = sdf.format(getStartTime(0));
-            endTime = sdf.format(getEndTime(0));
+            startTime = DateUtil.getStartTime(0);
+            endTime = DateUtil.getEndTime(0);
         } else if ("1".equals(date)) {
-            startTime = sdf.format(getStartTime(-1));
-            endTime = sdf.format(getEndTime(-1));
+            startTime = DateUtil.getStartTime(-1);
+            endTime = DateUtil.getEndTime(-1);
         } else if ("2".equals(date)) {
-            startTime = sdf.format(getMonthAgoStartTime(-1));
-            endTime = sdf.format(getEndTime(0));
+            startTime = DateUtil.getMonthAgoStartTime(-1);
+            endTime = DateUtil.getEndTime(0);
         }
         Page<RechargeTurnover> rechargeTurnoverPage = rechargeTurnoverService.findUserPage(pageable, userId, startTime, endTime);
         return ResponseUtil.success(rechargeTurnoverPage);
