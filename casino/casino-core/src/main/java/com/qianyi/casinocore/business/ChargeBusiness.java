@@ -41,7 +41,7 @@ public class ChargeBusiness {
     }
 
 
-    public ResponseEntity submitOrder(String chargeAmount,Integer remitType,String remitterName,Long userId){
+    public ResponseEntity submitOrder(String chargeAmount,Integer remitType,String remitterName,Long bankcardId,Long userId){
         if(ObjectUtils.isEmpty(chargeAmount)){
             return ResponseUtil.custom("充值金额不允许为空");
         }
@@ -58,12 +58,12 @@ public class ChargeBusiness {
                 return ResponseUtil.custom("充值金额大于最高充值金额,最高充值金额为:" + maxMoney);
             }
         }
-        ChargeOrder chargeOrder = getChargeOrder(decChargeAmount,remitType,remitterName,userId);
+        ChargeOrder chargeOrder = getChargeOrder(decChargeAmount,remitType,remitterName,bankcardId,userId);
         ChargeOrder saveOrder = chargeOrderService.saveOrder(chargeOrder);
         return ResponseUtil.success(saveOrder);
     }
 
-    private ChargeOrder getChargeOrder(BigDecimal chargeAmount,Integer remitType,String remitterName,Long userId){
+    private ChargeOrder getChargeOrder(BigDecimal chargeAmount,Integer remitType,String remitterName,Long bankcardId,Long userId){
         ChargeOrder chargeOrder = new ChargeOrder();
         chargeOrder.setOrderNo(orderService.getOrderNo());
         chargeOrder.setChargeAmount(chargeAmount);
@@ -72,6 +72,7 @@ public class ChargeBusiness {
         chargeOrder.setUserId(userId);
         chargeOrder.setRemitType(remitType);
         chargeOrder.setRemark("");
+        chargeOrder.setBankcardId(bankcardId);
         return chargeOrder;
     }
     /**

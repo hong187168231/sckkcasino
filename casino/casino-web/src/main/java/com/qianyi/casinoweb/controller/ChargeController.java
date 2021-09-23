@@ -67,12 +67,13 @@ public class ChargeController {
             @ApiImplicitParam(name = "chargeAmount", value = "充值金额", required = true),
             @ApiImplicitParam(name = "remitType", value = "汇款方式，银行卡1，支付宝2，微信3", required = true),
             @ApiImplicitParam(name = "remitterName", value = "汇款人", required = true),
+            @ApiImplicitParam(name = "bankcardId", value = "收款银行卡ID", required = true),
     })
-    public ResponseEntity submitCharge(String chargeAmount,Integer remitType,String remitterName){
-        if (CasinoWebUtil.checkNull(chargeAmount,remitType,remitterName)) {
+    public ResponseEntity submitCharge(String chargeAmount,Integer remitType,String remitterName,Long bankcardId){
+        if (CasinoWebUtil.checkNull(chargeAmount,remitType,remitterName,bankcardId)) {
             return ResponseUtil.parameterNotNull();
         }
-        ResponseEntity responseEntity = chargeBusiness.submitOrder(chargeAmount, remitType, remitterName, CasinoWebUtil.getAuthId());
+        ResponseEntity responseEntity = chargeBusiness.submitOrder(chargeAmount, remitType, remitterName,bankcardId, CasinoWebUtil.getAuthId());
         return responseEntity;
     }
 }

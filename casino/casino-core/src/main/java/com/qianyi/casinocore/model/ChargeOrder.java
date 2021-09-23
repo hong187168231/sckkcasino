@@ -42,4 +42,7 @@ public class ChargeOrder extends BaseEntity{
 
     @ApiModelProperty(value = "充值订单类型 1 会员提交 2 管理员提交")
     private Integer type = 1;
+
+    @ApiModelProperty(value = "收款银行卡ID")
+    private Long bankcardId;
 }
