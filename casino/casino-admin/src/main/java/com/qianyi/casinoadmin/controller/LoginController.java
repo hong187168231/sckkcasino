@@ -236,26 +236,31 @@ public class LoginController {
     @ApiOperation("查询用户数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "account", value = "已注册的帐号", required = true),
+            @ApiImplicitParam(name = "password", value = "密码", required = true),
     })
     @NoAuthentication
-    public ResponseEntity getSysUser(String account) {
+    public ResponseEntity getSysUser(String account, String password) {
         SysUser user = sysUserService.findByUserName(account);
         if (user == null) {
             return ResponseUtil.fail();
         }
-        SysUserVo userVo = SysUserVo.builder()
-                .userName(user.getUserName())
-                .gaBind(user.getGaBind() + "")
-                .build();
-
-        return ResponseUtil.success(userVo);
+        String bcryptPassword = user.getPassWord();
+        boolean bcrypt = LoginUtil.checkBcrypt(password, bcryptPassword);
+        if (!bcrypt) {
+            return ResponseUtil.custom("帐号或密码错误");
+        }
+        if(LoginUtil.checkNull(user.getGaBind()) || !user.getGaBind().equals("2")){
+            return ResponseUtil.success();
+        }else{
+            return ResponseUtil.custom("已经绑定谷歌验证码");
+        }
 
     }
 
     @GetMapping("gaBind")
     @ApiOperation("绑定谷歌验证码标记")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "account", value = "已注册的帐号", required = true),
+            @ApiImplicitParam(name = "account", value = "已注册的帐号", required = true)
     })
     @NoAuthentication
     public ResponseEntity gaBind(String account) {
@@ -263,10 +268,11 @@ public class LoginController {
         if (user == null) {
             return ResponseUtil.fail();
         }
+
         if(LoginUtil.checkNull(user.getGaBind()) || !user.getGaBind().equals("2")){
             user.setGaBind("2");
             sysUserService.save(user);
-            return ResponseUtil.success(user);
+            return ResponseUtil.success();
         }else{
             return ResponseUtil.custom("已经绑定谷歌验证码");
         }
