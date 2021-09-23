@@ -54,6 +54,7 @@ public class UserController {
         if (userMoney.getCodeNum() == null) {
             vo.setUnfinshTurnover(defaultVal);
             vo.setDrawMoney(defaultVal);
+            return new ResponseEntity(ResponseCode.SUCCESS, vo);
         }
         BigDecimal codeNum = userMoney.getCodeNum();
         vo.setUnfinshTurnover(codeNum.setScale(2, BigDecimal.ROUND_HALF_UP));
