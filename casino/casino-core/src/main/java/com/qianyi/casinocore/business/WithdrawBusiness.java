@@ -38,15 +38,6 @@ public class WithdrawBusiness {
     @Autowired
     private AmountConfigService amountConfigService;
 
-    public String getWithdrawFullMoney(Long userId){
-        User user = userService.findById(userId);
-        if (user != null) {
-            BigDecimal withdrawMoney = getWithdrawMoneyByUserId(userId);
-            return withdrawMoney.toString();
-        }
-        return "0.00";
-    }
-
     public List<Map<String,Object>> getWithdrawBankcardsList(Long userId){
         return bankcardsService.findForBankcardsByUserId(userId);
     }
@@ -75,8 +66,9 @@ public class WithdrawBusiness {
      * @param userId
      * @return
      */
+    @Transactional
     public BigDecimal getWithdrawMoneyByUserId(Long userId) {
-        UserMoney userMoney = userMoneyService.findByUserId(userId);
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         BigDecimal defaultVal = BigDecimal.ZERO.setScale(2);
         if (userMoney == null) {
             return defaultVal;
@@ -116,6 +108,20 @@ public class WithdrawBusiness {
         if (money == null) {
             return ResponseUtil.custom("提现金额不允许为空");
         }
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        if (userMoney == null || userMoney.getCodeNum() == null || userMoney.getMoney() == null) {
+            return ResponseUtil.custom("用户钱包不存在");
+
+        }
+        BigDecimal codeNum = userMoney.getCodeNum();
+        //打码量未清0没有可提现金额
+        if (codeNum.compareTo(BigDecimal.ZERO) == 1) {
+            return ResponseUtil.custom("当前用户可提现金额为0");
+        }
+        BigDecimal withdrawMoney = userMoney.getMoney();
+        if (money.compareTo(withdrawMoney) == 1) {
+            return ResponseUtil.custom("超过可提金额");
+        }
         //查询提现金额限制
         AmountConfig amountConfig = amountConfigService.findAmountConfigById(2L);
         if (amountConfig != null) {
@@ -130,7 +136,6 @@ public class WithdrawBusiness {
         }
         WithdrawOrder withdrawOrder = getWidrawOrder(money,bankId,userId);
         withdrawOrderService.saveOrder(withdrawOrder);
-        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         log.info("money is {}, draw money is {}",money,userMoney.getMoney());
         userMoneyService.subMoney(userId,money);
         userMoney.setMoney(userMoney.getMoney().subtract(money));

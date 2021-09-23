@@ -27,14 +27,6 @@ public class WithdrawController {
     @Autowired
     private WithdrawBusiness withdrawBusiness;
 
-    @GetMapping("/money")
-    @ApiOperation("获取提币金额")
-    @ResponseBody
-    public ResponseEntity getWithdrawMoney(){
-        Long userId = CasinoWebUtil.getAuthId();
-        return ResponseUtil.success(withdrawBusiness.getWithdrawFullMoney(userId));
-    }
-
     @GetMapping("/banklist")
     @ApiOperation("获取用户已绑定银行卡")
     @ResponseBody
@@ -57,7 +49,7 @@ public class WithdrawController {
         }
         //判断是否数字
         BigDecimal decMoney = withdrawBusiness.checkMoney(money);
-        if(decMoney.compareTo(BigDecimal.valueOf(-1))==0){
+        if(decMoney.compareTo(BigDecimal.ZERO)<1){//不能小于等于0
             return ResponseUtil.custom("金额类型错误");
         }
         User user = withdrawBusiness.getUserById(CasinoWebUtil.getAuthId());
@@ -68,11 +60,6 @@ public class WithdrawController {
         boolean bcrypt = CasinoWebUtil.checkBcrypt(withdrawPwd, user.getWithdrawPassword());
         if (!bcrypt) {
             return ResponseUtil.custom("交易密码错误");
-        }
-        BigDecimal withdrawMoney = withdrawBusiness.getWithdrawMoneyByUserId(user.getId());
-        //判断是否大于可提金额
-        if (decMoney.compareTo(withdrawMoney) >= 0) {
-            return ResponseUtil.custom("超过可提金额");
         }
 //        String checkResult = withdrawBusiness.checkParams(withdrawPwd,decMoney,user);
 //        if(!CasinoWebUtil.checkNull(checkResult)){
