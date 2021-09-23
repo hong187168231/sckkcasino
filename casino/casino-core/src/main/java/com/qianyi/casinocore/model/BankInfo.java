@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 
 import io.swagger.annotations.ApiModel;
@@ -12,15 +13,11 @@ import lombok.Data;
 @Data
 @ApiModel("银行列表")
 public class BankInfo extends BaseEntity {
-
-
 	/**
 	 * 银行名
 	 */
+	@Column(unique = true)
 	private String bankName;
-
-	/** 银行编码 */
-	private String bankCode;
 
 	private String bankLogo;
 

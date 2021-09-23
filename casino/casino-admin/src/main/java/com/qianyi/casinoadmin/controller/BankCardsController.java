@@ -52,56 +52,83 @@ public class BankCardsController {
      * 新增银行
      * @param file 银行图标logo
      * @param bankName 银行名称
-     * @param bankCode 银行编码
-     * @param bankType 类型0:银行卡，1：支付宝，2：微信，3：QQ
-     * @param disable 0:未禁用 1：禁用
      * @param remark 备注
      * @return
      */
     @ApiOperation("新增银行")
     @PostMapping(value = "/saveBankInfo",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增银行")
-    public ResponseEntity saveBankInfo(@RequestPart(value = "bankLogo银行图标") MultipartFile file, @RequestParam(value = "银行名称") String bankName,
-                                        @RequestParam(value = "银行编码") String bankCode,@RequestParam(value = "类型0:银行卡，1：支付宝，2：微信，3：QQ") Integer bankType,
-                                       @RequestParam(value = "0:未禁用 1：禁用") Integer disable,@RequestParam(value = "备注")String remark){
+    public ResponseEntity saveBankInfo(@RequestPart(value = "bankLogo银行图标",required=false) MultipartFile file, @RequestParam(value = "银行名称") String bankName,
+                                       @RequestParam(value = "备注",required=false)String remark){
+        if (bankName == null){
+            ResponseUtil.custom("参数不合法");
+        }
         BankInfo bankInfo = new BankInfo();
-        return this.saveAndUpdate(file,bankName,bankCode,bankType,disable,remark,bankInfo);
+        bankInfo.setBankType(CommonConst.NUMBER_0);//默认银行卡
+        bankInfo.setDisable(CommonConst.NUMBER_1);//默认禁用
+        return this.saveAndUpdate(file,bankName,remark,bankInfo);
     }
     /**
      * 修改银行信息
      * @param file 银行图标logo
      * @param bankName 银行名称
-     * @param bankCode 银行编码
-     * @param bankType 类型0:银行卡，1：支付宝，2：微信，3：QQ
-     * @param disable 0:未禁用 1：禁用
      * @param remark 备注
      * @param id 银行id
      * @return
      */
     @ApiOperation("修改银行")
     @PostMapping(value = "/updateBankInfo",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "修改银行")
-    public ResponseEntity updateBankInfo(@RequestPart(value = "bankLogo银行图标") MultipartFile file, @RequestParam(value = "银行名称") String bankName,
-                                       @RequestParam(value = "银行编码") String bankCode,@RequestParam(value = "0:银行卡，1：支付宝，2：微信，3：QQ") Integer bankType,
-                                       @RequestParam(value = "0:未禁用 1：禁用") Integer disable,@RequestParam(value = "备注")String remark,
+    public ResponseEntity updateBankInfo(@RequestPart(value = "bankLogo银行图标",required=false) MultipartFile file,
+                                         @RequestParam(value = "银行名称") String bankName,@RequestParam(value = "备注",required=false)String remark,
                                          @RequestParam(value = "银行id")  Long id){
-        BankInfo bankInfo = new BankInfo();
-        bankInfo.setId(id);
-        return this.saveAndUpdate(file,bankName,bankCode,bankType,disable,remark,bankInfo);
+        if (id == null){
+            ResponseUtil.custom("参数不合法");
+        }
+        BankInfo bankInfo = bankInfoService.findById(id);
+        if (bankInfo == null){
+            ResponseUtil.custom("没有这个银行");
+        }
+        return this.saveAndUpdate(file,bankName,remark,bankInfo);
 
     }
-    private ResponseEntity saveAndUpdate(MultipartFile file,String bankName, String bankCode, Integer bankType,
-                                         Integer disable,String remark,BankInfo bankInfo){
+    private ResponseEntity saveAndUpdate(MultipartFile file,String bankName,String remark,BankInfo bankInfo){
         bankInfo.setBankName(bankName);
-        bankInfo.setBankCode(bankCode);
-        bankInfo.setBankType(bankType);
-        bankInfo.setDisable(disable);
         bankInfo.setRemark(remark);
         try {
-            String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
+            String fileUrl = null;
+            if (file != null){
+                 fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
+            }
             bankInfo.setBankLogo(fileUrl);
-            bankInfoService.saveBankInfo(bankInfo);
         } catch (Exception e) {
             return ResponseUtil.custom(CommonConst.PICTURENOTUP);
         }
+        try {
+            bankInfoService.saveBankInfo(bankInfo);
+        }catch (Exception e){
+            return ResponseUtil.custom("重复银行名称");
+        }
+        return ResponseUtil.success();
+    }
+
+    @ApiOperation("修改银行状态")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "银行id", required = true),
+    })
+    @PostMapping("updateBankStatus")
+    public ResponseEntity updateBankStatus(Long id){
+        if (id == null){
+            ResponseUtil.custom("参数不合法");
+        }
+        BankInfo bankInfo = bankInfoService.findById(id);
+        if (bankInfo == null){
+            ResponseUtil.custom("没有这个银行");
+        }
+        if (bankInfo.getDisable() == CommonConst.NUMBER_1){
+            bankInfo.setDisable(CommonConst.NUMBER_0);
+        }else{
+            bankInfo.setDisable(CommonConst.NUMBER_1);
+        }
+        bankInfoService.saveBankInfo(bankInfo);
         return ResponseUtil.success();
     }
     /**
