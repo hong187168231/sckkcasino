@@ -193,7 +193,7 @@ public class WithdrawBusiness {
     @Transactional
     public ResponseEntity updateWithdrawAndUser(Long id, Integer status) {
         WithdrawOrder withdrawOrder = withdrawOrderService.findUserByIdUseLock(id);
-        if(withdrawOrder == null && withdrawOrder.getStatus() != 0){
+        if(withdrawOrder != null && withdrawOrder.getStatus() != 0){
             return ResponseUtil.custom("订单已被处理");
         }
         //提现通过或其他
