@@ -105,21 +105,19 @@ public class AuthController {
         //查询ip注册账号限制
         if (!ObjectUtils.isEmpty(ip)) {
             RiskConfig riskConfig = riskConfigService.findById(1L);
+            Integer timeLimit = null;
             if (riskConfig != null) {
-                Integer timeLimit = riskConfig.getTimeLimit();
-                if (timeLimit != null) {
-                    List<User> userList = userService.findByRegisterIp(ip);
-                    if (!CollectionUtils.isEmpty(userList) && userList.size() > timeLimit) {
-                        //同 1 IP注册的账号禁用
-                        for (User u : userList) {
-                            u.setState(0);
-                            userService.save(u);
-                        }
-                        return ResponseUtil.custom("当前IP帐号注册超过限制");
-                    }
-                }
+                timeLimit = riskConfig.getTimeLimit();
+            }
+            Integer count = null;
+            if (timeLimit != null) {
+                count = userService.countByIp(ip);
+            }
+            if (timeLimit != null && count != null && count > timeLimit) {
+                return ResponseUtil.custom("当前IP注册帐号数量超过上限");
             }
         }
+
         User user = userService.findByAccount(account);
         if (user != null && !CommonUtil.checkNull(user.getPassword())) {
             return ResponseUtil.custom("该帐号已存在");
