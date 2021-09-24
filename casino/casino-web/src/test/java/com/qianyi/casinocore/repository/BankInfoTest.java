@@ -14,13 +14,13 @@ public class BankInfoTest {
     @Autowired
     BankInfoRepository bankInfoRepository;
 
-    @Test
-    public void should_add_bank_info(){
-        BankInfo bankInfo = new BankInfo();
-        bankInfo.setBankCode("diiw");
-        bankInfo.setBankName("xxxxx银行");
-        bankInfo.setDisable(0);
-
-        bankInfoRepository.save(bankInfo);
-    }
+//    @Test
+//    public void should_add_bank_info(){
+//        BankInfo bankInfo = new BankInfo();
+//        bankInfo.setBankCode("diiw");
+//        bankInfo.setBankName("xxxxx银行");
+//        bankInfo.setDisable(0);
+//
+//        bankInfoRepository.save(bankInfo);
+//    }
 }
