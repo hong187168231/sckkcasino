@@ -44,9 +44,13 @@ public class BankCardsController {
      */
     @GetMapping("/banklist")
     @ApiOperation("银行列表")
-    @ResponseBody
-    public ResponseEntity bankList() {
-        return ResponseUtil.success(bankInfoService.findAll());
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "disable", value = "0:未禁用 1：禁用", required = false),
+    })
+    public ResponseEntity bankList(Integer disable) {
+        BankInfo bankInfo = new BankInfo();
+        bankInfo.setDisable(disable);
+        return ResponseUtil.success(bankInfoService.findAll(bankInfo));
     }
     /**
      * 新增银行

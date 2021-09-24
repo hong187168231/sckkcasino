@@ -49,22 +49,11 @@ public class UserController {
             vo.setMoney(defaultVal);
             return new ResponseEntity(ResponseCode.SUCCESS, vo);
         }
-        BigDecimal money = userMoney.getMoney() == null ? defaultVal : userMoney.getMoney();
+        BigDecimal money = userMoney.getMoney() == null ? defaultVal : userMoney.getMoney().setScale(2, BigDecimal.ROUND_HALF_UP);
         vo.setMoney(money);
-        if (userMoney.getCodeNum() == null) {
-            vo.setUnfinshTurnover(defaultVal);
-            vo.setDrawMoney(defaultVal);
-            return new ResponseEntity(ResponseCode.SUCCESS, vo);
-        }
-        BigDecimal codeNum = userMoney.getCodeNum();
-        vo.setUnfinshTurnover(codeNum.setScale(2, BigDecimal.ROUND_HALF_UP));
-        //打码量为0时才有可提现金额
-        if (codeNum.compareTo(BigDecimal.ZERO) < 1) {
-            vo.setDrawMoney(money.setScale(2, BigDecimal.ROUND_HALF_UP));
-        } else {
-            vo.setDrawMoney(defaultVal);
-        }
-//        return ResponseUtil.success(vo);
+        vo.setDrawMoney(userMoney.getWithdrawMoney());
+        BigDecimal codeNum = userMoney.getCodeNum() == null ? defaultVal : userMoney.getCodeNum().setScale(2, BigDecimal.ROUND_HALF_UP);
+        vo.setUnfinshTurnover(codeNum);
         return new ResponseEntity(ResponseCode.SUCCESS, vo);
     }
 
