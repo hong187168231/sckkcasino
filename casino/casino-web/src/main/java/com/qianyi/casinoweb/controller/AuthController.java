@@ -132,8 +132,6 @@ public class AuthController {
         //userMoney表初始化数据
         UserMoney userMoney=new UserMoney();
         userMoney.setUserId(save.getId());
-        userMoney.setCodeNum(BigDecimal.ZERO);
-        userMoney.setMoney(BigDecimal.ZERO);
         userMoneyService.save(userMoney);
         return ResponseUtil.success();
     }

@@ -16,10 +16,10 @@ public class UserMoney extends BaseEntity{
     private Long userId;
 
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
-    private BigDecimal money;
+    private BigDecimal money=BigDecimal.ZERO;
 
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
-    private BigDecimal codeNum;
+    private BigDecimal codeNum=BigDecimal.ZERO;
 
     //计算可提现金额
     public BigDecimal getWithdrawMoney(){
