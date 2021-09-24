@@ -21,12 +21,12 @@ public class RedisLimitExcutor {
     /**
      * 单位时间次数
      */
-    private int limitCount=1;
+    private int limitCount = 50;
 
     /**
      * 单位时间 秒
      */
-    private int seconds=1;
+    private int seconds = 1;
 
     /**
      * 令牌的
