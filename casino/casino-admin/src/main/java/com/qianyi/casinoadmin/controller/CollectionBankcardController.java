@@ -1,8 +1,8 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.CommonConst;
+import com.qianyi.casinoadmin.util.CommonUtil;
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.CollectionBankcard;
 import com.qianyi.casinocore.service.CollectionBankcardService;
 import com.qianyi.modulecommon.Constants;
@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -65,6 +66,8 @@ public class CollectionBankcardController {
         bankcard.setBankNo(bankNo);
         bankcard.setBankId(bankId);
         bankcard.setAccountName(accountName);
+        bankcard.setDayMaxAmount(new BigDecimal(200000));
+        bankcard.setMonthMaxAmount(new BigDecimal(1000000));
         bankcard.setDisable(CommonConst.NUMBER_1);//新增默认禁用
         collectionBankcardService.save(bankcard);
         return ResponseUtil.success(bankcard);
@@ -76,9 +79,12 @@ public class CollectionBankcardController {
             @ApiImplicitParam(name = "bankNo", value = "银行账号", required = false),
             @ApiImplicitParam(name = "bankId", value = "银行卡id", required = false),
             @ApiImplicitParam(name = "accountName", value = "开户名", required = false),
+            @ApiImplicitParam(name = "dayMaxAmount", value = "单日最大收款", required = false),
+            @ApiImplicitParam(name = "monthMaxAmount", value = "单月最大收款", required = false),
     })
     @PostMapping("updateBankInfo")
-    public ResponseEntity updateBankInfo(Long id, String bankNo, String bankId, String accountName){
+    public ResponseEntity updateBankInfo(Long id, String bankNo, String bankId, String accountName,String dayMaxAmount,
+                                         String monthMaxAmount){
         CollectionBankcard collectionBankcard = collectionBankcardService.findById(id);
         if(collectionBankcard == null){
             return ResponseUtil.custom("银行卡不存在");
@@ -88,13 +94,27 @@ public class CollectionBankcardController {
             if (!LoginUtil.checkNull(byBankNo)){
                 return ResponseUtil.custom("银行卡已存在");
             }
-           collectionBankcard.setBankNo(bankNo);
+            collectionBankcard.setBankNo(bankNo);
         }
         if(!LoginUtil.checkNull(bankId)){
-           collectionBankcard.setBankId(bankId);
+            collectionBankcard.setBankId(bankId);
         }
         if(!LoginUtil.checkNull(accountName)){
-           collectionBankcard.setAccountName(accountName);
+            collectionBankcard.setAccountName(accountName);
+        }
+        if(!LoginUtil.checkNull(dayMaxAmount)){
+            BigDecimal bigDecimal = CommonUtil.checkMoney(dayMaxAmount);
+            if(bigDecimal.compareTo(BigDecimal.ZERO)<1){//不能小于等于0
+                return ResponseUtil.custom("金额类型错误");
+            }
+            collectionBankcard.setDayMaxAmount(bigDecimal);
+        }
+        if(!LoginUtil.checkNull(monthMaxAmount)){
+            BigDecimal bigDecimal = CommonUtil.checkMoney(monthMaxAmount);
+            if(bigDecimal.compareTo(BigDecimal.ZERO)<1){//不能小于等于0
+                return ResponseUtil.custom("金额类型错误");
+            }
+            collectionBankcard.setMonthMaxAmount(bigDecimal);
         }
         collectionBankcardService.save(collectionBankcard);
         return ResponseUtil.success(collectionBankcard);

@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.persistence.Entity;
+import java.math.BigDecimal;
 
 @Data
 @Entity
@@ -31,4 +32,10 @@ public class CollectionBankcard extends BaseEntity{
      */
     @ApiModelProperty(value = "0:未禁用 1：禁用")
     private Integer disable;
+
+    @ApiModelProperty(value = "单日最大收款")
+    private BigDecimal dayMaxAmount;
+
+    @ApiModelProperty(value = "单月最大收款")
+    private BigDecimal monthMaxAmount;
 }
