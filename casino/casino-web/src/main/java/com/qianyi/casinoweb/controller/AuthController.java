@@ -109,11 +109,9 @@ public class AuthController {
             if (riskConfig != null) {
                 timeLimit = riskConfig.getTimeLimit();
             }
-            Integer count = null;
-            if (timeLimit != null) {
-                count = userService.countByIp(ip);
-            }
-            if (timeLimit != null && count != null && count > timeLimit) {
+            timeLimit = timeLimit == null ? 5 : timeLimit;
+            Integer count = userService.countByIp(ip);
+            if (count != null && count > timeLimit) {
                 return ResponseUtil.custom("当前IP注册帐号数量超过上限");
             }
         }
