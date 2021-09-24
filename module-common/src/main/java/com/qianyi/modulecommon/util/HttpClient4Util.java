@@ -1,5 +1,6 @@
 package com.qianyi.modulecommon.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -16,10 +17,11 @@ import org.apache.http.util.EntityUtils;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
-
+@Slf4j
 public class HttpClient4Util {
 
     public static String doGet(String url) {
+        log.info("doGet请求参数{}",url);
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse response = null;
         String result = "";
@@ -43,6 +45,7 @@ public class HttpClient4Util {
             HttpEntity entity = response.getEntity();
             // 通过EntityUtils中的toString方法将结果转换为字符串
             result = EntityUtils.toString(entity);
+            log.info("doGet请求返回参数{}",result);
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -68,6 +71,8 @@ public class HttpClient4Util {
     }
 
     public static String doPost(String url, Map<String, Object> paramMap) {
+        log.info("doPost请求路径{}",url);
+        log.info("doPost请求参数{}",paramMap);
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse httpResponse = null;
         String result = "";
@@ -109,6 +114,7 @@ public class HttpClient4Util {
             // 从响应对象中获取响应内容
             HttpEntity entity = httpResponse.getEntity();
             result = EntityUtils.toString(entity);
+            log.info("doPost请求返回参数{}",result);
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
