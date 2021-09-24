@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.qianyi.modulecommon.Constants;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -57,6 +58,7 @@ public class User extends BaseEntity implements UserDetails {
 
     private String webChat;
 
+    @JsonIgnore
     @Transient
     private String token;
     //校验用户帐号权限
@@ -130,6 +132,7 @@ public class User extends BaseEntity implements UserDetails {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
@@ -138,26 +141,31 @@ public class User extends BaseEntity implements UserDetails {
         return authorities;
     }
 
+    @JsonIgnore
     @Override
     public String getUsername() {
         return getAccount();
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isEnabled() {
         return true;

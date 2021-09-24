@@ -1,8 +1,6 @@
 package com.qianyi.casinoweb.config;
 
-import com.qianyi.casinoweb.config.security.SecurityProperties;
 import com.qianyi.casinoweb.config.security.filter.MyAuthenticationFilter;
-import com.qianyi.casinoweb.config.security.login.CusAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,23 +10,13 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 @Configuration
 @EnableWebSecurity
-//@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-
-    @Autowired
-    private SecurityProperties securityProperties;
 
     @Autowired
     private MyAuthenticationFilter myAuthenticationFilter;
 
-    @Autowired
-    private CusAuthenticationEntryPoint cusAuthenticationEntryPoint;
-
-
-
     @Override
     public void configure(HttpSecurity http) throws Exception {
-
 
         http.csrf().disable()
                 .authorizeRequests()

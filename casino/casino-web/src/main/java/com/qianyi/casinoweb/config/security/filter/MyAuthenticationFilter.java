@@ -6,7 +6,6 @@ import com.qianyi.casinoweb.config.security.util.Constants;
 import com.qianyi.casinoweb.config.security.util.MultiReadHttpServletRequest;
 import com.qianyi.casinoweb.config.security.util.MultiReadHttpServletResponse;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
-import com.qianyi.modulejjwt.JjwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -61,18 +59,22 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
             if (jwtToken != null) {
                 Long userId = CasinoWebUtil.getAuthId();
                 log.info("userid is {}",userId);
-                User user = (User) userDetailsService.getUserDetaisByUserId(userId);
+                if(userId !=null){
+                    User user = (User) userDetailsService.getUserDetaisByUserId(userId);
 
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-                // 全局注入角色权限信息和登录用户基本信息
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                    // 全局注入角色权限信息和登录用户基本信息
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
             filterChain.doFilter(wrappedRequest, wrappedResponse);
         } catch (ExpiredJwtException e) {
             // jwt令牌过期
+            log.error("{}",e);
             SecurityContextHolder.clearContext();
             this.authenticationEntryPoint.commence(wrappedRequest, response, null);
         } catch (AuthenticationException e) {
+            log.error("{}",e);
             SecurityContextHolder.clearContext();
             this.authenticationEntryPoint.commence(wrappedRequest, response, e);
         } finally {
