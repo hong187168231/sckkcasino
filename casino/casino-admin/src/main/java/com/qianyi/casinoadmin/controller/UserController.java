@@ -118,7 +118,7 @@ public class UserController {
                     });
                 });
             }
-            this.setWMMoney(userList);
+//            this.setWMMoney(userList);
         }
         return ResponseUtil.success(userPage);
     }
