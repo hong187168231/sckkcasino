@@ -2,6 +2,7 @@ package com.qianyi.casinoadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.util.CommonConst;
+import com.qianyi.casinoadmin.util.CommonUtil;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.util.passwordUtil;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
@@ -395,6 +396,9 @@ public class UserController {
             LoginLog loginLog = new LoginLog();
             loginLog.setIp(context);
             List<LoginLog> loginLogList = loginLogService.findLoginLogList(loginLog);
+            if (loginLogList.size() > CommonConst.NUMBER_0){
+                loginLogList = loginLogList.stream().filter(CommonUtil.distinctByKey(LoginLog::getAccount)).collect(Collectors.toList());
+            }
             Map<String,Object> map = new HashMap<>();
             map.put("register",userList);
             map.put("login",loginLogList);
