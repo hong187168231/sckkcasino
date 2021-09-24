@@ -260,7 +260,7 @@ public class UserController {
     @PostMapping("updateUserStatus")
     public ResponseEntity updateUserStatus(Long id){
         User user = userService.findById(id);
-        if(user == null){
+        if (LoginUtil.checkNull(user)){
             return ResponseUtil.custom("账户不存在");
         }
         //开启状态，冻结
@@ -280,7 +280,7 @@ public class UserController {
     @PostMapping("withdrawPassword")
     public ResponseEntity withdrawPassword(Long id){
         User user = userService.findById(id);
-        if(user == null){
+        if (LoginUtil.checkNull(user)){
             return ResponseUtil.custom("账户不存在");
         }
         //随机生成
@@ -301,7 +301,7 @@ public class UserController {
     @PostMapping("resetPassword")
     public ResponseEntity resetPassword(Long id){
         User user = userService.findById(id);
-        if(user == null){
+        if (LoginUtil.checkNull(user)){
             return ResponseUtil.custom("账户不存在");
         }
         //随机生成
@@ -333,7 +333,7 @@ public class UserController {
     })
     @PostMapping("/saveChargeOrder")
     public ResponseEntity saveChargeOrder(Long id,String remitter,String remark, BigDecimal chargeAmount){
-        if (id == null || chargeAmount == null){
+        if (LoginUtil.checkNull(id,chargeAmount)){
             return ResponseUtil.custom("参数不合法");
         }
         if (chargeAmount.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
@@ -366,7 +366,7 @@ public class UserController {
     })
     @PostMapping("/saveWithdrawOrder")
     public ResponseEntity saveWithdrawOrder(Long id,BigDecimal withdrawMoney,String bankId){
-        if (id == null || withdrawMoney == null|| bankId == null){
+        if (LoginUtil.checkNull(id,withdrawMoney,bankId)){
             return ResponseUtil.custom("参数不合法");
         }
         return withdrawBusiness.updateWithdrawAndUser(id,withdrawMoney,bankId);
@@ -385,7 +385,7 @@ public class UserController {
     })
     @GetMapping("findUserPegging")
     public ResponseEntity findUserPegging(Integer tag,String context){
-        if (tag == null || context == null){
+        if (LoginUtil.checkNull(tag,context)){
             return ResponseUtil.custom("参数不合法");
         }
         if (tag == CommonConst.NUMBER_0){//反查ip

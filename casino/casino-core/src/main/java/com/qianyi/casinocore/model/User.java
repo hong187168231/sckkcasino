@@ -65,7 +65,7 @@ public class User extends BaseEntity implements UserDetails {
             return false;
         }
 
-        if (!Constants.yes.equals(user.getState())) {
+        if (!Constants.open.equals(user.getState())) {
             return false;
         }
         return true;
