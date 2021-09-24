@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.service.UserService;
@@ -27,18 +28,34 @@ public class UserThirdController {
     @ApiOperation("根据我方用户账号查询三方账号")
     @GetMapping("/findUserThird")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userAccount", value = "我方用户账号(目前只有一个参数，后续可以会加)", required = true),
+            @ApiImplicitParam(name = "userAccount", value = "用户账号", required = true),
+            @ApiImplicitParam(name = "tag", value = "tag 0 用我方账号查第三方账号 ,1 第三方账号查我方账号", required = true),
     })
-    public ResponseEntity findUserThird(String userAccount){
-        User user = userService.findByAccount(userAccount);
-        if (user==null){
-            return ResponseUtil.custom("账户不存在");
+    public ResponseEntity findUserThird(String userAccount,Integer tag){
+        if (tag == null || userAccount == null){
+            return ResponseUtil.custom("参数不合法");
         }
-        UserThird userThird = userThirdService.findByUserId(user.getId());
-        if (userThird==null){
-            return ResponseUtil.custom("三方账号不存在");
+        if (tag == CommonConst.NUMBER_0){
+            User user = userService.findByAccount(userAccount);
+            if (user==null){
+                return ResponseUtil.custom("账户不存在");
+            }
+            UserThird userThird = userThirdService.findByUserId(user.getId());
+            if (userThird==null){
+                return ResponseUtil.custom("三方账号不存在");
+            }
+            return ResponseUtil.success(userThird.getAccount());
+        }else if(tag == CommonConst.NUMBER_1){
+            UserThird userThird = userThirdService.findByAccount(userAccount);
+            if (userThird==null){
+                return ResponseUtil.custom("三方账号不存在");
+            }
+            User user = userService.findById(userThird.getUserId());
+            if (user==null){
+                return ResponseUtil.custom("账户不存在");
+            }
+            return ResponseUtil.success(user.getAccount());
         }
-        return ResponseUtil.success(userThird.getAccount());
-
+        return ResponseUtil.fail();
     }
 }
