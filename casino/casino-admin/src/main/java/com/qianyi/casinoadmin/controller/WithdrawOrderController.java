@@ -43,9 +43,8 @@ public class WithdrawOrderController {
     private WithdrawBusiness withdrawBusiness;
 
     @Autowired
-    private UserService userService;
-    @Autowired
     private OrderService orderService;
+
     @Autowired
     private UserMoneyService userMoneyService;
 
@@ -82,7 +81,7 @@ public class WithdrawOrderController {
     })
     @PostMapping("saveWithdraw")
     public ResponseEntity saveWithdraw(Long id, Integer status){
-        if (id == null || status == null){
+        if (LoginUtil.checkNull(id,status)){
             return ResponseUtil.custom("参数不合法");
         }
         if(status != CommonConst.NUMBER_1 && status != CommonConst.NUMBER_2 && status != CommonConst.NUMBER_3){
@@ -97,7 +96,7 @@ public class WithdrawOrderController {
     })
     @GetMapping("save")
     public ResponseEntity save(Long id,BigDecimal bigDecimal){
-        if (id == null || bigDecimal == null){
+        if (LoginUtil.checkNull(id,bigDecimal)){
             return ResponseUtil.custom("参数不合法");
         }
         UserMoney byUserId = userMoneyService.findByUserId(id);

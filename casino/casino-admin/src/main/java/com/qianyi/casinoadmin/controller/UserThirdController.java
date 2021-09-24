@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.CommonConst;
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.service.UserService;
@@ -32,26 +33,26 @@ public class UserThirdController {
             @ApiImplicitParam(name = "tag", value = "tag 0 用我方账号查第三方账号 ,1 第三方账号查我方账号", required = true),
     })
     public ResponseEntity findUserThird(String userAccount,Integer tag){
-        if (tag == null || userAccount == null){
+        if (LoginUtil.checkNull(tag,userAccount)){
             return ResponseUtil.custom("参数不合法");
         }
         if (tag == CommonConst.NUMBER_0){
             User user = userService.findByAccount(userAccount);
-            if (user==null){
+            if (LoginUtil.checkNull(user)){
                 return ResponseUtil.custom("账户不存在");
             }
             UserThird userThird = userThirdService.findByUserId(user.getId());
-            if (userThird==null){
+            if (LoginUtil.checkNull(userThird)){
                 return ResponseUtil.custom("三方账号不存在");
             }
             return ResponseUtil.success(userThird.getAccount());
         }else if(tag == CommonConst.NUMBER_1){
             UserThird userThird = userThirdService.findByAccount(userAccount);
-            if (userThird==null){
+            if (LoginUtil.checkNull(userThird)){
                 return ResponseUtil.custom("三方账号不存在");
             }
             User user = userService.findById(userThird.getUserId());
-            if (user==null){
+            if (LoginUtil.checkNull(user)){
                 return ResponseUtil.custom("账户不存在");
             }
             return ResponseUtil.success(user.getAccount());

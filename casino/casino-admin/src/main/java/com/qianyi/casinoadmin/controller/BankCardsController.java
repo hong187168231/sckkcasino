@@ -59,7 +59,7 @@ public class BankCardsController {
     @PostMapping(value = "/saveBankInfo",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增银行")
     public ResponseEntity saveBankInfo(@RequestPart(value = "bankLogo银行图标",required=false) MultipartFile file, @RequestParam(value = "银行名称") String bankName,
                                        @RequestParam(value = "备注",required=false)String remark){
-        if (bankName == null){
+        if (LoginUtil.checkNull(bankName)){
             ResponseUtil.custom("参数不合法");
         }
         BankInfo bankInfo = new BankInfo();
@@ -80,11 +80,11 @@ public class BankCardsController {
     public ResponseEntity updateBankInfo(@RequestPart(value = "bankLogo银行图标",required=false) MultipartFile file,
                                          @RequestParam(value = "银行名称") String bankName,@RequestParam(value = "备注",required=false)String remark,
                                          @RequestParam(value = "银行id")  Long id){
-        if (id == null){
+        if (LoginUtil.checkNull(id)){
             ResponseUtil.custom("参数不合法");
         }
         BankInfo bankInfo = bankInfoService.findById(id);
-        if (bankInfo == null){
+        if (LoginUtil.checkNull(bankInfo)){
             ResponseUtil.custom("没有这个银行");
         }
         return this.saveAndUpdate(file,bankName,remark,bankInfo);
@@ -116,11 +116,11 @@ public class BankCardsController {
     })
     @PostMapping("updateBankStatus")
     public ResponseEntity updateBankStatus(Long id){
-        if (id == null){
+        if (LoginUtil.checkNull(id)){
             ResponseUtil.custom("参数不合法");
         }
         BankInfo bankInfo = bankInfoService.findById(id);
-        if (bankInfo == null){
+        if (LoginUtil.checkNull(bankInfo)){
             ResponseUtil.custom("没有这个银行");
         }
         if (bankInfo.getDisable() == CommonConst.NUMBER_1){
