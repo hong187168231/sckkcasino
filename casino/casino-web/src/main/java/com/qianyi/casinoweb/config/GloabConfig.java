@@ -17,7 +17,7 @@ public class GloabConfig implements WebMvcConfigurer {
         //添加映射路径
         registry.addMapping("/**")
                 //是否发送Cookie
-                .allowCredentials(true)
+                .allowCredentials(false)
                 //设置放行哪些原始域   SpringBoot2.4.4下低版本使用.allowedOrigins("*")
                 .allowedOriginPatterns("*")
                 //放行哪些请求方式
