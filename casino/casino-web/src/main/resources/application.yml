@@ -28,8 +28,8 @@ spring:
       connection-test-query: select 1
   redis:
     database: 0
-#    host: 154.204.57.237
-    host: 127.0.0.1
+    host: 154.204.57.237
+#    host: 127.0.0.1
     port: 6379
     # password:
     timeout: 3000
@@ -37,27 +37,3 @@ project:
   title: 千亿科技
   vendorId: qy01twapi
   signature: f76aecd01a78c8c2021c91d833ca50c6
-
-security:
-  Auth:
-    ignoreUrls:
-      - /login
-      - /index
-      - /logout
-      - /auth/**
-      - /customer/contact
-      - /notice/newest
-      - /pic/lunbo
-      - /swagger-ui/**
-      #      - /swagger-resources/**
-      - /swagger-resources/configuration/ui
-      - /swagger-resources
-      - /v3/api-docs
-      - /swagger-resources/configuration/security
-      #      - /swagger/**
-      #      - /**/v2/api-docs
-      - /**/*.js
-      - /**/*.css
-      - /**/*.png
-      - /**/*.ico
-      - /public/img/**
