@@ -40,12 +40,12 @@ public class ChargeOrderBusiness {
     @Transactional
     public ResponseEntity checkOrderSuccess(Long id, Integer status,String remark) {
         ChargeOrder order = chargeOrderService.findChargeOrderByIdUseLock(id);
-        if(order == null || order.getStatus() != 0){
+        if(order == null || order.getStatus() != Constants.chargeOrder_wait){
             return ResponseUtil.custom("订单不存在或已被处理");
         }
         order.setStatus(status);
         order.setRemark(remark);
-        if(status != Constants.yes){//拒绝订单直接保存
+        if(status == Constants.chargeOrder_fail){//拒绝订单直接保存
             order = chargeOrderService.saveOrder(order);
             return ResponseUtil.success(order);
         }
