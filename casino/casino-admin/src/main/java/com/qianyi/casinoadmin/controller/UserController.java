@@ -385,6 +385,9 @@ public class UserController {
     })
     @GetMapping("findUserPegging")
     public ResponseEntity findUserPegging(Integer tag,String context){
+        if (tag == null || context == null){
+            return ResponseUtil.custom("参数不合法");
+        }
         if (tag == CommonConst.NUMBER_0){//反查ip
             User user = new User();
             user.setRegisterIp(context);

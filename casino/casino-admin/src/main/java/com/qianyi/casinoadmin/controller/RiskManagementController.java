@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
 
+import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinocore.model.RiskConfig;
 import com.qianyi.casinocore.service.RiskConfigService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -50,7 +51,7 @@ public class RiskManagementController {
     })
     @PostMapping("/saveRiskConfig")
     public ResponseEntity saveRiskConfig(Long id,String remark,Integer timeLimit){
-        if (id == null || timeLimit == null){
+        if (id == null || timeLimit == null || timeLimit < CommonConst.NUMBER_0){
             return ResponseUtil.custom("参数错误");
         }
         RiskConfig riskConfig = new RiskConfig();
