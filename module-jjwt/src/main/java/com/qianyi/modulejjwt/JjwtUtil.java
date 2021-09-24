@@ -61,6 +61,9 @@ public class JjwtUtil {
      * @return
      */
     public static Subject parse(String token) {
+        if (token == null) {
+            return null;
+        }
         try {
             Claims body = Jwts.parser()
                     // 验证签发者字段iss 必须是 大山
