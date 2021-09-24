@@ -304,14 +304,19 @@ public class PublicWMApi {
         if (s == null) {
             return null;
         }
-
         try {
             System.out.println(URLDecoder.decode(s, "utf-8"));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-
-        JSONObject jsonObject = JSONObject.parseObject(s);
+        JSONObject jsonObject =null;
+        try {
+            jsonObject = JSONObject.parseObject(s);
+        }catch (Exception e){
+            ResponseEntity entity = new ResponseEntity();
+            entity.setErrorCode(500);
+            return entity;
+        }
         Integer code = jsonObject.getInteger("errorCode");
         String messgae = jsonObject.getString("errorMessage");
         String result = jsonObject.getString("result");
