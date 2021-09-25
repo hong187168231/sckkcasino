@@ -343,8 +343,8 @@ public class UserController {
         chargeOrder.setRemitType(CommonConst.NUMBER_1);
         chargeOrder.setOrderNo(orderService.getOrderNo());
         chargeOrder.setChargeAmount(chargeAmount);
+        chargeOrder.setRealityAmount(chargeAmount);
         chargeOrder.setType(CommonConst.NUMBER_2);//管理员新增
-        chargeOrder.setStatus(CommonConst.NUMBER_1);
         return chargeOrderBusiness.saveOrderSuccess(chargeOrder);
     }
     /**

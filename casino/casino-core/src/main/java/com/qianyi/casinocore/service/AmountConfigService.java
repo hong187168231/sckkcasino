@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-@CacheConfig(cacheNames = {"amountConfig"})
+//@CacheConfig(cacheNames = {"amountConfig"})
 public class AmountConfigService {
     @Autowired
     private AmountConfigRepository amountConfigRepository;
-    @Cacheable(key = "#id")
+//    @Cacheable(key = "#id")
     public AmountConfig findAmountConfigById(Long id){
         Optional<AmountConfig> optional = amountConfigRepository.findById(id);
         if (optional.isPresent()){
@@ -23,7 +23,7 @@ public class AmountConfigService {
         }
         return null;
     }
-    @CachePut(key="#result.id",condition = "#result != null")
+//    @CachePut(key="#result.id",condition = "#result != null")
     public void save(AmountConfig amountConfig){
         amountConfigRepository.save(amountConfig);
     }

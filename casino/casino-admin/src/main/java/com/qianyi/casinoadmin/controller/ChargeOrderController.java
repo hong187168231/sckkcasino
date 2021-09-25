@@ -79,18 +79,20 @@ public class ChargeOrderController {
     @ApiOperation("审核充值订单")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "订单id", required = true),
-            @ApiImplicitParam(name = "status", value = "汇款状态，0.未确认。 1.成功   2.失败, 3.失效", required = true),
+            @ApiImplicitParam(name = "status", value = "汇款状态， 1.成功  2.失败", required = true),
             @ApiImplicitParam(name = "remark", value = "备注", required = false),
+            @ApiImplicitParam(name = "money", value = "上分金额", required = false),
     })
     @PostMapping("/updateChargeOrder")
-    public ResponseEntity updateChargeOrder(Long id, Integer status,String remark){
+    public ResponseEntity updateChargeOrder(Long id, Integer status,String remark,String money){
         if (LoginUtil.checkNull(id,status)){
             ResponseUtil.custom("参数不合法");
         }
         if(status != CommonConst.NUMBER_1 && status != CommonConst.NUMBER_2){
             return ResponseUtil.custom("参数不合法");
         }
-        return chargeOrderBusiness.checkOrderSuccess(id,status,remark);
+
+        return chargeOrderBusiness.checkOrderSuccess(id,status,remark,money);
     }
     /**
      * 查询条件拼接，灵活添加条件
