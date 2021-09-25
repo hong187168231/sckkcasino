@@ -36,15 +36,15 @@ public class User extends BaseEntity implements UserDetails {
 
     @Transient
     @ApiModelProperty("剩余打码量")
-    private BigDecimal codeNum;
+    private BigDecimal codeNum = BigDecimal.ZERO;
 
     @Transient
     @ApiModelProperty("冻结余额")
-    private BigDecimal freezeMoney;
+    private BigDecimal freezeMoney = BigDecimal.ZERO;
 
     @Transient
     @ApiModelProperty("可提现余额")
-    private BigDecimal withdrawMoney;
+    private BigDecimal withdrawMoney = BigDecimal.ZERO;
 
     @Transient
     @ApiModelProperty("WM余额")
