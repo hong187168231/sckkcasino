@@ -22,7 +22,6 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
         NoAuthentication annotation = method.getAnnotation(NoAuthentication.class);
         if (annotation == null) {
             if (hasPermission(request)) {
-
                 //帐号封号拦截
                 if(hasBan()){
                     String url=request.getServletPath();
@@ -32,7 +31,12 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
                     response.sendRedirect(request.getContextPath()+"/authenticationBan");
                     return false;
                 }
-                return true;
+                //多设备登录拦截
+                if(multiDeviceCheck()){
+                    return true;
+                }
+                response.sendRedirect(request.getContextPath()+"/authenticationMultiDevice");
+                return false;
             }
             response.sendRedirect(request.getContextPath()+"/authenticationNopass");
             return false;
@@ -46,6 +50,8 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
     protected abstract boolean hasBan();
 
     public abstract boolean hasPermission(HttpServletRequest request);
+
+    protected abstract boolean multiDeviceCheck();
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {

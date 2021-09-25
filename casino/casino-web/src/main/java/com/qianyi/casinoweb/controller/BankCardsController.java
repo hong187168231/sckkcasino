@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -94,7 +95,7 @@ public class BankCardsController {
         }
         bankcardsService.deleteBankCardById(id);
         //如果删除的是默认银行卡,重新再设置一张卡为默认卡
-        if (bankcards.getDefaultCard() == 1) {
+        if (!ObjectUtils.isEmpty(bankcards.getDefaultCard()) && bankcards.getDefaultCard() == 1) {
             List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(authId);
             if (!CollectionUtils.isEmpty(bankcardsList)) {
                 Bankcards bankcards1 = bankcardsList.get(0);
@@ -132,7 +133,7 @@ public class BankCardsController {
             if (defaultBankcards.getId().equals(bankcards.getId())) {
                 return ResponseUtil.success();
             }
-            defaultBankcards.setDefaultCard(null);
+            defaultBankcards.setDefaultCard(0);
             bankcardsService.updateBankCards(defaultBankcards);
         }
         bankcards.setDefaultCard(1);

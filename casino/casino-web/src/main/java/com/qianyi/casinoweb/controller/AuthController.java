@@ -26,6 +26,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,6 +59,8 @@ public class AuthController {
     UserMoneyService userMoneyService;
     @Autowired
     RiskConfigService riskConfigService;
+    @Autowired
+    RedisTemplate redisTemplate;
 
 
     @PostMapping("register")
@@ -183,6 +186,7 @@ public class AuthController {
         subject.setUserId(String.valueOf(user.getId()));
         subject.setBcryptPassword(user.getPassword());
         String token = JjwtUtil.generic(subject);
+        setUserTokenToRedis(user.getId(),token);
         return ResponseUtil.success(token);
     }
 
@@ -329,6 +333,7 @@ public class AuthController {
         subject.setUserId(String.valueOf(user.getId()));
         subject.setBcryptPassword(user.getPassword());
         String jwt = JjwtUtil.generic(subject);
+        setUserTokenToRedis(user.getId(),jwt);
         return ResponseUtil.success(jwt);
     }
 
@@ -349,7 +354,15 @@ public class AuthController {
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();
         }
-
+        setUserTokenToRedis(authId,refreshToken);
         return ResponseUtil.success(refreshToken);
+    }
+
+    private void setUserTokenToRedis(Long userId,String token){
+        try {
+            redisTemplate.opsForValue().set("token:" + userId, token);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

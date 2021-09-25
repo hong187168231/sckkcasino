@@ -20,7 +20,7 @@ public class PictureService {
     @Autowired
     private PictureRepository pictureRepository;
 
-    @Cacheable(cacheNames = {"lunbo"},key = "#root.targetClass.simpleName+'_'+#root.methodName")
+//    @Cacheable(cacheNames = {"lunbo"},key = "#root.targetClass.simpleName+'_'+#root.methodName")
     public List<LunboPic> findAll() {
         return pictureRepository.findAll();
     }
@@ -39,14 +39,14 @@ public class PictureService {
 //        pictureRepository.deleteById(id);
 //    }
 
-    @CacheEvict(cacheNames = {"lunbo"}, allEntries = true)
+//    @CacheEvict(cacheNames = {"lunbo"}, allEntries = true)
     public void save(LunboPic lunboPic){
         pictureRepository.save(lunboPic);
     }
 
 //    @Caching(evict = {@CacheEvict(value = "lunbo", key = "#args[0]", beforeInvocation = true, allEntries = true)}, cacheable = @Cacheable(value = "lunbo"))
 //    @Cacheable(value = "lunbo",keyGenerator = "cusKeyGenerator")
-    @Cacheable(value = "lunbo",key = "#root.targetClass.simpleName+'_'+#root.methodName+'_'+#root.args[0]")
+//    @Cacheable(value = "lunbo",key = "#root.targetClass.simpleName+'_'+#root.methodName+'_'+#root.args[0]")
     public List<LunboPic> findByTheShowEnd(Integer theShowEnd) {
         return pictureRepository.findByTheShowEndAndUrlNotNull(theShowEnd);
     }

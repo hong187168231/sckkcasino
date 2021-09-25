@@ -28,6 +28,12 @@ public class InteceptorController implements ErrorController {
     }
 
     @NoAuthentication
+    @RequestMapping("authenticationMultiDevice")
+    public ResponseEntity authenticationMultiDevice() {
+        return ResponseUtil.custom("帐号已在其他设备登录,请重新登录");
+    }
+
+    @NoAuthentication
     @RequestMapping("risk")
     public ResponseEntity risk() {
         return ResponseUtil.risk();
