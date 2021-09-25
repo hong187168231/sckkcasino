@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 
 @RestController
-@RequestMapping("user")
+@RequestMapping("order")
 @Api(tags = "资金中心")
 @Slf4j
 public class OrderController {
