@@ -359,11 +359,11 @@ public class UserController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "用户id", required = true),
             @ApiImplicitParam(name = "withdrawMoney", value = "提现金额", required = true),
-            @ApiImplicitParam(name = "bankId", value = "银行id", required = true),
+            @ApiImplicitParam(name = "bankId", value = "银行id", required = false),
     })
     @PostMapping("/saveWithdrawOrder")
     public ResponseEntity saveWithdrawOrder(Long id,BigDecimal withdrawMoney,String bankId){
-        if (LoginUtil.checkNull(id,withdrawMoney,bankId)){
+        if (LoginUtil.checkNull(id,withdrawMoney)){
             return ResponseUtil.custom("参数不合法");
         }
         return withdrawBusiness.updateWithdrawAndUser(id,withdrawMoney,bankId);
