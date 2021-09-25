@@ -27,10 +27,12 @@ public class InteceptorController implements ErrorController {
         return ResponseUtil.custom("帐号被封");
     }
 
+    @NoAuthentication
     @RequestMapping("authenticationIpLimit")
     public ResponseEntity authenticationIpLimit() {
         return ResponseUtil.custom("ip访问受限");
     }
+
     @NoAuthentication
     @RequestMapping("risk")
     public ResponseEntity risk() {
