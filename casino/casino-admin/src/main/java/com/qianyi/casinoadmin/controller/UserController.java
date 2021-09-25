@@ -329,11 +329,15 @@ public class UserController {
             @ApiImplicitParam(name = "remark", value = "汇款备注", required = false),
     })
     @PostMapping("/saveChargeOrder")
-    public ResponseEntity saveChargeOrder(Long id,String remitter,String remark, BigDecimal chargeAmount){
+    public ResponseEntity saveChargeOrder(Long id,String remitter,String remark, String chargeAmount){
         if (LoginUtil.checkNull(id,chargeAmount)){
             return ResponseUtil.custom("参数不合法");
         }
-        if (chargeAmount.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
+        BigDecimal money = CommonUtil.checkMoney(chargeAmount);
+        if(money.compareTo(BigDecimal.ZERO)<1){
+            return ResponseUtil.custom("金额类型错误");
+        }
+        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
             return ResponseUtil.custom("测试环境加钱不能超过100RMB");
         }
         ChargeOrder chargeOrder = new ChargeOrder();
@@ -342,8 +346,8 @@ public class UserController {
         chargeOrder.setRemark(remark);
         chargeOrder.setRemitType(CommonConst.NUMBER_1);
         chargeOrder.setOrderNo(orderService.getOrderNo());
-        chargeOrder.setChargeAmount(chargeAmount);
-        chargeOrder.setRealityAmount(chargeAmount);
+        chargeOrder.setChargeAmount(money);
+        chargeOrder.setRealityAmount(money);
         chargeOrder.setType(CommonConst.NUMBER_2);//管理员新增
         return chargeOrderBusiness.saveOrderSuccess(chargeOrder);
     }
@@ -362,10 +366,14 @@ public class UserController {
             @ApiImplicitParam(name = "bankId", value = "银行id", required = false),
     })
     @PostMapping("/saveWithdrawOrder")
-    public ResponseEntity saveWithdrawOrder(Long id,BigDecimal withdrawMoney,String bankId){
+    public ResponseEntity saveWithdrawOrder(Long id,String withdrawMoney,String bankId){
         if (LoginUtil.checkNull(id,withdrawMoney)){
             return ResponseUtil.custom("参数不合法");
         }
-        return withdrawBusiness.updateWithdrawAndUser(id,withdrawMoney,bankId);
+        BigDecimal money = CommonUtil.checkMoney(withdrawMoney);
+        if(money.compareTo(BigDecimal.ZERO)<1){
+            return ResponseUtil.custom("金额类型错误");
+        }
+        return withdrawBusiness.updateWithdrawAndUser(id,money,bankId);
     }
 }
