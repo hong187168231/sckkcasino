@@ -57,11 +57,7 @@ public class UserController {
     @Autowired
     private WithdrawOrderService withdrawOrderService;
 
-    @Autowired
-    private BankcardsService bankcardsService;
 
-    @Autowired
-    private LoginLogService loginLogService;
 
     @Autowired
     private WithdrawBusiness withdrawBusiness;
@@ -371,44 +367,5 @@ public class UserController {
             return ResponseUtil.custom("参数不合法");
         }
         return withdrawBusiness.updateWithdrawAndUser(id,withdrawMoney,bankId);
-    }
-    /**
-     * 查询操作
-     * 注意：jpa 是从第0页开始的
-     @param tag tag 反差类型 0 ip地址 1 银行卡号
-     @param context 搜索内容
-     * @return
-     */
-    @ApiOperation("客户反查")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "tag", value = "tag 反差类型 0 ip地址 1 银行卡号", required = true),
-            @ApiImplicitParam(name = "context", value = "context 搜索内容", required = true),
-    })
-    @GetMapping("findUserPegging")
-    public ResponseEntity findUserPegging(Integer tag,String context){
-        if (LoginUtil.checkNull(tag,context)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        if (tag == CommonConst.NUMBER_0){//反查ip
-            User user = new User();
-            user.setRegisterIp(context);
-            List<User> userList = userService.findUserList(user);
-            LoginLog loginLog = new LoginLog();
-            loginLog.setIp(context);
-            List<LoginLog> loginLogList = loginLogService.findLoginLogList(loginLog);
-            if (loginLogList.size() > CommonConst.NUMBER_0){
-                loginLogList = loginLogList.stream().filter(CommonUtil.distinctByKey(LoginLog::getAccount)).collect(Collectors.toList());
-            }
-            Map<String,Object> map = new HashMap<>();
-            map.put("register",userList);
-            map.put("login",loginLogList);
-            return ResponseUtil.success(map);
-        }else if(tag == CommonConst.NUMBER_1){//反查银行卡号
-            Bankcards bankcards = new Bankcards();
-            bankcards.setBankAccount(context);
-            List<Bankcards> userBank = bankcardsService.findUserBank(bankcards);
-            return ResponseUtil.success(userBank);
-        }
-        return ResponseUtil.fail();
     }
 }
