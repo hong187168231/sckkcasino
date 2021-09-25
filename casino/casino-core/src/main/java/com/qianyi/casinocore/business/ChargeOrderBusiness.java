@@ -38,18 +38,28 @@ public class ChargeOrderBusiness {
      * @param remark 充值订单备注
      */
     @Transactional
-    public ResponseEntity checkOrderSuccess(Long id, Integer status,String remark) {
+    public ResponseEntity checkOrderSuccess(Long id, Integer status,String remark,String money) {
         ChargeOrder order = chargeOrderService.findChargeOrderByIdUseLock(id);
         if(order == null || order.getStatus() != Constants.chargeOrder_wait){
             return ResponseUtil.custom("订单不存在或已被处理");
         }
-        order.setStatus(status);
         order.setRemark(remark);
         if(status == Constants.chargeOrder_fail){//拒绝订单直接保存
+            order.setStatus(status);
             order = chargeOrderService.saveOrder(order);
             return ResponseUtil.success(order);
         }
-        return this.saveOrder(order);
+        BigDecimal realityAmount = null;
+        try {
+            realityAmount = new BigDecimal(money);
+        }catch (Exception e){
+            realityAmount = new BigDecimal(-1);
+        }
+        if(realityAmount.compareTo(BigDecimal.ZERO)<1){
+            return ResponseUtil.custom("金额类型错误");
+        }
+        order.setRealityAmount(realityAmount);
+        return this.saveOrder(order,status);
     }
     /**
      * 新增充值订单，直接充钱
@@ -57,10 +67,10 @@ public class ChargeOrderBusiness {
      */
     @Transactional
     public ResponseEntity saveOrderSuccess(ChargeOrder chargeOrder) {
-        return this.saveOrder(chargeOrder);
+        return this.saveOrder(chargeOrder,Constants.chargeOrder_success);
     }
 
-    private ResponseEntity saveOrder(ChargeOrder chargeOrder){
+    private ResponseEntity saveOrder(ChargeOrder chargeOrder,Integer status){
         UserMoney user = userMoneyService.findUserByUserIdUseLock(chargeOrder.getUserId());
         if(user == null){
             return ResponseUtil.custom("用户钱包不存在");
@@ -69,18 +79,19 @@ public class ChargeOrderBusiness {
         BigDecimal serviceCharge = BigDecimal.ZERO;
         if (amountConfig != null){
             //得到手续费
-            serviceCharge = amountConfig.getServiceCharge(chargeOrder.getChargeAmount());
+            serviceCharge = amountConfig.getServiceCharge(chargeOrder.getRealityAmount());
         }
         //计算余额
-        BigDecimal subtract = chargeOrder.getChargeAmount().subtract(serviceCharge);
+        BigDecimal subtract = chargeOrder.getRealityAmount().subtract(serviceCharge);
         chargeOrder.setPracticalAmount(subtract);
         chargeOrder.setServiceCharge(serviceCharge);
+        chargeOrder.setStatus(status);
         chargeOrder = chargeOrderService.saveOrder(chargeOrder);
         user.setMoney(user.getMoney().add(subtract));
         //计算打码量 默认2倍
         BetRatioConfig betRatioConfig = betRatioConfigService.findOneBetRatioConfig();
         float codeTimes = (betRatioConfig == null || betRatioConfig.getCodeTimes() == null) ? 2F : betRatioConfig.getCodeTimes();
-        BigDecimal codeNum = chargeOrder.getChargeAmount().multiply(BigDecimal.valueOf(codeTimes));
+        BigDecimal codeNum = chargeOrder.getRealityAmount().multiply(BigDecimal.valueOf(codeTimes));
         user.setCodeNum(user.getCodeNum().add(codeNum));
         userMoneyService.save(user);
         //流水表记录
@@ -91,7 +102,7 @@ public class ChargeOrderBusiness {
     private RechargeTurnover getRechargeTurnover(ChargeOrder order,UserMoney user, BigDecimal codeNum, float codeTimes) {
         RechargeTurnover rechargeTurnover = new RechargeTurnover();
         rechargeTurnover.setCodeNum(codeNum);
-        rechargeTurnover.setCodeNums(user.getCodeNum().add(codeNum));
+        rechargeTurnover.setCodeNums(user.getCodeNum());
         rechargeTurnover.setCodeTimes(codeTimes);
         rechargeTurnover.setOrderMoney(order.getPracticalAmount());
         rechargeTurnover.setOrderId(order.getId());
