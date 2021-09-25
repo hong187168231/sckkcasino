@@ -197,8 +197,8 @@ public class WithdrawBusiness {
             return ResponseUtil.custom("订单已被处理");
         }
         //提现通过或其他
-        withdrawOrder.setStatus(status);
         if(status == Constants.WITHDRAW_ORDER){//冻结提现金额
+            withdrawOrder.setStatus(status);
             withdrawOrderService.saveOrder(withdrawOrder);
             return ResponseUtil.success();
         }
@@ -220,6 +220,7 @@ public class WithdrawBusiness {
             return ResponseUtil.custom("用户钱包不存在");
         }
         userMoney.setMoney(userMoney.getMoney().add(withdrawOrder.getWithdrawMoney()));
+        withdrawOrder.setStatus(status);
         WithdrawOrder withdraw = withdrawOrderService.saveOrder(withdrawOrder);
         log.info("user sum money is {}, add withdrawMoney is {}",userMoney.getMoney(), withdrawOrder.getWithdrawMoney());
         userMoneyService.save(userMoney);
