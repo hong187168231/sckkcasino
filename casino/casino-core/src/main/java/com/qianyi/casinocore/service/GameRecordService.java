@@ -35,7 +35,7 @@ public class GameRecordService {
         return gameRecordRepository.findAll(condition, pageable);
     }
 
-    public List findRecordRecordSum(String user, String betId, String gname, Integer gid) {
+    public  GameRecord  findRecordRecordSum(String user, String betId, String gname, Integer gid) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<GameRecord> query = builder.createQuery(GameRecord.class);
         Root<GameRecord> root = query.from(GameRecord.class);
@@ -74,8 +74,8 @@ public class GameRecordService {
                 .where(predicates.toArray(new Predicate[predicates.size()]));
 //                .groupBy(root.get("conversionStepCode"))
 //                .orderBy(builder.desc(root.get("contactUserNums")));
-        List<GameRecord> list = entityManager.createQuery(query).getResultList();
-        return list;
+        GameRecord singleResult = entityManager.createQuery(query).getSingleResult();
+        return singleResult;
     }
 
     public void save(GameRecord gameRecord) {
