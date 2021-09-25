@@ -36,4 +36,9 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
         }
         return false;
     }
+
+    @Override
+    protected boolean multiDeviceCheck() {
+        return true;
+    }
 }
