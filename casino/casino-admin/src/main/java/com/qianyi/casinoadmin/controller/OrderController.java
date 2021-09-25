@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 
 @RestController
-@RequestMapping("user")
+@RequestMapping("order")
 @Api(tags = "资金中心")
 @Slf4j
 public class OrderController {
@@ -55,45 +55,45 @@ public class OrderController {
         return ResponseUtil.success(userPage);
     }
 
-    @ApiOperation("添加订单")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "用户名", required = true),
-            @ApiImplicitParam(name = "money", value = "订单金额", required = true),
-            @ApiImplicitParam(name = "remark", value = "备注", required = false),
-    })
-    @PostMapping("saveOrder")
-    public ResponseEntity saveOrder(Long userId, BigDecimal money, String remark){
-        Order order = new Order();
-        order.setUserId(userId);
-        order.setMoney(money);
-        order.setNo(orderService.getOrderNo());
-        order.setRemark(remark + "");
-        order.setState(Constants.order_wait);
-        orderService.save(order);
-        return ResponseUtil.success();
-    }
-
-    @ApiOperation("修改订单")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "订单id", required = true),
-            @ApiImplicitParam(name = "status", value = "订单状态", required = true),
-            @ApiImplicitParam(name = "remark", value = "备注", required = false),
-    })
-    @PostMapping("updateOrder")
-    public ResponseEntity updateOrder(Long id, Integer status, String remark){
-        Order order = orderService.findById(id);
-        if(order == null){
-            return ResponseUtil.custom("订单不存在");
-        }
-
-        order.setState(status);
-        if(LoginUtil.checkNull(remark)){
-            order.setRemark(remark);
-        }
-
-        orderService.save(order);
-        return ResponseUtil.success();
-    }
+//    @ApiOperation("添加订单")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "userId", value = "用户名", required = true),
+//            @ApiImplicitParam(name = "money", value = "订单金额", required = true),
+//            @ApiImplicitParam(name = "remark", value = "备注", required = false),
+//    })
+//    @PostMapping("saveOrder")
+//    public ResponseEntity saveOrder(Long userId, BigDecimal money, String remark){
+//        Order order = new Order();
+//        order.setUserId(userId);
+//        order.setMoney(money);
+//        order.setNo(orderService.getOrderNo());
+//        order.setRemark(remark + "");
+//        order.setState(Constants.order_wait);
+//        orderService.save(order);
+//        return ResponseUtil.success();
+//    }
+//
+//    @ApiOperation("修改订单")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "id", value = "订单id", required = true),
+//            @ApiImplicitParam(name = "status", value = "订单状态", required = true),
+//            @ApiImplicitParam(name = "remark", value = "备注", required = false),
+//    })
+//    @PostMapping("updateOrder")
+//    public ResponseEntity updateOrder(Long id, Integer status, String remark){
+//        Order order = orderService.findById(id);
+//        if(order == null){
+//            return ResponseUtil.custom("订单不存在");
+//        }
+//
+//        order.setState(status);
+//        if(LoginUtil.checkNull(remark)){
+//            order.setRemark(remark);
+//        }
+//
+//        orderService.save(order);
+//        return ResponseUtil.success();
+//    }
 
 
 

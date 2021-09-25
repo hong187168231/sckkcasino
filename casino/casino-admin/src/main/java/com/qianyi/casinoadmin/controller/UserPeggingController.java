@@ -3,6 +3,7 @@ package com.qianyi.casinoadmin.controller;
 import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.CommonUtil;
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinoadmin.vo.BankcardsVo;
 import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.model.LoginLog;
 import com.qianyi.casinocore.model.User;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -73,7 +75,32 @@ public class UserPeggingController {
             Bankcards bankcards = new Bankcards();
             bankcards.setBankAccount(context);
             List<Bankcards> userBank = bankcardsService.findUserBank(bankcards);
-            return ResponseUtil.success(userBank);
+            List<BankcardsVo> bankcardsVoList = new LinkedList<>();
+            if(userBank != null && userBank.size() > 0){
+                List<Long> userIds = userBank.stream().map(Bankcards::getUserId).collect(Collectors.toList());
+                List<User> userList = userService.findAll(userIds);
+                if(userList != null && userList.size() > 0){
+                    userList.stream().forEach(user ->{
+                        userBank.stream().forEach(bankcard->{
+                            if (user.getId().equals(bankcard.getUserId())){
+                                BankcardsVo vo = new BankcardsVo();
+                                vo.setAccount(user.getAccount());
+                                vo.setAddress(bankcard.getAddress());
+                                vo.setBankAccount(bankcard.getBankAccount());
+                                vo.setBankId(bankcard.getBankId());
+                                vo.setDisable(bankcard.getDisable());
+                                vo.setRealName(bankcard.getRealName());
+                                vo.setUserId(bankcard.getUserId());
+                                bankcardsVoList.add(vo);
+                            }
+                        });
+                    });
+                }
+                userIds.clear();
+                userList.clear();
+            }
+            userBank.clear();
+            return ResponseUtil.success(bankcardsVoList);
         }
         return ResponseUtil.fail();
     }
