@@ -88,16 +88,18 @@ public class WithdrawController {
             return ResponseUtil.parameterNotNull();
         }
         if (!newsWithdrawPassword.equals(confirmWithdrawPassword)) {
-            return ResponseUtil.custom("两次密码输入不一致");
+            return ResponseUtil.custom("新密码和确认密码输入不一致");
         }
         if (!ObjectUtils.isEmpty(user.getWithdrawPassword())) {
             if (ObjectUtils.isEmpty(oldWithdrawPassword)) {
                 return ResponseUtil.custom("原取款密码不允许为空");
-            } else {
-                boolean checkBcrypt = CasinoWebUtil.checkBcrypt(oldWithdrawPassword, user.getWithdrawPassword());
-                if (!checkBcrypt) {
-                    return ResponseUtil.custom("原取款密码填写错误");
-                }
+            }
+            if (oldWithdrawPassword.equals(newsWithdrawPassword)) {
+                return ResponseUtil.custom("新密码和旧密码不能一致");
+            }
+            boolean checkBcrypt = CasinoWebUtil.checkBcrypt(oldWithdrawPassword, user.getWithdrawPassword());
+            if (!checkBcrypt) {
+                return ResponseUtil.custom("原取款密码填写错误");
             }
         }
         String bcryptWithdrawPassword = CasinoWebUtil.bcrypt(newsWithdrawPassword);
@@ -123,8 +125,11 @@ public class WithdrawController {
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
+        if (oldLoginPassword.equals(newsLoginPassword)) {
+            return ResponseUtil.custom("新密码和旧密码不能一致");
+        }
         if (!newsLoginPassword.equals(confirmLoginPassword)) {
-            return ResponseUtil.custom("两次密码输入不一致");
+            return ResponseUtil.custom("新密码和确认密码输入不一致");
         }
         boolean checkBcrypt = CasinoWebUtil.checkBcrypt(oldLoginPassword, user.getPassword());
         if(!checkBcrypt){
