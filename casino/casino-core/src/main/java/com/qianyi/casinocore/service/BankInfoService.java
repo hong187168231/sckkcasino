@@ -25,6 +25,10 @@ public class BankInfoService {
     @Autowired
     BankInfoRepository bankInfoRepository;
 
+    public List<BankInfo> findAll() {
+        return bankInfoRepository.findAll();
+    }
+
     public List<BankInfo> findAll(BankInfo bankInfo) {
         Specification<BankInfo> condition = getCondition(bankInfo);
         return bankInfoRepository.findAll(condition);
