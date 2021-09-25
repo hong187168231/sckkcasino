@@ -284,7 +284,7 @@ public class UserController {
         String withdrawPassword = passwordUtil.getRandomPwd();
         String bcryptPassword = LoginUtil.bcrypt(withdrawPassword);
         user.setWithdrawPassword(bcryptPassword);
-
+        userService.save(user);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("account", user.getAccount());
         jsonObject.put("withdrawPassword", withdrawPassword);
@@ -305,7 +305,7 @@ public class UserController {
         String password = passwordUtil.getRandomPwd();
         String bcryptPassword = LoginUtil.bcrypt(password);
         user.setPassword(bcryptPassword);
-
+        userService.save(user);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("account", user.getAccount());
         jsonObject.put("password", password);
