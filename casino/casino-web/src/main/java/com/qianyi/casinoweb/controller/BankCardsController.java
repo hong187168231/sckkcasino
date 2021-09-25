@@ -1,5 +1,6 @@
 package com.qianyi.casinoweb.controller;
 
+import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.BankcardsService;
@@ -33,7 +34,9 @@ public class BankCardsController {
     @ApiOperation("银行列表")
     @ResponseBody
     public ResponseEntity bankList() {
-        return ResponseUtil.success(bankInfoService.findAll());
+        BankInfo bankInfo=new BankInfo();
+        bankInfo.setDisable(0);
+        return ResponseUtil.success(bankInfoService.findAll(bankInfo));
     }
 
 //    @GetMapping("/boundList")
