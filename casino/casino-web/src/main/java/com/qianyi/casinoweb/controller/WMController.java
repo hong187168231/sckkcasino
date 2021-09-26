@@ -336,9 +336,8 @@ public class WMController {
     }
 
     private Boolean ipWhiteCheck() {
-        System.out.println(ipWhite);
         if (ObjectUtils.isEmpty(ipWhite)) {
-            return true;
+            return false;
         }
         String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
         String[] ipWhiteArray = ipWhite.split(",");
