@@ -1,15 +1,12 @@
 package com.qianyi.casinoweb.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.code.kaptcha.Producer;
-import com.qianyi.casinocore.model.*;
-import com.qianyi.casinocore.service.LoginLogService;
-import com.qianyi.casinocore.service.RiskConfigService;
+import com.qianyi.casinocore.model.SysConfig;
+import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.model.UserMoney;
+import com.qianyi.casinocore.service.SysConfigService;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
-import com.qianyi.casinocore.model.*;
-import com.qianyi.casinocore.service.*;
-import com.qianyi.casinoweb.job.LoginLogJob;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.vo.LoginLogVo;
 import com.qianyi.moduleauthenticator.WangyiDunAuthUtil;
@@ -27,10 +24,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,9 +40,6 @@ import javax.transaction.Transactional;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Api(tags = "认证中心")
 @RestController
