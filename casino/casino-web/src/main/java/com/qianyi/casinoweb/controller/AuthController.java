@@ -2,13 +2,8 @@ package com.qianyi.casinoweb.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.code.kaptcha.Producer;
-import com.qianyi.casinocore.model.RiskConfig;
-import com.qianyi.casinocore.model.SysUser;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.UserMoney;
-import com.qianyi.casinocore.service.RiskConfigService;
-import com.qianyi.casinocore.service.UserMoneyService;
-import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinoweb.job.LoginLogJob;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.moduleauthenticator.WangyiDunAuthUtil;
@@ -25,6 +20,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.CollectionUtils;
@@ -38,10 +34,12 @@ import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Api(tags = "认证中心")
@@ -61,11 +59,16 @@ public class AuthController {
     RiskConfigService riskConfigService;
     @Autowired
     RedisTemplate redisTemplate;
+    @Autowired
+    WashCodeConfigService washCodeConfigService;
+    @Autowired
+    UserWashCodeConfigService userWashCodeConfigService;
 
 
     @PostMapping("register")
     @ApiOperation("用户注册")
     @NoAuthentication
+    @Transactional
     //1分钟3次
     @RequestLimit(limit = 3,timeout = 60)
     @ApiImplicitParams({
@@ -136,6 +139,8 @@ public class AuthController {
         UserMoney userMoney=new UserMoney();
         userMoney.setUserId(save.getId());
         userMoneyService.save(userMoney);
+        //初始化洗码配置
+        initWashCodeConfig(save.getId());
         return ResponseUtil.success();
     }
 
@@ -364,5 +369,21 @@ public class AuthController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void initWashCodeConfig(Long userId) {
+        List<WashCodeConfig> all = washCodeConfigService.findAll();
+        if(CollectionUtils.isEmpty(all)){
+            return;
+        }
+        UserWashCodeConfig userCodeConfig = null;
+        List<UserWashCodeConfig> list = new ArrayList<>();
+        for (WashCodeConfig codeConfig : all) {
+            userCodeConfig = new UserWashCodeConfig();
+            BeanUtils.copyProperties(codeConfig, userCodeConfig);
+            userCodeConfig.setUserId(userId);
+            list.add(userCodeConfig);
+        }
+        userWashCodeConfigService.saveAll(list);
     }
 }
