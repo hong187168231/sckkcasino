@@ -2,19 +2,19 @@ package com.qianyi.casinoweb.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.code.kaptcha.Producer;
-import com.qianyi.casinocore.model.RiskConfig;
-import com.qianyi.casinocore.model.SysUser;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.UserMoney;
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.LoginLogService;
 import com.qianyi.casinocore.service.RiskConfigService;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoweb.job.LoginLogJob;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
+import com.qianyi.casinoweb.vo.LoginLogVo;
 import com.qianyi.moduleauthenticator.WangyiDunAuthUtil;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.RequestLimit;
+import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -62,12 +62,14 @@ public class AuthController {
     @Autowired
     RedisTemplate redisTemplate;
 
+    @Autowired
+    AsyncService asyncService;
 
     @PostMapping("register")
     @ApiOperation("用户注册")
     @NoAuthentication
     //1分钟3次
-    @RequestLimit(limit = 3,timeout = 60)
+    @RequestLimit(limit = 3, timeout = 60)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "account", value = "帐号", required = true),
             @ApiImplicitParam(name = "password", value = "密码", required = true),
@@ -133,7 +135,7 @@ public class AuthController {
 
         User save = userService.save(user);
         //userMoney表初始化数据
-        UserMoney userMoney=new UserMoney();
+        UserMoney userMoney = new UserMoney();
         userMoney.setUserId(save.getId());
         userMoneyService.save(userMoney);
         return ResponseUtil.success();
@@ -180,13 +182,19 @@ public class AuthController {
 
         //记录登陆日志
         String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
-        new Thread(new LoginLogJob(ip, user.getAccount(), user.getId(), "casino-web")).start();
+        LoginLogVo vo = new LoginLogVo();
+        vo.setIp(ip);
+        vo.setAccount(user.getAccount());
+        vo.setUserId(user.getId());
+        vo.setRemark("casino-web");
 
-        JjwtUtil.Subject subject=new JjwtUtil.Subject();
+        asyncService.executeAsync(vo);
+
+        JjwtUtil.Subject subject = new JjwtUtil.Subject();
         subject.setUserId(String.valueOf(user.getId()));
         subject.setBcryptPassword(user.getPassword());
         String token = JjwtUtil.generic(subject);
-        setUserTokenToRedis(user.getId(),token);
+        setUserTokenToRedis(user.getId(), token);
         return ResponseUtil.success(token);
     }
 
@@ -329,11 +337,11 @@ public class AuthController {
         if (user == null) {
             return ResponseUtil.custom("账号不存在");
         }
-        JjwtUtil.Subject subject=new JjwtUtil.Subject();
+        JjwtUtil.Subject subject = new JjwtUtil.Subject();
         subject.setUserId(String.valueOf(user.getId()));
         subject.setBcryptPassword(user.getPassword());
         String jwt = JjwtUtil.generic(subject);
-        setUserTokenToRedis(user.getId(),jwt);
+        setUserTokenToRedis(user.getId(), jwt);
         return ResponseUtil.success(jwt);
     }
 
@@ -350,15 +358,15 @@ public class AuthController {
             return ResponseUtil.authenticationNopass();
         }
         User user = userService.findById(authId);
-        String refreshToken = JjwtUtil.refreshToken(token,user.getPassword());
+        String refreshToken = JjwtUtil.refreshToken(token, user.getPassword());
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();
         }
-        setUserTokenToRedis(authId,refreshToken);
+        setUserTokenToRedis(authId, refreshToken);
         return ResponseUtil.success(refreshToken);
     }
 
-    private void setUserTokenToRedis(Long userId,String token){
+    private void setUserTokenToRedis(Long userId, String token) {
         try {
             redisTemplate.opsForValue().set("token:" + userId, token);
         } catch (Exception e) {

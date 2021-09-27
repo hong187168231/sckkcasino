@@ -52,9 +52,9 @@ public class PublicWMApi {
             params.put("syslang", syslang);
         }
 
-
+        System.out.println("注册参数："+JSONObject.toJSONString(params));
         String s = HttpClient4Util.doPost(url, params);
-
+        System.out.println(s);
         if (s == null) {
             return false;
         }
@@ -88,6 +88,7 @@ public class PublicWMApi {
         params.put("timestamp", timestamp);
 
         String s = HttpClient4Util.doPost(url, params);
+        System.out.println("开游戏参数："+JSONObject.toJSONString(params));
 
         if (CommonUtil.checkNull(s)) {
             return null;
