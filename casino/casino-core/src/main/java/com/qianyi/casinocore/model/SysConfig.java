@@ -12,7 +12,7 @@ import javax.persistence.*;
  */
 @Data
 @Entity
-@ApiModel("配置表")
+@ApiModel("客户风险配置表")
 public class SysConfig {
 
     @Id
