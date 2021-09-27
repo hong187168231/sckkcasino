@@ -33,6 +33,15 @@ public class CollectionBankcard extends BaseEntity{
     @ApiModelProperty(value = "0:未禁用 1：禁用")
     private Integer disable;
 
+    @ApiModelProperty(value = "渠道等级 1A 2B 3C 4D")
+    private Integer grade;
+
+    @ApiModelProperty(value = "性质 1对公账号 2个人账号")
+    private Integer nature;
+
+    @ApiModelProperty(value = "使用属性 1常用卡 2备用卡")
+    private Integer attribute;
+
     @ApiModelProperty(value = "单日最大收款")
     private BigDecimal dayMaxAmount;
 
