@@ -36,8 +36,7 @@ public class SpringCacheConfig {
         RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig();
         defaultCacheConfig = defaultCacheConfig
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
-                .disableCachingNullValues();
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
         RedisCacheManager cacheManager = RedisCacheManager.builder(lettuceConnectionFactory)
                 .cacheDefaults(defaultCacheConfig)

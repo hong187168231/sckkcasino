@@ -18,7 +18,7 @@ public class IpBlackService {
     private IpBlackRepository ipBlackRepository;
 
     @Transactional
-    @CachePut(key="#result.ip",condition = "#result != null")
+    @CachePut(key="#po.ip")
     public IpBlack save(IpBlack po){
         return ipBlackRepository.save(po);
     }
@@ -27,4 +27,5 @@ public class IpBlackService {
     public IpBlack findByIp(String ip) {
         return ipBlackRepository.findByIp(ip);
     }
+
 }
