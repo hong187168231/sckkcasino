@@ -38,6 +38,8 @@ import io.swagger.annotations.ApiOperation;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.transaction.Transactional;
+
 @RestController
 @RequestMapping("wm")
 @Api(tags = "WM游戏厅")
@@ -61,6 +63,7 @@ public class WMController {
 
     @ApiOperation("开游戏")
     @RequestLimit(limit = 1,timeout = 5)
+    @Transactional
     @PostMapping("openGame")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "gameType", value = "默认：大厅。1.百家乐。2.龙虎 3. 轮盘 4. 骰宝 " +
@@ -124,7 +127,8 @@ public class WMController {
             Order order = new Order();
             order.setMoney(money);
             order.setUserId(authId);
-            order.setRemark("WM 自动转帐");
+            order.setRemark("自动转入WM");
+            order.setType(0);
             order.setState(Constants.order_wait);
 
             String orderNo = orderService.getOrderNo();
@@ -289,6 +293,7 @@ public class WMController {
     }
 
     @ApiOperation("一键回收当前登录用户WM余额")
+    @Transactional
     @RequestLimit(limit = 1,timeout = 5)
     @GetMapping("oneKeyRecover")
     public ResponseEntity oneKeyRecover() {
@@ -303,35 +308,45 @@ public class WMController {
         if (lang == null) {
             lang = 0;
         }
+        String account = third.getAccount();
+        //先退出游戏
+        Boolean aBoolean = wmApi.logoutGame(account, lang);
+        if (!aBoolean) {
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        //查询用户在wm的余额
+        BigDecimal balance = null;
         try {
-            String account = third.getAccount();
-            //先退出游戏
-            Boolean aBoolean = wmApi.logoutGame(account, lang);
-            if (!aBoolean) {
-                return ResponseUtil.custom("服务器异常,请重新操作");
-            }
-            //查询用户在wm的余额
-            BigDecimal balance = wmApi.getBalance(account, lang);
-            if (BigDecimal.ZERO.compareTo(balance) == 0) {
-                return ResponseUtil.success();
-            }
-            //调用加扣点接口扣减wm余额
-            Boolean changeBalance = wmApi.changeBalance(account, balance.negate(), null, lang);
-            if (!changeBalance) {
-                return ResponseUtil.custom("服务器异常,请重新操作");
-            }
-            //把额度加回本地
-            userMoneyService.findUserByUserIdUseLock(userId);
-            //wm余额大于0
-            if(BigDecimal.ZERO.compareTo(balance) == -1){
-                userMoneyService.addMoney(userId, balance);
-            }else if(BigDecimal.ZERO.compareTo(balance) == 1){//wm余额小于0
-                userMoneyService.subMoney(userId, balance.abs());
-            }
+            balance = wmApi.getBalance(account, lang);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
+        if (BigDecimal.ZERO.compareTo(balance) == 0) {
+            return ResponseUtil.success();
+        }
+        //调用加扣点接口扣减wm余额
+        Boolean changeBalance = wmApi.changeBalance(account, balance.negate(), null, lang);
+        if (!changeBalance) {
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        //把额度加回本地
+        userMoneyService.findUserByUserIdUseLock(userId);
+        //wm余额大于0
+        if (BigDecimal.ZERO.compareTo(balance) == -1) {
+            userMoneyService.addMoney(userId, balance);
+        } else if (BigDecimal.ZERO.compareTo(balance) == 1) {//wm余额小于0
+            userMoneyService.subMoney(userId, balance.abs());
+        }
+        Order order = new Order();
+        order.setMoney(balance);
+        order.setUserId(userId);
+        order.setRemark("自动转出WM");
+        order.setType(1);
+        order.setState(Constants.order_wait);
+        String orderNo = orderService.getOrderNo();
+        order.setNo(orderNo);
+        orderService.save(order);
         return ResponseUtil.success();
     }
 

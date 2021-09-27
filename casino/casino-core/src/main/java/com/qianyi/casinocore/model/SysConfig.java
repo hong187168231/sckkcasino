@@ -12,7 +12,7 @@ import javax.persistence.*;
  */
 @Data
 @Entity
-@ApiModel("配置表")
+@ApiModel("客户风险配置表")
 public class SysConfig {
 
     @Id
@@ -20,7 +20,7 @@ public class SysConfig {
     private Long id;
 
     /**
-     * 组别，根据组别判断是什么类型的值
+     * 组别，根据组别判断是什么类型的值 1、财务 2、ip
      */
     private Integer sysGroup;
 

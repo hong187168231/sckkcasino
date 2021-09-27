@@ -11,6 +11,10 @@ public class DateUtil {
 
     private static String patten = "yyyy-MM-dd HH:mm:ss";
 
+    public static final String YYYYMM = "yyyyMM";
+
+    public static final String YYYYMMDD = "yyyyMMdd";
+
     public static SimpleDateFormat getSimpleDateFormat(String patten) {
         return new SimpleDateFormat(patten);
     }
@@ -25,6 +29,16 @@ public class DateUtil {
 
     public static String today() {
         return today(patten);
+    }
+
+
+    public static String dateToyyyyMMdd(Date time) {
+        SimpleDateFormat formatter = new SimpleDateFormat(DateUtil.YYYYMMDD); //定义将日期格式要换成的格式
+        return formatter.format(time);
+    }
+    public static String dateToYYYYMM(Date date) {
+        SimpleDateFormat sf = new SimpleDateFormat(DateUtil.YYYYMM);
+        return sf.format(date);
     }
 
     /**

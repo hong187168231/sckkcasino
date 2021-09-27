@@ -17,4 +17,9 @@ public class Order extends BaseEntity {
     private Integer state;
 
     private String remark;
+
+    /**
+     * 0.转入，1.转出
+     */
+    private Integer type;
 }

@@ -1,10 +1,9 @@
 package com.qianyi.casinoadmin.controller;
 
 
-import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.model.RiskConfig;
-import com.qianyi.casinocore.service.RiskConfigService;
+import com.qianyi.casinocore.model.SysConfig;
+import com.qianyi.casinocore.service.SysConfigService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -25,15 +24,15 @@ import java.util.List;
 @Api(tags = "客户中心")
 public class RiskManagementController {
     @Autowired
-    private RiskConfigService riskConfigService;
+    private SysConfigService sysConfigService;
     /**
      * 客户风险配置查询
      * @return
      */
     @ApiOperation("客户风险配置查询")
     @GetMapping("/findRiskConfig")
-    public ResponseEntity findRiskConfig(){
-        List<RiskConfig> all = riskConfigService.findAll();
+    public ResponseEntity findSysConfig(){
+        List<SysConfig> all = sysConfigService.findAll();
         return ResponseUtil.success(all);
     }
 
@@ -47,19 +46,23 @@ public class RiskManagementController {
     @ApiOperation("客户风险配置修改")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id(目前只限制注册 id传1)", required = true),
-            @ApiImplicitParam(name = "remark", value = "备注", required = false),
+            @ApiImplicitParam(name = "sysGroup", value = "1 财务 2 ip", required = true),
             @ApiImplicitParam(name = "timeLimit", value = "限制次数", required = true),
+            @ApiImplicitParam(name = "remark", value = "备注", required = false),
+            @ApiImplicitParam(name = "name", value = "配置名", required = false),
     })
     @PostMapping("/saveRiskConfig")
-    public ResponseEntity saveRiskConfig(Long id,String remark,Integer timeLimit){
-        if (LoginUtil.checkNull(id) || LoginUtil.checkNull(timeLimit) || timeLimit < CommonConst.NUMBER_0){
+    public ResponseEntity saveSysConfig(Long id,String remark,String timeLimit,String name,Integer sysGroup){
+        if (LoginUtil.checkNull(timeLimit,sysGroup,id)){
             return ResponseUtil.custom("参数错误");
         }
-        RiskConfig riskConfig = new RiskConfig();
-        riskConfig.setId(id);
-        riskConfig.setTimeLimit(timeLimit);
-        riskConfig.setRemark(remark);
-        RiskConfig save = riskConfigService.save(riskConfig);
+        SysConfig sysConfig = new SysConfig();
+        sysConfig.setId(id);
+        sysConfig.setValue(timeLimit);
+        sysConfig.setRemark(remark);
+        sysConfig.setName(name);
+        sysConfig.setSysGroup(sysGroup);
+        SysConfig save = sysConfigService.save(sysConfig);
         return ResponseUtil.success(save);
     }
 

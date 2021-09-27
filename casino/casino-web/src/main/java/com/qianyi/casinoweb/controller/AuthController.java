@@ -63,7 +63,7 @@ public class AuthController {
     @Autowired
     UserMoneyService userMoneyService;
     @Autowired
-    RiskConfigService riskConfigService;
+    SysConfigService sysConfigService;
     @Autowired
     RedisTemplate redisTemplate;
 
@@ -115,10 +115,10 @@ public class AuthController {
         String ip = IpUtil.getIp(request);
         //查询ip注册账号限制
         if (!ObjectUtils.isEmpty(ip)) {
-            RiskConfig riskConfig = riskConfigService.findById(1L);
+            SysConfig sysConfig = sysConfigService.findById(1L);
             Integer timeLimit = null;
-            if (riskConfig != null) {
-                timeLimit = riskConfig.getTimeLimit();
+            if (sysConfig != null && !ObjectUtils.isEmpty(sysConfig.getValue())) {
+                timeLimit = Integer.parseInt(sysConfig.getValue());
             }
             timeLimit = timeLimit == null ? 5 : timeLimit;
             Integer count = userService.countByIp(ip);
