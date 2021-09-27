@@ -46,10 +46,10 @@ public class RiskManagementController {
     @ApiOperation("客户风险配置修改")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id(目前只限制注册 id传1)", required = true),
-            @ApiImplicitParam(name = "remark", value = "备注", required = false),
-            @ApiImplicitParam(name = "timeLimit", value = "限制次数", required = true),
-            @ApiImplicitParam(name = "timeLimit", value = "限制次数", required = true),
             @ApiImplicitParam(name = "sysGroup", value = "1 财务 2 ip", required = true),
+            @ApiImplicitParam(name = "timeLimit", value = "限制次数", required = true),
+            @ApiImplicitParam(name = "remark", value = "备注", required = false),
+            @ApiImplicitParam(name = "name", value = "配置名", required = false),
     })
     @PostMapping("/saveRiskConfig")
     public ResponseEntity saveSysConfig(Long id,String remark,String timeLimit,String name,Integer sysGroup){
