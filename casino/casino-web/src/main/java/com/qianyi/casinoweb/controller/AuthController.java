@@ -59,10 +59,6 @@ public class AuthController {
     RiskConfigService riskConfigService;
     @Autowired
     RedisTemplate redisTemplate;
-    @Autowired
-    WashCodeConfigService washCodeConfigService;
-    @Autowired
-    UserWashCodeConfigService userWashCodeConfigService;
 
 
     @PostMapping("register")
@@ -139,8 +135,6 @@ public class AuthController {
         UserMoney userMoney=new UserMoney();
         userMoney.setUserId(save.getId());
         userMoneyService.save(userMoney);
-        //初始化洗码配置
-        initWashCodeConfig(save.getId());
         return ResponseUtil.success();
     }
 
@@ -369,21 +363,5 @@ public class AuthController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private void initWashCodeConfig(Long userId) {
-        List<WashCodeConfig> all = washCodeConfigService.findAll();
-        if(CollectionUtils.isEmpty(all)){
-            return;
-        }
-        UserWashCodeConfig userCodeConfig = null;
-        List<UserWashCodeConfig> list = new ArrayList<>();
-        for (WashCodeConfig codeConfig : all) {
-            userCodeConfig = new UserWashCodeConfig();
-            BeanUtils.copyProperties(codeConfig, userCodeConfig);
-            userCodeConfig.setUserId(userId);
-            list.add(userCodeConfig);
-        }
-        userWashCodeConfigService.saveAll(list);
     }
 }

@@ -47,6 +47,8 @@ public class GameRecordJob {
     @Autowired
     UserWashCodeConfigService userWashCodeConfigService;
     @Autowired
+    WashCodeConfigService washCodeConfigService;
+    @Autowired
     RedisUtil redisUtil;
 
     //每隔5分钟执行一次
@@ -115,10 +117,10 @@ public class GameRecordJob {
                             validbet = new BigDecimal(gameRecord.getValidbet());
                         }
                         //查询洗码配置
-                        Map<String, BigDecimal> washCode = findWashCode(account.getUserId());
+//                        Map<String, BigDecimal> washCode = findWashCode(account.getUserId());
                         //洗码
-                        BigDecimal washCodeVal = washCode(washCode, gameRecord, validbet);
-                        gameRecord.setWashCode(washCodeVal);
+//                        BigDecimal washCodeVal = washCode(washCode, gameRecord, validbet,account.getUserId());
+//                        gameRecord.setWashCode(washCodeVal);
                         //有数据会重复注单id唯一约束会报错，所以一条一条保存，避免影响后面的
                         gameRecordService.save(gameRecord);
                         //游戏记录保存成功后扣减打码量
@@ -165,7 +167,7 @@ public class GameRecordJob {
      * @return
      * @throws ParseException
      */
-    private BigDecimal washCode(Map<String, BigDecimal> washCode, GameRecord gameRecord, BigDecimal validbet) throws ParseException {
+    private BigDecimal washCode(Map<String, BigDecimal> washCode, GameRecord gameRecord, BigDecimal validbet,Long userId) throws ParseException {
         BigDecimal rate = washCode.get(gameRecord.getGid());
         if (rate == null || validbet == null || BigDecimal.ZERO.compareTo(rate) == 0 || BigDecimal.ZERO.compareTo(validbet) == 0) {
             return BigDecimal.ZERO;
@@ -175,7 +177,7 @@ public class GameRecordJob {
         if (!ObjectUtils.isEmpty(gameRecord.getBetTime())) {
             Date parse = formatter.parse(gameRecord.getBetTime());
             String date = formatter.format(parse);
-            String key = date + ":" + PLATFORM + ":" + gameRecord.getGid();
+            String key = PLATFORM + ":" + userId + ":" + date + ":" + gameRecord.getGid();
             Object redisVal = redisUtil.get(key);
             if(ObjectUtils.isEmpty(redisVal)){
                 redisUtil.set(key,washCodeVal);
@@ -187,13 +189,23 @@ public class GameRecordJob {
         return washCodeVal;
     }
 
+    /**
+     * 获取洗码配置
+     * @param userId
+     * @return
+     */
     private Map<String,BigDecimal> findWashCode(Long userId){
         Map<String,BigDecimal> config=new HashMap<>();
         List<UserWashCodeConfig> codeConfigs = userWashCodeConfigService.findByUserIdAndPlatform(userId,PLATFORM);
-        if (CollectionUtils.isEmpty(codeConfigs)){
+        if (!CollectionUtils.isEmpty(codeConfigs)){
+            codeConfigs.forEach(item->config.put(item.getGameId(),item.getRate()));
             return config;
         }
-        codeConfigs.forEach(item->config.put(item.getGameId(),item.getRate()));
+        List<WashCodeConfig> platform = washCodeConfigService.findByPlatform(PLATFORM);
+        if (CollectionUtils.isEmpty(platform)){
+            return config;
+        }
+        platform.forEach(item->config.put(item.getGameId(),item.getRate()));
         return config;
     }
 }
