@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.UserThirdVo;
@@ -12,6 +13,7 @@ import com.qianyi.casinocore.service.UserThirdService;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.HttpClient4Util;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 
 @RestController
 @RequestMapping("/userThird")
@@ -36,8 +39,7 @@ public class UserThirdController {
     @Autowired
     private UserMoneyService userMoneyService;
 
-    @Autowired
-    PublicWMApi wmApi;
+    private String url = "http://154.204.57.237:9200/wm/getWmBalanceApi?";
 
     @ApiOperation("根据我方用户账号查询三方账号")
     @GetMapping("/findUserThird")
@@ -91,12 +93,15 @@ public class UserThirdController {
         if (lang == null) {
             lang = 0;
         }
-        BigDecimal balance = null;
         try {
-            balance = wmApi.getBalance(third.getAccount(), lang);
+            String param = "account={0}&lang={1}";
+            param = MessageFormat.format(param,third.getAccount(),lang);
+            String s = HttpClient4Util.doGet(url + param);
+            JSONObject parse = JSONObject.parseObject(s);
+            Object data = parse.get("data");
+            return new BigDecimal(data.toString());
         } catch (Exception e) {
-            e.printStackTrace();
+            return BigDecimal.ZERO;
         }
-        return balance;
     }
 }
