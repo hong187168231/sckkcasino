@@ -120,6 +120,24 @@ public class UserController {
         return ResponseUtil.success(userPage);
     }
 
+    @ApiOperation("刷新WM余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("refreshWM")
+    public ResponseEntity getWMMoney(Long id){
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            return ResponseUtil.custom("客户不存在");
+        }
+        UserThird userThird = userThirdService.findByUserId(user.getId());
+        if (LoginUtil.checkNull(userThird)){
+            return ResponseUtil.custom("三方账号不存在");
+        }
+        BigDecimal wMonetUser = userMoneyService.getWMonetUser(user, userThird);
+        return ResponseUtil.success(wMonetUser);
+    }
+
     public void setWMMoney(List<User> userList) {
 
         log.info("query WM money data：【{}】 ", userList);

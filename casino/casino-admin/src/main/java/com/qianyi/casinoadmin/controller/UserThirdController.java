@@ -39,7 +39,6 @@ public class UserThirdController {
     @Autowired
     private UserMoneyService userMoneyService;
 
-    private String url = "http://154.204.57.237:9200/wm/getWmBalanceApi?";
 
     @ApiOperation("根据我方用户账号查询三方账号")
     @GetMapping("/findUserThird")
@@ -84,24 +83,9 @@ public class UserThirdController {
         }
         userThirdVo.setMoney(userMoney.getMoney());
         userThirdVo.setCodeNum(userMoney.getCodeNum());
-        userThirdVo.setWmMoney(getWMonetUser(user,userThird));
+        userThirdVo.setWmMoney(userMoneyService.getWMonetUser(user,userThird));
         return ResponseUtil.success(userThirdVo);
     }
 
-    private BigDecimal getWMonetUser(User user, UserThird third) {
-        Integer lang = user.getLanguage();
-        if (lang == null) {
-            lang = 0;
-        }
-        try {
-            String param = "account={0}&lang={1}";
-            param = MessageFormat.format(param,third.getAccount(),lang);
-            String s = HttpClient4Util.doGet(url + param);
-            JSONObject parse = JSONObject.parseObject(s);
-            Object data = parse.get("data");
-            return new BigDecimal(data.toString());
-        } catch (Exception e) {
-            return BigDecimal.ZERO;
-        }
-    }
+
 }
