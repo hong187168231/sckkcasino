@@ -6,6 +6,7 @@ import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.repository.UserMoneyRepository;
 import com.qianyi.modulecommon.util.HttpClient4Util;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 @Transactional
 @CacheConfig(cacheNames = {"userMoney"})
 public class UserMoneyService {
@@ -128,6 +130,7 @@ public class UserMoneyService {
             String param = "account={0}&lang={1}";
             param = MessageFormat.format(param,third.getAccount(),lang);
             String s = HttpClient4Util.doGet(url + param);
+            log.info("{}查询web接口返回{}",user.getAccount(),s);
             JSONObject parse = JSONObject.parseObject(s);
             Object data = parse.get("data");
             return new BigDecimal(data.toString());
