@@ -2,14 +2,10 @@ package com.qianyi.casinoweb.job;
 
 import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.business.UserCodeNumBusiness;
-import com.qianyi.casinocore.model.GameRecord;
-import com.qianyi.casinocore.model.GameRecordEndTime;
-import com.qianyi.casinocore.model.UserThird;
-import com.qianyi.casinocore.service.GameRecordEndTimeService;
-import com.qianyi.casinocore.service.GameRecordService;
-import com.qianyi.casinocore.service.UserService;
-import com.qianyi.casinocore.service.UserThirdService;
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.livewm.api.PublicWMApi;
+import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -17,11 +13,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -32,6 +26,10 @@ public class GameRecordJob {
 
     // 创建线程池
     ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 10, 100, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10));
+
+    private String PLATFORM="wm";
+
+    private SimpleDateFormat formatter= new SimpleDateFormat("yyyyMMdd");
 
 
     @Autowired
@@ -46,6 +44,12 @@ public class GameRecordJob {
     UserService userService;
     @Autowired
     UserCodeNumBusiness userCodeNumBusiness;
+    @Autowired
+    UserWashCodeConfigService userWashCodeConfigService;
+    @Autowired
+    WashCodeConfigService washCodeConfigService;
+    @Autowired
+    RedisUtil redisUtil;
 
     //每隔5分钟执行一次
     @Scheduled(fixedRate = 1000 * 60 * 5)
@@ -104,14 +108,22 @@ public class GameRecordJob {
             CompletableFuture cf = CompletableFuture.runAsync(()->{
                 for (GameRecord gameRecord : list) {
                     try {
-                        //有数据会重复注单id唯一约束会报错，所以一条一条保存，避免影响后面的
-                        gameRecordService.save(gameRecord);
-                        //游戏记录保存成功后扣减打码量
                         UserThird account = userThirdService.findByAccount(gameRecord.getUser());
                         if (account == null) {
                             continue;
                         }
-                        BigDecimal validbet = new BigDecimal(gameRecord.getValidbet());
+                        BigDecimal validbet = BigDecimal.ZERO;
+                        if (gameRecord.getValidbet() != null) {
+                            validbet = new BigDecimal(gameRecord.getValidbet());
+                        }
+                        //查询洗码配置
+//                        Map<String, BigDecimal> washCode = findWashCode(account.getUserId());
+                        //洗码
+//                        BigDecimal washCodeVal = washCode(washCode, gameRecord, validbet,account.getUserId());
+//                        gameRecord.setWashCode(washCodeVal);
+                        //有数据会重复注单id唯一约束会报错，所以一条一条保存，避免影响后面的
+                        gameRecordService.save(gameRecord);
+                        //游戏记录保存成功后扣减打码量
                         userCodeNumBusiness.subCodeNum(validbet, account.getUserId());
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -145,5 +157,55 @@ public class GameRecordJob {
             result.add(value);
         }
         return result;
+    }
+
+    /**
+     * 洗码
+     * @param washCode
+     * @param gameRecord
+     * @param validbet
+     * @return
+     * @throws ParseException
+     */
+    private BigDecimal washCode(Map<String, BigDecimal> washCode, GameRecord gameRecord, BigDecimal validbet,Long userId) throws ParseException {
+        BigDecimal rate = washCode.get(gameRecord.getGid());
+        if (rate == null || validbet == null || BigDecimal.ZERO.compareTo(rate) == 0 || BigDecimal.ZERO.compareTo(validbet) == 0) {
+            return BigDecimal.ZERO;
+        }
+        BigDecimal washCodeVal = validbet.multiply(rate);
+        gameRecord.setWashCode(washCodeVal);
+        if (!ObjectUtils.isEmpty(gameRecord.getBetTime())) {
+            Date parse = formatter.parse(gameRecord.getBetTime());
+            String date = formatter.format(parse);
+            String key = PLATFORM + ":" + userId + ":" + date + ":" + gameRecord.getGid();
+            Object redisVal = redisUtil.get(key);
+            if(ObjectUtils.isEmpty(redisVal)){
+                redisUtil.set(key,washCodeVal);
+            }else{
+                BigDecimal redisVal1 = (BigDecimal) redisVal;
+                redisUtil.set(key,redisVal1.add(washCodeVal));
+            }
+        }
+        return washCodeVal;
+    }
+
+    /**
+     * 获取洗码配置
+     * @param userId
+     * @return
+     */
+    private Map<String,BigDecimal> findWashCode(Long userId){
+        Map<String,BigDecimal> config=new HashMap<>();
+        List<UserWashCodeConfig> codeConfigs = userWashCodeConfigService.findByUserIdAndPlatform(userId,PLATFORM);
+        if (!CollectionUtils.isEmpty(codeConfigs)){
+            codeConfigs.forEach(item->config.put(item.getGameId(),item.getRate()));
+            return config;
+        }
+        List<WashCodeConfig> platform = washCodeConfigService.findByPlatform(PLATFORM);
+        if (CollectionUtils.isEmpty(platform)){
+            return config;
+        }
+        platform.forEach(item->config.put(item.getGameId(),item.getRate()));
+        return config;
     }
 }

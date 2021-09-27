@@ -41,6 +41,9 @@ public class UserCodeNumBusiness {
         if (validbet == null || userId == null) {
             return ResponseUtil.fail();
         }
+        if (BigDecimal.ZERO.compareTo(validbet) == 0) {
+            return ResponseUtil.success();
+        }
         UserMoney user = userMoneyService.findUserByUserIdUseLock(userId);
         if (user == null || user.getCodeNum() == null) {
             return ResponseUtil.fail();
