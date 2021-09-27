@@ -44,7 +44,6 @@ public class RedisLimitExcutor {
             return true;
         }
         int count = Integer.parseInt(obj.toString());
-        System.out.println(count);
         if (count != 0) {
             return true;
         } else {

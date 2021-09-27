@@ -28,8 +28,11 @@ public class IpLimitInteceptor extends AbstractIpLimitInteceptor {
         String ip = IpUtil.getIp(request);
         boolean access = redisLimitExcutor.tryAccess(ip);
         if(!access){
-            IpBlack ipBlack=new IpBlack();
-            ipBlack.setIp(ip);
+            IpBlack ipBlack = ipBlackService.findByIp(ip);
+            if (ipBlack == null) {
+                ipBlack = new IpBlack();
+                ipBlack.setIp(ip);
+            }
             ipBlack.setStatus(Constants.no);
             ipBlackService.save(ipBlack);
         }
