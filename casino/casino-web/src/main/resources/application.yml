@@ -37,3 +37,4 @@ project:
   title: 千亿科技
   vendorId: qy01twapi
   signature: f76aecd01a78c8c2021c91d833ca50c6
+  ipWhite: ${ipWhite:127.0.0.1}                      #ip白名单，多个ip逗号分隔

@@ -5,10 +5,13 @@ import java.util.UUID;
 
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.service.UserMoneyService;
+import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.util.DateUtil;
+import com.qianyi.modulecommon.util.IpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,6 +56,8 @@ public class WMController {
 
     @Value("${project.signature}")
     String signature;
+    @Value("${project.ipWhite}")
+    String ipWhite;
 
     @ApiOperation("开游戏")
     @RequestLimit(limit = 1,timeout = 5)
@@ -258,6 +263,31 @@ public class WMController {
         return ResponseUtil.success(balance);
     }
 
+    @ApiOperation("查询用户WM余额外部接口")
+    @RequestLimit(limit = 1,timeout = 5)
+    @GetMapping("getWmBalanceApi")
+    @NoAuthentication
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "account", value = "第三方账号", required = true),
+            @ApiImplicitParam(name = "lang", value = "语言", required = true),
+            })
+    public ResponseEntity getWmBalanceApi(String account, Integer lang) {
+        if (CasinoWebUtil.checkNull(account, lang)) {
+            return ResponseUtil.parameterNotNull();
+        }
+        if (!ipWhiteCheck()){
+            return ResponseUtil.custom("ip禁止访问");
+        }
+        BigDecimal balance = null;
+        try {
+            balance = wmApi.getBalance(account, lang);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        return ResponseUtil.success(balance);
+    }
+
     @ApiOperation("一键回收当前登录用户WM余额")
     @RequestLimit(limit = 1,timeout = 5)
     @GetMapping("oneKeyRecover")
@@ -303,6 +333,20 @@ public class WMController {
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         return ResponseUtil.success();
+    }
+
+    private Boolean ipWhiteCheck() {
+        if (ObjectUtils.isEmpty(ipWhite)) {
+            return false;
+        }
+        String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
+        String[] ipWhiteArray = ipWhite.split(",");
+        for (String ipw : ipWhiteArray) {
+            if (!ObjectUtils.isEmpty(ipw) && ipw.trim().equals(ip)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Data
