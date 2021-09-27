@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.business.UserCodeNumBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinoweb.vo.WashCodeVo;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,10 +118,9 @@ public class GameRecordJob {
                             validbet = new BigDecimal(gameRecord.getValidbet());
                         }
                         //查询洗码配置
-//                        Map<String, BigDecimal> washCode = findWashCode(account.getUserId());
+                        Map<String, BigDecimal> washCode = findWashCode(account.getUserId());
                         //洗码
-//                        BigDecimal washCodeVal = washCode(washCode, gameRecord, validbet,account.getUserId());
-//                        gameRecord.setWashCode(washCodeVal);
+                        washCode(washCode, gameRecord, validbet,account.getUserId());
                         //有数据会重复注单id唯一约束会报错，所以一条一条保存，避免影响后面的
                         gameRecordService.save(gameRecord);
                         //游戏记录保存成功后扣减打码量
@@ -168,8 +168,10 @@ public class GameRecordJob {
      * @throws ParseException
      */
     private BigDecimal washCode(Map<String, BigDecimal> washCode, GameRecord gameRecord, BigDecimal validbet,Long userId) throws ParseException {
-        BigDecimal rate = washCode.get(gameRecord.getGid());
+        BigDecimal rate = washCode.get(gameRecord.getGid().toString());
+        gameRecord.setRate(rate);
         if (rate == null || validbet == null || BigDecimal.ZERO.compareTo(rate) == 0 || BigDecimal.ZERO.compareTo(validbet) == 0) {
+            gameRecord.setWashCode(BigDecimal.ZERO);
             return BigDecimal.ZERO;
         }
         BigDecimal washCodeVal = validbet.multiply(rate);
@@ -180,10 +182,15 @@ public class GameRecordJob {
             String key = PLATFORM + ":" + userId + ":" + date + ":" + gameRecord.getGid();
             Object redisVal = redisUtil.get(key);
             if(ObjectUtils.isEmpty(redisVal)){
-                redisUtil.set(key,washCodeVal);
+                WashCodeVo vo=new WashCodeVo();
+                vo.setValidbet(validbet);
+                vo.setAmount(washCodeVal);
+                redisUtil.set(key,vo);
             }else{
-                BigDecimal redisVal1 = (BigDecimal) redisVal;
-                redisUtil.set(key,redisVal1.add(washCodeVal));
+                WashCodeVo vo= (WashCodeVo) redisVal;
+                vo.setValidbet(vo.getValidbet().add(validbet));
+                vo.setAmount(vo.getAmount().add(washCodeVal));
+                redisUtil.set(key,vo);
             }
         }
         return washCodeVal;
@@ -194,18 +201,21 @@ public class GameRecordJob {
      * @param userId
      * @return
      */
-    private Map<String,BigDecimal> findWashCode(Long userId){
-        Map<String,BigDecimal> config=new HashMap<>();
-        List<UserWashCodeConfig> codeConfigs = userWashCodeConfigService.findByUserIdAndPlatform(userId,PLATFORM);
-        if (!CollectionUtils.isEmpty(codeConfigs)){
-            codeConfigs.forEach(item->config.put(item.getGameId(),item.getRate()));
+    private Map<String, BigDecimal> findWashCode(Long userId) {
+        Map<String, BigDecimal> config = new HashMap<>();
+        //先查询用户级别的配置信息
+        List<UserWashCodeConfig> codeConfigs = userWashCodeConfigService.findByUserIdAndPlatform(userId, PLATFORM);
+        if (!CollectionUtils.isEmpty(codeConfigs)) {
+            codeConfigs.stream().filter(item -> (item.getState() != null && item.getState() == 0)).forEach(item ->
+                    config.put(item.getGameId(), item.getRate())
+            );
             return config;
         }
         List<WashCodeConfig> platform = washCodeConfigService.findByPlatform(PLATFORM);
-        if (CollectionUtils.isEmpty(platform)){
+        if (CollectionUtils.isEmpty(platform)) {
             return config;
         }
-        platform.forEach(item->config.put(item.getGameId(),item.getRate()));
+        platform.stream().filter(item -> (item.getState() != null && item.getState() == 0)).forEach(item -> config.put(item.getGameId(), item.getRate()));
         return config;
     }
 }
