@@ -31,7 +31,7 @@ public class UserMoneyService {
     @Autowired
     private UserMoneyRepository userMoneyRepository;
 
-    private String url = "http://154.204.57.237:9200/wm/getWmBalanceApi?";
+    private String url = "http://127.0.0.1:9200/wm/getWmBalanceApi?";
 
     public UserMoney findUserByUserIdUseLock(Long userId) {
         return userMoneyRepository.findUserByUserIdUseLock(userId);
