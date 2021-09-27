@@ -346,7 +346,7 @@ public class LoginController {
     }
 
     //1分钟3次
-    @RequestLimit(limit = 3,timeout = 60)
+    @RequestLimit(limit = 10,timeout = 60)
     @ApiOperation("获取当前登录用户")
     @PostMapping("getSysUser")
     public ResponseEntity<SysUser> getSysUser() {
