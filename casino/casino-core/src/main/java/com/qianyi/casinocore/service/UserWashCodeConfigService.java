@@ -22,4 +22,8 @@ public class UserWashCodeConfigService {
     public List<UserWashCodeConfig> findByUserIdAndPlatform(Long userId, String platform) {
         return userWashCodeConfigRepository.findByUserIdAndPlatform(userId,platform);
     }
+
+    public List<UserWashCodeConfig> findByUserId(Long userId) {
+        return userWashCodeConfigRepository.findByUserId(userId);
+    }
 }

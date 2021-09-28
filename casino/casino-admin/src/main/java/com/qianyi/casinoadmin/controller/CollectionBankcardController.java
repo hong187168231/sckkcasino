@@ -87,7 +87,7 @@ public class CollectionBankcardController {
             if(money.compareTo(BigDecimal.ZERO)<1){
                 return ResponseUtil.custom("金额类型错误");
             }
-            bankcard.setDayMaxAmount(money);
+            bankcard.setMonthMaxAmount(money);
         }
         bankcard.setDisable(CommonConst.NUMBER_1);//新增默认禁用
         collectionBankcardService.save(bankcard);

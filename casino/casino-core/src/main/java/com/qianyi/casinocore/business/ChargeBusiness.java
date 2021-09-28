@@ -45,6 +45,10 @@ public class ChargeBusiness {
         if(ObjectUtils.isEmpty(chargeAmount)){
             return ResponseUtil.custom("充值金额不允许为空");
         }
+        Integer count = chargeOrderService.countByStatus(0);
+        if (count > 0) {
+            return ResponseUtil.custom("您有一笔充值订单正在审核,请交易完成后再提交");
+        }
         BigDecimal decChargeAmount = new BigDecimal(chargeAmount);
         //查询充值金额限制
         AmountConfig amountConfig = amountConfigService.findAmountConfigById(1L);

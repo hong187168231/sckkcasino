@@ -113,6 +113,10 @@ public class WithdrawBusiness {
             return ResponseUtil.custom("用户钱包不存在");
 
         }
+        Integer count = withdrawOrderService.countByStatus(0);
+        if (count > 0) {
+            return ResponseUtil.custom("您有一笔提款订单正在审核,请交易完成后再提交");
+        }
         BigDecimal codeNum = userMoney.getCodeNum();
         //打码量未清0没有可提现金额
         if (codeNum.compareTo(BigDecimal.ZERO) == 1) {

@@ -258,16 +258,12 @@ public class BankCardsController {
             @ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
 
     })
-    public ResponseEntity disable(Long userId, String bankId){
-        Bankcards bankcards = new Bankcards();
-        bankcards.setUserId(userId);
-        bankcards.setBankId(bankId);
+    public ResponseEntity disable(Long userId, Long bankId){
         //查询银行卡
-        List<Bankcards> bankcardsList = bankcardsService.findUserBank(bankcards);
-        if(bankcardsList == null || bankcardsList.size()<= 0){
+        Bankcards bank = bankcardsService.findById(bankId);
+        if(LoginUtil.checkNull(bank)){
             return ResponseUtil.custom("用户未绑定银行卡");
         }
-        Bankcards bank = bankcardsList.get(0);
         if(bank.getDisable() == Constants.BANK_CLOSE){
             bank.setDisable(Constants.BANK_OPEN);
         }else{

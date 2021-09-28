@@ -30,7 +30,10 @@ public class User extends BaseEntity implements UserDetails {
     //帐号状态（1：启用，其他：禁用）
     private Integer state;
     private String registerIp;
-
+    @ApiModelProperty("收款卡张数")
+    private Integer creditCard;
+    @ApiModelProperty("配置收款卡等级")//null 完全随机  或者 A|B|C|D
+    private String cardLevel;
     @Transient
     private BigDecimal money = BigDecimal.ZERO;
 

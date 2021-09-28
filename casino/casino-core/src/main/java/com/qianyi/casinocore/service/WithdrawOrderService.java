@@ -98,4 +98,8 @@ public class WithdrawOrderService {
         };
         return specification;
     }
+
+    public Integer countByStatus(int status) {
+        return withdrawOrderRepository.countByStatus(status);
+    }
 }

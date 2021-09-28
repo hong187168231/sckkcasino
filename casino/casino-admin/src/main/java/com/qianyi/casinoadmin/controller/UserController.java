@@ -68,6 +68,9 @@ public class UserController {
     @Autowired
     PublicWMApi wmApi;
 
+    @Autowired
+    private LoginLogService loginLogService;
+
     /**
      * 查询操作
      * 注意：jpa 是从第0页开始的
@@ -210,7 +213,8 @@ public class UserController {
         String password = passwordUtil.getRandomPwd();
         String bcryptPassword = LoginUtil.bcrypt(password);
         user.setPassword(bcryptPassword);
-
+        //默认展示两张收款卡
+        user.setCreditCard(Constants.creditCard);
         User save = userService.save(user);
         //userMoney表初始化数据
         UserMoney userMoney=new UserMoney();
@@ -393,5 +397,70 @@ public class UserController {
             return ResponseUtil.custom("金额类型错误");
         }
         return withdrawBusiness.updateWithdrawAndUser(id,money,bankId);
+    }
+
+    /**
+     * 后台配置会员收款卡修改
+     *
+     * @param id 会员id
+     * @param creditCard 收款卡张数
+     * @param cardLevel 配置收款卡等级
+     * @return
+     */
+    @ApiOperation("后台配置会员收款卡修改")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+            @ApiImplicitParam(name = "creditCard", value = "收款卡张数", required = true),
+            @ApiImplicitParam(name = "cardLevel", value = "配置收款卡等级", required = false),
+    })
+    @PostMapping("/saveCollectionBankcard")
+    public ResponseEntity saveCollectionBankcard(Long id,Integer creditCard,String cardLevel){
+        if (LoginUtil.checkNull(id,creditCard)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        if (creditCard != CommonConst.NUMBER_1 && creditCard != CommonConst.NUMBER_2){
+            return ResponseUtil.custom("收款卡张数最多两张");
+        }
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            return ResponseUtil.custom("账户不存在");
+        }
+        user.setCreditCard(creditCard);
+        if (!LoginUtil.checkNull(cardLevel)){
+            String[] split = cardLevel.split(CommonConst.HYPHEN);
+            if (!CommonConst.cardLevel.containsAll(Arrays.asList(split))){
+                return ResponseUtil.custom("收款卡等级不合法");
+            }
+            user.setCardLevel(cardLevel);
+        }
+        userService.save(user);
+        return ResponseUtil.success();
+    }
+
+    /**
+     * 后台配置会员收款卡修改
+     *
+     * @param id 会员id
+     * @param pageSize 每页大小
+     * @param pageCode 当前页
+     * @return
+     */
+    @ApiOperation("根据id查询用户登录注册ip")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+    })
+    @PostMapping("/findIp")
+    public ResponseEntity findIp(Integer pageSize, Integer pageCode,Long id){
+        if (LoginUtil.checkNull(id)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        LoginLog loginLog = new LoginLog();
+        loginLog.setUserId(id);
+        Page<LoginLog> loginLogPage = loginLogService.findLoginLogPage(loginLog, pageable);
+        return ResponseUtil.success(loginLogPage);
     }
 }
