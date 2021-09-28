@@ -202,7 +202,7 @@ public class WithdrawBusiness {
         }
         //提现通过或其他
         if(status == Constants.WITHDRAW_ORDER){//冻结提现金额
-            withdrawOrder.setStatus(status);
+
             withdrawOrderService.saveOrder(withdrawOrder);
             return ResponseUtil.success();
         }
@@ -214,6 +214,7 @@ public class WithdrawBusiness {
                 BigDecimal withdrawMoney = withdrawOrder.getWithdrawMoney().subtract(serviceCharge);
                 withdrawOrder.setWithdrawMoney(withdrawMoney);
             }
+            withdrawOrder.setStatus(status);
             withdrawOrderService.saveOrder(withdrawOrder);
             return ResponseUtil.success();
         }
