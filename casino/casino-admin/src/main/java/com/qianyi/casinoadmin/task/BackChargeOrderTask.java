@@ -15,12 +15,12 @@ import java.util.Calendar;
 public class BackChargeOrderTask {
     @Autowired
     private ChargeOrderService chargeOrderService;
-    @Scheduled(cron = TaskConst.BACK_ORDER)
-    public void updateOrderChargeOrder(){
-        log.info("修改超时充值订单开始执行start=============================================》");
-        Calendar nowTime = Calendar.getInstance();
-        nowTime.add(Calendar.MINUTE, -30);
-        String format = DateUtil.getSimpleDateFormat().format(nowTime.getTime());
-        chargeOrderService.updateChargeOrders(CommonConst.NUMBER_0, format);
-    }
+//    @Scheduled(cron = TaskConst.BACK_ORDER)
+//    public void updateOrderChargeOrder(){
+//        log.info("修改超时充值订单开始执行start=============================================》");
+//        Calendar nowTime = Calendar.getInstance();
+//        nowTime.add(Calendar.MINUTE, -30);
+//        String format = DateUtil.getSimpleDateFormat().format(nowTime.getTime());
+//        chargeOrderService.updateChargeOrders(CommonConst.NUMBER_0, format);
+//    }
 }

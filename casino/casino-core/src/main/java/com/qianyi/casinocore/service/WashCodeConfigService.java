@@ -24,4 +24,8 @@ public class WashCodeConfigService {
     public List<WashCodeConfig> saveAll(List<WashCodeConfig> list){
         return washCodeConfigRepository.saveAll(list);
     }
+
+    public List<List<WashCodeConfig>> findWashCodeConfigAll(WashCodeConfig washCodeConfig) {
+        return null;
+    }
 }

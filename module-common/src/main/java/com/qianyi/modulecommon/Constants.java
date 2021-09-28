@@ -53,4 +53,9 @@ public class Constants {
     public final static Integer WITHDRAW_PASS = 1;
     public final static Integer WITHDRAW_REFUSE = 2;
     public final static Integer WITHDRAW_ORDER = 3;
+
+    public final static Integer creditCard = 2;
+
+    public final static Integer IPBLACK_CLOSE = 1; //ip黑名单禁用
+    public final static Integer IPBLACK_OPEN = 0; //ip黑名单启用
 }
