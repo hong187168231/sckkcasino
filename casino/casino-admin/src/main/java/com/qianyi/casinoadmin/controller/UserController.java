@@ -187,6 +187,9 @@ public class UserController {
     })
     @PostMapping("saveUser")
     public ResponseEntity saveUser(String account, String name, String phone){
+        if (LoginUtil.checkNull(account)){
+            return ResponseUtil.custom("参数不合法");
+        }
         User us = userService.findByAccount(account);
         if(us != null){
             return ResponseUtil.custom("账户已存在");
