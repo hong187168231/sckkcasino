@@ -18,6 +18,7 @@
         <module>casino-core</module>
         <module>casino-web</module>
         <module>casino-admin</module>
+        <module>casino-proxy</module>
         <module>live-wm</module>
     </modules>
 
