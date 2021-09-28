@@ -214,6 +214,7 @@ public class WithdrawBusiness {
                 BigDecimal withdrawMoney = withdrawOrder.getWithdrawMoney().subtract(serviceCharge);
                 withdrawOrder.setWithdrawMoney(withdrawMoney);
             }
+            withdrawOrder.setStatus(status);
             withdrawOrderService.saveOrder(withdrawOrder);
             return ResponseUtil.success();
         }

@@ -33,6 +33,9 @@ public class LoginLogJob implements AsyncService<LoginLogVo> {
         if (address != null) {
             loginLog.setAddress(address);
         }
+        if(vo.getType()!=null){
+            loginLog.setType(vo.getType());
+        }
 
         loginLogService.save(loginLog);
 
