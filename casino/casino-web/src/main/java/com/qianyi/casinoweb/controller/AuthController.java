@@ -136,6 +136,15 @@ public class AuthController {
         UserMoney userMoney = new UserMoney();
         userMoney.setUserId(save.getId());
         userMoneyService.save(userMoney);
+        //记录注册日志
+        LoginLogVo vo = new LoginLogVo();
+        vo.setIp(ip);
+        vo.setAccount(user.getAccount());
+        vo.setUserId(user.getId());
+        vo.setRemark("casino-web");
+        vo.setType(2);
+
+        asyncService.executeAsync(vo);
         return ResponseUtil.success();
     }
 
