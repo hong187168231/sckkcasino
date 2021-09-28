@@ -53,4 +53,6 @@ public class Constants {
     public final static Integer WITHDRAW_PASS = 1;
     public final static Integer WITHDRAW_REFUSE = 2;
     public final static Integer WITHDRAW_ORDER = 3;
+
+    public final static Integer creditCard = 2;
 }

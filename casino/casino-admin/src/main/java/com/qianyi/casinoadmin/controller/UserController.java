@@ -210,7 +210,8 @@ public class UserController {
         String password = passwordUtil.getRandomPwd();
         String bcryptPassword = LoginUtil.bcrypt(password);
         user.setPassword(bcryptPassword);
-
+        //默认展示两张收款卡
+        user.setCreditCard(Constants.creditCard);
         User save = userService.save(user);
         //userMoney表初始化数据
         UserMoney userMoney=new UserMoney();
