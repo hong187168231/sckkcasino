@@ -14,6 +14,26 @@
     <description>代理后台</description>
 
     <dependencies>
+        <dependency>
+            <groupId>com.qianyi</groupId>
+            <artifactId>module-jjwt</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.qianyi</groupId>
+            <artifactId>module-swagger2</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.qianyi</groupId>
+            <artifactId>module-springcache-redis</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.qianyi</groupId>
+            <artifactId>casino-core</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
 

@@ -1,4 +1,4 @@
-package com.qianyi.casinoproxy;
+package com.qianyi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
