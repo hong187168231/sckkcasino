@@ -92,6 +92,16 @@ public class RedisUtil {
         }
     }
 
+
+    /**
+     * 根据前缀模糊查询所有key
+     * @param prex
+     */
+    public Set<String> getKeysByPrex(String prex) {
+        Set<String> keys = redisTemplate.keys(prex);
+        return keys;
+    }
+
     //============================String=============================
 
     /**

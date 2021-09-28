@@ -6,6 +6,7 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinoweb.vo.WashCodeVo;
 import com.qianyi.livewm.api.PublicWMApi;
+import com.qianyi.modulecommon.util.DateUtil;
 import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,7 +31,7 @@ public class GameRecordJob {
 
     private String PLATFORM="wm";
 
-    private SimpleDateFormat formatter= new SimpleDateFormat("yyyyMMdd");
+    private static SimpleDateFormat yyyyMMdd = new SimpleDateFormat(DateUtil.YYYYMMDD);
 
 
     @Autowired
@@ -167,7 +168,7 @@ public class GameRecordJob {
      * @return
      * @throws ParseException
      */
-    private BigDecimal washCode(Map<String, BigDecimal> washCode, GameRecord gameRecord, BigDecimal validbet,Long userId) throws ParseException {
+    public synchronized BigDecimal washCode(Map<String, BigDecimal> washCode, GameRecord gameRecord, BigDecimal validbet,Long userId) throws ParseException {
         BigDecimal rate = washCode.get(gameRecord.getGid().toString());
         gameRecord.setRate(rate);
         if (rate == null || validbet == null || BigDecimal.ZERO.compareTo(rate) == 0 || BigDecimal.ZERO.compareTo(validbet) == 0) {
@@ -177,19 +178,21 @@ public class GameRecordJob {
         BigDecimal washCodeVal = validbet.multiply(rate);
         gameRecord.setWashCode(washCodeVal);
         if (!ObjectUtils.isEmpty(gameRecord.getBetTime())) {
-            Date parse = formatter.parse(gameRecord.getBetTime());
-            String date = formatter.format(parse);
-            String key = PLATFORM + ":" + userId + ":" + date + ":" + gameRecord.getGid();
+            Date parse = DateUtil.getSimpleDateFormat().parse(gameRecord.getBetTime());
+            String date = yyyyMMdd.format(parse);
+            String key = PLATFORM + ":" + userId + ":" + gameRecord.getGid() + ":" + date;
             Object redisVal = redisUtil.get(key);
             if(ObjectUtils.isEmpty(redisVal)){
                 WashCodeVo vo=new WashCodeVo();
                 vo.setValidbet(validbet);
                 vo.setAmount(washCodeVal);
+                vo.setGameId(gameRecord.getGid().toString());
                 redisUtil.set(key,vo);
             }else{
                 WashCodeVo vo= (WashCodeVo) redisVal;
                 vo.setValidbet(vo.getValidbet().add(validbet));
                 vo.setAmount(vo.getAmount().add(washCodeVal));
+                vo.setGameId(gameRecord.getGid().toString());
                 redisUtil.set(key,vo);
             }
         }
@@ -201,7 +204,7 @@ public class GameRecordJob {
      * @param userId
      * @return
      */
-    private Map<String, BigDecimal> findWashCode(Long userId) {
+    public Map<String, BigDecimal> findWashCode(Long userId) {
         Map<String, BigDecimal> config = new HashMap<>();
         //先查询用户级别的配置信息
         List<UserWashCodeConfig> codeConfigs = userWashCodeConfigService.findByUserIdAndPlatform(userId, PLATFORM);
