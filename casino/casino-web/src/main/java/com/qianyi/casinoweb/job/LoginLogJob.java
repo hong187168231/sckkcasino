@@ -28,15 +28,11 @@ public class LoginLogJob implements AsyncService<LoginLogVo> {
         loginLog.setAccount(vo.getAccount());
         loginLog.setUserId(vo.getUserId());
         loginLog.setDescription(vo.getRemark());
-
+        loginLog.setType(vo.getType());
         String address = IpUtil.getAddress(vo.getIp());
         if (address != null) {
             loginLog.setAddress(address);
         }
-        if(vo.getType()!=null){
-            loginLog.setType(vo.getType());
-        }
-
         loginLogService.save(loginLog);
 
     }
