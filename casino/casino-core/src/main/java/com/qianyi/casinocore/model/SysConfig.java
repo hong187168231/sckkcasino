@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.model;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -22,21 +23,25 @@ public class SysConfig {
     /**
      * 组别，根据组别判断是什么类型的值 1、财务 2、ip
      */
+    @ApiModelProperty("组别")
     private Integer sysGroup;
 
     /**
      * 配置名
      */
+    @ApiModelProperty("配置名")
     private String name;
 
     /**
      * 配置值
      * 不可以用json数据
      */
+    @ApiModelProperty("配置值，不可以用json数据")
     private String value;
 
     /**
      * 备注
      */
+    @ApiModelProperty("备注")
     private String remark;
 }
