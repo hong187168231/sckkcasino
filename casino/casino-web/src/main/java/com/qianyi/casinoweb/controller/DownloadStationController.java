@@ -46,16 +46,4 @@ public class DownloadStationController {
         map.put("forcedNewest", forcedNewest);
         return ResponseUtil.success(map);
     }
-
-    @GetMapping("test")
-    @ApiOperation("test")
-    @NoAuthentication
-    public ResponseEntity test() {
-        DownloadStation newest = downloadStationService.getNewestVersion(1);
-        DownloadStation forcedNewest = downloadStationService.getForcedNewestVersion(1, 1);
-        Map<String, DownloadStation> map = new HashMap<>();
-        map.put("newest", newest);
-        map.put("forcedNewest", forcedNewest);
-        return ResponseUtil.success(map);
-    }
 }
