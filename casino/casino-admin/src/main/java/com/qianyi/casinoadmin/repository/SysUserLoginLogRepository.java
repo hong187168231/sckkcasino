@@ -1,6 +1,6 @@
-package com.qianyi.casinocore.repository;
+package com.qianyi.casinoadmin.repository;
 
-import com.qianyi.casinocore.model.SysUserLoginLog;
+import com.qianyi.casinoadmin.model.SysUserLoginLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SysUserLoginLogRepository extends JpaRepository<SysUserLoginLog,Long> {

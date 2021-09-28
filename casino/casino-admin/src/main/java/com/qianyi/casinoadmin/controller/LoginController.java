@@ -1,11 +1,10 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.google.code.kaptcha.Producer;
-import com.qianyi.casinoadmin.vo.SysUserVo;
-import com.qianyi.casinocore.service.SysUserLoginLogService;
+import com.qianyi.casinoadmin.service.SysUserLoginLogService;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.SysUser;
-import com.qianyi.casinocore.model.SysUserLoginLog;
+import com.qianyi.casinoadmin.model.SysUserLoginLog;
 import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.moduleauthenticator.GoogleAuthUtil;
 import com.qianyi.modulecommon.Constants;
@@ -22,8 +21,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.PostConstruct;
 
 
 /**

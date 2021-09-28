@@ -1,7 +1,7 @@
-package com.qianyi.casinocore.service;
+package com.qianyi.casinoadmin.service;
 
-import com.qianyi.casinocore.model.SysUserLoginLog;
-import com.qianyi.casinocore.repository.SysUserLoginLogRepository;
+import com.qianyi.casinoadmin.model.SysUserLoginLog;
+import com.qianyi.casinoadmin.repository.SysUserLoginLogRepository;
 import com.qianyi.modulecommon.util.IpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
