@@ -68,6 +68,9 @@ public class UserController {
     @Autowired
     PublicWMApi wmApi;
 
+    @Autowired
+    private LoginLogService loginLogService;
+
     /**
      * 查询操作
      * 注意：jpa 是从第0页开始的
@@ -432,5 +435,32 @@ public class UserController {
         }
         userService.save(user);
         return ResponseUtil.success();
+    }
+
+    /**
+     * 后台配置会员收款卡修改
+     *
+     * @param id 会员id
+     * @param pageSize 每页大小
+     * @param pageCode 当前页
+     * @return
+     */
+    @ApiOperation("根据id查询用户登录注册ip")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+    })
+    @PostMapping("/findIp")
+    public ResponseEntity findIp(Integer pageSize, Integer pageCode,Long id){
+        if (LoginUtil.checkNull(id)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        LoginLog loginLog = new LoginLog();
+        loginLog.setUserId(id);
+        Page<LoginLog> loginLogPage = loginLogService.findLoginLogPage(loginLog, pageable);
+        return ResponseUtil.success(loginLogPage);
     }
 }
