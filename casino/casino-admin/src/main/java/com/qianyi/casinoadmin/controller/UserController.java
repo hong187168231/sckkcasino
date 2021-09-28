@@ -431,8 +431,8 @@ public class UserController {
             if (!CommonConst.cardLevel.containsAll(Arrays.asList(split))){
                 return ResponseUtil.custom("收款卡等级不合法");
             }
-            user.setCardLevel(cardLevel);
         }
+        user.setCardLevel(cardLevel);
         userService.save(user);
         return ResponseUtil.success();
     }
