@@ -1,9 +1,19 @@
 package com.qianyi.casinoadmin.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  公共常量类
  */
 public class CommonConst {
+    public static List cardLevel = new ArrayList();
+    static {
+        cardLevel.add(CommonConst.STRING_1);
+        cardLevel.add(CommonConst.STRING_2);
+        cardLevel.add(CommonConst.STRING_3);
+        cardLevel.add(CommonConst.STRING_4);
+    }
     /**
      * 连字符号("-")
      */
@@ -68,4 +78,9 @@ public class CommonConst {
     //AmountConfig id
     public final static Long charge = 1L;//充值
     public final static Long withdraw = 2L;//提现
+
+    public static final String STRING_1 = "1";
+    public static final String STRING_2 = "2";
+    public static final String STRING_3 = "3";
+    public static final String STRING_4 = "4";
 }
