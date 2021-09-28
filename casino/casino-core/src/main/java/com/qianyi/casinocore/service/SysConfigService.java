@@ -28,4 +28,12 @@ public class SysConfigService {
         }
         return null;
     }
+
+    public List<SysConfig> findByGroup(int groupBet) {
+        return sysConfigRepository.findBySysGroup(groupBet);
+    }
+
+    public List<SysConfig> saveAll(List<SysConfig> sysConfigList) {
+        return sysConfigRepository.saveAll(sysConfigList);
+    }
 }
