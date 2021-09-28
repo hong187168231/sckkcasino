@@ -1,12 +1,12 @@
-package com.qianyi.casinocore.model;
+package com.qianyi.casinoadmin.model;
 
-import lombok.Builder;
+import com.qianyi.casinocore.model.BaseEntity;
 import lombok.Data;
 import javax.persistence.Entity;
 
 @Entity
 @Data
-public class SysUserLoginLog extends BaseEntity{
+public class SysUserLoginLog extends BaseEntity {
 
     private String ip;
     private String userName;
