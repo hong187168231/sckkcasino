@@ -20,5 +20,7 @@ public class LoginLog extends BaseEntity{
     private String description;
     //IP归属地
     private String address;
+    //类型 1 登录 2 注册
+    private Integer type = 1;
 
 }
