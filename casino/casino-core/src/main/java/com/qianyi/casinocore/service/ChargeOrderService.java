@@ -35,4 +35,8 @@ public class ChargeOrderService {
     public void updateChargeOrders(Integer status,String time){
         chargeOrderRepository.updateChargeOrders(status,time);
     }
+
+    public Integer countByStatus(int status) {
+        return chargeOrderRepository.countByStatus(status);
+    }
 }

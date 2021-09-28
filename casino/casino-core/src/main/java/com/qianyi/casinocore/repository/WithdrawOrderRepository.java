@@ -9,4 +9,6 @@ public interface WithdrawOrderRepository extends JpaRepository<WithdrawOrder,Lon
 
     @Query(value = "select * from withdraw_order u where u.id = ? for update",nativeQuery = true)
     WithdrawOrder findUserByWithdrawIdOrderLock(Long id);
+
+    Integer countByStatus(int status);
 }
