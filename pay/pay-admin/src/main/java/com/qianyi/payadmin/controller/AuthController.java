@@ -2,6 +2,7 @@ package com.qianyi.payadmin.controller;
 
 import com.google.code.kaptcha.Producer;
 import com.qianyi.moduleauthenticator.GoogleAuthUtil;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -78,7 +79,7 @@ public class AuthController {
         JjwtUtil.Subject subject = new JjwtUtil.Subject();
         subject.setUserId(user.getId() + "");
         subject.setBcryptPassword(user.getPassword());
-        String token = JjwtUtil.generic(subject);
+        String token = JjwtUtil.generic(subject, Constants.PAY_ADMIN);
         return ResponseUtil.success(token);
     }
 
@@ -128,7 +129,7 @@ public class AuthController {
         JjwtUtil.Subject subject = new JjwtUtil.Subject();
         subject.setUserId(user.getId() + "");
         subject.setBcryptPassword(user.getPassword());
-        String token = JjwtUtil.generic(subject);
+        String token = JjwtUtil.generic(subject,Constants.PAY_ADMIN);
 
         //记录登陆日志
         String ip = IpUtil.getIp(PayUtil.getRequest());
@@ -227,7 +228,7 @@ public class AuthController {
         JjwtUtil.Subject subject = new JjwtUtil.Subject();
         subject.setUserId(user.getId() + "");
         subject.setBcryptPassword(user.getPassword());
-        String token = JjwtUtil.generic(subject);
+        String token = JjwtUtil.generic(subject,Constants.PAY_ADMIN);
         return ResponseUtil.success(token);
     }
 
@@ -241,7 +242,7 @@ public class AuthController {
         JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
         User user = userService.findById(Long.parseLong(subject.getUserId()));
 
-        String refreshToken = JjwtUtil.refreshToken(token,user.getPassword());
+        String refreshToken = JjwtUtil.refreshToken(token,user.getPassword(),Constants.PAY_ADMIN);
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();
         }

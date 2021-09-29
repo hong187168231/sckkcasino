@@ -14,5 +14,10 @@ public class Customer extends BaseEntity {
     private String whatsApp;
     private String facebook;
     private String onlineUrl;
+    private String wechat;
+    /**
+     * 美洽
+     */
+    private String meiqia;
 
 }

@@ -141,7 +141,7 @@ public class AuthController {
         vo.setIp(ip);
         vo.setAccount(user.getAccount());
         vo.setUserId(user.getId());
-        vo.setRemark("casino-web");
+        vo.setRemark(Constants.CASINO_WEB);
         vo.setType(2);
 
         asyncService.executeAsync(vo);
@@ -193,14 +193,14 @@ public class AuthController {
         vo.setIp(ip);
         vo.setAccount(user.getAccount());
         vo.setUserId(user.getId());
-        vo.setRemark("casino-web");
+        vo.setRemark(Constants.CASINO_WEB);
 
         asyncService.executeAsync(vo);
 
         JjwtUtil.Subject subject = new JjwtUtil.Subject();
         subject.setUserId(String.valueOf(user.getId()));
         subject.setBcryptPassword(user.getPassword());
-        String token = JjwtUtil.generic(subject);
+        String token = JjwtUtil.generic(subject,Constants.CASINO_WEB);
         setUserTokenToRedis(user.getId(), token);
         return ResponseUtil.success(token);
     }
@@ -347,7 +347,7 @@ public class AuthController {
         JjwtUtil.Subject subject = new JjwtUtil.Subject();
         subject.setUserId(String.valueOf(user.getId()));
         subject.setBcryptPassword(user.getPassword());
-        String jwt = JjwtUtil.generic(subject);
+        String jwt = JjwtUtil.generic(subject,Constants.CASINO_WEB);
         setUserTokenToRedis(user.getId(), jwt);
         return ResponseUtil.success(jwt);
     }
@@ -365,7 +365,7 @@ public class AuthController {
             return ResponseUtil.authenticationNopass();
         }
         User user = userService.findById(authId);
-        String refreshToken = JjwtUtil.refreshToken(token, user.getPassword());
+        String refreshToken = JjwtUtil.refreshToken(token, user.getPassword(),Constants.CASINO_WEB);
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();
         }

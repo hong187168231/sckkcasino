@@ -46,7 +46,7 @@ public class Swagger2Config {
                 // 可以根据url路径设置哪些请求加入文档，忽略哪些请求
 //                .paths(PathSelectors.any())
                 .paths(PathSelectors.regex("(?!/error).+"))
-                .paths(PathSelectors.regex("(?!/authenticationNopass).+"))
+                .paths(PathSelectors.regex("(?!/authentication).+"))
                 .paths(PathSelectors.regex("(?!/risk).+"))
                 .build()
                 .securitySchemes(Collections.singletonList(HttpAuthenticationScheme.

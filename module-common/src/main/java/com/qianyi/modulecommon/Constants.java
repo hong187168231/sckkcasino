@@ -58,4 +58,7 @@ public class Constants {
 
     public final static Integer IPBLACK_CLOSE = 1; //ip黑名单禁用
     public final static Integer IPBLACK_OPEN = 0; //ip黑名单启用
+
+    public final static String CASINO_WEB = "casino-web";
+    public final static String PAY_ADMIN = "pay-admin";
 }
