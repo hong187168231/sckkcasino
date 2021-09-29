@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -88,10 +90,13 @@ public class UserMoneyService {
             userMoneyRepository.addCodeNum(userId, codeNum);
         }
     }
+
+    @Cacheable(key = "#userId")
     public UserMoney findByUserId(Long userId){
         return userMoneyRepository.findByUserId(userId);
     }
 
+    @CachePut(key="#userMoney.userId")
     public void save(UserMoney userMoney) {
         userMoneyRepository.save(userMoney);
     }

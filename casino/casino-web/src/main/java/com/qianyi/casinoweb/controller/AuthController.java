@@ -1,6 +1,7 @@
 package com.qianyi.casinoweb.controller;
 
 import com.google.code.kaptcha.Producer;
+import com.qianyi.casinocore.CoreConstants;
 import com.qianyi.casinocore.model.SysConfig;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
@@ -107,7 +108,7 @@ public class AuthController {
         String ip = IpUtil.getIp(request);
         //查询ip注册账号限制
         if (!ObjectUtils.isEmpty(ip)) {
-            SysConfig sysConfig = sysConfigService.findById(1L);
+            SysConfig sysConfig = sysConfigService.findBySysGroupAndName(CoreConstants.SysConfigGroup.GROUP_IP,CoreConstants.SysConfigName.REGISTER_IP);
             Integer timeLimit = null;
             if (sysConfig != null && !ObjectUtils.isEmpty(sysConfig.getValue())) {
                 timeLimit = Integer.parseInt(sysConfig.getValue());
@@ -194,7 +195,7 @@ public class AuthController {
         vo.setAccount(user.getAccount());
         vo.setUserId(user.getId());
         vo.setRemark(Constants.CASINO_WEB);
-
+        vo.setType(1);
         asyncService.executeAsync(vo);
 
         JjwtUtil.Subject subject = new JjwtUtil.Subject();
