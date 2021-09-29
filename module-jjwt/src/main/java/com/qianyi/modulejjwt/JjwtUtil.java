@@ -7,6 +7,7 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Data;
+import org.apache.logging.log4j.spi.ObjectThreadContextMap;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.util.ObjectUtils;
 
@@ -20,11 +21,16 @@ public class JjwtUtil {
     //        private final static long ttl = 5 * 60 * 1000;
     private final static long ttl = 24 * 60 * 60 * 1000;
     private final static Long refresh_ttl = 30 * 60L;//秒
-    private final static String iss = "dashan";
 
-    public static String generic(Subject subject) {
+    /**
+     *  iss，可能会重复。约定按项目名称传入
+     * @param subject
+     * @param iss
+     * @return
+     */
+    public static String generic(Subject subject,String iss) {
 
-        return genericJwt(subject, ttl);
+        return genericJwt(subject, ttl,iss);
     }
 
     /**
@@ -32,9 +38,9 @@ public class JjwtUtil {
      *
      * @return
      */
-    private static String genericJwt(Subject subject, long ttl) {
+    private static String genericJwt(Subject subject, long ttl,String iss) {
         if (ObjectUtils.isEmpty(subject) || ObjectUtils.isEmpty(subject.getUserId())
-                || ObjectUtils.isEmpty(subject.getBcryptPassword())) {
+                || ObjectUtils.isEmpty(subject.getBcryptPassword())||ObjectUtils.isEmpty(iss)) {
             return null;
         }
 
@@ -61,8 +67,8 @@ public class JjwtUtil {
      * @param token
      * @return
      */
-    public static Subject parse(String token) {
-        if (token == null) {
+    public static Subject parse(String token,String iss ) {
+        if (ObjectUtils.isEmpty(token)|| ObjectUtils.isEmpty(iss)) {
             return null;
         }
         try {
@@ -86,10 +92,10 @@ public class JjwtUtil {
         }
     }
 
-    public static boolean check(String token) {
+    public static boolean check(String token,String iss) {
 
         try {
-            Subject subject = parse(token);
+            Subject subject = parse(token,iss);
             if (ObjectUtils.isEmpty(subject)) {
                 return false;
             }
@@ -99,12 +105,12 @@ public class JjwtUtil {
         }
     }
 
-    public static String refreshToken(String token, String bcryptPassword) {
-        return refreshToken(token, bcryptPassword, ttl);
+    public static String refreshToken(String token, String bcryptPassword,String iss) {
+        return refreshToken(token, bcryptPassword, ttl,iss);
     }
 
-    private static String refreshToken(String token, String bcryptPassword, Long ttl) {
-        if (ObjectUtils.isEmpty(token) || ObjectUtils.isEmpty(bcryptPassword)) {
+    private static String refreshToken(String token, String bcryptPassword, Long ttl,String iss) {
+        if (ObjectUtils.isEmpty(token) || ObjectUtils.isEmpty(bcryptPassword)||ObjectUtils.isEmpty(iss)) {
             return null;
         }
         try {
@@ -112,8 +118,8 @@ public class JjwtUtil {
             if (exp == null) {
                 return null;
             }
-            String iss = getIss(token);
-            if (!(JjwtUtil.iss.equals(iss))) {
+            String tolkenIss = getIss(token);
+            if (!(iss.equals(tolkenIss))) {
                 return null;
             }
 
@@ -133,7 +139,7 @@ public class JjwtUtil {
                 return null;
             }
 
-            return generic(subject);
+            return generic(subject,iss);
 
         } catch (Exception e) {
             return null;
@@ -199,7 +205,7 @@ public class JjwtUtil {
         subject.setUserId("1");
         subject.setBcryptPassword("aadaa");
 
-        String token = generic(subject);
+        String token = generic(subject,"dashan");
         System.out.println(token);
 //        String parse = parse(token);
 //        System.out.println(parse);
