@@ -239,7 +239,7 @@ public class LoginController {
     public ResponseEntity getSysUser(String account, String password) {
         SysUser user = sysUserService.findByUserName(account);
         if (user == null) {
-            return ResponseUtil.fail();
+            return ResponseUtil.custom("账户或密码错误");
         }
         String bcryptPassword = user.getPassWord();
         boolean bcrypt = LoginUtil.checkBcrypt(password, bcryptPassword);
