@@ -39,6 +39,8 @@ public class CustomerController {
             @ApiImplicitParam(name = "whatsApp", value = "客服whatsApp号", required = false),
             @ApiImplicitParam(name = "facebook", value = "客服facebook号", required = false),
             @ApiImplicitParam(name = "onlineUrl", value = "客服onlineUrl号", required = false),
+            @ApiImplicitParam(name = "wechat", value = "客服wechat号", required = false),
+            @ApiImplicitParam(name = "meiqia", value = "客服meiqia号", required = false),
     })
     public ResponseEntity updateKeyCustomer(String qq,String telegram,String skype,String whatsApp,String facebook,String onlineUrl,
                                             String wechat,String meiqia){
