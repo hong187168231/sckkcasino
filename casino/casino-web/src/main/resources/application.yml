@@ -28,10 +28,10 @@ spring:
       connection-test-query: select 1
   redis:
     database: 0
-    host: 154.204.57.237
-#    host: 127.0.0.1
-    port: 6379
-    # password:
+#    host: 154.204.57.237
+    host: 127.0.0.1
+    port: 8000
+    password: Redis_123P
     timeout: 3000
 project:
   title: 千亿科技

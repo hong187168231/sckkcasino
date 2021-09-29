@@ -9,4 +9,6 @@ import java.util.List;
 public interface SysConfigRepository extends JpaRepository<SysConfig,Long>, JpaSpecificationExecutor<SysConfig> {
 
     List<SysConfig> findBySysGroup(int group);
+
+    SysConfig findBySysGroupAndName(Integer groupBet, String name);
 }

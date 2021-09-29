@@ -43,7 +43,7 @@ public class BetRatioConfigController {
                 betRatioConfigVo.setMinMoney(new BigDecimal(sysConfig.getValue()));
             }
         }
-        return new ResponseEntity(ResponseCode.SUCCESS, configList);
+        return new ResponseEntity(ResponseCode.SUCCESS, betRatioConfigVo);
     }
 
     @ApiOperation("编辑打码倍率")

@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.business;
 
 import com.qianyi.casinocore.model.BetRatioConfig;
+import com.qianyi.casinocore.model.SysConfig;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.service.BetRatioConfigService;
 import com.qianyi.casinocore.service.UserMoneyService;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
 
@@ -25,8 +27,6 @@ public class UserCodeNumBusiness {
     private UserService userService;
     @Autowired
     private UserMoneyService userMoneyService;
-    @Autowired
-    private BetRatioConfigService betRatioConfigService;
 
     //默认最小清零打码量
     private static final BigDecimal DEFAULT_CLEAR=new BigDecimal("10");
@@ -37,7 +37,7 @@ public class UserCodeNumBusiness {
      * @return
      */
     @Transactional
-    public ResponseEntity subCodeNum(BigDecimal validbet, Long userId) {
+    public ResponseEntity subCodeNum(SysConfig minCodeNum,BigDecimal validbet, Long userId) {
         if (validbet == null || userId == null) {
             return ResponseUtil.fail();
         }
@@ -54,10 +54,10 @@ public class UserCodeNumBusiness {
             return ResponseUtil.fail();
         }
         //最小清零打码量
-        BetRatioConfig betRatioConfig = betRatioConfigService.findOneBetRatioConfig();
-        if (betRatioConfig != null && betRatioConfig.getMinMoney() != null) {
+        if (minCodeNum != null && !ObjectUtils.isEmpty(minCodeNum.getValue())) {
+            BigDecimal minCodeNumVal = new BigDecimal(minCodeNum.getValue());
             //剩余打码量小于等于最小清零打码量时 直接清0
-            if (codeNum.compareTo(betRatioConfig.getMinMoney()) < 1) {
+            if (codeNum.compareTo(minCodeNumVal) < 1) {
                 userMoneyService.subCodeNum(userId, codeNum);
                 return ResponseUtil.success();
             }

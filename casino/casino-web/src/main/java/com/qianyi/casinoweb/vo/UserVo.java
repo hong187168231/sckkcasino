@@ -20,4 +20,6 @@ public class UserVo {
     private BigDecimal drawMoney;
     @ApiModelProperty("未完成流水")
     private BigDecimal unfinshTurnover;
+    @ApiModelProperty("真实姓名")
+    private String realName;
 }
