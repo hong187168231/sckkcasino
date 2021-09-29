@@ -1,6 +1,7 @@
 package com.qianyi.casinoweb.job;
 
 import com.alibaba.fastjson.JSON;
+import com.qianyi.casinocore.CoreConstants;
 import com.qianyi.casinocore.business.UserCodeNumBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
@@ -52,6 +53,8 @@ public class GameRecordJob {
     WashCodeConfigService washCodeConfigService;
     @Autowired
     RedisUtil redisUtil;
+    @Autowired
+    SysConfigService sysConfigService;
 
     //每隔5分钟执行一次
     @Scheduled(fixedRate = 1000 * 60 * 5)
@@ -102,6 +105,8 @@ public class GameRecordJob {
     public void saveAll(List<GameRecord> gameRecordList) {
         //把大集成拆分成5个
         List<List<GameRecord>> lists = averageAssign(gameRecordList, 5);
+        //查询最小清0打码量
+        SysConfig minCodeNum = sysConfigService.findBySysGroupAndName(CoreConstants.SysConfigGroup.GROUP_BET, CoreConstants.SysConfigName.CAPTCHA_RATE);
         // 创建异步执行任务:
         for(List<GameRecord> list:lists){
             if (CollectionUtils.isEmpty(list)){
@@ -125,7 +130,7 @@ public class GameRecordJob {
                         //有数据会重复注单id唯一约束会报错，所以一条一条保存，避免影响后面的
                         gameRecordService.save(gameRecord);
                         //游戏记录保存成功后扣减打码量
-                        userCodeNumBusiness.subCodeNum(validbet, account.getUserId());
+                        userCodeNumBusiness.subCodeNum(minCodeNum,validbet, account.getUserId());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

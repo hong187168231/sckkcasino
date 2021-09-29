@@ -1,5 +1,7 @@
 package com.qianyi.casinocore.service;
 
+import com.qianyi.casinocore.CoreConstants;
+import com.qianyi.casinocore.model.BetRatioConfig;
 import com.qianyi.casinocore.model.SysConfig;
 import com.qianyi.casinocore.repository.SysConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,10 @@ import java.util.Optional;
 public class SysConfigService {
     @Autowired
     private SysConfigRepository sysConfigRepository;
+
+    public SysConfig findBySysGroupAndName(Integer groupBet, String name) {
+        return sysConfigRepository.findBySysGroupAndName(groupBet,name);
+    }
 
     public List<SysConfig> findAll(){
         return sysConfigRepository.findAll();
