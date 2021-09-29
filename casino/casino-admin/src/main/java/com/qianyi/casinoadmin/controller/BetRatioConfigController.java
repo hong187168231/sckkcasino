@@ -32,7 +32,7 @@ public class BetRatioConfigController {
 
     @ApiOperation("查询所有")
     @GetMapping("/findAll")
-    public ResponseEntity<SysConfig> findAll(){
+    public ResponseEntity<BetRatioConfigVo> findAll(){
         List<SysConfig> configList = sysConfigService.findByGroup(CoreConstants.SysConfigGroup.GROUP_BET);
         BetRatioConfigVo betRatioConfigVo = new BetRatioConfigVo();
         betRatioConfigVo.setName("打码倍率设置");
@@ -43,7 +43,7 @@ public class BetRatioConfigController {
                 betRatioConfigVo.setMinMoney(new BigDecimal(sysConfig.getValue()));
             }
         }
-        return new ResponseEntity(ResponseCode.SUCCESS, configList);
+        return new ResponseEntity(ResponseCode.SUCCESS, betRatioConfigVo);
     }
 
     @ApiOperation("编辑打码倍率")

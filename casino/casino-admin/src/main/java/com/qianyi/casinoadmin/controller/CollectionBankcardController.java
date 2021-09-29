@@ -170,8 +170,8 @@ public class CollectionBankcardController {
             CollectionBankcard collection = new CollectionBankcard();
             collection.setDisable(Constants.BANK_OPEN);
             List<CollectionBankcard> all = collectionBankcardService.findAll(collection);
-            if (all.size() >= CommonConst.NUMBER_10){
-                return ResponseUtil.custom("收款卡最多上架十张张");
+            if (all.size() >= CommonConst.NUMBER_2){
+                return ResponseUtil.custom("收款卡最多上架2张");
             }
             collectionBankcard.setDisable(Constants.BANK_OPEN);
         }
