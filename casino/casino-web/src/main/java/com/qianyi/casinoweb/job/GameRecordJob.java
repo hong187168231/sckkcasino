@@ -173,20 +173,20 @@ public class GameRecordJob {
      * @return
      * @throws ParseException
      */
-    public BigDecimal washCode(Map<String, BigDecimal> washCode, GameRecord gameRecord, BigDecimal validbet,Long userId) throws ParseException {
+    public BigDecimal washCode(Map<String, BigDecimal> washCode, GameRecord gameRecord, BigDecimal validbet, Long userId) throws ParseException {
         BigDecimal rate = washCode.get(gameRecord.getGid().toString());
         gameRecord.setRate(rate);
         if (rate == null || validbet == null || BigDecimal.ZERO.compareTo(rate) == 0 || BigDecimal.ZERO.compareTo(validbet) == 0) {
             gameRecord.setWashCode(BigDecimal.ZERO);
             return BigDecimal.ZERO;
         }
-        synchronized (userId) {
-            BigDecimal washCodeVal = validbet.multiply(rate);
-            gameRecord.setWashCode(washCodeVal);
-            if (!ObjectUtils.isEmpty(gameRecord.getBetTime())) {
-                Date parse = DateUtil.getSimpleDateFormat().parse(gameRecord.getBetTime());
-                String date = yyyyMMdd.format(parse);
-                String key = PLATFORM + ":" + userId + ":" + gameRecord.getGid() + ":" + date;
+        BigDecimal washCodeVal = validbet.multiply(rate);
+        gameRecord.setWashCode(washCodeVal);
+        if (!ObjectUtils.isEmpty(gameRecord.getBetTime())) {
+            Date parse = DateUtil.getSimpleDateFormat().parse(gameRecord.getBetTime());
+            String date = yyyyMMdd.format(parse);
+            String key = PLATFORM + ":" + userId + ":" + gameRecord.getGid() + ":" + date;
+            synchronized (key) {
                 Object redisVal = redisUtil.get(key);
                 if (ObjectUtils.isEmpty(redisVal)) {
                     WashCodeVo vo = new WashCodeVo();
@@ -202,8 +202,8 @@ public class GameRecordJob {
                     redisUtil.set(key, vo);
                 }
             }
-            return washCodeVal;
         }
+        return washCodeVal;
     }
 
     /**
