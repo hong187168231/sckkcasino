@@ -23,10 +23,7 @@ public class JjwtUtil {
     private final static String iss = "dashan";
 
     public static String generic(Subject subject) {
-        if (ObjectUtils.isEmpty(subject) || ObjectUtils.isEmpty(subject.getUserId())
-                || ObjectUtils.isEmpty(subject.getBcryptPassword())) {
-            return null;
-        }
+
         return genericJwt(subject, ttl);
     }
 
@@ -36,6 +33,10 @@ public class JjwtUtil {
      * @return
      */
     private static String genericJwt(Subject subject, long ttl) {
+        if (ObjectUtils.isEmpty(subject) || ObjectUtils.isEmpty(subject.getUserId())
+                || ObjectUtils.isEmpty(subject.getBcryptPassword())) {
+            return null;
+        }
 
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
