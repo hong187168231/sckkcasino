@@ -32,7 +32,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
     public boolean hasPermission(HttpServletRequest request) {
         String token = CasinoProxyUtil.getToken();
 
-        if(JjwtUtil.check(token)){
+        if(JjwtUtil.check(token, "casino-proxy")){
             return true;
         }
         return false;

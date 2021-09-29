@@ -23,7 +23,7 @@ public class LoginUtil {
         if(checkNull(token)){
             return null;
         }
-        JjwtUtil.Subject parse = JjwtUtil.parse(token);
+        JjwtUtil.Subject parse = JjwtUtil.parse(token, "casino-admin");
         Long userId = Long.parseLong(parse.getUserId());
         return userId;
     }

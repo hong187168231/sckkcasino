@@ -31,7 +31,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
     public boolean hasPermission(HttpServletRequest request) {
         String token = LoginUtil.getToken();
 
-        if(JjwtUtil.check(token)){
+        if(JjwtUtil.check(token, "casino-admin")){
             return true;
         }
         return false;

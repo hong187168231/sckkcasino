@@ -115,7 +115,7 @@ public class LoginController {
         JjwtUtil.Subject subject = new JjwtUtil.Subject();
         subject.setUserId(user.getId() + "");
         subject.setBcryptPassword(user.getPassWord());
-        String token = JjwtUtil.generic(subject);
+        String token = JjwtUtil.generic(subject, "casino-admin");
 
 //        if(Constants.open != user.getGaStatus()){//谷歌验证关闭
 //            return ResponseUtil.success(token);
@@ -291,7 +291,7 @@ public class LoginController {
         JjwtUtil.Subject subject = new JjwtUtil.Subject();
         subject.setUserId(user.getId() + "");
         subject.setBcryptPassword(user.getPassWord());
-        String jwt = JjwtUtil.generic(subject);
+        String jwt = JjwtUtil.generic(subject, "casino-admin");
         return ResponseUtil.success(jwt);
     }
 
@@ -304,7 +304,7 @@ public class LoginController {
     public ResponseEntity refreshJwtToken(String token) {
         JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
         SysUser sysUser = sysUserService.findAllById(Long.parseLong(subject.getUserId()));
-        String refreshToken = JjwtUtil.refreshToken(token,sysUser.getPassWord());
+        String refreshToken = JjwtUtil.refreshToken(token,sysUser.getPassWord(), "casino-admin");
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();
         }
