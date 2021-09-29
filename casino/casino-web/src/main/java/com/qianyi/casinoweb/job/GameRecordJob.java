@@ -24,7 +24,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-//@Component
+@Component
 public class GameRecordJob {
 
     // 创建线程池
@@ -173,35 +173,37 @@ public class GameRecordJob {
      * @return
      * @throws ParseException
      */
-    public synchronized BigDecimal washCode(Map<String, BigDecimal> washCode, GameRecord gameRecord, BigDecimal validbet,Long userId) throws ParseException {
+    public BigDecimal washCode(Map<String, BigDecimal> washCode, GameRecord gameRecord, BigDecimal validbet,Long userId) throws ParseException {
         BigDecimal rate = washCode.get(gameRecord.getGid().toString());
         gameRecord.setRate(rate);
         if (rate == null || validbet == null || BigDecimal.ZERO.compareTo(rate) == 0 || BigDecimal.ZERO.compareTo(validbet) == 0) {
             gameRecord.setWashCode(BigDecimal.ZERO);
             return BigDecimal.ZERO;
         }
-        BigDecimal washCodeVal = validbet.multiply(rate);
-        gameRecord.setWashCode(washCodeVal);
-        if (!ObjectUtils.isEmpty(gameRecord.getBetTime())) {
-            Date parse = DateUtil.getSimpleDateFormat().parse(gameRecord.getBetTime());
-            String date = yyyyMMdd.format(parse);
-            String key = PLATFORM + ":" + userId + ":" + gameRecord.getGid() + ":" + date;
-            Object redisVal = redisUtil.get(key);
-            if(ObjectUtils.isEmpty(redisVal)){
-                WashCodeVo vo=new WashCodeVo();
-                vo.setValidbet(validbet);
-                vo.setAmount(washCodeVal);
-                vo.setGameId(gameRecord.getGid().toString());
-                redisUtil.set(key,vo);
-            }else{
-                WashCodeVo vo= (WashCodeVo) redisVal;
-                vo.setValidbet(vo.getValidbet().add(validbet));
-                vo.setAmount(vo.getAmount().add(washCodeVal));
-                vo.setGameId(gameRecord.getGid().toString());
-                redisUtil.set(key,vo);
+        synchronized (userId) {
+            BigDecimal washCodeVal = validbet.multiply(rate);
+            gameRecord.setWashCode(washCodeVal);
+            if (!ObjectUtils.isEmpty(gameRecord.getBetTime())) {
+                Date parse = DateUtil.getSimpleDateFormat().parse(gameRecord.getBetTime());
+                String date = yyyyMMdd.format(parse);
+                String key = PLATFORM + ":" + userId + ":" + gameRecord.getGid() + ":" + date;
+                Object redisVal = redisUtil.get(key);
+                if (ObjectUtils.isEmpty(redisVal)) {
+                    WashCodeVo vo = new WashCodeVo();
+                    vo.setValidbet(validbet);
+                    vo.setAmount(washCodeVal);
+                    vo.setGameId(gameRecord.getGid().toString());
+                    redisUtil.set(key, vo);
+                } else {
+                    WashCodeVo vo = (WashCodeVo) redisVal;
+                    vo.setValidbet(vo.getValidbet().add(validbet));
+                    vo.setAmount(vo.getAmount().add(washCodeVal));
+                    vo.setGameId(gameRecord.getGid().toString());
+                    redisUtil.set(key, vo);
+                }
             }
+            return washCodeVal;
         }
-        return washCodeVal;
     }
 
     /**
