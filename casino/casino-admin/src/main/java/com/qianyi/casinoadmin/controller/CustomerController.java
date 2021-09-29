@@ -40,7 +40,8 @@ public class CustomerController {
             @ApiImplicitParam(name = "facebook", value = "客服facebook号", required = false),
             @ApiImplicitParam(name = "onlineUrl", value = "客服onlineUrl号", required = false),
     })
-    public ResponseEntity updateKeyCustomer(String qq,String telegram,String skype,String whatsApp,String facebook,String onlineUrl){
+    public ResponseEntity updateKeyCustomer(String qq,String telegram,String skype,String whatsApp,String facebook,String onlineUrl,
+                                            String wechat,String meiqia){
         Customer customer = customerService.findFirst();
         if (!CommonUtil.checkNull(qq)){
             customer.setQq(qq);
@@ -59,6 +60,12 @@ public class CustomerController {
         }
         if (!CommonUtil.checkNull(onlineUrl)){
             customer.setOnlineUrl(onlineUrl);
+        }
+        if (!CommonUtil.checkNull(wechat)){
+            customer.setWechat(wechat);
+        }
+        if (!CommonUtil.checkNull(meiqia)){
+            customer.setMeiqia(meiqia);
         }
         customerService.save(customer);
         return ResponseUtil.success();
