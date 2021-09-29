@@ -57,7 +57,7 @@ public class IpBlackController {
     }
 
     @GetMapping("/disable")
-    @ApiOperation("ip黑名单禁用/启用")
+    @ApiOperation("ip黑名单删除")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id", required = true),
     })
@@ -66,12 +66,12 @@ public class IpBlackController {
         if (LoginUtil.checkNull(byId)){
             return ResponseUtil.custom("找不到这个ip");
         }
-        if(byId.getStatus() == Constants.IPBLACK_CLOSE){
-            byId.setStatus(Constants.IPBLACK_OPEN);
-        }else{
-            byId.setStatus(Constants.IPBLACK_CLOSE);
-        }
-        ipBlackService.save(byId);
+//        if(byId.getStatus() == Constants.IPBLACK_CLOSE){
+//            byId.setStatus(Constants.IPBLACK_OPEN);
+//        }else{
+//            byId.setStatus(Constants.IPBLACK_CLOSE);
+//        }
+        ipBlackService.delete(byId);
         return ResponseUtil.success();
     }
 }

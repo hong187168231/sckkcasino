@@ -5,6 +5,7 @@ import com.qianyi.casinocore.repository.IpBlackRepository;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -37,6 +38,11 @@ public class IpBlackService {
     @Cacheable(key = "#ip")
     public IpBlack findByIp(String ip) {
         return ipBlackRepository.findByIp(ip);
+    }
+
+    @CacheEvict(key="#po.ip")
+    public void delete(IpBlack po){
+        ipBlackRepository.delete(po);
     }
 
     public Page<IpBlack> findIpBlackPag(IpBlack po, Pageable pageable){
