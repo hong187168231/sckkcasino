@@ -42,4 +42,8 @@ public class SysConfigService {
     public List<SysConfig> saveAll(List<SysConfig> sysConfigList) {
         return sysConfigRepository.saveAll(sysConfigList);
     }
+
+    public SysConfig findByName(String name){
+        return sysConfigRepository.findByName(name);
+    }
 }

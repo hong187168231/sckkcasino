@@ -2,6 +2,8 @@ package com.qianyi.casinoadmin.config;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -10,11 +12,14 @@ import java.util.Optional;
 public class SpringSecurityAuditorAware implements AuditorAware<String> {
     @Override
     public Optional<String> getCurrentAuditor() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication==null||authentication.getPrincipal().toString().equals("anonymousUser")) {
+            return Optional.empty();
+        }
         Long authId= LoginUtil.getLoginUserId();
        if(authId==null){
            return Optional.empty();
        }
-
         return Optional.of(authId+"");
     }
 }

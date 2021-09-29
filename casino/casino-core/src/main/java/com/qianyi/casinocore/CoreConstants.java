@@ -12,5 +12,26 @@ public class CoreConstants {
     public interface SysConfigName {
         String CAPTCHA_RATE = "captchaRate"; //打码倍率名称
         String CAPTCHA_MIN = "captchaMin";   //最低金额重置打码量
+        String REGISTER_IP = "registerIp";
+        String LOGIN_IP = "loginIp";
+    }
+
+    public enum SysConfigEnum{
+        registerIp( 2, "registerIp" ),
+        loginIp( 2, "loginIp" ),
+        captchaRate(3, "captchaRate"),
+        captchaMin( 3, "captchaMin" );
+        int group;
+        String code;
+        SysConfigEnum(int group, String code) {
+            this.group = group;
+            this.code = code;
+        }
+        public String getCode() {
+            return code;
+        }
+        public int getGroup() {
+            return group;
+        }
     }
 }

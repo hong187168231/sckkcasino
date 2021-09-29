@@ -11,4 +11,6 @@ public interface SysConfigRepository extends JpaRepository<SysConfig,Long>, JpaS
     List<SysConfig> findBySysGroup(int group);
 
     SysConfig findBySysGroupAndName(Integer groupBet, String name);
+
+    SysConfig findByName(String name);
 }

@@ -2,6 +2,7 @@ package com.qianyi.casinoadmin.controller;
 
 
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.CoreConstants;
 import com.qianyi.casinocore.model.SysConfig;
 import com.qianyi.casinocore.service.SysConfigService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -45,25 +48,41 @@ public class RiskManagementController {
      */
     @ApiOperation("客户风险配置修改")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "id(目前只限制注册 id传1)", required = true),
-            @ApiImplicitParam(name = "sysGroup", value = "1 财务 2 ip", required = true),
+            @ApiImplicitParam(name = "id", value = "id(无id是新增)", required = false),
             @ApiImplicitParam(name = "timeLimit", value = "限制次数", required = true),
             @ApiImplicitParam(name = "remark", value = "备注", required = false),
-            @ApiImplicitParam(name = "name", value = "配置名", required = false),
+            @ApiImplicitParam(name = "name", value = "配置名", required = true),
     })
     @PostMapping("/saveRiskConfig")
-    public ResponseEntity saveSysConfig(Long id,String remark,String timeLimit,String name,Integer sysGroup){
-        if (LoginUtil.checkNull(timeLimit,sysGroup,id)){
+    public ResponseEntity saveSysConfig(Long id,String remark,String timeLimit,String name){
+        if (LoginUtil.checkNull(timeLimit,name)){
             return ResponseUtil.custom("参数错误");
+        }
+        if (LoginUtil.checkNull(id)){
+            SysConfig byName = sysConfigService.findByName(name);
+            if (!LoginUtil.checkNull(byName)){
+                return ResponseUtil.custom("配置名称重复");
+            }
+        }
+        CoreConstants.SysConfigEnum sysConfigEnum;
+        try {
+            sysConfigEnum = CoreConstants.SysConfigEnum.valueOf(name);
+        }catch (Exception ex){
+            return ResponseUtil.custom("无效配置名称");
         }
         SysConfig sysConfig = new SysConfig();
         sysConfig.setId(id);
         sysConfig.setValue(timeLimit);
         sysConfig.setRemark(remark);
-        sysConfig.setName(name);
-        sysConfig.setSysGroup(sysGroup);
+        sysConfig.setName(sysConfigEnum.getCode());
+        sysConfig.setSysGroup(sysConfigEnum.getGroup());
         SysConfig save = sysConfigService.save(sysConfig);
         return ResponseUtil.success(save);
+    }
+    @ApiOperation("客户风险配置名称获取")
+    @GetMapping("/findSysConfigName")
+    public ResponseEntity findSysConfigName(){
+        return ResponseUtil.success(CoreConstants.SysConfigEnum.values());
     }
 
 }
