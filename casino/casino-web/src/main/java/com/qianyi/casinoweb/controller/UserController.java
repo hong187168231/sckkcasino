@@ -57,8 +57,9 @@ public class UserController {
         UserVo vo = new UserVo();
         //TODO 查询可提金额，未完成流水(打码量)
         UserMoney userMoney = userMoneyService.findByUserId(userId);
-        vo.setWashCode(userMoney.getWashCode());
         BigDecimal defaultVal = BigDecimal.ZERO.setScale(2);
+        BigDecimal washCode= userMoney.getWashCode() == null ? defaultVal : userMoney.getWashCode().setScale(2, BigDecimal.ROUND_HALF_UP);
+        vo.setWashCode(washCode);
         if (userMoney == null) {
             vo.setUnfinshTurnover(defaultVal);
             vo.setDrawMoney(defaultVal);
