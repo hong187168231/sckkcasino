@@ -93,7 +93,7 @@ public class DownloadStationController {
             downloadStation.setRemark(remark);
         }
         downloadStationService.save(downloadStation);
-        return ResponseUtil.success(downloadStationService);
+        return ResponseUtil.success();
     }
 
 }
