@@ -35,7 +35,7 @@ public class UserController {
     BankcardsService bankcardsService;
 
     @GetMapping("info")
-    @ApiOperation("获取当前用户的基本信息")
+    @ApiOperation("获取当前用户的基本信息(不包含 余额，打码量，可提现金额)")
     public ResponseEntity<UserVo> info() {
         Long authId = CasinoWebUtil.getAuthId();
         User user = userService.findById(authId);
@@ -48,8 +48,16 @@ public class UserController {
         Bankcards bankcards = bankcardsService.findBankCardsInByUserId(authId);
         String realName = bankcards == null ? null : bankcards.getRealName();
         vo.setRealName(realName);
+        return new ResponseEntity(ResponseCode.SUCCESS, vo);
+    }
+
+    @GetMapping("getMoney")
+    @ApiOperation("获取当前用户的余额，打码量，可提现金额")
+    public ResponseEntity<UserVo> getMoney() {
+        Long userId = CasinoWebUtil.getAuthId();
+        UserVo vo = new UserVo();
         //TODO 查询可提金额，未完成流水(打码量)
-        UserMoney userMoney = userMoneyService.findByUserId(user.getId());
+        UserMoney userMoney = userMoneyService.findByUserId(userId);
         BigDecimal defaultVal = BigDecimal.ZERO.setScale(2);
         if (userMoney == null) {
             vo.setUnfinshTurnover(defaultVal);
