@@ -10,7 +10,6 @@ import javax.persistence.Entity;
 @Data
 @ApiModel("下载站版本表")
 public class DownloadStation extends BaseEntity{
-    private static final long serialVersionUID = -8198496141683550692L;
 
     @ApiModelProperty(value = "版本名称")
     private String name;
