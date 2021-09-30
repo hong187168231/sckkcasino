@@ -77,14 +77,14 @@ public class WithdrawOrderController {
     @ApiOperation("提现审核")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "订单id", required = true),
-            @ApiImplicitParam(name = "status", value = "审核状态，1：通过，2：拒绝，3：冻结", required = true),
+            @ApiImplicitParam(name = "status", value = "审核状态，1：通过，2：拒绝", required = true),
     })
     @PostMapping("saveWithdraw")
     public ResponseEntity saveWithdraw(Long id, Integer status){
         if (LoginUtil.checkNull(id,status)){
             return ResponseUtil.custom("参数不合法");
         }
-        if(status != CommonConst.NUMBER_1 && status != CommonConst.NUMBER_2 && status != CommonConst.NUMBER_3){
+        if(status != CommonConst.NUMBER_1 && status != CommonConst.NUMBER_2){
             return ResponseUtil.custom("参数不合法");
         }
         return withdrawBusiness.updateWithdrawAndUser(id,status);

@@ -185,6 +185,8 @@ public class WithdrawBusiness {
         }
         WithdrawOrder withdrawOrder = new WithdrawOrder();
         withdrawOrder.setWithdrawMoney(withdrawMoney);
+        withdrawOrder.setPracticalAmount(withdrawMoney);
+        withdrawOrder.setServiceCharge(BigDecimal.ZERO);
         withdrawOrder.setBankId(bankId);
         withdrawOrder.setUserId(userId);
         withdrawOrder.setNo(orderService.getOrderNo());
@@ -199,39 +201,39 @@ public class WithdrawBusiness {
     @Transactional
     public ResponseEntity updateWithdrawAndUser(Long id, Integer status) {
         WithdrawOrder withdrawOrder = withdrawOrderService.findUserByIdUseLock(id);
-        if(withdrawOrder != null && withdrawOrder.getStatus() != 0){
+        if(withdrawOrder == null || withdrawOrder.getStatus() != 0){
             return ResponseUtil.custom("订单已被处理");
         }
         //提现通过或其他
-        if(status == Constants.WITHDRAW_ORDER){//冻结提现金额
-            withdrawOrder.setStatus(status);
-            withdrawOrderService.saveOrder(withdrawOrder);
-            return ResponseUtil.success();
-        }
-        if(status == Constants.WITHDRAW_PASS){//通过提现审核的计算手续费
-            AmountConfig amountConfig = amountConfigService.findAmountConfigById(2L);
-            if (amountConfig != null){
-                //得到手续费
-                BigDecimal serviceCharge = amountConfig.getServiceCharge(withdrawOrder.getWithdrawMoney());
-                BigDecimal withdrawMoney = withdrawOrder.getWithdrawMoney().subtract(serviceCharge);
-                withdrawOrder.setWithdrawMoney(withdrawMoney);
-            }
-            withdrawOrder.setStatus(status);
-            withdrawOrderService.saveOrder(withdrawOrder);
-            return ResponseUtil.success();
-        }
+//        if(status == Constants.withdrawOrder_freeze){//冻结提现金额
+//            withdrawOrder.setStatus(status);
+//            withdrawOrderService.saveOrder(withdrawOrder);
+//            return ResponseUtil.success();
+//        }
         Long userId = withdrawOrder.getUserId();
         //对用户数据进行行锁
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         if (userMoney == null) {
             return ResponseUtil.custom("用户钱包不存在");
         }
-        userMoney.setMoney(userMoney.getMoney().add(withdrawOrder.getWithdrawMoney()));
         withdrawOrder.setStatus(status);
-        WithdrawOrder withdraw = withdrawOrderService.saveOrder(withdrawOrder);
-        log.info("user sum money is {}, add withdrawMoney is {}",userMoney.getMoney(), withdrawOrder.getWithdrawMoney());
-        userMoneyService.save(userMoney);
-        return ResponseUtil.success(withdraw);
+        BigDecimal money = withdrawOrder.getWithdrawMoney();
+        userMoney.setFreezeMoney(userMoney.getFreezeMoney().subtract(money));
+        if(status == Constants.WITHDRAW_PASS){//通过提现审核的计算手续费
+            AmountConfig amountConfig = amountConfigService.findAmountConfigById(2L);
+            if (amountConfig != null){
+                //得到手续费
+                BigDecimal serviceCharge = amountConfig.getServiceCharge(money);
+                BigDecimal practicalAmount = withdrawOrder.getWithdrawMoney().subtract(serviceCharge);
+                withdrawOrder.setServiceCharge(serviceCharge);
+                withdrawOrder.setPracticalAmount(practicalAmount);
+            }
+            log.info("通过提现userId {} 订单号 {} withdrawMoney is {}, practicalAmount is {}",userMoney.getUserId(),withdrawOrder.getNo(),money, withdrawOrder.getPracticalAmount());
+            return ResponseUtil.success();
+        }
+        userMoney.setMoney(userMoney.getMoney().add(money));
+        log.info("拒绝提现userId {} 订单号 {} withdrawMoney is {}, money is {}",userMoney.getUserId(),withdrawOrder.getNo(),money, userMoney.getMoney());
+        return ResponseUtil.success();
     }
 
     @Transactional
