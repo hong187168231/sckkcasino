@@ -137,6 +137,9 @@ public class WashCodeController {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        if (userMoney.getWashCode() == null) {
+            userMoney.setWashCode(BigDecimal.ZERO);
+        }
         if (userMoney.getWashCode().compareTo(BigDecimal.ZERO) == 0) {
             return ResponseUtil.custom("洗码金额为0");
         }
