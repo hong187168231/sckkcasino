@@ -112,13 +112,25 @@ public class UserMoneyService {
     }
 
     @Cacheable(key = "#userId")
-    public UserMoney findByUserId(Long userId){
-        return userMoneyRepository.findByUserId(userId);
+    public UserMoney findByUserId(Long userId) {
+        UserMoney userMoney = userMoneyRepository.findByUserId(userId);
+        if (userMoney != null) {
+            BigDecimal defaultVal = BigDecimal.ZERO.setScale(2);
+            BigDecimal money = userMoney.getMoney() == null ? defaultVal : userMoney.getMoney();
+            userMoney.setMoney(money);
+            BigDecimal washCode = userMoney.getWashCode() == null ? defaultVal : userMoney.getWashCode();
+            userMoney.setWashCode(washCode);
+            BigDecimal codeNum = userMoney.getCodeNum() == null ? defaultVal : userMoney.getCodeNum();
+            userMoney.setMoney(codeNum);
+            BigDecimal freezeMoney = userMoney.getFreezeMoney() == null ? defaultVal : userMoney.getFreezeMoney();
+            userMoney.setMoney(freezeMoney);
+        }
+        return userMoney;
     }
 
     @CachePut(key="#userMoney.userId")
-    public void save(UserMoney userMoney) {
-        userMoneyRepository.save(userMoney);
+    public UserMoney save(UserMoney userMoney) {
+        return userMoneyRepository.save(userMoney);
     }
 
     public List<UserMoney> findAll(List<Long> userIds) {
