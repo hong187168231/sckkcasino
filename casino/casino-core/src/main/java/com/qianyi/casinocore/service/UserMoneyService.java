@@ -115,7 +115,7 @@ public class UserMoneyService {
     public UserMoney findByUserId(Long userId) {
         UserMoney userMoney = userMoneyRepository.findByUserId(userId);
         if (userMoney != null) {
-            BigDecimal defaultVal = BigDecimal.ZERO.setScale(2);
+            BigDecimal defaultVal = BigDecimal.ZERO;
             BigDecimal money = userMoney.getMoney() == null ? defaultVal : userMoney.getMoney();
             userMoney.setMoney(money);
             BigDecimal washCode = userMoney.getWashCode() == null ? defaultVal : userMoney.getWashCode();

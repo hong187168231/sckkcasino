@@ -73,7 +73,7 @@ public class WashCodeController {
             return ResponseUtil.custom("date值仅限于0,1,2");
         }
         UserMoney userMoney = userMoneyService.findByUserId(userId);
-        BigDecimal washCode= userMoney.getWashCode() == null ? BigDecimal.ZERO : userMoney.getWashCode().setScale(2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal washCode = userMoney.getWashCode();
         List<WashCodeConfig> washCodeConfig = getWashCodeConfig(userId);
         List<WashCodeChange> list = washCodeChangeService.getList(userId, startTime, endTime);
         Map<String, Object> data = new HashMap<>();
@@ -93,22 +93,26 @@ public class WashCodeController {
             data.put("list", voList);
             return ResponseUtil.success(data);
         }
+        WashCodeVo washCodeVo = null;
         for (WashCodeConfig config : washCodeConfig) {
-            WashCodeVo washCodeVo = null;
+            washCodeVo = new WashCodeVo();
+            boolean flag = true;
             for (WashCodeChange change : list) {
-                washCodeVo = new WashCodeVo();
                 if (!ObjectUtils.isEmpty(config.getGameId()) && config.getGameId().equals(change.getGameId())) {
                     BeanUtils.copyProperties(change, washCodeVo);
                     washCodeVo.setRate(config.getRate() + "%");
+                    washCodeVo.setGameName(config.getGameName());
                     voList.add(washCodeVo);
-                    break;
-                } else {
-                    BeanUtils.copyProperties(config, washCodeVo);
-                    washCodeVo.setValidbet(BigDecimal.ZERO);
-                    washCodeVo.setRate(config.getRate() + "%");
-                    voList.add(washCodeVo);
+                    flag = false;
                     break;
                 }
+            }
+            if (flag) {
+                BeanUtils.copyProperties(config, washCodeVo);
+                washCodeVo.setValidbet(BigDecimal.ZERO);
+                washCodeVo.setRate(config.getRate() + "%");
+                washCodeVo.setAmount(BigDecimal.ZERO);
+                voList.add(washCodeVo);
             }
         }
         data.put("totalAmount", washCode);
@@ -117,6 +121,7 @@ public class WashCodeController {
     }
 
     private List<WashCodeConfig> getWashCodeConfig(Long userId) {
+        //先查询用户级的洗码配置
         List<UserWashCodeConfig> codeConfigs = userWashCodeConfigService.findByUserIdAndPlatform(userId, Constants.PLATFORM);
         if (!CollectionUtils.isEmpty(codeConfigs)) {
             List<WashCodeConfig> list = new ArrayList<>();
@@ -124,9 +129,11 @@ public class WashCodeController {
             for (UserWashCodeConfig codeConfig : codeConfigs) {
                 config = new WashCodeConfig();
                 BeanUtils.copyProperties(codeConfig, config);
+                list.add(config);
             }
             return list;
         }
+        //先查询全局洗码配置
         List<WashCodeConfig> configs = washCodeConfigService.findByPlatform(Constants.PLATFORM);
         return configs;
     }
