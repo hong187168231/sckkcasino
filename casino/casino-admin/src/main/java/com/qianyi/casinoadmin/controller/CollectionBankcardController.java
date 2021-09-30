@@ -55,15 +55,14 @@ public class CollectionBankcardController {
             @ApiImplicitParam(name = "bankNo", value = "银行账号", required = true),
             @ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
             @ApiImplicitParam(name = "accountName", value = "开户名", required = true),
-            @ApiImplicitParam(name = "grade", value = "渠道等级 1A 2B 3C 4D", required = true),
-            @ApiImplicitParam(name = "nature", value = "性质 1对公账号 2个人账号", required = true),
-            @ApiImplicitParam(name = "attribute", value = "使用属性 1常用卡 2备用卡", required = true),
-            @ApiImplicitParam(name = "dayMaxAmount", value = "单日最大收款", required = false),
-            @ApiImplicitParam(name = "monthMaxAmount", value = "单月最大收款", required = false),
+//            @ApiImplicitParam(name = "grade", value = "渠道等级 1A 2B 3C 4D", required = true),
+//            @ApiImplicitParam(name = "nature", value = "性质 1对公账号 2个人账号", required = true),
+//            @ApiImplicitParam(name = "attribute", value = "使用属性 1常用卡 2备用卡", required = true),
+//            @ApiImplicitParam(name = "dayMaxAmount", value = "单日最大收款", required = false),
+//            @ApiImplicitParam(name = "monthMaxAmount", value = "单月最大收款", required = false),
     })
     @PostMapping("saveBankInfo")
-    public ResponseEntity saveBankInfo(String bankNo, String bankId, String accountName,Integer grade,Integer nature,
-                                       Integer attribute,String dayMaxAmount,String monthMaxAmount){
+    public ResponseEntity saveBankInfo(String bankNo, String bankId, String accountName){
         CollectionBankcard byBankNo = collectionBankcardService.findByBankNo(bankNo);
         if (!LoginUtil.checkNull(byBankNo)){
             return ResponseUtil.custom("银行卡已存在");
@@ -72,23 +71,23 @@ public class CollectionBankcardController {
         bankcard.setBankNo(bankNo);
         bankcard.setBankId(bankId);
         bankcard.setAccountName(accountName);
-        bankcard.setGrade(grade);
-        bankcard.setNature(nature);
-        bankcard.setAttribute(attribute);
-        if (!LoginUtil.checkNull(dayMaxAmount)){
-            BigDecimal money = CommonUtil.checkMoney(dayMaxAmount);
-            if(money.compareTo(BigDecimal.ZERO)<1){
-                return ResponseUtil.custom("金额类型错误");
-            }
-            bankcard.setDayMaxAmount(money);
-        }
-        if (!LoginUtil.checkNull(monthMaxAmount)){
-            BigDecimal money = CommonUtil.checkMoney(monthMaxAmount);
-            if(money.compareTo(BigDecimal.ZERO)<1){
-                return ResponseUtil.custom("金额类型错误");
-            }
-            bankcard.setMonthMaxAmount(money);
-        }
+//        bankcard.setGrade(grade);
+//        bankcard.setNature(nature);
+//        bankcard.setAttribute(attribute);
+//        if (!LoginUtil.checkNull(dayMaxAmount)){
+//            BigDecimal money = CommonUtil.checkMoney(dayMaxAmount);
+//            if(money.compareTo(BigDecimal.ZERO)<1){
+//                return ResponseUtil.custom("金额类型错误");
+//            }
+//            bankcard.setDayMaxAmount(money);
+//        }
+//        if (!LoginUtil.checkNull(monthMaxAmount)){
+//            BigDecimal money = CommonUtil.checkMoney(monthMaxAmount);
+//            if(money.compareTo(BigDecimal.ZERO)<1){
+//                return ResponseUtil.custom("金额类型错误");
+//            }
+//            bankcard.setMonthMaxAmount(money);
+//        }
         bankcard.setDisable(CommonConst.NUMBER_1);//新增默认禁用
         collectionBankcardService.save(bankcard);
         return ResponseUtil.success(bankcard);
@@ -100,14 +99,13 @@ public class CollectionBankcardController {
             @ApiImplicitParam(name = "bankNo", value = "银行账号", required = false),
             @ApiImplicitParam(name = "bankId", value = "银行卡id", required = false),
             @ApiImplicitParam(name = "accountName", value = "开户名", required = false),
-            @ApiImplicitParam(name = "dayMaxAmount", value = "单日最大收款", required = false),
-            @ApiImplicitParam(name = "monthMaxAmount", value = "单月最大收款", required = false),
-            @ApiImplicitParam(name = "grade", value = "渠道等级 1A 2B 3C 4D", required = false),
-            @ApiImplicitParam(name = "attribute", value = "使用属性 1常用卡 2备用卡", required = false),
+//            @ApiImplicitParam(name = "dayMaxAmount", value = "单日最大收款", required = false),
+//            @ApiImplicitParam(name = "monthMaxAmount", value = "单月最大收款", required = false),
+//            @ApiImplicitParam(name = "grade", value = "渠道等级 1A 2B 3C 4D", required = false),
+//            @ApiImplicitParam(name = "attribute", value = "使用属性 1常用卡 2备用卡", required = false),
     })
     @PostMapping("updateBankInfo")
-    public ResponseEntity updateBankInfo(Long id, String bankNo, String bankId, String accountName,String dayMaxAmount,
-                                         String monthMaxAmount,Integer grade,Integer attribute){
+    public ResponseEntity updateBankInfo(Long id, String bankNo, String bankId, String accountName){
         CollectionBankcard collectionBankcard = collectionBankcardService.findById(id);
         if(collectionBankcard == null){
             return ResponseUtil.custom("银行卡不存在");
@@ -122,30 +120,30 @@ public class CollectionBankcardController {
         if(!LoginUtil.checkNull(bankId)){
             collectionBankcard.setBankId(bankId);
         }
-        if(!LoginUtil.checkNull(grade)){
-            collectionBankcard.setGrade(grade);
-        }
-        if(!LoginUtil.checkNull(attribute)){
-            collectionBankcard.setAttribute(attribute);
-        }
-
         if(!LoginUtil.checkNull(accountName)){
             collectionBankcard.setAccountName(accountName);
         }
-        if(!LoginUtil.checkNull(dayMaxAmount)){
-            BigDecimal bigDecimal = CommonUtil.checkMoney(dayMaxAmount);
-            if(bigDecimal.compareTo(BigDecimal.ZERO)<1){//不能小于等于0
-                return ResponseUtil.custom("金额类型错误");
-            }
-            collectionBankcard.setDayMaxAmount(bigDecimal);
-        }
-        if(!LoginUtil.checkNull(monthMaxAmount)){
-            BigDecimal bigDecimal = CommonUtil.checkMoney(monthMaxAmount);
-            if(bigDecimal.compareTo(BigDecimal.ZERO)<1){//不能小于等于0
-                return ResponseUtil.custom("金额类型错误");
-            }
-            collectionBankcard.setMonthMaxAmount(bigDecimal);
-        }
+//        if(!LoginUtil.checkNull(grade)){
+//            collectionBankcard.setGrade(grade);
+//        }
+//        if(!LoginUtil.checkNull(attribute)){
+//            collectionBankcard.setAttribute(attribute);
+//        }
+//
+//        if(!LoginUtil.checkNull(dayMaxAmount)){
+//            BigDecimal bigDecimal = CommonUtil.checkMoney(dayMaxAmount);
+//            if(bigDecimal.compareTo(BigDecimal.ZERO)<1){//不能小于等于0
+//                return ResponseUtil.custom("金额类型错误");
+//            }
+//            collectionBankcard.setDayMaxAmount(bigDecimal);
+//        }
+//        if(!LoginUtil.checkNull(monthMaxAmount)){
+//            BigDecimal bigDecimal = CommonUtil.checkMoney(monthMaxAmount);
+//            if(bigDecimal.compareTo(BigDecimal.ZERO)<1){//不能小于等于0
+//                return ResponseUtil.custom("金额类型错误");
+//            }
+//            collectionBankcard.setMonthMaxAmount(bigDecimal);
+//        }
         collectionBankcardService.save(collectionBankcard);
         return ResponseUtil.success(collectionBankcard);
     }
