@@ -22,6 +22,14 @@ public class UserVo {
     private BigDecimal unfinshTurnover;
     @ApiModelProperty("真实姓名")
     private String realName;
-    @ApiModelProperty("冻结余额")
-    private BigDecimal freezeMoney;
+    @ApiModelProperty("洗码余额")
+    private BigDecimal washCode;
+    @ApiModelProperty("邮箱")
+    private String email;
+    @ApiModelProperty("QQ")
+    private String qq;
+    @ApiModelProperty("微信")
+    private String webChat;
+    @ApiModelProperty("手机号")
+    private String phone;
 }

@@ -61,4 +61,9 @@ public class Constants {
 
     public final static String CASINO_WEB = "casino-web";
     public final static String PAY_ADMIN = "pay-admin";
+
+    public final static String TOTAL_WASHCODE = "totalWashCode";//redis洗码总计key
+    public final static String PLATFORM = "wm";
+
+
 }

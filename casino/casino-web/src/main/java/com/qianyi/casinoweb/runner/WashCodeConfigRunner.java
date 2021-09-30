@@ -22,7 +22,7 @@ public class WashCodeConfigRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        List<WashCodeConfig> list = washCodeConfigService.findByPlatform("wm");
+        List<WashCodeConfig> list = washCodeConfigService.findByPlatform(Constants.PLATFORM);
         if (!CollectionUtils.isEmpty(list)) {
             return;
         }

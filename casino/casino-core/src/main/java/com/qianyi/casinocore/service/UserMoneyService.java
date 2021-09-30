@@ -80,27 +80,27 @@ public class UserMoneyService {
     }
 
     /**
-     * 增加冻结余额
+     * 增加洗码金额
      * @param userId 用户id
-     * @param freezeMoney 冻结金额
+     * @param washCode 洗码金额
      */
     @CacheEvict(key = "#userId")
-    public void addFreezeMoney(Long userId, BigDecimal freezeMoney) {
+    public void addWashCode(Long userId, BigDecimal washCode) {
         synchronized (userId) {
-            userMoneyRepository.addFreezeMoney(userId, freezeMoney);
+            userMoneyRepository.addWashCode(userId, washCode);
         }
     }
 
 
     /**
-     * 扣减冻结余额
+     * 扣减洗码金额
      * @param userId 用户id
-     * @param freezeMoney 冻结金额
+     * @param washCode 冻结金额
      */
     @CacheEvict(key = "#userId")
-    public void subFreezeMoney(Long userId, BigDecimal freezeMoney) {
+    public void subWashCode(Long userId, BigDecimal washCode) {
         synchronized (userId) {
-            userMoneyRepository.subFreezeMoney(userId, freezeMoney);
+            userMoneyRepository.subWashCode(userId, washCode);
         }
     }
 

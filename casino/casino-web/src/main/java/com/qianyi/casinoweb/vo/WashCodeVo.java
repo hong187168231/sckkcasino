@@ -23,7 +23,7 @@ public class WashCodeVo{
     private BigDecimal validbet;
 
     @ApiModelProperty(value = "返水比例")
-    private BigDecimal rate;
+    private String rate;
 
     @ApiModelProperty(value = "洗码金额")
     private BigDecimal amount;

@@ -33,10 +33,10 @@ public interface UserMoneyRepository extends JpaRepository<UserMoney,Long>, JpaS
     UserMoney findByUserId(Long userId);
 
     @Modifying
-    @Query("update UserMoney u set u.freezeMoney=u.freezeMoney+?2 where u.userId=?1")
-    void addFreezeMoney(Long userId, BigDecimal freezeMoney);
+    @Query("update UserMoney u set u.washCode=u.washCode+?2 where u.userId=?1")
+    void addWashCode(Long userId, BigDecimal washCode);
 
     @Modifying
-    @Query("update UserMoney u set u.freezeMoney=u.freezeMoney-?2 where u.userId=?1")
-    void subFreezeMoney(Long userId, BigDecimal freezeMoney);
+    @Query("update UserMoney u set u.washCode=u.washCode-?2 where u.userId=?1")
+    void subWashCode(Long userId, BigDecimal washCode);
 }

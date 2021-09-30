@@ -21,6 +21,10 @@ public class UserMoney extends BaseEntity{
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal codeNum=BigDecimal.ZERO;
 
+    @ApiModelProperty("洗码金额")
+    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    private BigDecimal washCode = BigDecimal.ZERO;
+
     @ApiModelProperty("冻结余额")
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal freezeMoney = BigDecimal.ZERO;

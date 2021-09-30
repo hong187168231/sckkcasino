@@ -16,6 +16,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
@@ -35,15 +36,13 @@ public class UserController {
     BankcardsService bankcardsService;
 
     @GetMapping("info")
-    @ApiOperation("获取当前用户的基本信息(不包含 余额，打码量，可提现金额)")
+    @ApiOperation("获取当前用户的基本信息(不包含 余额，打码量，可提现金额,洗码金额)")
     public ResponseEntity<UserVo> info() {
         Long authId = CasinoWebUtil.getAuthId();
         User user = userService.findById(authId);
         UserVo vo = new UserVo();
+        BeanUtils.copyProperties(user,vo);
         vo.setUserId(user.getId());
-        vo.setAccount(user.getAccount());
-        vo.setName(user.getName());
-        vo.setHeadImg(user.getHeadImg());
         //去银行卡查询真实姓名
         Bankcards bankcards = bankcardsService.findBankCardsInByUserId(authId);
         String realName = bankcards == null ? null : bankcards.getRealName();
@@ -52,13 +51,13 @@ public class UserController {
     }
 
     @GetMapping("getMoney")
-    @ApiOperation("获取当前用户的余额，打码量，可提现金额")
+    @ApiOperation("获取当前用户的余额，打码量，可提现金额,洗码金额")
     public ResponseEntity<UserVo> getMoney() {
         Long userId = CasinoWebUtil.getAuthId();
         UserVo vo = new UserVo();
         //TODO 查询可提金额，未完成流水(打码量)
         UserMoney userMoney = userMoneyService.findByUserId(userId);
-        vo.setFreezeMoney(userMoney.getFreezeMoney());
+        vo.setWashCode(userMoney.getWashCode());
         BigDecimal defaultVal = BigDecimal.ZERO.setScale(2);
         if (userMoney == null) {
             vo.setUnfinshTurnover(defaultVal);

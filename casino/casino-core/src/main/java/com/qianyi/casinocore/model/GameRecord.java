@@ -136,17 +136,6 @@ public class GameRecord extends BaseEntity{
      */
     private String slotGameId;
 
-    /**
-     * 洗码值
-     */
-    private BigDecimal washCode;
-
-
-    /**
-     * 洗码比例
-     */
-    private BigDecimal rate;
-
     public GameRecord(BigDecimal bet,BigDecimal validbet,BigDecimal water,BigDecimal waterbet,BigDecimal winLoss){
         this.bet = bet==null?"0":bet.toString();
         this.validbet = validbet==null?"0":validbet.toString();

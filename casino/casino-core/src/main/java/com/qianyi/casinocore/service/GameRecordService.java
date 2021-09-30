@@ -78,7 +78,7 @@ public class GameRecordService {
         return singleResult;
     }
 
-    public void save(GameRecord gameRecord) {
-        gameRecordRepository.save(gameRecord);
+    public GameRecord save(GameRecord gameRecord) {
+        return gameRecordRepository.save(gameRecord);
     }
 }

@@ -142,9 +142,7 @@ public class WithdrawBusiness {
         withdrawOrderService.saveOrder(withdrawOrder);
         log.info("money is {}, draw money is {}",money,userMoney.getMoney());
         userMoneyService.subMoney(userId,money);
-        userMoneyService.addFreezeMoney(userId,money);
         userMoney.setMoney(userMoney.getMoney().subtract(money));
-        userMoney.setFreezeMoney(userMoney.getFreezeMoney().add(money));
         return ResponseUtil.success(userMoney);
     }
 

@@ -5,10 +5,8 @@ import com.qianyi.casinocore.CoreConstants;
 import com.qianyi.casinocore.business.UserCodeNumBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
-import com.qianyi.casinoweb.vo.WashCodeVo;
 import com.qianyi.livewm.api.PublicWMApi;
-import com.qianyi.modulecommon.util.DateUtil;
-import com.qianyi.modulespringcacheredis.util.RedisUtil;
+import com.qianyi.modulecommon.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -16,7 +14,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -29,11 +26,6 @@ public class GameRecordJob {
 
     // 创建线程池
     ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 10, 100, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10));
-
-    private String PLATFORM="wm";
-
-    private static SimpleDateFormat yyyyMMdd = new SimpleDateFormat(DateUtil.YYYYMMDD);
-
 
     @Autowired
     PublicWMApi wmApi;
@@ -52,9 +44,9 @@ public class GameRecordJob {
     @Autowired
     WashCodeConfigService washCodeConfigService;
     @Autowired
-    RedisUtil redisUtil;
-    @Autowired
     SysConfigService sysConfigService;
+    @Autowired
+    WashCodeChangeService washCodeChangeService;
 
     //每隔5分钟执行一次
     @Scheduled(fixedRate = 1000 * 60 * 5)
@@ -108,11 +100,11 @@ public class GameRecordJob {
         //查询最小清0打码量
         SysConfig minCodeNum = sysConfigService.findBySysGroupAndName(CoreConstants.SysConfigGroup.GROUP_BET, CoreConstants.SysConfigName.CAPTCHA_RATE);
         // 创建异步执行任务:
-        for(List<GameRecord> list:lists){
-            if (CollectionUtils.isEmpty(list)){
+        for (List<GameRecord> list : lists) {
+            if (CollectionUtils.isEmpty(list)) {
                 continue;
             }
-            CompletableFuture cf = CompletableFuture.runAsync(()->{
+            CompletableFuture cf = CompletableFuture.runAsync(() -> {
                 for (GameRecord gameRecord : list) {
                     try {
                         UserThird account = userThirdService.findByAccount(gameRecord.getUser());
@@ -123,24 +115,26 @@ public class GameRecordJob {
                         if (gameRecord.getValidbet() != null) {
                             validbet = new BigDecimal(gameRecord.getValidbet());
                         }
-                        //查询洗码配置
-                        Map<String, BigDecimal> washCode = findWashCode(account.getUserId());
-                        //洗码
-                        washCode(washCode, gameRecord, validbet,account.getUserId());
+                        Long userId = account.getUserId();
                         //有数据会重复注单id唯一约束会报错，所以一条一条保存，避免影响后面的
-                        gameRecordService.save(gameRecord);
-                        //游戏记录保存成功后扣减打码量
-                        userCodeNumBusiness.subCodeNum(minCodeNum,validbet, account.getUserId());
+                        GameRecord record = gameRecordService.save(gameRecord);
+                        //查询洗码配置
+                        Map<String, BigDecimal> washCode = findWashCode(userId);
+                        //洗码
+                        userCodeNumBusiness.washCode(washCode, Constants.PLATFORM, record, validbet, account.getUserId());
+                        //扣减打码量
+                        userCodeNumBusiness.subCodeNum(minCodeNum, validbet, account.getUserId(), record.getId());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-            },executor);
+            }, executor);
         }
     }
 
     /**
      * 将一组数据平均分成n组
+     *
      * @param source 要分组的数据源
      * @param n      平均分成n组
      * @param <T>
@@ -166,62 +160,22 @@ public class GameRecordJob {
     }
 
     /**
-     * 洗码
-     * @param washCode
-     * @param gameRecord
-     * @param validbet
-     * @return
-     * @throws ParseException
-     */
-    public BigDecimal washCode(Map<String, BigDecimal> washCode, GameRecord gameRecord, BigDecimal validbet, Long userId) throws ParseException {
-        BigDecimal rate = washCode.get(gameRecord.getGid().toString());
-        gameRecord.setRate(rate);
-        if (rate == null || validbet == null || BigDecimal.ZERO.compareTo(rate) == 0 || BigDecimal.ZERO.compareTo(validbet) == 0) {
-            gameRecord.setWashCode(BigDecimal.ZERO);
-            return BigDecimal.ZERO;
-        }
-        BigDecimal washCodeVal = validbet.multiply(rate);
-        gameRecord.setWashCode(washCodeVal);
-        if (!ObjectUtils.isEmpty(gameRecord.getBetTime())) {
-            Date parse = DateUtil.getSimpleDateFormat().parse(gameRecord.getBetTime());
-            String date = yyyyMMdd.format(parse);
-            String key = PLATFORM + ":" + userId + ":" + gameRecord.getGid() + ":" + date;
-            synchronized (key) {
-                Object redisVal = redisUtil.get(key);
-                if (ObjectUtils.isEmpty(redisVal)) {
-                    WashCodeVo vo = new WashCodeVo();
-                    vo.setValidbet(validbet);
-                    vo.setAmount(washCodeVal);
-                    vo.setGameId(gameRecord.getGid().toString());
-                    redisUtil.set(key, vo);
-                } else {
-                    WashCodeVo vo = (WashCodeVo) redisVal;
-                    vo.setValidbet(vo.getValidbet().add(validbet));
-                    vo.setAmount(vo.getAmount().add(washCodeVal));
-                    vo.setGameId(gameRecord.getGid().toString());
-                    redisUtil.set(key, vo);
-                }
-            }
-        }
-        return washCodeVal;
-    }
-
-    /**
      * 获取洗码配置
+     *
      * @param userId
      * @return
      */
     public Map<String, BigDecimal> findWashCode(Long userId) {
         Map<String, BigDecimal> config = new HashMap<>();
         //先查询用户级别的配置信息
-        List<UserWashCodeConfig> codeConfigs = userWashCodeConfigService.findByUserIdAndPlatform(userId, PLATFORM);
+        List<UserWashCodeConfig> codeConfigs = userWashCodeConfigService.findByUserIdAndPlatform(userId, Constants.PLATFORM);
         if (!CollectionUtils.isEmpty(codeConfigs)) {
             codeConfigs.stream().filter(item -> (item.getState() != null && item.getState() == 0)).forEach(item ->
                     config.put(item.getGameId(), item.getRate())
             );
             return config;
         }
-        List<WashCodeConfig> platform = washCodeConfigService.findByPlatform(PLATFORM);
+        List<WashCodeConfig> platform = washCodeConfigService.findByPlatform(Constants.PLATFORM);
         if (CollectionUtils.isEmpty(platform)) {
             return config;
         }
