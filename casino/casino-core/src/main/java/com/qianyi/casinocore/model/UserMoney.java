@@ -13,11 +13,17 @@ public class UserMoney extends BaseEntity{
 
     private Long userId;
 
+    @ApiModelProperty("中心余额")
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal money=BigDecimal.ZERO;
 
+    @ApiModelProperty("打码量")
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal codeNum=BigDecimal.ZERO;
+
+    @ApiModelProperty("冻结余额")
+    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    private BigDecimal freezeMoney = BigDecimal.ZERO;
 
     /**
      * 没有这个字段下面的计算可提现金额方法，redis缓存取的时候会报找不到withdrawMoney字段
