@@ -80,10 +80,30 @@ public class UserMoneyService {
     }
 
     /**
-     *
+     * 增加冻结余额
      * @param userId 用户id
-     * @param codeNum 打码量
+     * @param freezeMoney 冻结金额
      */
+    @CacheEvict(key = "#userId")
+    public void addFreezeMoney(Long userId, BigDecimal freezeMoney) {
+        synchronized (userId) {
+            userMoneyRepository.addFreezeMoney(userId, freezeMoney);
+        }
+    }
+
+
+    /**
+     * 扣减冻结余额
+     * @param userId 用户id
+     * @param freezeMoney 冻结金额
+     */
+    @CacheEvict(key = "#userId")
+    public void subFreezeMoney(Long userId, BigDecimal freezeMoney) {
+        synchronized (userId) {
+            userMoneyRepository.subFreezeMoney(userId, freezeMoney);
+        }
+    }
+
     @CacheEvict(key = "#userId")
     public void addCodeNum(Long userId, BigDecimal codeNum) {
         synchronized (userId) {

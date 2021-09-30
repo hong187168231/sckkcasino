@@ -58,6 +58,7 @@ public class UserController {
         UserVo vo = new UserVo();
         //TODO 查询可提金额，未完成流水(打码量)
         UserMoney userMoney = userMoneyService.findByUserId(userId);
+        vo.setFreezeMoney(userMoney.getFreezeMoney());
         BigDecimal defaultVal = BigDecimal.ZERO.setScale(2);
         if (userMoney == null) {
             vo.setUnfinshTurnover(defaultVal);

@@ -22,4 +22,6 @@ public class UserVo {
     private BigDecimal unfinshTurnover;
     @ApiModelProperty("真实姓名")
     private String realName;
+    @ApiModelProperty("冻结余额")
+    private BigDecimal freezeMoney;
 }
