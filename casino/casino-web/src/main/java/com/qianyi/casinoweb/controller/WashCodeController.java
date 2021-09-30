@@ -51,7 +51,7 @@ public class WashCodeController {
 
     @ApiOperation("用户洗码列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "date", value = "时间：0：今天，1：昨天，2：近7天", required = false)
+            @ApiImplicitParam(name = "date", value = "时间：0：今天，1：昨天，2：近7天", required = true)
     })
     @GetMapping("/getList")
     public ResponseEntity chargeOrderList(String date) {
@@ -73,6 +73,7 @@ public class WashCodeController {
             return ResponseUtil.custom("date值仅限于0,1,2");
         }
         UserMoney userMoney = userMoneyService.findByUserId(userId);
+        BigDecimal washCode= userMoney.getWashCode() == null ? BigDecimal.ZERO : userMoney.getWashCode().setScale(2, BigDecimal.ROUND_HALF_UP);
         List<WashCodeConfig> washCodeConfig = getWashCodeConfig(userId);
         List<WashCodeChange> list = washCodeChangeService.getList(userId, startTime, endTime);
         Map<String, Object> data = new HashMap<>();
@@ -88,7 +89,7 @@ public class WashCodeController {
                 washCodeVo.setAmount(BigDecimal.ZERO);
                 voList.add(washCodeVo);
             }
-            data.put("totalAmount", userMoney.getWashCode());
+            data.put("totalAmount", washCode);
             data.put("list", voList);
             return ResponseUtil.success(data);
         }
@@ -110,7 +111,7 @@ public class WashCodeController {
                 }
             }
         }
-        data.put("totalAmount", userMoney.getWashCode());
+        data.put("totalAmount", washCode);
         data.put("list", voList);
         return ResponseUtil.success(data);
     }
