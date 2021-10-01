@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.persistence.Entity;
+import javax.persistence.Transient;
 import java.math.BigDecimal;
 
 /**
@@ -33,4 +34,6 @@ public class AccountChange extends BaseEntity {
 	@ApiModelProperty(value = "额度变化后")
 	private BigDecimal amountAfter;
 
+	@Transient
+	private String account;
 }
