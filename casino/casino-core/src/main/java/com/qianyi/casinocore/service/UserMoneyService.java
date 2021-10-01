@@ -26,7 +26,6 @@ import java.util.List;
 
 @Service
 @Slf4j
-@Transactional
 @CacheConfig(cacheNames = {"userMoney"})
 public class UserMoneyService {
 
@@ -45,6 +44,7 @@ public class UserMoneyService {
      * @param money 金额
      */
     @CacheEvict(key = "#userId")
+    @Transactional
     public void subMoney(Long userId, BigDecimal money) {
         synchronized (userId) {
             userMoneyRepository.subMoney(userId, money);
@@ -61,6 +61,7 @@ public class UserMoneyService {
      * @param money 金额
      */
     @CacheEvict(key = "#userId")
+    @Transactional
     public void addMoney(Long userId, BigDecimal money) {
         synchronized (userId) {
             userMoneyRepository.addMoney(userId, money);
@@ -73,6 +74,7 @@ public class UserMoneyService {
      * @param codeNum 打码量
      */
     @CacheEvict(key = "#userId")
+    @Transactional
     public void subCodeNum(Long userId, BigDecimal codeNum) {
         synchronized (userId) {
             userMoneyRepository.subCodeNum(userId, codeNum);
@@ -85,6 +87,7 @@ public class UserMoneyService {
      * @param washCode 洗码金额
      */
     @CacheEvict(key = "#userId")
+    @Transactional
     public void addWashCode(Long userId, BigDecimal washCode) {
         synchronized (userId) {
             userMoneyRepository.addWashCode(userId, washCode);
@@ -98,6 +101,7 @@ public class UserMoneyService {
      * @param washCode 冻结金额
      */
     @CacheEvict(key = "#userId")
+    @Transactional
     public void subWashCode(Long userId, BigDecimal washCode) {
         synchronized (userId) {
             userMoneyRepository.subWashCode(userId, washCode);
@@ -105,6 +109,7 @@ public class UserMoneyService {
     }
 
     @CacheEvict(key = "#userId")
+    @Transactional
     public void addCodeNum(Long userId, BigDecimal codeNum) {
         synchronized (userId) {
             userMoneyRepository.addCodeNum(userId, codeNum);
@@ -121,14 +126,15 @@ public class UserMoneyService {
             BigDecimal washCode = userMoney.getWashCode() == null ? defaultVal : userMoney.getWashCode();
             userMoney.setWashCode(washCode);
             BigDecimal codeNum = userMoney.getCodeNum() == null ? defaultVal : userMoney.getCodeNum();
-            userMoney.setMoney(codeNum);
+            userMoney.setCodeNum(codeNum);
             BigDecimal freezeMoney = userMoney.getFreezeMoney() == null ? defaultVal : userMoney.getFreezeMoney();
-            userMoney.setMoney(freezeMoney);
+            userMoney.setFreezeMoney(freezeMoney);
         }
         return userMoney;
     }
 
     @CachePut(key="#userMoney.userId")
+    @Transactional
     public UserMoney save(UserMoney userMoney) {
         return userMoneyRepository.save(userMoney);
     }
