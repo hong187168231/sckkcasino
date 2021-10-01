@@ -105,6 +105,8 @@ public class ChargeOrderBusiness {
         //流水表记录
         RechargeTurnover turnover = getRechargeTurnover(chargeOrder,user, codeNum, codeTimes);
         rechargeTurnoverService.save(turnover);
+        log.info("后台直接上分userId {} 类型 {}订单号 {} chargeAmount is {}, money is {}",user.getUserId(),
+                changeEnum.getCode(),chargeOrder.getOrderNo(),subtract, user.getMoney());
         //用户账变记录
         this.saveAccountChang(changeEnum,user.getUserId(),subtract,user.getMoney(),chargeOrder.getOrderNo());
         return ResponseUtil.success();

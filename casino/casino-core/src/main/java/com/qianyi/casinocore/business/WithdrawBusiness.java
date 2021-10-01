@@ -210,6 +210,7 @@ public class WithdrawBusiness {
         BigDecimal money = amountBefore.subtract(withdrawMoney);
         userMoney.setMoney(money);
         userMoneyService.save(userMoney);
+        log.info("后台直接下分userId {} 订单号 {} withdrawMoney is {}, money is {}",userMoney.getUserId(),withdrawOrder.getNo(),withdrawMoney, money);
         //记录用户账变
         this.saveAccountChang(AccountChangeEnum.SUB_CODE,userMoney.getUserId(),withdrawMoney,amountBefore,money,withdrawOrder.getNo());
         return ResponseUtil.success(userMoney);
