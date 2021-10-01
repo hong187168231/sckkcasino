@@ -6,6 +6,7 @@ import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Transient;
 import java.math.BigDecimal;
 
 @Data
@@ -35,5 +36,8 @@ public class WithdrawOrder extends BaseEntity {
 
     @ApiModelProperty(value = "收款方式 1银行卡 2支付宝 3微信")
     private Integer remitType;
+
+    @Transient
+    private String account;
 
 }

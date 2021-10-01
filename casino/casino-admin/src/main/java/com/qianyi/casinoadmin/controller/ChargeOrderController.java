@@ -30,6 +30,7 @@ import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 充值申请
@@ -44,6 +45,9 @@ public class ChargeOrderController {
 
     @Autowired
     private ChargeOrderBusiness chargeOrderBusiness;
+
+    @Autowired
+    private UserService userService;
     /**
      * 充值申请列表
      *
@@ -66,6 +70,20 @@ public class ChargeOrderController {
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Specification<ChargeOrder> condition = this.getCondition(status,orderNo,userId);
         Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(condition, pageable);
+        List<ChargeOrder> content = chargeOrderPage.getContent();
+        if(content != null && content.size() > 0){
+            List<Long> userIds = content.stream().map(ChargeOrder::getUserId).collect(Collectors.toList());
+            List<User> userList = userService.findAll(userIds);
+            if(userList != null && userList.size() > 0){
+                userList.stream().forEach(user ->{
+                    content.stream().forEach(chargeOrder->{
+                        if (user.getId().equals(chargeOrder.getUserId())){
+                            chargeOrder.setAccount(user.getAccount());
+                        }
+                    });
+                });
+            }
+        }
         return ResponseUtil.success(chargeOrderPage);
     }
 

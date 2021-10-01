@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 提现记录表
@@ -47,6 +49,9 @@ public class WithdrawOrderController {
 
     @Autowired
     private UserMoneyService userMoneyService;
+
+    @Autowired
+    private UserService userService;
 
     @ApiOperation("提现列表")
     @ApiImplicitParams({
@@ -71,6 +76,20 @@ public class WithdrawOrderController {
         Sort sort=Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, withdrawOrder);
+        List<WithdrawOrder> content = withdrawOrderPage.getContent();
+        if(content != null && content.size() > 0){
+            List<Long> userIds = content.stream().map(WithdrawOrder::getUserId).collect(Collectors.toList());
+            List<User> userList = userService.findAll(userIds);
+            if(userList != null && userList.size() > 0){
+                userList.stream().forEach(user ->{
+                    content.stream().forEach(withdraw->{
+                        if (user.getId().equals(withdraw.getUserId())){
+                            withdraw.setAccount(user.getAccount());
+                        }
+                    });
+                });
+            }
+        }
         return ResponseUtil.success(withdrawOrderPage);
     }
 
