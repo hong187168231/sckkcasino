@@ -1,14 +1,17 @@
 package com.qianyi.casinoadmin.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.qianyi.casinocore.model.User;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
-public class UserVo {
+public class UserVo implements Serializable {
+    private static final long serialVersionUID = -6875617998456387632L;
     @ApiModelProperty("id")
     private Long id;
     @ApiModelProperty("名字")
@@ -51,10 +54,12 @@ public class UserVo {
     @ApiModelProperty("webChat")
     private String webChat;
     @ApiModelProperty("创建时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
     @ApiModelProperty("创建人")
     private String createBy;
     @ApiModelProperty("最后修改时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
     @ApiModelProperty("最后修改人")
     private String updateBy;

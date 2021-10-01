@@ -27,7 +27,4 @@ public class RechargeTurnover extends BaseEntity{
     private Float codeTimes;
     @ApiModelProperty(value = "汇款方式 1 银行卡  和 其他")
     private Integer remitType;
-
-    @Transient
-    private String account;
 }

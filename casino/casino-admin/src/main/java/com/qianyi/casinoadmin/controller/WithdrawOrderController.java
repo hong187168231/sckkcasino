@@ -2,6 +2,8 @@ package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinoadmin.vo.PageResultVO;
+import com.qianyi.casinoadmin.vo.WithdrawOrderVo;
 import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
@@ -23,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -81,21 +84,26 @@ public class WithdrawOrderController {
         Sort sort=Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, withdrawOrder);
+        PageResultVO<WithdrawOrderVo> pageResultVO = new PageResultVO(withdrawOrderPage);
         List<WithdrawOrder> content = withdrawOrderPage.getContent();
         if(content != null && content.size() > 0){
+            List<WithdrawOrderVo> withdrawOrderVoList = new LinkedList<>();
             List<Long> userIds = content.stream().map(WithdrawOrder::getUserId).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
             if(userList != null && userList.size() > 0){
-                userList.stream().forEach(user ->{
-                    content.stream().forEach(withdraw->{
+                content.stream().forEach(withdraw ->{
+                    WithdrawOrderVo withdrawOrderVo = new WithdrawOrderVo(withdraw);
+                    userList.stream().forEach(user->{
                         if (user.getId().equals(withdraw.getUserId())){
-                            withdraw.setAccount(user.getAccount());
+                            withdrawOrderVo.setAccount(user.getAccount());
                         }
                     });
+                    withdrawOrderVoList.add(withdrawOrderVo);
                 });
             }
+            pageResultVO.setContent(withdrawOrderVoList);
         }
-        return ResponseUtil.success(withdrawOrderPage);
+        return ResponseUtil.success(pageResultVO);
     }
 
     @ApiOperation("提现审核")

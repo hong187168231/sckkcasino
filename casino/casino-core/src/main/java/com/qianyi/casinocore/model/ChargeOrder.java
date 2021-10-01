@@ -49,7 +49,4 @@ public class ChargeOrder extends BaseEntity{
 
     @ApiModelProperty(value = "收款银行卡ID")
     private Long bankcardId;
-
-    @Transient
-    private String account;
 }

@@ -102,7 +102,7 @@ public class UserController {
         PageResultVO<User> pageResultVO = new PageResultVO(userPage);
         List<User> userList = userPage.getContent();
         if(userList != null && userList.size() > 0){
-            List<UserVo> userVoList = new ArrayList<>(userList.size());
+            List<UserVo> userVoList = new LinkedList();
             List<Long> userIds = userList.stream().map(User::getId).collect(Collectors.toList());
             List<UserMoney> userMoneyList =  userMoneyService.findAll(userIds);
             if(userMoneyList != null && userMoneyList.size() > 0){

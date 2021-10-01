@@ -33,7 +33,4 @@ public class AccountChange extends BaseEntity {
 
 	@ApiModelProperty(value = "额度变化后")
 	private BigDecimal amountAfter;
-
-	@Transient
-	private String account;
 }
