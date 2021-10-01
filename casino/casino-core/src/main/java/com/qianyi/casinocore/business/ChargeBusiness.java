@@ -45,7 +45,7 @@ public class ChargeBusiness {
         if(ObjectUtils.isEmpty(chargeAmount)){
             return ResponseUtil.custom("充值金额不允许为空");
         }
-        Integer count = chargeOrderService.countByStatus(0);
+        Integer count = chargeOrderService.countByUserIdAndStatus(userId,0);
         if (count > 0) {
             return ResponseUtil.custom("您有一笔充值订单正在审核,请交易完成后再提交");
         }

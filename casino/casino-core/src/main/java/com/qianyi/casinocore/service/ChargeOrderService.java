@@ -36,7 +36,7 @@ public class ChargeOrderService {
         chargeOrderRepository.updateChargeOrders(status,time);
     }
 
-    public Integer countByStatus(int status) {
-        return chargeOrderRepository.countByStatus(status);
+    public Integer countByUserIdAndStatus(Long userId,int status) {
+        return chargeOrderRepository.countByUserIdAndStatus(userId,status);
     }
 }

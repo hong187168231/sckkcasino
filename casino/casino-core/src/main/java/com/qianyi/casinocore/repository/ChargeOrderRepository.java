@@ -16,5 +16,5 @@ public interface ChargeOrderRepository extends JpaRepository<ChargeOrder,Long>, 
     @Query(value = "update charge_order c set c.status=3 where c.status = ?1 and c.create_time <= ?2",nativeQuery = true)
     void updateChargeOrders(Integer status,String time);
 
-    Integer countByStatus(int status);
+    Integer countByUserIdAndStatus(Long userId,int status);
 }

@@ -121,7 +121,7 @@ public class WithdrawBusiness {
             return ResponseUtil.custom("用户钱包不存在");
 
         }
-        Integer count = withdrawOrderService.countByStatus(0);
+        Integer count = withdrawOrderService.countByUserIdAndStatus(userId,0);
         if (count > 0) {
             return ResponseUtil.custom("您有一笔提款订单正在审核,请交易完成后再提交");
         }

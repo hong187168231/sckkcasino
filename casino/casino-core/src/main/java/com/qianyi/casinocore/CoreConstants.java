@@ -14,6 +14,7 @@ public class CoreConstants {
         String CAPTCHA_MIN = "captchaMin";   //最低金额重置打码量
         String REGISTER_IP = "registerIp";
         String LOGIN_IP = "loginIp";
+        String WM_TOTAL_BALANCE = "wmTotalBalance";//平台在WM的总余额
     }
 
     public enum SysConfigEnum{

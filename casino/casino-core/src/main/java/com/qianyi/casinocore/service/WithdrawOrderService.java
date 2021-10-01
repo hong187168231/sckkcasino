@@ -99,7 +99,7 @@ public class WithdrawOrderService {
         return specification;
     }
 
-    public Integer countByStatus(int status) {
-        return withdrawOrderRepository.countByStatus(status);
+    public Integer countByUserIdAndStatus(Long userId,int status) {
+        return withdrawOrderRepository.countByUserIdAndStatus(userId,status);
     }
 }
