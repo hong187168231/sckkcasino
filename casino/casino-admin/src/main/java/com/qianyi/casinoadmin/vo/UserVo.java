@@ -1,0 +1,85 @@
+package com.qianyi.casinoadmin.vo;
+
+import com.qianyi.casinocore.model.User;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+@Data
+public class UserVo {
+    @ApiModelProperty("id")
+    private Long id;
+    @ApiModelProperty("名字")
+    private String name;
+    @ApiModelProperty("账号")
+    private String account;
+    @ApiModelProperty("密码")
+    private String password;
+    @ApiModelProperty("手机号")
+    private String phone;
+    @ApiModelProperty("语言")
+    private Integer language;
+    @ApiModelProperty("头像")
+    private String headImg;
+    //帐号状态（1：启用，其他：禁用）
+    @ApiModelProperty("帐号状态")
+    private Integer state;
+    @ApiModelProperty("注册ip")
+    private String registerIp;
+    @ApiModelProperty("收款卡张数")
+    private Integer creditCard;
+    @ApiModelProperty("配置收款卡等级")//null 完全随机  或者 A|B|C|D
+    private String cardLevel;
+    @ApiModelProperty("收款卡张数")
+    private BigDecimal money = BigDecimal.ZERO;
+    @ApiModelProperty("剩余打码量")
+    private BigDecimal codeNum = BigDecimal.ZERO;
+    @ApiModelProperty("冻结余额")
+    private BigDecimal freezeMoney = BigDecimal.ZERO;
+    @ApiModelProperty("可提现余额")
+    private BigDecimal withdrawMoney = BigDecimal.ZERO;
+    @ApiModelProperty("WM余额")
+    private BigDecimal wmMoney;
+    @ApiModelProperty("提款密码")
+    private String withdrawPassword;
+    @ApiModelProperty("email")
+    private String email;
+    @ApiModelProperty("qq")
+    private String qq;
+    @ApiModelProperty("webChat")
+    private String webChat;
+    @ApiModelProperty("创建时间")
+    private Date createTime;
+    @ApiModelProperty("创建人")
+    private String createBy;
+    @ApiModelProperty("最后修改时间")
+    private Date updateTime;
+    @ApiModelProperty("最后修改人")
+    private String updateBy;
+    public UserVo(){
+
+    }
+    public UserVo(User user){
+        this.id = user.getId();
+        this.name = user.getName();
+        this.account = user.getAccount();
+        this.password = user.getPassword();
+        this.phone = user.getPhone();
+        this.language = user.getLanguage();
+        this.headImg = user.getHeadImg();
+        this.state = user.getState();
+        this.registerIp = user.getRegisterIp();
+        this.creditCard = user.getCreditCard();
+        this.cardLevel = user.getCardLevel();
+        this.withdrawPassword = user.getWithdrawPassword();
+        this.email = user.getEmail();
+        this.qq = user.getQq();
+        this.webChat = user.getWebChat();
+        this.createTime = user.getCreateTime();
+        this.updateBy = user.getUpdateBy();
+        this.updateTime = user.getUpdateTime();
+        this.createBy = user.getCreateBy();
+    }
+}
