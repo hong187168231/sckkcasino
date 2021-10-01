@@ -2,12 +2,10 @@ package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.business.ChargeBusiness;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
 import com.qianyi.casinocore.model.ChargeOrder;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.ChargeOrderService;
-import com.qianyi.casinocore.service.OrderService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -27,7 +25,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,7 +50,7 @@ public class ChargeOrderController {
      *
      * @param status 状态(0未确认 1已确认)
      * @param orderNo 充值订单号
-     * @param userId 会员id userId
+     * @param account 会员账号 account
      * @return
      */
     @ApiOperation("充值申请列表")
@@ -62,12 +59,20 @@ public class ChargeOrderController {
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "status", value = "状态(0未确认 1已确认)", required = false),
             @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
-            @ApiImplicitParam(name = "userId", value = "会员ID", required = false),
+            @ApiImplicitParam(name = "account", value = "会员账号", required = false),
     })
     @GetMapping("/chargeOrderList")
-    public ResponseEntity chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String orderNo, Long userId){
+    public ResponseEntity chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String orderNo, String account){
         Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        Long userId = null;
+        if (!LoginUtil.checkNull(account)){
+            User user = userService.findByAccount(account);
+            if (LoginUtil.checkNull(user)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = user.getId();
+        }
         Specification<ChargeOrder> condition = this.getCondition(status,orderNo,userId);
         Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(condition, pageable);
         List<ChargeOrder> content = chargeOrderPage.getContent();
