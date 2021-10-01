@@ -206,9 +206,12 @@ public class WithdrawBusiness {
         withdrawOrder.setNo(orderService.getOrderNo());
         withdrawOrder.setStatus(Constants.withdrawOrder_success);
         withdrawOrderService.saveOrder(withdrawOrder);
-        BigDecimal money = userMoney.getMoney().subtract(withdrawMoney);
+        BigDecimal amountBefore = userMoney.getMoney();
+        BigDecimal money = amountBefore.subtract(withdrawMoney);
         userMoney.setMoney(money);
         userMoneyService.save(userMoney);
+        //记录用户账变
+        this.saveAccountChang(AccountChangeEnum.SUB_CODE,userMoney.getUserId(),withdrawMoney,amountBefore,money,withdrawOrder.getNo());
         return ResponseUtil.success(userMoney);
     }
 
@@ -232,7 +235,6 @@ public class WithdrawBusiness {
         }
         withdrawOrder.setStatus(status);
         BigDecimal money = withdrawOrder.getWithdrawMoney();
-        userMoney.setFreezeMoney(userMoney.getFreezeMoney().subtract(money));
         if(status == Constants.WITHDRAW_PASS){//通过提现审核的计算手续费
             AmountConfig amountConfig = amountConfigService.findAmountConfigById(2L);
             if (amountConfig != null){
@@ -245,11 +247,24 @@ public class WithdrawBusiness {
             log.info("通过提现userId {} 订单号 {} withdrawMoney is {}, practicalAmount is {}",userMoney.getUserId(),withdrawOrder.getNo(),money, withdrawOrder.getPracticalAmount());
             return ResponseUtil.success();
         }
+        BigDecimal amountBefore = userMoney.getMoney();
         userMoney.setMoney(userMoney.getMoney().add(money));
+        //记录用户账变
+        this.saveAccountChang(AccountChangeEnum.WITHDRAWDEFEATED_CODE,userMoney.getUserId(),money,amountBefore,userMoney.getMoney(),withdrawOrder.getNo());
         log.info("拒绝提现userId {} 订单号 {} withdrawMoney is {}, money is {}",userMoney.getUserId(),withdrawOrder.getNo(),money, userMoney.getMoney());
         return ResponseUtil.success();
     }
-
+    private void saveAccountChang(AccountChangeEnum changeEnum, Long userId, BigDecimal amount, BigDecimal amountBefore,
+                                  BigDecimal amountAfter,String orderNo){
+        AccountChangeVo vo=new AccountChangeVo();
+        vo.setUserId(userId);
+        vo.setOrderNo(orderNo);
+        vo.setChangeEnum(changeEnum);
+        vo.setAmount(amount);
+        vo.setAmountBefore(amountBefore);
+        vo.setAmountAfter(amountAfter);
+        asyncService.executeAsync(vo);
+    }
     @Transactional
     public void save(User user) {
         userService.save(user);

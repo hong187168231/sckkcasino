@@ -1,12 +1,16 @@
 package com.qianyi.casinocore.business;
 
+import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -30,6 +34,10 @@ public class ChargeOrderBusiness {
 
     @Autowired
     private AmountConfigService amountConfigService;
+
+    @Autowired
+    @Qualifier("accountChangeJob")
+    AsyncService asyncService;
 
     /**
      * 成功订单确认
@@ -59,7 +67,7 @@ public class ChargeOrderBusiness {
             return ResponseUtil.custom("金额类型错误");
         }
         order.setRealityAmount(realityAmount);
-        return this.saveOrder(order,status);
+        return this.saveOrder(order,status,AccountChangeEnum.TOPUP_CODE);
     }
     /**
      * 新增充值订单，直接充钱
@@ -67,10 +75,10 @@ public class ChargeOrderBusiness {
      */
     @Transactional
     public ResponseEntity saveOrderSuccess(ChargeOrder chargeOrder) {
-        return this.saveOrder(chargeOrder,Constants.chargeOrder_success);
+        return this.saveOrder(chargeOrder,Constants.chargeOrder_success,AccountChangeEnum.ADD_CODE);
     }
 
-    private ResponseEntity saveOrder(ChargeOrder chargeOrder,Integer status){
+    private ResponseEntity saveOrder(ChargeOrder chargeOrder,Integer status,AccountChangeEnum changeEnum){
         UserMoney user = userMoneyService.findUserByUserIdUseLock(chargeOrder.getUserId());
         if(user == null){
             return ResponseUtil.custom("用户钱包不存在");
@@ -97,7 +105,19 @@ public class ChargeOrderBusiness {
         //流水表记录
         RechargeTurnover turnover = getRechargeTurnover(chargeOrder,user, codeNum, codeTimes);
         rechargeTurnoverService.save(turnover);
+        //用户账变记录
+        this.saveAccountChang(changeEnum,user.getUserId(),subtract,user.getMoney(),chargeOrder.getOrderNo());
         return ResponseUtil.success();
+    }
+    private void saveAccountChang(AccountChangeEnum changeEnum, Long userId, BigDecimal amount, BigDecimal amountAfter, String orderNo){
+        AccountChangeVo vo=new AccountChangeVo();
+        vo.setUserId(userId);
+        vo.setOrderNo(orderNo);
+        vo.setChangeEnum(changeEnum);
+        vo.setAmount(amount);
+        vo.setAmountBefore(amountAfter.subtract(amount));
+        vo.setAmountAfter(amountAfter);
+        asyncService.executeAsync(vo);
     }
     private RechargeTurnover getRechargeTurnover(ChargeOrder order,UserMoney user, BigDecimal codeNum, float codeTimes) {
         RechargeTurnover rechargeTurnover = new RechargeTurnover();
