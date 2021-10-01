@@ -10,7 +10,6 @@ import com.qianyi.casinocore.service.OrderService;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.service.WithdrawOrderService;
-import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -23,9 +22,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
-
-import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 提现记录表
@@ -48,6 +47,9 @@ public class WithdrawOrderController {
     @Autowired
     private UserMoneyService userMoneyService;
 
+    @Autowired
+    private UserService userService;
+
     @ApiOperation("提现列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
@@ -55,10 +57,18 @@ public class WithdrawOrderController {
             @ApiImplicitParam(name = "status", value = "订单状态", required = false),
             @ApiImplicitParam(name = "no", value = "订单号", required = false),
             @ApiImplicitParam(name = "bankId", value = "银行卡Id", required = false),
+            @ApiImplicitParam(name = "account", value = "用户账号", required = false),
     })
     @GetMapping("/withdrawList")
-    public ResponseEntity withdrawList(Integer pageSize,Integer pageCode, Integer status, String no, String bankId){
+    public ResponseEntity withdrawList(Integer pageSize,Integer pageCode, Integer status, String account, String no, String bankId){
         WithdrawOrder withdrawOrder = new WithdrawOrder();
+        if (!LoginUtil.checkNull(account)){
+            User user = userService.findByAccount(account);
+            if (LoginUtil.checkNull(user)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            withdrawOrder.setUserId(user.getId());
+        }
         if(status != null){
             withdrawOrder.setStatus(status);
         }
@@ -71,6 +81,20 @@ public class WithdrawOrderController {
         Sort sort=Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, withdrawOrder);
+        List<WithdrawOrder> content = withdrawOrderPage.getContent();
+        if(content != null && content.size() > 0){
+            List<Long> userIds = content.stream().map(WithdrawOrder::getUserId).collect(Collectors.toList());
+            List<User> userList = userService.findAll(userIds);
+            if(userList != null && userList.size() > 0){
+                userList.stream().forEach(user ->{
+                    content.stream().forEach(withdraw->{
+                        if (user.getId().equals(withdraw.getUserId())){
+                            withdraw.setAccount(user.getAccount());
+                        }
+                    });
+                });
+            }
+        }
         return ResponseUtil.success(withdrawOrderPage);
     }
 

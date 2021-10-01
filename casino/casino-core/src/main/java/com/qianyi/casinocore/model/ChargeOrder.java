@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.persistence.Entity;
+import javax.persistence.Transient;
 import java.math.BigDecimal;
 
 @Data
@@ -48,4 +49,7 @@ public class ChargeOrder extends BaseEntity{
 
     @ApiModelProperty(value = "收款银行卡ID")
     private Long bankcardId;
+
+    @Transient
+    private String account;
 }
