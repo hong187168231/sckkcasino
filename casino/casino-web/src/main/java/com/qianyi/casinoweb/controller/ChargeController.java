@@ -49,11 +49,12 @@ public class ChargeController {
             vo = new CollectionBankcardVo();
             BeanUtils.copyProperties(bankcard, vo);
             String bankId = bankcard.getBankId();
+            BankInfo bankInfo = null;
             if (!ObjectUtils.isEmpty(bankId)) {
-                BankInfo bankInfo = bankInfoService.findById(Long.parseLong(bankId));
-                if (bankInfo != null) {
-                    vo.setBankName(bankInfo.getBankName());
-                }
+                bankInfo = bankInfoService.findById(Long.parseLong(bankId));
+            }
+            if (bankInfo != null) {
+                vo.setBankName(bankInfo.getBankName());
             }
             list.add(vo);
         }
