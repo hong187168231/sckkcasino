@@ -1,14 +1,18 @@
 package com.qianyi.casinocore.business;
 
+import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.repository.BankcardsRepository;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -37,6 +41,10 @@ public class WithdrawBusiness {
 
     @Autowired
     private AmountConfigService amountConfigService;
+
+    @Autowired
+    @Qualifier("accountChangeJob")
+    AsyncService asyncService;
 
     public List<Map<String,Object>> getWithdrawBankcardsList(Long userId){
         return bankcardsService.findForBankcardsByUserId(userId);
@@ -143,6 +151,14 @@ public class WithdrawBusiness {
         log.info("money is {}, draw money is {}",money,userMoney.getMoney());
         userMoneyService.subMoney(userId,money);
         userMoney.setMoney(userMoney.getMoney().subtract(money));
+        //账变中心记录账变
+        AccountChangeVo vo=new AccountChangeVo();
+        vo.setUserId(userId);
+        vo.setChangeEnum(AccountChangeEnum.WITHDRAW_APPLY);
+        vo.setAmount(money.negate());
+        vo.setAmountBefore(userMoney.getMoney());
+        vo.setAmountAfter(userMoney.getMoney().subtract(money));
+        asyncService.executeAsync(vo);
         return ResponseUtil.success(userMoney);
     }
 

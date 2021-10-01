@@ -3,13 +3,17 @@ package com.qianyi.casinoweb.controller;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.service.UserMoneyService;
+import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.RequestLimit;
+import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.util.DateUtil;
 import com.qianyi.modulecommon.util.IpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,6 +59,9 @@ public class WMController {
     OrderService orderService;
     @Autowired
     PublicWMApi wmApi;
+    @Autowired
+    @Qualifier("accountChangeJob")
+    AsyncService asyncService;
 
     @Value("${project.signature}")
     String signature;
@@ -114,35 +121,38 @@ public class WMController {
         if (CommonUtil.checkNull(url)) {
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
-
         //自动转帐,子线程处理
 //        new Thread(new OrderBetJob()).start();
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(authId);
         if (userMoney != null && BigDecimal.ZERO.compareTo(userMoney.getMoney()) == -1) {
             BigDecimal money = userMoney.getMoney();
-            //扣款
-            //TODO 扣款时考虑当前用户余额不能大于平台在三方的余额
-            userMoneyService.subMoney(authId, money);
-
-            Order order = new Order();
-            order.setMoney(money);
-            order.setUserId(authId);
-            order.setRemark("自动转入WM");
-            order.setType(0);
-            order.setState(Constants.order_wait);
-
             String orderNo = orderService.getOrderNo();
-            order.setNo(orderNo);
-            orderService.save(order);
-
             boolean isSucc = wmApi.changeBalance(third.getAccount(), money, orderNo, lang);
+            //钱转入第三方后本地扣减记录账变
+            if (isSucc) {
+                //扣款
+                //TODO 扣款时考虑当前用户余额不能大于平台在三方的余额
+                userMoneyService.subMoney(authId, money);
 
-            //加款
-            if (!isSucc) {
-                userMoneyService.addMoney(authId, money);
+                Order order = new Order();
+                order.setMoney(money);
+                order.setUserId(authId);
+                order.setRemark("自动转入WM");
+                order.setType(0);
+                order.setState(Constants.order_wait);
+                order.setNo(orderNo);
+                orderService.save(order);
+
+                //账变中心记录账变
+                AccountChangeVo vo=new AccountChangeVo();
+                vo.setUserId(authId);
+                vo.setChangeEnum(AccountChangeEnum.WM_IN);
+                vo.setAmount(money.negate());
+                vo.setAmountBefore(userMoney.getMoney());
+                vo.setAmountAfter(userMoney.getMoney().subtract(money));
+                asyncService.executeAsync(vo);
             }
         }
-
         return ResponseUtil.success(url);
     }
 
@@ -331,7 +341,7 @@ public class WMController {
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         //把额度加回本地
-        userMoneyService.findUserByUserIdUseLock(userId);
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         //wm余额大于0
         if (BigDecimal.ZERO.compareTo(balance) == -1) {
             userMoneyService.addMoney(userId, balance);
@@ -347,6 +357,14 @@ public class WMController {
         String orderNo = orderService.getOrderNo();
         order.setNo(orderNo);
         orderService.save(order);
+        //账变中心记录账变
+        AccountChangeVo vo=new AccountChangeVo();
+        vo.setUserId(userId);
+        vo.setChangeEnum(AccountChangeEnum.WM_OUT);
+        vo.setAmount(balance);
+        vo.setAmountBefore(userMoney.getMoney());
+        vo.setAmountAfter(userMoney.getMoney().add(balance));
+        asyncService.executeAsync(vo);
         return ResponseUtil.success();
     }
 
