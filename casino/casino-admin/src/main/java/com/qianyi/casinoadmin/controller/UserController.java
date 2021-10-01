@@ -107,21 +107,15 @@ public class UserController {
             List<UserMoney> userMoneyList =  userMoneyService.findAll(userIds);
             if(userMoneyList != null && userMoneyList.size() > 0){
                 userList.stream().forEach(u -> {
-//                    WithdrawOrder withdrawOrder = new WithdrawOrder();
-//                    withdrawOrder.setStatus(CommonConst.NUMBER_3);
-//                    withdrawOrder.setUserId(u.getId());
-//                    List<WithdrawOrder> orderList = withdrawOrderService.findOrderList(withdrawOrder);
-//                    BigDecimal freezeMoney = orderList.stream().map(WithdrawOrder::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
-//                    u.setFreezeMoney(freezeMoney);//冻结余额
+                    UserVo userVo = new UserVo(u);
                     userMoneyList.stream().forEach(userMoney -> {
                         if(u.getId().equals(userMoney.getUserId())){
-                            UserVo userVo = new UserVo(u);
                             userVo.setMoney(userMoney.getMoney());
                             userVo.setCodeNum(userMoney.getCodeNum());
                             userVo.setWithdrawMoney(userMoney.getWithdrawMoney());//可以提现金额
-                            userVoList.add(userVo);
                         }
                     });
+                    userVoList.add(userVo);
                 });
                 pageResultVO.setContent(userVoList);
             }
