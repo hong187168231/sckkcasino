@@ -26,7 +26,6 @@ public class User extends BaseEntity implements UserDetails {
     private String phone;
     private Integer language;
     private String headImg;
-
     //帐号状态（1：启用，其他：禁用）
     private Integer state;
     private String registerIp;
@@ -34,33 +33,10 @@ public class User extends BaseEntity implements UserDetails {
     private Integer creditCard;
     @ApiModelProperty("配置收款卡等级")//null 完全随机  或者 A|B|C|D
     private String cardLevel;
-    @Transient
-    private BigDecimal money = BigDecimal.ZERO;
-
-    @Transient
-    @ApiModelProperty("剩余打码量")
-    private BigDecimal codeNum = BigDecimal.ZERO;
-
-    @Transient
-    @ApiModelProperty("冻结余额")
-    private BigDecimal freezeMoney = BigDecimal.ZERO;
-
-    @Transient
-    @ApiModelProperty("可提现余额")
-    private BigDecimal withdrawMoney = BigDecimal.ZERO;
-
-    @Transient
-    @ApiModelProperty("WM余额")
-    private BigDecimal wmMoney;
-
     private String withdrawPassword;
-
     private String email;
-
     private String qq;
-
     private String webChat;
-
     @JsonIgnore
     @Transient
     private String token;

@@ -5,6 +5,8 @@ import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.CommonUtil;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.util.passwordUtil;
+import com.qianyi.casinoadmin.vo.PageResultVO;
+import com.qianyi.casinoadmin.vo.UserVo;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
 import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.*;
@@ -97,30 +99,29 @@ public class UserController {
         Sort sort=Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<User> userPage = userService.findUserPage(pageable, user,startDate,endDate);
+        PageResultVO<User> pageResultVO = new PageResultVO(userPage);
         List<User> userList = userPage.getContent();
         if(userList != null && userList.size() > 0){
+            List<UserVo> userVoList = new ArrayList<>(userList.size());
             List<Long> userIds = userList.stream().map(User::getId).collect(Collectors.toList());
             List<UserMoney> userMoneyList =  userMoneyService.findAll(userIds);
             if(userMoneyList != null && userMoneyList.size() > 0){
                 userList.stream().forEach(u -> {
-                    WithdrawOrder withdrawOrder = new WithdrawOrder();
-                    withdrawOrder.setStatus(CommonConst.NUMBER_3);
-                    withdrawOrder.setUserId(u.getId());
-                    List<WithdrawOrder> orderList = withdrawOrderService.findOrderList(withdrawOrder);
-                    BigDecimal freezeMoney = orderList.stream().map(WithdrawOrder::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
-                    u.setFreezeMoney(freezeMoney);//冻结余额
+                    UserVo userVo = new UserVo(u);
                     userMoneyList.stream().forEach(userMoney -> {
                         if(u.getId().equals(userMoney.getUserId())){
-                            u.setMoney(userMoney.getMoney());
-                            u.setCodeNum(userMoney.getCodeNum());
-                            u.setWithdrawMoney(userMoney.getWithdrawMoney());//可以提现金额
+                            userVo.setMoney(userMoney.getMoney());
+                            userVo.setCodeNum(userMoney.getCodeNum());
+                            userVo.setWithdrawMoney(userMoney.getWithdrawMoney());//可以提现金额
                         }
                     });
+                    userVoList.add(userVo);
                 });
+                pageResultVO.setContent(userVoList);
             }
 //            this.setWMMoney(userList);
         }
-        return ResponseUtil.success(userPage);
+        return ResponseUtil.success(pageResultVO);
     }
 
     @ApiOperation("刷新WM余额")
@@ -141,43 +142,43 @@ public class UserController {
         return ResponseUtil.success(wMonetUser);
     }
 
-    public void setWMMoney(List<User> userList) {
+//    public void setWMMoney(List<User> userList) {
+//
+//        log.info("query WM money data：【{}】 ", userList);
+//        List<CompletableFuture<User>> completableFutures = new ArrayList<>();
+//        for (User user : userList) {
+//            UserThird third = userThirdService.findByUserId(user.getId());
+//            if (third == null) {
+//                continue;
+//            }
+//            CompletableFuture<User> completableFuture =  CompletableFuture.supplyAsync(() -> {
+//                return getWMonetUser(user, third);
+//            });
+//            completableFutures.add(completableFuture);
+//        }
+//        CompletableFuture<Void> voidCompletableFuture = CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[]{}));
+//        try {
+//            voidCompletableFuture.join();
+//        }catch (Exception e){
+//            //打印日志
+//            log.error("query User WM money error：【{}】", e);
+//        }
+//    }
 
-        log.info("query WM money data：【{}】 ", userList);
-        List<CompletableFuture<User>> completableFutures = new ArrayList<>();
-        for (User user : userList) {
-            UserThird third = userThirdService.findByUserId(user.getId());
-            if (third == null) {
-                continue;
-            }
-            CompletableFuture<User> completableFuture =  CompletableFuture.supplyAsync(() -> {
-                return getWMonetUser(user, third);
-            });
-            completableFutures.add(completableFuture);
-        }
-        CompletableFuture<Void> voidCompletableFuture = CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[]{}));
-        try {
-            voidCompletableFuture.join();
-        }catch (Exception e){
-            //打印日志
-            log.error("query User WM money error：【{}】", e);
-        }
-    }
-
-    private User getWMonetUser(User user, UserThird third) {
-        Integer lang = user.getLanguage();
-        if (lang == null) {
-            lang = 0;
-        }
-        BigDecimal balance = null;
-        try {
-            balance = wmApi.getBalance(third.getAccount(), lang);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        user.setWmMoney(balance);
-        return user;
-    }
+//    private User getWMonetUser(User user, UserThird third) {
+//        Integer lang = user.getLanguage();
+//        if (lang == null) {
+//            lang = 0;
+//        }
+//        BigDecimal balance = null;
+//        try {
+//            balance = wmApi.getBalance(third.getAccount(), lang);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        user.setWmMoney(balance);
+//        return user;
+//    }
 
     @ApiOperation("添加用户")
     @ApiImplicitParams({
