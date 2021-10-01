@@ -15,12 +15,14 @@ public class CoreConstants {
         String REGISTER_IP = "registerIp";
         String LOGIN_IP = "loginIp";
         String WM_TOTAL_BALANCE = "wmTotalBalance";//平台在WM的总余额
+        String WM_TOTALBALANCE_RISK = "wmTotalBalanceRisk";//平台在WM的总余额警告值
     }
 
     public enum SysConfigEnum{
         registerIp( 2, "registerIp" ),
         loginIp( 2, "loginIp" ),
         captchaRate(3, "captchaRate"),
+        wmTotalBalanceRisk(1, "wmTotalBalanceRisk"),
         captchaMin( 3, "captchaMin" );
         int group;
         String code;

@@ -106,9 +106,9 @@ public class UserController {
                     WithdrawOrder withdrawOrder = new WithdrawOrder();
                     withdrawOrder.setStatus(CommonConst.NUMBER_3);
                     withdrawOrder.setUserId(u.getId());
-                    List<WithdrawOrder> orderList = withdrawOrderService.findOrderList(withdrawOrder);
-                    BigDecimal freezeMoney = orderList.stream().map(WithdrawOrder::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
-                    u.setFreezeMoney(freezeMoney);//冻结余额
+//                    List<WithdrawOrder> orderList = withdrawOrderService.findOrderList(withdrawOrder);
+//                    BigDecimal freezeMoney = orderList.stream().map(WithdrawOrder::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
+//                    u.setFreezeMoney(freezeMoney);//冻结余额
                     userMoneyList.stream().forEach(userMoney -> {
                         if(u.getId().equals(userMoney.getUserId())){
                             u.setMoney(userMoney.getMoney());
