@@ -63,6 +63,10 @@ public class PlatformConfig {
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal wmMoney;
 
+    @ApiModelProperty("WM余额警戒线")
+    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    private BigDecimal wmMoneyWarning;
+
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){
         if (this.chargeRate == null){
