@@ -34,7 +34,11 @@ public class PlatformConfig {
 
     @ApiModelProperty("充值服务费")
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
-    private BigDecimal chargeServiceMoney ;
+    private BigDecimal chargeServiceMoney;
+
+    @ApiModelProperty("充值手续费百分比")
+    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    private BigDecimal chargeMoneyRate;
 
     @ApiModelProperty("每笔最低提现额")
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
@@ -44,10 +48,14 @@ public class PlatformConfig {
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal withdrawMaxMoney;
 
+    @ApiModelProperty("提现手续费百分比")
+    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    private BigDecimal withdrawMaxRate;
+
     @ApiModelProperty("ip最大注册量")
     private Integer ipMaxNum;
 
     @ApiModelProperty("WM余额")
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
-    private BigDecimal wmMoney ;
+    private BigDecimal wmMoney;
 }
