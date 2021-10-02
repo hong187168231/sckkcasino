@@ -14,9 +14,8 @@ public class BetRatioConfigVo {
     private String name;
 
     @ApiModelProperty("打码倍率")
-    private Float codeTimes;
+    private BigDecimal codeTimes = BigDecimal.ZERO;
 
     @ApiModelProperty("最低金额重置打码量")
-    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
-    private BigDecimal minMoney;
+    private BigDecimal minMoney = BigDecimal.ZERO;
 }
