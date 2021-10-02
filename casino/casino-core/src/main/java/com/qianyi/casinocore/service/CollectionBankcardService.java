@@ -30,7 +30,9 @@ public class CollectionBankcardService {
         Specification<CollectionBankcard> condition = this.getCondition(ids);
         return collectionBankCardRepository.findAll(condition);
     }
-
+    public void delete(CollectionBankcard collectionBankcard){
+        collectionBankCardRepository.delete(collectionBankcard);
+    }
     public Page<CollectionBankcard> getCollectionBandPage(CollectionBankcard collectionBankcard , Pageable pageable){
         Specification<CollectionBankcard> condition = this.getCondition(collectionBankcard);
         return collectionBankCardRepository.findAll(condition,pageable);

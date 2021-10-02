@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -24,16 +25,12 @@ public class ChargeOrderBusiness {
     private ChargeOrderService chargeOrderService;
 
     @Autowired
-    private BetRatioConfigService betRatioConfigService;
-
-    @Autowired
     private RechargeTurnoverService rechargeTurnoverService;
 
     @Autowired
     private UserMoneyService userMoneyService;
-
     @Autowired
-    private AmountConfigService amountConfigService;
+    private PlatformConfigService platformConfigService;
 
     @Autowired
     @Qualifier("accountChangeJob")
@@ -46,7 +43,7 @@ public class ChargeOrderBusiness {
      * @param remark 充值订单备注
      */
     @Transactional
-    public ResponseEntity checkOrderSuccess(Long id, Integer status,String remark,String money) {
+    public ResponseEntity checkOrderSuccess(Long id, Integer status,String remark) {
         ChargeOrder order = chargeOrderService.findChargeOrderByIdUseLock(id);
         if(order == null || order.getStatus() != Constants.chargeOrder_wait){
             return ResponseUtil.custom("订单不存在或已被处理");
@@ -57,16 +54,6 @@ public class ChargeOrderBusiness {
             order = chargeOrderService.saveOrder(order);
             return ResponseUtil.success(order);
         }
-        BigDecimal realityAmount = null;
-        try {
-            realityAmount = new BigDecimal(money);
-        }catch (Exception e){
-            realityAmount = new BigDecimal(-1);
-        }
-        if(realityAmount.compareTo(BigDecimal.ZERO)<1){
-            return ResponseUtil.custom("金额类型错误");
-        }
-        order.setRealityAmount(realityAmount);
         return this.saveOrder(order,status,AccountChangeEnum.TOPUP_CODE);
     }
     /**
@@ -83,23 +70,22 @@ public class ChargeOrderBusiness {
         if(user == null){
             return ResponseUtil.custom("用户钱包不存在");
         }
-        AmountConfig amountConfig = amountConfigService.findAmountConfigById(1L);
+        List<PlatformConfig> all = platformConfigService.findAll();
         BigDecimal serviceCharge = BigDecimal.ZERO;
-        if (amountConfig != null){
+        if (all != null && all.size() > 0){
             //得到手续费
-            serviceCharge = amountConfig.getServiceCharge(chargeOrder.getRealityAmount());
+            serviceCharge = all.get(0).getChargeServiceCharge(chargeOrder.getChargeAmount());
         }
         //计算余额
-        BigDecimal subtract = chargeOrder.getRealityAmount().subtract(serviceCharge);
+        BigDecimal subtract = chargeOrder.getChargeAmount().subtract(serviceCharge);
         chargeOrder.setPracticalAmount(subtract);
         chargeOrder.setServiceCharge(serviceCharge);
         chargeOrder.setStatus(status);
         chargeOrder = chargeOrderService.saveOrder(chargeOrder);
         user.setMoney(user.getMoney().add(subtract));
         //计算打码量 默认2倍
-        BetRatioConfig betRatioConfig = betRatioConfigService.findOneBetRatioConfig();
-        float codeTimes = (betRatioConfig == null || betRatioConfig.getCodeTimes() == null) ? 2F : betRatioConfig.getCodeTimes();
-        BigDecimal codeNum = chargeOrder.getRealityAmount().multiply(BigDecimal.valueOf(codeTimes));
+        BigDecimal codeTimes = (all == null || all.size() == 0) ? new BigDecimal(2) : all.get(0).getBetRate();
+        BigDecimal codeNum = subtract.multiply(codeTimes);
         user.setCodeNum(user.getCodeNum().add(codeNum));
         userMoneyService.save(user);
         //流水表记录
@@ -121,11 +107,11 @@ public class ChargeOrderBusiness {
         vo.setAmountAfter(amountAfter);
         asyncService.executeAsync(vo);
     }
-    private RechargeTurnover getRechargeTurnover(ChargeOrder order,UserMoney user, BigDecimal codeNum, float codeTimes) {
+    private RechargeTurnover getRechargeTurnover(ChargeOrder order,UserMoney user, BigDecimal codeNum, BigDecimal codeTimes) {
         RechargeTurnover rechargeTurnover = new RechargeTurnover();
         rechargeTurnover.setCodeNum(codeNum);
         rechargeTurnover.setCodeNums(user.getCodeNum());
-        rechargeTurnover.setCodeTimes(codeTimes);
+        rechargeTurnover.setCodeTimes(codeTimes.floatValue());
         rechargeTurnover.setOrderMoney(order.getPracticalAmount());
         rechargeTurnover.setOrderId(order.getId());
         rechargeTurnover.setRemitType(order.getRemitType());

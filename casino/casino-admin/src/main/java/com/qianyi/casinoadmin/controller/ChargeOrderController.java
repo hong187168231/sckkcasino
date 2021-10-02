@@ -129,10 +129,10 @@ public class ChargeOrderController {
             @ApiImplicitParam(name = "id", value = "订单id", required = true),
             @ApiImplicitParam(name = "status", value = "汇款状态， 1.成功  2.失败", required = true),
             @ApiImplicitParam(name = "remark", value = "备注", required = false),
-            @ApiImplicitParam(name = "money", value = "上分金额", required = false),
+//            @ApiImplicitParam(name = "money", value = "上分金额", required = false),
     })
     @PostMapping("/updateChargeOrder")
-    public ResponseEntity updateChargeOrder(Long id, Integer status,String remark,String money){
+    public ResponseEntity updateChargeOrder(Long id, Integer status,String remark){
         if (LoginUtil.checkNull(id,status)){
             ResponseUtil.custom("参数不合法");
         }
@@ -140,7 +140,7 @@ public class ChargeOrderController {
             return ResponseUtil.custom("参数不合法");
         }
 
-        return chargeOrderBusiness.checkOrderSuccess(id,status,remark,money);
+        return chargeOrderBusiness.checkOrderSuccess(id,status,remark);
     }
     /**
      * 查询条件拼接，灵活添加条件
