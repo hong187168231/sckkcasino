@@ -238,6 +238,8 @@ public class WithdrawBusiness {
         BigDecimal money = withdrawOrder.getWithdrawMoney();
         if(status == Constants.WITHDRAW_PASS){//通过提现审核的计算手续费
             AmountConfig amountConfig = amountConfigService.findAmountConfigById(2L);
+            withdrawOrder.setServiceCharge(BigDecimal.ZERO);
+            withdrawOrder.setPracticalAmount(money);
             if (amountConfig != null){
                 //得到手续费
                 BigDecimal serviceCharge = amountConfig.getServiceCharge(money);
@@ -257,6 +259,7 @@ public class WithdrawBusiness {
         withdrawOrder.setStatus(status);
         BigDecimal amountBefore = userMoney.getMoney();
         userMoney.setMoney(userMoney.getMoney().add(money));
+        userMoneyService.save(userMoney);
         //记录用户账变
         this.saveAccountChang(AccountChangeEnum.WITHDRAWDEFEATED_CODE,userMoney.getUserId(),money,amountBefore,userMoney.getMoney(),withdrawOrder.getNo());
         log.info("拒绝提现userId {} 订单号 {} withdrawMoney is {}, money is {}",userMoney.getUserId(),withdrawOrder.getNo(),money, userMoney.getMoney());

@@ -41,6 +41,10 @@ public class ChargeOrderVo implements Serializable {
     private Integer type = 1;
     @ApiModelProperty(value = "收款银行卡ID")
     private Long bankcardId;
+    @ApiModelProperty(value = "收款银行号")
+    private String bankNo;
+    @ApiModelProperty(value = "开户名")
+    private String accountName;
     @ApiModelProperty("创建时间")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;

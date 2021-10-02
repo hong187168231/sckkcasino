@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface CollectionBankCardRepository extends JpaRepository<CollectionBankcard,Long>, JpaSpecificationExecutor<CollectionBankcard> {
 
-    CollectionBankcard findByBankNo(String bankNo);
+    List<CollectionBankcard> findByBankNo(String bankNo);
 
     List<CollectionBankcard> findByDisable(Integer disable);
 }

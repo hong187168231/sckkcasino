@@ -6,8 +6,10 @@ import com.qianyi.casinoadmin.vo.ChargeOrderVo;
 import com.qianyi.casinoadmin.vo.PageResultVO;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
 import com.qianyi.casinocore.model.ChargeOrder;
+import com.qianyi.casinocore.model.CollectionBankcard;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.ChargeOrderService;
+import com.qianyi.casinocore.service.CollectionBankcardService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -30,6 +32,7 @@ import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -45,6 +48,9 @@ public class ChargeOrderController {
 
     @Autowired
     private ChargeOrderBusiness chargeOrderBusiness;
+
+    @Autowired
+    private CollectionBankcardService collectionBankcardService;
 
     @Autowired
     private UserService userService;
@@ -83,13 +89,17 @@ public class ChargeOrderController {
         if(content != null && content.size() > 0){
             List<ChargeOrderVo> chargeOrderVoList = new LinkedList<>();
             List<Long> userIds = content.stream().map(ChargeOrder::getUserId).collect(Collectors.toList());
+            List<Long> collect = content.stream().map(ChargeOrder::getBankcardId).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
+            List<CollectionBankcard> all = collectionBankcardService.findAll(collect);
+            Map<Long, CollectionBankcard> bankcardMap = all.stream().collect(Collectors.toMap(CollectionBankcard::getId, a -> a, (k1, k2) -> k1));
             if(userList != null && userList.size() > 0){
                 content.stream().forEach(chargeOrder ->{
                     ChargeOrderVo chargeOrderVo = new ChargeOrderVo(chargeOrder);
                     userList.stream().forEach(user->{
                         if (user.getId().equals(chargeOrder.getUserId())){
                             chargeOrderVo.setAccount(user.getAccount());
+                            this.setCollectionBankcard(bankcardMap.get(chargeOrder.getBankcardId()),chargeOrderVo);
                         }
                     });
                     chargeOrderVoList.add(chargeOrderVo);
@@ -98,6 +108,13 @@ public class ChargeOrderController {
             pageResultVO.setContent(chargeOrderVoList);
         }
         return ResponseUtil.success(pageResultVO);
+    }
+    private void  setCollectionBankcard(CollectionBankcard collectionBankcard,ChargeOrderVo chargeOrderVo){
+        if (LoginUtil.checkNull(collectionBankcard)){
+            return ;
+        }
+        chargeOrderVo.setBankNo(collectionBankcard.getBankNo());
+        chargeOrderVo.setAccountName(collectionBankcard.getAccountName());
     }
 
     /**

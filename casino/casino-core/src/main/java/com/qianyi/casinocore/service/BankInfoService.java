@@ -30,8 +30,9 @@ public class BankInfoService {
     }
 
     public List<BankInfo> findAll(BankInfo bankInfo) {
+        Sort sort = Sort.by("id").descending();
         Specification<BankInfo> condition = getCondition(bankInfo);
-        return bankInfoRepository.findAll(condition);
+        return bankInfoRepository.findAll(condition,sort);
     }
 
     public void saveBankInfo(BankInfo bankInfo){
