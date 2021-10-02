@@ -60,14 +60,15 @@ public class BankCardsController {
      */
     @ApiOperation("新增银行")
     @PostMapping(value = "/saveBankInfo",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增银行")
-    public ResponseEntity saveBankInfo(@RequestParam(value = "银行名称") String bankName,@RequestParam(value = "备注",required=false)String remark){
+    public ResponseEntity saveBankInfo(@RequestPart(value = "bankLogo银行图标",required=false) MultipartFile file, @RequestParam(value = "银行名称") String bankName,
+                                       @RequestParam(value = "备注",required=false)String remark){
         if (LoginUtil.checkNull(bankName)){
             ResponseUtil.custom("参数不合法");
         }
         BankInfo bankInfo = new BankInfo();
         bankInfo.setBankType(CommonConst.NUMBER_0);//默认银行卡
         bankInfo.setDisable(CommonConst.NUMBER_1);//默认禁用
-        return this.saveAndUpdate(bankName,remark,bankInfo);
+        return this.saveAndUpdate(file,bankName,remark,bankInfo);
     }
     /**
      * 修改银行信息
@@ -78,7 +79,8 @@ public class BankCardsController {
      */
     @ApiOperation("修改银行")
     @PostMapping(value = "/updateBankInfo",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "修改银行")
-    public ResponseEntity updateBankInfo(@RequestParam(value = "银行名称") String bankName,@RequestParam(value = "备注",required=false)String remark,
+    public ResponseEntity updateBankInfo(@RequestPart(value = "bankLogo银行图标",required=false) MultipartFile file,
+                                         @RequestParam(value = "银行名称") String bankName,@RequestParam(value = "备注",required=false)String remark,
                                          @RequestParam(value = "银行id")  Long id){
         if (LoginUtil.checkNull(id)){
             ResponseUtil.custom("参数不合法");
@@ -87,12 +89,21 @@ public class BankCardsController {
         if (LoginUtil.checkNull(bankInfo)){
             ResponseUtil.custom("没有这个银行");
         }
-        return this.saveAndUpdate(bankName,remark,bankInfo);
+        return this.saveAndUpdate(file,bankName,remark,bankInfo);
 
     }
-    private ResponseEntity saveAndUpdate(String bankName,String remark,BankInfo bankInfo){
+    private ResponseEntity saveAndUpdate(MultipartFile file,String bankName,String remark,BankInfo bankInfo){
         bankInfo.setBankName(bankName);
         bankInfo.setRemark(remark);
+        try {
+            String fileUrl = null;
+            if (file != null){
+                fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
+            }
+            bankInfo.setBankLogo(fileUrl);
+        } catch (Exception e) {
+            return ResponseUtil.custom(CommonConst.PICTURENOTUP);
+        }
         try {
             bankInfoService.saveBankInfo(bankInfo);
         }catch (Exception e){

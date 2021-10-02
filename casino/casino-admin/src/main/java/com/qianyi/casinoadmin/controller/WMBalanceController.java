@@ -2,8 +2,11 @@ package com.qianyi.casinoadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.util.CommonConst;
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.CoreConstants;
+import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.model.SysConfig;
+import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.SysConfigService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -15,13 +18,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+
 @Slf4j
 @RestController
 @RequestMapping("/wmBalance")
 @Api(tags = "资金中心")
 public class WMBalanceController {
     @Autowired
-    private SysConfigService sysConfigService;
+    private PlatformConfigService platformConfigService;
     /**
      * web定时查询WM总余额
      *
@@ -30,11 +35,15 @@ public class WMBalanceController {
     @ApiOperation("web定时查询WM总余额")
     @GetMapping("/findWMBalance")
     public ResponseEntity findWMBalance(){
-        SysConfig balance = sysConfigService.findBySysGroupAndName(CoreConstants.SysConfigGroup.GROUP_FINANCE, CoreConstants.SysConfigName.WM_TOTAL_BALANCE);
-        SysConfig risk = sysConfigService.findBySysGroupAndName(CoreConstants.SysConfigGroup.GROUP_FINANCE, CoreConstants.SysConfigName.WM_TOTALBALANCE_RISK);
+        PlatformConfig first = platformConfigService.findFirst();
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("balance", balance == null? CommonConst.NUMBER_0:balance.getValue());
-        jsonObject.put("risk", risk == null? CommonConst.NUMBER_0:risk.getValue());
+        if (LoginUtil.checkNull(first)){
+            jsonObject.put("balance", BigDecimal.ZERO);
+            jsonObject.put("risk", BigDecimal.ZERO);
+            return ResponseUtil.success(jsonObject);
+        }
+        jsonObject.put("balance", first.getWmMoney() == null? BigDecimal.ZERO:first.getWmMoney());
+        jsonObject.put("risk", first.getWmMoneyWarning() == null? BigDecimal.ZERO:first.getWmMoneyWarning());
         return ResponseUtil.success(jsonObject);
     }
 }

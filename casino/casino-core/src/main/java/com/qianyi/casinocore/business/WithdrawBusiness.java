@@ -38,9 +38,6 @@ public class WithdrawBusiness {
     private UserMoneyService userMoneyService;
 
     @Autowired
-    private AmountConfigService amountConfigService;
-
-    @Autowired
     private PlatformConfigService platformConfigService;
 
     @Autowired
