@@ -60,35 +60,39 @@ public class UserCodeNumBusiness {
             return ResponseUtil.fail();
         }
         //最小清零打码量
-        ResponseEntity responseEntity = checkClearCodeNum(platformConfig, codeNum, userId, gameRecordId, user);
+        ResponseEntity responseEntity = checkClearCodeNum(platformConfig, userId, gameRecordId, user);
         if (responseEntity.getCode() == 0) {
             return ResponseUtil.success();
         }
         //有效投注额大于等于等于剩余打码量
         if (validbet.compareTo(codeNum) > -1) {
             userMoneyService.subCodeNum(userId, codeNum);
-            codeNumChangeService.save(userId,gameRecordId,codeNum.negate(),user.getCodeNum(),user.getCodeNum().subtract(codeNum));
+            BigDecimal codeNumAfter = user.getCodeNum().subtract(codeNum);
+            codeNumChangeService.save(userId,gameRecordId,codeNum.negate(),user.getCodeNum(),codeNumAfter);
+            user.setCodeNum(codeNumAfter);
         } else {
             //有效投注额小于剩余打码量
             userMoneyService.subCodeNum(userId, validbet);
-            codeNumChangeService.save(userId,gameRecordId,validbet.negate(),user.getCodeNum(),user.getCodeNum().subtract(validbet));
+            BigDecimal codeNumAfter = user.getCodeNum().subtract(validbet);
+            codeNumChangeService.save(userId,gameRecordId,validbet.negate(),user.getCodeNum(),codeNumAfter);
+            user.setCodeNum(codeNumAfter);
         }
         //扣减完毕后再次检查最小清零打码量
-        checkClearCodeNum(platformConfig,codeNum,userId,gameRecordId,user);
+        checkClearCodeNum(platformConfig,userId,gameRecordId,user);
         return ResponseUtil.success();
     }
 
     /**
      * 最小清0打码量检查
      * @param platformConfig
-     * @param codeNum
      * @param userId
      * @param gameRecordId
      * @param user
      * @return
      */
     @Transactional
-    public ResponseEntity checkClearCodeNum(PlatformConfig platformConfig,BigDecimal codeNum,Long userId,Long gameRecordId,UserMoney user){
+    public ResponseEntity checkClearCodeNum(PlatformConfig platformConfig,Long userId,Long gameRecordId,UserMoney user){
+        BigDecimal codeNum = user.getCodeNum();
         if (platformConfig != null && platformConfig.getClearCodeNum() != null) {
             BigDecimal minCodeNumVal = platformConfig.getClearCodeNum();
             //剩余打码量小于等于最小清零打码量时 直接清0
