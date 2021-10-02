@@ -37,7 +37,7 @@ public class CollectionBankcardService {
         return collectionBankCardRepository.findAll(condition);
     }
 
-    public CollectionBankcard findByBankNo(String bankNo) {
+    public List<CollectionBankcard> findByBankNo(String bankNo) {
         return collectionBankCardRepository.findByBankNo(bankNo);
     }
 

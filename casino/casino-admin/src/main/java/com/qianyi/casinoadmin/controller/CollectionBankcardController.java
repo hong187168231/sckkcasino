@@ -63,8 +63,8 @@ public class CollectionBankcardController {
     })
     @PostMapping("saveBankInfo")
     public ResponseEntity saveBankInfo(String bankNo, String bankId, String accountName){
-        CollectionBankcard byBankNo = collectionBankcardService.findByBankNo(bankNo);
-        if (!LoginUtil.checkNull(byBankNo)){
+        List<CollectionBankcard> byBankNo = collectionBankcardService.findByBankNo(bankNo);
+        if (!LoginUtil.checkNull(byBankNo) && byBankNo.size() > CommonConst.NUMBER_0){
             return ResponseUtil.custom("银行卡已存在");
         }
         CollectionBankcard bankcard = new CollectionBankcard();
@@ -111,8 +111,9 @@ public class CollectionBankcardController {
             return ResponseUtil.custom("银行卡不存在");
         }
         if(!LoginUtil.checkNull(bankNo)){
-            CollectionBankcard byBankNo = collectionBankcardService.findByBankNo(bankNo);
-            if (!LoginUtil.checkNull(byBankNo)){
+            List<CollectionBankcard> byBankNo = collectionBankcardService.findByBankNo(bankNo);
+            if (!LoginUtil.checkNull(byBankNo) && byBankNo.size() > CommonConst.NUMBER_0
+                    && !byBankNo.get(CommonConst.NUMBER_0).getBankNo().equals(collectionBankcard.getBankNo())){
                 return ResponseUtil.custom("银行卡已存在");
             }
             collectionBankcard.setBankNo(bankNo);
