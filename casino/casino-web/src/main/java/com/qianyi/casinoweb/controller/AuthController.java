@@ -1,11 +1,10 @@
 package com.qianyi.casinoweb.controller;
 
 import com.google.code.kaptcha.Producer;
-import com.qianyi.casinocore.CoreConstants;
-import com.qianyi.casinocore.model.SysConfig;
+import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
-import com.qianyi.casinocore.service.SysConfigService;
+import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
@@ -57,9 +56,9 @@ public class AuthController {
     @Autowired
     UserMoneyService userMoneyService;
     @Autowired
-    SysConfigService sysConfigService;
-    @Autowired
     RedisTemplate redisTemplate;
+    @Autowired
+    PlatformConfigService platformConfigService;
 
     @Autowired
     @Qualifier("loginLogJob")
@@ -110,12 +109,11 @@ public class AuthController {
         String ip = IpUtil.getIp(request);
         //查询ip注册账号限制
         if (!ObjectUtils.isEmpty(ip)) {
-            SysConfig sysConfig = sysConfigService.findBySysGroupAndName(CoreConstants.SysConfigGroup.GROUP_IP,CoreConstants.SysConfigName.REGISTER_IP);
+            PlatformConfig platformConfig = platformConfigService.findFirst();
             Integer timeLimit = null;
-            if (sysConfig != null && !ObjectUtils.isEmpty(sysConfig.getValue())) {
-                timeLimit = Integer.parseInt(sysConfig.getValue());
+            if (platformConfig != null) {
+                timeLimit = platformConfig.getIpMaxNum() == null ? 5 : platformConfig.getIpMaxNum();
             }
-            timeLimit = timeLimit == null ? 5 : timeLimit;
             Integer count = userService.countByIp(ip);
             if (count != null && count > timeLimit) {
                 return ResponseUtil.custom("当前IP注册帐号数量超过上限");

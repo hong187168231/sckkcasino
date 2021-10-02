@@ -1,7 +1,6 @@
 package com.qianyi.casinoweb.job;
 
 import com.alibaba.fastjson.JSON;
-import com.qianyi.casinocore.CoreConstants;
 import com.qianyi.casinocore.business.UserCodeNumBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
@@ -44,7 +43,7 @@ public class GameRecordJob {
     @Autowired
     WashCodeConfigService washCodeConfigService;
     @Autowired
-    SysConfigService sysConfigService;
+    PlatformConfigService platformConfigService;
     @Autowired
     WashCodeChangeService washCodeChangeService;
 
@@ -98,7 +97,7 @@ public class GameRecordJob {
         //把大集成拆分成5个
         List<List<GameRecord>> lists = averageAssign(gameRecordList, 5);
         //查询最小清0打码量
-        SysConfig minCodeNum = sysConfigService.findBySysGroupAndName(CoreConstants.SysConfigGroup.GROUP_BET, CoreConstants.SysConfigName.CAPTCHA_MIN);
+        PlatformConfig platformConfig = platformConfigService.findFirst();
         // 创建异步执行任务:
         for (List<GameRecord> list : lists) {
             if (CollectionUtils.isEmpty(list)) {
@@ -123,7 +122,7 @@ public class GameRecordJob {
                         //洗码
                         userCodeNumBusiness.washCode(washCode, Constants.PLATFORM, record, validbet, account.getUserId());
                         //扣减打码量
-                        userCodeNumBusiness.subCodeNum(minCodeNum, validbet, account.getUserId(), record.getId());
+                        userCodeNumBusiness.subCodeNum(platformConfig, validbet, account.getUserId(), record.getId());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

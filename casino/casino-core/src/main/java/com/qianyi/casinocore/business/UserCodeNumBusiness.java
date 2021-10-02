@@ -1,14 +1,19 @@
 package com.qianyi.casinocore.business;
 
-import com.qianyi.casinocore.model.*;
-import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.model.GameRecord;
+import com.qianyi.casinocore.model.PlatformConfig;
+import com.qianyi.casinocore.model.UserMoney;
+import com.qianyi.casinocore.model.WashCodeChange;
+import com.qianyi.casinocore.service.CodeNumChangeService;
+import com.qianyi.casinocore.service.UserMoneyService;
+import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.service.WashCodeChangeService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -38,7 +43,7 @@ public class UserCodeNumBusiness {
      * @return
      */
     @Transactional
-    public ResponseEntity subCodeNum(SysConfig minCodeNum,BigDecimal validbet, Long userId,Long gameRecordId) {
+    public ResponseEntity subCodeNum(PlatformConfig platformConfig,BigDecimal validbet, Long userId,Long gameRecordId) {
         if (validbet == null || userId == null) {
             return ResponseUtil.fail();
         }
@@ -55,8 +60,34 @@ public class UserCodeNumBusiness {
             return ResponseUtil.fail();
         }
         //最小清零打码量
-        if (minCodeNum != null && !ObjectUtils.isEmpty(minCodeNum.getValue())) {
-            BigDecimal minCodeNumVal = new BigDecimal(minCodeNum.getValue());
+        checkClearCodeNum(platformConfig,codeNum,userId,gameRecordId,user);
+        //有效投注额大于等于等于剩余打码量
+        if (validbet.compareTo(codeNum) > -1) {
+            userMoneyService.subCodeNum(userId, codeNum);
+            codeNumChangeService.save(userId,gameRecordId,codeNum.negate(),user.getCodeNum(),user.getCodeNum().subtract(codeNum));
+        } else {
+            //有效投注额小于剩余打码量
+            userMoneyService.subCodeNum(userId, validbet);
+            codeNumChangeService.save(userId,gameRecordId,validbet.negate(),user.getCodeNum(),user.getCodeNum().subtract(validbet));
+        }
+        //扣减完毕后再次检查最小清零打码量
+        checkClearCodeNum(platformConfig,codeNum,userId,gameRecordId,user);
+        return ResponseUtil.success();
+    }
+
+    /**
+     * 最小清0打码量检查
+     * @param platformConfig
+     * @param codeNum
+     * @param userId
+     * @param gameRecordId
+     * @param user
+     * @return
+     */
+    @Transactional
+    public ResponseEntity checkClearCodeNum(PlatformConfig platformConfig,BigDecimal codeNum,Long userId,Long gameRecordId,UserMoney user){
+        if (platformConfig != null && platformConfig.getClearCodeNum() != null) {
+            BigDecimal minCodeNumVal = platformConfig.getClearCodeNum();
             //剩余打码量小于等于最小清零打码量时 直接清0
             if (codeNum.compareTo(minCodeNumVal) < 1) {
                 userMoneyService.subCodeNum(userId, codeNum);
@@ -69,15 +100,6 @@ public class UserCodeNumBusiness {
                 codeNumChangeService.save(userId,gameRecordId,codeNum.negate(),user.getCodeNum(),user.getCodeNum().subtract(codeNum));
                 return ResponseUtil.success();
             }
-        }
-        //有效投注额大于等于等于剩余打码量
-        if (validbet.compareTo(codeNum) > -1) {
-            userMoneyService.subCodeNum(userId, codeNum);
-            codeNumChangeService.save(userId,gameRecordId,codeNum.negate(),user.getCodeNum(),user.getCodeNum().subtract(codeNum));
-        } else {
-            //有效投注额小于剩余打码量
-            userMoneyService.subCodeNum(userId, validbet);
-            codeNumChangeService.save(userId,gameRecordId,validbet.negate(),user.getCodeNum(),user.getCodeNum().subtract(validbet));
         }
         return ResponseUtil.success();
     }

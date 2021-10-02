@@ -2,12 +2,10 @@ package com.qianyi.casinocore.business;
 
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
-import com.qianyi.casinocore.repository.BankcardsRepository;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.executor.AsyncService;
-import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -43,8 +41,11 @@ public class WithdrawBusiness {
     private AmountConfigService amountConfigService;
 
     @Autowired
+    private PlatformConfigService platformConfigService;
+
+    @Autowired
     @Qualifier("accountChangeJob")
-    AsyncService asyncService;
+    private AsyncService asyncService;
 
     public List<Map<String,Object>> getWithdrawBankcardsList(Long userId){
         return bankcardsService.findForBankcardsByUserId(userId);
@@ -132,24 +133,27 @@ public class WithdrawBusiness {
         }
         BigDecimal withdrawMoney = userMoney.getMoney();
         if (money.compareTo(withdrawMoney) == 1) {
-            return ResponseUtil.custom("超过可提金额");
+            if (new BigDecimal(withdrawMoney.intValue()).compareTo(withdrawMoney) == 0) {//整数不显示小数点
+                withdrawMoney = withdrawMoney.setScale(0);
+            }
+            return ResponseUtil.custom("超过可提金额,最高可提额为"+withdrawMoney);
         }
         //查询提现金额限制
-        AmountConfig amountConfig = amountConfigService.findAmountConfigById(2L);
-        if (amountConfig != null) {
-            BigDecimal minMoney = amountConfig.getMinMoney();
-            BigDecimal maxMoney = amountConfig.getMaxMoney();
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig != null) {
+            BigDecimal minMoney = platformConfig.getWithdrawMinMoney();
+            BigDecimal maxMoney = platformConfig.getWithdrawMaxMoney();
             if (minMoney != null && money.compareTo(minMoney) == -1) {
                 if (new BigDecimal(minMoney.intValue()).compareTo(minMoney)==0){//整数不显示小数点
                     minMoney=minMoney.setScale(0);
                 }
-                return ResponseUtil.custom("提现金额小于最低提现金额,最低提现金额为:" + minMoney);
+                return ResponseUtil.custom("提现金额小于单笔最低提现金额,单笔最低提现金额为:" + minMoney);
             }
             if (maxMoney != null && money.compareTo(maxMoney) == 1) {
                 if (new BigDecimal(maxMoney.intValue()).compareTo(maxMoney) == 0) {
                     maxMoney = maxMoney.setScale(0);
                 }
-                return ResponseUtil.custom("提现金额大于最高提现金额,最高提现金额为:" + maxMoney);
+                return ResponseUtil.custom("提现金额大于单笔最高提现金额,单笔最高提现金额为:" + maxMoney);
             }
         }
         WithdrawOrder withdrawOrder = getWidrawOrder(money,bankId,userId);

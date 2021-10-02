@@ -34,7 +34,7 @@ public class ChargeBusiness {
     private UserMoneyService userMoneyService;
 
     @Autowired
-    private AmountConfigService amountConfigService;
+    private PlatformConfigService platformConfigService;
 
     public List<CollectionBankcard> getCollectionBankcards(){
         return collectionBankcardService.getCollectionBandcards();
@@ -51,21 +51,21 @@ public class ChargeBusiness {
         }
         BigDecimal decChargeAmount = new BigDecimal(chargeAmount);
         //查询充值金额限制
-        AmountConfig amountConfig = amountConfigService.findAmountConfigById(1L);
-        if (amountConfig != null) {
-            BigDecimal minMoney = amountConfig.getMinMoney();
-            BigDecimal maxMoney = amountConfig.getMaxMoney();
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig != null) {
+            BigDecimal minMoney = platformConfig.getChargeMinMoney();
+            BigDecimal maxMoney = platformConfig.getChargeMaxMoney();
             if (minMoney != null && decChargeAmount.compareTo(minMoney) == -1) {
                 if (new BigDecimal(minMoney.intValue()).compareTo(minMoney) == 0) {//整数不显示小数点
                     minMoney = minMoney.setScale(0);
                 }
-                return ResponseUtil.custom("充值金额小于最低充值金额,最低充值金额为:" + minMoney);
+                return ResponseUtil.custom("充值金额小于单笔最低充值金额,单笔最低充值金额为:" + minMoney);
             }
             if (maxMoney != null && decChargeAmount.compareTo(maxMoney) == 1) {
                 if (new BigDecimal(maxMoney.intValue()).compareTo(maxMoney) == 0) {
                     maxMoney = maxMoney.setScale(0);
                 }
-                return ResponseUtil.custom("充值金额大于最高充值金额,最高充值金额为:" + maxMoney);
+                return ResponseUtil.custom("充值金额大于单笔最高充值金额,单笔最高充值金额为:" + maxMoney);
             }
         }
         ChargeOrder chargeOrder = getChargeOrder(decChargeAmount,remitType,remitterName,bankcardId,userId);

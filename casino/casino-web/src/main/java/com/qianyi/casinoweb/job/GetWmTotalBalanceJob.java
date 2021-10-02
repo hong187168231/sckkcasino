@@ -1,8 +1,7 @@
 package com.qianyi.casinoweb.job;
 
-import com.qianyi.casinocore.CoreConstants;
-import com.qianyi.casinocore.model.SysConfig;
-import com.qianyi.casinocore.service.SysConfigService;
+import com.qianyi.casinocore.model.PlatformConfig;
+import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.livewm.api.PublicWMApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,25 +18,22 @@ public class GetWmTotalBalanceJob {
     @Autowired
     private PublicWMApi wmApi;
     @Autowired
-    private SysConfigService sysConfigService;
+    private PlatformConfigService platformConfigService;
 
     @Scheduled(cron = "0 0 * * * ?")
-    public void testTasks() {
+    public void tasks() {
         try {
             BigDecimal agentBalance = wmApi.getAgentBalance(0);
             BigDecimal balance = agentBalance == null ? BigDecimal.ZERO : agentBalance;
-            SysConfig sysConfig = sysConfigService.findBySysGroupAndName(CoreConstants.SysConfigGroup.GROUP_FINANCE, CoreConstants.SysConfigName.WM_TOTAL_BALANCE);
-            if (sysConfig == null) {
-                sysConfig = new SysConfig();
-                sysConfig.setSysGroup(CoreConstants.SysConfigGroup.GROUP_FINANCE);
-                sysConfig.setName(CoreConstants.SysConfigName.WM_TOTAL_BALANCE);
-                sysConfig.setValue(balance.toString());
-                sysConfig.setRemark("平台在WM的总余额");
-                sysConfigService.save(sysConfig);
+            PlatformConfig platformConfig = platformConfigService.findFirst();
+            if (platformConfig == null) {
+                platformConfig = new PlatformConfig();
+                platformConfig.setWmMoney(balance);
+                platformConfigService.save(platformConfig);
                 return;
             }
-            sysConfig.setValue(balance.toString());
-            sysConfigService.save(sysConfig);
+            platformConfig.setWmMoney(balance);
+            platformConfigService.save(platformConfig);
         } catch (Exception e) {
             e.printStackTrace();
         }
