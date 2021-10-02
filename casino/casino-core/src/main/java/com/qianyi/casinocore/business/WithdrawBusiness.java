@@ -241,15 +241,16 @@ public class WithdrawBusiness {
         Long userId = withdrawOrder.getUserId();
         BigDecimal money = withdrawOrder.getWithdrawMoney();
         if(status == Constants.WITHDRAW_PASS){//通过提现审核的计算手续费
-            AmountConfig amountConfig = amountConfigService.findAmountConfigById(2L);
-            withdrawOrder.setServiceCharge(BigDecimal.ZERO);
-            withdrawOrder.setPracticalAmount(money);
-            if (amountConfig != null){
+            List<PlatformConfig> all = platformConfigService.findAll();
+            if (all != null && all.size() >= 0){
                 //得到手续费
-                BigDecimal serviceCharge = amountConfig.getServiceCharge(money);
+                BigDecimal serviceCharge = all.get(0).getChargeServiceCharge(withdrawOrder.getWithdrawMoney());
                 BigDecimal practicalAmount = withdrawOrder.getWithdrawMoney().subtract(serviceCharge);
                 withdrawOrder.setServiceCharge(serviceCharge);
                 withdrawOrder.setPracticalAmount(practicalAmount);
+            }else {
+                withdrawOrder.setServiceCharge(BigDecimal.ZERO);
+                withdrawOrder.setPracticalAmount(money);
             }
             withdrawOrder.setStatus(status);
             log.info("通过提现userId {} 订单号 {} withdrawMoney is {}, practicalAmount is {}",withdrawOrder.getUserId(),withdrawOrder.getNo(),money, withdrawOrder.getPracticalAmount());

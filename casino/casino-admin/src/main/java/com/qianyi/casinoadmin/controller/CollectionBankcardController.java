@@ -148,7 +148,22 @@ public class CollectionBankcardController {
         collectionBankcardService.save(collectionBankcard);
         return ResponseUtil.success(collectionBankcard);
     }
-
+    @GetMapping("deleteBankInfo")
+    @ApiOperation("删除收款银行卡")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "id", required = true)
+    })
+    public ResponseEntity deleteBankInfo(Long id){
+        CollectionBankcard collectionBankcard = collectionBankcardService.findById(id);
+        if(LoginUtil.checkNull(collectionBankcard)){
+            return ResponseUtil.custom("银行卡不存在");
+        }
+        if (collectionBankcard.getDisable() == CommonConst.NUMBER_0){
+            return ResponseUtil.custom("开启状态不能删除");
+        }
+        collectionBankcardService.delete(collectionBankcard);
+        return ResponseUtil.success();
+    }
     @ApiOperation("修改银行卡状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id", required = true)

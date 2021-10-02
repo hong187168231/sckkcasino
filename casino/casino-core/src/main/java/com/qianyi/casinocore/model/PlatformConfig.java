@@ -38,7 +38,7 @@ public class PlatformConfig {
 
     @ApiModelProperty("充值手续费百分比")
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
-    private BigDecimal chargeMoneyRate;
+    private BigDecimal chargeRate;
 
     @ApiModelProperty("每笔最低提现额")
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
@@ -48,9 +48,13 @@ public class PlatformConfig {
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal withdrawMaxMoney;
 
+    @ApiModelProperty("提现服务费")
+    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    private BigDecimal withdrawServiceMoney;
+
     @ApiModelProperty("提现手续费百分比")
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
-    private BigDecimal withdrawMaxRate;
+    private BigDecimal withdrawRate;
 
     @ApiModelProperty("ip最大注册量")
     private Integer ipMaxNum;
@@ -58,4 +62,25 @@ public class PlatformConfig {
     @ApiModelProperty("WM余额")
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal wmMoney;
+
+    //得到充值手续费用
+    public BigDecimal getChargeServiceCharge(BigDecimal money){
+        if (this.chargeRate == null){
+            this.chargeRate = BigDecimal.ZERO;
+        }
+        if (this.chargeServiceMoney == null){
+            this.chargeServiceMoney = BigDecimal.ZERO;
+        }
+        return money.multiply(this.chargeRate).add(this.chargeServiceMoney);
+    }
+    //得到提现手续费用
+    public BigDecimal getWithdrawServiceCharge(BigDecimal money){
+        if (this.withdrawRate == null){
+            this.withdrawRate = BigDecimal.ZERO;
+        }
+        if (this.withdrawServiceMoney == null){
+            this.withdrawServiceMoney = BigDecimal.ZERO;
+        }
+        return money.multiply(this.withdrawRate).add(this.withdrawServiceMoney);
+    }
 }

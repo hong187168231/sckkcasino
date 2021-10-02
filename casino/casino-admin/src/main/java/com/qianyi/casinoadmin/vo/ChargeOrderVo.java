@@ -65,7 +65,7 @@ public class ChargeOrderVo implements Serializable {
         this.remitter = chargeOrder.getRemitter();
         this.remitType = chargeOrder.getRemitType();
         this.remark = chargeOrder.getRemark();
-        this.realityAmount = chargeOrder.getRealityAmount();
+//        this.realityAmount = chargeOrder.getRealityAmount();
         this.practicalAmount = chargeOrder.getPracticalAmount();
         this.serviceCharge = chargeOrder.getServiceCharge();
         this.type = chargeOrder.getType();
