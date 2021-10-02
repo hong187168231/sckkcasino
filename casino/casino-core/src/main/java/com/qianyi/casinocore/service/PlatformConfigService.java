@@ -16,4 +16,8 @@ public class PlatformConfigService {
     public List<PlatformConfig> findAll() {
         return platformConfigRepository.findAll();
     }
+
+    public void save(PlatformConfig platformConfig) {
+        platformConfigRepository.save(platformConfig);
+    }
 }

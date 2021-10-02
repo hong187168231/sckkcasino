@@ -3,7 +3,9 @@ package com.qianyi.casinoadmin.controller;
 import com.qianyi.casinoadmin.vo.BetRatioConfigVo;
 import com.qianyi.casinocore.CoreConstants;
 import com.qianyi.casinocore.model.BetRatioConfig;
+import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.model.SysConfig;
+import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.SysConfigService;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -28,19 +30,20 @@ import java.util.List;
 public class BetRatioConfigController {
 
     @Autowired
-    private SysConfigService sysConfigService;
+    private PlatformConfigService platformConfigService;
 
-    @ApiOperation("查询所有")
+    @ApiOperation("打码设置查询")
     @GetMapping("/findAll")
     public ResponseEntity<BetRatioConfigVo> findAll(){
-        List<SysConfig> configList = sysConfigService.findByGroup(CoreConstants.SysConfigGroup.GROUP_BET);
+        List<PlatformConfig> platformConfigList = platformConfigService.findAll();
         BetRatioConfigVo betRatioConfigVo = new BetRatioConfigVo();
         betRatioConfigVo.setName("打码倍率设置");
-        for (SysConfig sysConfig : configList) {
-            if(sysConfig.getName().equals(CoreConstants.SysConfigName.CAPTCHA_RATE)){
-                betRatioConfigVo.setCodeTimes(Float.valueOf(sysConfig.getValue()));
-            }else{
-                betRatioConfigVo.setMinMoney(new BigDecimal(sysConfig.getValue()));
+        for (PlatformConfig platformConfig : platformConfigList) {
+            if(platformConfig.getBetRate() != null){
+                betRatioConfigVo.setCodeTimes(platformConfig.getBetRate());
+            }
+            if(platformConfig.getClearCodeNum() != null){
+                betRatioConfigVo.setMinMoney(platformConfig.getClearCodeNum());
             }
         }
         return new ResponseEntity(ResponseCode.SUCCESS, betRatioConfigVo);
@@ -52,31 +55,18 @@ public class BetRatioConfigController {
             @ApiImplicitParam(name = "minMoney", value = "最低金额重置打码量", required = true)
     })
     @GetMapping("/update")
-    public ResponseEntity<BetRatioConfig> update(BigDecimal codeTimes, BigDecimal minMoney){
-        List<SysConfig> configList = sysConfigService.findByGroup(CoreConstants.SysConfigGroup.GROUP_BET);
-        if(configList == null || configList.size() == 0){
-            List<SysConfig> sysConfigList = new ArrayList<>();
-            SysConfig sysConfig = new SysConfig();
-            sysConfig.setSysGroup(CoreConstants.SysConfigGroup.GROUP_BET);
-            sysConfig.setName(CoreConstants.SysConfigName.CAPTCHA_RATE);
-            sysConfig.setValue(codeTimes.toString());
-            sysConfigList.add(sysConfig);
-            SysConfig sys = new SysConfig();
-            sys.setSysGroup(CoreConstants.SysConfigGroup.GROUP_BET);
-            sys.setName(CoreConstants.SysConfigName.CAPTCHA_MIN);
-            sys.setValue(minMoney.toString());
-            sysConfigList.add(sys);
-            sysConfigList = sysConfigService.saveAll(sysConfigList);
-            return new ResponseEntity(ResponseCode.SUCCESS, sysConfigList);
+    public ResponseEntity<BetRatioConfigVo> update(BigDecimal codeTimes, BigDecimal minMoney){
+        List<PlatformConfig> platformConfigList = platformConfigService.findAll();
+        if(platformConfigList != null && platformConfigList.size() >= 1){
+            platformConfigList.get(0).setClearCodeNum(minMoney);
+            platformConfigList.get(0).setBetRate(codeTimes);
+            platformConfigService.save(platformConfigList.get(0));
+        }else{
+            PlatformConfig platformConfig = new PlatformConfig();
+            platformConfig.setBetRate(codeTimes);
+            platformConfig.setClearCodeNum(minMoney);
+            platformConfigService.save(platformConfig);
         }
-        for (SysConfig sysConfig : configList) {
-            if(sysConfig.getName().equals(CoreConstants.SysConfigName.CAPTCHA_RATE)){
-                sysConfig.setValue(codeTimes.toString());
-            }
-            if(sysConfig.getName().equals(CoreConstants.SysConfigName.CAPTCHA_MIN)){
-                sysConfig.setValue(minMoney.toString());
-            }
-        }
-        return new ResponseEntity(ResponseCode.SUCCESS, configList);
+        return new ResponseEntity(ResponseCode.SUCCESS);
     }
 }
