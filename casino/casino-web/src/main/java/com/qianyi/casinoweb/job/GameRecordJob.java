@@ -98,7 +98,7 @@ public class GameRecordJob {
         //把大集成拆分成5个
         List<List<GameRecord>> lists = averageAssign(gameRecordList, 5);
         //查询最小清0打码量
-        SysConfig minCodeNum = sysConfigService.findBySysGroupAndName(CoreConstants.SysConfigGroup.GROUP_BET, CoreConstants.SysConfigName.CAPTCHA_RATE);
+        SysConfig minCodeNum = sysConfigService.findBySysGroupAndName(CoreConstants.SysConfigGroup.GROUP_BET, CoreConstants.SysConfigName.CAPTCHA_MIN);
         // 创建异步执行任务:
         for (List<GameRecord> list : lists) {
             if (CollectionUtils.isEmpty(list)) {
