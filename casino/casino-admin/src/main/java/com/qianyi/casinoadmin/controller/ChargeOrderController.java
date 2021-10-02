@@ -2,6 +2,8 @@ package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinoadmin.vo.ChargeOrderVo;
+import com.qianyi.casinoadmin.vo.PageResultVO;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
 import com.qianyi.casinocore.model.ChargeOrder;
 import com.qianyi.casinocore.model.User;
@@ -26,6 +28,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,21 +78,26 @@ public class ChargeOrderController {
         }
         Specification<ChargeOrder> condition = this.getCondition(status,orderNo,userId);
         Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(condition, pageable);
+        PageResultVO<ChargeOrderVo> pageResultVO =new PageResultVO(chargeOrderPage);
         List<ChargeOrder> content = chargeOrderPage.getContent();
         if(content != null && content.size() > 0){
+            List<ChargeOrderVo> chargeOrderVoList = new LinkedList<>();
             List<Long> userIds = content.stream().map(ChargeOrder::getUserId).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
             if(userList != null && userList.size() > 0){
-                userList.stream().forEach(user ->{
-                    content.stream().forEach(chargeOrder->{
+                content.stream().forEach(chargeOrder ->{
+                    ChargeOrderVo chargeOrderVo = new ChargeOrderVo(chargeOrder);
+                    userList.stream().forEach(user->{
                         if (user.getId().equals(chargeOrder.getUserId())){
-                            chargeOrder.setAccount(user.getAccount());
+                            chargeOrderVo.setAccount(user.getAccount());
                         }
                     });
+                    chargeOrderVoList.add(chargeOrderVo);
                 });
             }
+            pageResultVO.setContent(chargeOrderVoList);
         }
-        return ResponseUtil.success(chargeOrderPage);
+        return ResponseUtil.success(pageResultVO);
     }
 
     /**

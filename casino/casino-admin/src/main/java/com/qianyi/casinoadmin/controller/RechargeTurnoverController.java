@@ -1,6 +1,8 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinoadmin.vo.PageResultVO;
+import com.qianyi.casinoadmin.vo.RechargeTurnoverVo;
 import com.qianyi.casinocore.model.RechargeTurnover;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.WithdrawOrder;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,21 +57,26 @@ public class RechargeTurnoverController {
         Sort sort=Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<RechargeTurnover> rechargeTurnoverPage = rechargeTurnoverService.findUserPage(pageable, rechargeTurnover);
+        PageResultVO<RechargeTurnoverVo> pageResultVO = new PageResultVO(rechargeTurnoverPage);
         List<RechargeTurnover> content = rechargeTurnoverPage.getContent();
         if(content != null && content.size() > 0){
+            List<RechargeTurnoverVo> rechargeTurnoverVoList = new LinkedList<>();
             List<Long> userIds = content.stream().map(RechargeTurnover::getUserId).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
             if(userList != null && userList.size() > 0){
-                userList.stream().forEach(user ->{
-                    content.stream().forEach(recharge->{
+                content.stream().forEach(recharge->{
+                    RechargeTurnoverVo rechargeTurnoverVo = new RechargeTurnoverVo(recharge);
+                    userList.stream().forEach(user->{
                         if (user.getId().equals(recharge.getUserId())){
-                            recharge.setAccount(user.getAccount());
+                            rechargeTurnoverVo.setAccount(user.getAccount());
                         }
                     });
+                    rechargeTurnoverVoList.add(rechargeTurnoverVo);
                 });
             }
+            pageResultVO.setContent(rechargeTurnoverVoList);
         }
-        return ResponseUtil.success(rechargeTurnoverPage);
+        return ResponseUtil.success(pageResultVO);
     }
 
 }

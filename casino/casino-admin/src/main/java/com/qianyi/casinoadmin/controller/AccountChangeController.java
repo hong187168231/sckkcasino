@@ -1,6 +1,8 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinoadmin.vo.AccountChangeVo;
+import com.qianyi.casinoadmin.vo.PageResultVO;
 import com.qianyi.casinocore.model.AccountChange;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.AccountChangeService;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,20 +65,25 @@ public class AccountChangeController {
         accountChange.setOrderNo(orderNo);
         accountChange.setType(type);
         Page<AccountChange> accountChangePage = accountChangeService.findAccountChangePage(pageable, accountChange);
+        PageResultVO<AccountChangeVo> pageResultVO = new PageResultVO(accountChangePage);
         List<AccountChange> content = accountChangePage.getContent();
         if(content != null && content.size() > 0){
+            List<AccountChangeVo> accountChangeVoList =new LinkedList<>();
             List<Long> userIds = content.stream().map(AccountChange::getUserId).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
             if(userList != null && userList.size() > 0){
-                userList.stream().forEach(user ->{
-                    content.stream().forEach(change->{
+                content.stream().forEach(change ->{
+                    AccountChangeVo accountChangeVo = new AccountChangeVo(change);
+                    userList.stream().forEach(user->{
                         if (user.getId().equals(change.getUserId())){
-                            change.setAccount(user.getAccount());
+                            accountChangeVo.setAccount(user.getAccount());
                         }
                     });
+                    accountChangeVoList.add(accountChangeVo);
                 });
             }
+            pageResultVO.setContent(accountChangeVoList);
         }
-        return ResponseUtil.success(accountChangePage);
+        return ResponseUtil.success(pageResultVO);
     }
 }

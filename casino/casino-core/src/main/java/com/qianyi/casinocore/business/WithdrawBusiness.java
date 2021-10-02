@@ -229,12 +229,6 @@ public class WithdrawBusiness {
 //            return ResponseUtil.success();
 //        }
         Long userId = withdrawOrder.getUserId();
-        //对用户数据进行行锁
-        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
-        if (userMoney == null) {
-            return ResponseUtil.custom("用户钱包不存在");
-        }
-        withdrawOrder.setStatus(status);
         BigDecimal money = withdrawOrder.getWithdrawMoney();
         if(status == Constants.WITHDRAW_PASS){//通过提现审核的计算手续费
             AmountConfig amountConfig = amountConfigService.findAmountConfigById(2L);
@@ -245,9 +239,16 @@ public class WithdrawBusiness {
                 withdrawOrder.setServiceCharge(serviceCharge);
                 withdrawOrder.setPracticalAmount(practicalAmount);
             }
-            log.info("通过提现userId {} 订单号 {} withdrawMoney is {}, practicalAmount is {}",userMoney.getUserId(),withdrawOrder.getNo(),money, withdrawOrder.getPracticalAmount());
+            withdrawOrder.setStatus(status);
+            log.info("通过提现userId {} 订单号 {} withdrawMoney is {}, practicalAmount is {}",withdrawOrder.getUserId(),withdrawOrder.getNo(),money, withdrawOrder.getPracticalAmount());
             return ResponseUtil.success();
         }
+        //对用户数据进行行锁
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        if (userMoney == null) {
+            return ResponseUtil.custom("用户钱包不存在");
+        }
+        withdrawOrder.setStatus(status);
         BigDecimal amountBefore = userMoney.getMoney();
         userMoney.setMoney(userMoney.getMoney().add(money));
         //记录用户账变
