@@ -60,7 +60,10 @@ public class UserCodeNumBusiness {
             return ResponseUtil.fail();
         }
         //最小清零打码量
-        checkClearCodeNum(platformConfig,codeNum,userId,gameRecordId,user);
+        ResponseEntity responseEntity = checkClearCodeNum(platformConfig, codeNum, userId, gameRecordId, user);
+        if (responseEntity.getCode() == 0) {
+            return ResponseUtil.success();
+        }
         //有效投注额大于等于等于剩余打码量
         if (validbet.compareTo(codeNum) > -1) {
             userMoneyService.subCodeNum(userId, codeNum);
@@ -101,7 +104,7 @@ public class UserCodeNumBusiness {
                 return ResponseUtil.success();
             }
         }
-        return ResponseUtil.success();
+        return ResponseUtil.fail();
     }
 
     @Transactional
