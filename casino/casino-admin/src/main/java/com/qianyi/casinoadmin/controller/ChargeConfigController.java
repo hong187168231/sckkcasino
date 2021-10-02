@@ -1,8 +1,12 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.CommonConst;
+import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinoadmin.vo.AmountConfigVo;
 import com.qianyi.casinocore.model.AmountConfig;
+import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.AmountConfigService;
+import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -24,7 +28,7 @@ import java.math.BigDecimal;
 @Api(tags = "资金中心")
 public class ChargeConfigController {
     @Autowired
-    private AmountConfigService amountConfigService;
+    private PlatformConfigService platformConfigService;
     /**
      * 充值设置列表
      * @return
@@ -32,8 +36,16 @@ public class ChargeConfigController {
     @ApiOperation("充值设置列表")
     @GetMapping("/findChargeConfig")
     public ResponseEntity findChargeConfig(){
-        AmountConfig amountConfigById = amountConfigService.findAmountConfigById(CommonConst.charge);
-        return ResponseUtil.success(amountConfigById);
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        AmountConfigVo amountConfigVo = new AmountConfigVo();
+        if (LoginUtil.checkNull(platformConfig)){
+            return ResponseUtil.success(amountConfigVo);
+        }
+        amountConfigVo.setFixedAmount(platformConfig.getChargeServiceMoney());
+        amountConfigVo.setPercentage(platformConfig.getChargeRate());
+        amountConfigVo.setMaxMoney(platformConfig.getChargeMaxMoney());
+        amountConfigVo.setMinMoney(platformConfig.getChargeMinMoney());
+        return ResponseUtil.success(amountConfigVo);
     }
 
     /**
@@ -59,9 +71,15 @@ public class ChargeConfigController {
         if (percentage != null && (percentage > CommonConst.FLOAT_1 || percentage < CommonConst.FLOAT_0)){
             return ResponseUtil.custom("百分比金额设置错误");
         }
-        AmountConfig amountConfig = new AmountConfig(fixedAmount,percentage,maxMoney,minMoney);
-        amountConfig.setId(CommonConst.charge);
-        amountConfigService.save(amountConfig);
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (LoginUtil.checkNull(platformConfig)){
+            platformConfig = new PlatformConfig();
+        }
+        platformConfig.setChargeMaxMoney(maxMoney);
+        platformConfig.setChargeMinMoney(minMoney);
+        platformConfig.setChargeRate(BigDecimal.valueOf(percentage == null? 0F:percentage));
+        platformConfig.setChargeServiceMoney(fixedAmount);
+        platformConfigService.save(platformConfig);
         return ResponseUtil.success();
     }
 }
