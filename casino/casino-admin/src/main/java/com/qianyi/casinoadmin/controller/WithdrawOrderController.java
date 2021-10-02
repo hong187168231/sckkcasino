@@ -5,13 +5,11 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.PageResultVO;
 import com.qianyi.casinoadmin.vo.WithdrawOrderVo;
 import com.qianyi.casinocore.business.WithdrawBusiness;
+import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.model.WithdrawOrder;
-import com.qianyi.casinocore.service.OrderService;
-import com.qianyi.casinocore.service.UserMoneyService;
-import com.qianyi.casinocore.service.UserService;
-import com.qianyi.casinocore.service.WithdrawOrderService;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -27,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -52,6 +51,9 @@ public class WithdrawOrderController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private BankcardsService bankcardsService;
 
     @ApiOperation("提现列表")
     @ApiImplicitParams({
@@ -89,13 +91,17 @@ public class WithdrawOrderController {
         if(content != null && content.size() > 0){
             List<WithdrawOrderVo> withdrawOrderVoList = new LinkedList<>();
             List<Long> userIds = content.stream().map(WithdrawOrder::getUserId).collect(Collectors.toList());
+            List<String> collect = content.stream().map(WithdrawOrder::getBankId).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
+            List<Bankcards> all = bankcardsService.findAll(collect);
+            Map<Long, Bankcards> bankcardMap = all.stream().collect(Collectors.toMap(Bankcards::getId, a -> a, (k1, k2) -> k1));
             if(userList != null && userList.size() > 0){
                 content.stream().forEach(withdraw ->{
                     WithdrawOrderVo withdrawOrderVo = new WithdrawOrderVo(withdraw);
                     userList.stream().forEach(user->{
                         if (user.getId().equals(withdraw.getUserId())){
                             withdrawOrderVo.setAccount(user.getAccount());
+                            this.setBankcards(bankcardMap.get(Long.valueOf(withdrawOrderVo.getBankId())),withdrawOrderVo);
                         }
                     });
                     withdrawOrderVoList.add(withdrawOrderVo);
@@ -105,7 +111,13 @@ public class WithdrawOrderController {
         }
         return ResponseUtil.success(pageResultVO);
     }
-
+    private void  setBankcards(Bankcards bankcards,WithdrawOrderVo withdrawOrderVo){
+        if (LoginUtil.checkNull(bankcards)){
+            return ;
+        }
+        withdrawOrderVo.setBankNo(bankcards.getBankAccount());
+        withdrawOrderVo.setAccountName(bankcards.getRealName());
+    }
     @ApiOperation("提现审核")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "订单id", required = true),

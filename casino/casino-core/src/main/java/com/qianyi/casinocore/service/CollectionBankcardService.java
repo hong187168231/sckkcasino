@@ -11,10 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +25,12 @@ public class CollectionBankcardService {
     public List<CollectionBankcard> getCollectionBandcards(){
         return collectionBankCardRepository.findAll();
     }
+
+    public List<CollectionBankcard> findAll(List<Long> ids){
+        Specification<CollectionBankcard> condition = this.getCondition(ids);
+        return collectionBankCardRepository.findAll(condition);
+    }
+
     public Page<CollectionBankcard> getCollectionBandPage(CollectionBankcard collectionBankcard , Pageable pageable){
         Specification<CollectionBankcard> condition = this.getCondition(collectionBankcard);
         return collectionBankCardRepository.findAll(condition,pageable);
@@ -83,6 +86,26 @@ public class CollectionBankcardService {
 //                }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));
                 return predicate;
+            }
+        };
+        return specification;
+    }
+
+    private Specification<CollectionBankcard> getCondition(List<Long> ids) {
+        Specification<CollectionBankcard> specification = new Specification<CollectionBankcard>() {
+            @Override
+            public Predicate toPredicate(Root<CollectionBankcard> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                Predicate predicate = cb.conjunction();
+                if (ids != null && ids.size() > 0) {
+                    Path<Object> userId = root.get("id");
+                    CriteriaBuilder.In<Object> in = cb.in(userId);
+                    for (Long id : ids) {
+                        in.value(id);
+                    }
+                    list.add(cb.and(cb.and(in)));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
             }
         };
         return specification;

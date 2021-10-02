@@ -9,10 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +41,10 @@ public class BankcardsService {
         return bankcardsRepository.findForBankcards(userId);
     }
 
-
+    public List<Bankcards> findAll(List<String> ids){
+        Specification<Bankcards> condition = this.getCondition(ids);
+        return bankcardsRepository.findAll(condition);
+    }
     /**
      * 查询用户银行卡
      *
@@ -79,7 +79,29 @@ public class BankcardsService {
         };
         return specification;
     }
+    private Specification<Bankcards> getCondition(List<String> ids) {
+        Specification<Bankcards> specification = new Specification<Bankcards>() {
+            @Override
+            public Predicate toPredicate(Root<Bankcards> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                Predicate predicate = cb.conjunction();
+                if (ids != null && ids.size() > 0) {
+                    Path<Object> userId = root.get("id");
+                    CriteriaBuilder.In<Object> in = cb.in(userId);
+                    for (String id : ids) {
+                        try {
+                            in.value(Long.valueOf(id));
+                        }catch (Exception e){
 
+                        }
+                    }
+                    list.add(cb.and(cb.and(in)));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
+    }
     public Bankcards findById(Long id) {
         Optional<Bankcards> optional = bankcardsRepository.findById(id);
         if (optional != null && optional.isPresent()) {
