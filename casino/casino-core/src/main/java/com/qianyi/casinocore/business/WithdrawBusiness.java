@@ -140,9 +140,15 @@ public class WithdrawBusiness {
             BigDecimal minMoney = amountConfig.getMinMoney();
             BigDecimal maxMoney = amountConfig.getMaxMoney();
             if (minMoney != null && money.compareTo(minMoney) == -1) {
+                if (new BigDecimal(minMoney.intValue()).compareTo(minMoney)==0){//整数不显示小数点
+                    minMoney=minMoney.setScale(0);
+                }
                 return ResponseUtil.custom("提现金额小于最低提现金额,最低提现金额为:" + minMoney);
             }
             if (maxMoney != null && money.compareTo(maxMoney) == 1) {
+                if (new BigDecimal(maxMoney.intValue()).compareTo(maxMoney) == 0) {
+                    maxMoney = maxMoney.setScale(0);
+                }
                 return ResponseUtil.custom("提现金额大于最高提现金额,最高提现金额为:" + maxMoney);
             }
         }

@@ -56,9 +56,15 @@ public class ChargeBusiness {
             BigDecimal minMoney = amountConfig.getMinMoney();
             BigDecimal maxMoney = amountConfig.getMaxMoney();
             if (minMoney != null && decChargeAmount.compareTo(minMoney) == -1) {
+                if (new BigDecimal(minMoney.intValue()).compareTo(minMoney) == 0) {//整数不显示小数点
+                    minMoney = minMoney.setScale(0);
+                }
                 return ResponseUtil.custom("充值金额小于最低充值金额,最低充值金额为:" + minMoney);
             }
             if (maxMoney != null && decChargeAmount.compareTo(maxMoney) == 1) {
+                if (new BigDecimal(maxMoney.intValue()).compareTo(maxMoney) == 0) {
+                    maxMoney = maxMoney.setScale(0);
+                }
                 return ResponseUtil.custom("充值金额大于最高充值金额,最高充值金额为:" + maxMoney);
             }
         }
