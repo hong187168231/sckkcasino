@@ -34,12 +34,6 @@ import java.util.*;
 public class RiskManagementController {
     @Autowired
     private PlatformConfigService platformConfigService;
-
-    private final static Map<String,String> mapName = new HashMap<>();
-    static {
-        mapName.put("注册ip限制","ipMaxNum");
-        mapName.put("WM余额警戒线","wmMoneyWarning");
-    }
     /**
      * 客户风险配置查询
      * @return
@@ -48,23 +42,7 @@ public class RiskManagementController {
     @GetMapping("/findRiskConfig")
     public ResponseEntity findSysConfig(){
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        JSONArray jsonArray = new JSONArray();
-        if (LoginUtil.checkNull(platformConfig)){
-            return ResponseUtil.success(jsonArray);
-        }
-        for (Map.Entry<String, String> entry : mapName.entrySet()) {
-            try {
-                JSONObject jsonObject = new JSONObject();
-                Method getMethod = platformConfig.getClass().getMethod("get" + CommonUtil.toUpperCaseFirstOne(entry.getValue()));
-                jsonObject.put("key",entry.getValue());
-                jsonObject.put("value",getMethod.invoke(platformConfig));
-                jsonObject.put("name",entry.getKey());
-                jsonArray.add(jsonObject);
-            } catch (Exception e) {
-
-            }
-        }
-        return ResponseUtil.success(jsonArray);
+        return ResponseUtil.success(platformConfig);
     }
 
     /**
@@ -93,10 +71,4 @@ public class RiskManagementController {
         platformConfigService.save(platformConfig);
         return ResponseUtil.success();
     }
-    @ApiOperation("客户风险配置名称获取")
-    @GetMapping("/findSysConfigName")
-    public ResponseEntity findSysConfigName(){
-        return ResponseUtil.success(mapName.keySet());
-    }
-
 }
