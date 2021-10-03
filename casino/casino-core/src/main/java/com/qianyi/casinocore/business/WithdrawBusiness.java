@@ -238,10 +238,10 @@ public class WithdrawBusiness {
         Long userId = withdrawOrder.getUserId();
         BigDecimal money = withdrawOrder.getWithdrawMoney();
         if(status == Constants.WITHDRAW_PASS){//通过提现审核的计算手续费
-            List<PlatformConfig> all = platformConfigService.findAll();
-            if (all != null && all.size() >= 0){
+            PlatformConfig first = platformConfigService.findFirst();
+            if (first != null){
                 //得到手续费
-                BigDecimal serviceCharge = all.get(0).getChargeServiceCharge(withdrawOrder.getWithdrawMoney());
+                BigDecimal serviceCharge = first.getWithdrawServiceCharge(withdrawOrder.getWithdrawMoney());
                 BigDecimal practicalAmount = withdrawOrder.getWithdrawMoney().subtract(serviceCharge);
                 withdrawOrder.setServiceCharge(serviceCharge);
                 withdrawOrder.setPracticalAmount(practicalAmount);
