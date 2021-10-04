@@ -1,15 +1,9 @@
 package com.qianyi.casinoadmin.controller;
 
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.qianyi.casinoadmin.util.CommonUtil;
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.CoreConstants;
 import com.qianyi.casinocore.model.PlatformConfig;
-import com.qianyi.casinocore.model.SysConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
-import com.qianyi.casinocore.service.SysConfigService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -22,15 +16,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.*;
 
 @Slf4j
 @RestController
 @RequestMapping("/managementRisk")
-@Api(tags = "客户中心")
+@Api(tags = "运维管理")
 public class RiskManagementController {
     @Autowired
     private PlatformConfigService platformConfigService;

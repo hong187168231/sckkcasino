@@ -23,7 +23,7 @@ import java.math.BigDecimal;
 @Slf4j
 @RestController
 @RequestMapping("/chargeConfig")
-@Api(tags = "资金中心")
+@Api(tags = "运维管理")
 public class ChargeConfigController {
     @Autowired
     private PlatformConfigService platformConfigService;
