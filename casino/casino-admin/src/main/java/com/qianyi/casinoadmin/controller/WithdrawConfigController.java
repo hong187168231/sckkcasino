@@ -70,6 +70,11 @@ public class WithdrawConfigController {
         if (percentage != null && (percentage > CommonConst.FLOAT_1 || percentage < CommonConst.FLOAT_0)){
             return ResponseUtil.custom("百分比金额设置错误");
         }
+        if (fixedAmount != null && minMoney != null){
+            if (fixedAmount.compareTo(minMoney) > CommonConst.NUMBER_0){
+                return ResponseUtil.custom("手续费不能大于最小金额");
+            }
+        }
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (LoginUtil.checkNull(platformConfig)){
             platformConfig = new PlatformConfig();
