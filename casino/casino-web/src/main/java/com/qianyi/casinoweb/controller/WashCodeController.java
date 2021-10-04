@@ -148,6 +148,9 @@ public class WashCodeController {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        if (userMoney == null) {
+            return ResponseUtil.custom("用户钱包不存在");
+        }
         if (userMoney.getWashCode() == null) {
             userMoney.setWashCode(BigDecimal.ZERO);
         }

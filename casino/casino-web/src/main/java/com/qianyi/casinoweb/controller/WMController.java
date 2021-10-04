@@ -342,6 +342,9 @@ public class WMController {
         }
         //把额度加回本地
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        if (userMoney == null) {
+            return ResponseUtil.custom("用户钱包不存在");
+        }
         //wm余额大于0
         if (BigDecimal.ZERO.compareTo(balance) == -1) {
             userMoneyService.addMoney(userId, balance);
