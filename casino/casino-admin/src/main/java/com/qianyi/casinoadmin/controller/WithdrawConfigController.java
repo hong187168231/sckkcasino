@@ -76,8 +76,16 @@ public class WithdrawConfigController {
         }
         platformConfig.setWithdrawMaxMoney(maxMoney);
         platformConfig.setWithdrawMinMoney(minMoney);
-        platformConfig.setWithdrawRate(BigDecimal.valueOf(percentage == null? 0F:percentage));
-        platformConfig.setWithdrawServiceMoney(fixedAmount);
+        if (LoginUtil.checkNull(percentage)){
+            platformConfig.setWithdrawRate(BigDecimal.ZERO);
+        }else {
+            platformConfig.setWithdrawRate(BigDecimal.valueOf(percentage));
+        }
+        if (LoginUtil.checkNull(fixedAmount)){
+            platformConfig.setWithdrawServiceMoney(BigDecimal.ZERO);
+        }else {
+            platformConfig.setWithdrawServiceMoney(fixedAmount);
+        }
         platformConfigService.save(platformConfig);
         return ResponseUtil.success();
     }

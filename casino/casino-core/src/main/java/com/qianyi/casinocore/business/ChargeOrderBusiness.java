@@ -70,11 +70,11 @@ public class ChargeOrderBusiness {
         if(user == null){
             return ResponseUtil.custom("用户钱包不存在");
         }
-        List<PlatformConfig> all = platformConfigService.findAll();
+        PlatformConfig platformConfig = platformConfigService.findFirst();
         BigDecimal serviceCharge = BigDecimal.ZERO;
-        if (all != null && all.size() > 0){
+        if (platformConfig != null){
             //得到手续费
-            serviceCharge = all.get(0).getChargeServiceCharge(chargeOrder.getChargeAmount());
+            serviceCharge = platformConfig.getChargeServiceCharge(chargeOrder.getChargeAmount());
         }
         //计算余额
         BigDecimal subtract = chargeOrder.getChargeAmount().subtract(serviceCharge);
@@ -84,7 +84,7 @@ public class ChargeOrderBusiness {
         chargeOrder = chargeOrderService.saveOrder(chargeOrder);
         user.setMoney(user.getMoney().add(subtract));
         //计算打码量 默认2倍
-        BigDecimal codeTimes = (all == null || all.size() == 0) ? new BigDecimal(2) : all.get(0).getBetRate();
+        BigDecimal codeTimes = (platformConfig == null || platformConfig.getBetRate() == null) ? new BigDecimal(2) : platformConfig.getBetRate();
         BigDecimal codeNum = subtract.multiply(codeTimes);
         user.setCodeNum(user.getCodeNum().add(codeNum));
         userMoneyService.save(user);
