@@ -76,9 +76,14 @@ public class ChargeConfigController {
         platformConfig.setChargeMaxMoney(maxMoney);
         platformConfig.setChargeMinMoney(minMoney);
         if (LoginUtil.checkNull(percentage)){
-            platformConfig.setChargeRate(null);
+            platformConfig.setChargeRate(BigDecimal.ZERO);
         }else {
             platformConfig.setChargeRate(BigDecimal.valueOf(percentage));
+        }
+        if (LoginUtil.checkNull(fixedAmount)){
+            platformConfig.setWithdrawServiceMoney(BigDecimal.ZERO);
+        }else {
+            platformConfig.setWithdrawServiceMoney(fixedAmount);
         }
         platformConfig.setChargeServiceMoney(fixedAmount);
         platformConfigService.save(platformConfig);
