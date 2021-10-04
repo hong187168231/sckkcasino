@@ -97,7 +97,7 @@ public class PictureController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "theShowEnd", value = "1 web 2 app", required = false),
     })
-    public ResponseEntity findByBannerList(Integer theShowEnd){
+    public ResponseEntity<LunboPic> findByBannerList(Integer theShowEnd){
         Specification<LunboPic> condition = this.getCondition(theShowEnd);
         Sort sort=Sort.by("id").ascending();
         return ResponseUtil.success(pictureService.findByLunboPicList(condition,sort));

@@ -46,7 +46,7 @@ public class IpBlackController {
             @ApiImplicitParam(name = "ip", value = "ip", required = false),
             @ApiImplicitParam(name = "status", value = "状态/** 0:未禁用 1：禁用 */", required = false),
     })
-    public ResponseEntity findIpBlackPag(Integer pageSize, Integer pageCode, String ip, Integer status){
+    public ResponseEntity<IpBlack> findIpBlackPag(Integer pageSize, Integer pageCode, String ip, Integer status){
         IpBlack ipBlack = new IpBlack();
         Sort sort = Sort.by("id").descending();
         ipBlack.setIp(ip);

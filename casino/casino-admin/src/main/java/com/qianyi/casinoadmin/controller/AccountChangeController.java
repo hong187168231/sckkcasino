@@ -51,7 +51,7 @@ public class AccountChangeController {
             @ApiImplicitParam(name = "type", value = "账变类型", required = false),
             @ApiImplicitParam(name = "account", value = "会员账号", required = false),
     })
-    public ResponseEntity findAccountChangePage(Integer pageSize, Integer pageCode, Integer type, String account, String orderNo){
+    public ResponseEntity<AccountChangeVo> findAccountChangePage(Integer pageSize, Integer pageCode, Integer type, String account, String orderNo){
         Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         AccountChange accountChange = new AccountChange();

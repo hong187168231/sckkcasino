@@ -33,7 +33,7 @@ public class ChargeConfigController {
      */
     @ApiOperation("充值设置列表")
     @GetMapping("/findChargeConfig")
-    public ResponseEntity findChargeConfig(){
+    public ResponseEntity<AmountConfigVo> findChargeConfig(){
         PlatformConfig platformConfig = platformConfigService.findFirst();
         AmountConfigVo amountConfigVo = new AmountConfigVo();
         if (LoginUtil.checkNull(platformConfig)){

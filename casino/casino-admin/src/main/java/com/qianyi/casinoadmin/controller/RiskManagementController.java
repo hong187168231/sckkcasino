@@ -31,7 +31,7 @@ public class RiskManagementController {
      */
     @ApiOperation("客户风险配置查询")
     @GetMapping("/findRiskConfig")
-    public ResponseEntity findSysConfig(){
+    public ResponseEntity<PlatformConfig> findSysConfig(){
         PlatformConfig platformConfig = platformConfigService.findFirst();
         return ResponseUtil.success(platformConfig);
     }

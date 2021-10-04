@@ -48,7 +48,7 @@ public class BankCardsController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "disable", value = "0:未禁用 1：禁用", required = false),
     })
-    public ResponseEntity bankList(Integer disable) {
+    public ResponseEntity<BankInfo> bankList(Integer disable) {
         BankInfo bankInfo = new BankInfo();
         bankInfo.setDisable(disable);
         return ResponseUtil.success(bankInfoService.findAll(bankInfo));

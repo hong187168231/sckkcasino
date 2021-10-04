@@ -51,7 +51,7 @@ public class LoginLogController {
             @ApiImplicitParam(name = "userId", value = "会员id", required = false),
             @ApiImplicitParam(name = "account", value = "会员账号", required = false),
     })
-    public ResponseEntity findLoginLogPage(Integer pageSize, Integer pageCode, String ip, Long userId, String account){
+    public ResponseEntity<LoginLog> findLoginLogPage(Integer pageSize, Integer pageCode, String ip, Long userId, String account){
         Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         LoginLog loginLog = new LoginLog();

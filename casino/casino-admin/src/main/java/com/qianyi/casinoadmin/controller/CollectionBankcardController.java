@@ -40,7 +40,7 @@ public class CollectionBankcardController {
             @ApiImplicitParam(name = "disable", value = "0:未禁用 1：禁用", required = false),
             @ApiImplicitParam(name = "bankId", value = "银行类型", required = false),
     })
-    public ResponseEntity bankList(Integer pageSize, Integer pageCode,Integer disable,String bankId) {
+    public ResponseEntity<CollectionBankcard> bankList(Integer pageSize, Integer pageCode,Integer disable,String bankId) {
         Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         CollectionBankcard collectionBankcard = new CollectionBankcard();

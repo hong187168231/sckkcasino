@@ -74,7 +74,7 @@ public class CustomerController {
     }
     @ApiOperation("查询客服联系方式")
     @GetMapping("/findCustomer")
-    public ResponseEntity findCustomer(){
+    public ResponseEntity<Customer> findCustomer(){
         Customer customer = customerService.findFirst();
         return ResponseUtil.success(customer);
     }

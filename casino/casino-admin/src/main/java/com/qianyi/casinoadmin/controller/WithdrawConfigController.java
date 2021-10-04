@@ -34,7 +34,7 @@ public class WithdrawConfigController {
      */
     @ApiOperation("提款设置列表")
     @GetMapping("/findWithdrawConfig")
-    public ResponseEntity findWithdrawConfig(){
+    public ResponseEntity<PlatformConfig> findWithdrawConfig(){
         PlatformConfig platformConfig = platformConfigService.findFirst();
         AmountConfigVo amountConfigVo = new AmountConfigVo();
         if (LoginUtil.checkNull(platformConfig)){
