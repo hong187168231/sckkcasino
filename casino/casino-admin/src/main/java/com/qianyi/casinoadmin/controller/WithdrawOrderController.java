@@ -101,7 +101,11 @@ public class WithdrawOrderController {
                     userList.stream().forEach(user->{
                         if (user.getId().equals(withdraw.getUserId())){
                             withdrawOrderVo.setAccount(user.getAccount());
-                            this.setBankcards(bankcardMap.get(Long.valueOf(withdrawOrderVo.getBankId())),withdrawOrderVo);
+                            try {
+                                this.setBankcards(bankcardMap.get(Long.valueOf(withdrawOrderVo.getBankId())),withdrawOrderVo);
+                            }catch (Exception ex){
+
+                            }
                         }
                     });
                     withdrawOrderVoList.add(withdrawOrderVo);
