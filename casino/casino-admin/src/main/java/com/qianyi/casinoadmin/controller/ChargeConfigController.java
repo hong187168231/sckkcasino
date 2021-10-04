@@ -81,11 +81,10 @@ public class ChargeConfigController {
             platformConfig.setChargeRate(BigDecimal.valueOf(percentage));
         }
         if (LoginUtil.checkNull(fixedAmount)){
-            platformConfig.setWithdrawServiceMoney(BigDecimal.ZERO);
+            platformConfig.setChargeServiceMoney(BigDecimal.ZERO);
         }else {
-            platformConfig.setWithdrawServiceMoney(fixedAmount);
+            platformConfig.setChargeServiceMoney(fixedAmount);
         }
-        platformConfig.setChargeServiceMoney(fixedAmount);
         platformConfigService.save(platformConfig);
         return ResponseUtil.success();
     }
