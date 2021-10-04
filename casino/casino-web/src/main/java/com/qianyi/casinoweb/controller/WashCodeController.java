@@ -73,7 +73,10 @@ public class WashCodeController {
             return ResponseUtil.custom("date值仅限于0,1,2");
         }
         UserMoney userMoney = userMoneyService.findByUserId(userId);
-        BigDecimal washCode = userMoney.getWashCode();
+        if (userMoney == null) {
+            return ResponseUtil.custom("用户钱包不存在");
+        }
+        BigDecimal washCode = userMoney.getWashCode() == null ? BigDecimal.ZERO : userMoney.getWashCode();
         List<WashCodeConfig> washCodeConfig = getWashCodeConfig(userId);
         List<WashCodeChange> list = washCodeChangeService.getList(userId, startTime, endTime);
         Map<String, Object> data = new HashMap<>();
