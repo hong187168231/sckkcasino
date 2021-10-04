@@ -54,16 +54,12 @@ public class UserController {
         UserVo vo = new UserVo();
         //TODO 查询可提金额，未完成流水(打码量)
         UserMoney userMoney = userMoneyService.findByUserId(userId);
-        if (userMoney == null) {
-            return ResponseUtil.custom("用户钱包不存在");
-        }
         BigDecimal defaultVal = BigDecimal.ZERO.setScale(2);
-        BigDecimal washCode= userMoney.getWashCode() == null ? defaultVal : userMoney.getWashCode().setScale(2, BigDecimal.ROUND_HALF_UP);
-        vo.setWashCode(washCode);
         if (userMoney == null) {
             vo.setUnfinshTurnover(defaultVal);
             vo.setDrawMoney(defaultVal);
             vo.setMoney(defaultVal);
+            vo.setWashCode(defaultVal);
             return new ResponseEntity(ResponseCode.SUCCESS, vo);
         }
         BigDecimal money = userMoney.getMoney() == null ? defaultVal : userMoney.getMoney().setScale(2, BigDecimal.ROUND_HALF_UP);
@@ -71,6 +67,8 @@ public class UserController {
         vo.setDrawMoney(userMoney.getWithdrawMoney());
         BigDecimal codeNum = userMoney.getCodeNum() == null ? defaultVal : userMoney.getCodeNum().setScale(2, BigDecimal.ROUND_HALF_UP);
         vo.setUnfinshTurnover(codeNum);
+        BigDecimal washCode= userMoney.getWashCode() == null ? defaultVal : userMoney.getWashCode().setScale(2, BigDecimal.ROUND_HALF_UP);
+        vo.setWashCode(washCode);
         return new ResponseEntity(ResponseCode.SUCCESS, vo);
     }
 
