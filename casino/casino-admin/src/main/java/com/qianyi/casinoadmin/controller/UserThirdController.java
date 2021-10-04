@@ -77,13 +77,13 @@ public class UserThirdController {
         UserThirdVo userThirdVo = new UserThirdVo();
         userThirdVo.setAccount(user.getAccount());
         userThirdVo.setThirdAccount(userThird.getAccount());
-        UserMoney userMoney = userMoneyService.findByUserId(user.getId());
-        if (LoginUtil.checkNull(userMoney)){
-            return ResponseUtil.custom("找不到该会员钱包");
-        }
-        userThirdVo.setMoney(userMoney.getMoney());
-        userThirdVo.setCodeNum(userMoney.getCodeNum());
-        userThirdVo.setWmMoney(userMoneyService.getWMonetUser(user,userThird));
+//        UserMoney userMoney = userMoneyService.findByUserId(user.getId());
+//        if (LoginUtil.checkNull(userMoney)){
+//            return ResponseUtil.custom("找不到该会员钱包");
+//        }
+//        userThirdVo.setMoney(userMoney.getMoney());
+//        userThirdVo.setCodeNum(userMoney.getCodeNum());
+//        userThirdVo.setWmMoney(userMoneyService.getWMonetUser(user,userThird));
         return ResponseUtil.success(userThirdVo);
     }
 
