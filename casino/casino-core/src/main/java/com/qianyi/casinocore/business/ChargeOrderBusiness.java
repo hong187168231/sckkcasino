@@ -80,6 +80,7 @@ public class ChargeOrderBusiness {
         BigDecimal subtract = chargeOrder.getChargeAmount().subtract(serviceCharge);
         if (BigDecimal.ZERO.compareTo(subtract) > 0){
             subtract = BigDecimal.ZERO;
+            serviceCharge = chargeOrder.getChargeAmount();
         }
         chargeOrder.setPracticalAmount(subtract);
         chargeOrder.setServiceCharge(serviceCharge);
