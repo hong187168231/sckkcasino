@@ -59,8 +59,8 @@ public class WithdrawConfigController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "fixedAmount", value = "固定金额", required = false),
             @ApiImplicitParam(name = "percentage", value = "百分比金额", required = false),
-            @ApiImplicitParam(name = "maxMoney", value = "最大金额", required = false),
-            @ApiImplicitParam(name = "minMoney", value = "最小金额", required = false),
+            @ApiImplicitParam(name = "maxMoney", value = "最大金额", required = true),
+            @ApiImplicitParam(name = "minMoney", value = "最小金额", required = true),
     })
     @PostMapping("/saveWithdrawConfig")
     public ResponseEntity saveWithdrawConfig(BigDecimal fixedAmount, Float percentage, BigDecimal maxMoney, BigDecimal minMoney){
