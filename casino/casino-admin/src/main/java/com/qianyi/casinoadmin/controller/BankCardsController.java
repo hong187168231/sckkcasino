@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/bankcard")
@@ -219,9 +220,13 @@ public class BankCardsController {
                 return ResponseUtil.custom("持卡人姓名错误");
             }
         }
-
+//        List<Bankcards> cards=bankcardsList.stream().filter(v ->v.getDisable()==0).collect(Collectors.toList());
         if(bankcardsList.size()>=Constants.MAX_BANK_NUM){
             return ResponseUtil.custom("最多只能绑定6张银行卡");
+        }
+        bankcardsList=bankcardsList.stream().filter(v ->v.getBankAccount().equals(bankAccount)).collect(Collectors.toList());
+        if(bankcardsList.size() > CommonConst.NUMBER_0){
+            return ResponseUtil.custom("已经绑定这张卡了");
         }
 
         Bankcards bankcards = boundCard(userId, bankId,bankAccount,address,realName);
@@ -245,6 +250,9 @@ public class BankCardsController {
         }
         if (bankAccount.length() > 20 || bankAccount.length() < 16) {
             return "长度只能在16~20位！";
+        }
+        if (!bankAccount.matches(CommonConst.regex)) {
+            return "银行账号只能输入数字！";
         }
         return null;
     }
@@ -281,8 +289,6 @@ public class BankCardsController {
         bankcards.setBankAccount(bankAccount);
         bankcards.setAddress(address);
         bankcards.setRealName(getRealName(firstBankcard,realName));
-        bankcards.setUpdateTime(now);
-        bankcards.setCreateTime(now);
         bankcards.setDisable(Constants.BANK_OPEN);
         bankcards.setDefaultCard(isFirstCard(firstBankcard));
         return bankcards;

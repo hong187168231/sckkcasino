@@ -59,8 +59,8 @@ public class WithdrawConfigController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "fixedAmount", value = "固定金额", required = false),
             @ApiImplicitParam(name = "percentage", value = "百分比金额", required = false),
-            @ApiImplicitParam(name = "maxMoney", value = "最大金额", required = false),
-            @ApiImplicitParam(name = "minMoney", value = "最小金额", required = false),
+            @ApiImplicitParam(name = "maxMoney", value = "最大金额", required = true),
+            @ApiImplicitParam(name = "minMoney", value = "最小金额", required = true),
     })
     @PostMapping("/saveWithdrawConfig")
     public ResponseEntity saveWithdrawConfig(BigDecimal fixedAmount, Float percentage, BigDecimal maxMoney, BigDecimal minMoney){
@@ -69,6 +69,11 @@ public class WithdrawConfigController {
         }
         if (percentage != null && (percentage > CommonConst.FLOAT_1 || percentage < CommonConst.FLOAT_0)){
             return ResponseUtil.custom("百分比金额设置错误");
+        }
+        if (fixedAmount != null && minMoney != null){
+            if (fixedAmount.compareTo(minMoney) > CommonConst.NUMBER_0){
+                return ResponseUtil.custom("手续费不能大于最小金额");
+            }
         }
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (LoginUtil.checkNull(platformConfig)){

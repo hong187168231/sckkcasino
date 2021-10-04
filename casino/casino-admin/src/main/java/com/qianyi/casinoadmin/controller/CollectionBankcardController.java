@@ -64,6 +64,16 @@ public class CollectionBankcardController {
     @PostMapping("saveBankInfo")
     public ResponseEntity saveBankInfo(String bankNo, String bankId, String accountName){
         List<CollectionBankcard> byBankNo = collectionBankcardService.findByBankNo(bankNo);
+        if (LoginUtil.checkNull(bankNo,bankId,accountName)) {
+            return ResponseUtil.custom("银行账号不能为空");
+        }
+        bankNo = bankNo.trim();
+        if (bankNo.length() > 20 || bankNo.length() < 16 || !bankNo.matches(CommonConst.regex)) {
+            return ResponseUtil.custom("长度只能在16~20位的数字！");
+        }
+        if (accountName.length() > 15) {
+            return ResponseUtil.custom("姓名不能超过15位！");
+        }
         if (!LoginUtil.checkNull(byBankNo) && byBankNo.size() > CommonConst.NUMBER_0){
             return ResponseUtil.custom("银行卡已存在");
         }
