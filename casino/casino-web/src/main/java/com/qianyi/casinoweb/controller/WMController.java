@@ -267,7 +267,7 @@ public class WMController {
         if (lang == null) {
             lang = 0;
         }
-        BigDecimal balance = null;
+        BigDecimal balance = BigDecimal.ZERO;
         try {
             balance = wmApi.getBalance(third.getAccount(), lang);
         } catch (Exception e) {
@@ -292,7 +292,7 @@ public class WMController {
         if (!ipWhiteCheck()){
             return ResponseUtil.custom("ip禁止访问");
         }
-        BigDecimal balance = null;
+        BigDecimal balance = BigDecimal.ZERO;
         try {
             balance = wmApi.getBalance(account, lang);
         } catch (Exception e) {
@@ -325,7 +325,7 @@ public class WMController {
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         //查询用户在wm的余额
-        BigDecimal balance = null;
+        BigDecimal balance = BigDecimal.ZERO;
         try {
             balance = wmApi.getBalance(account, lang);
         } catch (Exception e) {
