@@ -1,9 +1,6 @@
 package com.qianyi.casinoweb.controller;
 
-import com.qianyi.casinocore.model.Bankcards;
-import com.qianyi.casinocore.model.ChargeOrder;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.UserMoney;
+import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.BankcardsService;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
@@ -57,6 +54,9 @@ public class UserController {
         UserVo vo = new UserVo();
         //TODO 查询可提金额，未完成流水(打码量)
         UserMoney userMoney = userMoneyService.findByUserId(userId);
+        if (userMoney == null) {
+            return ResponseUtil.custom("用户钱包不存在");
+        }
         BigDecimal defaultVal = BigDecimal.ZERO.setScale(2);
         BigDecimal washCode= userMoney.getWashCode() == null ? defaultVal : userMoney.getWashCode().setScale(2, BigDecimal.ROUND_HALF_UP);
         vo.setWashCode(washCode);

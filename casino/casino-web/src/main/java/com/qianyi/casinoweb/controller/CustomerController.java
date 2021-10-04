@@ -29,6 +29,9 @@ public class CustomerController {
     @NoAuthentication
     public ResponseEntity contact() {
         Customer customer = customerService.findFirst();
-        return ResponseUtil.success(customer);
+        if (customer != null) {
+            return ResponseUtil.success(customer);
+        }
+        return ResponseUtil.success(new Customer());
     }
 }
