@@ -61,11 +61,10 @@ public class Bankcards extends BaseEntity{
      * @param address
      * @return
      */
-    public static String checkParamFroBound(String accountName,String bankId, String bankAccount,
-                                            String address) {
-        if(!StringUtils.hasLength(accountName)){
-            return "持卡人不能为空";
-        }
+    public static String checkParamFroBound(String bankId, String bankAccount,String address) {
+//        if(!StringUtils.hasLength(accountName)){
+//            return "持卡人不能为空";
+//        }
         if (bankId == null) {
             return "银行id不能为空！";
         }

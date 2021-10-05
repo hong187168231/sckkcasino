@@ -1,7 +1,7 @@
 package com.qianyi.casinoweb.controller;
 
-import com.qianyi.casinocore.model.*;
-import com.qianyi.casinocore.service.BankcardsService;
+import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
@@ -29,8 +29,6 @@ public class UserController {
     UserService userService;
     @Autowired
     UserMoneyService userMoneyService;
-    @Autowired
-    BankcardsService bankcardsService;
 
     @GetMapping("info")
     @ApiOperation("获取当前用户的基本信息(不包含 余额，打码量，可提现金额,洗码金额)")
@@ -40,10 +38,6 @@ public class UserController {
         UserVo vo = new UserVo();
         BeanUtils.copyProperties(user,vo);
         vo.setUserId(user.getId());
-        //去银行卡查询真实姓名
-        Bankcards bankcards = bankcardsService.findBankCardsInByUserId(authId);
-        String realName = bankcards == null ? null : bankcards.getRealName();
-        vo.setRealName(realName);
         return new ResponseEntity(ResponseCode.SUCCESS, vo);
     }
 

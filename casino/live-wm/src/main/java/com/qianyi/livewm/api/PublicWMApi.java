@@ -294,7 +294,7 @@ public class PublicWMApi {
         if (entity.getErrorCode() == 0) {
             return String.valueOf(entity.getResult());
         }else if(entity.getErrorCode() == 107){
-            return null;
+            return "notData";
         }
         throw new Exception(String.valueOf(entity));
     }

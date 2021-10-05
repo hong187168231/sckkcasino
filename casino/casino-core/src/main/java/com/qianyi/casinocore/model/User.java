@@ -48,6 +48,8 @@ public class User extends BaseEntity implements UserDetails {
     private String qq;
     @ApiModelProperty("微信")
     private String webChat;
+    @ApiModelProperty("真实姓名")
+    private String realName;
     @JsonIgnore
     @Transient
     private String token;

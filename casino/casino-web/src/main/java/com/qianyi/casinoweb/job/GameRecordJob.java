@@ -67,6 +67,9 @@ public class GameRecordJob {
             }
             String result = wmApi.getDateTimeReport(null, startTime, endTime, 0, 0, 2, null, null);
             if (ObjectUtils.isEmpty(result)) {
+                return;
+            }
+            if ("notData".equals(result)) {
                 updateEndTime(endTime, gameRecord);
                 return;
             }
