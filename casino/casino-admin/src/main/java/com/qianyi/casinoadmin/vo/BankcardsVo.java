@@ -26,6 +26,8 @@ public class BankcardsVo  implements Serializable {
     private String address;
     @ApiModelProperty(value = "开户名")
     private String realName;
+    @ApiModelProperty(value = "默认卡，主卡= 1")
+    private Integer defaultCard;
     @ApiModelProperty(value = "0:未禁用 1：禁用")
     private Integer disable;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -44,6 +46,7 @@ public class BankcardsVo  implements Serializable {
         this.address = bankcards.getAddress();
         this.realName = bankcards.getRealName();
         this.disable = 0;
+        this.defaultCard = bankcards.getDefaultCard();
         this.updateTime = bankcards.getUpdateTime();
         this.updateBy = bankcards.getUpdateBy();
     }
@@ -54,6 +57,7 @@ public class BankcardsVo  implements Serializable {
         this.bankAccount = bankcards.getBankAccount();
         this.address = bankcards.getAddress();
         this.realName = bankcards.getRealName();
+        this.defaultCard = 1;
         this.disable = 1;
         this.updateTime = bankcards.getUpdateTime();
         this.updateBy = bankcards.getUpdateBy();
