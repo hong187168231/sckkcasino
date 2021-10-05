@@ -220,8 +220,8 @@ public class BankCardsController {
                 return ResponseUtil.custom("持卡人姓名错误");
             }
         }
-//        List<Bankcards> cards=bankcardsList.stream().filter(v ->v.getDisable()==0).collect(Collectors.toList());
-        if(bankcardsList.size()>=Constants.MAX_BANK_NUM){
+        List<Bankcards> cards=bankcardsList.stream().filter(v ->v.getDisable()==0).collect(Collectors.toList());
+        if(cards.size()>=Constants.MAX_BANK_NUM){
             return ResponseUtil.custom("最多只能绑定6张银行卡");
         }
         bankcardsList=bankcardsList.stream().filter(v ->v.getBankAccount().equals(bankAccount)).collect(Collectors.toList());
@@ -271,7 +271,15 @@ public class BankCardsController {
             return ResponseUtil.custom("用户未绑定银行卡");
         }
         if(bank.getDisable() == Constants.BANK_CLOSE){
-            bank.setDisable(Constants.BANK_OPEN);
+//            List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(userId);
+//            if (!LoginUtil.checkNull(bankcardsList) && bankcardsList.size() > CommonConst.NUMBER_0){
+//                bankcardsList = bankcardsList.stream().filter(v ->v.getDisable()==0).collect(Collectors.toList());
+//                if(bankcardsList.size()>=Constants.MAX_BANK_NUM){
+//                    return ResponseUtil.custom("最多只能绑定6张银行卡");
+//                }
+//            }
+//            bank.setDisable(Constants.BANK_OPEN);
+            return ResponseUtil.custom("该银行卡已解绑");
         }else{
             bank.setDisable(Constants.BANK_CLOSE);
         }
