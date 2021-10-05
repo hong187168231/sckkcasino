@@ -53,6 +53,8 @@ public class UserVo implements Serializable {
     private String qq;
     @ApiModelProperty("webChat")
     private String webChat;
+    @ApiModelProperty("真实姓名")
+    private String realName;
     @ApiModelProperty("创建时间")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
@@ -82,6 +84,7 @@ public class UserVo implements Serializable {
         this.email = user.getEmail();
         this.qq = user.getQq();
         this.webChat = user.getWebChat();
+        this.realName = user.getRealName();
         this.createTime = user.getCreateTime();
         this.updateBy = user.getUpdateBy();
         this.updateTime = user.getUpdateTime();
