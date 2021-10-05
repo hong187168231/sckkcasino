@@ -68,8 +68,8 @@ public class CollectionBankcardController {
             return ResponseUtil.custom("银行账号不能为空");
         }
         bankNo = bankNo.trim();
-        if (bankNo.length() > 20 || bankNo.length() < 16 || !bankNo.matches(CommonConst.regex)) {
-            return ResponseUtil.custom("长度只能在16~20位的数字！");
+        if (bankNo.length() > 20 || bankNo.length() < 12 || !bankNo.matches(CommonConst.regex)) {
+            return ResponseUtil.custom("长度只能在12~20位的数字！");
         }
         if (accountName.length() > 15) {
             return ResponseUtil.custom("姓名不能超过15位！");

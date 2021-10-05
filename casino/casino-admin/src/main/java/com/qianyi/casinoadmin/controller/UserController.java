@@ -442,7 +442,7 @@ public class UserController {
     }
 
     /**
-     * 后台配置会员收款卡修改
+     * 根据id查询用户登录注册ip
      *
      * @param id 会员id
      * @param pageSize 每页大小

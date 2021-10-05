@@ -248,8 +248,8 @@ public class BankCardsController {
         if (LoginUtil.checkNull(bankAccount)) {
             return "银行账号不能为空！";
         }
-        if (bankAccount.length() > 20 || bankAccount.length() < 16) {
-            return "长度只能在16~20位！";
+        if (bankAccount.length() > 20 || bankAccount.length() < 12) {
+            return "长度只能在12~20位！";
         }
         if (!bankAccount.matches(CommonConst.regex)) {
             return "银行账号只能输入数字！";
