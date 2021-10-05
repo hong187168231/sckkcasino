@@ -71,7 +71,7 @@ public class UserController {
     @ResponseBody
     @ApiImplicitParams({
             @ApiImplicitParam(name = "type", value = "参数类型:0=真实姓名，1=邮箱地址，2=微信账号，3=QQ账号", required = true),
-            @ApiImplicitParam(name = "value", required = false),
+            @ApiImplicitParam(name = "value", required = true),
     })
     public ResponseEntity updateUserInfo(String type, String value) {
         if (ObjectUtils.isEmpty(type)) {
