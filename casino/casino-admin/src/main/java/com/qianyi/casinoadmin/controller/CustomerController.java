@@ -75,7 +75,7 @@ public class CustomerController {
             customer.setMeiqia(meiqia);
         }
         if (!CommonUtil.checkNull(telephone)){
-            customer.setTelegram(telephone);
+            customer.setTelephone(telephone);
         }
         customerService.save(customer);
         return ResponseUtil.success();
