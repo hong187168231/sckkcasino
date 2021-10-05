@@ -125,4 +125,8 @@ public class BankcardsService {
     public void updateBankCards(Bankcards bankcards) {
         bankcardsRepository.save(bankcards);
     }
+
+    public Integer countByUserIdAndSort(Long userId, Integer sort) {
+        return bankcardsRepository.countByUserIdAndSort(userId,sort);
+    }
 }
