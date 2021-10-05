@@ -41,13 +41,6 @@ public class Bankcards extends BaseEntity{
      */
     @ApiModelProperty(value = "开户名")
     private String realName;
-
-    /**
-     * 0:未禁用 1：禁用
-     */
-    @ApiModelProperty(value = "0:未禁用 1：禁用")
-    private Integer disable;
-
     /**
      * 默认卡，主卡
      */

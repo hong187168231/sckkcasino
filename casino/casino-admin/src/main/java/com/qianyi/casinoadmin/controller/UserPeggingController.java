@@ -88,7 +88,6 @@ public class UserPeggingController {
                                 vo.setAddress(bankcard.getAddress());
                                 vo.setBankAccount(bankcard.getBankAccount());
                                 vo.setBankId(bankcard.getBankId());
-                                vo.setDisable(bankcard.getDisable());
                                 vo.setRealName(bankcard.getRealName());
                                 vo.setUserId(bankcard.getUserId());
                                 bankcardsVoList.add(vo);
