@@ -55,10 +55,9 @@ public class BankCardsController {
             @ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
             @ApiImplicitParam(name = "bankAccount", value = "银行账号", required = true),
             @ApiImplicitParam(name = "address", value = "开户地址", required = true),
-            @ApiImplicitParam(name = "sort", value = "序号", required = true),
             @ApiImplicitParam(name = "realName", value = "持卡人姓名")})
-    public ResponseEntity bound(String bankId, String bankAccount, String address, String realName,Integer sort){
-        String checkParamFroBound = Bankcards.checkParamFroBound(realName, bankId, bankAccount, address, sort);
+    public ResponseEntity bound(String bankId, String bankAccount, String address, String realName){
+        String checkParamFroBound = Bankcards.checkParamFroBound(realName, bankId, bankAccount, address);
         if (StringUtils.hasLength(checkParamFroBound)) {
             return ResponseUtil.custom(checkParamFroBound);
         }
@@ -66,12 +65,8 @@ public class BankCardsController {
         if(isGreatThan6()){
             return ResponseUtil.custom("已经超过6张银行卡");
         }
-        Long userId = CasinoWebUtil.getAuthId();
-        Integer count = bankcardsService.countByUserIdAndSort(userId, sort);
-        if (count > 0) {
-            return ResponseUtil.custom("序号为" + sort + "的银行卡已经存在,请勿重复添加");
-        }
-        Bankcards bankcards = boundCard(userId,bankId,bankAccount,address,realName,sort);
+
+        Bankcards bankcards = boundCard(bankId,bankAccount,address,realName);
         bankcards= bankcardsService.boundCard(bankcards);
         return ResponseUtil.success(bankcards);
     }
@@ -152,7 +147,8 @@ public class BankCardsController {
         return count>=6;
     }
 
-    private Bankcards boundCard(Long userId,String bankId, String bankAccount, String address, String realName,Integer sort){
+    private Bankcards boundCard(String bankId, String bankAccount, String address, String realName){
+        Long userId = CasinoWebUtil.getAuthId();
         Bankcards firstBankcard = bankcardsService.findBankCardsInByUserId(userId);
         Date now = new Date();
         Bankcards bankcards = new Bankcards();
@@ -163,9 +159,8 @@ public class BankCardsController {
         bankcards.setRealName(getRealName(firstBankcard,realName));
         bankcards.setUpdateTime(now);
         bankcards.setCreateTime(now);
-//        bankcards.setDisable(0);
+        bankcards.setDisable(0);
         bankcards.setDefaultCard(isFirstCard(firstBankcard));
-        bankcards.setSort(sort);
         return bankcards;
     }
 

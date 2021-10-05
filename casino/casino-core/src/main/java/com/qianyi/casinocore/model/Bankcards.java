@@ -55,12 +55,6 @@ public class Bankcards extends BaseEntity{
     private Integer defaultCard;
 
     /**
-     * 银行卡序号
-     */
-    @ApiModelProperty(value = "银行卡序号")
-    private Integer sort;
-
-    /**
      *  针对绑定银行卡接口的参数合法性校验
      * @param bankId
      * @param bankAccount
@@ -68,7 +62,7 @@ public class Bankcards extends BaseEntity{
      * @return
      */
     public static String checkParamFroBound(String accountName,String bankId, String bankAccount,
-                                            String address,Integer sort) {
+                                            String address) {
         if(!StringUtils.hasLength(accountName)){
             return "持卡人不能为空";
         }
@@ -83,12 +77,6 @@ public class Bankcards extends BaseEntity{
         }
         if (bankAccount.length() > 20 || bankAccount.length() < 16) {
             return "长度只能在16~20位！";
-        }
-        if (sort == null) {
-            return "银行卡序号不允许为空！";
-        }
-        if (sort < 1 || sort > 6) {
-            return "银行卡序号只能再1~6之间！";
         }
         return null;
     }
