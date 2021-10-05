@@ -2,10 +2,13 @@ package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinoadmin.vo.BankcardsVo;
 import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.Bankcards;
+import com.qianyi.casinocore.model.BankcardsDel;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.BankInfoService;
+import com.qianyi.casinocore.service.BankcardsDelService;
 import com.qianyi.casinocore.service.BankcardsService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.Constants;
@@ -22,7 +25,9 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,6 +44,9 @@ public class BankCardsController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private BankcardsDelService bankcardsDelService;
     /**
      * 查询所有银行列表
      * @return
@@ -153,9 +161,23 @@ public class BankCardsController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userId", value = "用户id", required = true),
     })
-    public ResponseEntity boundList(Long userId) {
+    public ResponseEntity<BankcardsVo> boundList(Long userId) {
+        List<BankcardsVo> bankcardsVoList = new LinkedList<>();
         List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(userId);
-        return ResponseUtil.success(bankcardsList);
+        if (!LoginUtil.checkNull(bankcardsList) && bankcardsList.size() > CommonConst.NUMBER_0){
+            for (Bankcards bankcards:bankcardsList){
+                BankcardsVo vo = new BankcardsVo(bankcards);
+                bankcardsVoList.add(vo);
+            }
+        }
+        List<BankcardsDel> byUserId = bankcardsDelService.findByUserId(userId);
+        if (!LoginUtil.checkNull(byUserId) && byUserId.size() > CommonConst.NUMBER_0){
+            for (BankcardsDel bankcards:byUserId){
+                BankcardsVo vo = new BankcardsVo(bankcards);
+                bankcardsVoList.add(vo);
+            }
+        }
+        return ResponseUtil.success(bankcardsVoList);
     }
 
     /**
@@ -199,29 +221,29 @@ public class BankCardsController {
             @ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
             @ApiImplicitParam(name = "bankAccount", value = "银行账号", required = true),
             @ApiImplicitParam(name = "address", value = "开户地址", required = true),
-            @ApiImplicitParam(name = "realName", value = "持卡人姓名")})
+            @ApiImplicitParam(name = "realName", value = "持卡人姓名",required = true)})
     public ResponseEntity bound(Long userId, String bankId, String bankAccount, String address, String realName){
         String checkParamFroBound = this.checkParamFroBound(realName, bankId, bankAccount, address);
         if (!LoginUtil.checkNull(checkParamFroBound)) {
             return ResponseUtil.custom(checkParamFroBound);
         }
-
         //判断是否存在该用户
         User user = userService.findById(userId);
         if(user == null){
             return ResponseUtil.custom("不存在该会员");
         }
-
-        //得到第一张银行卡，判断用户输入的姓名是否一致
-        List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(userId);
-        if(bankcardsList.size() > 0){
-            String realNa = bankcardsList.get(0).getRealName();
-            if(!realName.equals(realNa)){
+        //判断用户输入的姓名是否一致
+        if (LoginUtil.checkNull(user.getRealName())){
+            user.setRealName(realName);
+            userService.save(user);
+        }else {
+            if (!realName.equals(user.getRealName())){
                 return ResponseUtil.custom("持卡人姓名错误");
             }
         }
-        List<Bankcards> cards=bankcardsList.stream().filter(v ->v.getDisable()==0).collect(Collectors.toList());
-        if(cards.size()>=Constants.MAX_BANK_NUM){
+
+        List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(userId);
+        if(bankcardsList.size() >= Constants.MAX_BANK_NUM){
             return ResponseUtil.custom("最多只能绑定6张银行卡");
         }
         bankcardsList=bankcardsList.stream().filter(v ->v.getBankAccount().equals(bankAccount)).collect(Collectors.toList());
@@ -258,33 +280,26 @@ public class BankCardsController {
     }
 
     @PostMapping("/disable")
-    @ApiOperation("禁用/启用")
+    @ApiOperation("移除")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userId", value = "用户id", required = true),
             @ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
 
     })
+    @Transactional
     public ResponseEntity disable(Long userId, Long bankId){
+        if(LoginUtil.checkNull(userId,bankId)){
+            return ResponseUtil.custom("参数错误");
+        }
         //查询银行卡
         Bankcards bank = bankcardsService.findById(bankId);
         if(LoginUtil.checkNull(bank)){
-            return ResponseUtil.custom("用户未绑定银行卡");
-        }
-        if(bank.getDisable() == Constants.BANK_CLOSE){
-//            List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(userId);
-//            if (!LoginUtil.checkNull(bankcardsList) && bankcardsList.size() > CommonConst.NUMBER_0){
-//                bankcardsList = bankcardsList.stream().filter(v ->v.getDisable()==0).collect(Collectors.toList());
-//                if(bankcardsList.size()>=Constants.MAX_BANK_NUM){
-//                    return ResponseUtil.custom("最多只能绑定6张银行卡");
-//                }
-//            }
-//            bank.setDisable(Constants.BANK_OPEN);
             return ResponseUtil.custom("该银行卡已解绑");
-        }else{
-            bank.setDisable(Constants.BANK_CLOSE);
         }
-        boolean isSuccess= bankcardsService.boundCard(bank)==null?true:false;
-        return ResponseUtil.success(isSuccess);
+        BankcardsDel bankcardsDel = new BankcardsDel(bank);
+        bankcardsDelService.save(bankcardsDel);
+        bankcardsService.delBankcards(bank);
+        return ResponseUtil.success();
     }
 
 
@@ -297,7 +312,6 @@ public class BankCardsController {
         bankcards.setBankAccount(bankAccount);
         bankcards.setAddress(address);
         bankcards.setRealName(getRealName(firstBankcard,realName));
-        bankcards.setDisable(Constants.BANK_OPEN);
         bankcards.setDefaultCard(isFirstCard(firstBankcard));
         return bankcards;
     }

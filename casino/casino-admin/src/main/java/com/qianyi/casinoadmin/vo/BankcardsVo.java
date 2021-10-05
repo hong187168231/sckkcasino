@@ -1,14 +1,19 @@
 package com.qianyi.casinoadmin.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.qianyi.casinocore.model.Bankcards;
+import com.qianyi.casinocore.model.BankcardsDel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Data
 public class BankcardsVo  implements Serializable {
     private static final long serialVersionUID = -3009873269250305179L;
-
+    @ApiModelProperty("id")
+    private Long id;
     @ApiModelProperty("会员id")
     private Long userId;
     @ApiModelProperty("会员账号")
@@ -23,4 +28,34 @@ public class BankcardsVo  implements Serializable {
     private String realName;
     @ApiModelProperty(value = "0:未禁用 1：禁用")
     private Integer disable;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @ApiModelProperty(value = "修后修改时间")
+    private Date updateTime;
+    @ApiModelProperty(value = "修后修改人")
+    private String updateBy;
+    public BankcardsVo(){
+
+    }
+    public BankcardsVo(Bankcards bankcards){
+        this.id = bankcards.getId();
+        this.userId = bankcards.getUserId();
+        this.bankId = bankcards.getBankId();
+        this.bankAccount = bankcards.getBankAccount();
+        this.address = bankcards.getAddress();
+        this.realName = bankcards.getRealName();
+        this.disable = 0;
+        this.updateTime = bankcards.getUpdateTime();
+        this.updateBy = bankcards.getUpdateBy();
+    }
+    public BankcardsVo(BankcardsDel bankcards){
+        this.id = bankcards.getId();
+        this.userId = bankcards.getUserId();
+        this.bankId = bankcards.getBankId();
+        this.bankAccount = bankcards.getBankAccount();
+        this.address = bankcards.getAddress();
+        this.realName = bankcards.getRealName();
+        this.disable = 1;
+        this.updateTime = bankcards.getUpdateTime();
+        this.updateBy = bankcards.getUpdateBy();
+    }
 }
