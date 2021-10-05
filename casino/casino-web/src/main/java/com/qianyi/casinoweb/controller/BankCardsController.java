@@ -159,7 +159,7 @@ public class BankCardsController {
         bankcards.setRealName(getRealName(firstBankcard,realName));
         bankcards.setUpdateTime(now);
         bankcards.setCreateTime(now);
-        bankcards.setDisable(0);
+//        bankcards.setDisable(0);
         bankcards.setDefaultCard(isFirstCard(firstBankcard));
         return bankcards;
     }
