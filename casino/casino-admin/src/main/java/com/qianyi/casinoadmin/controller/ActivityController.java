@@ -36,7 +36,7 @@ public class ActivityController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "actName", value = "活动名称", required = false),
     })
-    public ResponseEntity bankList(String actName) {
+    public ResponseEntity<DepositSendActivity> bankList(String actName) {
         List<DepositSendActivity> depositSendActivityList = depositSendActivityService.findAllAct(actName);
         return ResponseUtil.success(depositSendActivityList);
     }

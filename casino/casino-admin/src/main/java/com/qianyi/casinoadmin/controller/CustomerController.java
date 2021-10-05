@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.CommonConst;
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.Customer;
 import com.qianyi.casinocore.service.CustomerService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -41,10 +42,14 @@ public class CustomerController {
             @ApiImplicitParam(name = "onlineUrl", value = "客服onlineUrl号", required = false),
             @ApiImplicitParam(name = "wechat", value = "客服wechat号", required = false),
             @ApiImplicitParam(name = "meiqia", value = "客服meiqia号", required = false),
+            @ApiImplicitParam(name = "telephone", value = "手机号", required = false),
     })
     public ResponseEntity updateKeyCustomer(String qq,String telegram,String skype,String whatsApp,String facebook,String onlineUrl,
-                                            String wechat,String meiqia){
+                                            String wechat,String meiqia,String telephone){
         Customer customer = customerService.findFirst();
+        if (LoginUtil.checkNull(customer)){
+            customer = new Customer();
+        }
         if (!CommonUtil.checkNull(qq)){
             customer.setQq(qq);
         }
@@ -69,12 +74,15 @@ public class CustomerController {
         if (!CommonUtil.checkNull(meiqia)){
             customer.setMeiqia(meiqia);
         }
+        if (!CommonUtil.checkNull(telephone)){
+            customer.setTelegram(telephone);
+        }
         customerService.save(customer);
         return ResponseUtil.success();
     }
     @ApiOperation("查询客服联系方式")
     @GetMapping("/findCustomer")
-    public ResponseEntity findCustomer(){
+    public ResponseEntity<Customer> findCustomer(){
         Customer customer = customerService.findFirst();
         return ResponseUtil.success(customer);
     }

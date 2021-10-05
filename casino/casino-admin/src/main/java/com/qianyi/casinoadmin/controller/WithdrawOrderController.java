@@ -65,7 +65,7 @@ public class WithdrawOrderController {
             @ApiImplicitParam(name = "account", value = "用户账号", required = false),
     })
     @GetMapping("/withdrawList")
-    public ResponseEntity withdrawList(Integer pageSize,Integer pageCode, Integer status, String account, String no, String bankId){
+    public ResponseEntity<WithdrawOrderVo> withdrawList(Integer pageSize,Integer pageCode, Integer status, String account, String no, String bankId){
         WithdrawOrder withdrawOrder = new WithdrawOrder();
         if (!LoginUtil.checkNull(account)){
             User user = userService.findByAccount(account);

@@ -88,7 +88,7 @@ public class UserController {
             @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
     })
     @GetMapping("findUserList")
-    public ResponseEntity findUserList(Integer pageSize, Integer pageCode, String account,Integer state,
+    public ResponseEntity<User> findUserList(Integer pageSize, Integer pageCode, String account,Integer state,
                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
 
@@ -442,7 +442,7 @@ public class UserController {
     }
 
     /**
-     * 后台配置会员收款卡修改
+     * 根据id查询用户登录注册ip
      *
      * @param id 会员id
      * @param pageSize 每页大小

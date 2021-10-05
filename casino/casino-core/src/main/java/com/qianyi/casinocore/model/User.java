@@ -18,24 +18,35 @@ import java.util.Collection;
 @Data
 @Entity
 public class User extends BaseEntity implements UserDetails {
-
+    @ApiModelProperty("名字")
     private String name;
     @Column(unique = true)
+    @ApiModelProperty("账号")
     private String account;
+    @ApiModelProperty("登录密码")
     private String password;
+    @ApiModelProperty("手机")
     private String phone;
+    @ApiModelProperty("语言")
     private Integer language;
+    @ApiModelProperty("头像")
     private String headImg;
     //帐号状态（1：启用，其他：禁用）
+    @ApiModelProperty("帐号状态（1：启用，其他：禁用）")
     private Integer state;
+    @ApiModelProperty("注册ip")
     private String registerIp;
     @ApiModelProperty("收款卡张数")
     private Integer creditCard;
     @ApiModelProperty("配置收款卡等级")//null 完全随机  或者 A|B|C|D
     private String cardLevel;
+    @ApiModelProperty("取款密码")
     private String withdrawPassword;
+    @ApiModelProperty("邮箱")
     private String email;
+    @ApiModelProperty("qq")
     private String qq;
+    @ApiModelProperty("微信")
     private String webChat;
     @JsonIgnore
     @Transient

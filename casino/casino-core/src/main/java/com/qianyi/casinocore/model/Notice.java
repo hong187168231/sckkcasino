@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 @Data
 @ApiModel("公告/活动")
 public class Notice extends BaseEntity {
+    @ApiModelProperty("内容")
     private String title;
     @ApiModelProperty("简介")
     private String introduction;

@@ -46,7 +46,7 @@ public class UserThirdController {
             @ApiImplicitParam(name = "userAccount", value = "用户账号", required = true),
             @ApiImplicitParam(name = "tag", value = "tag 0 用我方账号查第三方账号 ,1 第三方账号查我方账号", required = true),
     })
-    public ResponseEntity findUserThird(String userAccount,Integer tag){
+    public ResponseEntity<UserThirdVo> findUserThird(String userAccount,Integer tag){
         if (LoginUtil.checkNull(tag,userAccount)){
             return ResponseUtil.custom("参数不合法");
         }

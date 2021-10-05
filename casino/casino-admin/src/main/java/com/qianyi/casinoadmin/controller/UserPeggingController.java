@@ -53,7 +53,7 @@ public class UserPeggingController {
             @ApiImplicitParam(name = "context", value = "context 搜索内容", required = true),
     })
     @GetMapping("findUserPegging")
-    public ResponseEntity findUserPegging(Integer tag, String context){
+    public ResponseEntity<BankcardsVo> findUserPegging(Integer tag, String context){
         if (LoginUtil.checkNull(tag,context)){
             return ResponseUtil.custom("参数不合法");
         }

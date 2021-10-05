@@ -34,7 +34,7 @@ public class NoticeController {
             @ApiImplicitParam(name = "url", value = "详情访问页", required = true),
             @ApiImplicitParam(name = "introduction", value = "简介", required = true),
     })
-    public ResponseEntity saveNotice(String title,Boolean isShelves,String introduction,String url){
+    public ResponseEntity<Notice> saveNotice(String title,Boolean isShelves,String introduction,String url){
         Notice notice = new Notice();
         notice.setTitle(title);
         notice.setIntroduction(introduction);

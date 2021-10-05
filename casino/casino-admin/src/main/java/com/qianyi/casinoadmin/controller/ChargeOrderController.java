@@ -71,7 +71,7 @@ public class ChargeOrderController {
             @ApiImplicitParam(name = "account", value = "会员账号", required = false),
     })
     @GetMapping("/chargeOrderList")
-    public ResponseEntity chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String orderNo, String account){
+    public ResponseEntity<ChargeOrderVo> chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String orderNo, String account){
         Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Long userId = null;

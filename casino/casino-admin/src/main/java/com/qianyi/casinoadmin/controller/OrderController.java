@@ -45,7 +45,7 @@ public class OrderController {
             @ApiImplicitParam(name = "no", value = "订单号", required = false),
     })
     @GetMapping("findOrderList")
-    public ResponseEntity findOrderList(Integer pageSize, Integer pageCode, Long userId, String no){
+    public ResponseEntity<Order> findOrderList(Integer pageSize, Integer pageCode, Long userId, String no){
         Order order = new Order();
         order.setUserId(userId);
         order.setNo(no);

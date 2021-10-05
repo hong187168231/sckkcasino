@@ -23,7 +23,7 @@ import java.math.BigDecimal;
 @Slf4j
 @RestController
 @RequestMapping("/withdrawConfig")
-@Api(tags = "资金中心")
+@Api(tags = "运维管理")
 public class WithdrawConfigController {
     @Autowired
     private PlatformConfigService platformConfigService;
@@ -34,7 +34,7 @@ public class WithdrawConfigController {
      */
     @ApiOperation("提款设置列表")
     @GetMapping("/findWithdrawConfig")
-    public ResponseEntity findWithdrawConfig(){
+    public ResponseEntity<PlatformConfig> findWithdrawConfig(){
         PlatformConfig platformConfig = platformConfigService.findFirst();
         AmountConfigVo amountConfigVo = new AmountConfigVo();
         if (LoginUtil.checkNull(platformConfig)){
