@@ -82,13 +82,48 @@ public class UserController {
         if (user == null) {
             return ResponseUtil.custom("用户不存在");
         }
+        String regex = "^[0-9a-zA-Z]{0,20}$";
+        String emailRegex = "\\w+@\\w+(\\.\\w{2,3})*\\.\\w{2,3}";
         if ("0".equals(type)) {
-            user.setName(value);
+            if(!ObjectUtils.isEmpty(user.getRealName())){
+                return ResponseUtil.custom("信息已录入，不允许修改");
+            }
+            if(ObjectUtils.isEmpty(value)){
+                return ResponseUtil.custom("真实姓名不允许为空");
+            }
+            user.setRealName(value);
         } else if ("1".equals(type)) {
+            if(!ObjectUtils.isEmpty(user.getEmail())){
+                return ResponseUtil.custom("信息已录入，不允许修改");
+            }
+            if(ObjectUtils.isEmpty(value)){
+                return ResponseUtil.custom("邮箱不允许为空");
+            }
+            if (!value.matches(emailRegex)) {
+                return ResponseUtil.custom("邮箱格式填写错误");
+            }
             user.setEmail(value);
         } else if ("2".equals(type)) {
+            if(!ObjectUtils.isEmpty(user.getWebChat())){
+                return ResponseUtil.custom("信息已录入，不允许修改");
+            }
+            if(ObjectUtils.isEmpty(value)){
+                return ResponseUtil.custom("微信号不允许为空");
+            }
+            if (!value.matches(regex)) {
+                return ResponseUtil.custom("微信号只能是数字或字母且长度不超过20");
+            }
             user.setWebChat(value);
         } else if ("3".equals(type)) {
+            if(!ObjectUtils.isEmpty(user.getQq())){
+                return ResponseUtil.custom("信息已录入，不允许修改");
+            }
+            if(ObjectUtils.isEmpty(value)){
+                return ResponseUtil.custom("QQ号不允许为空");
+            }
+            if (!value.matches(regex)) {
+                return ResponseUtil.custom("QQ号只能是数字或字母且长度不超过20");
+            }
             user.setQq(value);
         } else{
             return ResponseUtil.custom("type字段值仅限于0,1,2,3");
@@ -108,6 +143,9 @@ public class UserController {
             @ApiImplicitParam(name = "phone", value = "手机号"),
     })
     public ResponseEntity webUpdateUserInfo(String email, String webChat, String qq, String phone) {
+        if(ObjectUtils.isEmpty(email)&&ObjectUtils.isEmpty(webChat)&&ObjectUtils.isEmpty(qq)&&ObjectUtils.isEmpty(phone)){
+            return ResponseUtil.custom("参数为空");
+        }
         String regex = "^[0-9a-zA-Z]{0,20}$";
         if (!ObjectUtils.isEmpty(webChat) && !webChat.matches(regex)) {
             return ResponseUtil.custom("微信号只能是数字或字母且长度不超过20");
