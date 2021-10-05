@@ -305,13 +305,12 @@ public class BankCardsController {
 
     private Bankcards boundCard(Long userId, String bankId, String bankAccount, String address, String realName){
         Bankcards firstBankcard = bankcardsService.findBankCardsInByUserId(userId);
-        Date now = new Date();
         Bankcards bankcards = new Bankcards();
         bankcards.setUserId(userId);
         bankcards.setBankId(bankId);
         bankcards.setBankAccount(bankAccount);
         bankcards.setAddress(address);
-        bankcards.setRealName(getRealName(firstBankcard,realName));
+        bankcards.setRealName(realName);
         bankcards.setDefaultCard(isFirstCard(firstBankcard));
         return bankcards;
     }
