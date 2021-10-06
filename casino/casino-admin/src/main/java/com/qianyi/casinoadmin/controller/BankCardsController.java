@@ -76,7 +76,7 @@ public class BankCardsController {
         }
         BankInfo bankInfo = new BankInfo();
         bankInfo.setBankType(CommonConst.NUMBER_0);//默认银行卡
-        bankInfo.setDisable(CommonConst.NUMBER_1);//默认禁用
+        bankInfo.setDisable(CommonConst.NUMBER_0);//默认禁用
         return this.saveAndUpdate(file,bankName,remark,bankInfo);
     }
     /**
