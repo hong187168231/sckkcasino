@@ -1,12 +1,13 @@
 package com.qianyi.casinoweb.job;
 
 import com.alibaba.fastjson.JSON;
-import com.qianyi.casinocore.business.UserCodeNumBusiness;
+import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -16,15 +17,17 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executor;
 
 @Component
 public class GameRecordJob {
 
+    @Qualifier("asyncExecutor")
+    @Autowired
+    private Executor executor;
+
     // 创建线程池
-    ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 10, 100, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10));
+//    ThreadPoolExecutor executor1 = new ThreadPoolExecutor(5, 10, 100, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10));
 
     @Autowired
     PublicWMApi wmApi;
@@ -37,7 +40,7 @@ public class GameRecordJob {
     @Autowired
     UserService userService;
     @Autowired
-    UserCodeNumBusiness userCodeNumBusiness;
+    UserMoneyBusiness userMoneyBusiness;
     @Autowired
     UserWashCodeConfigService userWashCodeConfigService;
     @Autowired
@@ -97,40 +100,42 @@ public class GameRecordJob {
     }
 
     public void saveAll(List<GameRecord> gameRecordList) {
-        //把大集成拆分成5个
-        List<List<GameRecord>> lists = averageAssign(gameRecordList, 5);
         //查询最小清0打码量
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        // 创建异步执行任务:
-        for (List<GameRecord> list : lists) {
-            if (CollectionUtils.isEmpty(list)) {
-                continue;
-            }
-            CompletableFuture cf = CompletableFuture.runAsync(() -> {
-                for (GameRecord gameRecord : list) {
-                    try {
-                        UserThird account = userThirdService.findByAccount(gameRecord.getUser());
-                        if (account == null) {
-                            continue;
-                        }
-                        BigDecimal validbet = BigDecimal.ZERO;
-                        if (gameRecord.getValidbet() != null) {
-                            validbet = new BigDecimal(gameRecord.getValidbet());
-                        }
-                        Long userId = account.getUserId();
-                        //有数据会重复注单id唯一约束会报错，所以一条一条保存，避免影响后面的
-                        GameRecord record = gameRecordService.save(gameRecord);
-                        //查询洗码配置
-                        Map<String, BigDecimal> washCode = findWashCode(userId);
-                        //洗码
-                        userCodeNumBusiness.washCode(washCode, Constants.PLATFORM, record, validbet, account.getUserId());
-                        //扣减打码量
-                        userCodeNumBusiness.subCodeNum(platformConfig, validbet, account.getUserId(), record.getId());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+        for (GameRecord gameRecord : gameRecordList) {
+            try {
+                UserThird account = userThirdService.findByAccount(gameRecord.getUser());
+                if (account == null) {
+                    continue;
                 }
-            }, executor);
+                BigDecimal validbet = BigDecimal.ZERO;
+                if (gameRecord.getValidbet() != null) {
+                    validbet = new BigDecimal(gameRecord.getValidbet());
+                }
+                Long userId = account.getUserId();
+                gameRecord.setWashCodeStatus(Constants.no);
+                gameRecord.setCodeNumStatus(Constants.no);
+                gameRecord.setShareProfitStatus(Constants.no);
+                //有数据会重复注单id唯一约束会报错，所以一条一条保存，避免影响后面的
+                GameRecord record = gameRecordService.save(gameRecord);
+                BigDecimal finalValidbet = validbet;
+                //洗码
+                CompletableFuture.runAsync(() -> {
+                    //查询洗码配置
+                    Map<String, BigDecimal> washCode = findWashCode(userId);
+                    userMoneyBusiness.washCode(washCode, Constants.PLATFORM, record, finalValidbet, account.getUserId());
+                }, executor);
+                //扣减打码量
+                CompletableFuture.runAsync(() -> {
+                    userMoneyBusiness.subCodeNum(platformConfig, finalValidbet, account.getUserId(), record);
+                }, executor);
+                //代理分润
+                CompletableFuture.runAsync(() -> {
+                    userMoneyBusiness.shareProfit(finalValidbet, account.getUserId(),record);
+                }, executor);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -145,4 +145,8 @@ public class UserService {
     public List<User> findByRegisterIp(String ip) {
         return userRepository.findByRegisterIp(ip);
     }
+
+    public User findByInviteCode(String inviteCode) {
+        return userRepository.findByInviteCode(inviteCode);
+    }
 }

@@ -116,6 +116,34 @@ public class UserMoneyService {
         }
     }
 
+
+    /**
+     * 增加分润金额
+     * @param userId 用户id
+     * @param shareProfit 分润金额
+     */
+    @CacheEvict(key = "#userId")
+    @Transactional
+    public void addShareProfit(Long userId, BigDecimal shareProfit) {
+        synchronized (userId) {
+            userMoneyRepository.addShareProfit(userId, shareProfit);
+        }
+    }
+
+
+    /**
+     * 扣减分润金额
+     * @param userId 用户id
+     * @param shareProfit 分润金额
+     */
+    @CacheEvict(key = "#userId")
+    @Transactional
+    public void subShareProfit(Long userId, BigDecimal shareProfit) {
+        synchronized (userId) {
+            userMoneyRepository.subShareProfit(userId, shareProfit);
+        }
+    }
+
     @Cacheable(key = "#userId")
     public UserMoney findByUserId(Long userId) {
         UserMoney userMoney = userMoneyRepository.findByUserId(userId);

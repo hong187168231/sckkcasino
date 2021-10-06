@@ -154,8 +154,8 @@ public class WashCodeController {
         if (userMoney.getWashCode() == null) {
             userMoney.setWashCode(BigDecimal.ZERO);
         }
-        if (userMoney.getWashCode().compareTo(BigDecimal.ZERO) == 0) {
-            return ResponseUtil.custom("洗码金额为0");
+        if (userMoney.getWashCode().compareTo(BigDecimal.ONE) == -1) {
+            return ResponseUtil.custom("洗码金额小于1,不能领取");
         }
         userMoneyService.addMoney(userId, userMoney.getWashCode());
         userMoneyService.subWashCode(userId, userMoney.getWashCode());

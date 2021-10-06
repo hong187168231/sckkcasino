@@ -21,4 +21,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     User findUserByUserIdUseLock(Long userId);
 
     List<User> findByRegisterIp(String ip);
+
+    User findByInviteCode(String inviteCode);
 }

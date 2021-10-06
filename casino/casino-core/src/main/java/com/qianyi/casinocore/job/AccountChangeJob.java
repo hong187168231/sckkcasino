@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * 登陆信息处理线程
+ * 账变中心处理线程
  */
 @Component
 public class AccountChangeJob implements AsyncService<AccountChangeVo> {

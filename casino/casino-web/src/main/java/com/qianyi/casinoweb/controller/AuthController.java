@@ -8,6 +8,7 @@ import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
+import com.qianyi.casinoweb.util.InviteCodeUtil;
 import com.qianyi.casinoweb.vo.LoginLogVo;
 import com.qianyi.moduleauthenticator.WangyiDunAuthUtil;
 import com.qianyi.modulecommon.Constants;
@@ -75,10 +76,11 @@ public class AuthController {
             @ApiImplicitParam(name = "password", value = "密码", required = true),
             @ApiImplicitParam(name = "phone", value = "电话号码", required = true),
             @ApiImplicitParam(name = "validate", value = "网易易顿", required = true),
+            @ApiImplicitParam(name = "inviteCode", value = "邀请码", required = true),
     })
     public ResponseEntity register(String account, String password, String phone,
-                                   HttpServletRequest request, String validate) {
-        boolean checkNull = CommonUtil.checkNull(account, password, phone, validate);
+                                   HttpServletRequest request, String validate,String inviteCode) {
+        boolean checkNull = CommonUtil.checkNull(account, password, phone, validate,inviteCode);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
@@ -126,12 +128,20 @@ public class AuthController {
         }
 
         user = new User();
+        User byInviteCode = userService.findByInviteCode(inviteCode);
+        if (byInviteCode == null) {
+            return ResponseUtil.custom("邀请码不存在");
+        }
+        user.setFirstPid(byInviteCode.getId());
+        user.setSecondPid(byInviteCode.getFirstPid());
+        user.setThirdPid(byInviteCode.getSecondPid());
         user.setAccount(account);
         user.setPassword(CasinoWebUtil.bcrypt(password));
         user.setPhone(phone);
         user.setState(Constants.open);
         user.setRegisterIp(ip);
-
+        //生成邀请码
+        user.setInviteCode(createInviteCode());
         User save = userService.save(user);
         //userMoney表初始化数据
         UserMoney userMoney = new UserMoney();
@@ -380,5 +390,15 @@ public class AuthController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private String createInviteCode() {
+        User user = null;
+        String inviteCode = null;
+        do {
+            inviteCode = InviteCodeUtil.randomCode6();
+            user = userService.findByInviteCode(inviteCode);
+        } while (user != null);
+        return inviteCode;
     }
 }

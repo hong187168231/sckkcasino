@@ -1,0 +1,32 @@
+package com.qianyi.casinocore.vo;
+
+import com.qianyi.modulecommon.executor.JobSuperVo;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.math.BigDecimal;
+
+@Data
+@ApiModel("用户分润")
+public class ShareProfitVo extends JobSuperVo {
+
+    @ApiModelProperty(value = "用户ID")
+    private Long userId;
+    @ApiModelProperty(value = "有效下注")
+    private BigDecimal validbet;
+    @ApiModelProperty(value = "是否首次下注")
+    private Boolean isFirst = false;
+    @ApiModelProperty(value = "第一级用户")
+    private Long firstUserId;
+    @ApiModelProperty(value = "第一级分润")
+    private BigDecimal firstMoney;
+    @ApiModelProperty(value = "第二级用户ID")
+    private Long secondUserId;
+    @ApiModelProperty(value = "第二级分润")
+    private BigDecimal secondMoney;
+    @ApiModelProperty(value = "第三级用户ID")
+    private Long thirdUserId;
+    @ApiModelProperty(value = "第三级分润")
+    private BigDecimal thirdMoney;
+}
