@@ -90,6 +90,7 @@ public class UserPeggingController {
                                 vo.setBankId(bankcard.getBankId());
                                 vo.setRealName(bankcard.getRealName());
                                 vo.setUserId(bankcard.getUserId());
+                                vo.setDefaultCard(bankcard.getDefaultCard());
                                 bankcardsVoList.add(vo);
                             }
                         });
