@@ -105,7 +105,7 @@ public class UserController {
             List<UserVo> userVoList = new LinkedList();
             List<Long> userIds = userList.stream().map(User::getId).collect(Collectors.toList());
             List<UserMoney> userMoneyList =  userMoneyService.findAll(userIds);
-            if(userMoneyList != null && userMoneyList.size() > 0){
+            if(userMoneyList != null){
                 userList.stream().forEach(u -> {
                     UserVo userVo = new UserVo(u);
                     userMoneyList.stream().forEach(userMoney -> {

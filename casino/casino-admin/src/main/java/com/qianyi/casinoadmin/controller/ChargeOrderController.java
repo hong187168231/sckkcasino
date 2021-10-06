@@ -93,7 +93,7 @@ public class ChargeOrderController {
             List<User> userList = userService.findAll(userIds);
             List<CollectionBankcard> all = collectionBankcardService.findAll(collect);
             Map<Long, CollectionBankcard> bankcardMap = all.stream().collect(Collectors.toMap(CollectionBankcard::getId, a -> a, (k1, k2) -> k1));
-            if(userList != null && userList.size() > 0){
+            if(userList != null){
                 content.stream().forEach(chargeOrder ->{
                     ChargeOrderVo chargeOrderVo = new ChargeOrderVo(chargeOrder);
                     userList.stream().forEach(user->{

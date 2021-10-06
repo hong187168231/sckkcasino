@@ -79,21 +79,21 @@ public class UserPeggingController {
             if(userBank != null && userBank.size() > 0){
                 List<Long> userIds = userBank.stream().map(Bankcards::getUserId).collect(Collectors.toList());
                 List<User> userList = userService.findAll(userIds);
-                if(userList != null && userList.size() > 0){
-                    userList.stream().forEach(user ->{
-                        userBank.stream().forEach(bankcard->{
+                if(userList != null){
+                    userBank.stream().forEach( bankcard->{
+                        BankcardsVo vo = new BankcardsVo();
+                        vo.setAddress(bankcard.getAddress());
+                        vo.setBankAccount(bankcard.getBankAccount());
+                        vo.setBankId(bankcard.getBankId());
+                        vo.setRealName(bankcard.getRealName());
+                        vo.setUserId(bankcard.getUserId());
+                        vo.setDefaultCard(bankcard.getDefaultCard());
+                        userList.stream().forEach(user->{
                             if (user.getId().equals(bankcard.getUserId())){
-                                BankcardsVo vo = new BankcardsVo();
                                 vo.setAccount(user.getAccount());
-                                vo.setAddress(bankcard.getAddress());
-                                vo.setBankAccount(bankcard.getBankAccount());
-                                vo.setBankId(bankcard.getBankId());
-                                vo.setRealName(bankcard.getRealName());
-                                vo.setUserId(bankcard.getUserId());
-                                vo.setDefaultCard(bankcard.getDefaultCard());
-                                bankcardsVoList.add(vo);
                             }
                         });
+                        bankcardsVoList.add(vo);
                     });
                 }
                 userIds.clear();

@@ -72,7 +72,7 @@ public class OrderController {
             List<OrderVo> orderVoList =new LinkedList<>();
             List<Long> userIds = content.stream().map(Order::getUserId).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
-            if(userList != null && userList.size() > 0){
+            if(userList != null){
                 content.stream().forEach(change ->{
                     OrderVo orderVo = new OrderVo(change);
                     userList.stream().forEach(user->{

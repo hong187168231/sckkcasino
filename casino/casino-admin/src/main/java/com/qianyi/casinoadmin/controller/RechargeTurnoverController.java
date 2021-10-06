@@ -63,7 +63,7 @@ public class RechargeTurnoverController {
             List<RechargeTurnoverVo> rechargeTurnoverVoList = new LinkedList<>();
             List<Long> userIds = content.stream().map(RechargeTurnover::getUserId).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
-            if(userList != null && userList.size() > 0){
+            if(userList != null){
                 content.stream().forEach(recharge->{
                     RechargeTurnoverVo rechargeTurnoverVo = new RechargeTurnoverVo(recharge);
                     userList.stream().forEach(user->{
