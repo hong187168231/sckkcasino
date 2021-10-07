@@ -33,6 +33,9 @@ public class UserMoney extends BaseEntity{
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal shareProfit = BigDecimal.ZERO;
 
+    @ApiModelProperty("是否首充 0 是 1 不是")
+    private Integer isFirst;
+
     /**
      * 没有这个字段下面的计算可提现金额方法，redis缓存取的时候会报找不到withdrawMoney字段
      */
