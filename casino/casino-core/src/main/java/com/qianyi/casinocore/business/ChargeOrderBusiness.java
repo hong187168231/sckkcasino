@@ -4,10 +4,12 @@ import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.AccountChangeVo;
+import com.qianyi.casinocore.vo.RechargeRecordVo;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -41,6 +43,9 @@ public class ChargeOrderBusiness {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * 成功订单确认
@@ -105,12 +110,12 @@ public class ChargeOrderBusiness {
         //流水表记录
         RechargeTurnover turnover = getRechargeTurnover(chargeOrder,user, codeNum, codeTimes);
         rechargeTurnoverService.save(turnover);
-        log.info("后台直接上分userId {} 类型 {}订单号 {} chargeAmount is {}, money is {}",user.getUserId(),
+        log.info("后台上分userId {} 类型 {}订单号 {} chargeAmount is {}, money is {}",user.getUserId(),
                 changeEnum.getCode(),chargeOrder.getOrderNo(),subtract, user.getMoney());
         //用户账变记录
         this.saveAccountChang(changeEnum,user.getUserId(),subtract,user.getMoney(),chargeOrder.getOrderNo());
         //发送充值消息
-        this.sendMessage(user.getUserId(),isFirst,chargeOrder.getChargeAmount(),new ArrayList<>());
+        this.sendMessage(user.getUserId(),isFirst,chargeOrder.getChargeAmount());
         return ResponseUtil.success();
     }
     private void saveAccountChang(AccountChangeEnum changeEnum, Long userId, BigDecimal amount, BigDecimal amountAfter, String orderNo){
@@ -135,13 +140,22 @@ public class ChargeOrderBusiness {
         return rechargeTurnover;
     }
 
-    private void sendMessage(Long userId,Integer isFirst,BigDecimal chargeAmount,List<Long> list){
-        Map<String,Object> map= new HashMap<>();
-        map.put("userId",userId);
-        map.put("isFirst",isFirst);
-        map.put("chargeAmount",chargeAmount);
-        map.put("list",list);
-        rabbitTemplate.convertAndSend("ChargeOrderExchange","chargeOrder",map,new CorrelationData(UUID.randomUUID().toString()));
-        log.info("success");
+    private void sendMessage(Long userId,Integer isFirst,BigDecimal chargeAmount){
+        try {
+            User user = userService.findById(userId);
+            RechargeRecordVo rechargeRecordVo = new RechargeRecordVo();
+            rechargeRecordVo.setUserId(userId);
+            rechargeRecordVo.setIsFirst(isFirst);
+            rechargeRecordVo.setChargeAmount(chargeAmount);
+            rechargeRecordVo.setFirstUserId(user.getFirstPid());
+            rechargeRecordVo.setSecondUserId(user.getSecondPid());
+            rechargeRecordVo.setThirdUserId(user.getThirdPid());
+            rabbitTemplate.convertAndSend(RabbitMqConstants.CHARGEORDER_DIRECTQUEUE_DIRECTEXCHANGE,
+                    RabbitMqConstants.INGCHARGEORDER_DIRECT,rechargeRecordVo,new CorrelationData(UUID.randomUUID().toString()));
+            log.info("充值发送消息成功 userId {} isFirst{} chargeAmount {}",userId,isFirst,chargeAmount);
+        }catch (Exception ex){
+            log.error("充值发送消息失败 userId {} isFirst{} chargeAmount {} 错误{} ",userId,isFirst,chargeAmount,ex);
+        }
+
     }
 }

@@ -14,30 +14,30 @@ public class DirectRabbitConfig {
     public Queue TestDirectQueue(){
         return new Queue("TestDirectQueue",true);
     }
-
-    @Bean
-    public Queue ChargeOrderQueue(){
-        return new Queue("ChargeOrderQueue",true);
-    }
-
     @Bean
     public DirectExchange TestDirectExchange(){
         return new DirectExchange("TestDirectExchange",true,false);
     }
-
-    @Bean
-    public DirectExchange ChargeOrderExchange(){
-        return new DirectExchange("ChargeOrderExchange",true,false);
-    }
-
     @Bean
     public Binding bindingDirect(){
         return BindingBuilder.bind(TestDirectQueue()).to(TestDirectExchange()).with("123");
     }
 
+    /**
+     * 充值消息MQ
+     * @return
+     */
+    @Bean
+    public Queue ChargeOrderQueue(){
+        return new Queue(RabbitMqConstants.CHARGEORDER_QUEUE,true);
+    }
+    @Bean
+    public DirectExchange ChargeOrderExchange(){
+        return new DirectExchange(RabbitMqConstants.CHARGEORDER_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
     @Bean
     public Binding bindingChargeOrder(){
-        return BindingBuilder.bind(ChargeOrderQueue()).to(ChargeOrderExchange()).with("chargeOrder");
+        return BindingBuilder.bind(ChargeOrderQueue()).to(ChargeOrderExchange()).with(RabbitMqConstants.INGCHARGEORDER_DIRECT);
     }
 
 
