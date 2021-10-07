@@ -33,6 +33,19 @@ spring:
     port: 8000
     password: Redis_123P
     timeout: 3000
+  rabbitmq:
+    host: 154.204.57.237 #ip
+    port: 5672      #端口
+    username: qd #账号
+    password: qd123 #密码
+    publisher-returns: true
+    virtual-host: qd
+    publisher-confirm-type: correlated
+    listener:
+      simple:
+        acknowledge-mode: manual
+    template:
+      mandatory: true
 project:
   title: 后台管理
   username: admin
