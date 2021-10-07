@@ -133,7 +133,7 @@ public class GameRecordJob {
                 //扣减打码量
                 userMoneyBusiness.subCodeNum(platformConfig, record);
                 //代理分润
-                userMoneyBusiness.shareProfit(platformConfig,record);
+                userMoneyBusiness.shareProfit(record);
             } catch (Exception e) {
                 e.printStackTrace();
             }
