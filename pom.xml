@@ -23,6 +23,7 @@
         <module>module-springcache-redis</module>
         <module>pay</module>
         <module>casino</module>
+        <module>module-spring-rabbitmq</module>
     </modules>
 
     <properties>
