@@ -95,7 +95,7 @@ public class WithdrawOrderController {
             List<User> userList = userService.findAll(userIds);
             List<Bankcards> all = bankcardsService.findAll(collect);
             Map<Long, Bankcards> bankcardMap = all.stream().collect(Collectors.toMap(Bankcards::getId, a -> a, (k1, k2) -> k1));
-            if(userList != null && userList.size() > 0){
+            if(userList != null){
                 content.stream().forEach(withdraw ->{
                     WithdrawOrderVo withdrawOrderVo = new WithdrawOrderVo(withdraw);
                     userList.stream().forEach(user->{

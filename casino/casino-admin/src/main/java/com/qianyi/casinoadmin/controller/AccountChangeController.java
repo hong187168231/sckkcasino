@@ -71,7 +71,7 @@ public class AccountChangeController {
             List<AccountChangeVo> accountChangeVoList =new LinkedList<>();
             List<Long> userIds = content.stream().map(AccountChange::getUserId).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
-            if(userList != null && userList.size() > 0){
+            if(userList != null){
                 content.stream().forEach(change ->{
                     AccountChangeVo accountChangeVo = new AccountChangeVo(change);
                     userList.stream().forEach(user->{

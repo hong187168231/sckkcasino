@@ -2,8 +2,10 @@ package com.qianyi.casinoweb.controller;
 
 import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.Bankcards;
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.BankcardsService;
+import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -31,6 +33,9 @@ public class BankCardsController {
     @Autowired
     private BankcardsService bankcardsService;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping("/banklist")
     @ApiOperation("银行列表")
     @ResponseBody
@@ -57,16 +62,19 @@ public class BankCardsController {
             @ApiImplicitParam(name = "address", value = "开户地址", required = true),
             @ApiImplicitParam(name = "realName", value = "持卡人姓名")})
     public ResponseEntity bound(String bankId, String bankAccount, String address, String realName){
-        String checkParamFroBound = Bankcards.checkParamFroBound(realName, bankId, bankAccount, address);
+        String checkParamFroBound = Bankcards.checkParamFroBound(bankId, bankAccount, address);
         if (StringUtils.hasLength(checkParamFroBound)) {
             return ResponseUtil.custom(checkParamFroBound);
         }
-
+        Long userId = CasinoWebUtil.getAuthId();
+        Bankcards firstBankcard = bankcardsService.findBankCardsInByUserId(userId);
+        if (firstBankcard == null && ObjectUtils.isEmpty(realName)) {
+            return ResponseUtil.custom("持卡人不能为空");
+        }
         if(isGreatThan6()){
             return ResponseUtil.custom("已经超过6张银行卡");
         }
-
-        Bankcards bankcards = boundCard(bankId,bankAccount,address,realName);
+        Bankcards bankcards = boundCard(firstBankcard,bankId,bankAccount,address,realName,userId);
         bankcards= bankcardsService.boundCard(bankcards);
         return ResponseUtil.success(bankcards);
     }
@@ -147,25 +155,29 @@ public class BankCardsController {
         return count>=6;
     }
 
-    private Bankcards boundCard(String bankId, String bankAccount, String address, String realName){
-        Long userId = CasinoWebUtil.getAuthId();
-        Bankcards firstBankcard = bankcardsService.findBankCardsInByUserId(userId);
+    private Bankcards boundCard(Bankcards firstBankcard,String bankId, String bankAccount, String address, String realName,Long userId){
         Date now = new Date();
         Bankcards bankcards = new Bankcards();
         bankcards.setUserId(userId);
         bankcards.setBankId(bankId);
         bankcards.setBankAccount(bankAccount);
         bankcards.setAddress(address);
-        bankcards.setRealName(getRealName(firstBankcard,realName));
+        bankcards.setRealName(getRealName(realName,userId));
         bankcards.setUpdateTime(now);
         bankcards.setCreateTime(now);
-        bankcards.setDisable(0);
+//        bankcards.setDisable(0);
         bankcards.setDefaultCard(isFirstCard(firstBankcard));
         return bankcards;
     }
 
-    private String getRealName(Bankcards bankcards, String realName){
-        return bankcards==null?realName:bankcards.getRealName();
+    private String getRealName(String realName,Long userId){
+        User user = userService.findById(userId);
+        if(ObjectUtils.isEmpty(user.getRealName())){
+            user.setRealName(realName);
+            userService.save(user);
+            return realName;
+        }
+        return user.getRealName();
     }
 
     private Integer isFirstCard(Bankcards bankcards){

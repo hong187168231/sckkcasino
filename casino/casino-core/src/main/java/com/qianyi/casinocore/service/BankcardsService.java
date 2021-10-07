@@ -29,6 +29,10 @@ public class BankcardsService {
         return bankcardsRepository.save(bankcards);
     }
 
+    public void delBankcards(Bankcards bankcards){
+        bankcardsRepository.delete(bankcards);
+    }
+
     public Bankcards findBankCardsInByUserId(Long userId) {
         return bankcardsRepository.findFirstByUserId(userId);
     }
