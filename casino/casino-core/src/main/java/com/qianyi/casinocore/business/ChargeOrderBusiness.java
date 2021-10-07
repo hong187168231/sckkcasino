@@ -4,6 +4,7 @@ import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.AccountChangeVo;
+import com.qianyi.casinocore.vo.RechargeRecordVo;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -142,15 +143,15 @@ public class ChargeOrderBusiness {
     private void sendMessage(Long userId,Integer isFirst,BigDecimal chargeAmount){
         try {
             User user = userService.findById(userId);
-            Map<String,Object> map= new HashMap<>();
-            map.put("userId",userId);
-            map.put("isFirst",isFirst);
-            map.put("chargeAmount",chargeAmount);
-            map.put("firstPid",user.getFirstPid());
-            map.put("secondPid",user.getSecondPid());
-            map.put("thirdPid",user.getFirstPid());
+            RechargeRecordVo rechargeRecordVo = new RechargeRecordVo();
+            rechargeRecordVo.setUserId(userId);
+            rechargeRecordVo.setIsFirst(isFirst);
+            rechargeRecordVo.setChargeAmount(chargeAmount);
+            rechargeRecordVo.setFirstUserId(user.getFirstPid());
+            rechargeRecordVo.setSecondUserId(user.getSecondPid());
+            rechargeRecordVo.setThirdUserId(user.getFirstPid());
             rabbitTemplate.convertAndSend(RabbitMqConstants.CHARGEORDER_DIRECTQUEUE_DIRECTEXCHANGE,
-                    RabbitMqConstants.INGCHARGEORDER_DIRECT,map,new CorrelationData(UUID.randomUUID().toString()));
+                    RabbitMqConstants.INGCHARGEORDER_DIRECT,rechargeRecordVo,new CorrelationData(UUID.randomUUID().toString()));
             log.info("充值发送消息成功 userId {} isFirst{} chargeAmount {}",userId,isFirst,chargeAmount);
         }catch (Exception ex){
             log.error("充值发送消息失败 userId {} isFirst{} chargeAmount {} 错误{} ",userId,isFirst,chargeAmount,ex);
