@@ -36,5 +36,5 @@ public class UserVo {
     @ApiModelProperty("邀请码")
     private String inviteCode;
     @ApiModelProperty("分润余额")
-    private BigDecimal shareProfi;
+    private BigDecimal shareProfit;
 }

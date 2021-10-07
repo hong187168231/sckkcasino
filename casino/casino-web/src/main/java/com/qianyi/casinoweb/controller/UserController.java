@@ -54,7 +54,7 @@ public class UserController {
             vo.setDrawMoney(defaultVal);
             vo.setMoney(defaultVal);
             vo.setWashCode(defaultVal);
-            vo.setShareProfi(defaultVal);
+            vo.setShareProfit(defaultVal);
             return new ResponseEntity(ResponseCode.SUCCESS, vo);
         }
         BigDecimal money = userMoney.getMoney() == null ? defaultVal : userMoney.getMoney().setScale(2, BigDecimal.ROUND_HALF_UP);
@@ -64,8 +64,8 @@ public class UserController {
         vo.setUnfinshTurnover(codeNum);
         BigDecimal washCode= userMoney.getWashCode() == null ? defaultVal : userMoney.getWashCode().setScale(2, BigDecimal.ROUND_HALF_UP);
         vo.setWashCode(washCode);
-        BigDecimal shareProfi= userMoney.getShareProfit() == null ? defaultVal : userMoney.getShareProfit().setScale(2, BigDecimal.ROUND_HALF_UP);
-        vo.setShareProfi(shareProfi);
+        BigDecimal shareProfit= userMoney.getShareProfit() == null ? defaultVal : userMoney.getShareProfit().setScale(2, BigDecimal.ROUND_HALF_UP);
+        vo.setShareProfit(shareProfit);
         return new ResponseEntity(ResponseCode.SUCCESS, vo);
     }
 
