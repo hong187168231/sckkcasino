@@ -1,11 +1,13 @@
 package com.qianyi.casinocore.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 @Entity
@@ -78,6 +80,10 @@ public class PlatformConfig {
     @ApiModelProperty("三级玩家返佣")
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal thirdCommission;
+
+    @ApiModelProperty("玩家返佣配置修改时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date commissionUpdate;
 
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){

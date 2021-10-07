@@ -6,6 +6,7 @@ import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
+import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -28,7 +30,7 @@ public class PlatformConfigController {
     @Autowired
     private PlatformConfigService platformConfigService;
 
-    @ApiOperation("玩家推广返佣配置")
+    @ApiOperation("玩家推广返佣配置查询")
     @GetMapping("/findCommission")
     public ResponseEntity<UserCommissionVo> findAll(){
         List<PlatformConfig> platformConfigList = platformConfigService.findAll();
@@ -36,6 +38,7 @@ public class PlatformConfigController {
         for (PlatformConfig platformConfig : platformConfigList) {
             userCommissionVo = UserCommissionVo.builder()
                     .name("玩家推广返佣配置")
+                    .id(platformConfig.getId())
                     .firstCommission(platformConfig.getFirstCommission())
                     .secondCommission(platformConfig.getSecondCommission())
                     .thirdCommission(platformConfig.getThirdCommission())
@@ -52,17 +55,31 @@ public class PlatformConfigController {
     })
     @GetMapping("/updateCommission")
     public ResponseEntity<UserCommissionVo> update(BigDecimal firstCommission, BigDecimal secondCommission, BigDecimal thirdCommission){
+        BigDecimal commission = firstCommission.add(secondCommission).add(thirdCommission);
+        if(commission.compareTo(BigDecimal.ONE) != 0){
+            return ResponseUtil.custom("代理返佣配置总和不等于100%");
+        }
         List<PlatformConfig> platformConfigList = platformConfigService.findAll();
         if(platformConfigList != null && platformConfigList.size() >= 1){
+            Date commissionUpdate = platformConfigList.get(0).getCommissionUpdate();
+            if(commissionUpdate != null){
+                long time = new Date().getTime() - commissionUpdate.getTime();
+                int oneDay = 60 * 60 * 1000 * 24;//一天时间
+                if(oneDay > time){
+                    return ResponseUtil.custom("该配置，每24小时只能修改一次");
+                }
+            }
             platformConfigList.get(0).setFirstCommission(firstCommission);
             platformConfigList.get(0).setSecondCommission(secondCommission);
             platformConfigList.get(0).setThirdCommission(thirdCommission);
+            platformConfigList.get(0).setCommissionUpdate(new Date());
             platformConfigService.save(platformConfigList.get(0));
         }else{
             PlatformConfig platformConfig = new PlatformConfig();
             platformConfig.setFirstCommission(firstCommission);
             platformConfig.setSecondCommission(secondCommission);
             platformConfig.setThirdCommission(thirdCommission);
+            platformConfig.setCommissionUpdate(new Date());
             platformConfigService.save(platformConfig);
         }
         return new ResponseEntity(ResponseCode.SUCCESS);
