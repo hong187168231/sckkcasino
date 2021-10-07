@@ -225,6 +225,7 @@ public class UserController {
         userMoney.setUserId(save.getId());
         userMoney.setMoney(BigDecimal.ZERO);
         userMoney.setCodeNum(BigDecimal.ZERO);
+        userMoney.setIsFirst(CommonConst.NUMBER_0);
         userMoneyService.save(userMoney);
 
         JSONObject jsonObject = new JSONObject();

@@ -16,12 +16,27 @@ public class DirectRabbitConfig {
     }
 
     @Bean
+    public Queue ChargeOrderQueue(){
+        return new Queue("ChargeOrderQueue",true);
+    }
+
+    @Bean
     public DirectExchange TestDirectExchange(){
         return new DirectExchange("TestDirectExchange",true,false);
     }
 
     @Bean
+    public DirectExchange ChargeOrderExchange(){
+        return new DirectExchange("ChargeOrderExchange",true,false);
+    }
+
+    @Bean
     public Binding bindingDirect(){
         return BindingBuilder.bind(TestDirectQueue()).to(TestDirectExchange()).with("123");
+    }
+
+    @Bean
+    public Binding bindingChargeOrder(){
+        return BindingBuilder.bind(ChargeOrderQueue()).to(ChargeOrderExchange()).with("chargeOrder");
     }
 }

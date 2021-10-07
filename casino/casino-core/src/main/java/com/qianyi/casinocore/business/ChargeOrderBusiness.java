@@ -9,13 +9,16 @@ import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -35,6 +38,9 @@ public class ChargeOrderBusiness {
     @Autowired
     @Qualifier("accountChangeJob")
     AsyncService asyncService;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     /**
      * 成功订单确认
@@ -91,6 +97,10 @@ public class ChargeOrderBusiness {
         BigDecimal codeTimes = (platformConfig == null || platformConfig.getBetRate() == null) ? new BigDecimal(2) : platformConfig.getBetRate();
         BigDecimal codeNum = subtract.multiply(codeTimes);
         user.setCodeNum(user.getCodeNum().add(codeNum));
+        Integer isFirst = user.getIsFirst() == null ? 0 : user.getIsFirst();
+        if (isFirst == 0){
+            user.setIsFirst(1);
+        }
         userMoneyService.save(user);
         //流水表记录
         RechargeTurnover turnover = getRechargeTurnover(chargeOrder,user, codeNum, codeTimes);
@@ -99,6 +109,8 @@ public class ChargeOrderBusiness {
                 changeEnum.getCode(),chargeOrder.getOrderNo(),subtract, user.getMoney());
         //用户账变记录
         this.saveAccountChang(changeEnum,user.getUserId(),subtract,user.getMoney(),chargeOrder.getOrderNo());
+        //发送充值消息
+        this.sendMessage(user.getUserId(),isFirst,chargeOrder.getChargeAmount(),new ArrayList<>());
         return ResponseUtil.success();
     }
     private void saveAccountChang(AccountChangeEnum changeEnum, Long userId, BigDecimal amount, BigDecimal amountAfter, String orderNo){
@@ -121,5 +133,15 @@ public class ChargeOrderBusiness {
         rechargeTurnover.setRemitType(order.getRemitType());
         rechargeTurnover.setUserId(order.getUserId());
         return rechargeTurnover;
+    }
+
+    private void sendMessage(Long userId,Integer isFirst,BigDecimal chargeAmount,List<Long> list){
+        Map<String,Object> map= new HashMap<>();
+        map.put("userId",userId);
+        map.put("isFirst",isFirst);
+        map.put("chargeAmount",chargeAmount);
+        map.put("list",list);
+        rabbitTemplate.convertAndSend("ChargeOrderExchange","chargeOrder",map,new CorrelationData(UUID.randomUUID().toString()));
+        log.info("success");
     }
 }
