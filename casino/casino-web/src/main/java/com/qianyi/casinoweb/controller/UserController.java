@@ -42,7 +42,7 @@ public class UserController {
     }
 
     @GetMapping("getMoney")
-    @ApiOperation("获取当前用户的余额，打码量，可提现金额,洗码金额")
+    @ApiOperation("获取当前用户的余额,打码量,可提现金额,洗码金额,分润金额")
     public ResponseEntity<UserVo> getMoney() {
         Long userId = CasinoWebUtil.getAuthId();
         UserVo vo = new UserVo();
@@ -54,6 +54,7 @@ public class UserController {
             vo.setDrawMoney(defaultVal);
             vo.setMoney(defaultVal);
             vo.setWashCode(defaultVal);
+            vo.setShareProfi(defaultVal);
             return new ResponseEntity(ResponseCode.SUCCESS, vo);
         }
         BigDecimal money = userMoney.getMoney() == null ? defaultVal : userMoney.getMoney().setScale(2, BigDecimal.ROUND_HALF_UP);
@@ -63,6 +64,8 @@ public class UserController {
         vo.setUnfinshTurnover(codeNum);
         BigDecimal washCode= userMoney.getWashCode() == null ? defaultVal : userMoney.getWashCode().setScale(2, BigDecimal.ROUND_HALF_UP);
         vo.setWashCode(washCode);
+        BigDecimal shareProfi= userMoney.getShareProfit() == null ? defaultVal : userMoney.getShareProfit().setScale(2, BigDecimal.ROUND_HALF_UP);
+        vo.setShareProfi(shareProfi);
         return new ResponseEntity(ResponseCode.SUCCESS, vo);
     }
 

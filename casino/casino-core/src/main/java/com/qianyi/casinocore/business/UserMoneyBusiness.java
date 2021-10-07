@@ -6,13 +6,22 @@ import com.qianyi.casinocore.vo.ShareProfitVo;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.DateUtil;
+import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * 用户钱包操作
@@ -31,17 +40,26 @@ public class UserMoneyBusiness {
     private CodeNumChangeService codeNumChangeService;
     @Autowired
     private GameRecordService gameRecordService;
+    @Autowired
+    private UserWashCodeConfigService userWashCodeConfigService;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     //默认最小清零打码量
-    private static final BigDecimal DEFAULT_CLEAR=new BigDecimal("10");
+    private static final BigDecimal DEFAULT_CLEAR = new BigDecimal("10");
 
-    /**
-     * @param validbet 有效投注额
-     * @param userId   用户id
+    /***
+     *
+     * @param platformConfig
+     * @param record
      * @return
      */
+    @Async("asyncExecutor")
     @Transactional
-    public ResponseEntity subCodeNum(PlatformConfig platformConfig,BigDecimal validbet, Long userId,GameRecord record) {
+    public ResponseEntity subCodeNum(PlatformConfig platformConfig, GameRecord record) {
+        BigDecimal validbet = new BigDecimal(record.getValidbet());
+        Long userId = record.getUserId();
+        log.info("开始打码={}", record.toString());
         if (validbet == null || userId == null) {
             return ResponseUtil.fail();
         }
@@ -71,17 +89,17 @@ public class UserMoneyBusiness {
         if (validbet.compareTo(codeNum) > -1) {
             userMoneyService.subCodeNum(userId, codeNum);
             BigDecimal codeNumAfter = user.getCodeNum().subtract(codeNum);
-            codeNumChangeService.save(userId,gameRecordId,codeNum.negate(),user.getCodeNum(),codeNumAfter);
+            codeNumChangeService.save(userId, gameRecordId, codeNum.negate(), user.getCodeNum(), codeNumAfter);
             user.setCodeNum(codeNumAfter);
         } else {
             //有效投注额小于剩余打码量
             userMoneyService.subCodeNum(userId, validbet);
             BigDecimal codeNumAfter = user.getCodeNum().subtract(validbet);
-            codeNumChangeService.save(userId,gameRecordId,validbet.negate(),user.getCodeNum(),codeNumAfter);
+            codeNumChangeService.save(userId, gameRecordId, validbet.negate(), user.getCodeNum(), codeNumAfter);
             user.setCodeNum(codeNumAfter);
         }
         //扣减完毕后再次检查最小清零打码量
-        checkClearCodeNum(platformConfig,userId,gameRecordId,user);
+        checkClearCodeNum(platformConfig, userId, gameRecordId, user);
         record.setCodeNumStatus(Constants.yes);
         gameRecordService.save(record);
         return ResponseUtil.success();
@@ -89,6 +107,7 @@ public class UserMoneyBusiness {
 
     /**
      * 最小清0打码量检查
+     *
      * @param platformConfig
      * @param userId
      * @param gameRecordId
@@ -96,34 +115,41 @@ public class UserMoneyBusiness {
      * @return
      */
     @Transactional
-    public ResponseEntity checkClearCodeNum(PlatformConfig platformConfig,Long userId,Long gameRecordId,UserMoney user){
+    public ResponseEntity checkClearCodeNum(PlatformConfig platformConfig, Long userId, Long gameRecordId, UserMoney user) {
         BigDecimal codeNum = user.getCodeNum();
         if (platformConfig != null && platformConfig.getClearCodeNum() != null) {
             BigDecimal minCodeNumVal = platformConfig.getClearCodeNum();
             //剩余打码量小于等于最小清零打码量时 直接清0
             if (codeNum.compareTo(minCodeNumVal) < 1) {
                 userMoneyService.subCodeNum(userId, codeNum);
-                codeNumChangeService.save(userId,gameRecordId,codeNum.negate(),user.getCodeNum(),user.getCodeNum().subtract(codeNum));
+                codeNumChangeService.save(userId, gameRecordId, codeNum.negate(), user.getCodeNum(), user.getCodeNum().subtract(codeNum));
                 return ResponseUtil.success();
             }
-        }else{
+        } else {
             if (codeNum.compareTo(DEFAULT_CLEAR) < 1) {
                 userMoneyService.subCodeNum(userId, codeNum);
-                codeNumChangeService.save(userId,gameRecordId,codeNum.negate(),user.getCodeNum(),user.getCodeNum().subtract(codeNum));
+                codeNumChangeService.save(userId, gameRecordId, codeNum.negate(), user.getCodeNum(), user.getCodeNum().subtract(codeNum));
                 return ResponseUtil.success();
             }
         }
         return ResponseUtil.fail();
     }
 
+    @Async("asyncExecutor")
     @Transactional
-    public BigDecimal washCode(Map<String, BigDecimal> washCode,String platform, GameRecord gameRecord, BigDecimal validbet, Long userId){
-        BigDecimal rate = washCode.get(gameRecord.getGid().toString());
-        if (rate == null || validbet == null || BigDecimal.ZERO.compareTo(rate) == 0 || BigDecimal.ZERO.compareTo(validbet) == 0) {
-            return BigDecimal.ZERO;
+    public void washCode(String platform, GameRecord gameRecord) {
+        BigDecimal validbet = new BigDecimal(gameRecord.getValidbet());
+        Long userId = gameRecord.getUserId();
+        log.info("开始洗码={}", gameRecord.toString());
+        WashCodeConfig config = userWashCodeConfigService.getWashCodeConfigByUserIdAndGameId(platform, userId, gameRecord.getGid().toString());
+        if (config == null && config.getRate() == null || validbet == null || BigDecimal.ZERO.compareTo(config.getRate()) == 0 || BigDecimal.ZERO.compareTo(validbet) == 0) {
+            gameRecord.setWashCodeStatus(Constants.yes);
+            gameRecordService.save(gameRecord);
+            return;
         }
+        BigDecimal rate = config.getRate();
         BigDecimal washCodeVal = validbet.multiply(rate);
-        WashCodeChange washCodeChange=new WashCodeChange();
+        WashCodeChange washCodeChange = new WashCodeChange();
         washCodeChange.setUserId(userId);
         washCodeChange.setAmount(washCodeVal);
         washCodeChange.setPlatform(platform);
@@ -134,21 +160,23 @@ public class UserMoneyBusiness {
         washCodeChange.setGameRecordId(gameRecord.getId());
         washCodeChangeService.save(washCodeChange);
         userMoneyService.findUserByUserIdUseLock(userId);
-        userMoneyService.addWashCode(userId,washCodeVal);
+        userMoneyService.addWashCode(userId, washCodeVal);
         gameRecord.setWashCodeStatus(Constants.yes);
         gameRecordService.save(gameRecord);
-        return washCodeVal;
     }
 
     /**
      * 三级分润
-     * @param validbet
-     * @param userId
+     *
      * @param record
      */
+    @Async("asyncExecutor")
     @Transactional
-    public void shareProfit(BigDecimal validbet, Long userId, GameRecord record) {
-        if (validbet == null) {
+    public void shareProfit(PlatformConfig platformConfig, GameRecord record) {
+        log.info("开始三级分润={}", record.toString());
+        BigDecimal validbet = new BigDecimal(record.getValidbet());
+        Long userId = record.getUserId();
+        if (platformConfig == null) {
             updateShareProfitStatus(record);
             return;
         }
@@ -167,9 +195,9 @@ public class UserMoneyBusiness {
             updateShareProfitStatus(record);
             return;
         }
-        BigDecimal firstRate = new BigDecimal("0.0014");
-        BigDecimal secondRate = new BigDecimal("0.0002");
-        BigDecimal thirdRate = new BigDecimal("0.00005");
+        BigDecimal firstRate = platformConfig.getFirstCommission() == null ? BigDecimal.ZERO : platformConfig.getFirstCommission();
+        BigDecimal secondRate = platformConfig.getSecondCommission() == null ? BigDecimal.ZERO : platformConfig.getSecondCommission();
+        BigDecimal thirdRate = platformConfig.getThirdCommission() == null ? BigDecimal.ZERO : platformConfig.getThirdCommission();
         ShareProfitVo shareProfitVo = new ShareProfitVo();
         //查询当前用户是否是首次下注
         if (user.getIsFirstBet() != null && user.getIsFirstBet() == Constants.no) {
@@ -179,9 +207,12 @@ public class UserMoneyBusiness {
         }
         //一级分润
         BigDecimal firstMoney = validbet.multiply(firstRate).setScale(2, BigDecimal.ROUND_HALF_UP);
+        firstMoney = firstMoney == null ? BigDecimal.ZERO : firstMoney;
         shareProfitVo.setFirstUserId(firstPid);
         shareProfitVo.setFirstMoney(firstMoney);
-        userMoneyService.addShareProfit(firstPid, firstMoney);
+        if (firstMoney.compareTo(BigDecimal.ZERO) == 1) {
+            userMoneyService.addShareProfit(firstPid, firstMoney);
+        }
         //二级分润
         Long secondPid = user.getSecondPid();
         UserMoney secondUser = null;
@@ -190,9 +221,12 @@ public class UserMoneyBusiness {
         }
         if (secondUser != null) {
             BigDecimal secondMoney = validbet.multiply(secondRate).setScale(2, BigDecimal.ROUND_HALF_UP);
+            secondMoney = secondMoney == null ? BigDecimal.ZERO : secondMoney;
             shareProfitVo.setSecondUserId(secondPid);
             shareProfitVo.setSecondMoney(secondMoney);
-            userMoneyService.addShareProfit(secondPid, secondMoney);
+            if (secondMoney.compareTo(BigDecimal.ZERO) == 1) {
+                userMoneyService.addShareProfit(secondPid, secondMoney);
+            }
         }
         //三级分润
         Long thirdPid = user.getThirdPid();
@@ -202,19 +236,25 @@ public class UserMoneyBusiness {
         }
         if (thirdUser != null) {
             BigDecimal thirdMoney = validbet.multiply(thirdRate).setScale(2, BigDecimal.ROUND_HALF_UP);
+            thirdMoney = thirdMoney == null ? BigDecimal.ZERO : thirdMoney;
             shareProfitVo.setThirdUserId(thirdPid);
             shareProfitVo.setThirdMoney(thirdMoney);
-            userMoneyService.addShareProfit(thirdPid, thirdMoney);
+            if (thirdMoney.compareTo(BigDecimal.ZERO) == 1) {
+                userMoneyService.addShareProfit(thirdPid, thirdMoney);
+            }
         }
         updateShareProfitStatus(record);
+        rabbitTemplate.convertAndSend(RabbitMqConstants.SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.SHAREPROFIT_DIRECT, shareProfitVo, new CorrelationData(UUID.randomUUID().toString()));
+        log.info("分润消息发送成功={}", shareProfitVo);
     }
 
     /**
      * 更新分润状态
+     *
      * @param record
      */
     @Transactional
-    public void updateShareProfitStatus(GameRecord record){
+    public void updateShareProfitStatus(GameRecord record) {
         record.setShareProfitStatus(Constants.yes);
         gameRecordService.save(record);
     }

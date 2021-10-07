@@ -17,6 +17,10 @@ public class WashCodeConfigService {
         return washCodeConfigRepository.findAll();
     }
 
+    public List<WashCodeConfig> findByPlatformAndState(String platform,Integer state){
+        return washCodeConfigRepository.findByPlatformAndState(platform,state);
+    }
+
     public List<WashCodeConfig> findByPlatform(String platform){
         return washCodeConfigRepository.findByPlatform(platform);
     }

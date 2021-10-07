@@ -21,10 +21,14 @@ import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.ExpiringMapUtil;
 import com.qianyi.modulecommon.util.IpUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
+import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -42,10 +46,12 @@ import javax.transaction.Transactional;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.UUID;
 
 @Api(tags = "认证中心")
 @RestController
 @RequestMapping("auth")
+@Slf4j
 public class AuthController {
 
     //这里的captchaProducer要和KaptchaConfig里面的bean命名一样
@@ -60,6 +66,8 @@ public class AuthController {
     RedisTemplate redisTemplate;
     @Autowired
     PlatformConfigService platformConfigService;
+    @Autowired
+    RabbitTemplate rabbitTemplate;
 
     @Autowired
     @Qualifier("loginLogJob")
@@ -154,8 +162,10 @@ public class AuthController {
         vo.setUserId(user.getId());
         vo.setRemark(Constants.CASINO_WEB);
         vo.setType(2);
-
         asyncService.executeAsync(vo);
+        //推送MQ
+        rabbitTemplate.convertAndSend(RabbitMqConstants.ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.ADDUSERTOTEAM_DIRECT, save, new CorrelationData(UUID.randomUUID().toString()));
+        log.info("团队新增成员消息发送成功={}", save);
         return ResponseUtil.success();
     }
 
@@ -165,12 +175,13 @@ public class AuthController {
             @ApiImplicitParam(name = "account", value = "帐号", required = true),
             @ApiImplicitParam(name = "password", value = "密码", required = true),
             @ApiImplicitParam(name = "validate", value = "网易易顿", required = true),
+            @ApiImplicitParam(name = "deviceId", value = "设备ID,移动端必传", required = false),
     })
     @PostMapping("loginA")
     public ResponseEntity loginA(
             String account,
             String password,
-            String validate) {
+            String validate,String deviceId) {
         if (CasinoWebUtil.checkNull(account, password, validate)) {
             return ResponseUtil.parameterNotNull();
         }
@@ -181,23 +192,31 @@ public class AuthController {
 //            return ResponseUtil.custom("验证码错误");
 //        }
 
-        //验证码校验
-        boolean wangyidun = WangyiDunAuthUtil.verify(validate);
-        if (!wangyidun) {
-            return ResponseUtil.custom("验证码错误");
-        }
-
         User user = userService.findByAccount(account);
         if (user == null) {
             return ResponseUtil.custom("帐号或密码错误");
         }
-
         String bcryptPassword = user.getPassword();
         boolean bcrypt = CasinoWebUtil.checkBcrypt(password, bcryptPassword);
         if (!bcrypt) {
             return ResponseUtil.custom("帐号或密码错误");
         }
-
+        //常用设备优先校验
+        boolean verifyFlag = false;
+        if (!ObjectUtils.isEmpty(user.getDeviceId()) && !ObjectUtils.isEmpty(deviceId) && user.getDeviceId().equals(deviceId)) {
+            verifyFlag = true;
+        }
+        if (!verifyFlag) {
+            //验证码校验
+            boolean wangyidun = WangyiDunAuthUtil.verify(validate);
+            if (!wangyidun) {
+                return ResponseUtil.custom("验证码错误");
+            }
+        }
+        if (ObjectUtils.isEmpty(user.getDeviceId()) && !ObjectUtils.isEmpty(deviceId)) {
+            user.setDeviceId(deviceId);
+            userService.save(user);
+        }
         //记录登陆日志
         String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
         LoginLogVo vo = new LoginLogVo();

@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
 import java.math.BigDecimal;
 
 @Data
@@ -32,4 +33,8 @@ public class UserVo {
     private String webChat;
     @ApiModelProperty("手机号")
     private String phone;
+    @ApiModelProperty("邀请码")
+    private String inviteCode;
+    @ApiModelProperty("分润余额")
+    private BigDecimal shareProfi;
 }

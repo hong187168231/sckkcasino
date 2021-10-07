@@ -16,7 +16,6 @@ import org.springframework.util.ObjectUtils;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 @Component
@@ -105,34 +104,36 @@ public class GameRecordJob {
         for (GameRecord gameRecord : gameRecordList) {
             try {
                 UserThird account = userThirdService.findByAccount(gameRecord.getUser());
-                if (account == null) {
+                if (account == null || account.getUserId() == null) {
                     continue;
                 }
+                gameRecord.setUserId(account.getUserId());
                 BigDecimal validbet = BigDecimal.ZERO;
                 if (gameRecord.getValidbet() != null) {
                     validbet = new BigDecimal(gameRecord.getValidbet());
                 }
                 Long userId = account.getUserId();
-                gameRecord.setWashCodeStatus(Constants.no);
-                gameRecord.setCodeNumStatus(Constants.no);
-                gameRecord.setShareProfitStatus(Constants.no);
+                //有效投注额为0不参与洗码,打码,分润
+                if (validbet.compareTo(BigDecimal.ZERO) == 0) {
+                    gameRecord.setWashCodeStatus(Constants.yes);
+                    gameRecord.setCodeNumStatus(Constants.yes);
+                    gameRecord.setShareProfitStatus(Constants.yes);
+                } else {
+                    gameRecord.setWashCodeStatus(Constants.no);
+                    gameRecord.setCodeNumStatus(Constants.no);
+                    gameRecord.setShareProfitStatus(Constants.no);
+                }
                 //有数据会重复注单id唯一约束会报错，所以一条一条保存，避免影响后面的
                 GameRecord record = gameRecordService.save(gameRecord);
-                BigDecimal finalValidbet = validbet;
+                if (validbet.compareTo(BigDecimal.ZERO) == 0) {
+                    continue;
+                }
                 //洗码
-                CompletableFuture.runAsync(() -> {
-                    //查询洗码配置
-                    Map<String, BigDecimal> washCode = findWashCode(userId);
-                    userMoneyBusiness.washCode(washCode, Constants.PLATFORM, record, finalValidbet, account.getUserId());
-                }, executor);
+                userMoneyBusiness.washCode(Constants.PLATFORM, record);
                 //扣减打码量
-                CompletableFuture.runAsync(() -> {
-                    userMoneyBusiness.subCodeNum(platformConfig, finalValidbet, account.getUserId(), record);
-                }, executor);
+                userMoneyBusiness.subCodeNum(platformConfig, record);
                 //代理分润
-                CompletableFuture.runAsync(() -> {
-                    userMoneyBusiness.shareProfit(finalValidbet, account.getUserId(),record);
-                }, executor);
+                userMoneyBusiness.shareProfit(platformConfig,record);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -164,29 +165,5 @@ public class GameRecordJob {
             result.add(value);
         }
         return result;
-    }
-
-    /**
-     * 获取洗码配置
-     *
-     * @param userId
-     * @return
-     */
-    public Map<String, BigDecimal> findWashCode(Long userId) {
-        Map<String, BigDecimal> config = new HashMap<>();
-        //先查询用户级别的配置信息
-        List<UserWashCodeConfig> codeConfigs = userWashCodeConfigService.findByUserIdAndPlatform(userId, Constants.PLATFORM);
-        if (!CollectionUtils.isEmpty(codeConfigs)) {
-            codeConfigs.stream().filter(item -> (item.getState() != null && item.getState() == 0)).forEach(item ->
-                    config.put(item.getGameId(), item.getRate())
-            );
-            return config;
-        }
-        List<WashCodeConfig> platform = washCodeConfigService.findByPlatform(Constants.PLATFORM);
-        if (CollectionUtils.isEmpty(platform)) {
-            return config;
-        }
-        platform.stream().filter(item -> (item.getState() != null && item.getState() == 0)).forEach(item -> config.put(item.getGameId(), item.getRate()));
-        return config;
     }
 }

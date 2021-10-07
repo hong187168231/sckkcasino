@@ -52,14 +52,16 @@ public class User extends BaseEntity implements UserDetails {
     private String realName;
     @ApiModelProperty("直属父级ID")
     private Long firstPid;
-    @ApiModelProperty("上上级ID")
+    @ApiModelProperty("第二级ID")
     private Long secondPid;
-    @ApiModelProperty("上上上级ID")
+    @ApiModelProperty("第三级ID")
     private Long thirdPid;
     @ApiModelProperty("邀请码")
     private String inviteCode;
     @ApiModelProperty("是否是首次下注：0是，1,否")
     private Integer isFirstBet = Constants.no;
+    @ApiModelProperty("常用设备ID")
+    private String deviceId;
     @JsonIgnore
     @Transient
     private String token;

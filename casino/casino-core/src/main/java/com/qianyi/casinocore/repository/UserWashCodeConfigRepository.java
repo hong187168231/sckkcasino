@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface UserWashCodeConfigRepository extends JpaRepository<UserWashCodeConfig,Long>, JpaSpecificationExecutor<UserWashCodeConfig> {
 
-    List<UserWashCodeConfig> findByUserIdAndPlatform(Long userId, String platform);
+    List<UserWashCodeConfig> findByUserIdAndPlatformAndState(Long userId, String platform,Integer state);
 
     List<UserWashCodeConfig> findByUserId(Long userId);
 }

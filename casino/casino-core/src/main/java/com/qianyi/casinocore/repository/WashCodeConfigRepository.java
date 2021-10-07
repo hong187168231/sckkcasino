@@ -9,4 +9,6 @@ import java.util.List;
 public interface WashCodeConfigRepository extends JpaRepository<WashCodeConfig,Long>, JpaSpecificationExecutor<WashCodeConfig> {
 
     List<WashCodeConfig> findByPlatform(String platform);
+
+    List<WashCodeConfig> findByPlatformAndState(String platform,Integer state);
 }

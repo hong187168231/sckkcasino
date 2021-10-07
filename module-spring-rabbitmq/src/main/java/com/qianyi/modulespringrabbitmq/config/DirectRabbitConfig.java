@@ -39,4 +39,44 @@ public class DirectRabbitConfig {
     public Binding bindingChargeOrder(){
         return BindingBuilder.bind(ChargeOrderQueue()).to(ChargeOrderExchange()).with("chargeOrder");
     }
+
+
+    /**
+     * 分润MQ
+     * @return
+     */
+    @Bean
+    public Queue shareProfitDirectQueue(){
+        return new Queue(RabbitMqConstants.SHAREPROFIT_DIRECTQUEUE,true);
+    }
+
+    @Bean
+    public DirectExchange shareProfitDirectQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+
+    @Bean
+    public Binding ShareProfitDirect(){
+        return BindingBuilder.bind(TestDirectQueue()).to(shareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.SHAREPROFIT_DIRECT);
+    }
+
+
+    /**
+     * 团队新增成员
+     * @return
+     */
+    @Bean
+    public Queue addUserToTeamQueue(){
+        return new Queue(RabbitMqConstants.ADDUSERTOTEAM_DIRECTQUEUE,true);
+    }
+
+    @Bean
+    public DirectExchange addUserToTeamDirectQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+
+    @Bean
+    public Binding addUserToTeam(){
+        return BindingBuilder.bind(TestDirectQueue()).to(addUserToTeamDirectQueueDirectExchange()).with(RabbitMqConstants.ADDUSERTOTEAM_DIRECT);
+    }
 }

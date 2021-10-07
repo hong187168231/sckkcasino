@@ -1,6 +1,5 @@
 package com.qianyi.casinocore.vo;
 
-import com.qianyi.modulecommon.executor.JobSuperVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -9,7 +8,7 @@ import java.math.BigDecimal;
 
 @Data
 @ApiModel("用户分润")
-public class ShareProfitVo extends JobSuperVo {
+public class ShareProfitVo{
 
     @ApiModelProperty(value = "用户ID")
     private Long userId;

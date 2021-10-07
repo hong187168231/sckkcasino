@@ -77,7 +77,7 @@ public class WashCodeController {
             return ResponseUtil.custom("用户钱包不存在");
         }
         BigDecimal washCode = userMoney.getWashCode() == null ? BigDecimal.ZERO : userMoney.getWashCode();
-        List<WashCodeConfig> washCodeConfig = getWashCodeConfig(userId);
+        List<WashCodeConfig> washCodeConfig = userWashCodeConfigService.getWashCodeConfig(Constants.PLATFORM,userId);
         List<WashCodeChange> list = washCodeChangeService.getList(userId, startTime, endTime);
         Map<String, Object> data = new HashMap<>();
         List<WashCodeVo> voList = new ArrayList<>();
@@ -121,24 +121,6 @@ public class WashCodeController {
         data.put("totalAmount", washCode);
         data.put("list", voList);
         return ResponseUtil.success(data);
-    }
-
-    private List<WashCodeConfig> getWashCodeConfig(Long userId) {
-        //先查询用户级的洗码配置
-        List<UserWashCodeConfig> codeConfigs = userWashCodeConfigService.findByUserIdAndPlatform(userId, Constants.PLATFORM);
-        if (!CollectionUtils.isEmpty(codeConfigs)) {
-            List<WashCodeConfig> list = new ArrayList<>();
-            WashCodeConfig config = null;
-            for (UserWashCodeConfig codeConfig : codeConfigs) {
-                config = new WashCodeConfig();
-                BeanUtils.copyProperties(codeConfig, config);
-                list.add(config);
-            }
-            return list;
-        }
-        //先查询全局洗码配置
-        List<WashCodeConfig> configs = washCodeConfigService.findByPlatform(Constants.PLATFORM);
-        return configs;
     }
 
     @ApiOperation("用户领取洗码")

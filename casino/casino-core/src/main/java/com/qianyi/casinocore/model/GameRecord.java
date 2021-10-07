@@ -19,6 +19,12 @@ public class GameRecord extends BaseEntity{
     /**
      * 账号
      */
+    @ApiModelProperty(value = "我方账号")
+    private Long userId;
+
+    /**
+     * 账号
+     */
     @ApiModelProperty(value = "账号")
     private String user;
 
