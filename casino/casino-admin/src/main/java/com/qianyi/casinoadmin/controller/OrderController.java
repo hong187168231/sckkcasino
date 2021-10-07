@@ -1,8 +1,12 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinoadmin.vo.OrderVo;
+import com.qianyi.casinoadmin.vo.PageResultVO;
 import com.qianyi.casinocore.model.Order;
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.OrderService;
+import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -21,6 +25,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("order")
@@ -31,7 +38,8 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-
+    @Autowired
+    private UserService userService;
     /**
      * 查询操作
      * 注意：jpa 是从第0页开始的
@@ -41,18 +49,43 @@ public class OrderController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "userId", value = "用户Id", required = false),
+            @ApiImplicitParam(name = "account", value = "用户账号", required = false),
             @ApiImplicitParam(name = "no", value = "订单号", required = false),
     })
     @GetMapping("findOrderList")
-    public ResponseEntity<Order> findOrderList(Integer pageSize, Integer pageCode, Long userId, String no){
+    public ResponseEntity<OrderVo> findOrderList(Integer pageSize, Integer pageCode,  String account, String no){
         Order order = new Order();
-        order.setUserId(userId);
+        if (!LoginUtil.checkNull(account)){
+            User user = userService.findByAccount(account);
+            if (LoginUtil.checkNull(user)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            order.setUserId(user.getId());
+        }
         order.setNo(no);
         Sort sort=Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<Order> userPage = orderService.findOrderPage(pageable, order);
-        return ResponseUtil.success(userPage);
+        PageResultVO<OrderVo> pageResultVO = new PageResultVO(userPage);
+        List<Order> content = userPage.getContent();
+        if(content != null && content.size() > 0){
+            List<OrderVo> orderVoList =new LinkedList<>();
+            List<Long> userIds = content.stream().map(Order::getUserId).collect(Collectors.toList());
+            List<User> userList = userService.findAll(userIds);
+            if(userList != null){
+                content.stream().forEach(change ->{
+                    OrderVo orderVo = new OrderVo(change);
+                    userList.stream().forEach(user->{
+                        if (user.getId().equals(change.getUserId())){
+                            orderVo.setAccount(user.getAccount());
+                        }
+                    });
+                    orderVoList.add(orderVo);
+                });
+            }
+            pageResultVO.setContent(orderVoList);
+        }
+        return ResponseUtil.success(pageResultVO);
     }
 
 //    @ApiOperation("添加订单")
