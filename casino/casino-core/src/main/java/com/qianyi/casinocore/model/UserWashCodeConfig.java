@@ -31,4 +31,9 @@ public class UserWashCodeConfig extends BaseEntity{
 
     @ApiModelProperty(value = "状态：0:禁用，1:启用")
     private Integer state;
+    @ApiModelProperty(value = "每日最低投注量")
+    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    private BigDecimal minBet = BigDecimal.ZERO;
+
+
 }
