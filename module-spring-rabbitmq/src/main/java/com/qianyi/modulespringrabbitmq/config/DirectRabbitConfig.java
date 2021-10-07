@@ -17,7 +17,7 @@ public class DirectRabbitConfig {
 
     @Bean
     public Queue ChargeOrderQueue(){
-        return new Queue("ChargeOrderQueue",true);
+        return new Queue(RabbitMqConstants.CHARGEORDER_QUEUE,true);
     }
 
     @Bean
@@ -27,7 +27,7 @@ public class DirectRabbitConfig {
 
     @Bean
     public DirectExchange ChargeOrderExchange(){
-        return new DirectExchange("ChargeOrderExchange",true,false);
+        return new DirectExchange(RabbitMqConstants.CHARGEORDER_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
     }
 
     @Bean
@@ -37,7 +37,7 @@ public class DirectRabbitConfig {
 
     @Bean
     public Binding bindingChargeOrder(){
-        return BindingBuilder.bind(ChargeOrderQueue()).to(ChargeOrderExchange()).with("chargeOrder");
+        return BindingBuilder.bind(ChargeOrderQueue()).to(ChargeOrderExchange()).with(RabbitMqConstants.INGCHARGEORDER_DIRECT);
     }
 
 

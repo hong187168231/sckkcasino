@@ -13,5 +13,9 @@ public class RabbitMqConstants {
     public final static String ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE = "addUserToTeamDirectQueueDirectExchange";
     public final static String ADDUSERTOTEAM_DIRECT = "addUserToTeam";
 
+    public final static String CHARGEORDER_QUEUE = "ChargeOrderQueue";
+    public final static String CHARGEORDER_DIRECTQUEUE_DIRECTEXCHANGE = "ChargeOrderExchange";
+    public final static String INGCHARGEORDER_DIRECT = "chargeOrder";
+
 
 }
