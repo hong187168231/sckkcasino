@@ -67,6 +67,18 @@ public class PlatformConfig {
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal wmMoneyWarning;
 
+    @ApiModelProperty("一级玩家返佣")
+    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    private BigDecimal firstCommission;
+
+    @ApiModelProperty("二级玩家返佣")
+    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    private BigDecimal secondCommission;
+
+    @ApiModelProperty("三级玩家返佣")
+    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    private BigDecimal thirdCommission;
+
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){
         if (this.chargeRate == null){
