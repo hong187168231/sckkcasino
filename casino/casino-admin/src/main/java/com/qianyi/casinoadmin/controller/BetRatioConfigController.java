@@ -26,7 +26,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/betRatioConfig")
-@Api(tags = "运维管理")
+@Api(tags = "运营中心")
 public class BetRatioConfigController {
 
     @Autowired

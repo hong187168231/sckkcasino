@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("ipBlack")
-@Api(tags = "运维管理")
+@Api(tags = "运营中心")
 @Slf4j
 public class IpBlackController {
 

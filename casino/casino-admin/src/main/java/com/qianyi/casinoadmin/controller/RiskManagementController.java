@@ -21,7 +21,7 @@ import java.math.BigDecimal;
 @Slf4j
 @RestController
 @RequestMapping("/managementRisk")
-@Api(tags = "运维管理")
+@Api(tags = "运营中心")
 public class RiskManagementController {
     @Autowired
     private PlatformConfigService platformConfigService;
