@@ -1,6 +1,8 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.BetRatioConfigVo;
+import com.qianyi.casinoadmin.vo.DomainNameVo;
 import com.qianyi.casinoadmin.vo.UserCommissionVo;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
@@ -14,6 +16,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -83,5 +86,38 @@ public class PlatformConfigController {
             platformConfigService.save(platformConfig);
         }
         return new ResponseEntity(ResponseCode.SUCCESS);
+    }
+
+    @ApiOperation("查询域名配置")
+    @GetMapping("/findDomainName")
+    public ResponseEntity<DomainNameVo> findDomainNameVo(){
+        PlatformConfig first = platformConfigService.findFirst();
+        DomainNameVo domainNameVo = new DomainNameVo();
+        if (!LoginUtil.checkNull(first)){
+            domainNameVo.setId(first.getId());
+            domainNameVo.setName("域名配置");
+            domainNameVo.setDomainNameConfiguration(first.getDomainNameConfiguration());
+        }
+        return new ResponseEntity(ResponseCode.SUCCESS, domainNameVo);
+    }
+
+    @ApiOperation("编辑域名配置")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "id", required = true),
+            @ApiImplicitParam(name = "domainNameConfiguration", value = "域名配置", required = true),
+    })
+    @PostMapping("/updateDomainName")
+    public ResponseEntity updateDomainName(Long id,String domainNameConfiguration){
+        if (LoginUtil.checkNull(id,domainNameConfiguration)){
+            return ResponseUtil.custom("参数错误");
+        }
+        PlatformConfig first = platformConfigService.findFirst();
+        if (LoginUtil.checkNull(first)){
+            first = new PlatformConfig();
+        }
+        first.setId(id);
+        first.setDomainNameConfiguration(domainNameConfiguration);
+        platformConfigService.save(first);
+        return ResponseUtil.success();
     }
 }
