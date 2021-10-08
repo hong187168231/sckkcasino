@@ -3,9 +3,11 @@ package com.qianyi.casinocore.model;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Entity;
 import java.math.BigDecimal;
 
 @Data
+@Entity
 public class ProxyDayReport extends BaseEntity{
 
     private Long userId;
