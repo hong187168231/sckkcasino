@@ -70,15 +70,15 @@ public class PlatformConfig {
     private BigDecimal wmMoneyWarning;
 
     @ApiModelProperty("一级玩家返佣")
-    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    @Column(columnDefinition = "Decimal(10,6) default '0.000000'")
     private BigDecimal firstCommission;
 
     @ApiModelProperty("二级玩家返佣")
-    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    @Column(columnDefinition = "Decimal(10,6) default '0.000000'")
     private BigDecimal secondCommission;
 
     @ApiModelProperty("三级玩家返佣")
-    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    @Column(columnDefinition = "Decimal(10,6) default '0.000000'")
     private BigDecimal thirdCommission;
 
     @ApiModelProperty("玩家返佣配置修改时间")
