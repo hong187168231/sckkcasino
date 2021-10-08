@@ -52,7 +52,7 @@ public class ShareProfitBusiness {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         GameRecord record = gameRecordService.findGameRecordById(shareProfitMqVo.getGameRecordId());
         List<ShareProfitBO> shareProfitBOList = shareProfitOperator(platformConfig,record);
-        processShareProfitList(shareProfitBOList);
+        processShareProfitList(shareProfitBOList,record);
     }
 
     private List<ShareProfitBO> shareProfitOperator(PlatformConfig platformConfig, GameRecord record) {
@@ -85,8 +85,9 @@ public class ShareProfitBusiness {
     }
 
     @Transactional
-    protected void processShareProfitList(List<ShareProfitBO> shareProfitBOList){
+    protected void processShareProfitList(List<ShareProfitBO> shareProfitBOList,GameRecord record){
         shareProfitBOList.forEach(item->processItem(item));
+        updateShareProfitStatus(record);
     }
 
     private void processItem(ShareProfitBO shareProfitBO){
@@ -183,7 +184,6 @@ public class ShareProfitBusiness {
      *
      * @param record
      */
-    @Transactional
     public void updateShareProfitStatus(GameRecord record) {
         record.setShareProfitStatus(Constants.yes);
         gameRecordService.save(record);
