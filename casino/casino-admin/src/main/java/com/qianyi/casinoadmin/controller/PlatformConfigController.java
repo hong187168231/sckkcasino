@@ -3,6 +3,7 @@ package com.qianyi.casinoadmin.controller;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.BetRatioConfigVo;
 import com.qianyi.casinoadmin.vo.DomainNameVo;
+import com.qianyi.casinoadmin.vo.RegisterSwitchVo;
 import com.qianyi.casinoadmin.vo.UserCommissionVo;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
@@ -117,6 +118,39 @@ public class PlatformConfigController {
         }
         first.setId(id);
         first.setDomainNameConfiguration(domainNameConfiguration);
+        platformConfigService.save(first);
+        return ResponseUtil.success();
+    }
+
+    @ApiOperation("查询注册开关配置")
+    @GetMapping("/findRegisterSwitch")
+    public ResponseEntity<RegisterSwitchVo> findRegisterSwitchVo(){
+        PlatformConfig first = platformConfigService.findFirst();
+        RegisterSwitchVo registerSwitchVo = new RegisterSwitchVo();
+        if (!LoginUtil.checkNull(first)){
+            registerSwitchVo.setId(first.getId());
+            registerSwitchVo.setName("注册开关");
+            registerSwitchVo.setRegisterSwitch(first.getRegisterSwitch());
+        }
+        return new ResponseEntity(ResponseCode.SUCCESS, registerSwitchVo);
+    }
+
+    @ApiOperation("编辑注册开关配置")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "id", required = true),
+            @ApiImplicitParam(name = "registerSwitch", value = "注册开关配置", required = true),
+    })
+    @PostMapping("/updateRegisterSwitch")
+    public ResponseEntity updateRegisterSwitch(Long id,Integer registerSwitch){
+        if (LoginUtil.checkNull(id,registerSwitch)){
+            return ResponseUtil.custom("参数错误");
+        }
+        PlatformConfig first = platformConfigService.findFirst();
+        if (LoginUtil.checkNull(first)){
+            first = new PlatformConfig();
+        }
+        first.setId(id);
+        first.setRegisterSwitch(registerSwitch);
         platformConfigService.save(first);
         return ResponseUtil.success();
     }
