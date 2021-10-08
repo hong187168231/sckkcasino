@@ -19,4 +19,7 @@ public class IpBlack extends BaseEntity{
     /** 0:未禁用 1：禁用 */
     @ApiModelProperty(value = "0:未禁用 1：禁用")
     private Integer status;
+
+    @ApiModelProperty(value = "备注")
+    private String remark;
 }

@@ -37,4 +37,6 @@ public class UserVo {
     private String inviteCode;
     @ApiModelProperty("分润余额")
     private BigDecimal shareProfit;
+    @ApiModelProperty("域名配置")
+    private String domain;
 }

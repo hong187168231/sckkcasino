@@ -1,9 +1,11 @@
 package com.qianyi.casinoweb.controller;
 
 import com.google.code.kaptcha.Producer;
+import com.qianyi.casinocore.model.IpBlack;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
+import com.qianyi.casinocore.service.IpBlackService;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
@@ -68,6 +70,8 @@ public class AuthController {
     PlatformConfigService platformConfigService;
     @Autowired
     RabbitTemplate rabbitTemplate;
+    @Autowired
+    IpBlackService ipBlackService;
 
     @Autowired
     @Qualifier("loginLogJob")
@@ -401,6 +405,30 @@ public class AuthController {
         }
         setUserTokenToRedis(authId, refreshToken);
         return ResponseUtil.success(refreshToken);
+    }
+
+    @GetMapping("checkInviteCode")
+    @ApiOperation("校验邀请码")
+    @NoAuthentication
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "inviteCode", value = "邀请码", required = true),
+    })
+    public ResponseEntity checkInviteCode(String inviteCode) {
+        boolean checkNull = CommonUtil.checkNull(inviteCode);
+        if (checkNull) {
+            return ResponseUtil.parameterNotNull();
+        }
+        User user = userService.findByInviteCode(inviteCode);
+        if (user == null) {
+            String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
+            IpBlack ipBlack = new IpBlack();
+            ipBlack.setIp(ip);
+            ipBlack.setStatus(Constants.no);
+            ipBlack.setRemark("邀请码填写错误，封IP");
+            ipBlackService.save(ipBlack);
+            return ResponseUtil.custom("邀请码填写错误,ip被封");
+        }
+        return ResponseUtil.success();
     }
 
     private void setUserTokenToRedis(Long userId, String token) {

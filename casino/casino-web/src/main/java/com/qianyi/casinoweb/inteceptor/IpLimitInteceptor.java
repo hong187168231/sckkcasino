@@ -31,6 +31,7 @@ public class IpLimitInteceptor extends AbstractIpLimitInteceptor {
             IpBlack ipBlack =new IpBlack();
             ipBlack.setIp(ip);
             ipBlack.setStatus(Constants.no);
+            ipBlack.setRemark("请求频率超过上限,封IP");
             ipBlackService.save(ipBlack);
         }
         return access;
