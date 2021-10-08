@@ -26,17 +26,17 @@ public class UserGroupNumBusiness {
         }
 
         //代理团队添加代理操作
-        if(user.getFirstPid() == null && user.getFirstPid() == 0){
+        if(user.getFirstPid() == null || user.getFirstPid() == 0){
             return;
         }
         //是否首冲
         setProxyReport(user.getFirstPid(), true);
-        if(user.getSecondPid() == null && user.getSecondPid() == 0){
+        if(user.getSecondPid() == null || user.getSecondPid() == 0){
             return;
         }
         setProxyReport(user.getFirstPid(), false);
 
-        if(user.getThirdPid() == null && user.getThirdPid() == 0){
+        if(user.getThirdPid() == null || user.getThirdPid() == 0){
             return;
         }
         setProxyReport(user.getFirstPid(), false);
