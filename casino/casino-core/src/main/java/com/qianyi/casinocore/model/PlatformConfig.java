@@ -85,6 +85,9 @@ public class PlatformConfig {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date commissionUpdate;
 
+    @ApiModelProperty("域名配置")
+    private String domainNameConfiguration;
+
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){
         if (this.chargeRate == null){
