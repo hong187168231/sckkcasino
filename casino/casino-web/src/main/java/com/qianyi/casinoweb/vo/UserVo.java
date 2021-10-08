@@ -39,4 +39,6 @@ public class UserVo {
     private BigDecimal shareProfit;
     @ApiModelProperty("域名配置")
     private String domain;
+    @ApiModelProperty("直属父级ID")
+    private Long firstPid;
 }

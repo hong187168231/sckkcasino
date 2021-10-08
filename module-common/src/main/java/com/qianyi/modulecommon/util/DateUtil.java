@@ -88,4 +88,20 @@ public class DateUtil {
         String time = getSimpleDateFormat().format(calendar.getTime());
         return time;
     }
+
+    // 获得本周一日期
+    public static Date getWeekStartDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONDAY), calendar.get(Calendar.DAY_OF_MONTH));
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        return calendar.getTime();
+    }
+
+    // 获得本周日日期
+    public static Date getWeekEndDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(getWeekStartDate());
+        calendar.add(Calendar.DAY_OF_WEEK, 6);
+        return calendar.getTime();
+    }
 }
