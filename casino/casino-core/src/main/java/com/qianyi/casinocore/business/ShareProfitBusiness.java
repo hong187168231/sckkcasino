@@ -1,13 +1,7 @@
 package com.qianyi.casinocore.business;
 
-import com.qianyi.casinocore.model.GameRecord;
-import com.qianyi.casinocore.model.PlatformConfig;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.UserMoney;
-import com.qianyi.casinocore.service.GameRecordService;
-import com.qianyi.casinocore.service.PlatformConfigService;
-import com.qianyi.casinocore.service.UserMoneyService;
-import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.ShareProfitBO;
 import com.qianyi.casinocore.vo.ShareProfitMqVo;
 import com.qianyi.casinocore.vo.ShareProfitVo;
@@ -46,6 +40,9 @@ public class ShareProfitBusiness {
 
     @Autowired
     private ProxyReportBusiness proxyReportBusiness;
+
+    @Autowired
+    private ShareProfitChangeService shareProfitChangeService;
 
 
     public void procerssShareProfit(ShareProfitMqVo shareProfitMqVo){
@@ -92,6 +89,8 @@ public class ShareProfitBusiness {
 
     private void processItem(ShareProfitBO shareProfitBO){
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(shareProfitBO.getUserId());
+        //明细入库
+        processProfitDetail(shareProfitBO,userMoney);
         //进行分润
         userMoney.setShareProfit(userMoney.getShareProfit().add(shareProfitBO.getProfitAmount()));
         userMoneyService.save(userMoney);
@@ -99,6 +98,20 @@ public class ShareProfitBusiness {
         proxyDayReportBusiness.processReport(shareProfitBO);
         //进行总报表处理
         proxyReportBusiness.processReport(shareProfitBO);
+    }
+
+    private void processProfitDetail(ShareProfitBO shareProfitBO,UserMoney userMoney) {
+        ShareProfitChange shareProfitChange = new ShareProfitChange();
+        shareProfitChange.setAmount(shareProfitBO.getProfitAmount());
+        shareProfitChange.setUserId(shareProfitBO.getUserId());
+        shareProfitChange.setAmountBefore(userMoney.getShareProfit());
+        shareProfitChange.setAmount(shareProfitBO.getProfitAmount());
+        shareProfitChange.setAmountAfter(getAfterAmount(shareProfitBO,userMoney));
+        shareProfitChangeService.save(shareProfitChange);
+    }
+
+    private BigDecimal getAfterAmount(ShareProfitBO shareProfitBO,UserMoney userMoney){
+        return userMoney.getShareProfit().add(shareProfitBO.getProfitAmount());
     }
 
 

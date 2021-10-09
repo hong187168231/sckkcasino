@@ -2,6 +2,8 @@ package com.qianyi.casinocore.business;
 
 import com.qianyi.casinocore.model.ProxyReport;
 import com.qianyi.casinocore.service.ProxyReportService;
+import com.qianyi.casinocore.vo.ProxyUserBO;
+import com.qianyi.casinocore.vo.RechargeProxyBO;
 import com.qianyi.casinocore.vo.ShareProfitBO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,8 +13,12 @@ public class ProxyReportBusiness {
     @Autowired
     private ProxyReportService proxyReportService;
 
+    /**
+     * 处理分润报表
+     * @param shareProfitBO
+     */
     public void processReport(ShareProfitBO shareProfitBO){
-        ProxyReport proxyReport = getProxyDayReport(shareProfitBO);
+        ProxyReport proxyReport = getProxyReport(shareProfitBO.getUserId());
         allProxy(proxyReport,shareProfitBO);
         if(shareProfitBO.isDirect())
             directProxy(proxyReport,shareProfitBO);
@@ -39,16 +45,49 @@ public class ProxyReportBusiness {
         proxyReport.setOtherBetNum(proxyReport.getOtherBetNum()+ (shareProfitBO.isFirst()?1:0));
     }
 
-    private ProxyReport getProxyDayReport(ShareProfitBO shareProfitBO) {
-        ProxyReport proxyDayReport = proxyReportService.findByUserId(shareProfitBO.getUserId());
-        if(proxyDayReport == null)
-            proxyDayReport = buildProxyDayReport(shareProfitBO);
+    private ProxyReport buildProxyReport(Long userId) {
+        ProxyReport proxyDayReport = new ProxyReport();
+        proxyDayReport.setUserId(userId);
         return proxyDayReport;
     }
 
-    private ProxyReport buildProxyDayReport(ShareProfitBO shareProfitBO) {
-        ProxyReport proxyDayReport = new ProxyReport();
-        proxyDayReport.setUserId(shareProfitBO.getUserId());
-        return proxyDayReport;
+
+    /**
+     * 处理充值报表
+     */
+    public void processRechargeReport(RechargeProxyBO rechargeProxy){
+        // 判断是否首充
+        if(rechargeProxy.getIsFirst()==1)
+            return;
+        ProxyReport proxyReport = getProxyReport(rechargeProxy.getProxyUserId());
+        proxyReport.setAllChargeNum(proxyReport.getAllChargeNum()+1);
+        if(rechargeProxy.isDirect())
+            proxyReport.setDirectChargeNum(proxyReport.getDirectChargeNum()+1);
+        else
+            proxyReport.setOtherChargeNum(proxyReport.getOtherChargeNum()+1);
+        proxyReportService.save(proxyReport);
+    }
+
+
+
+    /**
+     * 处理团队用户数量
+     * @param proxyUserBO
+     */
+    public void processUser(ProxyUserBO proxyUserBO){
+        ProxyReport proxyReport = getProxyReport(proxyUserBO.getProxyUserId());
+        proxyReport.setAllGroupNum(proxyReport.getAllGroupNum()+1);
+        if(proxyUserBO.isDrect())
+            proxyReport.setDirectGroupNum(proxyReport.getDirectGroupNum()+1);
+        else
+            proxyReport.setOtherGroupNum(proxyReport.getOtherGroupNum()+1);
+
+    }
+
+    private ProxyReport getProxyReport(Long userId) {
+        ProxyReport proxyReport = proxyReportService.findByUserId(userId);
+        if(proxyReport == null)
+            proxyReport = buildProxyReport(userId);
+        return proxyReport;
     }
 }
