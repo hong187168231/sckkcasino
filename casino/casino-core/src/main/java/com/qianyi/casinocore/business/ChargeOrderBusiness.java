@@ -150,6 +150,7 @@ public class ChargeOrderBusiness {
             rechargeRecordVo.setFirstUserId(user.getFirstPid());
             rechargeRecordVo.setSecondUserId(user.getSecondPid());
             rechargeRecordVo.setThirdUserId(user.getThirdPid());
+            rechargeRecordVo.setCreateTime(new Date());
             rabbitTemplate.convertAndSend(RabbitMqConstants.CHARGEORDER_DIRECTQUEUE_DIRECTEXCHANGE,
                     RabbitMqConstants.INGCHARGEORDER_DIRECT,rechargeRecordVo,new CorrelationData(UUID.randomUUID().toString()));
             log.info("充值发送消息成功 userId {} isFirst{} chargeAmount {}",userId,isFirst,chargeAmount);

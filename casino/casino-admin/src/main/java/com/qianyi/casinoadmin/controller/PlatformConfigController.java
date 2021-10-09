@@ -57,15 +57,18 @@ public class PlatformConfigController {
             @ApiImplicitParam(name = "secondCommission", value = "二级代理返佣", required = true),
             @ApiImplicitParam(name = "thirdCommission", value = "三级代理返佣", required = true)
     })
-    @GetMapping("/updateCommission")
+    @PostMapping("/updateCommission")
     public ResponseEntity<UserCommissionVo> update(BigDecimal firstCommission, BigDecimal secondCommission, BigDecimal thirdCommission){
-        BigDecimal commission = firstCommission.add(secondCommission).add(thirdCommission);
-        if(commission.compareTo(BigDecimal.ONE) != 0){
-            return ResponseUtil.custom("代理返佣配置总和不等于100%");
+        if (LoginUtil.checkNull(firstCommission,secondCommission,thirdCommission)){
+            return ResponseUtil.custom("参数错误");
         }
-        List<PlatformConfig> platformConfigList = platformConfigService.findAll();
-        if(platformConfigList != null && platformConfigList.size() >= 1){
-            Date commissionUpdate = platformConfigList.get(0).getCommissionUpdate();
+        BigDecimal commission = firstCommission.add(secondCommission).add(thirdCommission);
+        if(commission.compareTo(new BigDecimal(0.03)) >= 0){
+            return ResponseUtil.custom("代理返佣配置总和不能大于3%");
+        }
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if(!LoginUtil.checkNull(platformConfig)){
+            Date commissionUpdate = platformConfig.getCommissionUpdate();
             if(commissionUpdate != null){
                 long time = new Date().getTime() - commissionUpdate.getTime();
                 int oneDay = 60 * 60 * 1000 * 24;//一天时间
@@ -73,18 +76,18 @@ public class PlatformConfigController {
                     return ResponseUtil.custom("该配置，每24小时只能修改一次");
                 }
             }
-            platformConfigList.get(0).setFirstCommission(firstCommission);
-            platformConfigList.get(0).setSecondCommission(secondCommission);
-            platformConfigList.get(0).setThirdCommission(thirdCommission);
-            platformConfigList.get(0).setCommissionUpdate(new Date());
-            platformConfigService.save(platformConfigList.get(0));
-        }else{
-            PlatformConfig platformConfig = new PlatformConfig();
             platformConfig.setFirstCommission(firstCommission);
             platformConfig.setSecondCommission(secondCommission);
             platformConfig.setThirdCommission(thirdCommission);
             platformConfig.setCommissionUpdate(new Date());
             platformConfigService.save(platformConfig);
+        }else{
+            PlatformConfig platform = new PlatformConfig();
+            platform.setFirstCommission(firstCommission);
+            platform.setSecondCommission(secondCommission);
+            platform.setThirdCommission(thirdCommission);
+            platform.setCommissionUpdate(new Date());
+            platformConfigService.save(platform);
         }
         return new ResponseEntity(ResponseCode.SUCCESS);
     }
