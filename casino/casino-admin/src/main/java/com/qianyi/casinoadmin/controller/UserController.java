@@ -71,6 +71,63 @@ public class UserController {
     @Autowired
     private LoginLogService loginLogService;
 
+    @ApiOperation("查询代理下级的用户数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("getProxyUser")
+    public ResponseEntity<UserVo> getProxyUser(Long id){
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            return ResponseUtil.custom("客户不存在");
+        }
+
+        //查询直属代理会员
+        List<User> firstUserList = userService.findFirstUser(id);
+        List<Long> userIds = firstUserList.stream().map(User::getId).collect(Collectors.toList());
+        if(userIds == null || userIds.size() == 0){
+            List<UserMoney> userMoneyList =  userMoneyService.findAll(userIds);
+            List<UserVo> userVoList = getUserVoList(firstUserList, userMoneyList);
+            return ResponseUtil.success(userVoList);
+        }
+
+        List<User> secordUsersList = userService.findFirstUserList(userIds);
+        secordUsersList.forEach(u -> firstUserList.add(u));
+
+        List<Long> thridUserId = secordUsersList.stream().map(User::getId).collect(Collectors.toList());
+        if(userIds == null || userIds.size() == 0){
+            List<Long> ids = firstUserList.stream().map(User::getId).collect(Collectors.toList());
+            List<UserMoney> userMoneyList =  userMoneyService.findAll(ids);
+            List<UserVo> userVoList = getUserVoList(firstUserList, userMoneyList);
+            return ResponseUtil.success(userVoList);
+        }
+
+        List<User> thridUsersList = userService.findFirstUserList(thridUserId);
+        thridUsersList.forEach(u -> firstUserList.add(u));
+
+        List<Long> ids = firstUserList.stream().map(User::getId).collect(Collectors.toList());
+        List<UserMoney> userMoneyList =  userMoneyService.findAll(ids);
+        List<UserVo> userVoList = getUserVoList(firstUserList, userMoneyList);
+        return ResponseUtil.success(userVoList);
+    }
+
+    private List<UserVo> getUserVoList(List<User> firstUserList, List<UserMoney> userMoneyList) {
+        List<UserVo> userVoList = new ArrayList<>();
+        for (User user : firstUserList) {
+            UserVo userVo = new UserVo(user);
+            userMoneyList.stream().forEach(userMoney -> {
+                if(user.getId().equals(userMoney.getUserId())){
+                    userVo.setMoney(userMoney.getMoney());
+                    userVo.setCodeNum(userMoney.getCodeNum());
+                    userVo.setWithdrawMoney(userMoney.getWithdrawMoney());//可以提现金额
+                }
+            });
+            userVoList.add(userVo);
+        }
+        return userVoList;
+    }
+
+
     /**
      * 查询操作
      * 注意：jpa 是从第0页开始的

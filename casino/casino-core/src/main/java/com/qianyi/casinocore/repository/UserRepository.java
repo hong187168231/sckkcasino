@@ -25,4 +25,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     User findByInviteCode(String inviteCode);
 
     List<User> findByStateAndFirstPid(Integer state, Long firstPid);
+
+    List<User> findByFirstPid(Long id);
 }
