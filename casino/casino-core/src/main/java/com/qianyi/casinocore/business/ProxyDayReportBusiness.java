@@ -52,11 +52,9 @@ public class ProxyDayReportBusiness {
     }
 
     private ProxyDayReport getProxyDayReport(RechargeProxyBO rechargeProxy) {
-        // TODO: 2021/10/9 增加dayTime字段后对此代码进行补充完整
-        String dayTime = "";
-        ProxyDayReport proxyDayReport = proxyDayReportService.findByUserIdAndDay(rechargeProxy.getProxyUserId(),dayTime);
+        ProxyDayReport proxyDayReport = proxyDayReportService.findByUserIdAndDay(rechargeProxy.getProxyUserId(),rechargeProxy.getDayTime());
         if(proxyDayReport == null)
-            proxyDayReport = buildProxyDayReport(rechargeProxy.getProxyUserId(),dayTime);
+            proxyDayReport = buildProxyDayReport(rechargeProxy.getProxyUserId(),rechargeProxy.getDayTime());
         return proxyDayReport;
     }
 
