@@ -50,7 +50,10 @@ public class UserWashCodeConfigController {
                 byUserIdAndPlatform.add(userWashCodeConfig);
             }
         }
-        Map<String, List<UserWashCodeConfig>> collect = byUserIdAndPlatform.stream().collect(Collectors.groupingBy(UserWashCodeConfig::getPlatform));
+
+        List<UserWashCodeConfig> washCodeConfigs = byUserIdAndPlatform.stream().filter(userWashCodeConfig -> !LoginUtil.checkNull(userWashCodeConfig.getPlatform())).collect(Collectors.toList());
+
+        Map<String, List<UserWashCodeConfig>> collect = washCodeConfigs.stream().collect(Collectors.groupingBy(UserWashCodeConfig::getPlatform));
 
         return ResponseUtil.success(collect);
     }
