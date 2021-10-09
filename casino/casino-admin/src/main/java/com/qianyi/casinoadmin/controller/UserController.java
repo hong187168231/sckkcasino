@@ -205,6 +205,9 @@ public class UserController {
         user.setState(Constants.open);
 
         if(!LoginUtil.checkNull(phone)){
+            if (phone.length() > 11 || phone.length() < 6) {
+                return ResponseUtil.custom("手机号6至11位");
+            }
             user.setPhone(phone);
         }
 
