@@ -16,6 +16,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,7 +41,9 @@ public class UserWashCodeConfigController {
         List<UserWashCodeConfig> byUserIdAndPlatform = userWashCodeConfigService.findByUserId(userId);
         if(byUserIdAndPlatform == null || byUserIdAndPlatform.size() == 0){
             List<WashCodeConfig> washCodeConfigList = washCodeConfigService.findAll();
-            for (WashCodeConfig washCodeConfig : washCodeConfigList) {
+            List<WashCodeConfig> washCodeConfigs = washCodeConfigList.stream().filter(washCodeConfig -> !LoginUtil.checkNull(washCodeConfig.getPlatform())).collect(Collectors.toList());
+
+            for (WashCodeConfig washCodeConfig : washCodeConfigs) {
                 UserWashCodeConfig userWashCodeConfig = new UserWashCodeConfig();
                 userWashCodeConfig.setUserId(userId);
                 BeanUtils.copyProperties(washCodeConfig, userWashCodeConfig, UserWashCodeConfig.class);
@@ -56,11 +59,37 @@ public class UserWashCodeConfigController {
     @PostMapping("updateWashCodeConfigs")
     @Operation(summary = "编辑用户洗码配置表")
     public ResponseEntity<UserWashCodeConfig> updateUserWash(@RequestBody List<UserWashCodeConfig> userWashCodeConfigs){
-        if(userWashCodeConfigs != null && userWashCodeConfigs.size() > 0){
-            List<UserWashCodeConfig> userWash= userWashCodeConfigService.saveAll(userWashCodeConfigs);
-            Map<String, List<UserWashCodeConfig>> collect = userWash.stream().collect(Collectors.groupingBy(UserWashCodeConfig::getPlatform));
+        //第一次编辑，保存所有洗码数据
 
-            return ResponseUtil.success(collect);
+        if(userWashCodeConfigs != null && userWashCodeConfigs.size() > 0){
+            List<UserWashCodeConfig> codeConfigs = new ArrayList<>();
+            Long userId = userWashCodeConfigs.get(0).getUserId();
+            List<UserWashCodeConfig> userWashCodeConfigList = userWashCodeConfigService.findByUserId(userId);
+            if(userWashCodeConfigList == null || userWashCodeConfigList.size() <= 0){
+                List<WashCodeConfig> washCodeConfigList = washCodeConfigService.findAll();
+                for (WashCodeConfig washCodeConfig : washCodeConfigList) {
+                    UserWashCodeConfig userWashCodeConfig = new UserWashCodeConfig();
+                    userWashCodeConfig.setUserId(userId);
+                    BeanUtils.copyProperties(washCodeConfig, userWashCodeConfig, UserWashCodeConfig.class);
+                    codeConfigs.add(userWashCodeConfig);
+                }
+            }else{
+                userWashCodeConfigService.saveAll(userWashCodeConfigs);
+                return ResponseUtil.success();
+            }
+
+            List<UserWashCodeConfig> washCodeConfigs = codeConfigs.stream().filter(userWashCodeConfig -> !LoginUtil.checkNull(userWashCodeConfig.getPlatform())).collect(Collectors.toList());
+
+            washCodeConfigs.stream().forEach(UserWashCodeConfig ->{
+                userWashCodeConfigs.stream().forEach(u ->{
+                    if(UserWashCodeConfig.getGameId().equals(u.getGameId())){
+                        UserWashCodeConfig.setRate(u.getRate());
+                        UserWashCodeConfig.setState(u.getState());
+                    }
+                });
+            });
+            userWashCodeConfigService.saveAll(washCodeConfigs);
+            return ResponseUtil.success();
         }
         return ResponseUtil.custom("保存游戏配置失败");
     }
