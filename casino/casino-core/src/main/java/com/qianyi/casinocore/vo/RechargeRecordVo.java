@@ -1,11 +1,13 @@
 package com.qianyi.casinocore.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 @ApiModel("充值消息对象")
@@ -23,4 +25,7 @@ public class RechargeRecordVo  implements Serializable {
     private Long secondUserId;
     @ApiModelProperty(value = "第三级用户ID")
     private Long thirdUserId;
+    @ApiModelProperty("创建时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date createTime;
 }
