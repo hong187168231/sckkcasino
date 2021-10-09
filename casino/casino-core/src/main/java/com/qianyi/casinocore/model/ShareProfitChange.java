@@ -15,7 +15,7 @@ public class ShareProfitChange extends BaseEntity {
     @ApiModelProperty(value = "订单号")
     private String orderNo;
 
-    @ApiModelProperty(value = "账变类型")
+    @ApiModelProperty(value = "账变类型 1:分润,2:充值")
     private Integer type;
 
     @ApiModelProperty(value = "额度变化")

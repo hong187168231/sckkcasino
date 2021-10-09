@@ -4,11 +4,12 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
 @ApiModel("用户分润MQ实体")
-public class ShareProfitMqVo {
+public class ShareProfitMqVo implements Serializable {
 
     @ApiModelProperty(value = "用户ID")
     private Long userId;

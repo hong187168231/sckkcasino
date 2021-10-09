@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.comsumer;
 
 import com.qianyi.casinocore.vo.ShareProfitMqVo;
+import com.qianyi.casinocore.vo.ShareProfitVo;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;

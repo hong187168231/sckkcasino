@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.business;
 
+import com.qianyi.casinocore.constant.ShareProfitConstant;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.ShareProfitBO;
@@ -83,14 +84,14 @@ public class ShareProfitBusiness {
 
     @Transactional
     protected void processShareProfitList(List<ShareProfitBO> shareProfitBOList,GameRecord record){
-        shareProfitBOList.forEach(item->processItem(item));
+        shareProfitBOList.forEach(item->processItem(item,record));
         updateShareProfitStatus(record);
     }
 
-    private void processItem(ShareProfitBO shareProfitBO){
+    private void processItem(ShareProfitBO shareProfitBO,GameRecord record){
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(shareProfitBO.getUserId());
         //明细入库
-        processProfitDetail(shareProfitBO,userMoney);
+        processProfitDetail(shareProfitBO,userMoney,record);
         //进行分润
         userMoney.setShareProfit(userMoney.getShareProfit().add(shareProfitBO.getProfitAmount()));
         userMoneyService.save(userMoney);
@@ -100,13 +101,14 @@ public class ShareProfitBusiness {
         proxyReportBusiness.processReport(shareProfitBO);
     }
 
-    private void processProfitDetail(ShareProfitBO shareProfitBO,UserMoney userMoney) {
+    private void processProfitDetail(ShareProfitBO shareProfitBO,UserMoney userMoney,GameRecord record) {
         ShareProfitChange shareProfitChange = new ShareProfitChange();
         shareProfitChange.setAmount(shareProfitBO.getProfitAmount());
         shareProfitChange.setUserId(shareProfitBO.getUserId());
+        shareProfitChange.setOrderNo(record.getBetId());
         shareProfitChange.setAmountBefore(userMoney.getShareProfit());
-        shareProfitChange.setAmount(shareProfitBO.getProfitAmount());
         shareProfitChange.setAmountAfter(getAfterAmount(shareProfitBO,userMoney));
+        shareProfitChange.setType(ShareProfitConstant.SHARE_PROFIT_TYPE);
         shareProfitChangeService.save(shareProfitChange);
     }
 

@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 public class ProxyReport extends BaseEntity{
 
     private Long userId;
+    private String account;
     //全部
     @ApiModelProperty("分润")
     private BigDecimal allProfitAmount=BigDecimal.ZERO;

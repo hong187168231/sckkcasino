@@ -1,7 +1,9 @@
 package com.qianyi.casinocore.business;
 
 import com.qianyi.casinocore.model.ProxyReport;
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.ProxyReportService;
+import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.vo.ProxyUserBO;
 import com.qianyi.casinocore.vo.RechargeProxyBO;
 import com.qianyi.casinocore.vo.ShareProfitBO;
@@ -13,6 +15,8 @@ public class ProxyReportBusiness {
     @Autowired
     private ProxyReportService proxyReportService;
 
+    @Autowired
+    private UserService userService;
     /**
      * 处理分润报表
      * @param shareProfitBO
@@ -46,9 +50,11 @@ public class ProxyReportBusiness {
     }
 
     private ProxyReport buildProxyReport(Long userId) {
-        ProxyReport proxyDayReport = new ProxyReport();
-        proxyDayReport.setUserId(userId);
-        return proxyDayReport;
+        User user = userService.findById(userId);
+        ProxyReport proxyReport = new ProxyReport();
+        proxyReport.setUserId(userId);
+        proxyReport.setAccount(user.getAccount());
+        return proxyReport;
     }
 
 
