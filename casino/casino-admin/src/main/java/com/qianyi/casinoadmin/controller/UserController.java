@@ -265,6 +265,9 @@ public class UserController {
             if (phone.length() > 11 || phone.length() < 6) {
                 return ResponseUtil.custom("手机号6至11位");
             }
+            if (!phone.matches(CommonConst.regex)) {
+                return ResponseUtil.custom("手机号输入数字！");
+            }
             user.setPhone(phone);
         }
 
@@ -309,12 +312,19 @@ public class UserController {
     })
     @PostMapping("updateUser")
     public ResponseEntity updateUser(Long id, Integer state, String phone){
-        //权限功能会过滤权限,此处不用
-
+        if(LoginUtil.checkNull(id,phone)){
+            return ResponseUtil.custom("参数错误");
+        }
         //查询用户信息
         User user = userService.findById(id);
         if(user == null){
             return ResponseUtil.custom("账户不存在");
+        }
+        if (phone.length() > 11 || phone.length() < 6) {
+            return ResponseUtil.custom("手机号6至11位");
+        }
+        if (!phone.matches(CommonConst.regex)) {
+            return ResponseUtil.custom("手机号输入数字！");
         }
         user.setPhone(phone);
         userService.save(user);
