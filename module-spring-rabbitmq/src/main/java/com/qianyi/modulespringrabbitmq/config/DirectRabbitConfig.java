@@ -57,7 +57,7 @@ public class DirectRabbitConfig {
 
     @Bean
     public Binding ShareProfitDirect(){
-        return BindingBuilder.bind(TestDirectQueue()).to(shareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.SHAREPROFIT_DIRECT);
+        return BindingBuilder.bind(shareProfitDirectQueue()).to(shareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.SHAREPROFIT_DIRECT);
     }
 
 
@@ -77,6 +77,6 @@ public class DirectRabbitConfig {
 
     @Bean
     public Binding addUserToTeam(){
-        return BindingBuilder.bind(TestDirectQueue()).to(addUserToTeamDirectQueueDirectExchange()).with(RabbitMqConstants.ADDUSERTOTEAM_DIRECT);
+        return BindingBuilder.bind(addUserToTeamQueue()).to(addUserToTeamDirectQueueDirectExchange()).with(RabbitMqConstants.ADDUSERTOTEAM_DIRECT);
     }
 }

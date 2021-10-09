@@ -149,4 +149,8 @@ public class UserService {
     public User findByInviteCode(String inviteCode) {
         return userRepository.findByInviteCode(inviteCode);
     }
+
+    public List<User> findByStateAndFirstPid(Integer state,Long firstPid){
+        return userRepository.findByStateAndFirstPid(state,firstPid);
+    }
 }
