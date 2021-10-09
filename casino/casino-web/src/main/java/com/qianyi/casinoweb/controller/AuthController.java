@@ -17,6 +17,7 @@ import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.executor.AsyncService;
+import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -77,8 +78,8 @@ public class AuthController {
     @Qualifier("loginLogJob")
     AsyncService asyncService;
 
-    @PostMapping("register")
-    @ApiOperation("用户注册")
+    @PostMapping("spreadRegister")
+    @ApiOperation("推广用户注册")
     @NoAuthentication
     @Transactional
     //1分钟3次
@@ -90,12 +91,67 @@ public class AuthController {
             @ApiImplicitParam(name = "validate", value = "网易易顿", required = true),
             @ApiImplicitParam(name = "inviteCode", value = "邀请码", required = true),
     })
-    public ResponseEntity register(String account, String password, String phone,
-                                   HttpServletRequest request, String validate,String inviteCode) {
+    public ResponseEntity spreadRegister(String account, String password, String phone,
+                                         HttpServletRequest request, String validate, String inviteCode) {
         boolean checkNull = CommonUtil.checkNull(account, password, phone, validate,inviteCode);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
+        User parentUser = userService.findByInviteCode(inviteCode);
+        if (parentUser == null) {
+            String ip = IpUtil.getIp(request);
+            IpBlack ipBlack = new IpBlack();
+            ipBlack.setIp(ip);
+            ipBlack.setStatus(Constants.no);
+            ipBlack.setRemark("邀请码填写错误，封IP");
+            ipBlackService.save(ipBlack);
+            return ResponseUtil.custom("邀请码错误，ip被封");
+        }
+        ResponseEntity responseEntity = registerCommon(account, password, phone, request, validate, inviteCode, parentUser);
+        return responseEntity;
+    }
+
+    @PostMapping("register")
+    @ApiOperation("前台用户注册")
+    @NoAuthentication
+    @Transactional
+    //1分钟3次
+    @RequestLimit(limit = 3, timeout = 60)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "account", value = "帐号", required = true),
+            @ApiImplicitParam(name = "password", value = "密码", required = true),
+            @ApiImplicitParam(name = "phone", value = "电话号码", required = true),
+            @ApiImplicitParam(name = "validate", value = "网易易顿", required = true),
+            @ApiImplicitParam(name = "inviteCode", value = "邀请码", required = false),
+    })
+    public ResponseEntity register(String account, String password, String phone,
+                                   HttpServletRequest request, String validate,String inviteCode) {
+        boolean checkNull = CommonUtil.checkNull(account, password, phone, validate);
+        if (checkNull) {
+            return ResponseUtil.parameterNotNull();
+        }
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig != null && platformConfig.getRegisterSwitch() != null && platformConfig.getRegisterSwitch() == Constants.yes) {
+            return ResponseUtil.commonResponse(ResponseCode.REGISTER_CLOSE);
+        }
+        ResponseEntity responseEntity = registerCommon(account, password, phone, request, validate, inviteCode, null);
+        return responseEntity;
+    }
+
+    /**
+     * 注册公共逻辑
+     * @param account
+     * @param password
+     * @param phone
+     * @param request
+     * @param validate
+     * @param inviteCode
+     * @param parentUser
+     * @return
+     */
+    @Transactional
+    public ResponseEntity registerCommon(String account, String password, String phone,
+                                   HttpServletRequest request, String validate,String inviteCode,User parentUser) {
 
 
         //验证码校验
@@ -107,7 +163,6 @@ public class AuthController {
         if (!wangyidun) {
             return ResponseUtil.custom("验证码错误");
         }
-
 
         //卫语句校验
         boolean checkAccountLength = User.checkAccountLength(account);
@@ -138,15 +193,17 @@ public class AuthController {
         if (user != null && !CommonUtil.checkNull(user.getPassword())) {
             return ResponseUtil.custom("该帐号已存在");
         }
-
         user = new User();
-        User byInviteCode = userService.findByInviteCode(inviteCode);
-        if (byInviteCode == null) {
-            return ResponseUtil.custom("邀请码不存在");
+        if (parentUser == null && !ObjectUtils.isEmpty(inviteCode)) {
+            parentUser = userService.findByInviteCode(inviteCode);
         }
-        user.setFirstPid(byInviteCode.getId());
-        user.setSecondPid(byInviteCode.getFirstPid());
-        user.setThirdPid(byInviteCode.getSecondPid());
+        if (parentUser == null) {
+            user.setFirstPid(0L);//默认公司级别
+        } else {
+            user.setFirstPid(parentUser.getId());
+            user.setSecondPid(parentUser.getFirstPid());
+            user.setThirdPid(parentUser.getSecondPid());
+        }
         user.setAccount(account);
         user.setPassword(CasinoWebUtil.bcrypt(password));
         user.setPhone(phone);
@@ -384,6 +441,17 @@ public class AuthController {
         String jwt = JjwtUtil.generic(subject,Constants.CASINO_WEB);
         setUserTokenToRedis(user.getId(), jwt);
         return ResponseUtil.success(jwt);
+    }
+
+    @GetMapping("getRegisterStatus")
+    @ApiOperation("查询注册通道状态")
+    @NoAuthentication
+    public ResponseEntity getRegisterStatus() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig != null && platformConfig.getRegisterSwitch() != null && platformConfig.getRegisterSwitch() == Constants.yes) {
+            return ResponseUtil.commonResponse(ResponseCode.REGISTER_CLOSE);
+        }
+        return ResponseUtil.success();
     }
 
     @PostMapping("rjt")

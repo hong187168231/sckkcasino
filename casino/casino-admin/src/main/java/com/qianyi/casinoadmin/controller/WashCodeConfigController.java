@@ -41,7 +41,9 @@ public class WashCodeConfigController {
         }else{
             washCodeConfigList = washCodeConfigService.findAll();
         }
-        Map<String, List<WashCodeConfig>> collect = washCodeConfigList.stream().collect(Collectors.groupingBy(WashCodeConfig::getPlatform));
+        List<WashCodeConfig> washCodeConfigs = washCodeConfigList.stream().filter(washCodeConfig -> !LoginUtil.checkNull(washCodeConfig.getPlatform())).collect(Collectors.toList());
+
+        Map<String, List<WashCodeConfig>> collect = washCodeConfigs.stream().collect(Collectors.groupingBy(WashCodeConfig::getPlatform));
 
         return ResponseUtil.success(collect);
     }

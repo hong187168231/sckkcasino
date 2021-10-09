@@ -57,9 +57,7 @@ public class UserController {
     private ChargeOrderBusiness chargeOrderBusiness;
 
     @Autowired
-    private WithdrawOrderService withdrawOrderService;
-
-
+    private ProxyReportService proxyReportService;
 
     @Autowired
     private WithdrawBusiness withdrawBusiness;
@@ -72,6 +70,63 @@ public class UserController {
 
     @Autowired
     private LoginLogService loginLogService;
+
+    @ApiOperation("查询代理下级的用户数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("getProxyUser")
+    public ResponseEntity<UserVo> getProxyUser(Long id){
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            return ResponseUtil.custom("客户不存在");
+        }
+
+        //查询直属代理会员
+        List<User> firstUserList = userService.findFirstUser(id);
+        List<Long> userIds = firstUserList.stream().map(User::getId).collect(Collectors.toList());
+        if(userIds == null || userIds.size() == 0){
+            List<UserMoney> userMoneyList =  userMoneyService.findAll(userIds);
+            List<UserVo> userVoList = getUserVoList(firstUserList, userMoneyList);
+            return ResponseUtil.success(userVoList);
+        }
+
+        List<User> secordUsersList = userService.findFirstUserList(userIds);
+        secordUsersList.forEach(u -> firstUserList.add(u));
+
+        List<Long> thridUserId = secordUsersList.stream().map(User::getId).collect(Collectors.toList());
+        if(userIds == null || userIds.size() == 0){
+            List<Long> ids = firstUserList.stream().map(User::getId).collect(Collectors.toList());
+            List<UserMoney> userMoneyList =  userMoneyService.findAll(ids);
+            List<UserVo> userVoList = getUserVoList(firstUserList, userMoneyList);
+            return ResponseUtil.success(userVoList);
+        }
+
+        List<User> thridUsersList = userService.findFirstUserList(thridUserId);
+        thridUsersList.forEach(u -> firstUserList.add(u));
+
+        List<Long> ids = firstUserList.stream().map(User::getId).collect(Collectors.toList());
+        List<UserMoney> userMoneyList =  userMoneyService.findAll(ids);
+        List<UserVo> userVoList = getUserVoList(firstUserList, userMoneyList);
+        return ResponseUtil.success(userVoList);
+    }
+
+    private List<UserVo> getUserVoList(List<User> firstUserList, List<UserMoney> userMoneyList) {
+        List<UserVo> userVoList = new ArrayList<>();
+        for (User user : firstUserList) {
+            UserVo userVo = new UserVo(user);
+            userMoneyList.stream().forEach(userMoney -> {
+                if(user.getId().equals(userMoney.getUserId())){
+                    userVo.setMoney(userMoney.getMoney());
+                    userVo.setCodeNum(userMoney.getCodeNum());
+                    userVo.setWithdrawMoney(userMoney.getWithdrawMoney());//可以提现金额
+                }
+            });
+            userVoList.add(userVo);
+        }
+        return userVoList;
+    }
+
 
     /**
      * 查询操作
@@ -207,6 +262,12 @@ public class UserController {
         user.setState(Constants.open);
 
         if(!LoginUtil.checkNull(phone)){
+            if (phone.length() > 11 || phone.length() < 6) {
+                return ResponseUtil.custom("手机号6至11位");
+            }
+            if (!phone.matches(CommonConst.regex)) {
+                return ResponseUtil.custom("手机号输入数字！");
+            }
             user.setPhone(phone);
         }
 
@@ -251,12 +312,19 @@ public class UserController {
     })
     @PostMapping("updateUser")
     public ResponseEntity updateUser(Long id, Integer state, String phone){
-        //权限功能会过滤权限,此处不用
-
+        if(LoginUtil.checkNull(id,phone)){
+            return ResponseUtil.custom("参数错误");
+        }
         //查询用户信息
         User user = userService.findById(id);
         if(user == null){
             return ResponseUtil.custom("账户不存在");
+        }
+        if (phone.length() > 11 || phone.length() < 6) {
+            return ResponseUtil.custom("手机号6至11位");
+        }
+        if (!phone.matches(CommonConst.regex)) {
+            return ResponseUtil.custom("手机号输入数字！");
         }
         user.setPhone(phone);
         userService.save(user);
@@ -456,8 +524,8 @@ public class UserController {
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "id", value = "用户id", required = true),
     })
-    @PostMapping("/findIp")
-    public ResponseEntity findIp(Integer pageSize, Integer pageCode,Long id){
+    @GetMapping("/findIp")
+    public ResponseEntity<LoginLog> findIp(Integer pageSize, Integer pageCode,Long id){
         if (LoginUtil.checkNull(id)){
             return ResponseUtil.custom("参数不合法");
         }
@@ -467,5 +535,55 @@ public class UserController {
         loginLog.setUserId(id);
         Page<LoginLog> loginLogPage = loginLogService.findLoginLogPage(loginLog, pageable);
         return ResponseUtil.success(loginLogPage);
+    }
+    /**
+     * 根据id查询推广数据
+     *会员列表详情
+     * @param id 会员id
+     * @return
+     */
+    @ApiOperation("根据id查询推广数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+    })
+    @GetMapping("/findProxyReport")
+    public ResponseEntity<ProxyReport> findProxyReport(Long id){
+        if (LoginUtil.checkNull(id)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        ProxyReport proxyReport = proxyReportService.findByUserId(id);
+        return ResponseUtil.success(proxyReport);
+    }
+    /**
+     * 根据id查询上下三级代理线
+     *会员列表详情
+     * @param id 会员id
+     * @return
+     */
+    @ApiOperation("根据id查询上下三级代理线")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+    })
+    @GetMapping("/findAgency")
+    public ResponseEntity findAgency(Long id){
+        if (LoginUtil.checkNull(id)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            return ResponseUtil.success("");
+        }
+        String agency = user.getAccount()+"(当前)";
+        User first = userService.findById(user.getFirstPid() == null ? 0L:user.getFirstPid());
+        if (LoginUtil.checkNull(first)){
+            return ResponseUtil.success(agency);
+        }
+        agency = first.getAccount() + " — "  + agency;
+        User second = userService.findById(user.getSecondPid() == null ? 0L:user.getSecondPid());
+        if (LoginUtil.checkNull(second)){
+            return ResponseUtil.success(agency);
+        }
+        agency = second.getAccount() + " — "  + agency;
+        return ResponseUtil.success(agency);
     }
 }

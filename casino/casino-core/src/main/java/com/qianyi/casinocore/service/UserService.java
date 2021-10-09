@@ -149,4 +149,41 @@ public class UserService {
     public User findByInviteCode(String inviteCode) {
         return userRepository.findByInviteCode(inviteCode);
     }
+
+    public List<User> findByStateAndFirstPid(Integer state,Long firstPid){
+        return userRepository.findByStateAndFirstPid(state,firstPid);
+    }
+
+    public List<User> findFirstUser(Long id) {
+        return userRepository.findByFirstPid(id);
+    }
+
+
+    public List<User> findFirstUserList(List<Long> userIds) {
+        Specification<User> condition = getConditionFirstPid(userIds);
+        List<User> userList = userRepository.findAll(condition);
+        return userList;
+    }
+
+    private Specification<User> getConditionFirstPid(List<Long> userIds) {
+        Specification<User> specification = new Specification<User>() {
+            @Override
+            public Predicate toPredicate(Root<User> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                Predicate predicate = cb.conjunction();
+                if (userIds != null && userIds.size() > 0) {
+                    Path<Object> userId = root.get("firstPid");
+                    CriteriaBuilder.In<Object> in = cb.in(userId);
+                    for (Long id : userIds) {
+                        in.value(id);
+                    }
+                    list.add(cb.and(cb.and(in)));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
+    }
+
+
 }
