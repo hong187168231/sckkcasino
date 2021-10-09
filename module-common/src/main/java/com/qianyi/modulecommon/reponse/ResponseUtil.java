@@ -49,4 +49,8 @@ public class ResponseUtil {
     public static ResponseEntity multiDevice() {
         return new ResponseEntity(ResponseCode.MULTIDEVICE);
     }
+
+    public static ResponseEntity commonResponse(ResponseCode responseCode) {
+        return new ResponseEntity(responseCode);
+    }
 }
