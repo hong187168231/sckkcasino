@@ -561,17 +561,17 @@ public class UserController {
         }
         User user = userService.findById(id);
         if (LoginUtil.checkNull(user)){
-            return ResponseUtil.custom("");
+            return ResponseUtil.success("");
         }
         String agency = user.getAccount()+"(当前)";
-        User first = userService.findById(user.getFirstPid());
+        User first = userService.findById(user.getFirstPid() == null ? 0L:user.getFirstPid());
         if (LoginUtil.checkNull(first)){
-            return ResponseUtil.custom(agency);
+            return ResponseUtil.success(agency);
         }
         agency = first.getAccount() + " — "  + agency;
-        User second = userService.findById(user.getSecondPid());
+        User second = userService.findById(user.getSecondPid() == null ? 0L:user.getSecondPid());
         if (LoginUtil.checkNull(second)){
-            return ResponseUtil.custom(agency);
+            return ResponseUtil.success(agency);
         }
         agency = second.getAccount() + " — "  + agency;
         return ResponseUtil.success(agency);
