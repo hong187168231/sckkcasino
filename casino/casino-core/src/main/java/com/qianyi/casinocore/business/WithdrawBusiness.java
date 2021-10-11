@@ -217,7 +217,7 @@ public class WithdrawBusiness {
         withdrawOrder.setBankId(bankId);
         withdrawOrder.setUserId(userId);
         withdrawOrder.setNo(orderService.getOrderNo());
-        withdrawOrder.setStatus(Constants.withdrawOrder_success);
+        withdrawOrder.setStatus(Constants.withdrawOrder_masterControl);
         withdrawOrderService.saveOrder(withdrawOrder);
         BigDecimal amountBefore = userMoney.getMoney();
         BigDecimal money = amountBefore.subtract(withdrawMoney);

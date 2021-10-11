@@ -449,7 +449,6 @@ public class UserController {
         chargeOrder.setOrderNo(orderService.getOrderNo());
         chargeOrder.setChargeAmount(money);
 //        chargeOrder.setRealityAmount(money);
-        chargeOrder.setType(CommonConst.NUMBER_2);//管理员新增
         return chargeOrderBusiness.saveOrderSuccess(chargeOrder);
     }
     /**
