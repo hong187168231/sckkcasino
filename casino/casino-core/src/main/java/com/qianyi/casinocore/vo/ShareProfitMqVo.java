@@ -17,4 +17,6 @@ public class ShareProfitMqVo implements Serializable {
     private BigDecimal validbet;
     @ApiModelProperty(value = "游戏记录表ID")
     private Long gameRecordId;
+    @ApiModelProperty(value = "下注時間")
+    private String betTime;
 }

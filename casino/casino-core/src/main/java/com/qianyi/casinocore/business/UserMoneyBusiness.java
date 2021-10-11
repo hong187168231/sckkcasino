@@ -175,6 +175,7 @@ public class UserMoneyBusiness {
         shareProfitMqVo.setUserId(userId);
         shareProfitMqVo.setValidbet(validbet);
         shareProfitMqVo.setGameRecordId(record.getId());
+        shareProfitMqVo.setBetTime(record.getBetTime());
         rabbitTemplate.convertAndSend(RabbitMqConstants.SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.SHAREPROFIT_DIRECT, shareProfitMqVo, new CorrelationData(UUID.randomUUID().toString()));
         log.info("分润消息发送成功={}", shareProfitMqVo);
     }
