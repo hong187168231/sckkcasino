@@ -174,6 +174,10 @@ public class AuthController {
         if (!checkPasswordLength) {
             return ResponseUtil.custom("密码长度6-15位,由字母，数字，下划线组成");
         }
+        boolean checkPhone = User.checkPhone(phone);
+        if (!checkPhone) {
+            return ResponseUtil.custom("手机号长度6~15位,由+、-、()、数字组成");
+        }
 
         String ip = IpUtil.getIp(request);
         //查询ip注册账号限制

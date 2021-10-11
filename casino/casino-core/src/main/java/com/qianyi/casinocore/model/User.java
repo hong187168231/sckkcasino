@@ -62,6 +62,12 @@ public class User extends BaseEntity implements UserDetails {
     private Integer isFirstBet = Constants.no;
     @ApiModelProperty("常用设备ID")
     private String deviceId;
+    @ApiModelProperty("总代ID")
+    private Long firstProxy;
+    @ApiModelProperty("区域代理ID")
+    private Long secondProxy;
+    @ApiModelProperty("基层代理ID")
+    private Long thirdProxy;
     @JsonIgnore
     @Transient
     private String token;
@@ -133,6 +139,17 @@ public class User extends BaseEntity implements UserDetails {
             return false;
         }
 
+        return true;
+    }
+
+    public static boolean checkPhone(String phone){
+        if(ObjectUtils.isEmpty(phone)){
+            return false;
+        }
+        String phoneRegex = "^[0-9 ()+-]{6,15}+$";
+        if (!phone.matches(phoneRegex)) {
+            return false;
+        }
         return true;
     }
 

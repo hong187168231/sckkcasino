@@ -141,6 +141,9 @@ public class WMController {
                 order.setType(0);
                 order.setState(Constants.order_wait);
                 order.setNo(orderNo);
+                order.setFirstProxy(user.getFirstProxy());
+                order.setSecondProxy(user.getSecondProxy());
+                order.setThirdProxy(user.getThirdProxy());
                 orderService.save(order);
 
                 //账变中心记录账变
@@ -359,6 +362,9 @@ public class WMController {
         order.setState(Constants.order_wait);
         String orderNo = orderService.getOrderNo();
         order.setNo(orderNo);
+        order.setFirstProxy(user.getFirstProxy());
+        order.setSecondProxy(user.getSecondProxy());
+        order.setThirdProxy(user.getThirdProxy());
         orderService.save(order);
         //账变中心记录账变
         AccountChangeVo vo=new AccountChangeVo();

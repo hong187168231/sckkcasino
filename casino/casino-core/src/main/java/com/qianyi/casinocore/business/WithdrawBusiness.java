@@ -177,6 +177,12 @@ public class WithdrawBusiness {
         withdrawOrder.setNo(orderService.getOrderNo());
         withdrawOrder.setStatus(0);
         withdrawOrder.setRemitType(1);
+        User user = userService.findById(userId);
+        if (user != null) {
+            withdrawOrder.setFirstProxy(user.getFirstProxy());
+            withdrawOrder.setSecondProxy(user.getSecondProxy());
+            withdrawOrder.setThirdProxy(user.getThirdProxy());
+        }
         return withdrawOrder;
     }
 
