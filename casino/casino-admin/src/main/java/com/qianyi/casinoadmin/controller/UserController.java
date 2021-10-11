@@ -262,11 +262,14 @@ public class UserController {
         user.setState(Constants.open);
 
         if(!LoginUtil.checkNull(phone)){
-            if (phone.length() > 11 || phone.length() < 6) {
-                return ResponseUtil.custom("手机号6至11位");
-            }
-            if (!phone.matches(CommonConst.regex)) {
-                return ResponseUtil.custom("手机号输入数字！");
+//            if (phone.length() > 11 || phone.length() < 6) {
+//                return ResponseUtil.custom("手机号6至11位");
+//            }
+//            if (!phone.matches(CommonConst.regex)) {
+//                return ResponseUtil.custom("手机号输入数字！");
+//            }
+            if (!phone.matches(CommonConst.regexPhone)) {
+                return ResponseUtil.custom("手机号格式错误！");
             }
             user.setPhone(phone);
         }
@@ -320,11 +323,14 @@ public class UserController {
         if(user == null){
             return ResponseUtil.custom("账户不存在");
         }
-        if (phone.length() > 11 || phone.length() < 6) {
-            return ResponseUtil.custom("手机号6至11位");
-        }
-        if (!phone.matches(CommonConst.regex)) {
-            return ResponseUtil.custom("手机号输入数字！");
+//        if (phone.length() > 11 || phone.length() < 6) {
+//            return ResponseUtil.custom("手机号6至11位");
+//        }
+//        if (!phone.matches(CommonConst.regex)) {
+//            return ResponseUtil.custom("手机号输入数字！");
+//        }
+        if (!phone.matches(CommonConst.regexPhone)) {
+            return ResponseUtil.custom("手机号格式错误！");
         }
         user.setPhone(phone);
         userService.save(user);
