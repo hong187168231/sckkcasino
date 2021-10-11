@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.GameRecord;
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.repository.GameRecordRepository;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ public class GameRecordService {
 
     @Autowired
     private GameRecordRepository gameRecordRepository;
+    @Autowired
+    private UserService userService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -79,6 +82,12 @@ public class GameRecordService {
     }
 
     public GameRecord save(GameRecord gameRecord) {
+        User user = userService.findById(gameRecord.getUserId());
+        if (user != null) {
+            gameRecord.setFirstProxy(user.getFirstProxy());
+            gameRecord.setSecondProxy(user.getSecondProxy());
+            gameRecord.setThirdProxy(user.getThirdProxy());
+        }
         return gameRecordRepository.save(gameRecord);
     }
 

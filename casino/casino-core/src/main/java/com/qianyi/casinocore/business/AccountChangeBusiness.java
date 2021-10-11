@@ -22,6 +22,8 @@ public class AccountChangeBusiness {
 
     @Autowired
     private AccountChangeService accountChangeService;
+    @Autowired
+    private UserService userService;
 
     public AccountChange save(AccountChangeVo vo){
         String orderNo = getOrderNo(vo.getChangeEnum());
@@ -29,6 +31,12 @@ public class AccountChangeBusiness {
         AccountChange change=new AccountChange();
         BeanUtils.copyProperties(vo,change);
         change.setType(vo.getChangeEnum().getType());
+        User user = userService.findById(vo.getUserId());
+        if (user != null) {
+            change.setFirstProxy(user.getFirstProxy());
+            change.setSecondProxy(user.getSecondProxy());
+            change.setThirdProxy(user.getThirdProxy());
+        }
         return accountChangeService.save(change);
     }
 

@@ -30,4 +30,13 @@ public class LoginLog extends BaseEntity{
     @ApiModelProperty(value = "类型 1 登录 2 注册")
     private Integer type = 1;
 
+    @ApiModelProperty("总代ID")
+    private Long firstProxy;
+
+    @ApiModelProperty("区域代理ID")
+    private Long secondProxy;
+
+    @ApiModelProperty("基层代理ID")
+    private Long thirdProxy;
+
 }

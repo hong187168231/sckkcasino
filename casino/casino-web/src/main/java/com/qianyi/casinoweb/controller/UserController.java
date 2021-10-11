@@ -198,4 +198,10 @@ public class UserController {
         userService.save(user);
         return ResponseUtil.success();
     }
+
+    public static void main(String[] args) {
+        String regex = "^[0-9 ()+-]{6,15}+$";
+        String phone="+(63)-14111";
+        System.out.println(phone.matches(regex));
+    }
 }

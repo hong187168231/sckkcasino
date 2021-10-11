@@ -28,4 +28,13 @@ public class Order extends BaseEntity {
      */
     @ApiModelProperty("0.转入，1.转出")
     private Integer type;
+
+    @ApiModelProperty("总代ID")
+    private Long firstProxy;
+
+    @ApiModelProperty("区域代理ID")
+    private Long secondProxy;
+
+    @ApiModelProperty("基层代理ID")
+    private Long thirdProxy;
 }

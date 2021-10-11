@@ -169,6 +169,15 @@ public class GameRecord extends BaseEntity{
     @ApiModelProperty(value = "分润状态：0：成功，1：失败")
     private Integer shareProfitStatus;
 
+    @ApiModelProperty("总代ID")
+    private Long firstProxy;
+
+    @ApiModelProperty("区域代理ID")
+    private Long secondProxy;
+
+    @ApiModelProperty("基层代理ID")
+    private Long thirdProxy;
+
     public GameRecord(BigDecimal bet,BigDecimal validbet,BigDecimal water,BigDecimal waterbet,BigDecimal winLoss){
         this.bet = bet==null?"0":bet.toString();
         this.validbet = validbet==null?"0":validbet.toString();

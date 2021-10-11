@@ -37,4 +37,13 @@ public class WithdrawOrder extends BaseEntity {
     @ApiModelProperty(value = "收款方式 1银行卡 2支付宝 3微信")
     private Integer remitType;
 
+    @ApiModelProperty("总代ID")
+    private Long firstProxy;
+
+    @ApiModelProperty("区域代理ID")
+    private Long secondProxy;
+
+    @ApiModelProperty("基层代理ID")
+    private Long thirdProxy;
+
 }

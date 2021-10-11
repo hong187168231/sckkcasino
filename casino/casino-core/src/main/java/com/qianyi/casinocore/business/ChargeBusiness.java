@@ -83,6 +83,12 @@ public class ChargeBusiness {
         chargeOrder.setRemitType(remitType);
         chargeOrder.setRemark("");
         chargeOrder.setBankcardId(bankcardId);
+        User user = userService.findById(userId);
+        if (user != null) {
+            chargeOrder.setFirstProxy(user.getFirstProxy());
+            chargeOrder.setSecondProxy(user.getSecondProxy());
+            chargeOrder.setThirdProxy(user.getThirdProxy());
+        }
         return chargeOrder;
     }
     /**
