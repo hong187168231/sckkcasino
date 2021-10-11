@@ -5,9 +5,12 @@ import com.qianyi.casinocore.service.ProxyDayReportService;
 import com.qianyi.casinocore.vo.ProxyUserBO;
 import com.qianyi.casinocore.vo.RechargeProxyBO;
 import com.qianyi.casinocore.vo.ShareProfitBO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 public class ProxyDayReportBusiness {
     @Autowired
@@ -27,7 +30,7 @@ public class ProxyDayReportBusiness {
     }
 
     private ProxyDayReport getProxyDayReport(ShareProfitBO shareProfitBO) {
-        String dayTime = shareProfitBO.getBetTime().substring(0,11);
+        String dayTime = shareProfitBO.getBetTime();
         ProxyDayReport proxyDayReport = proxyDayReportService.findByUserIdAndDay(shareProfitBO.getUserId(),dayTime);
         if(proxyDayReport == null)
             proxyDayReport = buildProxyDayReport(shareProfitBO.getUserId(),dayTime);
@@ -45,7 +48,9 @@ public class ProxyDayReportBusiness {
      * 处理充值
      * @param rechargeProxy
      */
+    @Transactional
     public void processChargeAmount(RechargeProxyBO rechargeProxy){
+        log.info("process single charge amount {}",rechargeProxy);
         ProxyDayReport proxyDayReport = getProxyDayReport(rechargeProxy);
         proxyDayReport.setDeppositeAmount(proxyDayReport.getDeppositeAmount().add(rechargeProxy.getAmount()));
         proxyDayReportService.save(proxyDayReport);

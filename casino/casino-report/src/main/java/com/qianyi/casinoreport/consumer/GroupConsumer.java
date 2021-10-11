@@ -1,5 +1,6 @@
 package com.qianyi.casinoreport.consumer;
 
+import com.qianyi.casinocore.business.UserGroupNumBusiness;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.vo.ShareProfitMqVo;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
@@ -8,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -16,9 +18,14 @@ import java.io.IOException;
 @RabbitListener(queues = RabbitMqConstants.ADDUSERTOTEAM_DIRECTQUEUE)
 @Component
 public class GroupConsumer {
+
+    @Autowired
+    private UserGroupNumBusiness userGroupNumBusiness;
+
     @RabbitHandler
     public void process(User user, Channel channel, Message message) throws IOException {
         log.info("消费者接受到的消息是：{}",user);
+        userGroupNumBusiness.processUser(user);
         channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
     }
 }
