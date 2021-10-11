@@ -1,7 +1,7 @@
-package com.qianyi.casinoadmin.controller;
+package com.qianyi.consumer;
 
 import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.vo.RechargeRecordVo;
+import com.qianyi.casinocore.vo.ShareProfitMqVo;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -18,19 +18,21 @@ import java.util.UUID;
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class ChargeOrderConsumerTest {
+public class GroupConsumerTest {
+
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
     @Test
     public void should_send_message_to_mq(){
-        RechargeRecordVo rechargeRecordVo = new RechargeRecordVo();
-        rechargeRecordVo.setChargeAmount(BigDecimal.ONE);
-        rechargeRecordVo.setUserId(1l);
-        rechargeRecordVo.setFirstUserId(1l);
-        rabbitTemplate.convertAndSend(RabbitMqConstants.CHARGEORDER_DIRECTQUEUE_DIRECTEXCHANGE,RabbitMqConstants.INGCHARGEORDER_DIRECT,rechargeRecordVo,new CorrelationData(UUID.randomUUID().toString()));
+        User user = new User();
+        user.setId(1l);
+        user.setFirstPid(12l);
+        user.setSecondPid(35l);
+        rabbitTemplate.convertAndSend(RabbitMqConstants.ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE,RabbitMqConstants.ADDUSERTOTEAM_DIRECT,user,new CorrelationData(UUID.randomUUID().toString()));
 
         log.info("success");
 
     }
+
 }

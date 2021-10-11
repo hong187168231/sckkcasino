@@ -1,7 +1,7 @@
-package com.qianyi.casinoadmin.comsumer;
+package com.qianyi.casinoreport.consumer;
 
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.vo.ShareProfitMqVo;
-import com.qianyi.casinocore.vo.ShareProfitVo;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
@@ -11,16 +11,14 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Map;
 
 @Slf4j
-@RabbitListener(queues = RabbitMqConstants.SHAREPROFIT_DIRECTQUEUE)
+@RabbitListener(queues = RabbitMqConstants.ADDUSERTOTEAM_DIRECTQUEUE)
 @Component
-public class SharePointConsumer {
-
+public class GroupConsumer {
     @RabbitHandler
-    public void process(ShareProfitMqVo shareProfitMqVo, Channel channel, Message message) throws IOException {
-        log.info("消费者接受到的消息是：{}",shareProfitMqVo);
+    public void process(User user, Channel channel, Message message) throws IOException {
+        log.info("消费者接受到的消息是：{}",user);
         channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
     }
 }

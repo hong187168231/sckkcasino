@@ -1,7 +1,7 @@
-package com.qianyi.casinoadmin.controller;
+package com.qianyi.consumer;
 
-import com.qianyi.casinocore.vo.ShareProfitMqVo;
-import com.qianyi.casinocore.vo.ShareProfitVo;
+import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.vo.RechargeRecordVo;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -18,18 +18,18 @@ import java.util.UUID;
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class SharePointConsumerTest {
-
+public class ChargeOrderConsumerTest {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
     @Test
     public void should_send_message_to_mq(){
-        ShareProfitMqVo shareProfitMqVo = new ShareProfitMqVo();
-        shareProfitMqVo.setUserId(1l);
-        shareProfitMqVo.setGameRecordId(1l);
-        shareProfitMqVo.setValidbet(BigDecimal.ONE);
-        rabbitTemplate.convertAndSend(RabbitMqConstants.SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,RabbitMqConstants.SHAREPROFIT_DIRECT,shareProfitMqVo,new CorrelationData(UUID.randomUUID().toString()));
+        RechargeRecordVo rechargeRecordVo = new RechargeRecordVo();
+        rechargeRecordVo.setChargeAmount(BigDecimal.ONE);
+        rechargeRecordVo.setUserId(1l);
+        rechargeRecordVo.setFirstUserId(1l);
+        rabbitTemplate.convertAndSend(RabbitMqConstants.CHARGEORDER_DIRECTQUEUE_DIRECTEXCHANGE,RabbitMqConstants.INGCHARGEORDER_DIRECT,rechargeRecordVo,new CorrelationData(UUID.randomUUID().toString()));
+
         log.info("success");
 
     }
