@@ -76,6 +76,7 @@ public class PublicWMApi {
         params.put("vendorId", vendorId);
         params.put("signature", signature);
         params.put("user", user);
+        params.put("size", 1);//1:iframe嵌入
         params.put("password", password);
         params.put("lang", lang);
         if (!CommonUtil.checkNull(voice)) {

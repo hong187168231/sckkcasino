@@ -162,22 +162,26 @@ public class BankCardsController {
         bankcards.setBankId(bankId);
         bankcards.setBankAccount(bankAccount);
         bankcards.setAddress(address);
-        bankcards.setRealName(getRealName(realName,userId));
         bankcards.setUpdateTime(now);
         bankcards.setCreateTime(now);
 //        bankcards.setDisable(0);
         bankcards.setDefaultCard(isFirstCard(firstBankcard));
+        setRealNameAndProxy(bankcards,realName,userId);
         return bankcards;
     }
 
-    private String getRealName(String realName,Long userId){
+    private void setRealNameAndProxy(Bankcards bankcards,String realName,Long userId){
         User user = userService.findById(userId);
+        bankcards.setFirstProxy(user.getFirstProxy());
+        bankcards.setSecondProxy(user.getSecondProxy());
+        bankcards.setThirdProxy(user.getThirdProxy());
         if(ObjectUtils.isEmpty(user.getRealName())){
             user.setRealName(realName);
             userService.save(user);
-            return realName;
+            bankcards.setRealName(realName);
+        }else{
+            bankcards.setRealName(user.getRealName());
         }
-        return user.getRealName();
     }
 
     private Integer isFirstCard(Bankcards bankcards){

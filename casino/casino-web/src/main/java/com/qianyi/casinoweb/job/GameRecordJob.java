@@ -6,6 +6,7 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,6 +20,7 @@ import java.util.*;
 import java.util.concurrent.Executor;
 
 @Component
+@Slf4j
 public class GameRecordJob {
 
     @Qualifier("asyncExecutor")
@@ -53,6 +55,7 @@ public class GameRecordJob {
     @Scheduled(fixedRate = 1000 * 60 * 5)
     public void testTasks() {
         try {
+            log.info("开始拉取wm游戏记录");
             GameRecordEndTime gameRecord = gameRecordEndTimeService.findFirstByEndTimeDesc();
             String startTime = null;
             SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -67,7 +70,7 @@ public class GameRecordJob {
             } else {
                 startTime = gameRecord.getEndTime();
             }
-            String result = wmApi.getDateTimeReport(null, startTime, endTime, 0, 0, 2, null, null);
+            String result = wmApi.getDateTimeReport(null, startTime, endTime, 0, 1, 2, null, null);
             if (ObjectUtils.isEmpty(result)) {
                 return;
             }

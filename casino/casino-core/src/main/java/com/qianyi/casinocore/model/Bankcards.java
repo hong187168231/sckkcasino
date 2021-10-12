@@ -47,6 +47,15 @@ public class Bankcards extends BaseEntity{
     @ApiModelProperty(value = "默认卡，主卡= 1")
     private Integer defaultCard;
 
+    @ApiModelProperty("总代ID")
+    private Long firstProxy;
+
+    @ApiModelProperty("区域代理ID")
+    private Long secondProxy;
+
+    @ApiModelProperty("基层代理ID")
+    private Long thirdProxy;
+
     /**
      *  针对绑定银行卡接口的参数合法性校验
      * @param bankId

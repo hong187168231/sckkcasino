@@ -92,6 +92,7 @@ public class WMController {
 
             boolean register = wmApi.register(account, password, account, null, null, "", null);
             if (!register) {
+                log.error("WM注册账号失败");
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
 
@@ -103,6 +104,7 @@ public class WMController {
                 userThirdService.save(third);
             } catch (Exception e) {
                 e.printStackTrace();
+                log.error("本地注册账号失败{}",e.getMessage());
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
 
@@ -119,6 +121,7 @@ public class WMController {
 
         String url = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, model);
         if (CommonUtil.checkNull(url)) {
+            log.error("进游戏失败");
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         //自动转帐,子线程处理
@@ -275,6 +278,7 @@ public class WMController {
             balance = wmApi.getBalance(third.getAccount(), lang);
         } catch (Exception e) {
             e.printStackTrace();
+            log.error("获取用户WM余额失败{}",e.getMessage());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         return ResponseUtil.success(balance);
@@ -300,6 +304,7 @@ public class WMController {
             balance = wmApi.getBalance(account, lang);
         } catch (Exception e) {
             e.printStackTrace();
+            log.error("获取用户WM余额失败{}",e.getMessage());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         return ResponseUtil.success(balance);
@@ -325,6 +330,7 @@ public class WMController {
         //先退出游戏
         Boolean aBoolean = wmApi.logoutGame(account, lang);
         if (!aBoolean) {
+            log.error("退出游戏失败");
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         //查询用户在wm的余额
@@ -332,6 +338,7 @@ public class WMController {
         try {
             balance = wmApi.getBalance(account, lang);
         } catch (Exception e) {
+            log.error("获取用户WM余额失败{}",e.getMessage());
             e.printStackTrace();
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
@@ -341,6 +348,7 @@ public class WMController {
         //调用加扣点接口扣减wm余额
         Boolean changeBalance = wmApi.changeBalance(account, balance.negate(), null, lang);
         if (!changeBalance) {
+            log.error("加扣点接口扣减wm余额败");
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         //把额度加回本地
