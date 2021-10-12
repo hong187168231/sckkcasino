@@ -55,6 +55,7 @@ public class AccountChangeController {
         Sort sort = Sort.by("id").descending();
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         AccountChange accountChange = new AccountChange();
+        CasinoProxyUtil.setParameter(accountChange);
         if (!CasinoProxyUtil.checkNull(account)){
             User user = userService.findByAccount(account);
             if (CasinoProxyUtil.checkNull(user)){

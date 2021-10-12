@@ -62,6 +62,15 @@ public class OrderService {
                 if(order.getUserId() != null){
                     list.add(cb.equal(root.get("userId").as(Long.class), order.getUserId()));
                 }
+                if (order.getFirstProxy() != null) {
+                    list.add(cb.equal(root.get("firstProxy").as(Long.class), order.getFirstProxy()));
+                }
+                if (order.getSecondProxy() != null) {
+                    list.add(cb.equal(root.get("secondProxy").as(Long.class), order.getSecondProxy()));
+                }
+                if (order.getThirdProxy() != null) {
+                    list.add(cb.equal(root.get("thirdProxy").as(Long.class), order.getThirdProxy()));
+                }
                 return cb.and(list.toArray(new Predicate[list.size()]));
             }
         };

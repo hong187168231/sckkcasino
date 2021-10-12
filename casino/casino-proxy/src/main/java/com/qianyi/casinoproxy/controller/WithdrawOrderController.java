@@ -71,6 +71,7 @@ public class WithdrawOrderController {
     @GetMapping("/withdrawList")
     public ResponseEntity<WithdrawOrderVo> withdrawList(Integer pageSize,Integer pageCode, Integer status, String account, String no, String bankId){
         WithdrawOrder withdrawOrder = new WithdrawOrder();
+        CasinoProxyUtil.setParameter(withdrawOrder);
         if (!CasinoProxyUtil.checkNull(account)){
             User user = userService.findByAccount(account);
             if (CasinoProxyUtil.checkNull(user)){

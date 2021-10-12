@@ -83,6 +83,8 @@ public class ChargeOrderController {
     public ResponseEntity<ChargeOrderVo> chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String orderNo, String account){
         Sort sort = Sort.by("id").descending();
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
+        ChargeOrder order = new ChargeOrder();
+        CasinoProxyUtil.setParameter(order);
         Long userId = null;
         if (!CasinoProxyUtil.checkNull(account)){
             User user = userService.findByAccount(account);
@@ -91,8 +93,10 @@ public class ChargeOrderController {
             }
             userId = user.getId();
         }
-        Specification<ChargeOrder> condition = this.getCondition(status,orderNo,userId);
-        Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(condition, pageable);
+        order.setUserId(userId);
+        order.setStatus(status);
+        order.setOrderNo(orderNo);
+        Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(order, pageable);
         PageResultVO<ChargeOrderVo> pageResultVO =new PageResultVO(chargeOrderPage);
         List<ChargeOrder> content = chargeOrderPage.getContent();
         if(content != null && content.size() > 0){
@@ -158,31 +162,5 @@ public class ChargeOrderController {
 
         return chargeOrderBusiness.checkOrderSuccess(id,status,remark);
     }
-    /**
-     * 查询条件拼接，灵活添加条件
-     * @param
-     * @return
-     */
-    private Specification<ChargeOrder> getCondition(Integer status, String orderNo, Long userId) {
-        Specification<ChargeOrder> specification = new Specification<ChargeOrder>() {
-            @Override
-            public Predicate toPredicate(Root<ChargeOrder> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                Predicate predicate = cb.conjunction();
-                List<Predicate> list = new ArrayList<Predicate>();
-                if (status !=null) {
-                    list.add(cb.equal(root.get("status").as(Integer.class), status));
-                }
-                if (!CommonUtil.checkNull(orderNo)) {
-                    list.add(cb.equal(root.get("orderNo").as(String.class), orderNo));
-                }
-                if (userId != null ) {
-                    list.add(cb.equal(root.get("userId").as(Long.class), userId));
-                }
-                predicate = cb.and(list.toArray(new Predicate[list.size()]));
 
-                return predicate;
-            }
-        };
-        return specification;
-    }
 }

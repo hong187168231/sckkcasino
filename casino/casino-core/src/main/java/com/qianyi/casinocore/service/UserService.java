@@ -104,6 +104,15 @@ public class UserService {
                 if (user.getId() != null) {
                     list.add(cb.equal(root.get("id").as(Long.class), user.getId()));
                 }
+                if (user.getFirstProxy() != null) {
+                    list.add(cb.equal(root.get("firstProxy").as(Long.class), user.getFirstProxy()));
+                }
+                if (user.getSecondProxy() != null) {
+                    list.add(cb.equal(root.get("secondProxy").as(Long.class), user.getSecondProxy()));
+                }
+                if (user.getThirdProxy() != null) {
+                    list.add(cb.equal(root.get("thirdProxy").as(Long.class), user.getThirdProxy()));
+                }
                 if (startDate != null) {
                     list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
                 }

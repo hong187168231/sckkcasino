@@ -44,6 +44,7 @@ public class LoginLogController {
         Sort sort = Sort.by("id").descending();
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         LoginLog loginLog = new LoginLog();
+        CasinoProxyUtil.setParameter(loginLog);
         loginLog.setIp(ip);
         loginLog.setAccount(account);
         loginLog.setUserId(userId);

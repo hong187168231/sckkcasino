@@ -51,6 +51,15 @@ public class AccountChangeService {
                 if (AccountChange.getUserId() != null) {
                     list.add(cb.equal(root.get("userId").as(Long.class), AccountChange.getUserId()));
                 }
+                if (AccountChange.getFirstProxy() != null) {
+                    list.add(cb.equal(root.get("firstProxy").as(Long.class), AccountChange.getFirstProxy()));
+                }
+                if (AccountChange.getSecondProxy() != null) {
+                    list.add(cb.equal(root.get("secondProxy").as(Long.class), AccountChange.getSecondProxy()));
+                }
+                if (AccountChange.getThirdProxy() != null) {
+                    list.add(cb.equal(root.get("thirdProxy").as(Long.class), AccountChange.getThirdProxy()));
+                }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));
                 return predicate;
             }

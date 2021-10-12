@@ -52,6 +52,7 @@ public class OrderController {
     @GetMapping("findOrderList")
     public ResponseEntity<OrderVo> findOrderList(Integer pageSize, Integer pageCode,  String account, String no){
         Order order = new Order();
+        CasinoProxyUtil.setParameter(order);
         if (!CasinoProxyUtil.checkNull(account)){
             User user = userService.findByAccount(account);
             if (CasinoProxyUtil.checkNull(user)){

@@ -23,11 +23,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,6 +60,8 @@ public class GameRecordController {
                                                          String gname,Integer gid,String account){
         Sort sort = Sort.by("id").descending();
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
+        GameRecord game = new GameRecord();
+        CasinoProxyUtil.setParameter(game);
         Long userId = null;
         if (!CasinoProxyUtil.checkNull(account)){
             User byAccount = userService.findByAccount(account);
@@ -73,8 +70,12 @@ public class GameRecordController {
             }
             userId = byAccount.getId();
         }
-        Specification<GameRecord> condition = this.getCondition(user,betId,gname,gid,userId);
-        Page<GameRecord> gameRecordPage = gameRecordService.findGameRecordPage(condition, pageable);
+        game.setUserId(userId);
+        game.setBetId(betId);
+        game.setGname(gname);
+        game.setGid(gid);
+        game.setUser(user);
+        Page<GameRecord> gameRecordPage = gameRecordService.findGameRecordPage(game, pageable);
         PageResultVO<GameRecordVo> pageResultVO =new PageResultVO(gameRecordPage);
         List<GameRecord> content = gameRecordPage.getContent();
         if(content != null && content.size() > 0){
@@ -116,36 +117,5 @@ public class GameRecordController {
     public ResponseEntity findRecordRecordSum(String user,String betId,String gname,Integer gid){
         return ResponseUtil.success(gameRecordService.findRecordRecordSum(user,betId,gname,gid));
     }
-    /**
-     * 查询条件拼接，灵活添加条件
-     * @param
-     * @return
-     */
-    private Specification<GameRecord> getCondition(String user,String betId,String gname,Integer gid,Long userId) {
-        Specification<GameRecord> specification = new Specification<GameRecord>() {
-            @Override
-            public Predicate toPredicate(Root<GameRecord> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                Predicate predicate = cb.conjunction();
-                List<Predicate> list = new ArrayList<Predicate>();
-                if (!CommonUtil.checkNull(user)) {
-                    list.add(cb.equal(root.get("user").as(String.class), user));
-                }
-                if (!CommonUtil.checkNull(betId)) {
-                    list.add(cb.equal(root.get("betId").as(String.class), betId));
-                }
-                if (!CommonUtil.checkNull(gname)) {
-                    list.add(cb.equal(root.get("gname").as(String.class), gname));
-                }
-                if (gid != null) {
-                    list.add(cb.equal(root.get("gid").as(Integer.class), gid));
-                }
-                if (userId != null) {
-                    list.add(cb.equal(root.get("userId").as(Long.class), userId));
-                }
-                predicate = cb.and(list.toArray(new Predicate[list.size()]));
-                return predicate;
-            }
-        };
-        return specification;
-    }
+
 }

@@ -63,6 +63,15 @@ public class LoginLogService {
                 if (!CommonUtil.checkNull(loginLog.getAccount())) {
                     list.add(cb.equal(root.get("account").as(String.class), loginLog.getAccount()));
                 }
+                if (loginLog.getFirstProxy() != null) {
+                    list.add(cb.equal(root.get("firstProxy").as(Long.class), loginLog.getFirstProxy()));
+                }
+                if (loginLog.getSecondProxy() != null) {
+                    list.add(cb.equal(root.get("secondProxy").as(Long.class), loginLog.getSecondProxy()));
+                }
+                if (loginLog.getThirdProxy() != null) {
+                    list.add(cb.equal(root.get("thirdProxy").as(Long.class), loginLog.getThirdProxy()));
+                }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));
                 return predicate;
             }
