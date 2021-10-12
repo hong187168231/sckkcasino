@@ -2,8 +2,8 @@ package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinoadmin.vo.ChargeOrderVo;
-import com.qianyi.casinoadmin.vo.PageResultVO;
+import com.qianyi.casinocore.vo.ChargeOrderVo;
+import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
 import com.qianyi.casinocore.model.ChargeOrder;
 import com.qianyi.casinocore.model.CollectionBankcard;

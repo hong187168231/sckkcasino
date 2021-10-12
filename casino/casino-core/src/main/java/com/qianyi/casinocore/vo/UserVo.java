@@ -1,4 +1,4 @@
-package com.qianyi.casinoadmin.vo;
+package com.qianyi.casinocore.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.qianyi.casinocore.model.User;

@@ -79,7 +79,5 @@ public class CommonConst {
     public static final String STRING_2 = "2";
     public static final String STRING_3 = "3";
     public static final String STRING_4 = "4";
-    //校验数字
-    public static final String regex = "^[0-9]*$";
-    public static final String regexPhone= "^[0-9 ()+-]{6,15}+$";
+
 }

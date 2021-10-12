@@ -273,7 +273,7 @@ public class BankCardsController {
         if (bankAccount.length() > 20 || bankAccount.length() < 12) {
             return "长度只能在12~20位！";
         }
-        if (!bankAccount.matches(CommonConst.regex)) {
+        if (!bankAccount.matches(Constants.regex)) {
             return "银行账号只能输入数字！";
         }
         return null;

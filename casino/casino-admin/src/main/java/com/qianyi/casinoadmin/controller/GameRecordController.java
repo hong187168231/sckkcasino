@@ -1,8 +1,8 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinoadmin.vo.GameRecordVo;
-import com.qianyi.casinoadmin.vo.PageResultVO;
+import com.qianyi.casinocore.vo.GameRecordVo;
+import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.GameRecordService;
@@ -28,7 +28,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;

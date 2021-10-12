@@ -1,4 +1,4 @@
-package com.qianyi.casinoadmin.vo;
+package com.qianyi.casinocore.vo;
 
 import com.qianyi.casinocore.model.GameRecord;
 import io.swagger.annotations.ApiModelProperty;

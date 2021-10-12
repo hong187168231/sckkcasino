@@ -2,8 +2,8 @@ package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinoadmin.vo.PageResultVO;
-import com.qianyi.casinoadmin.vo.WithdrawOrderVo;
+import com.qianyi.casinocore.vo.PageResultVO;
+import com.qianyi.casinocore.vo.WithdrawOrderVo;
 import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;

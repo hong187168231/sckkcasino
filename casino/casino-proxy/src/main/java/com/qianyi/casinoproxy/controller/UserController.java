@@ -1,16 +1,14 @@
-package com.qianyi.casinoadmin.controller;
+package com.qianyi.casinoproxy.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.qianyi.casinoadmin.util.CommonConst;
-import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinoadmin.util.passwordUtil;
-import com.qianyi.casinocore.vo.PageResultVO;
-import com.qianyi.casinocore.vo.UserVo;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
 import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
-import com.qianyi.livewm.api.PublicWMApi;
+import com.qianyi.casinocore.vo.PageResultVO;
+import com.qianyi.casinocore.vo.UserVo;
+import com.qianyi.casinoproxy.util.CasinoProxyUtil;
+import com.qianyi.casinoproxy.util.PasswordUtil;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -65,9 +63,6 @@ public class UserController {
     UserThirdService userThirdService;
 
     @Autowired
-    PublicWMApi wmApi;
-
-    @Autowired
     private LoginLogService loginLogService;
 
     @ApiOperation("查询代理下级的用户数据")
@@ -77,7 +72,7 @@ public class UserController {
     @GetMapping("getProxyUser")
     public ResponseEntity<UserVo> getProxyUser(Long id){
         User user = userService.findById(id);
-        if (LoginUtil.checkNull(user)){
+        if (CasinoProxyUtil.checkNull(user)){
             return ResponseUtil.custom("客户不存在");
         }
 
@@ -151,7 +146,7 @@ public class UserController {
         user.setAccount(account);
         user.setState(state);
         Sort sort=Sort.by("id").descending();
-        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         Page<User> userPage = userService.findUserPage(pageable, user,startDate,endDate);
         PageResultVO<User> pageResultVO = new PageResultVO(userPage);
         List<User> userList = userPage.getContent();
@@ -192,11 +187,11 @@ public class UserController {
     @GetMapping("refreshWM")
     public ResponseEntity getWMMoney(Long id){
         User user = userService.findById(id);
-        if (LoginUtil.checkNull(user)){
+        if (CasinoProxyUtil.checkNull(user)){
             return ResponseUtil.custom("客户不存在");
         }
         UserThird userThird = userThirdService.findByUserId(user.getId());
-        if (LoginUtil.checkNull(userThird)){
+        if (CasinoProxyUtil.checkNull(userThird)){
             return ResponseUtil.custom("三方账号不存在");
         }
         BigDecimal wMonetUser = userMoneyService.getWMonetUser(user, userThird);
@@ -249,7 +244,7 @@ public class UserController {
     })
     @PostMapping("saveUser")
     public ResponseEntity saveUser(String account, String name, String phone){
-        if (LoginUtil.checkNull(account)){
+        if (CasinoProxyUtil.checkNull(account)){
             return ResponseUtil.custom("参数不合法");
         }
         User us = userService.findByAccount(account);
@@ -259,7 +254,7 @@ public class UserController {
 
         User user = new User();
         user.setAccount(account);
-        if(LoginUtil.checkNull(name)){
+        if(CasinoProxyUtil.checkNull(name)){
             user.setName(account);
         }else{
             user.setName(name);
@@ -267,7 +262,7 @@ public class UserController {
 
         user.setState(Constants.open);
 
-        if(!LoginUtil.checkNull(phone)){
+        if(!CasinoProxyUtil.checkNull(phone)){
 //            if (phone.length() > 11 || phone.length() < 6) {
 //                return ResponseUtil.custom("手机号6至11位");
 //            }
@@ -284,8 +279,8 @@ public class UserController {
         user.setLanguage(Constants.USER_LANGUAGE_CH);
 
         //随机生成
-        String password = passwordUtil.getRandomPwd();
-        String bcryptPassword = LoginUtil.bcrypt(password);
+        String password = PasswordUtil.getRandomPwd();
+        String bcryptPassword = CasinoProxyUtil.bcrypt(password);
         user.setPassword(bcryptPassword);
         //默认展示两张收款卡
         user.setCreditCard(Constants.creditCard);
@@ -295,7 +290,7 @@ public class UserController {
         userMoney.setUserId(save.getId());
         userMoney.setMoney(BigDecimal.ZERO);
         userMoney.setCodeNum(BigDecimal.ZERO);
-        userMoney.setIsFirst(CommonConst.NUMBER_0);
+        userMoney.setIsFirst(0);
         userMoneyService.save(userMoney);
 
         JSONObject jsonObject = new JSONObject();
@@ -321,7 +316,7 @@ public class UserController {
     })
     @PostMapping("updateUser")
     public ResponseEntity updateUser(Long id, Integer state, String phone){
-        if(LoginUtil.checkNull(id,phone)){
+        if(CasinoProxyUtil.checkNull(id,phone)){
             return ResponseUtil.custom("参数错误");
         }
         //查询用户信息
@@ -364,7 +359,7 @@ public class UserController {
     @PostMapping("updateUserStatus")
     public ResponseEntity updateUserStatus(Long id){
         User user = userService.findById(id);
-        if (LoginUtil.checkNull(user)){
+        if (CasinoProxyUtil.checkNull(user)){
             return ResponseUtil.custom("账户不存在");
         }
         //开启状态，冻结
@@ -384,12 +379,12 @@ public class UserController {
     @PostMapping("withdrawPassword")
     public ResponseEntity withdrawPassword(Long id){
         User user = userService.findById(id);
-        if (LoginUtil.checkNull(user)){
+        if (CasinoProxyUtil.checkNull(user)){
             return ResponseUtil.custom("账户不存在");
         }
         //随机生成
-        String withdrawPassword = passwordUtil.getRandomPwd();
-        String bcryptPassword = LoginUtil.bcrypt(withdrawPassword);
+        String withdrawPassword = PasswordUtil.getRandomPwd();
+        String bcryptPassword = CasinoProxyUtil.bcrypt(withdrawPassword);
         user.setWithdrawPassword(bcryptPassword);
         userService.save(user);
         JSONObject jsonObject = new JSONObject();
@@ -405,12 +400,12 @@ public class UserController {
     @PostMapping("resetPassword")
     public ResponseEntity resetPassword(Long id){
         User user = userService.findById(id);
-        if (LoginUtil.checkNull(user)){
+        if (CasinoProxyUtil.checkNull(user)){
             return ResponseUtil.custom("账户不存在");
         }
         //随机生成
-        String password = passwordUtil.getRandomPwd();
-        String bcryptPassword = LoginUtil.bcrypt(password);
+        String password = PasswordUtil.getRandomPwd();
+        String bcryptPassword = CasinoProxyUtil.bcrypt(password);
         user.setPassword(bcryptPassword);
         userService.save(user);
         JSONObject jsonObject = new JSONObject();
@@ -437,21 +432,21 @@ public class UserController {
     })
     @PostMapping("/saveChargeOrder")
     public ResponseEntity saveChargeOrder(Long id,String remitter,String remark, String chargeAmount){
-        if (LoginUtil.checkNull(id,chargeAmount)){
+        if (CasinoProxyUtil.checkNull(id,chargeAmount)){
             return ResponseUtil.custom("参数不合法");
         }
         BigDecimal money = CommonUtil.checkMoney(chargeAmount);
         if(money.compareTo(BigDecimal.ZERO)<1){
             return ResponseUtil.custom("金额类型错误");
         }
-        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
+        if (money.compareTo(new BigDecimal(100)) >= 1){
             return ResponseUtil.custom("测试环境加钱不能超过100RMB");
         }
         ChargeOrder chargeOrder = new ChargeOrder();
         chargeOrder.setUserId(id);
         chargeOrder.setRemitter(remitter);
         chargeOrder.setRemark(remark);
-        chargeOrder.setRemitType(CommonConst.NUMBER_1);
+        chargeOrder.setRemitType(1);
         chargeOrder.setOrderNo(orderService.getOrderNo());
         chargeOrder.setChargeAmount(money);
 //        chargeOrder.setRealityAmount(money);
@@ -473,7 +468,7 @@ public class UserController {
     })
     @PostMapping("/saveWithdrawOrder")
     public ResponseEntity saveWithdrawOrder(Long id,String withdrawMoney,String bankId){
-        if (LoginUtil.checkNull(id,withdrawMoney)){
+        if (CasinoProxyUtil.checkNull(id,withdrawMoney)){
             return ResponseUtil.custom("参数不合法");
         }
         BigDecimal money = CommonUtil.checkMoney(withdrawMoney);
@@ -491,35 +486,35 @@ public class UserController {
      * @param cardLevel 配置收款卡等级
      * @return
      */
-    @ApiOperation("后台配置会员收款卡修改")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
-            @ApiImplicitParam(name = "creditCard", value = "收款卡张数", required = true),
-            @ApiImplicitParam(name = "cardLevel", value = "配置收款卡等级", required = false),
-    })
-    @PostMapping("/saveCollectionBankcard")
-    public ResponseEntity saveCollectionBankcard(Long id,Integer creditCard,String cardLevel){
-        if (LoginUtil.checkNull(id,creditCard)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        if (creditCard != CommonConst.NUMBER_1 && creditCard != CommonConst.NUMBER_2){
-            return ResponseUtil.custom("收款卡张数最多两张");
-        }
-        User user = userService.findById(id);
-        if (LoginUtil.checkNull(user)){
-            return ResponseUtil.custom("账户不存在");
-        }
-        user.setCreditCard(creditCard);
-        if (!LoginUtil.checkNull(cardLevel)){
-            String[] split = cardLevel.split(CommonConst.HYPHEN);
-            if (!CommonConst.cardLevel.containsAll(Arrays.asList(split))){
-                return ResponseUtil.custom("收款卡等级不合法");
-            }
-        }
-        user.setCardLevel(cardLevel);
-        userService.save(user);
-        return ResponseUtil.success();
-    }
+//    @ApiOperation("后台配置会员收款卡修改")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+//            @ApiImplicitParam(name = "creditCard", value = "收款卡张数", required = true),
+//            @ApiImplicitParam(name = "cardLevel", value = "配置收款卡等级", required = false),
+//    })
+//    @PostMapping("/saveCollectionBankcard")
+//    public ResponseEntity saveCollectionBankcard(Long id,Integer creditCard,String cardLevel){
+//        if (CasinoProxyUtil.checkNull(id,creditCard)){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        if (creditCard != 1 && creditCard != 2){
+//            return ResponseUtil.custom("收款卡张数最多两张");
+//        }
+//        User user = userService.findById(id);
+//        if (CasinoProxyUtil.checkNull(user)){
+//            return ResponseUtil.custom("账户不存在");
+//        }
+//        user.setCreditCard(creditCard);
+//        if (!CasinoProxyUtil.checkNull(cardLevel)){
+//            String[] split = cardLevel.split(CommonConst.HYPHEN);
+//            if (!CommonConst.cardLevel.containsAll(Arrays.asList(split))){
+//                return ResponseUtil.custom("收款卡等级不合法");
+//            }
+//        }
+//        user.setCardLevel(cardLevel);
+//        userService.save(user);
+//        return ResponseUtil.success();
+//    }
 
     /**
      * 根据id查询用户登录注册ip
@@ -537,11 +532,11 @@ public class UserController {
     })
     @GetMapping("/findIp")
     public ResponseEntity<LoginLog> findIp(Integer pageSize, Integer pageCode,Long id){
-        if (LoginUtil.checkNull(id)){
+        if (CasinoProxyUtil.checkNull(id)){
             return ResponseUtil.custom("参数不合法");
         }
         Sort sort = Sort.by("id").descending();
-        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         LoginLog loginLog = new LoginLog();
         loginLog.setUserId(id);
         Page<LoginLog> loginLogPage = loginLogService.findLoginLogPage(loginLog, pageable);
@@ -559,7 +554,7 @@ public class UserController {
     })
     @GetMapping("/findProxyReport")
     public ResponseEntity<ProxyReport> findProxyReport(Long id){
-        if (LoginUtil.checkNull(id)){
+        if (CasinoProxyUtil.checkNull(id)){
             return ResponseUtil.custom("参数不合法");
         }
         ProxyReport proxyReport = proxyReportService.findByUserId(id);
@@ -577,21 +572,21 @@ public class UserController {
     })
     @GetMapping("/findAgency")
     public ResponseEntity findAgency(Long id){
-        if (LoginUtil.checkNull(id)){
+        if (CasinoProxyUtil.checkNull(id)){
             return ResponseUtil.custom("参数不合法");
         }
         User user = userService.findById(id);
-        if (LoginUtil.checkNull(user)){
+        if (CasinoProxyUtil.checkNull(user)){
             return ResponseUtil.success("");
         }
         String agency = user.getAccount()+"(当前)";
         User first = userService.findById(user.getFirstPid() == null ? 0L:user.getFirstPid());
-        if (LoginUtil.checkNull(first)){
+        if (CasinoProxyUtil.checkNull(first)){
             return ResponseUtil.success(agency);
         }
         agency = first.getAccount() + " — "  + agency;
         User second = userService.findById(user.getSecondPid() == null ? 0L:user.getSecondPid());
-        if (LoginUtil.checkNull(second)){
+        if (CasinoProxyUtil.checkNull(second)){
             return ResponseUtil.success(agency);
         }
         agency = second.getAccount() + " — "  + agency;

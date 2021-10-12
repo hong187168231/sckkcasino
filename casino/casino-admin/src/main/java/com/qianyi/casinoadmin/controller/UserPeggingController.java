@@ -1,7 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.CommonConst;
-import com.qianyi.casinoadmin.util.CommonUtil;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.BankcardsVo;
 import com.qianyi.casinocore.model.Bankcards;
@@ -12,6 +11,7 @@ import com.qianyi.casinocore.service.LoginLogService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.CommonUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;

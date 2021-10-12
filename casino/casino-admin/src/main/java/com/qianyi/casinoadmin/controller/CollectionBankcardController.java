@@ -1,10 +1,9 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.CommonConst;
-import com.qianyi.casinoadmin.util.CommonUtil;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.CollectionBankcardVo;
-import com.qianyi.casinoadmin.vo.PageResultVO;
+import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.CollectionBankcard;
 import com.qianyi.casinocore.service.BankInfoService;
@@ -22,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -98,7 +96,7 @@ public class CollectionBankcardController {
             return ResponseUtil.custom("银行账号不能为空");
         }
         bankNo = bankNo.trim();
-        if (bankNo.length() > 20 || bankNo.length() < 12 || !bankNo.matches(CommonConst.regex)) {
+        if (bankNo.length() > 20 || bankNo.length() < 12 || !bankNo.matches(Constants.regex)) {
             return ResponseUtil.custom("长度只能在12~20位的数字！");
         }
         if (accountName.length() > 15) {

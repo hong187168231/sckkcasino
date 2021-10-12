@@ -2,7 +2,7 @@ package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.AccountChangeVo;
-import com.qianyi.casinoadmin.vo.PageResultVO;
+import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.model.AccountChange;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.AccountChangeService;
