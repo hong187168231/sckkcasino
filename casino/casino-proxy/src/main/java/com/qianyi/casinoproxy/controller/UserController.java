@@ -138,7 +138,7 @@ public class UserController {
             @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
     })
     @GetMapping("findUserList")
-    public ResponseEntity<User> findUserList(Integer pageSize, Integer pageCode, String account,Integer state,
+    public ResponseEntity<UserVo> findUserList(Integer pageSize, Integer pageCode, String account,Integer state,
                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
 
@@ -152,7 +152,7 @@ public class UserController {
         Sort sort=Sort.by("id").descending();
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         Page<User> userPage = userService.findUserPage(pageable, user,startDate,endDate);
-        PageResultVO<User> pageResultVO = new PageResultVO(userPage);
+        PageResultVO<UserVo> pageResultVO = new PageResultVO(userPage);
         List<User> userList = userPage.getContent();
         if(userList != null && userList.size() > 0){
             List<UserVo> userVoList = new LinkedList();

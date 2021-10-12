@@ -309,15 +309,15 @@ public class LoginController {
             if(proxySole == null || proxySole.getUserFlag() != 1){
                 return ResponseUtil.custom("总代理不存在或者已被锁定");
             }
-            proxy.setPid(pid);
+            proxy.setSecondProxy(pid);
         }
         if(proxyRole == 3){
             ProxyUser proxySole = proxyUserService.findById(pid);
             if(proxySole == null || proxySole.getUserFlag() != 1){
                 return ResponseUtil.custom("总代理不存在或者已被锁定");
             }
-            proxy.setPid(pid);
-            proxy.setSolePid(proxySole.getPid());
+            proxy.setSecondProxy(pid);
+            proxy.setFirstProxy(proxySole.getSecondProxy());
             //邀请码生成
             proxy.setProxyCode(LoginUtil.getProxyCode());
         }

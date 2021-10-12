@@ -63,17 +63,17 @@ public class ProxyUser extends BaseEntity {
     /**
      * 代理角色 1：总代理 2：区域代理 3：基层代理
      */
-    private Integer ProxyRole;
+    private Integer proxyRole;
 
     /**
      * 区域代理ID
      */
-    private Long pid;
+    private Long secondProxy;
 
     /**
      * 总代理ID
      */
-    private Long solePid;
+    private Long firstProxy;
 
     /**
      * 是否锁定 1：正常 2：锁定, 3：删除

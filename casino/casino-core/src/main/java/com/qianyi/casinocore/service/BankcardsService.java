@@ -78,6 +78,15 @@ public class BankcardsService {
                 if(!CommonUtil.checkNull(bankcards.getBankAccount())){
                     list.add(cb.equal(root.get("bankAccount").as(String.class), bankcards.getBankAccount()));
                 }
+                if (bankcards.getFirstProxy() != null) {
+                    list.add(cb.equal(root.get("firstProxy").as(Long.class), bankcards.getFirstProxy()));
+                }
+                if (bankcards.getSecondProxy() != null) {
+                    list.add(cb.equal(root.get("secondProxy").as(Long.class), bankcards.getSecondProxy()));
+                }
+                if (bankcards.getThirdProxy() != null) {
+                    list.add(cb.equal(root.get("thirdProxy").as(Long.class), bankcards.getThirdProxy()));
+                }
                 return cb.and(list.toArray(new Predicate[list.size()]));
             }
         };

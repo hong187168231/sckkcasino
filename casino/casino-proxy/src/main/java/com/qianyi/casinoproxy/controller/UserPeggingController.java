@@ -76,6 +76,9 @@ public class UserPeggingController {
             return ResponseUtil.success(map);
         }else if(tag == CommonConst.NUMBER_1){//反查银行卡号
             Bankcards bankcards = new Bankcards();
+            if (CasinoProxyUtil.setParameter(bankcards)){
+                return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+            }
             bankcards.setBankAccount(context);
             List<Bankcards> userBank = bankcardsService.findUserBank(bankcards);
             List<BankcardsVo> bankcardsVoList = new LinkedList<>();
