@@ -32,7 +32,9 @@ public class ChargeOrderService {
         Specification<ChargeOrder> condition = getCondition(chargeOrder);
         return chargeOrderRepository.findAll(condition,pageable);
     }
-
+    public Page<ChargeOrder> findChargeOrderPage(Specification<ChargeOrder> condition, Pageable pageable){
+        return chargeOrderRepository.findAll(condition,pageable);
+    }
     public ChargeOrder findChargeOrderByIdUseLock(Long id){
         ChargeOrder chargeOrder = chargeOrderRepository.findChargeOrderByIdUseLock(id);
         return chargeOrder;
