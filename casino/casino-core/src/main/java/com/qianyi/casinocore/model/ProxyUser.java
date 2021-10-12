@@ -1,12 +1,17 @@
 package com.qianyi.casinocore.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.qianyi.modulecommon.Constants;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.ObjectUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * 管理后台用户表
@@ -107,5 +112,12 @@ public class ProxyUser extends BaseEntity {
         }
 
         return true;
+    }
+    @JsonIgnore
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("admin");
+        authorities.add(authority);
+        return authorities;
     }
 }

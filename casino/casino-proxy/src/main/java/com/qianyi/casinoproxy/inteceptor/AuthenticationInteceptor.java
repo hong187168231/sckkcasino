@@ -1,6 +1,8 @@
 package com.qianyi.casinoproxy.inteceptor;
 
+import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.inteceptor.AbstractAuthenticationInteceptor;
@@ -16,15 +18,15 @@ import javax.servlet.http.HttpServletRequest;
 public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
 
     @Autowired
-    UserService userService;
+    private ProxyUserService proxyUserService;
     @Autowired
     RedisTemplate redisTemplate;
 
     @Override
     protected boolean hasBan() {
        Long authId= CasinoProxyUtil.getAuthId();
-        User user=userService.findById(authId);
-        boolean flag= User.checkUser(user);
+        ProxyUser proxyUser = proxyUserService.findById(authId);
+        boolean flag= proxyUser.checkUser(proxyUser);
         return !flag;
     }
 

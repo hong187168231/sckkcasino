@@ -252,7 +252,7 @@ public class LoginController {
         JjwtUtil.Subject subject = new JjwtUtil.Subject();
         subject.setUserId(proxyUser.getId() + "");
         subject.setBcryptPassword(proxyUser.getPassWord());
-        String jwt = JjwtUtil.generic(subject, "casino-admin");
+        String jwt = JjwtUtil.generic(subject, "casino-proxy");
         return ResponseUtil.success(jwt);
     }
 

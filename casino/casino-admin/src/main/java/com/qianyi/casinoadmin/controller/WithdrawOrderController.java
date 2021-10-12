@@ -144,29 +144,4 @@ public class WithdrawOrderController {
         }
         return withdrawBusiness.updateWithdrawAndUser(id,status);
     }
-    @ApiOperation("模拟提现")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
-            @ApiImplicitParam(name = "bigDecimal", value = "提现金额", required = true),
-    })
-    @GetMapping("save")
-    public ResponseEntity save(Long id,BigDecimal bigDecimal){
-        if (LoginUtil.checkNull(id,bigDecimal)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        UserMoney byUserId = userMoneyService.findByUserId(id);
-        if (byUserId.getMoney().compareTo(bigDecimal)<=0){
-            return ResponseUtil.custom("余额不足");
-        }
-        WithdrawOrder withdrawOrder = new WithdrawOrder();
-        withdrawOrder.setWithdrawMoney(bigDecimal);
-        withdrawOrder.setBankId("156464168464654646");
-        withdrawOrder.setUserId(id);
-        withdrawOrder.setNo(orderService.getOrderNo());
-        withdrawOrder.setStatus(0);
-        withdrawOrderService.saveOrder(withdrawOrder);
-        userMoneyService.subMoney(id,bigDecimal);
-        return ResponseUtil.success();
-    }
-
 }
