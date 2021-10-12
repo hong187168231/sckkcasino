@@ -4,6 +4,7 @@ import com.qianyi.casinocore.model.Order;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.OrderService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.OrderVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
@@ -52,7 +53,10 @@ public class OrderController {
     @GetMapping("findOrderList")
     public ResponseEntity<OrderVo> findOrderList(Integer pageSize, Integer pageCode,  String account, String no){
         Order order = new Order();
-        CasinoProxyUtil.setParameter(order);
+        if (CasinoProxyUtil.setParameter(order)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        order.setNo(no);
         if (!CasinoProxyUtil.checkNull(account)){
             User user = userService.findByAccount(account);
             if (CasinoProxyUtil.checkNull(user)){
@@ -60,7 +64,6 @@ public class OrderController {
             }
             order.setUserId(user.getId());
         }
-        order.setNo(no);
         Sort sort=Sort.by("id").descending();
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         Page<Order> userPage = orderService.findOrderPage(pageable, order);

@@ -4,6 +4,7 @@ import com.qianyi.casinocore.model.AccountChange;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.AccountChangeService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.AccountChangeBackVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
@@ -55,7 +56,11 @@ public class AccountChangeController {
         Sort sort = Sort.by("id").descending();
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         AccountChange accountChange = new AccountChange();
-        CasinoProxyUtil.setParameter(accountChange);
+        if (CasinoProxyUtil.setParameter(accountChange)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        accountChange.setOrderNo(orderNo);
+        accountChange.setType(type);
         if (!CasinoProxyUtil.checkNull(account)){
             User user = userService.findByAccount(account);
             if (CasinoProxyUtil.checkNull(user)){
@@ -63,8 +68,6 @@ public class AccountChangeController {
             }
             accountChange.setUserId(user.getId());
         }
-        accountChange.setOrderNo(orderNo);
-        accountChange.setType(type);
         Page<AccountChange> accountChangePage = accountChangeService.findAccountChangePage(pageable, accountChange);
         PageResultVO<AccountChangeBackVo> pageResultVO = new PageResultVO(accountChangePage);
         List<AccountChange> content = accountChangePage.getContent();

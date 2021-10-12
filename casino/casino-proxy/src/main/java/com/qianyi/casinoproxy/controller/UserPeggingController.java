@@ -59,7 +59,9 @@ public class UserPeggingController {
         }
         if (tag == CommonConst.NUMBER_0){//反查ip
             User user = new User();
-            CasinoProxyUtil.setParameter(user);
+            if (CasinoProxyUtil.setParameter(user)){
+                return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+            }
             user.setRegisterIp(context);
             List<User> userList = userService.findUserList(user);
             LoginLog loginLog = new LoginLog();

@@ -71,22 +71,18 @@ public class WithdrawOrderController {
     @GetMapping("/withdrawList")
     public ResponseEntity<WithdrawOrderVo> withdrawList(Integer pageSize,Integer pageCode, Integer status, String account, String no, String bankId){
         WithdrawOrder withdrawOrder = new WithdrawOrder();
-        CasinoProxyUtil.setParameter(withdrawOrder);
+        if (CasinoProxyUtil.setParameter(withdrawOrder)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        withdrawOrder.setStatus(status);
+        withdrawOrder.setNo(no);
+        withdrawOrder.setBankId(bankId);
         if (!CasinoProxyUtil.checkNull(account)){
             User user = userService.findByAccount(account);
             if (CasinoProxyUtil.checkNull(user)){
                 return ResponseUtil.custom("用户不存在");
             }
             withdrawOrder.setUserId(user.getId());
-        }
-        if(status != null){
-            withdrawOrder.setStatus(status);
-        }
-        if(!CasinoProxyUtil.checkNull(no)){
-            withdrawOrder.setNo(no);
-        }
-        if(!CasinoProxyUtil.checkNull(bankId)){
-            withdrawOrder.setBankId(bankId);
         }
         Sort sort=Sort.by("id").descending();
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);

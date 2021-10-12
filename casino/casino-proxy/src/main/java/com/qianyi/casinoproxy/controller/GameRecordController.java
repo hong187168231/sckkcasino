@@ -4,6 +4,7 @@ import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.GameRecordVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
@@ -61,20 +62,20 @@ public class GameRecordController {
         Sort sort = Sort.by("id").descending();
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         GameRecord game = new GameRecord();
-        CasinoProxyUtil.setParameter(game);
-        Long userId = null;
+        if (CasinoProxyUtil.setParameter(game)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        game.setBetId(betId);
+        game.setGname(gname);
+        game.setGid(gid);
+        game.setUser(user);
         if (!CasinoProxyUtil.checkNull(account)){
             User byAccount = userService.findByAccount(account);
             if (CasinoProxyUtil.checkNull(byAccount)){
                 return ResponseUtil.custom("用户不存在");
             }
-            userId = byAccount.getId();
+            game.setUserId( byAccount.getId());
         }
-        game.setUserId(userId);
-        game.setBetId(betId);
-        game.setGname(gname);
-        game.setGid(gid);
-        game.setUser(user);
         Page<GameRecord> gameRecordPage = gameRecordService.findGameRecordPage(game, pageable);
         PageResultVO<GameRecordVo> pageResultVO =new PageResultVO(gameRecordPage);
         List<GameRecord> content = gameRecordPage.getContent();

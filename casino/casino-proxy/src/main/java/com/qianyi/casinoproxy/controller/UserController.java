@@ -144,7 +144,9 @@ public class UserController {
 
         //后续扩展加参数。
         User user = new User();
-        CasinoProxyUtil.setParameter(user);
+        if (CasinoProxyUtil.setParameter(user)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
         user.setAccount(account);
         user.setState(state);
         Sort sort=Sort.by("id").descending();

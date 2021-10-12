@@ -2,6 +2,7 @@ package com.qianyi.casinoproxy.controller;
 
 import com.qianyi.casinocore.model.LoginLog;
 import com.qianyi.casinocore.service.LoginLogService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -44,7 +45,9 @@ public class LoginLogController {
         Sort sort = Sort.by("id").descending();
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         LoginLog loginLog = new LoginLog();
-        CasinoProxyUtil.setParameter(loginLog);
+        if (CasinoProxyUtil.setParameter(loginLog)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
         loginLog.setIp(ip);
         loginLog.setAccount(account);
         loginLog.setUserId(userId);

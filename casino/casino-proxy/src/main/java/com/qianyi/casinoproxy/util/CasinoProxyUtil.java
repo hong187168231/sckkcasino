@@ -54,13 +54,13 @@ public class CasinoProxyUtil {
             return true;
         }
         if (proxyUser.getProxyRole() == CommonConst.NUMBER_1){
-            return setMethod(object,FIRSTPROXY, CommonConst.LONG_1);
+            return setMethod(object,FIRSTPROXY, proxyUser.getId());
         }else if(proxyUser.getProxyRole() == CommonConst.NUMBER_2){
-            return setMethod(object,SECONDPROXY, CommonConst.LONG_2);
+            return setMethod(object,SECONDPROXY, proxyUser.getId());
         }else if(proxyUser.getProxyRole() == CommonConst.NUMBER_3){
-            return setMethod(object,THIRDPROXY, CommonConst.LONG_3);
+            return setMethod(object,THIRDPROXY, proxyUser.getId());
         }else {
-            return false;
+            return true;
         }
 
     }

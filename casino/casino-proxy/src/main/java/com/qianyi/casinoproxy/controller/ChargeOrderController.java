@@ -84,18 +84,18 @@ public class ChargeOrderController {
         Sort sort = Sort.by("id").descending();
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         ChargeOrder order = new ChargeOrder();
-        CasinoProxyUtil.setParameter(order);
-        Long userId = null;
+        if (CasinoProxyUtil.setParameter(order)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        order.setStatus(status);
+        order.setOrderNo(orderNo);
         if (!CasinoProxyUtil.checkNull(account)){
             User user = userService.findByAccount(account);
             if (CasinoProxyUtil.checkNull(user)){
                 return ResponseUtil.custom("用户不存在");
             }
-            userId = user.getId();
+            order.setUserId(user.getId());
         }
-        order.setUserId(userId);
-        order.setStatus(status);
-        order.setOrderNo(orderNo);
         Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(order, pageable);
         PageResultVO<ChargeOrderVo> pageResultVO =new PageResultVO(chargeOrderPage);
         List<ChargeOrder> content = chargeOrderPage.getContent();
