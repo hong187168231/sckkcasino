@@ -432,7 +432,7 @@ public class UserController {
     @ApiOperation("后台新增充值订单 上分")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "会员id", required = true),
-            @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = true),
+            @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = false),
             @ApiImplicitParam(name = "chargeAmount", value = "汇款金额", required = true),
             @ApiImplicitParam(name = "remark", value = "汇款备注", required = false),
     })
