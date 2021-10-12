@@ -5,6 +5,7 @@ import com.qianyi.casinocore.business.ChargeOrderBusiness;
 import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.PasswordUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.UserVo;
@@ -290,7 +291,7 @@ public class UserController {
         userMoney.setUserId(save.getId());
         userMoney.setMoney(BigDecimal.ZERO);
         userMoney.setCodeNum(BigDecimal.ZERO);
-        userMoney.setIsFirst(0);
+        userMoney.setIsFirst(CommonConst.NUMBER_0);
         userMoneyService.save(userMoney);
 
         JSONObject jsonObject = new JSONObject();
@@ -436,17 +437,17 @@ public class UserController {
             return ResponseUtil.custom("参数不合法");
         }
         BigDecimal money = CommonUtil.checkMoney(chargeAmount);
-        if(money.compareTo(BigDecimal.ZERO)<1){
+        if(money.compareTo(BigDecimal.ZERO)<CommonConst.NUMBER_1){
             return ResponseUtil.custom("金额类型错误");
         }
-        if (money.compareTo(new BigDecimal(100)) >= 1){
+        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
             return ResponseUtil.custom("测试环境加钱不能超过100RMB");
         }
         ChargeOrder chargeOrder = new ChargeOrder();
         chargeOrder.setUserId(id);
         chargeOrder.setRemitter(remitter);
         chargeOrder.setRemark(remark);
-        chargeOrder.setRemitType(1);
+        chargeOrder.setRemitType(CommonConst.NUMBER_1);
         chargeOrder.setOrderNo(orderService.getOrderNo());
         chargeOrder.setChargeAmount(money);
 //        chargeOrder.setRealityAmount(money);
@@ -472,7 +473,7 @@ public class UserController {
             return ResponseUtil.custom("参数不合法");
         }
         BigDecimal money = CommonUtil.checkMoney(withdrawMoney);
-        if(money.compareTo(BigDecimal.ZERO)<1){
+        if(money.compareTo(BigDecimal.ZERO)<CommonConst.NUMBER_1){
             return ResponseUtil.custom("金额类型错误");
         }
         return withdrawBusiness.updateWithdrawAndUser(id,money,bankId);

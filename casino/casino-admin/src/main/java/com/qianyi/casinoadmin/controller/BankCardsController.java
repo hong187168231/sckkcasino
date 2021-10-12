@@ -2,7 +2,7 @@ package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinoadmin.vo.BankcardsVo;
+import com.qianyi.casinocore.vo.BankcardsVo;
 import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.model.BankcardsDel;

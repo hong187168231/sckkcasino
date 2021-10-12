@@ -1,12 +1,12 @@
-package com.qianyi.casinoadmin.controller;
+package com.qianyi.casinoproxy.controller;
 
-import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.vo.AccountChangeBackVo;
-import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.model.AccountChange;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.AccountChangeService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.vo.AccountChangeBackVo;
+import com.qianyi.casinocore.vo.PageResultVO;
+import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -53,11 +53,11 @@ public class AccountChangeController {
     })
     public ResponseEntity<AccountChangeBackVo> findAccountChangePage(Integer pageSize, Integer pageCode, Integer type, String account, String orderNo){
         Sort sort = Sort.by("id").descending();
-        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         AccountChange accountChange = new AccountChange();
-        if (!LoginUtil.checkNull(account)){
+        if (!CasinoProxyUtil.checkNull(account)){
             User user = userService.findByAccount(account);
-            if (LoginUtil.checkNull(user)){
+            if (CasinoProxyUtil.checkNull(user)){
                 return ResponseUtil.custom("用户不存在");
             }
             accountChange.setUserId(user.getId());
