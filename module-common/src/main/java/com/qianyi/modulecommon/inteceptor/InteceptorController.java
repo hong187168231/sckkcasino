@@ -1,6 +1,7 @@
 package com.qianyi.modulecommon.inteceptor;
 
 import com.qianyi.modulecommon.annotation.NoAuthentication;
+import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -24,7 +25,7 @@ public class InteceptorController implements ErrorController {
 
     @RequestMapping("authenticationBan")
     public ResponseEntity authenticationBan() {
-        return ResponseUtil.custom("帐号被封");
+        return ResponseUtil.commonResponse(ResponseCode.DISABLE_ACCOUNT);
     }
 
     @NoAuthentication
@@ -36,7 +37,7 @@ public class InteceptorController implements ErrorController {
     @NoAuthentication
     @RequestMapping("authenticationIpLimit")
     public ResponseEntity authenticationIpLimit() {
-        return ResponseUtil.custom("ip访问受限");
+        return ResponseUtil.commonResponse(ResponseCode.DISABLE_IP);
     }
 
     @NoAuthentication

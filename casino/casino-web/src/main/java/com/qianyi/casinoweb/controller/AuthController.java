@@ -434,13 +434,16 @@ public class AuthController {
     @GetMapping("getJwtToken")
     @ApiOperation("开发者通过此令牌调试接口。不可用于正式请求")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "token", value = "固定值。", required = true),
+            @ApiImplicitParam(name = "account", value = "账号。", required = true),
     })
     @NoAuthentication
-    public ResponseEntity getJwtToken(String token) {
-        User user = userService.findByAccount(token);
+    public ResponseEntity getJwtToken(String account) {
+        User user = userService.findByAccount(account);
         if (user == null) {
             return ResponseUtil.custom("账号不存在");
+        }
+        if(!User.checkUser(user)){
+            return ResponseUtil.commonResponse(ResponseCode.DISABLE_ACCOUNT);
         }
         JjwtUtil.Subject subject = new JjwtUtil.Subject();
         subject.setUserId(String.valueOf(user.getId()));
@@ -474,6 +477,9 @@ public class AuthController {
             return ResponseUtil.authenticationNopass();
         }
         User user = userService.findById(authId);
+        if(!User.checkUser(user)){
+            return ResponseUtil.commonResponse(ResponseCode.DISABLE_ACCOUNT);
+        }
         String refreshToken = JjwtUtil.refreshToken(token, user.getPassword(),Constants.CASINO_WEB);
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();

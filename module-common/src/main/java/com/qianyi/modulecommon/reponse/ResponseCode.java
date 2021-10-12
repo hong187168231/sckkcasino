@@ -20,6 +20,7 @@ public enum ResponseCode {
     MULTIDEVICE(8, "帐号已在其他设备登录,请重新登录"),
     REGISTER_CLOSE(9, "注册通道已关闭"),
     DISABLE_ACCOUNT(10, "账号被封"),
+    DISABLE_IP(11, "ip访问受限"),
 
     //业务级代码（101-999）
     PARAMETER_NOTNULLL(101, "参数必填"),
