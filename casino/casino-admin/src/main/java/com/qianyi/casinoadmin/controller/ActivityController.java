@@ -5,7 +5,9 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.business.DepositSendActivityBusiness;
 import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.DepositSendActivity;
+import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.DepositSendActivityService;
+import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -19,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/activity")
@@ -31,6 +34,9 @@ public class ActivityController {
     @Autowired
     private DepositSendActivityBusiness depositSendActivityBusiness;
 
+    @Autowired
+    private SysUserService sysUserService;
+
     @GetMapping("/activitylist")
     @ApiOperation("活动")
     @ApiImplicitParams({
@@ -38,6 +44,17 @@ public class ActivityController {
     })
     public ResponseEntity<DepositSendActivity> bankList(String actName) {
         List<DepositSendActivity> depositSendActivityList = depositSendActivityService.findAllAct(actName);
+        if(depositSendActivityList != null && depositSendActivityList.size() > 0){
+            List<String> createBy = depositSendActivityList.stream().map(DepositSendActivity::getCreateBy).collect(Collectors.toList());
+            List<SysUser> sysUsers = sysUserService.findAll(createBy);
+            depositSendActivityList.stream().forEach(depositSendActivity -> {
+                sysUsers.stream().forEach(sysUser -> {
+                    if (sysUser.getId().toString().equals(depositSendActivity.getCreateBy() == null ? "" : depositSendActivity.getCreateBy())) {
+                        depositSendActivity.setCreateBy(sysUser.getUserName());
+                    }
+                });
+            });
+        }
         return ResponseUtil.success(depositSendActivityList);
     }
 
