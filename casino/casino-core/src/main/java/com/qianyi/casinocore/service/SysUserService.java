@@ -5,10 +5,13 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.repository.SysUserRepository;
 import com.qianyi.modulecommon.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,5 +48,34 @@ public class SysUserService {
             return optional.get();
         }
         return null;
+    }
+    public List<SysUser> findAll(List<String> sysUserIds) {
+        Specification<SysUser> condition = getCondition(sysUserIds);
+        List<SysUser> userList = sysUserRepository.findAll(condition);
+        return userList;
+    }
+
+    private Specification<SysUser> getCondition(List<String> sysUserIds) {
+        Specification<SysUser> specification = new Specification<SysUser>() {
+            @Override
+            public Predicate toPredicate(Root<SysUser> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                Predicate predicate = cb.conjunction();
+                if (sysUserIds != null && sysUserIds.size() > 0) {
+                    Path<Object> userId = root.get("id");
+                    CriteriaBuilder.In<Object> in = cb.in(userId);
+                    for (String id : sysUserIds) {
+                        try {
+                            in.value(Long.valueOf(id));
+                        }catch (Exception e){
+
+                        }
+                    }
+                    list.add(cb.and(cb.and(in)));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
     }
 }
