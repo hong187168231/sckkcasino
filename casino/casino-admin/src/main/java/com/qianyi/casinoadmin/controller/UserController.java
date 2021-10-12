@@ -1,9 +1,9 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.qianyi.casinoadmin.util.CommonConst;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinoadmin.util.passwordUtil;
+import com.qianyi.casinocore.util.PasswordUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.UserVo;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
@@ -284,7 +284,7 @@ public class UserController {
         user.setLanguage(Constants.USER_LANGUAGE_CH);
 
         //随机生成
-        String password = passwordUtil.getRandomPwd();
+        String password = PasswordUtil.getRandomPwd();
         String bcryptPassword = LoginUtil.bcrypt(password);
         user.setPassword(bcryptPassword);
         //默认展示两张收款卡
@@ -388,7 +388,7 @@ public class UserController {
             return ResponseUtil.custom("账户不存在");
         }
         //随机生成
-        String withdrawPassword = passwordUtil.getRandomPwd();
+        String withdrawPassword = PasswordUtil.getRandomPwd();
         String bcryptPassword = LoginUtil.bcrypt(withdrawPassword);
         user.setWithdrawPassword(bcryptPassword);
         userService.save(user);
@@ -409,7 +409,7 @@ public class UserController {
             return ResponseUtil.custom("账户不存在");
         }
         //随机生成
-        String password = passwordUtil.getRandomPwd();
+        String password = PasswordUtil.getRandomPwd();
         String bcryptPassword = LoginUtil.bcrypt(password);
         user.setPassword(bcryptPassword);
         userService.save(user);

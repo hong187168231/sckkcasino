@@ -1,6 +1,5 @@
 package com.qianyi.casinoadmin.controller;
 
-import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.Customer;
 import com.qianyi.casinocore.service.CustomerService;

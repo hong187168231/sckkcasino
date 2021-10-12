@@ -1,6 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
-import com.qianyi.casinoadmin.util.CommonConst;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.BankcardsVo;
 import com.qianyi.casinocore.model.BankInfo;
@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;

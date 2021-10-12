@@ -1,4 +1,4 @@
-package com.qianyi.casinoadmin.util;
+package com.qianyi.casinocore.util;
 
 import com.qianyi.modulecommon.Constants;
 
@@ -7,7 +7,7 @@ import java.util.Random;
 /**
  * 生成随机密码
  */
-public class passwordUtil {
+public class PasswordUtil {
 
     public static String getRandomPwd(){
 

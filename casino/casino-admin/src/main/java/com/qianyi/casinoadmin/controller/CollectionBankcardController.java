@@ -1,6 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
-import com.qianyi.casinoadmin.util.CommonConst;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.CollectionBankcardVo;
 import com.qianyi.casinocore.vo.PageResultVO;

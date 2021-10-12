@@ -1,13 +1,9 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.CoreConstants;
 import com.qianyi.casinocore.model.PlatformConfig;
-import com.qianyi.casinocore.model.SysConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
-import com.qianyi.casinocore.service.SysConfigService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;

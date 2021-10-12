@@ -1,6 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
-import com.qianyi.casinoadmin.util.CommonConst;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.model.Notice;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.NoticeService;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 

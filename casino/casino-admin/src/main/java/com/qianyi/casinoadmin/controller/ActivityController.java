@@ -1,9 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
-import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.business.DepositSendActivityBusiness;
-import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.DepositSendActivity;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.DepositSendActivityService;
@@ -15,9 +13,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.List;
