@@ -41,28 +41,34 @@ public class UserGroupNumBusiness {
 
     @Transactional
     public void processProxyUserBOList(List<ProxyUserBO> proxyUserBOList) {
-        proxyUserBOList.forEach(item->{});
+        proxyUserBOList.forEach(item->processItem(item));
     }
 
     private void processItem(ProxyUserBO proxyUserBO){
+        log.info("process proxy user BO item");
         proxyReportBusiness.processUser(proxyUserBO);
         proxyDayReportBusiness.processUser(proxyUserBO);
     }
 
     private List<ProxyUserBO> getGroupUserNum(User user) {
         List<ProxyUserBO> proxyUserBOList = new ArrayList<>();
-        if(user.getFirstPid()==null)
+        if(user.getFirstPid()!=null)
             proxyUserBOList.add(getProxyUser(user.getFirstPid(),user,true));
-
+        if(user.getSecondPid()!=null)
+            proxyUserBOList.add(getProxyUser(user.getSecondPid(),user,true));
+        if(user.getThirdPid()!=null)
+            proxyUserBOList.add(getProxyUser(user.getThirdPid(),user,true));
+        log.info("get list BO {}",proxyUserBOList);
         return proxyUserBOList;
     }
 
-    private ProxyUserBO getProxyUser(Long userId,User user, boolean isDirect) {
+    private ProxyUserBO getProxyUser(Long userId,User user, boolean isDirect) {;
         ProxyUserBO proxyUserBO = new ProxyUserBO();
         proxyUserBO.setProxyUserId(userId);
         proxyUserBO.setDrect(isDirect);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         proxyUserBO.setDayTime(format.format(user.getCreateTime()));
+        log.info("generate bo is {}",proxyUserBO);
         return proxyUserBO;
     }
 }

@@ -49,19 +49,20 @@ public class ShareProfitBusiness {
     public void procerssShareProfit(ShareProfitMqVo shareProfitMqVo){
         PlatformConfig platformConfig = platformConfigService.findFirst();
         GameRecord record = gameRecordService.findGameRecordById(shareProfitMqVo.getGameRecordId());
-        List<ShareProfitBO> shareProfitBOList = shareProfitOperator(platformConfig,record);
+        List<ShareProfitBO> shareProfitBOList = shareProfitOperator(platformConfig,shareProfitMqVo);
         processShareProfitList(shareProfitBOList,record);
     }
 
-    private List<ShareProfitBO> shareProfitOperator(PlatformConfig platformConfig, GameRecord record) {
-        User user = userService.findById(record.getUserId());
+    private List<ShareProfitBO> shareProfitOperator(PlatformConfig platformConfig, ShareProfitMqVo shareProfitMqVo) {
+        User user = userService.findById(shareProfitMqVo.getUserId());
+        String betTime = shareProfitMqVo.getBetTime().substring(0,10);
         List<ShareProfitBO> shareProfitBOList = new ArrayList<>();
         if(user.getFirstPid()!=null)
-            shareProfitBOList.add(getShareProfitBO(user.getFirstPid(),new BigDecimal(record.getValidbet()),platformConfig.getFirstCommission(),getUserIsFirstBet(user),record.getBetTime(),true));
+            shareProfitBOList.add(getShareProfitBO(user.getFirstPid(),shareProfitMqVo.getValidbet(),platformConfig.getFirstCommission(),getUserIsFirstBet(user),betTime,true));
         if(user.getSecondPid()!=null)
-            shareProfitBOList.add(getShareProfitBO(user.getSecondPid(),new BigDecimal(record.getValidbet()),platformConfig.getSecondCommission(),getUserIsFirstBet(user),record.getBetTime(),false));
+            shareProfitBOList.add(getShareProfitBO(user.getSecondPid(),shareProfitMqVo.getValidbet(),platformConfig.getSecondCommission(),getUserIsFirstBet(user),betTime,false));
         if(user.getThirdPid()!=null)
-            shareProfitBOList.add(getShareProfitBO(user.getThirdPid(),new BigDecimal(record.getValidbet()),platformConfig.getThirdCommission(),getUserIsFirstBet(user),record.getBetTime(),false));
+            shareProfitBOList.add(getShareProfitBO(user.getThirdPid(),shareProfitMqVo.getValidbet(),platformConfig.getThirdCommission(),getUserIsFirstBet(user),betTime,false));
         return shareProfitBOList;
     }
 
@@ -102,6 +103,7 @@ public class ShareProfitBusiness {
     }
 
     private void processProfitDetail(ShareProfitBO shareProfitBO,UserMoney userMoney,GameRecord record) {
+        log.info("gamerecord is {}",record);
         ShareProfitChange shareProfitChange = new ShareProfitChange();
         shareProfitChange.setAmount(shareProfitBO.getProfitAmount());
         shareProfitChange.setUserId(shareProfitBO.getUserId());

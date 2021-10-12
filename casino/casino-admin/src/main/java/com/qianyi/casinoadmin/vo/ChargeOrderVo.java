@@ -37,8 +37,6 @@ public class ChargeOrderVo implements Serializable {
     private BigDecimal serviceCharge;
     @ApiModelProperty(value = "备注")
     private String remark;
-    @ApiModelProperty(value = "充值订单类型 1 会员提交 2 管理员提交")
-    private Integer type = 1;
     @ApiModelProperty(value = "收款银行卡ID")
     private Long bankcardId;
     @ApiModelProperty(value = "收款银行号")
@@ -68,7 +66,6 @@ public class ChargeOrderVo implements Serializable {
 //        this.realityAmount = chargeOrder.getRealityAmount();
         this.practicalAmount = chargeOrder.getPracticalAmount();
         this.serviceCharge = chargeOrder.getServiceCharge();
-        this.type = chargeOrder.getType();
         this.createTime = chargeOrder.getCreateTime();
         this.updateTime = chargeOrder.getUpdateTime();
         this.createBy = chargeOrder.getCreateBy();

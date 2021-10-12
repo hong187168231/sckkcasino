@@ -3,7 +3,11 @@ package com.qianyi.casinoadmin.controller;
 import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinoadmin.util.CommonUtil;
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinoadmin.vo.CollectionBankcardVo;
+import com.qianyi.casinoadmin.vo.PageResultVO;
+import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.CollectionBankcard;
+import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.CollectionBankcardService;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -19,7 +23,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 用户谷歌验证登录
@@ -31,6 +37,9 @@ public class CollectionBankcardController {
 
     @Autowired
     private CollectionBankcardService collectionBankcardService;
+    
+    @Autowired
+    private BankInfoService bankInfoService;
 
     @GetMapping("bankList")
     @ApiOperation("收款银行卡列表")
@@ -40,14 +49,35 @@ public class CollectionBankcardController {
             @ApiImplicitParam(name = "disable", value = "0:未禁用 1：禁用", required = false),
             @ApiImplicitParam(name = "bankId", value = "银行类型", required = false),
     })
-    public ResponseEntity<CollectionBankcard> bankList(Integer pageSize, Integer pageCode,Integer disable,String bankId) {
+    public ResponseEntity<CollectionBankcardVo> bankList(Integer pageSize, Integer pageCode,Integer disable,String bankId) {
         Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         CollectionBankcard collectionBankcard = new CollectionBankcard();
         collectionBankcard.setDisable(disable);
         collectionBankcard.setBankId(bankId);
         Page<CollectionBankcard> collectionBandPage = collectionBankcardService.getCollectionBandPage(collectionBankcard, pageable);
-        return ResponseUtil.success(collectionBandPage);
+        PageResultVO<CollectionBankcardVo> pageResultVO =new PageResultVO(collectionBandPage);
+        List<CollectionBankcard> content = collectionBandPage.getContent();
+        if(content != null && content.size() > 0){
+            List<CollectionBankcardVo> collectionBankcardList = new LinkedList<>();
+            List<String> collect = content.stream().map(CollectionBankcard::getBankId).collect(Collectors.toList());
+            List<BankInfo> bankInfos = bankInfoService.findAll(collect);
+            if(bankInfos != null){
+                content.stream().forEach(collectionBank ->{
+                    CollectionBankcardVo collectionBankcardVo = new CollectionBankcardVo(collectionBank);
+                    bankInfos.stream().forEach(bank->{
+                        System.out.println(bank.getId());
+                        System.out.println(collectionBank.getBankId());
+                        if (bank.getId().toString().equals(collectionBank.getBankId())){
+                            collectionBankcardVo.setBankName(bank.getBankName());
+                        }
+                    });
+                    collectionBankcardList.add(collectionBankcardVo);
+                });
+            }
+            pageResultVO.setContent(collectionBankcardList);
+        }
+        return ResponseUtil.success(pageResultVO);
     }
 
     @ApiOperation("新增收款银行卡")

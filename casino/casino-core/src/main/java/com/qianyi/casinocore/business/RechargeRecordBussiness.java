@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class RechargeRecordBussiness {
      * 统计新增金额，人数
      * @param rechargeRecordVo 充值消息对象
      */
+
     public void procerssShareProfit(RechargeRecordVo rechargeRecordVo){
         if(rechargeRecordVo == null || rechargeRecordVo.getUserId() == null || rechargeRecordVo.getFirstUserId() == null){
             return;
@@ -36,9 +38,11 @@ public class RechargeRecordBussiness {
         processList(rechargeProxyList);
     }
 
-    @Transactional
-    protected void processList(List<RechargeProxyBO> rechargeProxyList) {
+    @Transactional(rollbackFor = Exception.class)
+    public void processList(List<RechargeProxyBO> rechargeProxyList) {
+        log.info("begin process recharge proxy bo list");
         rechargeProxyList.forEach(item->processItem(item));
+        log.info("finish process recharge proxy bo list");
     }
 
     private void processItem(RechargeProxyBO rechargeProxy){
@@ -54,6 +58,7 @@ public class RechargeRecordBussiness {
             rechargeProxyList.add(getItemByVo(rechargeRecordVo.getSecondUserId(),rechargeRecordVo,false));
         if(rechargeRecordVo.getThirdUserId() != null)
             rechargeProxyList.add(getItemByVo(rechargeRecordVo.getThirdUserId(),rechargeRecordVo,false));
+        log.info("get list object is {}",rechargeProxyList);
         return rechargeProxyList;
     }
 

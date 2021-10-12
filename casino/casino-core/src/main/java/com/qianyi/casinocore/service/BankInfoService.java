@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.repository.BankInfoRepository;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 
 @Service
 public class BankInfoService {
@@ -50,6 +47,11 @@ public class BankInfoService {
         }
         return null;
     }
+    public List<BankInfo> findAll(List<String> ids){
+        Specification<BankInfo> condition = this.getCondition(ids);
+        return bankInfoRepository.findAll(condition);
+    }
+
     private Specification<BankInfo> getCondition(BankInfo bankInfo) {
         Specification<BankInfo> specification = new Specification<BankInfo>() {
             @Override
@@ -61,6 +63,30 @@ public class BankInfoService {
                 }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));
                 return predicate;
+            }
+        };
+        return specification;
+    }
+
+    private Specification<BankInfo> getCondition(List<String> ids) {
+        Specification<BankInfo> specification = new Specification<BankInfo>() {
+            @Override
+            public Predicate toPredicate(Root<BankInfo> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                Predicate predicate = cb.conjunction();
+                if (ids != null && ids.size() > 0) {
+                    Path<Object> userId = root.get("id");
+                    CriteriaBuilder.In<Object> in = cb.in(userId);
+                    for (String id : ids) {
+                        try {
+                            in.value(Long.valueOf(id));
+                        }catch (Exception e){
+
+                        }
+                    }
+                    list.add(cb.and(cb.and(in)));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
             }
         };
         return specification;

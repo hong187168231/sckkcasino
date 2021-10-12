@@ -19,7 +19,7 @@ public class ProxyDayReport extends BaseEntity{
     @ApiModelProperty("分润")
     private BigDecimal profitAmount= BigDecimal.ZERO;
     @ApiModelProperty("今日新增")
-    private Integer newNum;
+    private Integer newNum=0;
     @ApiModelProperty("日期")
     private String dayTime;
 

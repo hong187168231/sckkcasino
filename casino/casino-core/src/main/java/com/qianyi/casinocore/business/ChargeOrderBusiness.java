@@ -73,7 +73,7 @@ public class ChargeOrderBusiness {
      */
     @Transactional
     public ResponseEntity saveOrderSuccess(ChargeOrder chargeOrder) {
-        return this.saveOrder(chargeOrder,Constants.chargeOrder_success,AccountChangeEnum.ADD_CODE);
+        return this.saveOrder(chargeOrder,Constants.chargeOrder_masterControl,AccountChangeEnum.ADD_CODE);
     }
 
     private ResponseEntity saveOrder(ChargeOrder chargeOrder,Integer status,AccountChangeEnum changeEnum){

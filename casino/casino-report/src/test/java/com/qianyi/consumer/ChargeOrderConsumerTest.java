@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.UUID;
 
 @Slf4j
@@ -26,8 +27,12 @@ public class ChargeOrderConsumerTest {
     public void should_send_message_to_mq(){
         RechargeRecordVo rechargeRecordVo = new RechargeRecordVo();
         rechargeRecordVo.setChargeAmount(BigDecimal.ONE);
-        rechargeRecordVo.setUserId(1l);
-        rechargeRecordVo.setFirstUserId(1l);
+        rechargeRecordVo.setUserId(4l);
+        rechargeRecordVo.setFirstUserId(3l);
+        rechargeRecordVo.setSecondUserId(2l);
+        rechargeRecordVo.setThirdUserId(1l);
+        rechargeRecordVo.setIsFirst(0);
+        rechargeRecordVo.setCreateTime(new Date());
         rabbitTemplate.convertAndSend(RabbitMqConstants.CHARGEORDER_DIRECTQUEUE_DIRECTEXCHANGE,RabbitMqConstants.INGCHARGEORDER_DIRECT,rechargeRecordVo,new CorrelationData(UUID.randomUUID().toString()));
 
         log.info("success");

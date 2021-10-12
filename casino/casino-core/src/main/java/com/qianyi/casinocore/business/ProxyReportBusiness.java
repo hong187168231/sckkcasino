@@ -7,9 +7,12 @@ import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.vo.ProxyUserBO;
 import com.qianyi.casinocore.vo.RechargeProxyBO;
 import com.qianyi.casinocore.vo.ShareProfitBO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 public class ProxyReportBusiness {
     @Autowired
@@ -54,6 +57,7 @@ public class ProxyReportBusiness {
         ProxyReport proxyReport = new ProxyReport();
         proxyReport.setUserId(userId);
         proxyReport.setAccount(user.getAccount());
+        proxyReportService.save(proxyReport);
         return proxyReport;
     }
 
@@ -61,10 +65,15 @@ public class ProxyReportBusiness {
     /**
      * 处理充值报表
      */
+    @Transactional
     public void processRechargeReport(RechargeProxyBO rechargeProxy){
+        log.info("process recharge proxy bo {}",rechargeProxy);
         // 判断是否首充
-        if(rechargeProxy.getIsFirst()==1)
+        if(rechargeProxy.getIsFirst()==1){
+            log.info("is not first charge");
             return;
+        }
+
         ProxyReport proxyReport = getProxyReport(rechargeProxy.getProxyUserId());
         proxyReport.setAllChargeNum(proxyReport.getAllChargeNum()+1);
         if(rechargeProxy.isDirect())
@@ -81,13 +90,14 @@ public class ProxyReportBusiness {
      * @param proxyUserBO
      */
     public void processUser(ProxyUserBO proxyUserBO){
+        log.info("query proxy report from db");
         ProxyReport proxyReport = getProxyReport(proxyUserBO.getProxyUserId());
+        log.info("set proxy report  group num value {} {} {}",proxyReport.getAllGroupNum(), proxyReport.getDirectGroupNum(), proxyReport.getOtherGroupNum());
         proxyReport.setAllGroupNum(proxyReport.getAllGroupNum()+1);
         if(proxyUserBO.isDrect())
             proxyReport.setDirectGroupNum(proxyReport.getDirectGroupNum()+1);
         else
             proxyReport.setOtherGroupNum(proxyReport.getOtherGroupNum()+1);
-
     }
 
     private ProxyReport getProxyReport(Long userId) {

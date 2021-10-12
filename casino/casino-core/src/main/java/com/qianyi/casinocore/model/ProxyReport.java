@@ -18,11 +18,11 @@ public class ProxyReport extends BaseEntity{
     @ApiModelProperty("有效投注")
     private BigDecimal allBetAmount=BigDecimal.ZERO;
     @ApiModelProperty("团队人数")
-    private Integer allGroupNum;
+    private Integer allGroupNum=0;
     @ApiModelProperty("投注人数")
-    private Integer allBetNum;
+    private Integer allBetNum=0;
     @ApiModelProperty("充值人数")
-    private Integer allChargeNum;
+    private Integer allChargeNum=0;
 
     //直属
     @ApiModelProperty("分润")
@@ -30,11 +30,11 @@ public class ProxyReport extends BaseEntity{
     @ApiModelProperty("有效投注")
     private BigDecimal directBetAmount=BigDecimal.ZERO;
     @ApiModelProperty("团队人数")
-    private Integer directGroupNum;
+    private Integer directGroupNum=0;
     @ApiModelProperty("投注人数")
-    private Integer directBetNum;
+    private Integer directBetNum=0;
     @ApiModelProperty("充值人数")
-    private Integer directChargeNum;
+    private Integer directChargeNum=0;
 
     //非直属
     @ApiModelProperty("分润")
@@ -42,9 +42,9 @@ public class ProxyReport extends BaseEntity{
     @ApiModelProperty("有效投注")
     private BigDecimal otherBetAmount=BigDecimal.ZERO;
     @ApiModelProperty("团队人数")
-    private Integer otherGroupNum;
+    private Integer otherGroupNum=0;
     @ApiModelProperty("投注人数")
-    private Integer otherBetNum;
+    private Integer otherBetNum=0;
     @ApiModelProperty("充值人数")
-    private Integer otherChargeNum;
+    private Integer otherChargeNum=0;
 }

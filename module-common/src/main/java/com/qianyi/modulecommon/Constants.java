@@ -21,15 +21,15 @@ public class Constants {
     public final static Integer chargeOrder_success = 1;//确认成功
     public final static Integer chargeOrder_fail = 2;//确认失败
     public final static Integer chargeOrder_disabled = 3;//失效
-    public final static Integer chargeOrder_connected = 4;//已接单
-
+    public final static Integer chargeOrder_masterControl = 4;//总控上分
+    public final static Integer chargeOrder_proxy = 5;//代理上分
     //提现订单状态 1：通过，2：拒绝，3：冻结
     public final static Integer withdrawOrder_wait = 0;//原始状态，未接单
     public final static Integer withdrawOrder_success = 1;//确认成功
     public final static Integer withdrawOrder_fail = 2;//拒绝
     public final static Integer withdrawOrder_freeze = 3;//冻结
-    public final static Integer withdrawOrder_connected = 4;//已接单
-
+    public final static Integer withdrawOrder_masterControl = 4;//总控下分
+    public final static Integer withdrawOrder_proxy = 5;//代理下分
     /** 单个用户银行卡最大绑定数量 */
     public final static Integer BANK_USER_BOUND_MAX = 6;
 
