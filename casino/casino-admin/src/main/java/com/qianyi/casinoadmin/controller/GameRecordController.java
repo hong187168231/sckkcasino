@@ -62,7 +62,7 @@ public class GameRecordController {
             @ApiImplicitParam(name = "gid", value = "游戏类型", required = false),
             @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
     })
-    public ResponseEntity<GameRecord> findGameRecordPage(Integer pageSize, Integer pageCode, String user, String betId,
+    public ResponseEntity<GameRecordVo> findGameRecordPage(Integer pageSize, Integer pageCode, String user, String betId,
                                                          String gname,Integer gid,String account){
         Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);

@@ -11,11 +11,11 @@ public class GameRecordVo implements Serializable {
     private static final long serialVersionUID = -6975317983240305179L;
     @ApiModelProperty(value = "ID")
     private Long id;
-    @ApiModelProperty(value = "会员账号")
+    @ApiModelProperty(value = "我方会员账号")
     private String account;
     @ApiModelProperty(value = "我方账号")
     private Long userId;
-    @ApiModelProperty(value = "账号")
+    @ApiModelProperty(value = "三方会员账号")
     private String user;
     @ApiModelProperty(value = "注单号")
     private String betId;
