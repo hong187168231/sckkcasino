@@ -261,6 +261,9 @@ public class AuthController {
         if (user == null) {
             return ResponseUtil.custom("帐号或密码错误");
         }
+        if(!User.checkUser(user)){
+            return ResponseUtil.commonResponse(ResponseCode.DISABLE_ACCOUNT);
+        }
         String bcryptPassword = user.getPassword();
         boolean bcrypt = CasinoWebUtil.checkBcrypt(password, bcryptPassword);
         if (!bcrypt) {
