@@ -160,6 +160,8 @@ public class UserController {
             List<UserVo> userVoList = new LinkedList();
             List<Long> userIds = userList.stream().map(User::getId).collect(Collectors.toList());
             List<UserMoney> userMoneyList =  userMoneyService.findAll(userIds);
+            List<Long> firstPids = userList.stream().map(User::getFirstPid).collect(Collectors.toList());
+            List<User> firstPidUsers = userService.findAll(firstPids);
             if(userMoneyList != null){
                 userList.stream().forEach(u -> {
                     UserVo userVo = new UserVo(u);
@@ -168,6 +170,11 @@ public class UserController {
                             userVo.setMoney(userMoney.getMoney());
                             userVo.setCodeNum(userMoney.getCodeNum());
                             userVo.setWithdrawMoney(userMoney.getWithdrawMoney());//可以提现金额
+                        }
+                    });
+                    firstPidUsers.stream().forEach(firstPid -> {
+                        if(firstPid.getId().equals(u.getFirstPid() == null ? "":u.getFirstPid())){
+                            userVo.setFirstPidAccount(firstPid.getAccount());
                         }
                     });
                     userVoList.add(userVo);

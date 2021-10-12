@@ -7,9 +7,11 @@ import com.qianyi.casinoadmin.vo.PageResultVO;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
 import com.qianyi.casinocore.model.ChargeOrder;
 import com.qianyi.casinocore.model.CollectionBankcard;
+import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.ChargeOrderService;
 import com.qianyi.casinocore.service.CollectionBankcardService;
+import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -54,6 +56,9 @@ public class ChargeOrderController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private SysUserService sysUserService;
     /**
      * 充值申请列表
      *
@@ -90,8 +95,10 @@ public class ChargeOrderController {
             List<ChargeOrderVo> chargeOrderVoList = new LinkedList<>();
             List<Long> userIds = content.stream().map(ChargeOrder::getUserId).collect(Collectors.toList());
             List<Long> collect = content.stream().map(ChargeOrder::getBankcardId).collect(Collectors.toList());
+            List<String> updateBys = content.stream().map(ChargeOrder::getUpdateBy).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
             List<CollectionBankcard> all = collectionBankcardService.findAll(collect);
+            List<SysUser> sysUsers = sysUserService.findAll(updateBys);
             Map<Long, CollectionBankcard> bankcardMap = all.stream().collect(Collectors.toMap(CollectionBankcard::getId, a -> a, (k1, k2) -> k1));
             if(userList != null){
                 content.stream().forEach(chargeOrder ->{
@@ -100,6 +107,11 @@ public class ChargeOrderController {
                         if (user.getId().equals(chargeOrder.getUserId())){
                             chargeOrderVo.setAccount(user.getAccount());
                             this.setCollectionBankcard(bankcardMap.get(chargeOrder.getBankcardId()),chargeOrderVo);
+                        }
+                    });
+                    sysUsers.stream().forEach(sysUser->{
+                        if (chargeOrder.getStatus() != CommonConst.NUMBER_0 && sysUser.getId().toString().equals(chargeOrder.getUpdateBy() == null?"":chargeOrder.getUpdateBy())){
+                            chargeOrderVo.setUpdateBy(sysUser.getUserName());
                         }
                     });
                     chargeOrderVoList.add(chargeOrderVo);

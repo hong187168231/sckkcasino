@@ -5,10 +5,7 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.PageResultVO;
 import com.qianyi.casinoadmin.vo.WithdrawOrderVo;
 import com.qianyi.casinocore.business.WithdrawBusiness;
-import com.qianyi.casinocore.model.Bankcards;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.UserMoney;
-import com.qianyi.casinocore.model.WithdrawOrder;
+import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -55,6 +52,9 @@ public class WithdrawOrderController {
     @Autowired
     private BankcardsService bankcardsService;
 
+    @Autowired
+    private SysUserService sysUserService;
+
     @ApiOperation("提现列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
@@ -94,6 +94,8 @@ public class WithdrawOrderController {
             List<String> collect = content.stream().map(WithdrawOrder::getBankId).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
             List<Bankcards> all = bankcardsService.findAll(collect);
+            List<String> updateBys = content.stream().map(WithdrawOrder::getUpdateBy).collect(Collectors.toList());
+            List<SysUser> sysUsers = sysUserService.findAll(updateBys);
             Map<Long, Bankcards> bankcardMap = all.stream().collect(Collectors.toMap(Bankcards::getId, a -> a, (k1, k2) -> k1));
             if(userList != null){
                 content.stream().forEach(withdraw ->{
@@ -106,6 +108,11 @@ public class WithdrawOrderController {
                             }catch (Exception ex){
 
                             }
+                        }
+                    });
+                    sysUsers.stream().forEach(sysUser->{
+                        if (withdraw.getStatus() != CommonConst.NUMBER_0 && sysUser.getId().toString().equals(withdraw.getUpdateBy() == null?"":withdraw.getUpdateBy())){
+                            withdrawOrderVo.setUpdateBy(sysUser.getUserName());
                         }
                     });
                     withdrawOrderVoList.add(withdrawOrderVo);

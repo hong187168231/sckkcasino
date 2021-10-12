@@ -2,7 +2,9 @@ package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.CommonConst;
 import com.qianyi.casinocore.model.Notice;
+import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.NoticeService;
+import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/notice")
@@ -26,6 +29,8 @@ public class NoticeController {
     @Autowired
     private NoticeService noticeService;
 
+    @Autowired
+    private SysUserService sysUserService;
     @ApiOperation("新增公告")
     @PostMapping("/saveNotice")
     @ApiImplicitParams({
@@ -96,6 +101,17 @@ public class NoticeController {
     @GetMapping("/findNotice")
     public ResponseEntity findNotice(){
         List<Notice> noticeList = noticeService.findByNoticeList();
+        if(noticeList != null && noticeList.size() > 0){
+            List<String> updateBys = noticeList.stream().map(Notice::getUpdateBy).collect(Collectors.toList());
+            List<SysUser> sysUsers = sysUserService.findAll(updateBys);
+            noticeList.stream().forEach(notice -> {
+                sysUsers.stream().forEach(sysUser -> {
+                    if (sysUser.getId().toString().equals(notice.getUpdateBy() == null ? "" : notice.getUpdateBy())) {
+                        notice.setUpdateBy(sysUser.getUserName());
+                    }
+                });
+            });
+        }
         return new ResponseEntity(ResponseCode.SUCCESS, noticeList);
     }
 }
