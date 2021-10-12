@@ -37,7 +37,10 @@ public class LoginLogJob implements AsyncService<LoginLogVo> {
         if (address != null) {
             loginLog.setAddress(address);
         }
-        User user = userService.findById(vo.getUserId());
+        User user = null;
+        if (vo.getUserId() != null) {
+            user = userService.findById(vo.getUserId());
+        }
         if (user != null) {
             loginLog.setFirstProxy(user.getFirstProxy());
             loginLog.setSecondProxy(user.getSecondProxy());
