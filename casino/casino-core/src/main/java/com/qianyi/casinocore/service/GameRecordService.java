@@ -34,7 +34,8 @@ public class GameRecordService {
 
 
 
-    public Page<GameRecord> findGameRecordPage(Specification<GameRecord> condition, Pageable pageable) {
+    public Page<GameRecord> findGameRecordPage(GameRecord gameRecord, Pageable pageable) {
+        Specification<GameRecord> condition = getCondition(gameRecord);
         return gameRecordRepository.findAll(condition, pageable);
     }
 
@@ -92,4 +93,46 @@ public class GameRecordService {
     }
 
     public GameRecord findGameRecordById(Long gameId){return gameRecordRepository.findById(gameId).orElse(null);}
+
+    /**
+     * 查询条件拼接，灵活添加条件
+     * @param
+     * @return
+     */
+    private Specification<GameRecord> getCondition(GameRecord gameRecord) {
+        Specification<GameRecord> specification = new Specification<GameRecord>() {
+            @Override
+            public Predicate toPredicate(Root<GameRecord> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                Predicate predicate = cb.conjunction();
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (!CommonUtil.checkNull(gameRecord.getUser())) {
+                    list.add(cb.equal(root.get("user").as(String.class), gameRecord.getUser()));
+                }
+                if (!CommonUtil.checkNull(gameRecord.getBetId())) {
+                    list.add(cb.equal(root.get("betId").as(String.class), gameRecord.getBetId()));
+                }
+                if (!CommonUtil.checkNull(gameRecord.getGname())) {
+                    list.add(cb.equal(root.get("gname").as(String.class), gameRecord.getGname()));
+                }
+                if (gameRecord.getGid() != null) {
+                    list.add(cb.equal(root.get("gid").as(Integer.class), gameRecord.getGid()));
+                }
+                if (gameRecord.getUserId() != null) {
+                    list.add(cb.equal(root.get("userId").as(Long.class), gameRecord.getUserId()));
+                }
+                if (gameRecord.getFirstProxy() != null) {
+                    list.add(cb.equal(root.get("firstProxy").as(Long.class), gameRecord.getFirstProxy()));
+                }
+                if (gameRecord.getSecondProxy() != null) {
+                    list.add(cb.equal(root.get("secondProxy").as(Long.class), gameRecord.getSecondProxy()));
+                }
+                if (gameRecord.getThirdProxy() != null) {
+                    list.add(cb.equal(root.get("thirdProxy").as(Long.class), gameRecord.getThirdProxy()));
+                }
+                predicate = cb.and(list.toArray(new Predicate[list.size()]));
+                return predicate;
+            }
+        };
+        return specification;
+    }
 }

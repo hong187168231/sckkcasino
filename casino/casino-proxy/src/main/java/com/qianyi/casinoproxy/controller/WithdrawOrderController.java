@@ -1,12 +1,12 @@
-package com.qianyi.casinoadmin.controller;
+package com.qianyi.casinoproxy.controller;
 
-import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.vo.PageResultVO;
-import com.qianyi.casinocore.vo.WithdrawOrderVo;
 import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.vo.PageResultVO;
+import com.qianyi.casinocore.vo.WithdrawOrderVo;
+import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -18,7 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
@@ -67,24 +71,21 @@ public class WithdrawOrderController {
     @GetMapping("/withdrawList")
     public ResponseEntity<WithdrawOrderVo> withdrawList(Integer pageSize,Integer pageCode, Integer status, String account, String no, String bankId){
         WithdrawOrder withdrawOrder = new WithdrawOrder();
-        if (!LoginUtil.checkNull(account)){
+        if (CasinoProxyUtil.setParameter(withdrawOrder)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        withdrawOrder.setStatus(status);
+        withdrawOrder.setNo(no);
+        withdrawOrder.setBankId(bankId);
+        if (!CasinoProxyUtil.checkNull(account)){
             User user = userService.findByAccount(account);
-            if (LoginUtil.checkNull(user)){
+            if (CasinoProxyUtil.checkNull(user)){
                 return ResponseUtil.custom("用户不存在");
             }
             withdrawOrder.setUserId(user.getId());
         }
-        if(status != null){
-            withdrawOrder.setStatus(status);
-        }
-        if(!LoginUtil.checkNull(no)){
-            withdrawOrder.setNo(no);
-        }
-        if(!LoginUtil.checkNull(bankId)){
-            withdrawOrder.setBankId(bankId);
-        }
         Sort sort=Sort.by("id").descending();
-        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, withdrawOrder);
         PageResultVO<WithdrawOrderVo> pageResultVO = new PageResultVO(withdrawOrderPage);
         List<WithdrawOrder> content = withdrawOrderPage.getContent();
@@ -123,7 +124,7 @@ public class WithdrawOrderController {
         return ResponseUtil.success(pageResultVO);
     }
     private void  setBankcards(Bankcards bankcards,WithdrawOrderVo withdrawOrderVo){
-        if (LoginUtil.checkNull(bankcards)){
+        if (CasinoProxyUtil.checkNull(bankcards)){
             return ;
         }
         withdrawOrderVo.setBankNo(bankcards.getBankAccount());
@@ -136,7 +137,7 @@ public class WithdrawOrderController {
     })
     @PostMapping("saveWithdraw")
     public ResponseEntity saveWithdraw(Long id, Integer status){
-        if (LoginUtil.checkNull(id,status)){
+        if (CasinoProxyUtil.checkNull(id,status)){
             return ResponseUtil.custom("参数不合法");
         }
         if(status != CommonConst.NUMBER_1 && status != CommonConst.NUMBER_2){

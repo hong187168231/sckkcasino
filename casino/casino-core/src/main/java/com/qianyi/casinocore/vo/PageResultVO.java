@@ -1,4 +1,4 @@
-package com.qianyi.casinoadmin.vo;
+package com.qianyi.casinocore.vo;
 
 import lombok.Data;
 import org.springframework.data.domain.Page;

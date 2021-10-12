@@ -1,14 +1,14 @@
-package com.qianyi.casinoadmin.controller;
+package com.qianyi.casinoproxy.controller;
 
-import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.vo.BankcardsVo;
 import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.model.LoginLog;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.BankcardsService;
 import com.qianyi.casinocore.service.LoginLogService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.vo.BankcardsVo;
+import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -54,11 +54,14 @@ public class UserPeggingController {
     })
     @GetMapping("findUserPegging")
     public ResponseEntity<BankcardsVo> findUserPegging(Integer tag, String context){
-        if (LoginUtil.checkNull(tag,context)){
+        if (CasinoProxyUtil.checkNull(tag,context)){
             return ResponseUtil.custom("参数不合法");
         }
         if (tag == CommonConst.NUMBER_0){//反查ip
             User user = new User();
+            if (CasinoProxyUtil.setParameter(user)){
+                return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+            }
             user.setRegisterIp(context);
             List<User> userList = userService.findUserList(user);
             LoginLog loginLog = new LoginLog();

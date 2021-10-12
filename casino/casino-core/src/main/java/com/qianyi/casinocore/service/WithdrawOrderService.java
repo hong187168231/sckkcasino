@@ -69,6 +69,15 @@ public class WithdrawOrderService {
                 if(withdrawOrder.getUserId() != null){
                     list.add(cb.equal(root.get("userId").as(Long.class), withdrawOrder.getUserId()));
                 }
+                if (withdrawOrder.getFirstProxy() != null) {
+                    list.add(cb.equal(root.get("firstProxy").as(Long.class), withdrawOrder.getFirstProxy()));
+                }
+                if (withdrawOrder.getSecondProxy() != null) {
+                    list.add(cb.equal(root.get("secondProxy").as(Long.class), withdrawOrder.getSecondProxy()));
+                }
+                if (withdrawOrder.getThirdProxy() != null) {
+                    list.add(cb.equal(root.get("thirdProxy").as(Long.class), withdrawOrder.getThirdProxy()));
+                }
                 return cb.and(list.toArray(new Predicate[list.size()]));
             }
         };

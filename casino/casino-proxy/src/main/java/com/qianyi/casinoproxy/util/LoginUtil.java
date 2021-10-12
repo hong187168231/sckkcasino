@@ -1,4 +1,4 @@
-package com.qianyi.casinoadmin.util;
+package com.qianyi.casinoproxy.util;
 
 import com.qianyi.modulecommon.Constants;
 
@@ -7,12 +7,12 @@ import java.util.Random;
 /**
  * 生成随机密码
  */
-public class passwordUtil {
+public class LoginUtil {
 
-    public static String getRandomPwd(){
+    public static String getProxyCode(){
 
         Random rd = new Random();
-        int rn= rd.nextInt(Constants.MAX_PASSWORD_NUM - Constants.MIN_PASSWORD_NUM +1) + Constants.MIN_PASSWORD_NUM;
+        int rn= rd.nextInt(1) + Constants.MIN_PASSWORD_NUM;
         String n = "";
         int getNum;
         int getNum1;
@@ -34,7 +34,9 @@ public class passwordUtil {
     }
 
     public static void main(String[] args) {
-        String randomPwd = getRandomPwd();
-        System.out.println(randomPwd);
+        for (int i = 0; i <100 ; i++) {
+            String randomPwd = getProxyCode();
+            System.out.println(randomPwd);
+        }
     }
 }

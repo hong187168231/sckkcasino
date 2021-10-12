@@ -1,8 +1,8 @@
 package com.qianyi.casinoadmin.controller;
 
-import com.qianyi.casinoadmin.util.CommonConst;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinoadmin.vo.BankcardsVo;
+import com.qianyi.casinocore.vo.BankcardsVo;
 import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.model.BankcardsDel;
@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -273,7 +272,7 @@ public class BankCardsController {
         if (bankAccount.length() > 20 || bankAccount.length() < 12) {
             return "长度只能在12~20位！";
         }
-        if (!bankAccount.matches(CommonConst.regex)) {
+        if (!bankAccount.matches(Constants.regex)) {
             return "银行账号只能输入数字！";
         }
         return null;

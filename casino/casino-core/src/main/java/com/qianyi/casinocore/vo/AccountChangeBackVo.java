@@ -1,4 +1,4 @@
-package com.qianyi.casinoadmin.vo;
+package com.qianyi.casinocore.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.qianyi.casinocore.model.AccountChange;
@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
-public class AccountChangeVo  implements Serializable {
+public class AccountChangeBackVo  implements Serializable {
 
     private static final long serialVersionUID = -6875617929250305179L;
     @ApiModelProperty(value = "ID")
@@ -39,10 +39,10 @@ public class AccountChangeVo  implements Serializable {
     private Date updateTime;
     @ApiModelProperty("最后修改人")
     private String updateBy;
-    public AccountChangeVo(){
+    public AccountChangeBackVo(){
 
     }
-    public AccountChangeVo(AccountChange accountChange){
+    public AccountChangeBackVo(AccountChange accountChange){
         this.id = accountChange.getId();
         this.userId = accountChange.getUserId();
         this.orderNo = accountChange.getOrderNo();

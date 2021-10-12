@@ -1,6 +1,8 @@
 package com.qianyi.casinoproxy.config.security.filter;
 
+import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.service.SpringSecurityUserDetailsService;
 import com.qianyi.casinoproxy.config.security.util.Constants;
 import com.qianyi.casinoproxy.config.security.util.MultiReadHttpServletRequest;
@@ -31,10 +33,10 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     AuthenticationEntryPoint authenticationEntryPoint;
 
-    private final SpringSecurityUserDetailsService userDetailsService;
+    private ProxyUserService proxyUserService;
 
-    protected MyAuthenticationFilter(SpringSecurityUserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
+    protected MyAuthenticationFilter(ProxyUserService proxyUserService) {
+        this.proxyUserService = proxyUserService;
     }
 
     @Override
@@ -60,9 +62,8 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
                 Long userId = CasinoProxyUtil.getAuthId();
                 log.info("userid is {}",userId);
                 if(userId !=null){
-                    User user = (User) userDetailsService.getUserDetaisByUserId(userId);
-
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                    ProxyUser proxyUser = proxyUserService.findAllById(userId);
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(proxyUser, null, proxyUser.getAuthorities());
                     // 全局注入角色权限信息和登录用户基本信息
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }

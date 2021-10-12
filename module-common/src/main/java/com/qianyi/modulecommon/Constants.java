@@ -64,6 +64,9 @@ public class Constants {
 
     public final static String TOTAL_WASHCODE = "totalWashCode";//redis洗码总计key
     public final static String PLATFORM = "wm";
-
+    //校验数字
+    public static final String regex = "^[0-9]*$";
+    //校验手机号
+    public static final String regexPhone= "^[0-9 ()+-]{6,15}+$";
 
 }

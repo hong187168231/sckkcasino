@@ -1,12 +1,13 @@
-package com.qianyi.casinoadmin.controller;
+package com.qianyi.casinoproxy.controller;
 
-import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.vo.OrderVo;
-import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.model.Order;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.OrderService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.vo.OrderVo;
+import com.qianyi.casinocore.vo.PageResultVO;
+import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -52,16 +53,19 @@ public class OrderController {
     @GetMapping("findOrderList")
     public ResponseEntity<OrderVo> findOrderList(Integer pageSize, Integer pageCode,  String account, String no){
         Order order = new Order();
-        if (!LoginUtil.checkNull(account)){
+        if (CasinoProxyUtil.setParameter(order)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        order.setNo(no);
+        if (!CasinoProxyUtil.checkNull(account)){
             User user = userService.findByAccount(account);
-            if (LoginUtil.checkNull(user)){
+            if (CasinoProxyUtil.checkNull(user)){
                 return ResponseUtil.custom("用户不存在");
             }
             order.setUserId(user.getId());
         }
-        order.setNo(no);
         Sort sort=Sort.by("id").descending();
-        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         Page<Order> userPage = orderService.findOrderPage(pageable, order);
         PageResultVO<OrderVo> pageResultVO = new PageResultVO(userPage);
         List<Order> content = userPage.getContent();

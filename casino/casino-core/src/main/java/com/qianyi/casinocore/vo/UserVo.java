@@ -1,4 +1,4 @@
-package com.qianyi.casinoadmin.vo;
+package com.qianyi.casinocore.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.qianyi.casinocore.model.User;
@@ -55,6 +55,8 @@ public class UserVo implements Serializable {
     private String webChat;
     @ApiModelProperty("真实姓名")
     private String realName;
+    @ApiModelProperty("直属父级账号")
+    private String firstPidAccount;
     @ApiModelProperty("创建时间")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;

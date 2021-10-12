@@ -1,11 +1,10 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinoadmin.vo.PageResultVO;
+import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinoadmin.vo.RechargeTurnoverVo;
 import com.qianyi.casinocore.model.RechargeTurnover;
 import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.WithdrawOrder;
 import com.qianyi.casinocore.service.RechargeTurnoverService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;

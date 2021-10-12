@@ -1,9 +1,5 @@
-package com.qianyi.casinoadmin.controller;
+package com.qianyi.casinoproxy.controller;
 
-import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.vo.ChargeOrderVo;
-import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
 import com.qianyi.casinocore.model.ChargeOrder;
 import com.qianyi.casinocore.model.CollectionBankcard;
@@ -13,6 +9,10 @@ import com.qianyi.casinocore.service.ChargeOrderService;
 import com.qianyi.casinocore.service.CollectionBankcardService;
 import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.vo.ChargeOrderVo;
+import com.qianyi.casinocore.vo.PageResultVO;
+import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -26,7 +26,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -78,19 +82,20 @@ public class ChargeOrderController {
     @GetMapping("/chargeOrderList")
     public ResponseEntity<ChargeOrderVo> chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String orderNo, String account){
         Sort sort = Sort.by("id").descending();
-        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         ChargeOrder order = new ChargeOrder();
-        Long userId = null;
-        if (!LoginUtil.checkNull(account)){
-            User user = userService.findByAccount(account);
-            if (LoginUtil.checkNull(user)){
-                return ResponseUtil.custom("用户不存在");
-            }
-            userId = user.getId();
+        if (CasinoProxyUtil.setParameter(order)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
         }
-        order.setUserId(userId);
         order.setStatus(status);
         order.setOrderNo(orderNo);
+        if (!CasinoProxyUtil.checkNull(account)){
+            User user = userService.findByAccount(account);
+            if (CasinoProxyUtil.checkNull(user)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            order.setUserId(user.getId());
+        }
         Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(order, pageable);
         PageResultVO<ChargeOrderVo> pageResultVO =new PageResultVO(chargeOrderPage);
         List<ChargeOrder> content = chargeOrderPage.getContent();
@@ -125,7 +130,7 @@ public class ChargeOrderController {
         return ResponseUtil.success(pageResultVO);
     }
     private void  setCollectionBankcard(CollectionBankcard collectionBankcard,ChargeOrderVo chargeOrderVo){
-        if (LoginUtil.checkNull(collectionBankcard)){
+        if (CasinoProxyUtil.checkNull(collectionBankcard)){
             return ;
         }
         chargeOrderVo.setBankNo(collectionBankcard.getBankNo());
@@ -148,7 +153,7 @@ public class ChargeOrderController {
     })
     @PostMapping("/updateChargeOrder")
     public ResponseEntity updateChargeOrder(Long id, Integer status,String remark){
-        if (LoginUtil.checkNull(id,status)){
+        if (CasinoProxyUtil.checkNull(id,status)){
             ResponseUtil.custom("参数不合法");
         }
         if(status != CommonConst.NUMBER_1 && status != CommonConst.NUMBER_2){
@@ -157,4 +162,5 @@ public class ChargeOrderController {
 
         return chargeOrderBusiness.checkOrderSuccess(id,status,remark);
     }
+
 }

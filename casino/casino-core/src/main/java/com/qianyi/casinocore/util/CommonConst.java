@@ -1,4 +1,4 @@
-package com.qianyi.casinoadmin.util;
+package com.qianyi.casinocore.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +66,8 @@ public class CommonConst {
     public static final int NUMBER_100 = 100;
     public static final String SUCCESS = "SUCCESS";
     public static final Long LONG_1 = 1L;
-
+    public static final Long LONG_2 = 2L;
+    public static final Long LONG_3 = 3L;
     public static final Float FLOAT_0 = 0F;
     public static final Float FLOAT_1 = 1F;
 
@@ -74,12 +75,11 @@ public class CommonConst {
     public static final String PICTURENOTUP = "图片不符合规格";
     public static final String TOOMANYPICTURESONTHECLIENT = "当前客户端图片序号冲突";
     public static final String THENUMBERISLIMITEDTO10 = "数量限制为10条";
+    public static final String NETWORK_ANOMALY = "网络异常";
 
     public static final String STRING_1 = "1";
     public static final String STRING_2 = "2";
     public static final String STRING_3 = "3";
     public static final String STRING_4 = "4";
-    //校验数字
-    public static final String regex = "^[0-9]*$";
-    public static final String regexPhone= "^[0-9 ()+-]{6,15}+$";
+
 }

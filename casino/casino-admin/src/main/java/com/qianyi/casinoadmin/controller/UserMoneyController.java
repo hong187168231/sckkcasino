@@ -1,6 +1,6 @@
 //package com.qianyi.casinoadmin.controller;
 //
-//import com.qianyi.casinoadmin.util.CommonConst;
+//import com.qianyi.casinocore.util.CommonConst;
 //import com.qianyi.casinoadmin.util.LoginUtil;
 //import com.qianyi.casinocore.model.User;
 //import com.qianyi.casinocore.model.UserMoney;

@@ -1,12 +1,13 @@
-package com.qianyi.casinoadmin.controller;
+package com.qianyi.casinoproxy.controller;
 
-import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.vo.GameRecordVo;
-import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.vo.GameRecordVo;
+import com.qianyi.casinocore.vo.PageResultVO;
+import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -23,11 +24,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,21 +60,22 @@ public class GameRecordController {
     public ResponseEntity<GameRecordVo> findGameRecordPage(Integer pageSize, Integer pageCode, String user, String betId,
                                                          String gname,Integer gid,String account){
         Sort sort = Sort.by("id").descending();
-        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         GameRecord game = new GameRecord();
-        Long userId = null;
-        if (!LoginUtil.checkNull(account)){
-            User byAccount = userService.findByAccount(account);
-            if (LoginUtil.checkNull(byAccount)){
-                return ResponseUtil.custom("用户不存在");
-            }
-            userId = byAccount.getId();
+        if (CasinoProxyUtil.setParameter(game)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
         }
-        game.setUserId(userId);
         game.setBetId(betId);
         game.setGname(gname);
         game.setGid(gid);
         game.setUser(user);
+        if (!CasinoProxyUtil.checkNull(account)){
+            User byAccount = userService.findByAccount(account);
+            if (CasinoProxyUtil.checkNull(byAccount)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            game.setUserId( byAccount.getId());
+        }
         Page<GameRecord> gameRecordPage = gameRecordService.findGameRecordPage(game, pageable);
         PageResultVO<GameRecordVo> pageResultVO =new PageResultVO(gameRecordPage);
         List<GameRecord> content = gameRecordPage.getContent();
@@ -121,4 +118,5 @@ public class GameRecordController {
     public ResponseEntity findRecordRecordSum(String user,String betId,String gname,Integer gid){
         return ResponseUtil.success(gameRecordService.findRecordRecordSum(user,betId,gname,gid));
     }
+
 }
