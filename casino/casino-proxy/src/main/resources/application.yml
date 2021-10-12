@@ -28,10 +28,23 @@ spring:
       connection-test-query: select 1
   redis:
     database: 0
-    host: 192.168.1.12
-    #    host: 127.0.0.1
+    #    host: 154.204.57.237
+    host: 127.0.0.1
     port: 8000
-    #    password: Redis_123P
+    password: Redis_123P
     timeout: 3000
+    rabbitmq:
+      host: 154.204.57.237 #ip
+      port: 5672      #端口
+      username: qd #账号
+      password: qd123 #密码
+      publisher-returns: true
+      virtual-host: qd
+      publisher-confirm-type: correlated
+      listener:
+        simple:
+          acknowledge-mode: manual
+      template:
+        mandatory: true
 project:
   title: 千亿代理
