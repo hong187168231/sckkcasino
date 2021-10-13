@@ -55,7 +55,7 @@ public class ProxyCentreController {
 
     @ApiOperation("查询今日，昨日，本周佣金")
     @GetMapping("/getCommission")
-    public ResponseEntity getCommission() {
+    public ResponseEntity<ProxyCentreVo> getCommission() {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         ProxyCentreVo vo = new ProxyCentreVo();
@@ -98,7 +98,7 @@ public class ProxyCentreController {
 
     @ApiOperation("我的团队")
     @GetMapping("/myTeam")
-    public ResponseEntity myTeam() {
+    public ResponseEntity<ProxyCentreVo.MyTeam> myTeam() {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -134,7 +134,7 @@ public class ProxyCentreController {
 
     @ApiOperation("代理报表")
     @GetMapping("/proxyReport")
-    public ResponseEntity proxyReport() {
+    public ResponseEntity<ProxyReport> proxyReport() {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         ProxyReport proxyReport = proxyReportService.findByUserId(userId);
@@ -151,7 +151,7 @@ public class ProxyCentreController {
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "memberId", value = "会员ID", required = false),
     })
-    public ResponseEntity findAchievementPage(Integer pageSize, Integer pageCode,Long memberId) {
+    public ResponseEntity<ProxyReport> findAchievementPage(Integer pageSize, Integer pageCode,Long memberId) {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         Sort sort = Sort.by("allBetAmount").descending();
@@ -163,7 +163,7 @@ public class ProxyCentreController {
     @ApiOperation("用户领取分润金额")
     @GetMapping("/receiveShareProfit")
     @Transactional
-    public ResponseEntity receiveWashCode() {
+    public ResponseEntity<AccountChangeVo> receiveWashCode() {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
