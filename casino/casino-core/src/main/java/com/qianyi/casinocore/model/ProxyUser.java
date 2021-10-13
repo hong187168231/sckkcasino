@@ -89,8 +89,11 @@ public class ProxyUser extends BaseEntity {
     /**
      * 是否锁定 1：正常 2：锁定, 3：删除
      */
-    @ApiModelProperty("是否锁定 1：正常 2：锁定, 3：删除")
+    @ApiModelProperty("是否锁定 1：正常 2：锁定")
     private Integer userFlag;
+
+    @ApiModelProperty("是否删除 1：正常 2：删除")
+    private Integer isDelete;
 
     //校验用户帐号权限
     public static boolean checkUser(ProxyUser proxyUser) {
