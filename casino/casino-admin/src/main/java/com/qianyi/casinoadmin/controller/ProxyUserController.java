@@ -212,6 +212,9 @@ public class ProxyUserController {
             proxy.setFirstProxy(byId.getId());
             proxyUserService.save(proxy);
         });
+        byId.setFirstProxy(byId.getId());
+        byId.setSecondProxy(null);
+        proxyUserService.save(byId);
         return ResponseUtil.success();
     }
     @ApiOperation("转移下级")
@@ -229,7 +232,7 @@ public class ProxyUserController {
         if (LoginUtil.checkNull(passivity,byId)){
             return ResponseUtil.custom("没有这个代理");
         }
-        if (passivity.getProxyRole() != CommonConst.NUMBER_1 && byId.getProxyRole() != CommonConst.NUMBER_1 ){
+        if (passivity.getProxyRole() != CommonConst.NUMBER_1 || byId.getProxyRole() != CommonConst.NUMBER_1 ){
             return ResponseUtil.custom("只有总代可以转移下级");
         }
         ProxyUser proxyUser = new ProxyUser();
