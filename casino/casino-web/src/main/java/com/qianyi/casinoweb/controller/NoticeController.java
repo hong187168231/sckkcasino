@@ -25,7 +25,7 @@ public class NoticeController {
     @GetMapping("newest")
     @ApiOperation("公告/活动")
     @NoAuthentication
-    public ResponseEntity newest() {
+    public ResponseEntity<Notice> newest() {
         List<Notice> list = noticeService.newest();
         return ResponseUtil.success(list);
     }

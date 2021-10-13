@@ -49,7 +49,7 @@ public class ChargeOrderController {
             @ApiImplicitParam(name = "date", value = "时间：全部：不传值，0：今天，1：昨天，2：一个月内", required = false)
     })
     @GetMapping("/chargeOrderList")
-    public ResponseEntity chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String date){
+    public ResponseEntity<ChargeOrder> chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String date){
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         Sort sort = Sort.by("id").descending();
