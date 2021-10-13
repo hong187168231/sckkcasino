@@ -8,6 +8,7 @@ import com.qianyi.casinocore.util.PasswordUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.ProxyUserVo;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
+import com.qianyi.casinoproxy.util.LoginUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -168,6 +169,7 @@ public class ProxyUserController {
         }else {
             proxyUser.setFirstProxy(byId.getFirstProxy());
             proxyUser.setSecondProxy(byId.getId());
+            proxyUser.setProxyCode(LoginUtil.getProxyCode());
         }
         proxyUser.setUserName(userName);
         proxyUser.setNickName(nickName);
