@@ -62,20 +62,20 @@ public class PlatformConfigController {
         if (LoginUtil.checkNull(firstCommission,secondCommission,thirdCommission)){
             return ResponseUtil.custom("参数错误");
         }
-        BigDecimal commission = firstCommission.add(secondCommission).add(thirdCommission);
-        if(commission.compareTo(new BigDecimal(0.03)) >= 0){
-            return ResponseUtil.custom("代理返佣配置总和不能大于3%");
-        }
+//        BigDecimal commission = firstCommission.add(secondCommission).add(thirdCommission);
+//        if(commission.compareTo(new BigDecimal(0.03)) >= 0){
+//            return ResponseUtil.custom("代理返佣配置总和不能大于3%");
+//        }
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if(!LoginUtil.checkNull(platformConfig)){
-            Date commissionUpdate = platformConfig.getCommissionUpdate();
-            if(commissionUpdate != null){
-                long time = new Date().getTime() - commissionUpdate.getTime();
-                int oneDay = 60 * 60 * 1000 * 24;//一天时间
-                if(oneDay > time){
-                    return ResponseUtil.custom("该配置，每24小时只能修改一次");
-                }
-            }
+//            Date commissionUpdate = platformConfig.getCommissionUpdate();
+//            if(commissionUpdate != null){
+//                long time = new Date().getTime() - commissionUpdate.getTime();
+//                int oneDay = 60 * 60 * 1000 * 24;//一天时间
+//                if(oneDay > time){
+//                    return ResponseUtil.custom("该配置，每24小时只能修改一次");
+//                }
+//            }
             platformConfig.setFirstCommission(firstCommission);
             platformConfig.setSecondCommission(secondCommission);
             platformConfig.setThirdCommission(thirdCommission);
