@@ -1,11 +1,16 @@
 package com.qianyi.casinoadmin.model;
 
 import com.qianyi.casinocore.model.BaseEntity;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.Entity;
 
 @Entity
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class SysUserLoginLog extends BaseEntity {
 
     private String ip;
@@ -14,13 +19,4 @@ public class SysUserLoginLog extends BaseEntity {
     private String description;
     private String address;
 
-    public SysUserLoginLog(String ip, String userName, Long userId, String description) {
-        this.ip = ip;
-        this.userName = userName;
-        this.userId = userId;
-        this.description = description;
-    }
-
-    public SysUserLoginLog() {
-    }
 }

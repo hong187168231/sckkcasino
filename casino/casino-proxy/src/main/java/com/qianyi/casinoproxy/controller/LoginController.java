@@ -94,7 +94,7 @@ public class LoginController {
 
         //记录登陆日志
         String ip = IpUtil.getIp(CasinoProxyUtil.getRequest());
-        ProxyUserLoginLog proxyUserLoginLog = new ProxyUserLoginLog(ip, proxyUser.getUserName(), proxyUser.getId(), "proxy");
+        ProxyUserLoginLog proxyUserLoginLog = new ProxyUserLoginLog(ip, proxyUser.getUserName(), proxyUser.getId(), "proxy", "");
         proxyUserLoginLogService.saveSyncLog(proxyUserLoginLog);
 
         return ResponseUtil.success(token);
