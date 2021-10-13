@@ -72,8 +72,8 @@ public class ChargeOrderBusiness {
      * @param  chargeOrder 充值订单
      */
     @Transactional
-    public ResponseEntity saveOrderSuccess(ChargeOrder chargeOrder) {
-        return this.saveOrder(chargeOrder,Constants.chargeOrder_masterControl,AccountChangeEnum.ADD_CODE);
+    public ResponseEntity saveOrderSuccess(ChargeOrder chargeOrder,Integer status) {
+        return this.saveOrder(chargeOrder,status,AccountChangeEnum.ADD_CODE);
     }
 
     private ResponseEntity saveOrder(ChargeOrder chargeOrder,Integer status,AccountChangeEnum changeEnum){

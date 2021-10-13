@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.model;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -8,9 +9,12 @@ import java.math.BigDecimal;
 
 @Data
 @Entity
+@ApiModel("代理报表")
 public class ProxyReport extends BaseEntity{
 
+    @ApiModelProperty("用户ID")
     private Long userId;
+    @ApiModelProperty("账号")
     private String account;
     //全部
     @ApiModelProperty("分润")

@@ -1,6 +1,7 @@
 package com.qianyi.casinoweb.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -10,6 +11,7 @@ import java.math.BigDecimal;
  * 代理中心佣金
  */
 @Data
+@ApiModel("代理中心")
 public class ProxyCentreVo {
 
     @ApiModelProperty(value = "今日佣金")
@@ -25,6 +27,7 @@ public class ProxyCentreVo {
     private BigDecimal weekCommission;
 
     @Data
+    @ApiModel("我的团队")
     public static class MyTeam{
 
         @ApiModelProperty(value = "今日存款")

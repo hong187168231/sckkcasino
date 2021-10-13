@@ -33,6 +33,8 @@ public class ProxyUserVo  implements Serializable {
     private Long secondProxy;
     @ApiModelProperty(value = "总代理ID")
     private Long firstProxy;
+    @ApiModelProperty(value = "上级代理账号")
+    private String superiorProxyAccount;
     @ApiModelProperty(value = "是否锁定 1：正常 2：锁定, 3：删除")
     private Integer userFlag;
     @ApiModelProperty("创建时间")

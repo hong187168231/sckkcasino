@@ -455,7 +455,7 @@ public class UserController {
         chargeOrder.setOrderNo(orderService.getOrderNo());
         chargeOrder.setChargeAmount(money);
 //        chargeOrder.setRealityAmount(money);
-        return chargeOrderBusiness.saveOrderSuccess(chargeOrder);
+        return chargeOrderBusiness.saveOrderSuccess(chargeOrder,Constants.chargeOrder_masterControl);
     }
     /**
      * 后台新增提现订单
@@ -480,7 +480,7 @@ public class UserController {
         if(money.compareTo(BigDecimal.ZERO)<1){
             return ResponseUtil.custom("金额类型错误");
         }
-        return withdrawBusiness.updateWithdrawAndUser(id,money,bankId);
+        return withdrawBusiness.updateWithdrawAndUser(id,money,bankId,Constants.withdrawOrder_masterControl);
     }
 
     /**
