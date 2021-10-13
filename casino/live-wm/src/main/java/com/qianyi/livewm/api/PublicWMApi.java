@@ -126,7 +126,7 @@ public class PublicWMApi {
     }
 
     //加扣点
-    public Boolean changeBalance(String user, BigDecimal money, String order, Integer syslang) {
+    public ResponseEntity changeBalance(String user, BigDecimal money, String order, Integer syslang) {
         String cmd = "ChangeBalance";
         Integer timestamp = getTimestamp();
 
@@ -151,11 +151,7 @@ public class PublicWMApi {
         }
 
         ResponseEntity entity = entity(s);
-        if (entity.getErrorCode() == 0) {
-            return true;
-        }
-
-        return false;
+        return entity;
 
     }
 
@@ -334,7 +330,7 @@ public class PublicWMApi {
 
 
     @Data
-    class ResponseEntity {
+    public static class ResponseEntity {
         private Integer errorCode;
         private String errorMessage;
         private Object result;

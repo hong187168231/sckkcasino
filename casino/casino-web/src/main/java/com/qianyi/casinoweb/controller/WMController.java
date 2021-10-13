@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import com.qianyi.casinocore.enums.AccountChangeEnum;
-import com.qianyi.casinocore.model.UserMoney;
-import com.qianyi.casinocore.service.UserMoneyService;
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.RequestLimit;
@@ -22,12 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
-import com.qianyi.casinocore.model.Order;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.UserThird;
-import com.qianyi.casinocore.service.OrderService;
-import com.qianyi.casinocore.service.UserService;
-import com.qianyi.casinocore.service.UserThirdService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
@@ -58,6 +52,8 @@ public class WMController {
     @Autowired
     OrderService orderService;
     @Autowired
+    PlatformConfigService platformConfigService;
+    @Autowired
     PublicWMApi wmApi;
     @Autowired
     @Qualifier("accountChangeJob")
@@ -79,12 +75,19 @@ public class WMController {
     public ResponseEntity openGame(Integer gameType) {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(authId);
+        if (userMoney == null || userMoney.getMoney() == null) {
+            return ResponseUtil.custom("用户钱包不存在");
+        }
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if(userMoney.getMoney().compareTo(platformConfig.getWmMoney()) == 1){
+            return ResponseUtil.custom("平台余额不足，请联系客服");
+        }
         UserThird third = userThirdService.findByUserId(authId);
         //未注册自动注册到第三方
         if (third == null || third.getUserId() == null) {
             String account = UUID.randomUUID().toString();
             account = account.replaceAll("-", "");
-
             if (account.length() > 30) {
                 account = account.substring(0, 30);
             }
@@ -107,57 +110,51 @@ public class WMController {
                 log.error("本地注册账号失败{}",e.getMessage());
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
-
         }
-
         User user = userService.findById(authId);
-
         Integer lang = user.getLanguage();
         if (lang == null) {
             lang = 0;
         }
+        if (BigDecimal.ZERO.compareTo(userMoney.getMoney()) == -1) {
+            BigDecimal money = userMoney.getMoney();
+            String orderNo = orderService.getOrderNo();
+            PublicWMApi.ResponseEntity entity = wmApi.changeBalance(third.getAccount(), money, orderNo, lang);
+            if (entity.getErrorCode() != 0) {
+                return ResponseUtil.custom(entity.getErrorMessage());
+            }
+            //钱转入第三方后本地扣减记录账变
+            //扣款
+            //TODO 扣款时考虑当前用户余额不能大于平台在三方的余额
+            userMoneyService.subMoney(authId, money);
+
+            Order order = new Order();
+            order.setMoney(money);
+            order.setUserId(authId);
+            order.setRemark("自动转入WM");
+            order.setType(0);
+            order.setState(Constants.order_wait);
+            order.setNo(orderNo);
+            order.setFirstProxy(user.getFirstProxy());
+            order.setSecondProxy(user.getSecondProxy());
+            order.setThirdProxy(user.getThirdProxy());
+            orderService.save(order);
+
+            //账变中心记录账变
+            AccountChangeVo vo = new AccountChangeVo();
+            vo.setUserId(authId);
+            vo.setChangeEnum(AccountChangeEnum.WM_IN);
+            vo.setAmount(money.negate());
+            vo.setAmountBefore(userMoney.getMoney());
+            vo.setAmountAfter(userMoney.getMoney().subtract(money));
+            asyncService.executeAsync(vo);
+        }
         //开游戏
         String model = getModel(gameType);
-
         String url = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, model);
         if (CommonUtil.checkNull(url)) {
             log.error("进游戏失败");
             return ResponseUtil.custom("服务器异常,请重新操作");
-        }
-        //自动转帐,子线程处理
-//        new Thread(new OrderBetJob()).start();
-        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(authId);
-        if (userMoney != null && BigDecimal.ZERO.compareTo(userMoney.getMoney()) == -1) {
-            BigDecimal money = userMoney.getMoney();
-            String orderNo = orderService.getOrderNo();
-            boolean isSucc = wmApi.changeBalance(third.getAccount(), money, orderNo, lang);
-            //钱转入第三方后本地扣减记录账变
-            if (isSucc) {
-                //扣款
-                //TODO 扣款时考虑当前用户余额不能大于平台在三方的余额
-                userMoneyService.subMoney(authId, money);
-
-                Order order = new Order();
-                order.setMoney(money);
-                order.setUserId(authId);
-                order.setRemark("自动转入WM");
-                order.setType(0);
-                order.setState(Constants.order_wait);
-                order.setNo(orderNo);
-                order.setFirstProxy(user.getFirstProxy());
-                order.setSecondProxy(user.getSecondProxy());
-                order.setThirdProxy(user.getThirdProxy());
-                orderService.save(order);
-
-                //账变中心记录账变
-                AccountChangeVo vo=new AccountChangeVo();
-                vo.setUserId(authId);
-                vo.setChangeEnum(AccountChangeEnum.WM_IN);
-                vo.setAmount(money.negate());
-                vo.setAmountBefore(userMoney.getMoney());
-                vo.setAmountAfter(userMoney.getMoney().subtract(money));
-                asyncService.executeAsync(vo);
-            }
         }
         return ResponseUtil.success(url);
     }
@@ -211,52 +208,6 @@ public class WMController {
 
         return model;
     }
-
-//    /**
-//     * 取余额
-//     *
-//     * @return
-//     */
-//    @RequestMapping("callBalance")
-//    public RespEntity callBalance(String cmd, String signature, String user, String requestDate) {
-//        log.info(this.getClass().getSimpleName() + "==>callBalance:cmd{},signature:{},user:{},requestDate:{}", cmd, signature, user, requestDate);
-//        RespEntity entity = new RespEntity();
-//        if (!"CallBalance".equals(cmd)) {
-//            entity.setErrorCode(1);
-//            entity.setErrorMessage("参数错误");
-//            return entity;
-//        }
-//
-//        if (!this.signature.equals(signature)) {
-//            entity.setErrorCode(2);
-//            entity.setErrorMessage("参数错误");
-//            return entity;
-//        }
-//
-//        UserThird third = userThirdService.findByAccount(user);
-//        if (third == null || CommonUtil.checkNull(third.getAccount())) {
-//            entity.setErrorCode(3);
-//            entity.setErrorMessage("参数错误");
-//            return entity;
-//        }
-//
-//        User weUser = userService.findById(third.getUserId());
-//        BigDecimal money = weUser.getMoney();
-//        if (money == null) {
-//            money = BigDecimal.ZERO;
-//        }
-//
-//        JSONObject json = new JSONObject();
-//        json.put("user", user);
-//        json.put("money", String.valueOf(money));
-//        json.put("responseDate", DateUtil.today("yyyy-MM-dd HH:mm:ss"));
-//
-//        entity.setErrorCode(0);
-//        entity.setErrorMessage("success");
-//        entity.setResult(json);
-//
-//        return entity;
-//    }
 
     @ApiOperation("查询当前登录用户WM余额")
     @RequestLimit(limit = 1,timeout = 5)
@@ -346,10 +297,9 @@ public class WMController {
             return ResponseUtil.success();
         }
         //调用加扣点接口扣减wm余额
-        Boolean changeBalance = wmApi.changeBalance(account, balance.negate(), null, lang);
-        if (!changeBalance) {
-            log.error("加扣点接口扣减wm余额败");
-            return ResponseUtil.custom("服务器异常,请重新操作");
+        PublicWMApi.ResponseEntity entity = wmApi.changeBalance(account, balance.negate(), null, lang);
+        if (entity.getErrorCode() != 0) {
+            return ResponseUtil.custom(entity.getErrorMessage());
         }
         //把额度加回本地
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
