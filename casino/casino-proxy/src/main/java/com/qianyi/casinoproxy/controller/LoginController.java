@@ -281,11 +281,11 @@ public class LoginController {
             @ApiImplicitParam(name = "userName", value = "帐号", required = true),
             @ApiImplicitParam(name = "nickName", value = "昵称", required = false),
             @ApiImplicitParam(name = "password", value = "密码", required = true),
-            @ApiImplicitParam(name = "proxyRole", value = "代理角色", required = true),
+            @ApiImplicitParam(name = "proxyRole", value = "代理角色 1：总代理 2：区域代理 3：基层代理", required = true),
             @ApiImplicitParam(name = "pid", value = "上一级代理ID", required = false),
     })
     @PostMapping("save")
-    public ResponseEntity save(String userName, String password, String nickName, Integer proxyRole, Long pid) {
+    public ResponseEntity<ProxyUser> save(String userName, String password, String nickName, Integer proxyRole, Long pid) {
         if(CasinoProxyUtil.checkNull(nickName)){
             return ResponseUtil.parameterNotNull();
         }

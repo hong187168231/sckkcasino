@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Api(tags = "代理管理")
 @RestController
@@ -46,6 +47,7 @@ public class ProxyUserController {
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "proxyRole", value = "代理级别1：总代理 2：区域代理 3：基层代理", required = false),
             @ApiImplicitParam(name = "userFlag", value = "1：正常 2：锁定, 3：删除", required = false),
+            @ApiImplicitParam(name = "userName", value = "账号", required = false),
             @ApiImplicitParam(name = "tag", value = "1：含下级 0：不包含", required = true),
             @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
             @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
@@ -77,7 +79,7 @@ public class ProxyUserController {
                 ResponseUtil.success(new PageResultVO());
             }
             if (tag == CommonConst.NUMBER_1){
-                if (byUserName.getProxyRole()> authId){
+                if (byUserName.getFirstProxy() == authId || byUserName.getSecondProxy() == authId){
                     if (byUserName.getId() == authId){//自己搜自己
                         proxyUser.setFirstProxy(byUserName.getId());
                         proxyUser.setId(null);
@@ -90,21 +92,35 @@ public class ProxyUserController {
                 }
             }else {
                 if (byUserName.getProxyRole()> authId){
-                    proxyUser.setNickName(userName);
+                    proxyUser.setUserName(userName);
                 }else {
                     ResponseUtil.success(new PageResultVO());
                 }
             }
         }
-        Page<ProxyUser> proxyUserPage = proxyUserService.findUserPage(pageable, proxyUser, startDate, endDate);
+        Page<ProxyUser> proxyUserPage = proxyUserService.findProxyUserPage(pageable, proxyUser, startDate, endDate);
         PageResultVO<ProxyUserVo> pageResultVO = new PageResultVO(proxyUserPage);
         List<ProxyUser> proxyUserList = proxyUserPage.getContent();
         if(proxyUserList != null && proxyUserList.size() > 0){
             List<ProxyUserVo> userVoList = new LinkedList();
-            proxyUserList.stream().forEach(u -> {
-                ProxyUserVo proxyUserVo = new ProxyUserVo(u);
-                userVoList.add(proxyUserVo);
-            });
+            List<Long> firstProxyIds = proxyUserList.stream().filter(item -> item.getProxyRole() == CommonConst.NUMBER_2).map(ProxyUser::getFirstProxy).collect(Collectors.toList());
+            List<Long> secondProxyIds = proxyUserList.stream().filter(item -> item.getProxyRole() == CommonConst.NUMBER_3).map(ProxyUser::getSecondProxy).collect(Collectors.toList());
+            firstProxyIds.addAll(secondProxyIds);
+            List<ProxyUser> proxyUsers = proxyUserService.findProxyUser(firstProxyIds);
+            if (proxyUsers != null){
+                proxyUserList.stream().forEach(u -> {
+                    ProxyUserVo proxyUserVo = new ProxyUserVo(u);
+                    proxyUsers.stream().forEach(proxy->{
+                        if (u.getProxyRole() == CommonConst.NUMBER_2 && u.getFirstProxy().equals(proxy.getId())){
+                            proxyUserVo.setSuperiorProxyAccount(proxy.getUserName());
+                        }
+                        if (u.getProxyRole() == CommonConst.NUMBER_3 && u.getSecondProxy().equals(proxy.getId())){
+                            proxyUserVo.setSuperiorProxyAccount(proxy.getUserName());
+                        }
+                    });
+                    userVoList.add(proxyUserVo);
+                });
+            }
             pageResultVO.setContent(userVoList);
         }
         return ResponseUtil.success(pageResultVO);
