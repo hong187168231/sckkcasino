@@ -68,14 +68,14 @@ public class PlatformConfigController {
 //        }
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if(!LoginUtil.checkNull(platformConfig)){
-            Date commissionUpdate = platformConfig.getCommissionUpdate();
-            if(commissionUpdate != null){
-                long time = new Date().getTime() - commissionUpdate.getTime();
-                int oneDay = 60 * 60 * 1000 * 24;//一天时间
-                if(oneDay > time){
-                    return ResponseUtil.custom("该配置，每24小时只能修改一次");
-                }
-            }
+//            Date commissionUpdate = platformConfig.getCommissionUpdate();
+//            if(commissionUpdate != null){
+//                long time = new Date().getTime() - commissionUpdate.getTime();
+//                int oneDay = 60 * 60 * 1000 * 24;//一天时间
+//                if(oneDay > time){
+//                    return ResponseUtil.custom("该配置，每24小时只能修改一次");
+//                }
+//            }
             platformConfig.setFirstCommission(firstCommission);
             platformConfig.setSecondCommission(secondCommission);
             platformConfig.setThirdCommission(thirdCommission);
