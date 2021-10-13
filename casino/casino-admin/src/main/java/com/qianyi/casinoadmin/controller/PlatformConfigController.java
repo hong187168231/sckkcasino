@@ -62,10 +62,10 @@ public class PlatformConfigController {
         if (LoginUtil.checkNull(firstCommission,secondCommission,thirdCommission)){
             return ResponseUtil.custom("参数错误");
         }
-        BigDecimal commission = firstCommission.add(secondCommission).add(thirdCommission);
-        if(commission.compareTo(new BigDecimal(0.03)) >= 0){
-            return ResponseUtil.custom("代理返佣配置总和不能大于3%");
-        }
+//        BigDecimal commission = firstCommission.add(secondCommission).add(thirdCommission);
+//        if(commission.compareTo(new BigDecimal(0.03)) >= 0){
+//            return ResponseUtil.custom("代理返佣配置总和不能大于3%");
+//        }
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if(!LoginUtil.checkNull(platformConfig)){
             Date commissionUpdate = platformConfig.getCommissionUpdate();
