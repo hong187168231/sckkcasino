@@ -29,4 +29,13 @@ public class AccountChangeVo extends JobSuperVo {
 
     @ApiModelProperty(value = "额度变化后")
     private BigDecimal amountAfter;
+
+    @ApiModelProperty("总代ID")
+    private Long firstProxy;
+
+    @ApiModelProperty("区域代理ID")
+    private Long secondProxy;
+
+    @ApiModelProperty("基层代理ID")
+    private Long thirdProxy;
 }

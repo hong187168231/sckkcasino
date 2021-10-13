@@ -76,6 +76,11 @@ public class ProxyUserService {
         List<ProxyUser> proxyUserList = proxyUserRepository.findAll(condition);
         return proxyUserList;
     }
+    public List<ProxyUser> findProxyUsers(List<String> proxyUserIds) {
+        Specification<ProxyUser> condition = getConditions(proxyUserIds);
+        List<ProxyUser> proxyUserList = proxyUserRepository.findAll(condition);
+        return proxyUserList;
+    }
     /**
      * 查询条件拼接，灵活添加条件
      *
@@ -129,6 +134,29 @@ public class ProxyUserService {
                     CriteriaBuilder.In<Object> in = cb.in(userId);
                     for (Long id : userIds) {
                         in.value(id);
+                    }
+                    list.add(cb.and(cb.and(in)));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
+    }
+    private Specification<ProxyUser> getConditions(List<String> userIds) {
+        Specification<ProxyUser> specification = new Specification<ProxyUser>() {
+            @Override
+            public Predicate toPredicate(Root<ProxyUser> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (userIds != null && userIds.size() > 0) {
+                    Path<Object> userId = root.get("id");
+                    CriteriaBuilder.In<Object> in = cb.in(userId);
+                    for (String id : userIds) {
+                        try {
+                            in.value(Long.valueOf(id));
+                        }catch (Exception ex){
+
+                        }
+
                     }
                     list.add(cb.and(cb.and(in)));
                 }

@@ -43,13 +43,6 @@ public class WithdrawOrderController {
 
     @Autowired
     private WithdrawBusiness withdrawBusiness;
-
-    @Autowired
-    private OrderService orderService;
-
-    @Autowired
-    private UserMoneyService userMoneyService;
-
     @Autowired
     private UserService userService;
 
@@ -57,7 +50,7 @@ public class WithdrawOrderController {
     private BankcardsService bankcardsService;
 
     @Autowired
-    private SysUserService sysUserService;
+    private ProxyUserService proxyUserService;
 
     @ApiOperation("提现列表")
     @ApiImplicitParams({
@@ -96,7 +89,7 @@ public class WithdrawOrderController {
             List<User> userList = userService.findAll(userIds);
             List<Bankcards> all = bankcardsService.findAll(collect);
             List<String> updateBys = content.stream().map(WithdrawOrder::getUpdateBy).collect(Collectors.toList());
-            List<SysUser> sysUsers = sysUserService.findAll(updateBys);
+            List<ProxyUser> proxyUsers = proxyUserService.findProxyUsers(updateBys);
             Map<Long, Bankcards> bankcardMap = all.stream().collect(Collectors.toMap(Bankcards::getId, a -> a, (k1, k2) -> k1));
             if(userList != null){
                 content.stream().forEach(withdraw ->{
@@ -111,9 +104,9 @@ public class WithdrawOrderController {
                             }
                         }
                     });
-                    sysUsers.stream().forEach(sysUser->{
-                        if (withdraw.getStatus() != CommonConst.NUMBER_0 && sysUser.getId().toString().equals(withdraw.getUpdateBy() == null?"":withdraw.getUpdateBy())){
-                            withdrawOrderVo.setUpdateBy(sysUser.getUserName());
+                    proxyUsers.stream().forEach(proxyUser->{
+                        if (withdraw.getStatus() != CommonConst.NUMBER_0 && proxyUser.getId().toString().equals(withdraw.getUpdateBy() == null?"":withdraw.getUpdateBy())){
+                            withdrawOrderVo.setUpdateBy(proxyUser.getUserName());
                         }
                     });
                     withdrawOrderVoList.add(withdrawOrderVo);

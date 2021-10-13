@@ -165,7 +165,6 @@ public class ProxyUserController {
         ProxyUser proxyUser = new ProxyUser();
         if (byId.getProxyRole() == CommonConst.NUMBER_1){
             proxyUser.setFirstProxy(byId.getId());
-            proxyUser.setSecondProxy(byId.getId());
         }else {
             proxyUser.setFirstProxy(byId.getFirstProxy());
             proxyUser.setSecondProxy(byId.getId());
@@ -180,7 +179,11 @@ public class ProxyUserController {
         proxyUser.setProxyRole(proxyRole);
         proxyUser.setUserFlag(CommonConst.NUMBER_1);
         proxyUser.setIsDelete(CommonConst.NUMBER_1);
-        proxyUserService.save(proxyUser);
+        ProxyUser saveProxyUser = proxyUserService.save(proxyUser);
+        if (saveProxyUser.getProxyRole() == CommonConst.NUMBER_2 && !CasinoProxyUtil.checkNull(saveProxyUser)){
+            saveProxyUser.setSecondProxy(saveProxyUser.getId());
+            proxyUserService.save(saveProxyUser);
+        }
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("account", userName);
         jsonObject.put("password", password);

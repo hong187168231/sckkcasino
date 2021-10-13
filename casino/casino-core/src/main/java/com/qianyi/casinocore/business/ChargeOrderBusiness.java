@@ -72,13 +72,16 @@ public class ChargeOrderBusiness {
      * @param  chargeOrder 充值订单
      */
     @Transactional
-    public ResponseEntity saveOrderSuccess(ChargeOrder chargeOrder,Integer status) {
+    public ResponseEntity saveOrderSuccess(User user,ChargeOrder chargeOrder,Integer status) {
+        chargeOrder.setFirstProxy(user.getFirstProxy());
+        chargeOrder.setSecondProxy(user.getSecondProxy());
+        chargeOrder.setThirdProxy(user.getThirdProxy());
         return this.saveOrder(chargeOrder,status,AccountChangeEnum.ADD_CODE);
     }
 
     private ResponseEntity saveOrder(ChargeOrder chargeOrder,Integer status,AccountChangeEnum changeEnum){
-        UserMoney user = userMoneyService.findUserByUserIdUseLock(chargeOrder.getUserId());
-        if(user == null){
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(chargeOrder.getUserId());
+        if(userMoney == null){
             return ResponseUtil.custom("用户钱包不存在");
         }
         PlatformConfig platformConfig = platformConfigService.findFirst();
@@ -97,25 +100,25 @@ public class ChargeOrderBusiness {
         chargeOrder.setServiceCharge(serviceCharge);
         chargeOrder.setStatus(status);
         chargeOrder = chargeOrderService.saveOrder(chargeOrder);
-        user.setMoney(user.getMoney().add(subtract));
+        userMoney.setMoney(userMoney.getMoney().add(subtract));
         //计算打码量 默认2倍
         BigDecimal codeTimes = (platformConfig == null || platformConfig.getBetRate() == null) ? new BigDecimal(2) : platformConfig.getBetRate();
         BigDecimal codeNum = subtract.multiply(codeTimes);
-        user.setCodeNum(user.getCodeNum().add(codeNum));
-        Integer isFirst = user.getIsFirst() == null ? 0 : user.getIsFirst();
+        userMoney.setCodeNum(userMoney.getCodeNum().add(codeNum));
+        Integer isFirst = userMoney.getIsFirst() == null ? 0 : userMoney.getIsFirst();
         if (isFirst == 0){
-            user.setIsFirst(1);
+            userMoney.setIsFirst(1);
         }
-        userMoneyService.save(user);
+        userMoneyService.save(userMoney);
         //流水表记录
-        RechargeTurnover turnover = getRechargeTurnover(chargeOrder,user, codeNum, codeTimes);
+        RechargeTurnover turnover = getRechargeTurnover(chargeOrder,userMoney, codeNum, codeTimes);
         rechargeTurnoverService.save(turnover);
-        log.info("后台上分userId {} 类型 {}订单号 {} chargeAmount is {}, money is {}",user.getUserId(),
-                changeEnum.getCode(),chargeOrder.getOrderNo(),subtract, user.getMoney());
+        log.info("后台上分userId {} 类型 {}订单号 {} chargeAmount is {}, money is {}",userMoney.getUserId(),
+                changeEnum.getCode(),chargeOrder.getOrderNo(),subtract, userMoney.getMoney());
         //用户账变记录
-        this.saveAccountChang(changeEnum,user.getUserId(),subtract,user.getMoney(),chargeOrder.getOrderNo());
+        this.saveAccountChang(changeEnum,userMoney.getUserId(),subtract,userMoney.getMoney(),chargeOrder.getOrderNo());
         //发送充值消息
-        this.sendMessage(user.getUserId(),isFirst,chargeOrder.getChargeAmount());
+        this.sendMessage(userMoney.getUserId(),isFirst,chargeOrder.getChargeAmount());
         return ResponseUtil.success();
     }
     private void saveAccountChang(AccountChangeEnum changeEnum, Long userId, BigDecimal amount, BigDecimal amountAfter, String orderNo){
