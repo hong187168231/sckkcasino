@@ -162,6 +162,13 @@ public class ProxyUserController {
         }
         Integer proxyRole = byId.getProxyRole() + CommonConst.NUMBER_1;
         ProxyUser proxyUser = new ProxyUser();
+        if (byId.getProxyRole() == CommonConst.NUMBER_1){
+            proxyUser.setFirstProxy(byId.getId());
+            proxyUser.setSecondProxy(byId.getId());
+        }else {
+            proxyUser.setFirstProxy(byId.getFirstProxy());
+            proxyUser.setSecondProxy(byId.getId());
+        }
         proxyUser.setUserName(userName);
         proxyUser.setNickName(nickName);
         //随机生成
@@ -171,11 +178,7 @@ public class ProxyUserController {
         proxyUser.setProxyRole(proxyRole);
         proxyUser.setUserFlag(CommonConst.NUMBER_1);
         proxyUser.setIsDelete(CommonConst.NUMBER_1);
-        ProxyUser saveProxyUser = proxyUserService.save(proxyUser);
-        if (!CasinoProxyUtil.checkNull(saveProxyUser)){
-            saveProxyUser.setFirstProxy(saveProxyUser.getId());
-            proxyUserService.save(saveProxyUser);
-        }
+        proxyUserService.save(proxyUser);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("account", userName);
         jsonObject.put("password", password);
