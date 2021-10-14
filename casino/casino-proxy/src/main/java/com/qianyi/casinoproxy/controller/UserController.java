@@ -66,6 +66,9 @@ public class UserController {
     @Autowired
     private LoginLogService loginLogService;
 
+    @Autowired
+    private ProxyUserService proxyUserService;
+
     @ApiOperation("查询代理下级的用户数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "客户id", required = true),
@@ -255,7 +258,11 @@ public class UserController {
         if(us != null){
             return ResponseUtil.custom("账户已存在");
         }
-
+        Long authId = CasinoProxyUtil.getAuthId();
+        ProxyUser byId = proxyUserService.findById(authId);
+        if (CasinoProxyUtil.checkNull(byId) || byId.getProxyRole() != CommonConst.NUMBER_3){
+            return ResponseUtil.custom("只有基层代理可以添加会员");
+        }
         User user = new User();
         user.setAccount(account);
         if(CasinoProxyUtil.checkNull(name)){
@@ -288,6 +295,9 @@ public class UserController {
         user.setPassword(bcryptPassword);
         //默认展示两张收款卡
         user.setCreditCard(Constants.creditCard);
+        user.setFirstProxy(byId.getFirstProxy());
+        user.setSecondProxy(byId.getSecondProxy());
+        user.setThirdProxy(byId.getId());
         User save = userService.save(user);
         //userMoney表初始化数据
         UserMoney userMoney=new UserMoney();

@@ -31,4 +31,5 @@ public class PlatformConfigBean {
     private BigDecimal thirdCommission;
     private String domainNameConfiguration;
     private Integer registerSwitch;
+    private String proxyConfiguration;
 }
