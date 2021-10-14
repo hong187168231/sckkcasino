@@ -202,7 +202,7 @@ public class WithdrawBusiness {
 //    }
     //后台直接下分
     @Transactional
-    public ResponseEntity updateWithdrawAndUser(Long userId, BigDecimal withdrawMoney,String bankId) {
+    public ResponseEntity updateWithdrawAndUser(User user,Long userId, BigDecimal withdrawMoney,String bankId,Integer status) {
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         if(userMoney == null){
             return ResponseUtil.custom("用户钱包不存在");
@@ -211,13 +211,16 @@ public class WithdrawBusiness {
             return ResponseUtil.custom("余额不足");
         }
         WithdrawOrder withdrawOrder = new WithdrawOrder();
+        withdrawOrder.setFirstProxy(user.getFirstProxy());
+        withdrawOrder.setSecondProxy(user.getSecondProxy());
+        withdrawOrder.setThirdProxy(user.getThirdProxy());
         withdrawOrder.setWithdrawMoney(withdrawMoney);
         withdrawOrder.setPracticalAmount(withdrawMoney);
         withdrawOrder.setServiceCharge(BigDecimal.ZERO);
         withdrawOrder.setBankId(bankId);
         withdrawOrder.setUserId(userId);
         withdrawOrder.setNo(orderService.getOrderNo());
-        withdrawOrder.setStatus(Constants.withdrawOrder_masterControl);
+        withdrawOrder.setStatus(status);
         withdrawOrderService.saveOrder(withdrawOrder);
         BigDecimal amountBefore = userMoney.getMoney();
         BigDecimal money = amountBefore.subtract(withdrawMoney);

@@ -85,8 +85,11 @@ public class PlatformConfig {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date commissionUpdate;
 
-    @ApiModelProperty("域名配置")
+    @ApiModelProperty("首页域名配置")
     private String domainNameConfiguration;
+
+    @ApiModelProperty("推广注册域名配置")
+    private String proxyConfiguration;
 
     @ApiModelProperty("注册开关 0 关闭 1 开启")
     private Integer registerSwitch = 1;

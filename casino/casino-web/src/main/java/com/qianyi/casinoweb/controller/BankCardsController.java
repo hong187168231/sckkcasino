@@ -39,7 +39,7 @@ public class BankCardsController {
     @GetMapping("/banklist")
     @ApiOperation("银行列表")
     @ResponseBody
-    public ResponseEntity bankList() {
+    public ResponseEntity<BankInfo> bankList() {
         BankInfo bankInfo=new BankInfo();
         bankInfo.setDisable(0);
         return ResponseUtil.success(bankInfoService.findAll(bankInfo));
@@ -61,7 +61,7 @@ public class BankCardsController {
             @ApiImplicitParam(name = "bankAccount", value = "银行账号", required = true),
             @ApiImplicitParam(name = "address", value = "开户地址", required = true),
             @ApiImplicitParam(name = "realName", value = "持卡人姓名")})
-    public ResponseEntity bound(String bankId, String bankAccount, String address, String realName){
+    public ResponseEntity<Bankcards> bound(String bankId, String bankAccount, String address, String realName){
         String checkParamFroBound = Bankcards.checkParamFroBound(bankId, bankAccount, address);
         if (StringUtils.hasLength(checkParamFroBound)) {
             return ResponseUtil.custom(checkParamFroBound);

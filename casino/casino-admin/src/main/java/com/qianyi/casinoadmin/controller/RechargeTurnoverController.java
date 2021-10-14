@@ -1,6 +1,9 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.model.SysUser;
+import com.qianyi.casinocore.service.SysUserService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinoadmin.vo.RechargeTurnoverVo;
 import com.qianyi.casinocore.model.RechargeTurnover;
@@ -37,6 +40,8 @@ public class RechargeTurnoverController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private SysUserService sysUserService;
     @ApiOperation("充值订单流水记录")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
@@ -61,6 +66,8 @@ public class RechargeTurnoverController {
         if(content != null && content.size() > 0){
             List<RechargeTurnoverVo> rechargeTurnoverVoList = new LinkedList<>();
             List<Long> userIds = content.stream().map(RechargeTurnover::getUserId).collect(Collectors.toList());
+            List<String> updateBys = content.stream().map(RechargeTurnover::getUpdateBy).collect(Collectors.toList());
+            List<SysUser> sysUsers = sysUserService.findAll(updateBys);
             List<User> userList = userService.findAll(userIds);
             if(userList != null){
                 content.stream().forEach(recharge->{
@@ -68,6 +75,12 @@ public class RechargeTurnoverController {
                     userList.stream().forEach(user->{
                         if (user.getId().equals(recharge.getUserId())){
                             rechargeTurnoverVo.setAccount(user.getAccount());
+                        }
+                    });
+                    sysUsers.stream().forEach(sysUser->{
+                        if (sysUser.getId().toString().equals(recharge.getUpdateBy() == null?"":recharge.getUpdateBy())){
+                            rechargeTurnoverVo.setUpdateBy(sysUser.getUserName());
+                            rechargeTurnoverVo.setCreateBy(sysUser.getUserName());
                         }
                     });
                     rechargeTurnoverVoList.add(rechargeTurnoverVo);

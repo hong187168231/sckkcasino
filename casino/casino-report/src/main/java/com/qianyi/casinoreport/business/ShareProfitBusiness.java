@@ -86,13 +86,14 @@ public class ShareProfitBusiness {
     }
 
     @Transactional
-    protected void processShareProfitList(List<ShareProfitBO> shareProfitBOList,GameRecord record){
+    public void processShareProfitList(List<ShareProfitBO> shareProfitBOList,GameRecord record){
         shareProfitBOList.forEach(item->processItem(item,record));
         updateShareProfitStatus(record);
     }
 
-    private void processItem(ShareProfitBO shareProfitBO,GameRecord record){
+    public void processItem(ShareProfitBO shareProfitBO,GameRecord record){
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(shareProfitBO.getUserId());
+        if(userMoney==null)return;
         //明细入库
         processProfitDetail(shareProfitBO,userMoney,record);
         //进行分润

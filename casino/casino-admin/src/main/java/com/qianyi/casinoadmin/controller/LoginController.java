@@ -133,7 +133,7 @@ public class LoginController {
 
         //记录登陆日志
         String ip = IpUtil.getIp(LoginUtil.getRequest());
-        SysUserLoginLog sysUserLoginLog = new SysUserLoginLog(ip, user.getUserName(), user.getId(), "admin");
+        SysUserLoginLog sysUserLoginLog = new SysUserLoginLog(ip, user.getUserName(), user.getId(), "admin", "");
         sysUserLoginLogService.saveSyncLog(sysUserLoginLog);
 
         return ResponseUtil.success(token);

@@ -26,7 +26,7 @@ public class DownloadStationController {
     @GetMapping("getIosNewestVersion")
     @ApiOperation("ios最新版本检查")
     @NoAuthentication
-    public ResponseEntity getIosNewestVersion() {
+    public ResponseEntity<DownloadStation> getIosNewestVersion() {
         DownloadStation newest = downloadStationService.getNewestVersion(2);
         DownloadStation forcedNewest = downloadStationService.getForcedNewestVersion(2, 1);
         Map<String, DownloadStation> map = new HashMap<>();
@@ -38,7 +38,7 @@ public class DownloadStationController {
     @GetMapping("getAndroidNewestVersion")
     @ApiOperation("Android最新版本检查")
     @NoAuthentication
-    public ResponseEntity getAndroidNewestVersion() {
+    public ResponseEntity<DownloadStation> getAndroidNewestVersion() {
         DownloadStation newest = downloadStationService.getNewestVersion(1);
         DownloadStation forcedNewest = downloadStationService.getForcedNewestVersion(1, 1);
         Map<String, DownloadStation> map = new HashMap<>();

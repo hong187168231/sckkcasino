@@ -447,6 +447,10 @@ public class UserController {
         if (money.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
             return ResponseUtil.custom("测试环境加钱不能超过100RMB");
         }
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            return ResponseUtil.custom("账户不存在");
+        }
         ChargeOrder chargeOrder = new ChargeOrder();
         chargeOrder.setUserId(id);
         chargeOrder.setRemitter(remitter);
@@ -455,7 +459,7 @@ public class UserController {
         chargeOrder.setOrderNo(orderService.getOrderNo());
         chargeOrder.setChargeAmount(money);
 //        chargeOrder.setRealityAmount(money);
-        return chargeOrderBusiness.saveOrderSuccess(chargeOrder);
+        return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_masterControl);
     }
     /**
      * 后台新增提现订单
@@ -480,7 +484,11 @@ public class UserController {
         if(money.compareTo(BigDecimal.ZERO)<1){
             return ResponseUtil.custom("金额类型错误");
         }
-        return withdrawBusiness.updateWithdrawAndUser(id,money,bankId);
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            return ResponseUtil.custom("找不到这个会员");
+        }
+        return withdrawBusiness.updateWithdrawAndUser(user,id,money,bankId,Constants.withdrawOrder_masterControl);
     }
 
     /**

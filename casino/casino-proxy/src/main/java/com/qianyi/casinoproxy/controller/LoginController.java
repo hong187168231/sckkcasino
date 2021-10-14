@@ -94,7 +94,7 @@ public class LoginController {
 
         //记录登陆日志
         String ip = IpUtil.getIp(CasinoProxyUtil.getRequest());
-        ProxyUserLoginLog proxyUserLoginLog = new ProxyUserLoginLog(ip, proxyUser.getUserName(), proxyUser.getId(), "proxy");
+        ProxyUserLoginLog proxyUserLoginLog = new ProxyUserLoginLog(ip, proxyUser.getUserName(), proxyUser.getId(), "proxy", "");
         proxyUserLoginLogService.saveSyncLog(proxyUserLoginLog);
 
         return ResponseUtil.success(token);
@@ -273,59 +273,59 @@ public class LoginController {
         return ResponseUtil.success(refreshToken);
     }
 
-    //1分钟3次
-    @RequestLimit(limit = 3,timeout = 60)
-    @NoAuthentication
-    @ApiOperation("添加管理员用户")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userName", value = "帐号", required = true),
-            @ApiImplicitParam(name = "nickName", value = "昵称", required = false),
-            @ApiImplicitParam(name = "password", value = "密码", required = true),
-            @ApiImplicitParam(name = "proxyRole", value = "代理角色", required = true),
-            @ApiImplicitParam(name = "pid", value = "上一级代理ID", required = false),
-    })
-    @PostMapping("save")
-    public ResponseEntity save(String userName, String password, String nickName, Integer proxyRole, Long pid) {
-        if(CasinoProxyUtil.checkNull(nickName)){
-            return ResponseUtil.parameterNotNull();
-        }
-        ProxyUser proxyUser = proxyUserService.findByUserName(userName);
-        if(proxyUser != null){
-            return ResponseUtil.custom("账户已经存在");
-        }
-
-        //加密
-        String bcryptPassword = CasinoProxyUtil.bcrypt(password);
-        ProxyUser proxy = new ProxyUser();
-        proxy.setUserName(userName);
-        proxy.setNickName(nickName);
-        proxy.setPassWord(bcryptPassword);
-        if(proxyRole < 1 || proxyRole > 3){
-            return ResponseUtil.custom("参数不合法");
-        }
-        proxy.setProxyRole(proxyRole);
-        if(proxyRole == 2){//区域代理
-            ProxyUser proxySole = proxyUserService.findById(pid);
-            if(proxySole == null || proxySole.getUserFlag() != 1){
-                return ResponseUtil.custom("总代理不存在或者已被锁定");
-            }
-            proxy.setSecondProxy(pid);
-        }
-        if(proxyRole == 3){
-            ProxyUser proxySole = proxyUserService.findById(pid);
-            if(proxySole == null || proxySole.getUserFlag() != 1){
-                return ResponseUtil.custom("总代理不存在或者已被锁定");
-            }
-            proxy.setSecondProxy(pid);
-            proxy.setFirstProxy(proxySole.getSecondProxy());
-            //邀请码生成
-            proxy.setProxyCode(LoginUtil.getProxyCode());
-        }
-
-        proxy.setUserFlag(Constants.open);
-        proxyUserService.save(proxy);
-        return ResponseUtil.success();
-    }
+//    //1分钟3次
+//    @RequestLimit(limit = 3,timeout = 60)
+//    @NoAuthentication
+//    @ApiOperation("添加管理员用户")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "userName", value = "帐号", required = true),
+//            @ApiImplicitParam(name = "nickName", value = "昵称", required = false),
+//            @ApiImplicitParam(name = "password", value = "密码", required = true),
+//            @ApiImplicitParam(name = "proxyRole", value = "代理角色 1：总代理 2：区域代理 3：基层代理", required = true),
+//            @ApiImplicitParam(name = "pid", value = "上一级代理ID", required = false),
+//    })
+//    @PostMapping("save")
+//    public ResponseEntity<ProxyUser> save(String userName, String password, String nickName, Integer proxyRole, Long pid) {
+//        if(CasinoProxyUtil.checkNull(nickName)){
+//            return ResponseUtil.parameterNotNull();
+//        }
+//        ProxyUser proxyUser = proxyUserService.findByUserName(userName);
+//        if(proxyUser != null){
+//            return ResponseUtil.custom("账户已经存在");
+//        }
+//
+//        //加密
+//        String bcryptPassword = CasinoProxyUtil.bcrypt(password);
+//        ProxyUser proxy = new ProxyUser();
+//        proxy.setUserName(userName);
+//        proxy.setNickName(nickName);
+//        proxy.setPassWord(bcryptPassword);
+//        if(proxyRole < 1 || proxyRole > 3){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        proxy.setProxyRole(proxyRole);
+//        if(proxyRole == 2){//区域代理
+//            ProxyUser proxySole = proxyUserService.findById(pid);
+//            if(proxySole == null || proxySole.getUserFlag() != 1){
+//                return ResponseUtil.custom("总代理不存在或者已被锁定");
+//            }
+//            proxy.setSecondProxy(pid);
+//        }
+//        if(proxyRole == 3){
+//            ProxyUser proxySole = proxyUserService.findById(pid);
+//            if(proxySole == null || proxySole.getUserFlag() != 1){
+//                return ResponseUtil.custom("总代理不存在或者已被锁定");
+//            }
+//            proxy.setSecondProxy(pid);
+//            proxy.setFirstProxy(proxySole.getSecondProxy());
+//            //邀请码生成
+//            proxy.setProxyCode(LoginUtil.getProxyCode());
+//        }
+//
+//        proxy.setUserFlag(Constants.open);
+//        proxyUserService.save(proxy);
+//        return ResponseUtil.success();
+//    }
 
     //1分钟3次
     @RequestLimit(limit = 10,timeout = 60)

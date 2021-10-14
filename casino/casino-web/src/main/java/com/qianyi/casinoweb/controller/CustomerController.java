@@ -27,7 +27,7 @@ public class CustomerController {
     @GetMapping("contact")
     @ApiOperation("客服联系方式")
     @NoAuthentication
-    public ResponseEntity contact() {
+    public ResponseEntity<Customer> contact() {
         Customer customer = customerService.findFirst();
         if (customer != null) {
             return ResponseUtil.success(customer);

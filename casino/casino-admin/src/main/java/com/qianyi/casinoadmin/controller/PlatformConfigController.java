@@ -101,6 +101,7 @@ public class PlatformConfigController {
             domainNameVo.setId(first.getId());
             domainNameVo.setName("域名配置");
             domainNameVo.setDomainNameConfiguration(first.getDomainNameConfiguration());
+            domainNameVo.setProxyConfiguration(first.getProxyConfiguration());
         }
         return new ResponseEntity(ResponseCode.SUCCESS, domainNameVo);
     }
@@ -108,11 +109,12 @@ public class PlatformConfigController {
     @ApiOperation("编辑域名配置")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id", required = true),
-            @ApiImplicitParam(name = "domainNameConfiguration", value = "域名配置", required = true),
+            @ApiImplicitParam(name = "domainNameConfiguration", value = "首页域名配置", required = true),
+            @ApiImplicitParam(name = "proxyConfiguration", value = "推广注册域名配置", required = true),
     })
     @PostMapping("/updateDomainName")
-    public ResponseEntity updateDomainName(Long id,String domainNameConfiguration){
-        if (LoginUtil.checkNull(id,domainNameConfiguration)){
+    public ResponseEntity updateDomainName(Long id,String domainNameConfiguration, String proxyConfiguration){
+        if (LoginUtil.checkNull(id,domainNameConfiguration, proxyConfiguration)){
             return ResponseUtil.custom("参数错误");
         }
         PlatformConfig first = platformConfigService.findFirst();
@@ -121,6 +123,7 @@ public class PlatformConfigController {
         }
         first.setId(id);
         first.setDomainNameConfiguration(domainNameConfiguration);
+        first.setProxyConfiguration(proxyConfiguration);
         platformConfigService.save(first);
         return ResponseUtil.success();
     }

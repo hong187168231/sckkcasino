@@ -5,6 +5,7 @@ import com.qianyi.casinocore.repository.ProxyUserRepository;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -12,10 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -40,8 +38,8 @@ public class ProxyUserService {
         proxyUserRepository.setSecretById(id, gaKey);
     }
     @CachePut(key="#result.id",condition = "#result != null")
-    public void save(ProxyUser proxyUser) {
-        proxyUserRepository.save(proxyUser);
+    public ProxyUser save(ProxyUser proxyUser) {
+        return proxyUserRepository.save(proxyUser);
     }
     @Cacheable(key = "#id")
     public ProxyUser findAllById(Long id){
@@ -55,15 +53,33 @@ public class ProxyUserService {
         }
         return null;
     }
+    @CacheEvict(key="#id")
+    public void deleteById(Long id){
+        proxyUserRepository.deleteById(id);
+    }
     /**
      * 用户列表查询
      *
      * @param proxyUser
      * @return
      */
-    public Page<ProxyUser> findUserPage(Pageable pageable, ProxyUser proxyUser, Date startDate, Date endDate) {
+    public Page<ProxyUser> findProxyUserPage(Pageable pageable, ProxyUser proxyUser, Date startDate, Date endDate) {
         Specification<ProxyUser> condition = this.getCondition(proxyUser,startDate,endDate);
         return proxyUserRepository.findAll(condition, pageable);
+    }
+    public List<ProxyUser> findProxyUserList(ProxyUser proxyUser) {
+        Specification<ProxyUser> condition = this.getCondition(proxyUser,null,null);
+        return proxyUserRepository.findAll(condition);
+    }
+    public List<ProxyUser> findProxyUser(List<Long> proxyUserIds) {
+        Specification<ProxyUser> condition = getCondition(proxyUserIds);
+        List<ProxyUser> proxyUserList = proxyUserRepository.findAll(condition);
+        return proxyUserList;
+    }
+    public List<ProxyUser> findProxyUsers(List<String> proxyUserIds) {
+        Specification<ProxyUser> condition = getConditions(proxyUserIds);
+        List<ProxyUser> proxyUserList = proxyUserRepository.findAll(condition);
+        return proxyUserList;
     }
     /**
      * 查询条件拼接，灵活添加条件
@@ -85,6 +101,9 @@ public class ProxyUserService {
                 if (proxyUser.getUserFlag() != null) {
                     list.add(cb.equal(root.get("userFlag").as(Integer.class), proxyUser.getUserFlag()));
                 }
+                if (proxyUser.getIsDelete() != null) {
+                    list.add(cb.equal(root.get("isDelete").as(Integer.class), proxyUser.getIsDelete()));
+                }
                 if (proxyUser.getId() != null) {
                     list.add(cb.equal(root.get("id").as(Long.class), proxyUser.getId()));
                 }
@@ -99,6 +118,47 @@ public class ProxyUserService {
                 }
                 if (endDate != null) {
                     list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
+    }
+    private Specification<ProxyUser> getCondition(List<Long> userIds) {
+        Specification<ProxyUser> specification = new Specification<ProxyUser>() {
+            @Override
+            public Predicate toPredicate(Root<ProxyUser> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (userIds != null && userIds.size() > 0) {
+                    Path<Object> userId = root.get("id");
+                    CriteriaBuilder.In<Object> in = cb.in(userId);
+                    for (Long id : userIds) {
+                        in.value(id);
+                    }
+                    list.add(cb.and(cb.and(in)));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
+    }
+    private Specification<ProxyUser> getConditions(List<String> userIds) {
+        Specification<ProxyUser> specification = new Specification<ProxyUser>() {
+            @Override
+            public Predicate toPredicate(Root<ProxyUser> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (userIds != null && userIds.size() > 0) {
+                    Path<Object> userId = root.get("id");
+                    CriteriaBuilder.In<Object> in = cb.in(userId);
+                    for (String id : userIds) {
+                        try {
+                            in.value(Long.valueOf(id));
+                        }catch (Exception ex){
+
+                        }
+
+                    }
+                    list.add(cb.and(cb.and(in)));
                 }
                 return cb.and(list.toArray(new Predicate[list.size()]));
             }

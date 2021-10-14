@@ -14,6 +14,9 @@ public class DomainNameVo {
     @ApiModelProperty("名称")
     private String name;
 
-    @ApiModelProperty("域名配置")
+    @ApiModelProperty("首页域名配置")
     private String domainNameConfiguration;
+
+    @ApiModelProperty("推广注册域名配置")
+    private String proxyConfiguration;
 }
