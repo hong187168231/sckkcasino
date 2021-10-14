@@ -1,7 +1,6 @@
 package com.qianyi.consumer;
 
 import com.qianyi.casinocore.vo.ShareProfitMqVo;
-import com.qianyi.casinocore.vo.ShareProfitVo;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;

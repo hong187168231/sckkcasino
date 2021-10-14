@@ -1,5 +1,5 @@
 server:
-  port: 9400
+  port: 9500
 
 spring:
   jpa:
@@ -9,12 +9,12 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
   datasource:
-    url: jdbc:mysql://localhost:3306/casino?useUnicode=true&characterEncoding=utf-8
+#    url: jdbc:mysql://localhost:3306/casino?useUnicode=true&characterEncoding=utf-8
+#    username: root
+#    password: root
+    url: jdbc:mysql://127.0.0.1:3606/casino?useUnicode=true&characterEncoding=utf-8
     username: root
-    password: root
-    #    url: jdbc:mysql://154.204.57.237:3306/pay?useUnicode=true&characterEncoding=utf-8
-    #    username: root
-    #    password: aAbB1!2@
+    password: Mysql_123
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
@@ -26,13 +26,6 @@ spring:
       pool-name: DatebookHikariCP
       maximum-pool-size: 16
       connection-test-query: select 1
-  redis:
-    database: 0
-#    host: 154.204.57.237
-    host: 127.0.0.1
-    port: 8000
-    password: Redis_123P
-    timeout: 3000
   rabbitmq:
     host: 154.204.57.237 #ip
     port: 5672      #端口

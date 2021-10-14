@@ -1,6 +1,5 @@
 package com.qianyi.consumer;
 
-import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.vo.RechargeRecordVo;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import lombok.extern.slf4j.Slf4j;

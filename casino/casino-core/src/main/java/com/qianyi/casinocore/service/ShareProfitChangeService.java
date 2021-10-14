@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 public class ShareProfitChangeService {
@@ -15,5 +17,9 @@ public class ShareProfitChangeService {
 
     public ShareProfitChange save(ShareProfitChange shareProfitChange){
         return shareProfitChangeRepository.save(shareProfitChange);
+    }
+
+    public List<ShareProfitChange> saveAll(List<ShareProfitChange> shareProfitChangeList){
+        return shareProfitChangeRepository.saveAll(shareProfitChangeList);
     }
 }

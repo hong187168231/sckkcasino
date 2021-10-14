@@ -38,6 +38,10 @@ public class UserMoneyService {
         return userMoneyRepository.findUserByUserIdUseLock(userId);
     }
 
+    public List<UserMoney> saveAll(List<UserMoney> userMoneyList){
+        return userMoneyRepository.saveAll(userMoneyList);
+    }
+
     /**
      *
      * @param userId 用户id

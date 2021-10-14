@@ -1,9 +1,7 @@
 package com.qianyi.casinoreport.consumer;
 
-import com.qianyi.casinocore.business.ChargeOrderBusiness;
-import com.qianyi.casinocore.business.RechargeRecordBussiness;
+import com.qianyi.casinoreport.business.RechargeRecordBussiness;
 import com.qianyi.casinocore.vo.RechargeRecordVo;
-import com.qianyi.casinocore.vo.ShareProfitMqVo;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;

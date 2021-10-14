@@ -1,4 +1,4 @@
-package com.qianyi.casinocore.business;
+package com.qianyi.casinoreport.business;
 
 import com.qianyi.casinocore.model.ProxyDayReport;
 import com.qianyi.casinocore.service.ProxyDayReportService;
@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class ProxyDayReportBusiness {
     @Autowired
     private ProxyDayReportService proxyDayReportService;
@@ -20,12 +21,13 @@ public class ProxyDayReportBusiness {
      * 处理分润
      * @param shareProfitBO
      */
-    public void processReport(ShareProfitBO shareProfitBO){
+    public ProxyDayReport processReport(ShareProfitBO shareProfitBO){
 
         ProxyDayReport proxyDayReport = getProxyDayReport(shareProfitBO);
         proxyDayReport.setProfitAmount(proxyDayReport.getProfitAmount().add(shareProfitBO.getProfitAmount()));
         proxyDayReport.setBetAmount(proxyDayReport.getBetAmount().add(shareProfitBO.getBetAmount()));
-        proxyDayReportService.save(proxyDayReport);
+        return proxyDayReport;
+//        proxyDayReportService.save(proxyDayReport);
 
     }
 
@@ -48,12 +50,12 @@ public class ProxyDayReportBusiness {
      * 处理充值
      * @param rechargeProxy
      */
-    @Transactional
-    public void processChargeAmount(RechargeProxyBO rechargeProxy){
+    public ProxyDayReport processChargeAmount(RechargeProxyBO rechargeProxy){
         log.info("process single charge amount {}",rechargeProxy);
         ProxyDayReport proxyDayReport = getProxyDayReport(rechargeProxy);
         proxyDayReport.setDeppositeAmount(proxyDayReport.getDeppositeAmount().add(rechargeProxy.getAmount()));
-        proxyDayReportService.save(proxyDayReport);
+        return proxyDayReport;
+//        proxyDayReportService.save(proxyDayReport);
     }
 
     private ProxyDayReport getProxyDayReport(RechargeProxyBO rechargeProxy) {
@@ -67,10 +69,11 @@ public class ProxyDayReportBusiness {
      * 处理团队用户数量
      * @param proxyUserBO
      */
-    public void processUser(ProxyUserBO proxyUserBO){
+    public ProxyDayReport processUser(ProxyUserBO proxyUserBO){
         ProxyDayReport proxyDayReport = getProxyDayReport(proxyUserBO.getProxyUserId(),proxyUserBO.getDayTime());
         proxyDayReport.setNewNum(proxyDayReport.getNewNum()+1);
-        proxyDayReportService.save(proxyDayReport);
+        return proxyDayReport;
+//        proxyDayReportService.save(proxyDayReport);
     }
 
     private ProxyDayReport getProxyDayReport(Long userId,String dayTime) {

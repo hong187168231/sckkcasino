@@ -6,6 +6,8 @@ import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.ShareProfitBO;
 import com.qianyi.casinocore.vo.ShareProfitMqVo;
 import com.qianyi.casinocore.vo.ShareProfitVo;
+import com.qianyi.casinoreport.business.ProxyDayReportBusiness;
+import com.qianyi.casinoreport.business.ProxyReportBusiness;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import lombok.extern.slf4j.Slf4j;

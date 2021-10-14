@@ -1,5 +1,6 @@
-package com.qianyi.modulespringrabbitmq.config;
+package com.qianyi.casinoreport.config;
 
+import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;

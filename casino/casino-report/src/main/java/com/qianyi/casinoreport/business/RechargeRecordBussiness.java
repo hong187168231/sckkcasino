@@ -1,13 +1,16 @@
-package com.qianyi.casinocore.business;
+package com.qianyi.casinoreport.business;
 
 
+import com.qianyi.casinocore.model.ProxyDayReport;
+import com.qianyi.casinocore.model.ProxyReport;
+import com.qianyi.casinocore.service.ProxyDayReportService;
+import com.qianyi.casinocore.service.ProxyReportService;
 import com.qianyi.casinocore.vo.RechargeProxyBO;
 import com.qianyi.casinocore.vo.RechargeRecordVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,6 +25,12 @@ public class RechargeRecordBussiness {
 
     @Autowired
     private ProxyReportBusiness proxyReportBusiness;
+
+    @Autowired
+    private ProxyReportService proxyReportService;
+
+    @Autowired
+    private ProxyDayReportService proxyDayReportService;
 
     /**
      * 内部调用，单线程
@@ -40,14 +49,25 @@ public class RechargeRecordBussiness {
 
     @Transactional(rollbackFor = Exception.class)
     public void processList(List<RechargeProxyBO> rechargeProxyList) {
+        List<ProxyDayReport> proxyDayReportList = new ArrayList<>();
+        List<ProxyReport> proxyReportList = new ArrayList<>();
         log.info("begin process recharge proxy bo list");
-        rechargeProxyList.forEach(item->processItem(item));
-        log.info("finish process recharge proxy bo list");
+        rechargeProxyList.forEach(item->processItem(item,proxyDayReportList,proxyReportList));
+        log.info("finish process recharge proxy bo list,proxyDayReportList  size is {} proxyReportList size is {}",proxyDayReportList.size(),proxyReportList.size());
+
+        log.info("insert all to db begin");
+        proxyReportService.saveAll(proxyReportList);
+        proxyDayReportService.saveAll(proxyDayReportList);
+        log.info("insert all to db sucess");
     }
 
-    private void processItem(RechargeProxyBO rechargeProxy){
-        proxyDayReportBusiness.processChargeAmount(rechargeProxy);
-        proxyReportBusiness.processRechargeReport(rechargeProxy);
+    public void processItem(RechargeProxyBO rechargeProxy,List<ProxyDayReport> proxyDayReportList,List<ProxyReport> proxyReportList){
+        ProxyDayReport proxyDayReport = proxyDayReportBusiness.processChargeAmount(rechargeProxy);
+        ProxyReport proxyReport = proxyReportBusiness.processRechargeReport(rechargeProxy);
+        if(proxyReport!=null)
+            proxyReportList.add(proxyReport);
+        if(proxyDayReport!=null)
+            proxyDayReportList.add(proxyDayReport);
     }
 
     public List<RechargeProxyBO> getRechargeProxys(RechargeRecordVo rechargeRecordVo){

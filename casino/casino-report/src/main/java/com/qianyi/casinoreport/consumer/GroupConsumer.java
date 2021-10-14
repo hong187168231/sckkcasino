@@ -1,8 +1,7 @@
 package com.qianyi.casinoreport.consumer;
 
-import com.qianyi.casinocore.business.UserGroupNumBusiness;
+import com.qianyi.casinoreport.business.UserGroupNumBusiness;
 import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.vo.ShareProfitMqVo;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;

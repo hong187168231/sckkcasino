@@ -32,6 +32,10 @@ public class ProxyReportService {
         return proxyReportRepository.save(proxyReport);
     }
 
+    public List<ProxyReport> saveAll(List<ProxyReport> proxyReportList){
+        return proxyReportRepository.saveAll(proxyReportList);
+    }
+
     public Page<ProxyReport> findAchievementPage(Pageable pageable, Long userId, Long memberId) {
         Specification<ProxyReport> condition = this.getCondition(userId,memberId);
         return proxyReportRepository.findAll(condition, pageable);

@@ -27,6 +27,10 @@ public class ProxyDayReportService {
         return proxyDayReportRepository.save(proxyDayReport);
     }
 
+    public List<ProxyDayReport> saveAll(List<ProxyDayReport> proxyDayReportList){
+        return proxyDayReportRepository.saveAll(proxyDayReportList);
+    }
+
     public List<ProxyDayReport> getCommission(Long userId, String startTime, String endTime) {
         Specification<ProxyDayReport> condition = this.getCondition(userId, startTime, endTime);
         return proxyDayReportRepository.findAll(condition);
