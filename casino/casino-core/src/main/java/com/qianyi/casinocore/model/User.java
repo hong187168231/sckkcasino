@@ -146,8 +146,8 @@ public class User extends BaseEntity implements UserDetails {
         if(ObjectUtils.isEmpty(phone)){
             return false;
         }
-        String phoneRegex = "^[0-9 ()+-]{6,15}+$";
-        if (!phone.matches(phoneRegex)) {
+//        String phoneRegex = "^[0-9 ()+-]{6,15}+$";
+        if (!phone.matches(Constants.regexPhone)) {
             return false;
         }
         return true;

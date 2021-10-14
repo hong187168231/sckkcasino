@@ -1,14 +1,8 @@
 package com.qianyi.casinoweb.controller;
 
 import com.google.code.kaptcha.Producer;
-import com.qianyi.casinocore.model.IpBlack;
-import com.qianyi.casinocore.model.PlatformConfig;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.UserMoney;
-import com.qianyi.casinocore.service.IpBlackService;
-import com.qianyi.casinocore.service.PlatformConfigService;
-import com.qianyi.casinocore.service.UserMoneyService;
-import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.util.InviteCodeUtil;
 import com.qianyi.casinoweb.vo.LoginLogVo;
@@ -73,6 +67,8 @@ public class AuthController {
     RabbitTemplate rabbitTemplate;
     @Autowired
     IpBlackService ipBlackService;
+    @Autowired
+    ProxyUserService proxyUserService;
 
     @Autowired
     @Qualifier("loginLogJob")
@@ -90,24 +86,18 @@ public class AuthController {
             @ApiImplicitParam(name = "phone", value = "电话号码", required = true),
             @ApiImplicitParam(name = "validate", value = "网易易顿", required = true),
             @ApiImplicitParam(name = "inviteCode", value = "邀请码", required = true),
+            @ApiImplicitParam(name = "inviteType", value = "邀请类型:everyone:人人代，proxy:基层代理", required = true),
     })
-    public ResponseEntity spreadRegister(String account, String password, String phone,
-                                         HttpServletRequest request, String validate, String inviteCode) {
-        boolean checkNull = CommonUtil.checkNull(account, password, phone, validate,inviteCode);
+    public ResponseEntity spreadRegister(String account, String password, String phone,HttpServletRequest request, String validate, String inviteCode, String inviteType) {
+        boolean checkNull = CommonUtil.checkNull(account, password, phone, validate,inviteCode,inviteType);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
-        User parentUser = userService.findByInviteCode(inviteCode);
-        if (parentUser == null) {
-            String ip = IpUtil.getIp(request);
-            IpBlack ipBlack = new IpBlack();
-            ipBlack.setIp(ip);
-            ipBlack.setStatus(Constants.no);
-            ipBlack.setRemark("邀请码填写错误，封IP");
-            ipBlackService.save(ipBlack);
-            return ResponseUtil.custom("邀请码错误，ip被封");
+        ResponseEntity checkInviteCode = checkInviteCode(inviteType, inviteCode);
+        if (checkInviteCode.getCode() != 0) {
+            return checkInviteCode;
         }
-        ResponseEntity responseEntity = registerCommon(account, password, phone, request, validate, inviteCode, parentUser);
+        ResponseEntity responseEntity = registerCommon(account, password, phone, request, validate, inviteCode, inviteType);
         return responseEntity;
     }
 
@@ -146,12 +136,12 @@ public class AuthController {
      * @param request
      * @param validate
      * @param inviteCode
-     * @param parentUser
+     * @param inviteType
      * @return
      */
     @Transactional
     public ResponseEntity registerCommon(String account, String password, String phone,
-                                   HttpServletRequest request, String validate,String inviteCode,User parentUser) {
+                                   HttpServletRequest request, String validate,String inviteCode,String inviteType) {
 
 
         //验证码校验
@@ -198,16 +188,8 @@ public class AuthController {
             return ResponseUtil.custom("该帐号已存在");
         }
         user = new User();
-        if (parentUser == null && !ObjectUtils.isEmpty(inviteCode)) {
-            parentUser = userService.findByInviteCode(inviteCode);
-        }
-        if (parentUser == null) {
-            user.setFirstPid(0L);//默认公司级别
-        } else {
-            user.setFirstPid(parentUser.getId());
-            user.setSecondPid(parentUser.getFirstPid());
-            user.setThirdPid(parentUser.getSecondPid());
-        }
+        //设置父级
+        setParent(inviteCode, inviteType, user);
         user.setAccount(account);
         user.setPassword(CasinoWebUtil.bcrypt(password));
         user.setPhone(phone);
@@ -232,6 +214,43 @@ public class AuthController {
         rabbitTemplate.convertAndSend(RabbitMqConstants.ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.ADDUSERTOTEAM_DIRECT, save, new CorrelationData(UUID.randomUUID().toString()));
         log.info("团队新增成员消息发送成功={}", save);
         return ResponseUtil.success();
+    }
+
+    /**
+     * 设置父级或者父级代理
+     * @param inviteCode
+     * @param inviteType
+     * @param user
+     */
+    public void setParent(String inviteCode,String inviteType,User user){
+        //人人代
+        if(Constants.INVITE_TYPE_EVERYONE.equals(inviteType)){
+            User parentUser = userService.findByInviteCode(inviteCode);
+            user.setFirstPid(parentUser.getId());
+            user.setSecondPid(parentUser.getFirstPid());
+            user.setThirdPid(parentUser.getSecondPid());
+            //基层代理
+        }else if(Constants.INVITE_TYPE_PROXY.equals(inviteType)){
+            ProxyUser parentProxy = proxyUserService.findByProxyCode(inviteCode);
+            user.setFirstProxy(parentProxy.getFirstProxy());
+            user.setSecondProxy(parentProxy.getSecondProxy());
+            user.setThirdProxy(parentProxy.getId());
+            //前台自己注册
+        }else{
+            User parentUser =null;
+            if(ObjectUtils.isEmpty(inviteCode)){
+                user.setFirstPid(0L);//默认公司级别
+            }else{
+                parentUser = userService.findByInviteCode(inviteCode);
+            }
+            if (parentUser == null) {
+                user.setFirstPid(0L);//默认公司级别
+            } else {
+                user.setFirstPid(parentUser.getId());
+                user.setSecondPid(parentUser.getFirstPid());
+                user.setThirdPid(parentUser.getSecondPid());
+            }
+        }
     }
 
     @NoAuthentication
@@ -492,24 +511,41 @@ public class AuthController {
     @ApiOperation("校验邀请码")
     @NoAuthentication
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "inviteType", value = "邀请类型:everyone:人人代，proxy:基层代理", required = true),
             @ApiImplicitParam(name = "inviteCode", value = "邀请码", required = true),
     })
-    public ResponseEntity checkInviteCode(String inviteCode) {
-        boolean checkNull = CommonUtil.checkNull(inviteCode);
+    public ResponseEntity checkInviteCode(String inviteType, String inviteCode) {
+        boolean checkNull = CommonUtil.checkNull(inviteType, inviteCode);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
-        User user = userService.findByInviteCode(inviteCode);
-        if (user == null) {
+        if (Constants.INVITE_TYPE_EVERYONE.equals(inviteType)) {
+            User user = userService.findByInviteCode(inviteCode);
+            if (user != null) {
+                return ResponseUtil.success();
+            }
             String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
             IpBlack ipBlack = new IpBlack();
             ipBlack.setIp(ip);
             ipBlack.setStatus(Constants.no);
-            ipBlack.setRemark("邀请码填写错误，封IP");
+            ipBlack.setRemark("人人代邀请码填写错误，封IP");
             ipBlackService.save(ipBlack);
             return ResponseUtil.custom("邀请码填写错误,ip被封");
+        } else if (Constants.INVITE_TYPE_PROXY.equals(inviteType)) {
+            ProxyUser proxyUser = proxyUserService.findByProxyCode(inviteCode);
+            if (proxyUser != null) {
+                return ResponseUtil.success();
+            }
+            String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
+            IpBlack ipBlack = new IpBlack();
+            ipBlack.setIp(ip);
+            ipBlack.setStatus(Constants.no);
+            ipBlack.setRemark("基层代理邀请码填写错误，封IP");
+            ipBlackService.save(ipBlack);
+            return ResponseUtil.custom("邀请码填写错误,ip被封");
+        } else {
+            return ResponseUtil.custom("inviteType值填写错误");
         }
-        return ResponseUtil.success();
     }
 
     private void setUserTokenToRedis(Long userId, String token) {

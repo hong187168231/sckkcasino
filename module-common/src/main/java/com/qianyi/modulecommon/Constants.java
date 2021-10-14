@@ -68,5 +68,11 @@ public class Constants {
     public static final String regex = "^[0-9]*$";
     //校验手机号
     public static final String regexPhone= "^[0-9 ()+-]{6,15}+$";
+    //推广类型,人人代
+    public static final String INVITE_TYPE_EVERYONE= "everyone";
+    //推广类型,基层代理
+    public static final String INVITE_TYPE_PROXY= "proxy";
+    //推广注册页面
+    public static final String SPREAD_REGISTER_VIEW= "index.html";
 
 }

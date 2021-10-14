@@ -8,13 +8,11 @@ import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.vo.UserVo;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
@@ -199,9 +197,28 @@ public class UserController {
         return ResponseUtil.success();
     }
 
+    @GetMapping("everyoneSpread")
+    @ApiOperation("获取当前用户人人代推广链接")
+    public ResponseEntity everyoneSpread() {
+        //查询后台配置域名
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig == null || ObjectUtils.isEmpty(platformConfig.getProxyConfiguration())) {
+            return ResponseUtil.custom("推广域名未配置");
+        }
+        String domain = platformConfig.getProxyConfiguration();
+        Long authId = CasinoWebUtil.getAuthId();
+        User user = userService.findById(authId);
+        if (ObjectUtils.isEmpty(user.getInviteCode())) {
+            return ResponseUtil.custom("当前用户邀请码为空");
+        }
+        String url = domain + "/" + Constants.INVITE_TYPE_EVERYONE + "/" + user.getInviteCode() + "/" + Constants.SPREAD_REGISTER_VIEW;
+        return ResponseUtil.success(url);
+    }
+
     public static void main(String[] args) {
         String regex = "^[0-9 ()+-]{6,15}+$";
         String phone="+(63)-14111";
         System.out.println(phone.matches(regex));
     }
+
 }

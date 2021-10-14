@@ -165,4 +165,8 @@ public class ProxyUserService {
         };
         return specification;
     }
+
+    public ProxyUser findByProxyCode(String inviteCode) {
+        return proxyUserRepository.findByProxyCode(inviteCode);
+    }
 }
