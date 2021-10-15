@@ -79,10 +79,6 @@ public class WMController {
         if (userMoney == null || userMoney.getMoney() == null) {
             return ResponseUtil.custom("用户钱包不存在");
         }
-        PlatformConfig platformConfig = platformConfigService.findFirst();
-        if(userMoney.getMoney().compareTo(platformConfig.getWmMoney()) == 1){
-            return ResponseUtil.custom("平台余额不足，请联系客服");
-        }
         UserThird third = userThirdService.findByUserId(authId);
         //未注册自动注册到第三方
         if (third == null || third.getUserId() == null) {
@@ -116,8 +112,13 @@ public class WMController {
         if (lang == null) {
             lang = 0;
         }
+        PlatformConfig platformConfig = platformConfigService.findFirst();
         if (BigDecimal.ZERO.compareTo(userMoney.getMoney()) == -1) {
             BigDecimal money = userMoney.getMoney();
+            //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
+            if (platformConfig.getWmMoney() != null && money.compareTo(platformConfig.getWmMoney()) == 1) {
+                money = platformConfig.getWmMoney();
+            }
             String orderNo = orderService.getOrderNo();
             PublicWMApi.ResponseEntity entity = wmApi.changeBalance(third.getAccount(), money, orderNo, lang);
             if (entity.getErrorCode() != 0) {
@@ -125,7 +126,6 @@ public class WMController {
             }
             //钱转入第三方后本地扣减记录账变
             //扣款
-            //TODO 扣款时考虑当前用户余额不能大于平台在三方的余额
             userMoneyService.subMoney(authId, money);
 
             Order order = new Order();
