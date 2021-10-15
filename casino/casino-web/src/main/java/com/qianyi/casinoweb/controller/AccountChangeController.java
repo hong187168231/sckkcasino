@@ -29,7 +29,7 @@ import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 
-@Api(tags = "报表中心")
+@Api(tags = "资金中心")
 @RestController
 @RequestMapping("accountChange")
 public class AccountChangeController {
