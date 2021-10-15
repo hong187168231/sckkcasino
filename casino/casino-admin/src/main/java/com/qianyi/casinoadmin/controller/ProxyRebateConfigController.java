@@ -1,8 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinoadmin.vo.RegisterSwitchVo;
-import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.model.ProxyRebateConfig;
 import com.qianyi.casinocore.service.ProxyRebateConfigService;
 import com.qianyi.modulecommon.reponse.ResponseCode;
