@@ -8,6 +8,7 @@ import com.qianyi.casinoweb.util.InviteCodeUtil;
 import com.qianyi.casinoweb.vo.LoginLogVo;
 import com.qianyi.moduleauthenticator.WangyiDunAuthUtil;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.executor.AsyncService;
@@ -142,31 +143,22 @@ public class AuthController {
     @Transactional
     public ResponseEntity registerCommon(String account, String password, String phone,
                                    HttpServletRequest request, String validate,String inviteCode,String inviteType) {
-
-
-        //验证码校验
-//        boolean captcha = CasinoWebUtil.checkCaptcha(captchaCode, captchaText);
-//        if (!captcha) {
-//            return ResponseUtil.custom("验证码错误");
-//        }
         boolean wangyidun = WangyiDunAuthUtil.verify(validate);
         if (!wangyidun) {
             return ResponseUtil.custom("验证码错误");
         }
-
         //卫语句校验
         boolean checkAccountLength = User.checkAccountLength(account);
         if (!checkAccountLength) {
-            return ResponseUtil.custom("用户名长度6-15位,由字母，数字，下划线组成");
+            return ResponseUtil.custom("用户名"+RegexEnum.ACCOUNT.getDesc());
         }
-
         boolean checkPasswordLength = User.checkPasswordLength(password);
         if (!checkPasswordLength) {
-            return ResponseUtil.custom("密码长度6-15位,由字母，数字，下划线组成");
+            return ResponseUtil.custom("密码"+RegexEnum.PASSWORD.getDesc());
         }
         boolean checkPhone = User.checkPhone(phone);
         if (!checkPhone) {
-            return ResponseUtil.custom("手机号长度6~15位,由+、-、()、数字组成");
+            return ResponseUtil.custom("手机号"+ RegexEnum.PHONE.getDesc());
         }
 
         String ip = IpUtil.getIp(request);
