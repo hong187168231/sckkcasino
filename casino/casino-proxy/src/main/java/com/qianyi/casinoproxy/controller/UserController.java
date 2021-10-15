@@ -11,6 +11,7 @@ import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.UserVo;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -245,7 +246,7 @@ public class UserController {
 
     @ApiOperation("添加用户")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "account", value = "用户名", required = true),
+            @ApiImplicitParam(name = "account", value = "账号", required = true),
             @ApiImplicitParam(name = "name", value = "用户昵称", required = false),
             @ApiImplicitParam(name = "phone", value = "电话号码", required = false),
     })
@@ -253,6 +254,9 @@ public class UserController {
     public ResponseEntity saveUser(String account, String name, String phone){
         if (CasinoProxyUtil.checkNull(account)){
             return ResponseUtil.custom("参数不合法");
+        }
+        if (!account.matches(RegexEnum.ACCOUNT.getRegex())){
+            return ResponseUtil.custom("账号格式错误！");
         }
         User us = userService.findByAccount(account);
         if(us != null){
@@ -268,19 +272,16 @@ public class UserController {
         if(CasinoProxyUtil.checkNull(name)){
             user.setName(account);
         }else{
+            if (!name.matches(RegexEnum.NAME.getRegex())){
+                return ResponseUtil.custom("用户昵称格式错误！");
+            }
             user.setName(name);
         }
 
         user.setState(Constants.open);
 
         if(!CasinoProxyUtil.checkNull(phone)){
-//            if (phone.length() > 11 || phone.length() < 6) {
-//                return ResponseUtil.custom("手机号6至11位");
-//            }
-//            if (!phone.matches(CommonConst.regex)) {
-//                return ResponseUtil.custom("手机号输入数字！");
-//            }
-            if (!phone.matches(Constants.regexPhone)) {
+            if (!phone.matches(RegexEnum.PHONE.getRegex())) {
                 return ResponseUtil.custom("手机号格式错误！");
             }
             user.setPhone(phone);
@@ -338,13 +339,7 @@ public class UserController {
         if(user == null){
             return ResponseUtil.custom("账户不存在");
         }
-//        if (phone.length() > 11 || phone.length() < 6) {
-//            return ResponseUtil.custom("手机号6至11位");
-//        }
-//        if (!phone.matches(CommonConst.regex)) {
-//            return ResponseUtil.custom("手机号输入数字！");
-//        }
-        if (!phone.matches(Constants.regexPhone)) {
+        if (!phone.matches(RegexEnum.PHONE.getRegex())) {
             return ResponseUtil.custom("手机号格式错误！");
         }
         user.setPhone(phone);
