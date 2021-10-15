@@ -262,6 +262,7 @@ public class ProxyUserController {
         }
         ProxyUser proxyUser = new ProxyUser();
         proxyUser.setFirstProxy(byId.getId());
+        proxyUser.setIsDelete(CommonConst.NUMBER_1);
         List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
         if (proxyUserList != null && proxyUserList.size() > CommonConst.NUMBER_1){
             return ResponseUtil.custom("该代理的下级仍未转移");

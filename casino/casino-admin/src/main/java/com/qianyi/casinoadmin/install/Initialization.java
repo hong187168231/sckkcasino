@@ -42,6 +42,7 @@ public class Initialization implements CommandLineRunner {
             platformConfig.setThirdCommission(platformConfigBean.getThirdCommission());
             platformConfig.setDomainNameConfiguration(platformConfigBean.getDomainNameConfiguration());
             platformConfig.setRegisterSwitch(platformConfigBean.getRegisterSwitch());
+            platformConfig.setProxyConfiguration(platformConfigBean.getProxyConfiguration());
             platformConfigService.save(platformConfig);
         }
     }
