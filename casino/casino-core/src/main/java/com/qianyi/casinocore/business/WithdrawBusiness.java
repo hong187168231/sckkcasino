@@ -117,7 +117,10 @@ public class WithdrawBusiness {
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         if (userMoney == null || userMoney.getCodeNum() == null || userMoney.getMoney() == null) {
             return ResponseUtil.custom("用户钱包不存在");
-
+        }
+        Bankcards bankcards = bankcardsService.findById(Long.parseLong(bankId));
+        if (bankcards == null || !bankcards.getUserId().equals(userId)) {
+            return ResponseUtil.custom("银行卡不属于当前用户");
         }
         Integer count = withdrawOrderService.countByUserIdAndStatus(userId,0);
         if (count > 0) {
@@ -153,7 +156,7 @@ public class WithdrawBusiness {
                 return ResponseUtil.custom("提现金额大于单笔最高提现金额,单笔最高提现金额为:" + maxMoney);
             }
         }
-        WithdrawOrder withdrawOrder = getWidrawOrder(money,bankId,userId);
+        WithdrawOrder withdrawOrder = getWidrawOrder(money,bankId,userId,bankcards);
         withdrawOrderService.saveOrder(withdrawOrder);
         log.info("money is {}, draw money is {}",money,userMoney.getMoney());
         userMoneyService.subMoney(userId,money);
@@ -169,7 +172,7 @@ public class WithdrawBusiness {
         return ResponseUtil.success(userMoney);
     }
 
-    private WithdrawOrder getWidrawOrder(BigDecimal money, String bankId, Long userId){
+    private WithdrawOrder getWidrawOrder(BigDecimal money, String bankId, Long userId,Bankcards bankcards){
         WithdrawOrder withdrawOrder = new WithdrawOrder();
         withdrawOrder.setWithdrawMoney(money);
         withdrawOrder.setBankId(bankId);
@@ -177,6 +180,7 @@ public class WithdrawBusiness {
         withdrawOrder.setNo(orderService.getOrderNo());
         withdrawOrder.setStatus(0);
         withdrawOrder.setRemitType(1);
+        withdrawOrder.setBankAccount(bankcards.getBankAccount());
         User user = userService.findById(userId);
         if (user != null) {
             withdrawOrder.setFirstProxy(user.getFirstProxy());

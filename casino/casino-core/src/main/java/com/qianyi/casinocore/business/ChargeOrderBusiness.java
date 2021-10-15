@@ -118,7 +118,7 @@ public class ChargeOrderBusiness {
         //用户账变记录
         this.saveAccountChang(changeEnum,userMoney.getUserId(),subtract,userMoney.getMoney(),chargeOrder.getOrderNo());
         //发送充值消息
-        this.sendMessage(userMoney.getUserId(),isFirst,chargeOrder.getChargeAmount());
+        this.sendMessage(userMoney.getUserId(),isFirst,chargeOrder);
         return ResponseUtil.success();
     }
     private void saveAccountChang(AccountChangeEnum changeEnum, Long userId, BigDecimal amount, BigDecimal amountAfter, String orderNo){
@@ -143,22 +143,23 @@ public class ChargeOrderBusiness {
         return rechargeTurnover;
     }
 
-    private void sendMessage(Long userId,Integer isFirst,BigDecimal chargeAmount){
+    private void sendMessage(Long userId,Integer isFirst,ChargeOrder chargeOrder){
         try {
             User user = userService.findById(userId);
             RechargeRecordVo rechargeRecordVo = new RechargeRecordVo();
             rechargeRecordVo.setUserId(userId);
             rechargeRecordVo.setIsFirst(isFirst);
-            rechargeRecordVo.setChargeAmount(chargeAmount);
+            rechargeRecordVo.setChargeAmount(chargeOrder.getChargeAmount());
+            rechargeRecordVo.setChargeOrderId(chargeOrder.getId());
             rechargeRecordVo.setFirstUserId(user.getFirstPid());
             rechargeRecordVo.setSecondUserId(user.getSecondPid());
             rechargeRecordVo.setThirdUserId(user.getThirdPid());
             rechargeRecordVo.setCreateTime(new Date());
             rabbitTemplate.convertAndSend(RabbitMqConstants.CHARGEORDER_DIRECTQUEUE_DIRECTEXCHANGE,
                     RabbitMqConstants.INGCHARGEORDER_DIRECT,rechargeRecordVo,new CorrelationData(UUID.randomUUID().toString()));
-            log.info("充值发送消息成功 userId {} isFirst{} chargeAmount {}",userId,isFirst,chargeAmount);
+            log.info("充值发送消息成功 userId {} isFirst{} chargeAmount {}",userId,isFirst,chargeOrder.getChargeAmount());
         }catch (Exception ex){
-            log.error("充值发送消息失败 userId {} isFirst{} chargeAmount {} 错误{} ",userId,isFirst,chargeAmount,ex);
+            log.error("充值发送消息失败 userId {} isFirst{} chargeAmount {} 错误{} ",userId,isFirst,chargeOrder.getChargeAmount(),ex);
         }
 
     }
