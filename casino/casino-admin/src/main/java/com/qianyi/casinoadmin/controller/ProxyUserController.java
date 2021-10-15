@@ -8,6 +8,7 @@ import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.PasswordUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.ProxyUserVo;
+import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -121,6 +122,12 @@ public class ProxyUserController {
     public ResponseEntity saveProxyUser(String userName, String nickName){
         if (LoginUtil.checkNull(userName,nickName)){
             return ResponseUtil.custom("参数不合法");
+        }
+        if (!userName.matches(RegexEnum.ACCOUNT.getRegex())){
+            return ResponseUtil.custom("账号格式错误！");
+        }
+        if (!nickName.matches(RegexEnum.NAME.getRegex())){
+            return ResponseUtil.custom("用户昵称格式错误！");
         }
         ProxyUser byUserName = proxyUserService.findByUserName(userName);
         if (!LoginUtil.checkNull(byUserName)){

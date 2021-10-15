@@ -12,6 +12,7 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -252,6 +253,9 @@ public class UserController {
         if (LoginUtil.checkNull(account)){
             return ResponseUtil.custom("参数不合法");
         }
+        if (!account.matches(RegexEnum.ACCOUNT.getRegex())){
+            return ResponseUtil.custom("账号格式错误！");
+        }
         User us = userService.findByAccount(account);
         if(us != null){
             return ResponseUtil.custom("账户已存在");
@@ -262,19 +266,16 @@ public class UserController {
         if(LoginUtil.checkNull(name)){
             user.setName(account);
         }else{
+            if (!name.matches(RegexEnum.NAME.getRegex())){
+                return ResponseUtil.custom("用户昵称格式错误！");
+            }
             user.setName(name);
         }
 
         user.setState(Constants.open);
 
         if(!LoginUtil.checkNull(phone)){
-//            if (phone.length() > 11 || phone.length() < 6) {
-//                return ResponseUtil.custom("手机号6至11位");
-//            }
-//            if (!phone.matches(CommonConst.regex)) {
-//                return ResponseUtil.custom("手机号输入数字！");
-//            }
-            if (!phone.matches(Constants.regexPhone)) {
+            if (!phone.matches(RegexEnum.PHONE.getRegex())) {
                 return ResponseUtil.custom("手机号格式错误！");
             }
             user.setPhone(phone);
@@ -329,13 +330,7 @@ public class UserController {
         if(user == null){
             return ResponseUtil.custom("账户不存在");
         }
-//        if (phone.length() > 11 || phone.length() < 6) {
-//            return ResponseUtil.custom("手机号6至11位");
-//        }
-//        if (!phone.matches(CommonConst.regex)) {
-//            return ResponseUtil.custom("手机号输入数字！");
-//        }
-        if (!phone.matches(Constants.regexPhone)) {
+        if (!phone.matches(RegexEnum.PHONE.getRegex())) {
             return ResponseUtil.custom("手机号格式错误！");
         }
         user.setPhone(phone);
