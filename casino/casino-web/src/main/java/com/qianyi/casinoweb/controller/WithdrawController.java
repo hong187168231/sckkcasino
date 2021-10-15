@@ -1,21 +1,29 @@
 package com.qianyi.casinoweb.controller;
 
 import com.qianyi.casinocore.business.WithdrawBusiness;
+import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
+import com.qianyi.casinocore.service.BankInfoService;
+import com.qianyi.casinocore.service.BankcardsService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
+import com.qianyi.casinoweb.vo.BankcardVo;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -26,14 +34,38 @@ public class WithdrawController {
 
     @Autowired
     private WithdrawBusiness withdrawBusiness;
+    @Autowired
+    private BankcardsService bankcardsService;
+    @Autowired
+    private BankInfoService bankInfoService;
 
     @GetMapping("/banklist")
     @ApiOperation("获取用户已绑定银行卡")
     @ResponseBody
-    public ResponseEntity getWithdrawBank(){
+    public ResponseEntity<List<BankcardVo>> getWithdrawBank() {
         Long userId = CasinoWebUtil.getAuthId();
-        List<Map<String,Object>> bankcardsList = withdrawBusiness.getWithdrawBankcardsList(userId);
-        return ResponseUtil.success(bankcardsList);
+        List<BankcardVo> list = new ArrayList<>();
+        List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(userId);
+        if (CollectionUtils.isEmpty(bankcardsList)) {
+            return ResponseUtil.success(list);
+        }
+        bankcardsList.sort(Comparator.comparing(Bankcards::getCreateTime));
+        BankcardVo vo = null;
+        for (Bankcards bankcards : bankcardsList) {
+            vo = new BankcardVo();
+            BeanUtils.copyProperties(bankcards, vo);
+            BankInfo bankInfo = null;
+            if (!ObjectUtils.isEmpty(bankcards.getBankId())) {
+                vo.setBankId(Long.parseLong(bankcards.getBankId()));
+                bankInfo = bankInfoService.findById(Long.parseLong(bankcards.getBankId()));
+            }
+            if (bankInfo != null) {
+                vo.setBankName(bankInfo.getBankName());
+                vo.setBankLogo(bankInfo.getBankLogo());
+            }
+            list.add(vo);
+        }
+        return ResponseUtil.success(list);
     }
 
     @PostMapping("/submit")

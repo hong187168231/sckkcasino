@@ -16,10 +16,5 @@ public interface BankcardsRepository extends JpaRepository<Bankcards,Long> , Jpa
 
     int countByUserId(Long userId);
 
-    @Query(value = "select b.id,b.bank_id ,b.bank_account ,bi.bank_name,b.real_name,b.default_card,bi.bank_logo from bankcards b \n" +
-            "join bank_info bi on b.bank_id = bi.id\n" +
-            "where b.user_id = ? order by b.create_time asc", nativeQuery = true)
-    List<Map<String,Object>> findForBankcards(Long userId);
-
-    Bankcards findByUserIdAndDefaultCard(Long userId, int defaultCard);
+    List<Bankcards> findByUserId(Long userId);
 }

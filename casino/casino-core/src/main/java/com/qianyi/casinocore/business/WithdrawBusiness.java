@@ -44,10 +44,6 @@ public class WithdrawBusiness {
     @Qualifier("accountChangeJob")
     private AsyncService asyncService;
 
-    public List<Map<String,Object>> getWithdrawBankcardsList(Long userId){
-        return bankcardsService.findForBankcardsByUserId(userId);
-    }
-
     public User getUserById(Long userId){
         return userService.findById(userId);
     }

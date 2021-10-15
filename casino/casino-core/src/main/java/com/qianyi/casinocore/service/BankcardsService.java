@@ -2,12 +2,13 @@ package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.repository.BankcardsRepository;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
@@ -16,19 +17,30 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
+@CacheConfig(cacheNames = {"bankcards"})
+@Transactional
 public class BankcardsService {
 
     @Autowired
     BankcardsRepository bankcardsRepository;
 
+    @Cacheable(key = "'" + Constants.REDIS_USERID + "'+#p0")
     public List<Bankcards> findBankcardsByUserId(Long userId){
         return bankcardsRepository.findBankcardsByUserIdOrderByDefaultCardDesc(userId);
     }
 
+    @Caching(
+            evict = @CacheEvict(key = "'" + Constants.REDIS_USERID + "'+#p0.userId"),
+            put = @CachePut(key="#result.id")
+    )
     public Bankcards boundCard(Bankcards bankcards){
         return bankcardsRepository.save(bankcards);
     }
 
+    @Caching(evict = {
+            @CacheEvict(key = "#p0.id"),
+            @CacheEvict(key = "'" + Constants.REDIS_USERID + "'+#p0.userId")
+    })
     public void delBankcards(Bankcards bankcards){
         bankcardsRepository.delete(bankcards);
     }
@@ -39,10 +51,6 @@ public class BankcardsService {
 
     public int countByUserId(Long userId){
         return bankcardsRepository.countByUserId(userId);
-    }
-
-    public List<Map<String,Object>> findForBankcardsByUserId(Long userId){
-        return bankcardsRepository.findForBankcards(userId);
     }
 
     public List<Bankcards> findAll(List<String> ids){
@@ -115,6 +123,7 @@ public class BankcardsService {
         };
         return specification;
     }
+    @Cacheable(key = "#p0")
     public Bankcards findById(Long id) {
         Optional<Bankcards> optional = bankcardsRepository.findById(id);
         if (optional != null && optional.isPresent()) {
@@ -124,18 +133,11 @@ public class BankcardsService {
         return null;
     }
 
-    @Transactional
-    public void deleteBankCardById(Long id) {
-        bankcardsRepository.deleteById(id);
-    }
-
-    public Bankcards findByUserIdAndDefaultCard(Long userId, int defaultCard) {
-        Bankcards bankcards=bankcardsRepository.findByUserIdAndDefaultCard(userId,defaultCard);
-        return bankcards;
-    }
-
-    @Transactional
-    public void updateBankCards(Bankcards bankcards) {
-        bankcardsRepository.save(bankcards);
+    @Caching(evict = {
+            @CacheEvict(key = "#p0.id"),
+            @CacheEvict(key = "'" + Constants.REDIS_USERID + "'+#p0.userId")
+    })
+    public void delete(Bankcards bankcards) {
+        bankcardsRepository.delete(bankcards);
     }
 }
