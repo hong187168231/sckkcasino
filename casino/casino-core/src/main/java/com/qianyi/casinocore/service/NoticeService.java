@@ -4,6 +4,7 @@ import com.qianyi.casinocore.model.Notice;
 import com.qianyi.casinocore.repository.NoticeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,7 @@ public class NoticeService {
         return noticeRepository.newest();
     }
 
+    @CacheEvict(cacheNames = {"newest"}, allEntries = true)
     public Notice saveNotice(Notice notice){
         return noticeRepository.save(notice);
     }
