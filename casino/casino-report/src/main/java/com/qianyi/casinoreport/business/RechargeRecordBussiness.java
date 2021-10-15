@@ -46,12 +46,18 @@ public class RechargeRecordBussiness {
      */
 
     public void procerssShareProfit(RechargeRecordVo rechargeRecordVo){
-        if(rechargeRecordVo == null || rechargeRecordVo.getUserId() == null || rechargeRecordVo.getFirstUserId() == null){
-            return;
+        try {
+            if(rechargeRecordVo == null || rechargeRecordVo.getUserId() == null || rechargeRecordVo.getFirstUserId() == null){
+                return;
+            }
+            log.info("充值消息对象：{}", rechargeRecordVo);
+            List<RechargeProxyBO> rechargeProxyList = getRechargeProxys(rechargeRecordVo);
+            processList(rechargeProxyList);
+        }catch (Exception e){
+            log.error("recharge error consumer : {}",e);
+            recordFailVo(rechargeRecordVo);
         }
-        log.info("充值消息对象：{}", rechargeRecordVo);
-        List<RechargeProxyBO> rechargeProxyList = getRechargeProxys(rechargeRecordVo);
-        processList(rechargeProxyList);
+
     }
 
     private void recordFailVo(RechargeRecordVo rechargeRecordVo){
