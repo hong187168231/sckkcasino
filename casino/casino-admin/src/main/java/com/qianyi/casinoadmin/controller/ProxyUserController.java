@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -194,6 +196,7 @@ public class ProxyUserController {
             @ApiImplicitParam(name = "id", value = "id", required = true),
     })
     @GetMapping("upgrade")
+    @Transactional
     public ResponseEntity upgrade(Long id){
         if (LoginUtil.checkNull(id)){
             return ResponseUtil.custom("参数不合法");
@@ -213,6 +216,7 @@ public class ProxyUserController {
             proxyUserService.save(proxy);
         });
         byId.setFirstProxy(byId.getId());
+        byId.setProxyRole(CommonConst.NUMBER_1);
         byId.setSecondProxy(null);
         proxyUserService.save(byId);
         return ResponseUtil.success();
@@ -238,11 +242,27 @@ public class ProxyUserController {
         ProxyUser proxyUser = new ProxyUser();
         proxyUser.setFirstProxy(passivity.getId());
         List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
-        proxyUserList.stream().forEach(proxy -> {
+        proxyUserList.stream().filter(PUser -> PUser.getId() != passivityId).forEach(proxy -> {
             proxy.setFirstProxy(byId.getId());
             proxyUserService.save(proxy);
         });
         return ResponseUtil.success();
+    }
+    @ApiOperation("获取下拉框数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "当前列id", required = true),
+    })
+    @GetMapping("findProxyUserList")
+    public ResponseEntity<ProxyUser> findProxyUserList(Long id){
+        if (LoginUtil.checkNull(id)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        ProxyUser proxyUser = new ProxyUser();
+        proxyUser.setProxyRole(CommonConst.NUMBER_1);
+        proxyUser.setIsDelete(CommonConst.NUMBER_1);
+        List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
+        proxyUserList = proxyUserList == null?new ArrayList<>(): proxyUserList.stream().filter(PUser -> PUser.getId() != id).collect(Collectors.toList());
+        return ResponseUtil.success(proxyUserList);
     }
     @ApiOperation("删除")
     @ApiImplicitParams({

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -142,6 +143,7 @@ public class ProxyUserController {
         }
         return ResponseUtil.success(pageResultVO);
     }
+
     @ApiOperation("添加代理")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userName", value = "账号", required = true),
@@ -264,6 +266,9 @@ public class ProxyUserController {
         if (CasinoProxyUtil.checkNull(id,passivityId)){
             return ResponseUtil.custom("参数不合法");
         }
+        if (passivityId == id){
+            return ResponseUtil.custom("参数不合法");
+        }
         ProxyUser passivity = proxyUserService.findById(passivityId);
         ProxyUser byId = proxyUserService.findById(id);
         if (CasinoProxyUtil.checkNull(passivity,byId)){
@@ -275,11 +280,33 @@ public class ProxyUserController {
         ProxyUser proxyUser = new ProxyUser();
         proxyUser.setSecondProxy(passivity.getId());
         List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
-        proxyUserList.stream().forEach(proxy -> {
+        proxyUserList.stream().filter(PUser -> PUser.getId() != passivityId).forEach(proxy -> {
             proxy.setSecondProxy(byId.getId());
             proxyUserService.save(proxy);
         });
         return ResponseUtil.success();
+    }
+    @ApiOperation("获取下拉框数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "当前列id", required = true),
+    })
+    @GetMapping("findProxyUserList")
+    public ResponseEntity<ProxyUser> findProxyUserList(Long id){
+        if (CasinoProxyUtil.checkNull(id)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        Long authId = CasinoProxyUtil.getAuthId();
+        ProxyUser byId = proxyUserService.findById(authId);
+        if (byId.getProxyRole() != CommonConst.NUMBER_1){
+            return ResponseUtil.custom("没有权限");
+        }
+        ProxyUser proxyUser = new ProxyUser();
+        proxyUser.setProxyRole(CommonConst.NUMBER_2);
+        proxyUser.setFirstProxy(byId.getId());
+        proxyUser.setIsDelete(CommonConst.NUMBER_1);
+        List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
+        proxyUserList = proxyUserList == null?new ArrayList<>(): proxyUserList.stream().filter(PUser -> PUser.getId() != id).collect(Collectors.toList());
+        return ResponseUtil.success(proxyUserList);
     }
     @ApiOperation("删除")
     @ApiImplicitParams({
