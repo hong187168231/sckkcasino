@@ -15,6 +15,8 @@ public class RechargeRecordVo  implements Serializable {
     private static final long serialVersionUID = -6898736529250305179L;
     @ApiModelProperty(value = "用户ID")
     private Long userId;
+    @ApiModelProperty(value = "充值订单ID")
+    private Long chargeOrderId;
     @ApiModelProperty("是否首充 0 是 1 不是")
     private Integer isFirst;
     @ApiModelProperty(value = "充值金额")
