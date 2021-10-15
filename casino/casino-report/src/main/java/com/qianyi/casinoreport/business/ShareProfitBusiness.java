@@ -1,4 +1,4 @@
-package com.qianyi.casinocore.business;
+package com.qianyi.casinoreport.business;
 
 import com.qianyi.casinocore.constant.ShareProfitConstant;
 import com.qianyi.casinocore.model.*;
@@ -8,6 +8,7 @@ import com.qianyi.casinocore.vo.ShareProfitMqVo;
 import com.qianyi.casinocore.vo.ShareProfitVo;
 import com.qianyi.casinoreport.business.ProxyDayReportBusiness;
 import com.qianyi.casinoreport.business.ProxyReportBusiness;
+import com.qianyi.casinoreport.util.ReportConstant;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -45,14 +46,36 @@ public class ShareProfitBusiness {
     private ProxyReportBusiness proxyReportBusiness;
 
     @Autowired
+    private ProxyReportService proxyReportService;
+
+    @Autowired
+    private ProxyDayReportService proxyDayReportService;
+
+    @Autowired
     private ShareProfitChangeService shareProfitChangeService;
+
+    @Autowired
+    private ConsumerErrorService consumerErrorService;
 
 
     public void procerssShareProfit(ShareProfitMqVo shareProfitMqVo){
-        PlatformConfig platformConfig = platformConfigService.findFirst();
-        GameRecord record = gameRecordService.findGameRecordById(shareProfitMqVo.getGameRecordId());
-        List<ShareProfitBO> shareProfitBOList = shareProfitOperator(platformConfig,shareProfitMqVo);
-        processShareProfitList(shareProfitBOList,record);
+        try {
+            PlatformConfig platformConfig = platformConfigService.findFirst();
+            GameRecord record = gameRecordService.findGameRecordById(shareProfitMqVo.getGameRecordId());
+            List<ShareProfitBO> shareProfitBOList = shareProfitOperator(platformConfig, shareProfitMqVo);
+            processShareProfitList(shareProfitBOList, record);
+        }catch (Exception e){
+            log.error("share profit error : {}",e);
+            recordFailVo(shareProfitMqVo);
+        }
+    }
+
+    private void recordFailVo(ShareProfitMqVo shareProfitMqVo){
+        ConsumerError consumerError = new ConsumerError();
+        consumerError.setConsumerType(ReportConstant.SHAREPOINT);
+        consumerError.setMainId(shareProfitMqVo.getGameRecordId());
+        consumerError.setRepairStatus(0);
+        consumerErrorService.save(consumerError);
     }
 
     private List<ShareProfitBO> shareProfitOperator(PlatformConfig platformConfig, ShareProfitMqVo shareProfitMqVo) {
@@ -85,27 +108,41 @@ public class ShareProfitBusiness {
         return false;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void processShareProfitList(List<ShareProfitBO> shareProfitBOList,GameRecord record){
-        shareProfitBOList.forEach(item->processItem(item,record));
+        List<ProxyDayReport> proxyDayReportList = new ArrayList<>();
+        List<ProxyReport> proxyReportList = new ArrayList<>();
+        List<UserMoney> userMoneyList = new ArrayList<>();
+        List<ShareProfitChange> shareProfitChangeList = new ArrayList<>();
+
+        shareProfitBOList.forEach(item->processItem(item,record,proxyDayReportList,proxyReportList,userMoneyList,shareProfitChangeList));
+        proxyDayReportService.saveAll(proxyDayReportList);
+        proxyReportService.saveAll(proxyReportList);
+        userMoneyService.saveAll(userMoneyList);
+        shareProfitChangeService.saveAll(shareProfitChangeList);
         updateShareProfitStatus(record);
     }
 
-    public void processItem(ShareProfitBO shareProfitBO,GameRecord record){
+    public void processItem(ShareProfitBO shareProfitBO,GameRecord record,List<ProxyDayReport> proxyDayReportList,List<ProxyReport> proxyReportList,List<UserMoney> userMoneyList,List<ShareProfitChange> shareProfitChangeList){
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(shareProfitBO.getUserId());
         if(userMoney==null)return;
         //明细入库
-        processProfitDetail(shareProfitBO,userMoney,record);
+        ShareProfitChange shareProfitChange = processProfitDetail(shareProfitBO,userMoney,record);
         //进行分润
         userMoney.setShareProfit(userMoney.getShareProfit().add(shareProfitBO.getProfitAmount()));
-        userMoneyService.save(userMoney);
         //进行日报表处理
-        proxyDayReportBusiness.processReport(shareProfitBO);
+        ProxyDayReport proxyDayReport = proxyDayReportBusiness.processReport(shareProfitBO);
         //进行总报表处理
-        proxyReportBusiness.processReport(shareProfitBO);
+        ProxyReport proxyReport = proxyReportBusiness.processReport(shareProfitBO);
+
+        proxyDayReportList.add(proxyDayReport);
+        proxyReportList.add(proxyReport);
+        userMoneyList.add(userMoney);
+        shareProfitChangeList.add(shareProfitChange);
+
     }
 
-    private void processProfitDetail(ShareProfitBO shareProfitBO,UserMoney userMoney,GameRecord record) {
+    private ShareProfitChange processProfitDetail(ShareProfitBO shareProfitBO,UserMoney userMoney,GameRecord record) {
         log.info("gamerecord is {}",record);
         ShareProfitChange shareProfitChange = new ShareProfitChange();
         shareProfitChange.setAmount(shareProfitBO.getProfitAmount());
@@ -114,7 +151,8 @@ public class ShareProfitBusiness {
         shareProfitChange.setAmountBefore(userMoney.getShareProfit());
         shareProfitChange.setAmountAfter(getAfterAmount(shareProfitBO,userMoney));
         shareProfitChange.setType(ShareProfitConstant.SHARE_PROFIT_TYPE);
-        shareProfitChangeService.save(shareProfitChange);
+        return shareProfitChange;
+//        shareProfitChangeService.save(shareProfitChange);
     }
 
     private BigDecimal getAfterAmount(ShareProfitBO shareProfitBO,UserMoney userMoney){
