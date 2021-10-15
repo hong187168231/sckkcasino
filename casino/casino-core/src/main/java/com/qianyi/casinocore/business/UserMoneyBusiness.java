@@ -142,7 +142,8 @@ public class UserMoneyBusiness {
             gameRecordService.save(gameRecord);
             return;
         }
-        BigDecimal rate = config.getRate();
+        //数据库存的10是代表百分之10
+        BigDecimal rate = config.getRate().divide(new BigDecimal(100));//转换百分比
         BigDecimal washCodeVal = validbet.multiply(rate);
         WashCodeChange washCodeChange = new WashCodeChange();
         washCodeChange.setUserId(userId);
