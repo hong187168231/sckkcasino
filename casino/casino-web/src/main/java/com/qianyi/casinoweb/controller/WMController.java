@@ -151,7 +151,7 @@ public class WMController {
         }
         //开游戏
         String model = getModel(gameType);
-        String url = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, model);
+        String url = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, model,1,platformConfig.getDomainNameConfiguration());
         if (CommonUtil.checkNull(url)) {
             log.error("进游戏失败");
             return ResponseUtil.custom("服务器异常,请重新操作");

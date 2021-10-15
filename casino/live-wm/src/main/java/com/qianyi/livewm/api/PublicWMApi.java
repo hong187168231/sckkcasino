@@ -67,7 +67,7 @@ public class PublicWMApi {
     }
 
     //开游戏
-    public String openGame(String user, String password, Integer lang, String voice, Integer ui, String model) {
+    public String openGame(String user, String password, Integer lang, String voice, Integer ui, String model,Integer size,String returnurl) {
         String cmd = "SigninGame";
         Integer timestamp = getTimestamp();
 
@@ -76,7 +76,12 @@ public class PublicWMApi {
         params.put("vendorId", vendorId);
         params.put("signature", signature);
         params.put("user", user);
-        params.put("size", 1);//1:iframe嵌入
+        if (size != null) {
+            params.put("size", size);//1:iframe嵌入
+        }
+        if (!CommonUtil.checkNull(returnurl)) {
+            params.put("returnurl", returnurl);//返回路径
+        }
         params.put("password", password);
         params.put("lang", lang);
         if (!CommonUtil.checkNull(voice)) {
