@@ -11,18 +11,18 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DirectRabbitConfig {
 
-    @Bean
-    public Queue TestDirectQueue(){
-        return new Queue("TestDirectQueueDev",true);
-    }
-    @Bean
-    public DirectExchange TestDirectExchange(){
-        return new DirectExchange("TestDirectExchangeDev",true,false);
-    }
-    @Bean
-    public Binding bindingDirect(){
-        return BindingBuilder.bind(TestDirectQueue()).to(TestDirectExchange()).with("123");
-    }
+//    @Bean
+//    public Queue TestDirectQueue(){
+//        return new Queue("TestDirectQueueDev",true);
+//    }
+//    @Bean
+//    public DirectExchange TestDirectExchange(){
+//        return new DirectExchange("TestDirectExchangeDev",true,false);
+//    }
+//    @Bean
+//    public Binding bindingDirect(){
+//        return BindingBuilder.bind(TestDirectQueue()).to(TestDirectExchange()).with("123");
+//    }
 
     /**
      * 充值消息MQ
