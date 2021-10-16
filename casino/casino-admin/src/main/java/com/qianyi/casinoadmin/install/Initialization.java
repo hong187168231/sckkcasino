@@ -34,9 +34,9 @@ public class Initialization implements CommandLineRunner {
     }
 
     private void runProxyRebateConfig(){
-        ProxyRebateConfig first = proxyRebateConfigService.findFirst();
-        if (LoginUtil.checkNull(first)){
-            first = new ProxyRebateConfig();
+        List<ProxyRebateConfig> all = proxyRebateConfigService.findAll();
+        if (LoginUtil.checkNull(all) || all.size() == CommonConst.NUMBER_0){
+            ProxyRebateConfig first = new ProxyRebateConfig();
             first.setFirstMoney(proxyRebateConfigFile.getFirstMoney());
             first.setFirstProfit(proxyRebateConfigFile.getFirstProfit());
             first.setSecondMoney(proxyRebateConfigFile.getSecondMoney());

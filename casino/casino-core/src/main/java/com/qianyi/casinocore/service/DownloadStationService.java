@@ -52,8 +52,8 @@ public class DownloadStationService {
             @CacheEvict(key = "#p0.terminalType"),
             @CacheEvict(key = "#p0.terminalType+'::'+#p0.isForced")
     })
-    public void save(DownloadStation downloadStation) {
-        downloadStationRepository.save(downloadStation);
+    public DownloadStation save(DownloadStation downloadStation) {
+        return downloadStationRepository.save(downloadStation);
 
     }
 

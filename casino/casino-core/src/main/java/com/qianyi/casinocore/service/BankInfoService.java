@@ -38,8 +38,8 @@ public class BankInfoService {
     }
 
     @CachePut(key="#result.id",condition = "#result != null")
-    public void saveBankInfo(BankInfo bankInfo){
-        bankInfoRepository.save(bankInfo);
+    public BankInfo saveBankInfo(BankInfo bankInfo){
+        return bankInfoRepository.save(bankInfo);
     }
 
     @CacheEvict(key="#id")

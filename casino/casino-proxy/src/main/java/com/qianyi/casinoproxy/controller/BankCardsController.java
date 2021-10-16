@@ -12,6 +12,7 @@ import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.BankcardsVo;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -126,6 +127,9 @@ public class BankCardsController {
         String checkParamFroBound = this.checkParamFroBound(realName, bankId, bankAccount, address);
         if (!CasinoProxyUtil.checkNull(checkParamFroBound)) {
             return ResponseUtil.custom(checkParamFroBound);
+        }
+        if (!realName.matches(RegexEnum.NAME.getRegex())){
+            return ResponseUtil.custom("持卡人姓名格式错误！");
         }
         //判断是否存在该用户
         User user = userService.findById(userId);
