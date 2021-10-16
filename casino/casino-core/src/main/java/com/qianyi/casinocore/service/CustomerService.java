@@ -3,6 +3,9 @@ package com.qianyi.casinocore.service;
 import com.qianyi.casinocore.model.Customer;
 import com.qianyi.casinocore.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -18,14 +21,16 @@ public class CustomerService {
         return customerRepository.findAll();
     }
 
+    @Cacheable(value = "customer")
     public Customer findFirst() {
         List<Customer> all = customerRepository.findAll();
         if (all == null || all.size() == 0) {
             return null;
         }
-
         return all.get(0);
     }
+
+    @CacheEvict(value = "customer")
     public void save(Customer customer){
         customerRepository.save(customer);
     }

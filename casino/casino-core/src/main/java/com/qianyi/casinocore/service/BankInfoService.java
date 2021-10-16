@@ -7,6 +7,10 @@ import java.util.Optional;
 import com.qianyi.casinocore.model.LoginLog;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -17,6 +21,7 @@ import com.qianyi.casinocore.repository.BankInfoRepository;
 import javax.persistence.criteria.*;
 
 @Service
+@CacheConfig(cacheNames = {"bankInfo"})
 public class BankInfoService {
 	
     @Autowired
@@ -32,14 +37,17 @@ public class BankInfoService {
         return bankInfoRepository.findAll(condition,sort);
     }
 
+    @CachePut(key="#result.id",condition = "#result != null")
     public void saveBankInfo(BankInfo bankInfo){
         bankInfoRepository.save(bankInfo);
     }
 
+    @CacheEvict(key="#id")
     public void deleteBankInfo(Long id){
         bankInfoRepository.deleteById(id);
     }
 
+    @Cacheable(key = "#id")
     public BankInfo findById(Long id) {
         Optional<BankInfo> info = bankInfoRepository.findById(id);
         if (info != null && info.isPresent()) {

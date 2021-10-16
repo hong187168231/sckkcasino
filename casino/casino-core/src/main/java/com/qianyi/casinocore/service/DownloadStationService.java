@@ -2,7 +2,12 @@ package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.DownloadStation;
 import com.qianyi.casinocore.repository.DownloadStationRepository;
+import com.qianyi.modulecommon.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -12,6 +17,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
+@CacheConfig(cacheNames = {"downloadStation"})
 public class DownloadStationService {
 
     @Autowired
@@ -22,6 +28,7 @@ public class DownloadStationService {
      * @param terminalType
      * @return
      */
+    @Cacheable(key = "#terminalType")
     public DownloadStation getNewestVersion(Integer terminalType) {
         return downloadStationRepository.findFirstByTerminalTypeOrderByCreateTimeDesc(terminalType);
     }
@@ -32,6 +39,7 @@ public class DownloadStationService {
      * @param isForced
      * @return
      */
+    @Cacheable(key = "#terminalType+'::'+#isForced")
     public DownloadStation getForcedNewestVersion(Integer terminalType,Integer isForced) {
         return downloadStationRepository.findFirstByTerminalTypeAndIsForcedOrderByCreateTimeDesc(terminalType,isForced);
     }
@@ -40,11 +48,16 @@ public class DownloadStationService {
         return downloadStationRepository.findAll(pageable);
     }
 
+    @Caching(evict = {
+            @CacheEvict(key = "#p0.terminalType"),
+            @CacheEvict(key = "#p0.terminalType+'::'+#p0.isForced")
+    })
     public void save(DownloadStation downloadStation) {
         downloadStationRepository.save(downloadStation);
 
     }
 
+    @Cacheable(key = "#id")
     public DownloadStation findById(Long id) {
         Optional<DownloadStation> optional = downloadStationRepository.findById(id);
         if (optional.isPresent()) {

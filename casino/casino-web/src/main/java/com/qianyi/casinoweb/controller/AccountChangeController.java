@@ -36,7 +36,7 @@ public class AccountChangeController {
     @Autowired
     private AccountChangeService accountChangeService;
 
-    @ApiOperation("分页查询用户账变")
+    @ApiOperation("用户资金详情")
     @GetMapping("/accountChangeList")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
