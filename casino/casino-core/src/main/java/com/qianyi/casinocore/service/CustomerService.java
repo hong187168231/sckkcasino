@@ -30,7 +30,7 @@ public class CustomerService {
         return all.get(0);
     }
 
-    @CacheEvict(value = "customer")
+    @CacheEvict(value = "customer", allEntries = true)
     public Customer save(Customer customer){
         return customerRepository.save(customer);
     }

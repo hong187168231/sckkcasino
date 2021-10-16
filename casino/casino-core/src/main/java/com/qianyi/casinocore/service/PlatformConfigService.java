@@ -20,7 +20,7 @@ public class PlatformConfigService {
         return platformConfigRepository.findAll();
     }
 
-    @Cacheable(value = "platformConfig")
+    @Cacheable(cacheNames = "platformConfig")
     public PlatformConfig findFirst() {
         List<PlatformConfig> configList = platformConfigRepository.findAll();
         if (!CollectionUtils.isEmpty(configList)) {
@@ -29,7 +29,7 @@ public class PlatformConfigService {
         return null;
     }
 
-    @CacheEvict(value = "platformConfig")
+    @CacheEvict(cacheNames = "platformConfig", allEntries = true)
     public void save(PlatformConfig platformConfig) {
         platformConfigRepository.save(platformConfig);
     }
