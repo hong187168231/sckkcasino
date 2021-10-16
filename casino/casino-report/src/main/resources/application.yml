@@ -27,7 +27,7 @@ spring:
       maximum-pool-size: 16
       connection-test-query: select 1
   rabbitmq:
-    host: 154.204.57.237 #ip
+    host: 127.0.0.1 #ip
     port: 5672      #端口
     username: qd #账号
     password: qd123 #密码
