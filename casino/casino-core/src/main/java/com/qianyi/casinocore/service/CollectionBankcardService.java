@@ -58,8 +58,8 @@ public class CollectionBankcardService {
             evict = @CacheEvict(key = "'disable::'+#p0.disable"),
             put = @CachePut(key="#result.id")
     )
-    public void save(CollectionBankcard bankcard) {
-        collectionBankCardRepository.save(bankcard);
+    public CollectionBankcard save(CollectionBankcard bankcard) {
+        return collectionBankCardRepository.save(bankcard);
     }
 
     @Cacheable(key="#p0")
