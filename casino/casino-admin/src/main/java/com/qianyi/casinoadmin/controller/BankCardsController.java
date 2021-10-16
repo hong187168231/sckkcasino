@@ -12,6 +12,7 @@ import com.qianyi.casinocore.service.BankcardsDelService;
 import com.qianyi.casinocore.service.BankcardsService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -71,7 +72,7 @@ public class BankCardsController {
     public ResponseEntity saveBankInfo(@RequestPart(value = "bankLogo银行图标",required=false) MultipartFile file, @RequestParam(value = "银行名称") String bankName,
                                        @RequestParam(value = "备注",required=false)String remark){
         if (LoginUtil.checkNull(bankName)){
-            ResponseUtil.custom("参数不合法");
+            return ResponseUtil.custom("参数不合法");
         }
         BankInfo bankInfo = new BankInfo();
         bankInfo.setBankType(CommonConst.NUMBER_0);//默认银行卡
@@ -91,11 +92,11 @@ public class BankCardsController {
                                          @RequestParam(value = "银行名称") String bankName,@RequestParam(value = "备注",required=false)String remark,
                                          @RequestParam(value = "银行id")  Long id){
         if (LoginUtil.checkNull(id)){
-            ResponseUtil.custom("参数不合法");
+            return ResponseUtil.custom("参数不合法");
         }
         BankInfo bankInfo = bankInfoService.findById(id);
         if (LoginUtil.checkNull(bankInfo)){
-            ResponseUtil.custom("没有这个银行");
+            return ResponseUtil.custom("没有这个银行");
         }
         return this.saveAndUpdate(file,bankName,remark,bankInfo);
 
@@ -127,11 +128,11 @@ public class BankCardsController {
     @PostMapping("updateBankStatus")
     public ResponseEntity updateBankStatus(Long id){
         if (LoginUtil.checkNull(id)){
-            ResponseUtil.custom("参数不合法");
+            return ResponseUtil.custom("参数不合法");
         }
         BankInfo bankInfo = bankInfoService.findById(id);
         if (LoginUtil.checkNull(bankInfo)){
-            ResponseUtil.custom("没有这个银行");
+            return ResponseUtil.custom("没有这个银行");
         }
         if (bankInfo.getDisable() == CommonConst.NUMBER_1){
             bankInfo.setDisable(CommonConst.NUMBER_0);
@@ -152,6 +153,10 @@ public class BankCardsController {
             @ApiImplicitParam(name = "id", value = "银行id", required = true),
     })
     public ResponseEntity deleteBankInfo(Long id) {
+        BankInfo bankInfo = bankInfoService.findById(id);
+        if (LoginUtil.checkNull(bankInfo)){
+            return ResponseUtil.custom("没有这个银行");
+        }
         bankInfoService.deleteBankInfo(id);
         return ResponseUtil.success();
     }
@@ -225,6 +230,9 @@ public class BankCardsController {
         String checkParamFroBound = this.checkParamFroBound(realName, bankId, bankAccount, address);
         if (!LoginUtil.checkNull(checkParamFroBound)) {
             return ResponseUtil.custom(checkParamFroBound);
+        }
+        if (!realName.matches(RegexEnum.NAME.getRegex())){
+            return ResponseUtil.custom("持卡人姓名格式错误！");
         }
         //判断是否存在该用户
         User user = userService.findById(userId);
