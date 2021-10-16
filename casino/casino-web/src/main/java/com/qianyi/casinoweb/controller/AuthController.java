@@ -80,7 +80,7 @@ public class AuthController {
     @NoAuthentication
     @Transactional
     //1分钟3次
-    @RequestLimit(limit = 3, timeout = 60)
+//    @RequestLimit(limit = 3, timeout = 60)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "account", value = "帐号", required = true),
             @ApiImplicitParam(name = "password", value = "密码", required = true),
@@ -107,7 +107,7 @@ public class AuthController {
     @NoAuthentication
     @Transactional
     //1分钟3次
-    @RequestLimit(limit = 3, timeout = 60)
+//    @RequestLimit(limit = 3, timeout = 60)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "account", value = "帐号", required = true),
             @ApiImplicitParam(name = "password", value = "密码", required = true),
