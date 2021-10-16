@@ -21,7 +21,7 @@ public class CustomerService {
         return customerRepository.findAll();
     }
 
-    @Cacheable(value = "customer")
+    @Cacheable(cacheNames = "customer")
     public Customer findFirst() {
         List<Customer> all = customerRepository.findAll();
         if (all == null || all.size() == 0) {
@@ -30,7 +30,7 @@ public class CustomerService {
         return all.get(0);
     }
 
-    @CacheEvict(value = "customer", allEntries = true)
+    @CacheEvict(cacheNames = "customer", allEntries = true)
     public Customer save(Customer customer){
         return customerRepository.save(customer);
     }

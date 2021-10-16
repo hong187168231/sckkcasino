@@ -19,7 +19,7 @@ public class ProxyRebateConfigService {
         return configRepository.findAll();
     }
 
-    @Cacheable(value = "proxyRebateConfig")
+    @Cacheable(cacheNames = "proxyRebateConfig")
     public ProxyRebateConfig findFirst() {
         List<ProxyRebateConfig> configList = configRepository.findAll();
         if (!CollectionUtils.isEmpty(configList)) {
@@ -27,7 +27,7 @@ public class ProxyRebateConfigService {
         }
         return null;
     }
-    @CacheEvict(value = "proxyRebateConfig")
+    @CacheEvict(cacheNames = "proxyRebateConfig", allEntries = true)
     public ProxyRebateConfig save(ProxyRebateConfig proxyRebateConfig) {
         return configRepository.save(proxyRebateConfig);
     }
