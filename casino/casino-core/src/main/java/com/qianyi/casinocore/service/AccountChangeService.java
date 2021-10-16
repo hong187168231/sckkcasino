@@ -2,7 +2,6 @@ package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.AccountChange;
 import com.qianyi.casinocore.repository.AccountChangeRepository;
-import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -65,5 +64,10 @@ public class AccountChangeService {
             }
         };
         return specification;
+    }
+
+    public Page<AccountChange> findAccountChange(Specification<AccountChange> condition, Pageable pageable) {
+        Page<AccountChange> all = accountChangeRepository.findAll(condition, pageable);
+        return all;
     }
 }

@@ -2,6 +2,7 @@ package com.qianyi.casinocore.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.RegexEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -110,17 +111,9 @@ public class User extends BaseEntity implements UserDetails {
         if (account == null) {
             return false;
         }
-
-        int length = account.length();
-        if (length < 6 || length > 15) {
+        if (!account.matches(RegexEnum.ACCOUNT.getRegex())) {
             return false;
         }
-
-        String regExp = "^[\\w]{6,15}$";
-        if (!account.matches(regExp)) {
-            return false;
-        }
-
         return true;
     }
 
@@ -128,17 +121,9 @@ public class User extends BaseEntity implements UserDetails {
         if (password == null) {
             return false;
         }
-
-        int length = password.length();
-        if (length < 6 || length > 15) {
+        if (!password.matches(RegexEnum.ACCOUNT.getRegex())) {
             return false;
         }
-
-        String regExp = "^[\\w]{6,15}$";
-        if (!password.matches(regExp)) {
-            return false;
-        }
-
         return true;
     }
 
@@ -146,8 +131,7 @@ public class User extends BaseEntity implements UserDetails {
         if(ObjectUtils.isEmpty(phone)){
             return false;
         }
-//        String phoneRegex = "^[0-9 ()+-]{6,15}+$";
-        if (!phone.matches(Constants.regexPhone)) {
+        if (!phone.matches(RegexEnum.PHONE.getRegex())) {
             return false;
         }
         return true;

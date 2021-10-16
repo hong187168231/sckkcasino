@@ -104,6 +104,9 @@ public class ProxyUser extends BaseEntity {
         if (Constants.open != proxyUser.getUserFlag()) {
             return false;
         }
+        if (Constants.open != proxyUser.getIsDelete()) {
+            return false;
+        }
         return true;
     }
 

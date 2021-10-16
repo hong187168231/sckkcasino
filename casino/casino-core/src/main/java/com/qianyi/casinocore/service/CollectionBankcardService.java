@@ -4,8 +4,10 @@ import com.qianyi.casinocore.model.CollectionBankcard;
 import com.qianyi.casinocore.model.LoginLog;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.repository.CollectionBankCardRepository;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@CacheConfig(cacheNames = {"collectionBankcard"})
 public class CollectionBankcardService {
 
     @Autowired
@@ -30,6 +33,11 @@ public class CollectionBankcardService {
         Specification<CollectionBankcard> condition = this.getCondition(ids);
         return collectionBankCardRepository.findAll(condition);
     }
+
+    @Caching(evict = {
+            @CacheEvict(key = "#p0.id"),
+            @CacheEvict(key = "'disable::'+#p0.disable")
+    })
     public void delete(CollectionBankcard collectionBankcard){
         collectionBankCardRepository.delete(collectionBankcard);
     }
@@ -46,10 +54,15 @@ public class CollectionBankcardService {
         return collectionBankCardRepository.findByBankNo(bankNo);
     }
 
-    public void save(CollectionBankcard bankcard) {
-        collectionBankCardRepository.save(bankcard);
+    @Caching(
+            evict = @CacheEvict(key = "'disable::'+#p0.disable"),
+            put = @CachePut(key="#result.id")
+    )
+    public CollectionBankcard save(CollectionBankcard bankcard) {
+        return collectionBankCardRepository.save(bankcard);
     }
 
+    @Cacheable(key="#p0")
     public CollectionBankcard findById(Long id) {
         Optional<CollectionBankcard> optional = collectionBankCardRepository.findById(id);
         if (optional.isPresent()) {
@@ -62,6 +75,7 @@ public class CollectionBankcardService {
         return collectionBankCardRepository.findAll();
     }
 
+    @Cacheable(key="'disable::' + #p0")
     public List<CollectionBankcard> findByDisable(Integer disable){
         return collectionBankCardRepository.findByDisable(disable);
     }

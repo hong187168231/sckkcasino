@@ -3,6 +3,7 @@ package com.qianyi.casinoadmin.controller;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.Customer;
 import com.qianyi.casinocore.service.CustomerService;
+import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -74,6 +75,9 @@ public class CustomerController {
             customer.setMeiqia(meiqia);
         }
         if (!CommonUtil.checkNull(telephone)){
+            if (!telephone.matches(RegexEnum.PHONE.getRegex())) {
+                return ResponseUtil.custom("手机号格式错误！");
+            }
             customer.setTelephone(telephone);
         }
         customerService.save(customer);

@@ -12,6 +12,7 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -69,6 +70,9 @@ public class UserController {
 
     @Autowired
     private LoginLogService loginLogService;
+
+    @Autowired
+    private ProxyUserService proxyUserService;
 
     @ApiOperation("查询代理下级的用户数据")
     @ApiImplicitParams({
@@ -161,6 +165,10 @@ public class UserController {
             List<UserMoney> userMoneyList =  userMoneyService.findAll(userIds);
             List<Long> firstPids = userList.stream().map(User::getFirstPid).collect(Collectors.toList());
             List<User> firstPidUsers = userService.findAll(firstPids);
+            List<Long> thirdProxys = userList.stream().map(User::getThirdProxy).collect(Collectors.toList());
+            List<Long> firstProxys = userList.stream().map(User::getFirstProxy).collect(Collectors.toList());
+            thirdProxys.addAll(firstProxys);
+            List<ProxyUser> proxyUsers = proxyUserService.findProxyUser(thirdProxys);
             if(userMoneyList != null){
                 userList.stream().forEach(u -> {
                     UserVo userVo = new UserVo(u);
@@ -174,6 +182,14 @@ public class UserController {
                     firstPidUsers.stream().forEach(firstPid -> {
                         if(firstPid.getId().equals(u.getFirstPid() == null ? "":u.getFirstPid())){
                             userVo.setFirstPidAccount(firstPid.getAccount());
+                        }
+                    });
+                    proxyUsers.stream().forEach(proxyUser -> {
+                        if(proxyUser.getId().equals(u.getThirdProxy() == null ? "":u.getThirdProxy())){
+                            userVo.setThirdProxyAccount(proxyUser.getUserName());
+                        }
+                        if(proxyUser.getId().equals(u.getFirstProxy() == null ? "":u.getFirstProxy())){
+                            userVo.setFirstProxyAccount(proxyUser.getUserName());
                         }
                     });
                     userVoList.add(userVo);
@@ -252,6 +268,9 @@ public class UserController {
         if (LoginUtil.checkNull(account)){
             return ResponseUtil.custom("参数不合法");
         }
+        if (!account.matches(RegexEnum.ACCOUNT.getRegex())){
+            return ResponseUtil.custom("账号格式错误！");
+        }
         User us = userService.findByAccount(account);
         if(us != null){
             return ResponseUtil.custom("账户已存在");
@@ -262,19 +281,16 @@ public class UserController {
         if(LoginUtil.checkNull(name)){
             user.setName(account);
         }else{
+            if (!name.matches(RegexEnum.NAME.getRegex())){
+                return ResponseUtil.custom("用户昵称格式错误！");
+            }
             user.setName(name);
         }
 
         user.setState(Constants.open);
 
         if(!LoginUtil.checkNull(phone)){
-//            if (phone.length() > 11 || phone.length() < 6) {
-//                return ResponseUtil.custom("手机号6至11位");
-//            }
-//            if (!phone.matches(CommonConst.regex)) {
-//                return ResponseUtil.custom("手机号输入数字！");
-//            }
-            if (!phone.matches(Constants.regexPhone)) {
+            if (!phone.matches(RegexEnum.PHONE.getRegex())) {
                 return ResponseUtil.custom("手机号格式错误！");
             }
             user.setPhone(phone);
@@ -329,13 +345,7 @@ public class UserController {
         if(user == null){
             return ResponseUtil.custom("账户不存在");
         }
-//        if (phone.length() > 11 || phone.length() < 6) {
-//            return ResponseUtil.custom("手机号6至11位");
-//        }
-//        if (!phone.matches(CommonConst.regex)) {
-//            return ResponseUtil.custom("手机号输入数字！");
-//        }
-        if (!phone.matches(Constants.regexPhone)) {
+        if (!phone.matches(RegexEnum.PHONE.getRegex())) {
             return ResponseUtil.custom("手机号格式错误！");
         }
         user.setPhone(phone);
@@ -603,6 +613,11 @@ public class UserController {
             return ResponseUtil.success(agency);
         }
         agency = second.getAccount() + " — "  + agency;
+        User third = userService.findById(user.getThirdPid() == null ? 0L:user.getThirdPid());
+        if (LoginUtil.checkNull(third)){
+            return ResponseUtil.success(agency);
+        }
+        agency = third.getAccount() + " — "  + agency;
         return ResponseUtil.success(agency);
     }
 }

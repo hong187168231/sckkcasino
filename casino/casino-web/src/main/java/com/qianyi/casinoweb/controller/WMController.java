@@ -10,7 +10,6 @@ import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.executor.AsyncService;
-import com.qianyi.modulecommon.util.DateUtil;
 import com.qianyi.modulecommon.util.IpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
@@ -79,10 +77,6 @@ public class WMController {
         if (userMoney == null || userMoney.getMoney() == null) {
             return ResponseUtil.custom("用户钱包不存在");
         }
-        PlatformConfig platformConfig = platformConfigService.findFirst();
-        if(userMoney.getMoney().compareTo(platformConfig.getWmMoney()) == 1){
-            return ResponseUtil.custom("平台余额不足，请联系客服");
-        }
         UserThird third = userThirdService.findByUserId(authId);
         //未注册自动注册到第三方
         if (third == null || third.getUserId() == null) {
@@ -116,8 +110,13 @@ public class WMController {
         if (lang == null) {
             lang = 0;
         }
+        PlatformConfig platformConfig = platformConfigService.findFirst();
         if (BigDecimal.ZERO.compareTo(userMoney.getMoney()) == -1) {
             BigDecimal money = userMoney.getMoney();
+            //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
+            if (platformConfig.getWmMoney() != null && money.compareTo(platformConfig.getWmMoney()) == 1) {
+                money = platformConfig.getWmMoney();
+            }
             String orderNo = orderService.getOrderNo();
             PublicWMApi.ResponseEntity entity = wmApi.changeBalance(third.getAccount(), money, orderNo, lang);
             if (entity.getErrorCode() != 0) {
@@ -125,7 +124,6 @@ public class WMController {
             }
             //钱转入第三方后本地扣减记录账变
             //扣款
-            //TODO 扣款时考虑当前用户余额不能大于平台在三方的余额
             userMoneyService.subMoney(authId, money);
 
             Order order = new Order();
@@ -150,8 +148,8 @@ public class WMController {
             asyncService.executeAsync(vo);
         }
         //开游戏
-        String model = getModel(gameType);
-        String url = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, model);
+        String mode = getMode(gameType);
+        String url = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, mode,1,platformConfig.getDomainNameConfiguration());
         if (CommonUtil.checkNull(url)) {
             log.error("进游戏失败");
             return ResponseUtil.custom("服务器异常,请重新操作");
@@ -159,7 +157,7 @@ public class WMController {
         return ResponseUtil.success(url);
     }
 
-    private String getModel(Integer gameType) {
+    private String getMode(Integer gameType) {
         if (gameType == null) {
             return null;
         }

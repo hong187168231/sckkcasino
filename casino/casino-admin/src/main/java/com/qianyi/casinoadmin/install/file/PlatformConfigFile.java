@@ -1,6 +1,5 @@
-package com.qianyi.casinoadmin.install;
+package com.qianyi.casinoadmin.install.file;
 
-import com.qianyi.casinocore.model.PlatformConfig;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +11,7 @@ import java.math.BigDecimal;
 @ConfigurationProperties(prefix = "platform")
 @PropertySource("classpath:install/platformConfig.properties")
 @Data
-public class PlatformConfigBean {
+public class PlatformConfigFile {
     private BigDecimal clearCodeNum;
     private BigDecimal betRate;
     private BigDecimal chargeMinMoney;

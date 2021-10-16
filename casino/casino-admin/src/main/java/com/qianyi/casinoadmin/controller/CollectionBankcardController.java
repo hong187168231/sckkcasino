@@ -9,6 +9,7 @@ import com.qianyi.casinocore.model.CollectionBankcard;
 import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.CollectionBankcardService;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -99,8 +100,8 @@ public class CollectionBankcardController {
         if (bankNo.length() > 20 || bankNo.length() < 12 || !bankNo.matches(Constants.regex)) {
             return ResponseUtil.custom("长度只能在12~20位的数字！");
         }
-        if (accountName.length() > 15) {
-            return ResponseUtil.custom("姓名不能超过15位！");
+        if (!accountName.matches(RegexEnum.NAME.getRegex())){
+            return ResponseUtil.custom("持卡人姓名格式错误！");
         }
         if (!LoginUtil.checkNull(byBankNo) && byBankNo.size() > CommonConst.NUMBER_0){
             return ResponseUtil.custom("银行卡已存在");
@@ -160,6 +161,9 @@ public class CollectionBankcardController {
             collectionBankcard.setBankId(bankId);
         }
         if(!LoginUtil.checkNull(accountName)){
+            if (!accountName.matches(RegexEnum.NAME.getRegex())){
+                return ResponseUtil.custom("持卡人姓名格式错误！");
+            }
             collectionBankcard.setAccountName(accountName);
         }
 //        if(!LoginUtil.checkNull(grade)){

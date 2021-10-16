@@ -101,14 +101,14 @@ public class BankCardsController {
         if (!authId.equals(bankcards.getUserId())) {
             return ResponseUtil.custom("当前银行卡不属于登录用户");
         }
-        bankcardsService.deleteBankCardById(id);
+        bankcardsService.delete(bankcards);
         //如果删除的是默认银行卡,重新再设置一张卡为默认卡
         if (!ObjectUtils.isEmpty(bankcards.getDefaultCard()) && bankcards.getDefaultCard() == 1) {
             List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(authId);
             if (!CollectionUtils.isEmpty(bankcardsList)) {
                 Bankcards bankcards1 = bankcardsList.get(0);
                 bankcards1.setDefaultCard(1);
-                bankcardsService.updateBankCards(bankcards1);
+                bankcardsService.boundCard(bankcards1);
             }
         }
         return ResponseUtil.success();
@@ -136,17 +136,30 @@ public class BankCardsController {
         if (!authId.equals(bankcards.getUserId())) {
             return ResponseUtil.custom("当前银行卡不属于登录用户");
         }
-        Bankcards defaultBankcards = bankcardsService.findByUserIdAndDefaultCard(authId, 1);
+        Bankcards defaultBankcards = findDefaultCardByUserId(authId);
         if (defaultBankcards != null) {
             if (defaultBankcards.getId().equals(bankcards.getId())) {
                 return ResponseUtil.success();
             }
             defaultBankcards.setDefaultCard(0);
-            bankcardsService.updateBankCards(defaultBankcards);
+            bankcardsService.boundCard(defaultBankcards);
         }
         bankcards.setDefaultCard(1);
-        bankcardsService.updateBankCards(bankcards);
+        bankcardsService.boundCard(bankcards);
         return ResponseUtil.success();
+    }
+
+    private Bankcards findDefaultCardByUserId(Long userId) {
+        List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(userId);
+        if (CollectionUtils.isEmpty(bankcardsList)) {
+            return null;
+        }
+        for (Bankcards bankcards : bankcardsList) {
+            if (bankcards.getDefaultCard() != null && bankcards.getDefaultCard() == 1) {
+                return bankcards;
+            }
+        }
+        return null;
     }
 
     private boolean isGreatThan6(){
@@ -187,8 +200,4 @@ public class BankCardsController {
     private Integer isFirstCard(Bankcards bankcards){
         return bankcards==null?1:0;
     }
-
-
-
-
 }

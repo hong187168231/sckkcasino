@@ -1,8 +1,5 @@
-package com.qianyi.casinoadmin.controller;
+package com.qianyi.casinoproxy.controller;
 
-import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.vo.BankcardsVo;
 import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.model.BankcardsDel;
@@ -11,20 +8,19 @@ import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.BankcardsDelService;
 import com.qianyi.casinocore.service.BankcardsService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.vo.BankcardsVo;
+import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
-import com.qianyi.modulecommon.util.CommonUtil;
-import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.util.LinkedList;
@@ -61,105 +57,6 @@ public class BankCardsController {
         bankInfo.setDisable(disable);
         return ResponseUtil.success(bankInfoService.findAll(bankInfo));
     }
-    /**
-     * 新增银行
-     * @param bankName 银行名称
-     * @param remark 备注
-     * @return
-     */
-    @ApiOperation("新增银行")
-    @PostMapping(value = "/saveBankInfo",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增银行")
-    public ResponseEntity saveBankInfo(@RequestPart(value = "bankLogo银行图标",required=false) MultipartFile file, @RequestParam(value = "银行名称") String bankName,
-                                       @RequestParam(value = "备注",required=false)String remark){
-        if (LoginUtil.checkNull(bankName)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        BankInfo bankInfo = new BankInfo();
-        bankInfo.setBankType(CommonConst.NUMBER_0);//默认银行卡
-        bankInfo.setDisable(CommonConst.NUMBER_0);//默认禁用
-        return this.saveAndUpdate(file,bankName,remark,bankInfo);
-    }
-    /**
-     * 修改银行信息
-     * @param bankName 银行名称
-     * @param remark 备注
-     * @param id 银行id
-     * @return
-     */
-    @ApiOperation("修改银行")
-    @PostMapping(value = "/updateBankInfo",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "修改银行")
-    public ResponseEntity updateBankInfo(@RequestPart(value = "bankLogo银行图标",required=false) MultipartFile file,
-                                         @RequestParam(value = "银行名称") String bankName,@RequestParam(value = "备注",required=false)String remark,
-                                         @RequestParam(value = "银行id")  Long id){
-        if (LoginUtil.checkNull(id)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        BankInfo bankInfo = bankInfoService.findById(id);
-        if (LoginUtil.checkNull(bankInfo)){
-            return ResponseUtil.custom("没有这个银行");
-        }
-        return this.saveAndUpdate(file,bankName,remark,bankInfo);
-
-    }
-    private ResponseEntity saveAndUpdate(MultipartFile file,String bankName,String remark,BankInfo bankInfo){
-        bankInfo.setBankName(bankName);
-        bankInfo.setRemark(remark);
-        try {
-            String fileUrl = null;
-            if (file != null){
-                fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
-            }
-            bankInfo.setBankLogo(fileUrl);
-        } catch (Exception e) {
-            return ResponseUtil.custom(CommonConst.PICTURENOTUP);
-        }
-        try {
-            bankInfoService.saveBankInfo(bankInfo);
-        }catch (Exception e){
-            return ResponseUtil.custom("重复银行名称");
-        }
-        return ResponseUtil.success();
-    }
-
-    @ApiOperation("修改银行状态")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "银行id", required = true),
-    })
-    @PostMapping("updateBankStatus")
-    public ResponseEntity updateBankStatus(Long id){
-        if (LoginUtil.checkNull(id)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        BankInfo bankInfo = bankInfoService.findById(id);
-        if (LoginUtil.checkNull(bankInfo)){
-            return ResponseUtil.custom("没有这个银行");
-        }
-        if (bankInfo.getDisable() == CommonConst.NUMBER_1){
-            bankInfo.setDisable(CommonConst.NUMBER_0);
-        }else{
-            bankInfo.setDisable(CommonConst.NUMBER_1);
-        }
-        bankInfoService.saveBankInfo(bankInfo);
-        return ResponseUtil.success();
-    }
-    /**
-     * 删除银行信息
-     * @param id 银行id
-     * @return
-     */
-    @GetMapping("/deleteBankInfo")
-    @ApiOperation("删除银行")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "银行id", required = true),
-    })
-    public ResponseEntity deleteBankInfo(Long id) {
-        BankInfo bankInfo = bankInfoService.findById(id);
-        if (LoginUtil.checkNull(bankInfo)){
-            return ResponseUtil.custom("没有这个银行");
-        }
-        bankInfoService.deleteBankInfo(id);
-        return ResponseUtil.success();
-    }
     @GetMapping("/boundList")
     @ApiOperation("用户已绑定银行卡列表")
     @ApiImplicitParams({
@@ -168,14 +65,14 @@ public class BankCardsController {
     public ResponseEntity<BankcardsVo> boundList(Long userId) {
         List<BankcardsVo> bankcardsVoList = new LinkedList<>();
         List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(userId);
-        if (!LoginUtil.checkNull(bankcardsList) && bankcardsList.size() > CommonConst.NUMBER_0){
+        if (!CasinoProxyUtil.checkNull(bankcardsList) && bankcardsList.size() > CommonConst.NUMBER_0){
             for (Bankcards bankcards:bankcardsList){
                 BankcardsVo vo = new BankcardsVo(bankcards);
                 bankcardsVoList.add(vo);
             }
         }
         List<BankcardsDel> byUserId = bankcardsDelService.findByUserId(userId);
-        if (!LoginUtil.checkNull(byUserId) && byUserId.size() > CommonConst.NUMBER_0){
+        if (!CasinoProxyUtil.checkNull(byUserId) && byUserId.size() > CommonConst.NUMBER_0){
             for (BankcardsDel bankcards:byUserId){
                 BankcardsVo vo = new BankcardsVo(bankcards);
                 bankcardsVoList.add(vo);
@@ -198,7 +95,7 @@ public class BankCardsController {
             @ApiImplicitParam(name = "realName", value = "开户名", required = false),
     })
     public ResponseEntity peggBankCard(String bankAccount, String realName){
-        if(LoginUtil.checkNull(bankAccount, realName)){
+        if(CasinoProxyUtil.checkNull(bankAccount, realName)){
             return ResponseUtil.parameterNotNull();
         }
         Bankcards bankcards = new Bankcards();
@@ -228,7 +125,7 @@ public class BankCardsController {
             @ApiImplicitParam(name = "realName", value = "持卡人姓名",required = true)})
     public ResponseEntity bound(Long userId, String bankId, String bankAccount, String address, String realName){
         String checkParamFroBound = this.checkParamFroBound(realName, bankId, bankAccount, address);
-        if (!LoginUtil.checkNull(checkParamFroBound)) {
+        if (!CasinoProxyUtil.checkNull(checkParamFroBound)) {
             return ResponseUtil.custom(checkParamFroBound);
         }
         if (!realName.matches(RegexEnum.NAME.getRegex())){
@@ -240,7 +137,7 @@ public class BankCardsController {
             return ResponseUtil.custom("不存在该会员");
         }
         //判断用户输入的姓名是否一致
-        if (LoginUtil.checkNull(user.getRealName())){
+        if (CasinoProxyUtil.checkNull(user.getRealName())){
             user.setRealName(realName);
             userService.save(user);
         }else {
@@ -265,16 +162,16 @@ public class BankCardsController {
 
     private String checkParamFroBound(String accountName,String bankId, String bankAccount,
                                       String address) {
-        if(LoginUtil.checkNull(accountName)){
+        if(CasinoProxyUtil.checkNull(accountName)){
             return "持卡人不能为空";
         }
         if (bankId == null) {
             return "银行id不能为空！";
         }
-        if (LoginUtil.checkNull(address)) {
+        if (CasinoProxyUtil.checkNull(address)) {
             return "开户地址不能为空！";
         }
-        if (LoginUtil.checkNull(bankAccount)) {
+        if (CasinoProxyUtil.checkNull(bankAccount)) {
             return "银行账号不能为空！";
         }
         if (bankAccount.length() > 20 || bankAccount.length() < 12) {
@@ -295,12 +192,12 @@ public class BankCardsController {
     })
     @Transactional
     public ResponseEntity disable(Long userId, Long bankId){
-        if(LoginUtil.checkNull(userId,bankId)){
+        if(CasinoProxyUtil.checkNull(userId,bankId)){
             return ResponseUtil.custom("参数错误");
         }
         //查询银行卡
         Bankcards bank = bankcardsService.findById(bankId);
-        if(LoginUtil.checkNull(bank)){
+        if(CasinoProxyUtil.checkNull(bank)){
             return ResponseUtil.custom("该银行卡已解绑");
         }
         BankcardsDel bankcardsDel = new BankcardsDel(bank);
