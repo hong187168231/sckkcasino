@@ -121,7 +121,7 @@ public class User extends BaseEntity implements UserDetails {
         if (password == null) {
             return false;
         }
-        if (!password.matches(RegexEnum.PASSWORD.getRegex())) {
+        if (!password.matches(RegexEnum.ACCOUNT.getRegex())) {
             return false;
         }
         return true;

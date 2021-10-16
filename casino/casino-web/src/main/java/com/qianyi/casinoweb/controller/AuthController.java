@@ -154,7 +154,7 @@ public class AuthController {
         }
         boolean checkPasswordLength = User.checkPasswordLength(password);
         if (!checkPasswordLength) {
-            return ResponseUtil.custom("密码"+RegexEnum.PASSWORD.getDesc());
+            return ResponseUtil.custom("密码"+RegexEnum.ACCOUNT.getDesc());
         }
         boolean checkPhone = User.checkPhone(phone);
         if (!checkPhone) {
