@@ -57,6 +57,10 @@ public class UserVo implements Serializable {
     private String realName;
     @ApiModelProperty("直属父级账号")
     private String firstPidAccount;
+    @ApiModelProperty("代理归属")
+    private String thirdProxyAccount;
+    @ApiModelProperty("所属总代")
+    private String firstProxyAccount;
     @ApiModelProperty("创建时间")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;

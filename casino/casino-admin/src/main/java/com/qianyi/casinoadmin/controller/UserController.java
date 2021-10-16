@@ -71,6 +71,9 @@ public class UserController {
     @Autowired
     private LoginLogService loginLogService;
 
+    @Autowired
+    private ProxyUserService proxyUserService;
+
     @ApiOperation("查询代理下级的用户数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "客户id", required = true),
@@ -162,6 +165,10 @@ public class UserController {
             List<UserMoney> userMoneyList =  userMoneyService.findAll(userIds);
             List<Long> firstPids = userList.stream().map(User::getFirstPid).collect(Collectors.toList());
             List<User> firstPidUsers = userService.findAll(firstPids);
+            List<Long> thirdProxys = userList.stream().map(User::getThirdProxy).collect(Collectors.toList());
+            List<Long> firstProxys = userList.stream().map(User::getFirstProxy).collect(Collectors.toList());
+            thirdProxys.addAll(firstProxys);
+            List<ProxyUser> proxyUsers = proxyUserService.findProxyUser(thirdProxys);
             if(userMoneyList != null){
                 userList.stream().forEach(u -> {
                     UserVo userVo = new UserVo(u);
@@ -175,6 +182,14 @@ public class UserController {
                     firstPidUsers.stream().forEach(firstPid -> {
                         if(firstPid.getId().equals(u.getFirstPid() == null ? "":u.getFirstPid())){
                             userVo.setFirstPidAccount(firstPid.getAccount());
+                        }
+                    });
+                    proxyUsers.stream().forEach(proxyUser -> {
+                        if(proxyUser.getId().equals(u.getThirdProxy() == null ? "":u.getThirdProxy())){
+                            userVo.setThirdProxyAccount(proxyUser.getUserName());
+                        }
+                        if(proxyUser.getId().equals(u.getFirstProxy() == null ? "":u.getFirstProxy())){
+                            userVo.setFirstProxyAccount(proxyUser.getUserName());
                         }
                     });
                     userVoList.add(userVo);
@@ -598,6 +613,11 @@ public class UserController {
             return ResponseUtil.success(agency);
         }
         agency = second.getAccount() + " — "  + agency;
+        User third = userService.findById(user.getThirdPid() == null ? 0L:user.getThirdPid());
+        if (LoginUtil.checkNull(third)){
+            return ResponseUtil.success(agency);
+        }
+        agency = third.getAccount() + " — "  + agency;
         return ResponseUtil.success(agency);
     }
 }
