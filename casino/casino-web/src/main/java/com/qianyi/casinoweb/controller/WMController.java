@@ -10,7 +10,6 @@ import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.executor.AsyncService;
-import com.qianyi.modulecommon.util.DateUtil;
 import com.qianyi.modulecommon.util.IpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
@@ -150,8 +148,8 @@ public class WMController {
             asyncService.executeAsync(vo);
         }
         //开游戏
-        String model = getModel(gameType);
-        String url = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, model,1,platformConfig.getDomainNameConfiguration());
+        String mode = getMode(gameType);
+        String url = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, mode,1,platformConfig.getDomainNameConfiguration());
         if (CommonUtil.checkNull(url)) {
             log.error("进游戏失败");
             return ResponseUtil.custom("服务器异常,请重新操作");
@@ -159,7 +157,7 @@ public class WMController {
         return ResponseUtil.success(url);
     }
 
-    private String getModel(Integer gameType) {
+    private String getMode(Integer gameType) {
         if (gameType == null) {
             return null;
         }
