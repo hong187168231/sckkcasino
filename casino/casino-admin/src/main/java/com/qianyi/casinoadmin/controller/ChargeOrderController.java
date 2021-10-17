@@ -98,10 +98,11 @@ public class ChargeOrderController {
             List<ChargeOrderVo> chargeOrderVoList = new LinkedList<>();
             List<Long> userIds = content.stream().map(ChargeOrder::getUserId).collect(Collectors.toList());
             List<Long> collect = content.stream().map(ChargeOrder::getBankcardId).collect(Collectors.toList());
-            List<String> updateBys = content.stream().map(ChargeOrder::getUpdateBy).collect(Collectors.toList());
+
             List<User> userList = userService.findAll(userIds);
             List<CollectionBankcard> all = collectionBankcardService.findAll(collect);
-            List<SysUser> sysUsers = sysUserService.findAll(updateBys);
+//            List<String> updateBys = content.stream().map(ChargeOrder::getUpdateBy).collect(Collectors.toList());
+//            List<SysUser> sysUsers = sysUserService.findAll(updateBys);
             Map<Long, CollectionBankcard> bankcardMap = all.stream().collect(Collectors.toMap(CollectionBankcard::getId, a -> a, (k1, k2) -> k1));
             if(userList != null){
                 content.stream().forEach(chargeOrder ->{
@@ -112,11 +113,11 @@ public class ChargeOrderController {
                             this.setCollectionBankcard(bankcardMap.get(chargeOrder.getBankcardId()),chargeOrderVo);
                         }
                     });
-                    sysUsers.stream().forEach(sysUser->{
-                        if (chargeOrder.getStatus() != CommonConst.NUMBER_0 && sysUser.getId().toString().equals(chargeOrder.getUpdateBy() == null?"":chargeOrder.getUpdateBy())){
-                            chargeOrderVo.setUpdateBy(sysUser.getUserName());
-                        }
-                    });
+//                    sysUsers.stream().forEach(sysUser->{
+//                        if (chargeOrder.getStatus() != CommonConst.NUMBER_0 && sysUser.getId().toString().equals(chargeOrder.getUpdateBy() == null?"":chargeOrder.getUpdateBy())){
+//                            chargeOrderVo.setUpdateBy(sysUser.getUserName());
+//                        }
+//                    });
                     chargeOrderVoList.add(chargeOrderVo);
                 });
             }
@@ -154,7 +155,16 @@ public class ChargeOrderController {
         if(status != CommonConst.NUMBER_1 && status != CommonConst.NUMBER_2){
             return ResponseUtil.custom("参数不合法");
         }
-
-        return chargeOrderBusiness.checkOrderSuccess(id,status,remark);
+        ChargeOrder byId = chargeOrderService.findById(id);
+        if (LoginUtil.checkNull(byId)){
+            return ResponseUtil.custom("订单不存在");
+        }
+        if (byId.getThirdProxy() != null && byId.getThirdProxy() >= CommonConst.LONG_1){
+            return ResponseUtil.custom("代理充值订单不能处理");
+        }
+        Long userId = LoginUtil.getLoginUserId();
+        SysUser sysUser = sysUserService.findById(userId);
+        String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
+        return chargeOrderBusiness.checkOrderSuccess(id,status,remark,lastModifier);
     }
 }

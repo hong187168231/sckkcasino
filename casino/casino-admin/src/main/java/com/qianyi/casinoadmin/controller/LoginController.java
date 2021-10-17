@@ -8,6 +8,7 @@ import com.qianyi.casinoadmin.model.SysUserLoginLog;
 import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.moduleauthenticator.GoogleAuthUtil;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -323,9 +324,21 @@ public class LoginController {
     })
     @PostMapping("save")
     public ResponseEntity save(String userName, String password, String nickName) {
-        if(LoginUtil.checkNull(nickName)){
+        if(LoginUtil.checkNull(nickName,password)){
             return ResponseUtil.parameterNotNull();
         }
+        if (!userName.matches(RegexEnum.ACCOUNT.getRegex())){
+            return ResponseUtil.custom("账号格式错误！");
+        }
+        if (!password.matches(RegexEnum.PASSWORD.getRegex())){
+            return ResponseUtil.custom("密码6~15位数字和字母的组合！");
+        }
+        if (!LoginUtil.checkNull(nickName)){
+            if (!nickName.matches(RegexEnum.NAME.getRegex())){
+                return ResponseUtil.custom("用户昵称格式错误！");
+            }
+        }
+
         SysUser sys = sysUserService.findByUserName(userName);
         if(sys != null){
             return ResponseUtil.custom("账户已经存在");

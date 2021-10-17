@@ -52,9 +52,6 @@ public class ProxyUserController {
 
     private static final String METHOD_FIRST_FORMAT = "总代(自己){0}";
 
-    private static final String SECOND_FORMAT = "{0}%(总)";
-
-    private static final String THIRD_FORMAT = "{0}%(总) - {1}%(区) - {2}%(基)";
     /**
      * 分页查询代理
      *
@@ -158,13 +155,13 @@ public class ProxyUserController {
                     });
                     proxyCommissions.stream().forEach(proxyCommission->{
                         if (u.getProxyRole() == CommonConst.NUMBER_3 && u.getId().equals(proxyCommission.getProxyUserId())){
-                            String commissionRatio = MessageFormat.format(THIRD_FORMAT,proxyCommission.getFirstCommission() == null?"0":proxyCommission.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100),
+                            String commissionRatio = MessageFormat.format(CommonConst.THIRD_FORMAT,proxyCommission.getFirstCommission() == null?"0":proxyCommission.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100),
                                     proxyCommission.getSecondCommission() == null?"0":proxyCommission.getSecondCommission().multiply(CommonConst.BIGDECIMAL_100),
                                     proxyCommission.getThirdCommission() == null?"0":proxyCommission.getThirdCommission().multiply(CommonConst.BIGDECIMAL_100));
                             proxyUserVo.setCommissionRatio(commissionRatio);
                         }
                         if (u.getProxyRole() == CommonConst.NUMBER_2 && u.getId().equals(proxyCommission.getProxyUserId())){
-                            String commissionRatio = MessageFormat.format(SECOND_FORMAT,proxyCommission.getFirstCommission() == null?"0":proxyCommission.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100));
+                            String commissionRatio = MessageFormat.format(CommonConst.SECOND_FORMAT,proxyCommission.getFirstCommission() == null?"0":proxyCommission.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100));
                             proxyUserVo.setCommissionRatio(commissionRatio);
                         }
                     });
@@ -238,7 +235,9 @@ public class ProxyUserController {
         ProxyCommission proxyCommission = new ProxyCommission();
         proxyCommission.setProxyUserId(saveProxyUser.getId());
         if (proxyRole == CommonConst.NUMBER_3){
+            ProxyCommission secondCommission = proxyCommissionService.findByProxyUserId(saveProxyUser.getSecondProxy());
             proxyCommission.setSecondProxy(saveProxyUser.getSecondProxy());
+            proxyCommission.setFirstCommission((secondCommission == null || secondCommission.getFirstCommission() == null)?BigDecimal.ZERO:secondCommission.getFirstCommission());
         }
         proxyCommissionService.save(proxyCommission);
     }

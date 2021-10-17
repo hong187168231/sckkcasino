@@ -202,7 +202,7 @@ public class WithdrawBusiness {
 //    }
     //后台直接下分
     @Transactional
-    public ResponseEntity updateWithdrawAndUser(User user,Long userId, BigDecimal withdrawMoney,String bankId,Integer status) {
+    public ResponseEntity updateWithdrawAndUser(User user,Long userId, BigDecimal withdrawMoney,String bankId,Integer status,String lastModifier) {
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         if(userMoney == null){
             return ResponseUtil.custom("用户钱包不存在");
@@ -221,6 +221,7 @@ public class WithdrawBusiness {
         withdrawOrder.setUserId(userId);
         withdrawOrder.setNo(orderService.getOrderNo());
         withdrawOrder.setStatus(status);
+        withdrawOrder.setLastModifier(lastModifier);
         withdrawOrderService.saveOrder(withdrawOrder);
         BigDecimal amountBefore = userMoney.getMoney();
         BigDecimal money = amountBefore.subtract(withdrawMoney);
@@ -233,11 +234,12 @@ public class WithdrawBusiness {
     }
 
     @Transactional
-    public ResponseEntity updateWithdrawAndUser(Long id, Integer status) {
+    public ResponseEntity updateWithdrawAndUser(Long id, Integer status,String lastModifier) {
         WithdrawOrder withdrawOrder = withdrawOrderService.findUserByIdUseLock(id);
         if(withdrawOrder == null || withdrawOrder.getStatus() != 0){
             return ResponseUtil.custom("订单已被处理");
         }
+        withdrawOrder.setLastModifier(lastModifier);
         //提现通过或其他
 //        if(status == Constants.withdrawOrder_freeze){//冻结提现金额
 //            withdrawOrder.setStatus(status);
@@ -259,6 +261,7 @@ public class WithdrawBusiness {
                 withdrawOrder.setPracticalAmount(money);
             }
             withdrawOrder.setStatus(status);
+            withdrawOrderService.saveOrder(withdrawOrder);
             log.info("通过提现userId {} 订单号 {} withdrawMoney is {}, practicalAmount is {}",withdrawOrder.getUserId(),withdrawOrder.getNo(),money, withdrawOrder.getPracticalAmount());
             return ResponseUtil.success();
         }
@@ -268,6 +271,7 @@ public class WithdrawBusiness {
             return ResponseUtil.custom("用户钱包不存在");
         }
         withdrawOrder.setStatus(status);
+        withdrawOrderService.saveOrder(withdrawOrder);
         BigDecimal amountBefore = userMoney.getMoney();
         userMoney.setMoney(userMoney.getMoney().add(money));
         userMoneyService.save(userMoney);

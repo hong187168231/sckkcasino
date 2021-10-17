@@ -54,12 +54,13 @@ public class ChargeOrderBusiness {
      * @param remark 充值订单备注
      */
     @Transactional
-    public ResponseEntity checkOrderSuccess(Long id, Integer status,String remark) {
+    public ResponseEntity checkOrderSuccess(Long id, Integer status,String remark,String lastModifier) {
         ChargeOrder order = chargeOrderService.findChargeOrderByIdUseLock(id);
         if(order == null || order.getStatus() != Constants.chargeOrder_wait){
             return ResponseUtil.custom("订单不存在或已被处理");
         }
         order.setRemark(remark);
+        order.setLastModifier(lastModifier);
         if(status == Constants.chargeOrder_fail){//拒绝订单直接保存
             order.setStatus(status);
             order = chargeOrderService.saveOrder(order);

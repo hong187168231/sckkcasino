@@ -467,6 +467,9 @@ public class UserController {
         if (CasinoProxyUtil.checkNull(user)){
             return ResponseUtil.custom("账户不存在");
         }
+        Long authId = CasinoProxyUtil.getAuthId();
+        ProxyUser byId = proxyUserService.findById(authId);
+        String lastModifier = (byId == null || byId.getUserName() == null)? "" : byId.getUserName();
         ChargeOrder chargeOrder = new ChargeOrder();
         chargeOrder.setUserId(id);
         chargeOrder.setRemitter(remitter);
@@ -474,6 +477,7 @@ public class UserController {
         chargeOrder.setRemitType(CommonConst.NUMBER_1);
         chargeOrder.setOrderNo(orderService.getOrderNo());
         chargeOrder.setChargeAmount(money);
+        chargeOrder.setLastModifier(lastModifier);
 //        chargeOrder.setRealityAmount(money);
         return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_proxy);
     }
@@ -504,7 +508,10 @@ public class UserController {
         if (CasinoProxyUtil.checkNull(user)){
             return ResponseUtil.custom("找不到这个会员");
         }
-        return withdrawBusiness.updateWithdrawAndUser(user,id,money,bankId,Constants.withdrawOrder_proxy);
+        Long authId = CasinoProxyUtil.getAuthId();
+        ProxyUser byId = proxyUserService.findById(authId);
+        String lastModifier = (byId == null || byId.getUserName() == null)? "" : byId.getUserName();
+        return withdrawBusiness.updateWithdrawAndUser(user,id,money,bankId,Constants.withdrawOrder_proxy,lastModifier);
     }
 
     /**

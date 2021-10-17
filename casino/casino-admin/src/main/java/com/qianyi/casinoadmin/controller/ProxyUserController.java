@@ -2,7 +2,9 @@ package com.qianyi.casinoadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.model.ProxyCommission;
 import com.qianyi.casinocore.model.ProxyUser;
+import com.qianyi.casinocore.service.ProxyCommissionService;
 import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.PasswordUtil;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.transaction.Transactional;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -38,6 +41,9 @@ import java.util.stream.Collectors;
 public class ProxyUserController {
     @Autowired
     private ProxyUserService proxyUserService;
+
+    @Autowired
+    private ProxyCommissionService proxyCommissionService;
     /**
      * 分页查询代理
      *
@@ -88,6 +94,8 @@ public class ProxyUserController {
         Page<ProxyUser> proxyUserPage = proxyUserService.findProxyUserPage(pageable, proxyUser, startDate, endDate);
         PageResultVO<ProxyUserVo> pageResultVO = new PageResultVO(proxyUserPage);
         List<ProxyUser> proxyUserList = proxyUserPage.getContent();
+        List<Long> proxyIds = proxyUserList.stream().map(ProxyUser::getId).collect(Collectors.toList());
+        List<ProxyCommission> proxyCommissions = proxyCommissionService.findProxyUser(proxyIds);
         if(proxyUserList != null && proxyUserList.size() > 0){
             List<ProxyUserVo> userVoList = new LinkedList();
             List<Long> firstProxyIds = proxyUserList.stream().filter(item -> item.getProxyRole() == CommonConst.NUMBER_2).map(ProxyUser::getFirstProxy).collect(Collectors.toList());
@@ -103,6 +111,18 @@ public class ProxyUserController {
                         }
                         if (u.getProxyRole() == CommonConst.NUMBER_3 && u.getSecondProxy().equals(proxy.getId())){
                             proxyUserVo.setSuperiorProxyAccount(proxy.getUserName());
+                        }
+                    });
+                    proxyCommissions.stream().forEach(proxyCommission->{
+                        if (u.getProxyRole() == CommonConst.NUMBER_3 && u.getId().equals(proxyCommission.getProxyUserId())){
+                            String commissionRatio = MessageFormat.format(CommonConst.THIRD_FORMAT,proxyCommission.getFirstCommission() == null?"0":proxyCommission.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100),
+                                    proxyCommission.getSecondCommission() == null?"0":proxyCommission.getSecondCommission().multiply(CommonConst.BIGDECIMAL_100),
+                                    proxyCommission.getThirdCommission() == null?"0":proxyCommission.getThirdCommission().multiply(CommonConst.BIGDECIMAL_100));
+                            proxyUserVo.setCommissionRatio(commissionRatio);
+                        }
+                        if (u.getProxyRole() == CommonConst.NUMBER_2 && u.getId().equals(proxyCommission.getProxyUserId())){
+                            String commissionRatio = MessageFormat.format(CommonConst.SECOND_FORMAT,proxyCommission.getFirstCommission() == null?"0":proxyCommission.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100));
+                            proxyUserVo.setCommissionRatio(commissionRatio);
                         }
                     });
                     userVoList.add(proxyUserVo);
