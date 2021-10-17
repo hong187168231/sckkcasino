@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.util;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,6 +71,8 @@ public class CommonConst {
     public static final Long LONG_3 = 3L;
     public static final Float FLOAT_0 = 0F;
     public static final Float FLOAT_1 = 1F;
+
+    public static final BigDecimal BIGDECIMAL_100 = new BigDecimal(NUMBER_100);
 
     public static final String IDNOTNULL = "无效id";
     public static final String PICTURENOTUP = "图片不符合规格";
