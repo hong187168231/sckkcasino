@@ -182,7 +182,8 @@ public class LoginController {
 
         if (CasinoProxyUtil.checkNull(secret)) {
             secret = GoogleAuthUtil.generateSecretKey();
-            proxyUserService.setSecretById(proxyUser.getId(), secret);
+            proxyUser.setGaKey(secret);
+            proxyUserService.save(proxyUser);
         }
 
         String qrcode = GoogleAuthUtil.getQcode(userName, secret);

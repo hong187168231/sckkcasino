@@ -113,7 +113,7 @@ public class BankcardsService {
                         try {
                             in.value(Long.valueOf(id));
                         }catch (Exception e){
-
+                            continue;
                         }
                     }
                     list.add(cb.and(cb.and(in)));

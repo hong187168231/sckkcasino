@@ -33,11 +33,7 @@ public class SysUserService {
     public SysUser findByUserName(String userName) {
         return sysUserRepository.findByUserName(userName);
     }
-
-    public void setSecretById(Long id, String gaKey) {
-        sysUserRepository.setSecretById(id, gaKey);
-    }
-    @CachePut(key="#sysUser.id")
+    @CachePut(key="#sysUser.id",condition = "#sysUser != null")
     public SysUser save(SysUser sysUser) {
         return sysUserRepository.save(sysUser);
     }
@@ -72,7 +68,7 @@ public class SysUserService {
                         try {
                             in.value(Long.valueOf(id));
                         }catch (Exception e){
-
+                            continue;
                         }
                     }
                     list.add(cb.and(cb.and(in)));
