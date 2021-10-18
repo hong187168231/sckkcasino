@@ -123,7 +123,7 @@ public class AuthController {
         }
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (platformConfig != null && platformConfig.getRegisterSwitch() != null && platformConfig.getRegisterSwitch() == Constants.yes) {
-            return ResponseUtil.commonResponse(ResponseCode.REGISTER_CLOSE);
+            return ResponseUtil.custom("注册通道已关闭");
         }
         ResponseEntity responseEntity = registerCommon(account, password, phone, request, validate, inviteCode, null);
         return responseEntity;
@@ -274,7 +274,7 @@ public class AuthController {
             return ResponseUtil.custom("帐号或密码错误");
         }
         if(!User.checkUser(user)){
-            return ResponseUtil.commonResponse(ResponseCode.DISABLE_ACCOUNT);
+            return ResponseUtil.custom("账号被封");
         }
         String bcryptPassword = user.getPassword();
         boolean bcrypt = CasinoWebUtil.checkBcrypt(password, bcryptPassword);
@@ -455,7 +455,7 @@ public class AuthController {
             return ResponseUtil.custom("账号不存在");
         }
         if(!User.checkUser(user)){
-            return ResponseUtil.commonResponse(ResponseCode.DISABLE_ACCOUNT);
+            return ResponseUtil.custom("账号被封");
         }
         JjwtUtil.Subject subject = new JjwtUtil.Subject();
         subject.setUserId(String.valueOf(user.getId()));
@@ -471,7 +471,7 @@ public class AuthController {
     public ResponseEntity getRegisterStatus() {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (platformConfig != null && platformConfig.getRegisterSwitch() != null && platformConfig.getRegisterSwitch() == Constants.yes) {
-            return ResponseUtil.commonResponse(ResponseCode.REGISTER_CLOSE);
+            return ResponseUtil.custom("注册通道已关闭");
         }
         return ResponseUtil.success();
     }
@@ -490,7 +490,7 @@ public class AuthController {
         }
         User user = userService.findById(authId);
         if(!User.checkUser(user)){
-            return ResponseUtil.commonResponse(ResponseCode.DISABLE_ACCOUNT);
+            return ResponseUtil.custom("账号被封");
         }
         String refreshToken = JjwtUtil.refreshToken(token, user.getPassword(),Constants.CASINO_WEB);
         if (ObjectUtils.isEmpty(refreshToken)) {

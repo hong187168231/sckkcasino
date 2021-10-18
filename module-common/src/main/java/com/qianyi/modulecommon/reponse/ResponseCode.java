@@ -17,10 +17,6 @@ public enum ResponseCode {
     REQUEST_LIMIT(4, "规定时间超过请求次数"),
     RISK(6, "风险操作"),
     EMPTY_TWITHDRAWMONEY(7, "未设置交易密码"),
-    MULTIDEVICE(8, "帐号已在其他设备登录,请重新登录"),
-    REGISTER_CLOSE(9, "注册通道已关闭"),
-    DISABLE_ACCOUNT(10, "账号被封"),
-    DISABLE_IP(11, "ip访问受限"),
 
     //业务级代码（101-999）
     PARAMETER_NOTNULLL(101, "参数必填"),

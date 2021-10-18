@@ -34,6 +34,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
 @RestController
@@ -70,7 +71,7 @@ public class WMController {
             @ApiImplicitParam(name = "gameType", value = "默认：大厅。1.百家乐。2.龙虎 3. 轮盘 4. 骰宝 " +
                     "5. 牛牛  6. 三公  7. 番摊  8. 色碟 9. 鱼虾蟹 10. 炸金花 11. 牌九 12. 二八杠", required = false),
     })
-    public ResponseEntity openGame(Integer gameType) {
+    public ResponseEntity openGame(Integer gameType, HttpServletRequest request) {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(authId);
@@ -111,9 +112,12 @@ public class WMController {
             lang = 0;
         }
         PlatformConfig platformConfig = platformConfigService.findFirst();
+        //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
+        if(platformConfig.getWmMoney().compareTo(BigDecimal.ZERO) < 1){
+            return ResponseUtil.custom("平台余额不足,请联系客服处理");
+        }
         if (BigDecimal.ZERO.compareTo(userMoney.getMoney()) == -1) {
             BigDecimal money = userMoney.getMoney();
-            //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
             if (platformConfig.getWmMoney() != null && money.compareTo(platformConfig.getWmMoney()) == 1) {
                 money = platformConfig.getWmMoney();
             }
@@ -149,12 +153,40 @@ public class WMController {
         }
         //开游戏
         String mode = getMode(gameType);
-        String url = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, mode,1,platformConfig.getDomainNameConfiguration());
+        //获取进游戏地址
+        String url = getOpenGameUrl(request,third,mode,lang);
         if (CommonUtil.checkNull(url)) {
             log.error("进游戏失败");
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         return ResponseUtil.success(url);
+    }
+
+    /**
+     * 获取进游戏地址
+     * @param request
+     * @param third
+     * @param mode
+     * @param lang
+     * @return
+     */
+    private String getOpenGameUrl(HttpServletRequest request, UserThird third, String mode, Integer lang) {
+        //检测请求设备
+        boolean checkMobileOrPc = checkMobileOrPc(request);
+        if (checkMobileOrPc) {
+            //pc端直接获取请求地址域名作为返回地址
+            int serverPort = request.getServerPort();
+            String returnurl = null;
+            if (serverPort == 80) {
+                returnurl = request.getScheme() + "://" + request.getServerName();
+            } else {
+                returnurl = request.getScheme() + "://" + request.getServerName() + ":" + serverPort;
+            }
+            String openGameUrl = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, mode, 1, returnurl);
+            return openGameUrl;
+        }
+        String openGameUrl = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, mode, null, null);
+        return openGameUrl;
     }
 
     private String getMode(Integer gameType) {
@@ -345,6 +377,20 @@ public class WMController {
             }
         }
         return false;
+    }
+
+    /**
+     * 判断请求设备是移动端还是pc端
+     * @param request
+     * @return
+     */
+    private boolean checkMobileOrPc(HttpServletRequest request) {
+        String userAgent = request.getHeader("user-agent");
+        // 移动端
+        if (userAgent.indexOf("Android") != -1 || userAgent.indexOf("iPhone") != -1 || userAgent.indexOf("iPad") != -1) {
+            return false;
+        }
+        return true;
     }
 
     @Data

@@ -25,19 +25,13 @@ public class InteceptorController implements ErrorController {
 
     @RequestMapping("authenticationBan")
     public ResponseEntity authenticationBan() {
-        return ResponseUtil.commonResponse(ResponseCode.DISABLE_ACCOUNT);
-    }
-
-    @NoAuthentication
-    @RequestMapping("authenticationMultiDevice")
-    public ResponseEntity authenticationMultiDevice() {
-        return ResponseUtil.multiDevice();
+        return ResponseUtil.custom("帐号被封");
     }
 
     @NoAuthentication
     @RequestMapping("authenticationIpLimit")
     public ResponseEntity authenticationIpLimit() {
-        return ResponseUtil.commonResponse(ResponseCode.DISABLE_IP);
+        return ResponseUtil.custom("ip访问受限");
     }
 
     @NoAuthentication

@@ -45,12 +45,4 @@ public class ResponseUtil {
     public static ResponseEntity emptytWithdrawMoney() {
         return new ResponseEntity(ResponseCode.EMPTY_TWITHDRAWMONEY);
     }
-
-    public static ResponseEntity multiDevice() {
-        return new ResponseEntity(ResponseCode.MULTIDEVICE);
-    }
-
-    public static ResponseEntity commonResponse(ResponseCode responseCode) {
-        return new ResponseEntity(responseCode);
-    }
 }

@@ -66,8 +66,7 @@ public class Swagger2Config {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title(title + "开发接口文档") //设置文档的标题
-                .description("1.返回状态码(code)为0，表示成功。-1,服务器异常。 1，认证失败。2.授权失败。4.限定时间内超过请求次数 6.风险操作。7.未设置交易密码。8.帐号已在其他设备登录。" +
-                        "9.注册通道已关闭。10.账号被封。11.ip访问受限。其他代号，展示msg内容即可.<br>" +
+                .description("1.返回状态码(code)为0，表示成功。-1,服务器异常。 1，认证失败。2.授权失败。4.限定时间内超过请求次数 6.风险操作。7.未设置交易密码。其他代号，展示msg内容即可.<br>" +
                         "2.需要权限的接口，请求头加上authorization字段，值为服务器颁发的jwt令牌。令牌无感刷新，需实时更新") // 设置文档的描述
                 .version("1.0.0") // 设置文档的版本信息-> 1.0.0 Version information
 //                .termsOfServiceUrl("https://www.baidu.com") // 设置文档的License信息->1.3 License information

@@ -24,15 +24,17 @@ public class GetWmTotalBalanceJob {
     public void tasks() {
         try {
             BigDecimal agentBalance = wmApi.getAgentBalance(0);
-            BigDecimal balance = agentBalance == null ? BigDecimal.ZERO : agentBalance;
+            if (agentBalance == null) {
+                return;
+            }
             PlatformConfig platformConfig = platformConfigService.findFirst();
             if (platformConfig == null) {
                 platformConfig = new PlatformConfig();
-                platformConfig.setWmMoney(balance);
+                platformConfig.setWmMoney(agentBalance);
                 platformConfigService.save(platformConfig);
                 return;
             }
-            platformConfig.setWmMoney(balance);
+            platformConfig.setWmMoney(agentBalance);
             platformConfigService.save(platformConfig);
         } catch (Exception e) {
             e.printStackTrace();
