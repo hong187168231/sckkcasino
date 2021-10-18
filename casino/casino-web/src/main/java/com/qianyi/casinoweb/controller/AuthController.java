@@ -203,6 +203,7 @@ public class AuthController {
         vo.setType(2);
         asyncService.executeAsync(vo);
         //推送MQ
+        log.info("开始推送团队新增成员消息", save);
         rabbitTemplate.convertAndSend(RabbitMqConstants.ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.ADDUSERTOTEAM_DIRECT, save, new CorrelationData(UUID.randomUUID().toString()));
         log.info("团队新增成员消息发送成功={}", save);
         return ResponseUtil.success();

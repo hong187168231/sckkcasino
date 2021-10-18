@@ -34,7 +34,7 @@ spring:
     password: Redis_123P
     timeout: 3000
   rabbitmq:
-    host: 154.204.57.237 #ip
+    host: 127.0.0.1 #ip
     port: 5672      #端口
     username: qd #账号
     password: qd123 #密码
