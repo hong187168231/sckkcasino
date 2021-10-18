@@ -88,8 +88,8 @@ public class WithdrawOrderController {
             List<String> collect = content.stream().map(WithdrawOrder::getBankId).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
             List<Bankcards> all = bankcardsService.findAll(collect);
-            List<String> updateBys = content.stream().map(WithdrawOrder::getUpdateBy).collect(Collectors.toList());
-            List<ProxyUser> proxyUsers = proxyUserService.findProxyUsers(updateBys);
+//            List<String> updateBys = content.stream().map(WithdrawOrder::getUpdateBy).collect(Collectors.toList());
+//            List<ProxyUser> proxyUsers = proxyUserService.findProxyUsers(updateBys);
             Map<Long, Bankcards> bankcardMap = all.stream().collect(Collectors.toMap(Bankcards::getId, a -> a, (k1, k2) -> k1));
             if(userList != null){
                 content.stream().forEach(withdraw ->{
@@ -104,11 +104,11 @@ public class WithdrawOrderController {
                             }
                         }
                     });
-                    proxyUsers.stream().forEach(proxyUser->{
-                        if (withdraw.getStatus() != CommonConst.NUMBER_0 && proxyUser.getId().toString().equals(withdraw.getUpdateBy() == null?"":withdraw.getUpdateBy())){
-                            withdrawOrderVo.setUpdateBy(proxyUser.getUserName());
-                        }
-                    });
+//                    proxyUsers.stream().forEach(proxyUser->{
+//                        if (withdraw.getStatus() != CommonConst.NUMBER_0 && proxyUser.getId().toString().equals(withdraw.getUpdateBy() == null?"":withdraw.getUpdateBy())){
+//                            withdrawOrderVo.setUpdateBy(proxyUser.getUserName());
+//                        }
+//                    });
                     withdrawOrderVoList.add(withdrawOrderVo);
                 });
             }
@@ -136,6 +136,9 @@ public class WithdrawOrderController {
         if(status != CommonConst.NUMBER_1 && status != CommonConst.NUMBER_2){
             return ResponseUtil.custom("参数不合法");
         }
-        return withdrawBusiness.updateWithdrawAndUser(id,status);
+        Long authId = CasinoProxyUtil.getAuthId();
+        ProxyUser byId = proxyUserService.findById(authId);
+        String lastModifier = (byId == null || byId.getUserName() == null)? "" : byId.getUserName();
+        return withdrawBusiness.updateWithdrawAndUser(id,status,lastModifier);
     }
 }

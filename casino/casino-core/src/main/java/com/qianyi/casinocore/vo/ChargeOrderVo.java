@@ -69,7 +69,7 @@ public class ChargeOrderVo implements Serializable {
         this.createTime = chargeOrder.getCreateTime();
         this.updateTime = chargeOrder.getUpdateTime();
         this.createBy = chargeOrder.getCreateBy();
-        this.updateBy = chargeOrder.getUpdateBy();
+        this.updateBy = chargeOrder.getLastModifier();
     }
     public ChargeOrderVo(){
 

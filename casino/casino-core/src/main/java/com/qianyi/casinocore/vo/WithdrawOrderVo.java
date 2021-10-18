@@ -60,7 +60,7 @@ public class WithdrawOrderVo implements Serializable {
         this.status = withdrawOrder.getStatus();
         this.createBy = withdrawOrder.getCreateBy();
         this.createTime =withdrawOrder.getCreateTime();
-        this.updateBy = withdrawOrder.getUpdateBy();
+        this.updateBy = withdrawOrder.getLastModifier();
         this.updateTime = withdrawOrder.getUpdateTime();
     }
     public WithdrawOrderVo(){

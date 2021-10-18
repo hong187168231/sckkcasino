@@ -16,6 +16,7 @@ import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ChargeOrderService {
@@ -38,6 +39,14 @@ public class ChargeOrderService {
     public ChargeOrder findChargeOrderByIdUseLock(Long id){
         ChargeOrder chargeOrder = chargeOrderRepository.findChargeOrderByIdUseLock(id);
         return chargeOrder;
+    }
+
+    public ChargeOrder findById(Long id){
+        Optional<ChargeOrder> optional = chargeOrderRepository.findById(id);
+        if (optional.isPresent()){
+            return optional.get();
+        }
+        return null;
     }
 
     @Transactional

@@ -74,6 +74,9 @@ public class UserController {
     @Autowired
     private ProxyUserService proxyUserService;
 
+    @Autowired
+    private SysUserService sysUserService;
+
     @ApiOperation("查询代理下级的用户数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "客户id", required = true),
@@ -461,6 +464,12 @@ public class UserController {
         if (LoginUtil.checkNull(user)){
             return ResponseUtil.custom("账户不存在");
         }
+        if (user.getThirdProxy() != null && user.getThirdProxy() >= CommonConst.LONG_1){
+            return ResponseUtil.custom("代理会员不能操作");
+        }
+        Long userId = LoginUtil.getLoginUserId();
+        SysUser sysUser = sysUserService.findById(userId);
+        String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
         ChargeOrder chargeOrder = new ChargeOrder();
         chargeOrder.setUserId(id);
         chargeOrder.setRemitter(remitter);
@@ -468,6 +477,7 @@ public class UserController {
         chargeOrder.setRemitType(CommonConst.NUMBER_1);
         chargeOrder.setOrderNo(orderService.getOrderNo());
         chargeOrder.setChargeAmount(money);
+        chargeOrder.setLastModifier(lastModifier);
 //        chargeOrder.setRealityAmount(money);
         return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_masterControl);
     }
@@ -498,7 +508,13 @@ public class UserController {
         if (LoginUtil.checkNull(user)){
             return ResponseUtil.custom("找不到这个会员");
         }
-        return withdrawBusiness.updateWithdrawAndUser(user,id,money,bankId,Constants.withdrawOrder_masterControl);
+        if (user.getThirdProxy() != null && user.getThirdProxy() >= CommonConst.LONG_1){
+            return ResponseUtil.custom("代理会员不能操作");
+        }
+        Long userId = LoginUtil.getLoginUserId();
+        SysUser sysUser = sysUserService.findById(userId);
+        String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
+        return withdrawBusiness.updateWithdrawAndUser(user,id,money,bankId,Constants.withdrawOrder_masterControl,lastModifier);
     }
 
     /**

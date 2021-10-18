@@ -49,4 +49,7 @@ public class WithdrawOrder extends BaseEntity {
     @ApiModelProperty("基层代理ID")
     private Long thirdProxy;
 
+    @ApiModelProperty("审核人")
+    private String lastModifier;
+
 }

@@ -5,6 +5,9 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.repository.SysUserRepository;
 import com.qianyi.modulecommon.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
+@CacheConfig(cacheNames = {"sysUser"})
 public class SysUserService {
 
     @Autowired
@@ -33,15 +37,15 @@ public class SysUserService {
     public void setSecretById(Long id, String gaKey) {
         sysUserRepository.setSecretById(id, gaKey);
     }
-
-    public void save(SysUser sysUser) {
-        sysUserRepository.save(sysUser);
+    @CachePut(key="#sysUser.id")
+    public SysUser save(SysUser sysUser) {
+        return sysUserRepository.save(sysUser);
     }
-
+    @Cacheable(key = "#id")
     public SysUser findAllById(Long id){
         return sysUserRepository.findAllById(id);
     }
-
+    @Cacheable(key = "#id")
     public SysUser findById(Long id){
         Optional<SysUser> optional = sysUserRepository.findById(id);
         if (optional.isPresent()) {

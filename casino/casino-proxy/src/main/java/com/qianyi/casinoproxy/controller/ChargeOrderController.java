@@ -97,10 +97,10 @@ public class ChargeOrderController {
             List<ChargeOrderVo> chargeOrderVoList = new LinkedList<>();
             List<Long> userIds = content.stream().map(ChargeOrder::getUserId).collect(Collectors.toList());
             List<Long> collect = content.stream().map(ChargeOrder::getBankcardId).collect(Collectors.toList());
-            List<String> updateBys = content.stream().map(ChargeOrder::getUpdateBy).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
             List<CollectionBankcard> all = collectionBankcardService.findAll(collect);
-            List<ProxyUser> proxyUsers = proxyUserService.findProxyUsers(updateBys);
+//            List<String> updateBys = content.stream().map(ChargeOrder::getUpdateBy).collect(Collectors.toList());
+//            List<ProxyUser> proxyUsers = proxyUserService.findProxyUsers(updateBys);
             Map<Long, CollectionBankcard> bankcardMap = all.stream().collect(Collectors.toMap(CollectionBankcard::getId, a -> a, (k1, k2) -> k1));
             if(userList != null){
                 content.stream().forEach(chargeOrder ->{
@@ -111,11 +111,11 @@ public class ChargeOrderController {
                             this.setCollectionBankcard(bankcardMap.get(chargeOrder.getBankcardId()),chargeOrderVo);
                         }
                     });
-                    proxyUsers.stream().forEach(proxyUser->{
-                        if (chargeOrder.getStatus() != CommonConst.NUMBER_0 && proxyUser.getId().toString().equals(chargeOrder.getUpdateBy() == null?"":chargeOrder.getUpdateBy())){
-                            chargeOrderVo.setUpdateBy(proxyUser.getUserName());
-                        }
-                    });
+//                    proxyUsers.stream().forEach(proxyUser->{
+//                        if (chargeOrder.getStatus() != CommonConst.NUMBER_0 && proxyUser.getId().toString().equals(chargeOrder.getUpdateBy() == null?"":chargeOrder.getUpdateBy())){
+//                            chargeOrderVo.setUpdateBy(proxyUser.getUserName());
+//                        }
+//                    });
                     chargeOrderVoList.add(chargeOrderVo);
                 });
             }
@@ -153,8 +153,10 @@ public class ChargeOrderController {
         if(status != CommonConst.NUMBER_1 && status != CommonConst.NUMBER_2){
             return ResponseUtil.custom("参数不合法");
         }
-
-        return chargeOrderBusiness.checkOrderSuccess(id,status,remark);
+        Long authId = CasinoProxyUtil.getAuthId();
+        ProxyUser byId = proxyUserService.findById(authId);
+        String lastModifier = (byId == null || byId.getUserName() == null)? "" : byId.getUserName();
+        return chargeOrderBusiness.checkOrderSuccess(id,status,remark,lastModifier);
     }
 
 }

@@ -41,12 +41,6 @@ public class WithdrawOrderController {
     private WithdrawBusiness withdrawBusiness;
 
     @Autowired
-    private OrderService orderService;
-
-    @Autowired
-    private UserMoneyService userMoneyService;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
@@ -94,8 +88,8 @@ public class WithdrawOrderController {
             List<String> collect = content.stream().map(WithdrawOrder::getBankId).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
             List<Bankcards> all = bankcardsService.findAll(collect);
-            List<String> updateBys = content.stream().map(WithdrawOrder::getUpdateBy).collect(Collectors.toList());
-            List<SysUser> sysUsers = sysUserService.findAll(updateBys);
+//            List<String> updateBys = content.stream().map(WithdrawOrder::getUpdateBy).collect(Collectors.toList());
+//            List<SysUser> sysUsers = sysUserService.findAll(updateBys);
             Map<Long, Bankcards> bankcardMap = all.stream().collect(Collectors.toMap(Bankcards::getId, a -> a, (k1, k2) -> k1));
             if(userList != null){
                 content.stream().forEach(withdraw ->{
@@ -110,11 +104,11 @@ public class WithdrawOrderController {
                             }
                         }
                     });
-                    sysUsers.stream().forEach(sysUser->{
-                        if (withdraw.getStatus() != CommonConst.NUMBER_0 && sysUser.getId().toString().equals(withdraw.getUpdateBy() == null?"":withdraw.getUpdateBy())){
-                            withdrawOrderVo.setUpdateBy(sysUser.getUserName());
-                        }
-                    });
+//                    sysUsers.stream().forEach(sysUser->{
+//                        if (withdraw.getStatus() != CommonConst.NUMBER_0 && sysUser.getId().toString().equals(withdraw.getUpdateBy() == null?"":withdraw.getUpdateBy())){
+//                            withdrawOrderVo.setUpdateBy(sysUser.getUserName());
+//                        }
+//                    });
                     withdrawOrderVoList.add(withdrawOrderVo);
                 });
             }
@@ -142,6 +136,16 @@ public class WithdrawOrderController {
         if(status != CommonConst.NUMBER_1 && status != CommonConst.NUMBER_2){
             return ResponseUtil.custom("参数不合法");
         }
-        return withdrawBusiness.updateWithdrawAndUser(id,status);
+        WithdrawOrder byId = withdrawOrderService.findById(id);
+        if (LoginUtil.checkNull(byId)){
+            return ResponseUtil.custom("订单不存在");
+        }
+        if (byId.getThirdProxy() != null && byId.getThirdProxy() >= CommonConst.LONG_1){
+            return ResponseUtil.custom("代理提现订单不能处理");
+        }
+        Long userId = LoginUtil.getLoginUserId();
+        SysUser sysUser = sysUserService.findById(userId);
+        String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
+        return withdrawBusiness.updateWithdrawAndUser(id,status,lastModifier);
     }
 }
