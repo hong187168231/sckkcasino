@@ -59,6 +59,9 @@ public class ChargeBusiness {
         if (bankcard == null) {
             return ResponseUtil.custom("收款银行卡不存在");
         }
+        if (bankcard.getDisable() != null && bankcard.getDisable() == 1) {
+            return ResponseUtil.custom("当前收款银行卡已被禁用,请重新选择");
+        }
         Integer count = chargeOrderService.countByUserIdAndStatus(userId,0);
         if (count > 0) {
             return ResponseUtil.custom("您有一笔充值订单正在审核,请交易完成后再提交");
