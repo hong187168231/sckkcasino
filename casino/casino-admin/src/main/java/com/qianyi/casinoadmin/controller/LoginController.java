@@ -222,7 +222,8 @@ public class LoginController {
 
         if (LoginUtil.checkNull(secret)) {
             secret = GoogleAuthUtil.generateSecretKey();
-            sysUserService.setSecretById(user.getId(), secret);
+            user.setGaKey(secret);
+            sysUserService.save(user);
         }
 
         String qrcode = GoogleAuthUtil.getQcode(userName, secret);

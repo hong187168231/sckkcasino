@@ -12,7 +12,7 @@ public interface SysUserRepository extends JpaRepository<SysUser,Long> , JpaSpec
 
     SysUser findAllById(Long id);
 
-    @Query("update SysUser u set u.gaKey=?2 where u.id=?1")
-    @Modifying
-    void setSecretById(Long id, String gaKey);
+//    @Query("update SysUser u set u.gaKey=?2 where u.id=?1")
+//    @Modifying
+//    void setSecretById(Long id, String gaKey);
 }

@@ -33,10 +33,6 @@ public class ProxyUserService {
     public ProxyUser findByUserName(String userName) {
         return proxyUserRepository.findByUserName(userName);
     }
-
-    public void setSecretById(Long id, String gaKey) {
-        proxyUserRepository.setSecretById(id, gaKey);
-    }
     @CachePut(key="#result.id",condition = "#result != null")
     public ProxyUser save(ProxyUser proxyUser) {
         return proxyUserRepository.save(proxyUser);
