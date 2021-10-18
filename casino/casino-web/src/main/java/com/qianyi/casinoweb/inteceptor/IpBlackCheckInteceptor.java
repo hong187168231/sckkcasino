@@ -18,12 +18,12 @@ public class IpBlackCheckInteceptor extends AbstractIpBlackCheckInteceptor {
     private IpBlackService ipBlackService;
 
     @Override
-    protected boolean ipBlackCheck(HttpServletRequest request) {
+    protected String ipBlackCheck(HttpServletRequest request) {
         String ip = IpUtil.getIp(request);
         IpBlack ipBlack = ipBlackService.findByIp(ip);
         if (ipBlack != null && !Constants.yes.equals(ipBlack.getStatus())) {
-            return false;
+            return ipBlack.getRemark();
         }
-        return true;
+        return null;
     }
 }

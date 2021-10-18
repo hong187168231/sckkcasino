@@ -21,7 +21,7 @@ public class RedisLimitExcutor {
     /**
      * 单位时间次数
      */
-    private int limitCount = 50;
+    private int limitCount = 200;
 
     /**
      * 单位时间 秒

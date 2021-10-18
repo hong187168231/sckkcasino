@@ -521,7 +521,7 @@ public class AuthController {
             IpBlack ipBlack = new IpBlack();
             ipBlack.setIp(ip);
             ipBlack.setStatus(Constants.no);
-            ipBlack.setRemark("人人代邀请码填写错误，封IP");
+            ipBlack.setRemark("人人代邀请码填写错误，IP被封");
             ipBlackService.save(ipBlack);
             return ResponseUtil.custom("邀请码填写错误,ip被封");
         } else if (Constants.INVITE_TYPE_PROXY.equals(inviteType)) {
@@ -533,7 +533,7 @@ public class AuthController {
             IpBlack ipBlack = new IpBlack();
             ipBlack.setIp(ip);
             ipBlack.setStatus(Constants.no);
-            ipBlack.setRemark("基层代理邀请码填写错误，封IP");
+            ipBlack.setRemark("基层代理邀请码填写错误，IP被封");
             ipBlackService.save(ipBlack);
             return ResponseUtil.custom("邀请码填写错误,ip被封");
         } else {

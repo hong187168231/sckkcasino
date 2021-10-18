@@ -30,8 +30,8 @@ public class InteceptorController implements ErrorController {
 
     @NoAuthentication
     @RequestMapping("authenticationIpLimit")
-    public ResponseEntity authenticationIpLimit() {
-        return ResponseUtil.custom("ip访问受限");
+    public ResponseEntity authenticationIpLimit(String remark) {
+        return ResponseUtil.custom(remark);
     }
 
     @NoAuthentication

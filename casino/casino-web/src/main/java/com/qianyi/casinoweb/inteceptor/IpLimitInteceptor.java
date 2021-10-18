@@ -24,16 +24,18 @@ public class IpLimitInteceptor extends AbstractIpLimitInteceptor {
     private IpBlackService ipBlackService;
 
     @Override
-    protected boolean ipLimit(HttpServletRequest request) {
+    protected String ipLimit(HttpServletRequest request) {
         String ip = IpUtil.getIp(request);
         boolean access = redisLimitExcutor.tryAccess(ip);
         if(!access){
+            String remark="单位时间请求次数超过上限,IP被封";
             IpBlack ipBlack =new IpBlack();
             ipBlack.setIp(ip);
             ipBlack.setStatus(Constants.no);
-            ipBlack.setRemark("请求频率超过上限,封IP");
+            ipBlack.setRemark("单位时间请求次数超过上限,IP被封");
             ipBlackService.save(ipBlack);
+            return remark;
         }
-        return access;
+        return null;
     }
 }

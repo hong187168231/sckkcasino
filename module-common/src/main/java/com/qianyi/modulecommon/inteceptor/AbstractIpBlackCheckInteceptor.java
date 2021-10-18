@@ -1,10 +1,12 @@
 package com.qianyi.modulecommon.inteceptor;
 
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
 
 public abstract class AbstractIpBlackCheckInteceptor implements HandlerInterceptor {
 
@@ -14,9 +16,10 @@ public abstract class AbstractIpBlackCheckInteceptor implements HandlerIntercept
         if(url.contains("authenticationIpLimit")){
             return true;
         }
-        boolean check = ipBlackCheck(request);
-        if(!check){
-            response.sendRedirect(request.getContextPath()+"/authenticationIpLimit");
+        String ipRemark = ipBlackCheck(request);
+        if(!ObjectUtils.isEmpty(ipRemark)){
+            ipRemark = URLEncoder.encode(ipRemark,"UTF-8");
+            response.sendRedirect(request.getContextPath()+"/authenticationIpLimit?remark="+ipRemark);
             return false;
         }
         return true;
@@ -32,6 +35,6 @@ public abstract class AbstractIpBlackCheckInteceptor implements HandlerIntercept
         HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
     }
 
-    protected abstract boolean ipBlackCheck(HttpServletRequest request);
+    protected abstract String ipBlackCheck(HttpServletRequest request);
 
 }
