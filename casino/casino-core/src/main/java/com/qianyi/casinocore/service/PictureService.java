@@ -3,6 +3,7 @@ package com.qianyi.casinocore.service;
 import com.qianyi.casinocore.model.LunboPic;
 import com.qianyi.casinocore.repository.PictureRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
+@CacheConfig(cacheNames = {"picture"})
 public class PictureService {
     @Autowired
     private PictureRepository pictureRepository;
@@ -40,6 +42,7 @@ public class PictureService {
 //    }
 
 //    @CacheEvict(cacheNames = {"lunbo"}, allEntries = true)
+    @CacheEvict(key="#p0.theShowEnd")
     public void save(LunboPic lunboPic){
         pictureRepository.save(lunboPic);
     }
@@ -47,6 +50,7 @@ public class PictureService {
 //    @Caching(evict = {@CacheEvict(value = "lunbo", key = "#args[0]", beforeInvocation = true, allEntries = true)}, cacheable = @Cacheable(value = "lunbo"))
 //    @Cacheable(value = "lunbo",keyGenerator = "cusKeyGenerator")
 //    @Cacheable(value = "lunbo",key = "#root.targetClass.simpleName+'_'+#root.methodName+'_'+#root.args[0]")
+    @Cacheable(key = "#p0")
     public List<LunboPic> findByTheShowEnd(Integer theShowEnd) {
         return pictureRepository.findByTheShowEndAndUrlNotNull(theShowEnd);
     }
