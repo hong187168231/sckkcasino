@@ -150,9 +150,8 @@ public class ProxyUserService {
                         try {
                             in.value(Long.valueOf(id));
                         }catch (Exception ex){
-
+                            continue;
                         }
-
                     }
                     list.add(cb.and(cb.and(in)));
                 }

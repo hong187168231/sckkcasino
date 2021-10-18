@@ -100,7 +100,7 @@ public class WithdrawOrderController {
                             try {
                                 this.setBankcards(bankcardMap.get(Long.valueOf(withdrawOrderVo.getBankId())),withdrawOrderVo);
                             }catch (Exception ex){
-
+                                log.info("bankId类型转换错误{}",withdrawOrderVo.getBankId());
                             }
                         }
                     });
