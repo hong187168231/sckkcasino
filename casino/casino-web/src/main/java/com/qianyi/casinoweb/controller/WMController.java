@@ -67,7 +67,7 @@ public class WMController {
     String ipWhite;
 
     @ApiOperation("开游戏")
-    @RequestLimit(limit = 1,timeout = 5)
+    @RequestLimit(limit = 1, timeout = 5)
     @Transactional
     @PostMapping("openGame")
     @ApiImplicitParams({
@@ -78,9 +78,6 @@ public class WMController {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(authId);
-        if (userMoney == null || userMoney.getMoney() == null) {
-            return ResponseUtil.custom("用户钱包不存在");
-        }
         UserThird third = userThirdService.findByUserId(authId);
         //未注册自动注册到第三方
         if (third == null || third.getUserId() == null) {
@@ -105,7 +102,7 @@ public class WMController {
                 userThirdService.save(third);
             } catch (Exception e) {
                 e.printStackTrace();
-                log.error("本地注册账号失败{}",e.getMessage());
+                log.error("本地注册账号失败{}", e.getMessage());
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
         }
@@ -116,25 +113,33 @@ public class WMController {
         }
         PlatformConfig platformConfig = platformConfigService.findFirst();
         //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
-        if(platformConfig.getWmMoney().compareTo(BigDecimal.ZERO) < 1){
-            return ResponseUtil.custom("平台余额不足,请联系客服处理");
+
+        BigDecimal userCenterMoney = BigDecimal.ZERO;
+        if (userMoney != null && userMoney.getMoney() != null) {
+            userCenterMoney = userMoney.getMoney();
         }
-        if (BigDecimal.ZERO.compareTo(userMoney.getMoney()) == -1) {
-            BigDecimal money = userMoney.getMoney();
-            if (platformConfig.getWmMoney() != null && money.compareTo(platformConfig.getWmMoney()) == 1) {
-                money = platformConfig.getWmMoney();
+
+        if (platformConfig != null && platformConfig.getWmMoney() != null) {
+            BigDecimal wmMoney = platformConfig.getWmMoney();
+            if (wmMoney != null && wmMoney.compareTo(BigDecimal.ZERO) == 1) {
+                if (wmMoney.compareTo(userCenterMoney) == -1) {
+                    userCenterMoney = wmMoney;
+                }
             }
+        }
+
+        if (userCenterMoney.compareTo(BigDecimal.ZERO) == 1) {
             String orderNo = orderService.getOrderNo();
-            PublicWMApi.ResponseEntity entity = wmApi.changeBalance(third.getAccount(), money, orderNo, lang);
+            PublicWMApi.ResponseEntity entity = wmApi.changeBalance(third.getAccount(), userCenterMoney, orderNo, lang);
             if (entity.getErrorCode() != 0) {
                 return ResponseUtil.custom(entity.getErrorMessage());
             }
             //钱转入第三方后本地扣减记录账变
             //扣款
-            userMoneyService.subMoney(authId, money);
+            userMoneyService.subMoney(authId, userCenterMoney);
 
             Order order = new Order();
-            order.setMoney(money);
+            order.setMoney(userCenterMoney);
             order.setUserId(authId);
             order.setRemark("自动转入WM");
             order.setType(0);
@@ -149,15 +154,16 @@ public class WMController {
             AccountChangeVo vo = new AccountChangeVo();
             vo.setUserId(authId);
             vo.setChangeEnum(AccountChangeEnum.WM_IN);
-            vo.setAmount(money.negate());
+            vo.setAmount(userCenterMoney.negate());
             vo.setAmountBefore(userMoney.getMoney());
-            vo.setAmountAfter(userMoney.getMoney().subtract(money));
+            vo.setAmountAfter(userMoney.getMoney().subtract(userCenterMoney));
             asyncService.executeAsync(vo);
         }
+
         //开游戏
         String mode = getMode(gameType);
         //获取进游戏地址
-        String url = getOpenGameUrl(request,third,mode,lang,platformConfig);
+        String url = getOpenGameUrl(request, third, mode, lang, platformConfig);
         if (CommonUtil.checkNull(url)) {
             log.error("进游戏失败");
             return ResponseUtil.custom("服务器异常,请重新操作");
@@ -167,37 +173,29 @@ public class WMController {
 
     /**
      * 获取进游戏地址
+     *
      * @param request
      * @param third
      * @param mode
      * @param lang
      * @return
      */
-    private String getOpenGameUrl(HttpServletRequest request, UserThird third, String mode, Integer lang,PlatformConfig platformConfig) {
+    private String getOpenGameUrl(HttpServletRequest request, UserThird third, String mode, Integer lang, PlatformConfig platformConfig) {
         //检测请求设备
         String ua = request.getHeader("User-Agent");
         boolean checkMobileOrPc = DeviceUtil.checkAgentIsMobile(ua);
+        String returnUrl = "";
         if (!checkMobileOrPc) {
             //pc端直接获取请求地址域名作为返回地址
-            StringBuffer url = request.getRequestURL();
-            String returnurl = url.delete(url.length() - request.getRequestURI().length(), url.length()).append("/").toString();
-            log.info("======================");
-            log.info("前端域名1{}",returnurl);
-            StringBuffer requestURL = request.getRequestURL();
-            try {
-                URI uri = new URI(requestURL.toString());
-                log.info("前端域名2{}",uri.getScheme());
-                log.info("前端域名2{}",uri.getUserInfo());
-                log.info("前端域名2{}",uri.getHost());
-                log.info("前端域名2{}",uri.getPort());
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-            }
+            String schema = request.getScheme();
+            String host = request.getRemoteHost();
+            int port = request.getRemotePort();
 
-            String openGameUrl = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, mode, 1, platformConfig.getDomainNameConfiguration());
-            return openGameUrl;
+            returnUrl = schema + "://" + host + ":" + port;
+            System.out.println(returnUrl);
         }
-        String openGameUrl = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, mode, null, null);
+
+        String openGameUrl = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, mode, null, returnUrl);
         return openGameUrl;
     }
 
@@ -252,7 +250,7 @@ public class WMController {
     }
 
     @ApiOperation("查询当前登录用户WM余额")
-    @RequestLimit(limit = 1,timeout = 5)
+    @RequestLimit(limit = 1, timeout = 5)
     @GetMapping("getWmBalance")
     public ResponseEntity getWmBalance() {
         //获取登陆用户
@@ -271,25 +269,25 @@ public class WMController {
             balance = wmApi.getBalance(third.getAccount(), lang);
         } catch (Exception e) {
             e.printStackTrace();
-            log.error("获取用户WM余额失败{}",e.getMessage());
+            log.error("获取用户WM余额失败{}", e.getMessage());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         return ResponseUtil.success(balance);
     }
 
     @ApiOperation("查询用户WM余额外部接口")
-    @RequestLimit(limit = 1,timeout = 5)
+    @RequestLimit(limit = 1, timeout = 5)
     @GetMapping("getWmBalanceApi")
     @NoAuthentication
     @ApiImplicitParams({
             @ApiImplicitParam(name = "account", value = "第三方账号", required = true),
             @ApiImplicitParam(name = "lang", value = "语言", required = true),
-            })
+    })
     public ResponseEntity getWmBalanceApi(String account, Integer lang) {
         if (CasinoWebUtil.checkNull(account, lang)) {
             return ResponseUtil.parameterNotNull();
         }
-        if (!ipWhiteCheck()){
+        if (!ipWhiteCheck()) {
             return ResponseUtil.custom("ip禁止访问");
         }
         BigDecimal balance = BigDecimal.ZERO;
@@ -297,7 +295,7 @@ public class WMController {
             balance = wmApi.getBalance(account, lang);
         } catch (Exception e) {
             e.printStackTrace();
-            log.error("获取用户WM余额失败{}",e.getMessage());
+            log.error("获取用户WM余额失败{}", e.getMessage());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         return ResponseUtil.success(balance);
@@ -305,7 +303,7 @@ public class WMController {
 
     @ApiOperation("一键回收当前登录用户WM余额")
     @Transactional
-    @RequestLimit(limit = 1,timeout = 5)
+    @RequestLimit(limit = 1, timeout = 5)
     @GetMapping("oneKeyRecover")
     public ResponseEntity oneKeyRecover() {
         //获取登陆用户
@@ -331,7 +329,7 @@ public class WMController {
         try {
             balance = wmApi.getBalance(account, lang);
         } catch (Exception e) {
-            log.error("获取用户WM余额失败{}",e.getMessage());
+            log.error("获取用户WM余额失败{}", e.getMessage());
             e.printStackTrace();
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
@@ -367,7 +365,7 @@ public class WMController {
         order.setThirdProxy(user.getThirdProxy());
         orderService.save(order);
         //账变中心记录账变
-        AccountChangeVo vo=new AccountChangeVo();
+        AccountChangeVo vo = new AccountChangeVo();
         vo.setUserId(userId);
         vo.setChangeEnum(AccountChangeEnum.WM_OUT);
         vo.setAmount(balance);
@@ -393,6 +391,7 @@ public class WMController {
 
     /**
      * 判断请求设备是移动端还是pc端
+     *
      * @param request
      * @return
      */
