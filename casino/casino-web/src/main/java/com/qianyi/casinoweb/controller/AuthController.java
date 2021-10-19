@@ -122,7 +122,7 @@ public class AuthController {
             return ResponseUtil.parameterNotNull();
         }
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        if (platformConfig != null && platformConfig.getRegisterSwitch() != null && platformConfig.getRegisterSwitch() == Constants.yes) {
+        if (platformConfig != null && platformConfig.getRegisterSwitch() != null && platformConfig.getRegisterSwitch() == Constants.close) {
             return ResponseUtil.custom("注册通道已关闭");
         }
         ResponseEntity responseEntity = registerCommon(account, password, phone, request, validate, inviteCode, null);
@@ -470,10 +470,10 @@ public class AuthController {
     @NoAuthentication
     public ResponseEntity getRegisterStatus() {
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        if (platformConfig != null && platformConfig.getRegisterSwitch() != null && platformConfig.getRegisterSwitch() == Constants.yes) {
-            return ResponseUtil.custom("注册通道已关闭");
+        if (platformConfig != null) {
+            return ResponseUtil.success(platformConfig.getRegisterSwitch());
         }
-        return ResponseUtil.success();
+        return ResponseUtil.success(Constants.close);
     }
 
     @PostMapping("rjt")
