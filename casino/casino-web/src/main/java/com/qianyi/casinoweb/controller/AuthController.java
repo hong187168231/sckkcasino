@@ -222,14 +222,17 @@ public class AuthController {
             user.setFirstPid(parentUser.getId());
             user.setSecondPid(parentUser.getFirstPid());
             user.setThirdPid(parentUser.getSecondPid());
+            user.setType(Constants.USER_TYPE0);
             //基层代理
         }else if(Constants.INVITE_TYPE_PROXY.equals(inviteType)){
             ProxyUser parentProxy = proxyUserService.findByProxyCode(inviteCode);
             user.setFirstProxy(parentProxy.getFirstProxy());
             user.setSecondProxy(parentProxy.getSecondProxy());
             user.setThirdProxy(parentProxy.getId());
+            user.setType(Constants.USER_TYPE1);
             //前台自己注册
         }else{
+            user.setType(Constants.USER_TYPE0);
             User parentUser =null;
             if(ObjectUtils.isEmpty(inviteCode)){
                 user.setFirstPid(0L);//默认公司级别

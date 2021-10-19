@@ -69,6 +69,14 @@ public class User extends BaseEntity implements UserDetails {
     private Long secondProxy;
     @ApiModelProperty("基层代理ID")
     private Long thirdProxy;
+    /**
+     * admin创建，前台创建 公司会员
+     * 代理创建 渠道会员
+     * 代理链接注册 渠道会员
+     * 人人代链接 直属上级是什么注册的就是什么
+     */
+    @ApiModelProperty("会员类型:0、公司会员，1、渠道会员")
+    private Integer type;
     @JsonIgnore
     @Transient
     private String token;

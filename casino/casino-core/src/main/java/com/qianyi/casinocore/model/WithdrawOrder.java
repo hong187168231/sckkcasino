@@ -52,4 +52,7 @@ public class WithdrawOrder extends BaseEntity {
     @ApiModelProperty("审核人")
     private String lastModifier;
 
+    @ApiModelProperty("会员类型:0、公司会员，1、渠道会员")
+    private Integer type;
+
 }

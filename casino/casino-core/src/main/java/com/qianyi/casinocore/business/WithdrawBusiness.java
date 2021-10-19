@@ -182,6 +182,7 @@ public class WithdrawBusiness {
             withdrawOrder.setFirstProxy(user.getFirstProxy());
             withdrawOrder.setSecondProxy(user.getSecondProxy());
             withdrawOrder.setThirdProxy(user.getThirdProxy());
+            withdrawOrder.setType(user.getType());
         }
         return withdrawOrder;
     }

@@ -76,5 +76,9 @@ public class Constants {
     public static final String SPREAD_REGISTER_VIEW= "index.html";
     //redis用户key前缀
     public static final String REDIS_USERID= "userId::";
+    //会员类型：公司会员
+    public static final Integer USER_TYPE0= 0;
+    //会员类型：渠道会员
+    public static final Integer USER_TYPE1= 1;
 
 }

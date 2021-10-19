@@ -105,6 +105,7 @@ public class ChargeBusiness {
             chargeOrder.setFirstProxy(user.getFirstProxy());
             chargeOrder.setSecondProxy(user.getSecondProxy());
             chargeOrder.setThirdProxy(user.getThirdProxy());
+            chargeOrder.setType(user.getType());
         }
         return chargeOrder;
     }
