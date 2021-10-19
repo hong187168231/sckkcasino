@@ -42,7 +42,7 @@ public class PictureService {
 //    }
 
 //    @CacheEvict(cacheNames = {"lunbo"}, allEntries = true)
-    @CacheEvict(key="#p0.theShowEnd")
+    @CacheEvict(key="#p0.theShowEnd",allEntries = true)
     public void save(LunboPic lunboPic){
         pictureRepository.save(lunboPic);
     }

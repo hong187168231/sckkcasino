@@ -48,10 +48,7 @@ public class DownloadStationService {
         return downloadStationRepository.findAll(pageable);
     }
 
-    @Caching(evict = {
-            @CacheEvict(key = "#p0.terminalType"),
-            @CacheEvict(key = "#p0.terminalType+'::'+#p0.isForced")
-    })
+    @CacheEvict(key = "#p0.terminalType",allEntries = true)
     public DownloadStation save(DownloadStation downloadStation) {
         return downloadStationRepository.save(downloadStation);
 

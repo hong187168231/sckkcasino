@@ -3,11 +3,16 @@ package com.qianyi.casinocore.service;
 import com.qianyi.casinocore.model.WashCodeConfig;
 import com.qianyi.casinocore.repository.WashCodeConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@CacheConfig(cacheNames = {"washCodeConfig"})
 public class WashCodeConfigService {
 
     @Autowired
@@ -17,14 +22,17 @@ public class WashCodeConfigService {
         return washCodeConfigRepository.findAll();
     }
 
+    @Cacheable(key = "#platform+'::'+#state")
     public List<WashCodeConfig> findByPlatformAndState(String platform,Integer state){
         return washCodeConfigRepository.findByPlatformAndState(platform,state);
     }
 
+    @Cacheable(key = "#platform")
     public List<WashCodeConfig> findByPlatform(String platform){
         return washCodeConfigRepository.findByPlatform(platform);
     }
 
+    @CacheEvict(allEntries = true)
     public List<WashCodeConfig> saveAll(List<WashCodeConfig> list){
         return washCodeConfigRepository.saveAll(list);
     }
