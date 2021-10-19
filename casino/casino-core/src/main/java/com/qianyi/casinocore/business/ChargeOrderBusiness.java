@@ -3,6 +3,7 @@ package com.qianyi.casinocore.business;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinocore.vo.RechargeRecordVo;
 import com.qianyi.modulecommon.Constants;
@@ -77,6 +78,7 @@ public class ChargeOrderBusiness {
         chargeOrder.setFirstProxy(user.getFirstProxy());
         chargeOrder.setSecondProxy(user.getSecondProxy());
         chargeOrder.setThirdProxy(user.getThirdProxy());
+        chargeOrder.setRemitType(CommonConst.NUMBER_4);
         return this.saveOrder(chargeOrder,status,AccountChangeEnum.ADD_CODE);
     }
 

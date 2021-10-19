@@ -57,9 +57,11 @@ public class WithdrawOrderController {
             @ApiImplicitParam(name = "no", value = "订单号", required = false),
             @ApiImplicitParam(name = "bankId", value = "银行卡Id", required = false),
             @ApiImplicitParam(name = "account", value = "用户账号", required = false),
+            @ApiImplicitParam(name = "type", value = "会员类型:0、公司会员，1、渠道会员", required = false),
     })
     @GetMapping("/withdrawList")
-    public ResponseEntity<WithdrawOrderVo> withdrawList(Integer pageSize,Integer pageCode, Integer status, String account, String no, String bankId){
+    public ResponseEntity<WithdrawOrderVo> withdrawList(Integer pageSize,Integer pageCode, Integer status, String account,
+                                                        String no, String bankId,Integer type){
         WithdrawOrder withdrawOrder = new WithdrawOrder();
         if (!LoginUtil.checkNull(account)){
             User user = userService.findByAccount(account);
@@ -68,15 +70,10 @@ public class WithdrawOrderController {
             }
             withdrawOrder.setUserId(user.getId());
         }
-        if(status != null){
-            withdrawOrder.setStatus(status);
-        }
-        if(!LoginUtil.checkNull(no)){
-            withdrawOrder.setNo(no);
-        }
-        if(!LoginUtil.checkNull(bankId)){
-            withdrawOrder.setBankId(bankId);
-        }
+        withdrawOrder.setStatus(status);
+        withdrawOrder.setNo(no);
+        withdrawOrder.setBankId(bankId);
+        withdrawOrder.setType(type);
         Sort sort=Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, withdrawOrder);
@@ -136,13 +133,13 @@ public class WithdrawOrderController {
         if(status != CommonConst.NUMBER_1 && status != CommonConst.NUMBER_2){
             return ResponseUtil.custom("参数不合法");
         }
-        WithdrawOrder byId = withdrawOrderService.findById(id);
-        if (LoginUtil.checkNull(byId)){
-            return ResponseUtil.custom("订单不存在");
-        }
-        if (byId.getThirdProxy() != null && byId.getThirdProxy() >= CommonConst.LONG_1){
-            return ResponseUtil.custom("代理提现订单不能处理");
-        }
+//        WithdrawOrder byId = withdrawOrderService.findById(id);
+//        if (LoginUtil.checkNull(byId)){
+//            return ResponseUtil.custom("订单不存在");
+//        }
+//        if (byId.getThirdProxy() != null && byId.getThirdProxy() >= CommonConst.LONG_1){
+//            return ResponseUtil.custom("代理提现订单不能处理");
+//        }
         Long userId = LoginUtil.getLoginUserId();
         SysUser sysUser = sysUserService.findById(userId);
         String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();

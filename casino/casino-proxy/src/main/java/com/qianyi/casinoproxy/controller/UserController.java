@@ -311,6 +311,7 @@ public class UserController {
         user.setFirstProxy(byId.getFirstProxy());
         user.setSecondProxy(byId.getSecondProxy());
         user.setThirdProxy(byId.getId());
+        user.setType(Constants.USER_TYPE1);
         User save = userService.save(user);
         //userMoney表初始化数据
         UserMoney userMoney=new UserMoney();
@@ -478,6 +479,7 @@ public class UserController {
         chargeOrder.setOrderNo(orderService.getOrderNo());
         chargeOrder.setChargeAmount(money);
         chargeOrder.setLastModifier(lastModifier);
+        chargeOrder.setType(user.getType());
 //        chargeOrder.setRealityAmount(money);
         return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_proxy);
     }

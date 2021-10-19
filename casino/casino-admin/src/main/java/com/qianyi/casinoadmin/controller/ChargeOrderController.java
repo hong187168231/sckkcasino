@@ -74,9 +74,11 @@ public class ChargeOrderController {
             @ApiImplicitParam(name = "status", value = "状态(0未确认 1已确认)", required = false),
             @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
             @ApiImplicitParam(name = "account", value = "会员账号", required = false),
+            @ApiImplicitParam(name = "type", value = "会员类型:0、公司会员，1、渠道会员", required = false),
     })
     @GetMapping("/chargeOrderList")
-    public ResponseEntity<ChargeOrderVo> chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String orderNo, String account){
+    public ResponseEntity<ChargeOrderVo> chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String orderNo,
+                                                         String account,Integer type){
         Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         ChargeOrder order = new ChargeOrder();
@@ -91,6 +93,7 @@ public class ChargeOrderController {
         order.setUserId(userId);
         order.setStatus(status);
         order.setOrderNo(orderNo);
+        order.setType(type);
         Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(order, pageable);
         PageResultVO<ChargeOrderVo> pageResultVO =new PageResultVO(chargeOrderPage);
         List<ChargeOrder> content = chargeOrderPage.getContent();
@@ -155,13 +158,13 @@ public class ChargeOrderController {
         if(status != CommonConst.NUMBER_1 && status != CommonConst.NUMBER_2){
             return ResponseUtil.custom("参数不合法");
         }
-        ChargeOrder byId = chargeOrderService.findById(id);
-        if (LoginUtil.checkNull(byId)){
-            return ResponseUtil.custom("订单不存在");
-        }
-        if (byId.getThirdProxy() != null && byId.getThirdProxy() >= CommonConst.LONG_1){
-            return ResponseUtil.custom("代理充值订单不能处理");
-        }
+//        ChargeOrder byId = chargeOrderService.findById(id);
+//        if (LoginUtil.checkNull(byId)){
+//            return ResponseUtil.custom("订单不存在");
+//        }
+//        if (byId.getThirdProxy() != null && byId.getThirdProxy() >= CommonConst.LONG_1){
+//            return ResponseUtil.custom("代理充值订单不能处理");
+//        }
         Long userId = LoginUtil.getLoginUserId();
         SysUser sysUser = sysUserService.findById(userId);
         String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();

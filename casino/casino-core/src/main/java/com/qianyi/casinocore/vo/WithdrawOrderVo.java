@@ -19,7 +19,7 @@ public class WithdrawOrderVo implements Serializable {
     private Long userId;
     @ApiModelProperty(value = "会员账号")
     private String account;
-    @ApiModelProperty(value = "状态 0: 未确认 1：通过，2：拒绝，3：冻结")
+    @ApiModelProperty(value = "状态 0: 未确认 1：通过，2：拒绝，3：冻结 4.总控提交 5.代理提交")
     private Integer status;
     @ApiModelProperty(value = "订单号")
     private String no;
@@ -36,8 +36,10 @@ public class WithdrawOrderVo implements Serializable {
     private String bankNo;
     @ApiModelProperty(value = "开户名")
     private String accountName;
-    @ApiModelProperty(value = "收款方式 1银行卡 2支付宝 3微信")
+    @ApiModelProperty(value = "收款方式 1银行卡 2支付宝 3微信 4人工上分")
     private Integer remitType;
+    @ApiModelProperty("会员类型:0、公司会员，1、渠道会员")
+    private Integer type;
     @ApiModelProperty("创建时间")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
@@ -58,6 +60,7 @@ public class WithdrawOrderVo implements Serializable {
         this.serviceCharge = withdrawOrder.getServiceCharge();
         this.remitType = withdrawOrder.getRemitType();
         this.status = withdrawOrder.getStatus();
+        this.type = withdrawOrder.getType();
         this.createBy = withdrawOrder.getCreateBy();
         this.createTime =withdrawOrder.getCreateTime();
         this.updateBy = withdrawOrder.getLastModifier();

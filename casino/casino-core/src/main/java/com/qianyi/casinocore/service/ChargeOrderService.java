@@ -72,6 +72,9 @@ public class ChargeOrderService {
                 if (chargeOrder.getStatus() !=null) {
                     list.add(cb.equal(root.get("status").as(Integer.class), chargeOrder.getStatus()));
                 }
+                if(chargeOrder.getType() != null){
+                    list.add(cb.equal(root.get("type").as(Integer.class), chargeOrder.getType()));
+                }
                 if (!CommonUtil.checkNull(chargeOrder.getOrderNo())) {
                     list.add(cb.equal(root.get("orderNo").as(String.class), chargeOrder.getOrderNo()));
                 }
