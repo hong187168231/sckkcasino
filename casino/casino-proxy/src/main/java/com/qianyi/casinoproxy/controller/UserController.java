@@ -475,7 +475,6 @@ public class UserController {
         chargeOrder.setUserId(id);
         chargeOrder.setRemitter(remitter);
         chargeOrder.setRemark(remark);
-        chargeOrder.setRemitType(CommonConst.NUMBER_1);
         chargeOrder.setOrderNo(orderService.getOrderNo());
         chargeOrder.setChargeAmount(money);
         chargeOrder.setLastModifier(lastModifier);
