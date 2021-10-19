@@ -7,6 +7,7 @@ import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.AccountChangeVo;
+import com.qianyi.casinoweb.util.DeviceUtil;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.executor.AsyncService;
@@ -172,9 +173,13 @@ public class WMController {
      */
     private String getOpenGameUrl(HttpServletRequest request, UserThird third, String mode, Integer lang,PlatformConfig platformConfig) {
         //检测请求设备
-        boolean checkMobileOrPc = checkMobileOrPc(request);
-        if (checkMobileOrPc) {
-            String openGameUrl = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, mode, 1, platformConfig.getDomainNameConfiguration());
+        String ua = request.getHeader("User-Agent");
+        boolean checkMobileOrPc = DeviceUtil.checkAgentIsMobile(ua);
+        if (!checkMobileOrPc) {
+            //pc端直接获取请求地址域名作为返回地址
+            StringBuffer url = request.getRequestURL();
+            String returnurl = url.delete(url.length() - request.getRequestURI().length(), url.length()).append("/").toString();
+            String openGameUrl = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, mode, 1, returnurl);
             return openGameUrl;
         }
         String openGameUrl = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, mode, null, null);
