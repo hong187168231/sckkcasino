@@ -163,7 +163,7 @@ public class WMController {
         //开游戏
         String mode = getMode(gameType);
         //获取进游戏地址
-        String url = getOpenGameUrl(request, third, mode, lang, platformConfig);
+        String url = getOpenGameUrl(request, third, mode, lang);
         if (CommonUtil.checkNull(url)) {
             log.error("进游戏失败");
             return ResponseUtil.custom("服务器异常,请重新操作");
@@ -180,7 +180,7 @@ public class WMController {
      * @param lang
      * @return
      */
-    private String getOpenGameUrl(HttpServletRequest request, UserThird third, String mode, Integer lang, PlatformConfig platformConfig) {
+    private String getOpenGameUrl(HttpServletRequest request, UserThird third, String mode, Integer lang) {
         //检测请求设备
         String ua = request.getHeader("User-Agent");
         boolean checkMobileOrPc = DeviceUtil.checkAgentIsMobile(ua);
@@ -190,11 +190,9 @@ public class WMController {
             String schema = request.getScheme();
             String host = request.getRemoteHost();
             int port = request.getRemotePort();
-
             returnUrl = schema + "://" + host + ":" + port;
             System.out.println(returnUrl);
         }
-
         String openGameUrl = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, mode, null, returnUrl);
         return openGameUrl;
     }
