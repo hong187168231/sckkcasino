@@ -1,6 +1,8 @@
 package com.qianyi.casinoweb.controller;
 
 import java.math.BigDecimal;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.UUID;
 
 import com.qianyi.casinocore.enums.AccountChangeEnum;
@@ -179,7 +181,20 @@ public class WMController {
             //pc端直接获取请求地址域名作为返回地址
             StringBuffer url = request.getRequestURL();
             String returnurl = url.delete(url.length() - request.getRequestURI().length(), url.length()).append("/").toString();
-            String openGameUrl = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, mode, 1, returnurl);
+            log.info("======================");
+            log.info("前端域名1{}",returnurl);
+            StringBuffer requestURL = request.getRequestURL();
+            try {
+                URI uri = new URI(requestURL.toString());
+                log.info("前端域名2{}",uri.getScheme());
+                log.info("前端域名2{}",uri.getUserInfo());
+                log.info("前端域名2{}",uri.getHost());
+                log.info("前端域名2{}",uri.getPort());
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+
+            String openGameUrl = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, mode, 1, platformConfig.getDomainNameConfiguration());
             return openGameUrl;
         }
         String openGameUrl = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, mode, null, null);
