@@ -471,9 +471,10 @@ public class AuthController {
     public ResponseEntity getRegisterStatus() {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (platformConfig != null) {
-            return ResponseUtil.success(platformConfig.getRegisterSwitch());
+            Integer registerSwitch = platformConfig.getRegisterSwitch() == null ? Constants.open : platformConfig.getRegisterSwitch();
+            return ResponseUtil.success(registerSwitch);
         }
-        return ResponseUtil.success(Constants.close);
+        return ResponseUtil.success(Constants.open);
     }
 
     @PostMapping("rjt")
