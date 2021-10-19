@@ -28,11 +28,11 @@ public class IpLimitInteceptor extends AbstractIpLimitInteceptor {
         String ip = IpUtil.getIp(request);
         boolean access = redisLimitExcutor.tryAccess(ip);
         if(!access){
-            String remark="单位时间请求次数超过上限,IP被封";
+            String remark="单位时间内请求次数超过上限,IP被封";
             IpBlack ipBlack =new IpBlack();
             ipBlack.setIp(ip);
             ipBlack.setStatus(Constants.no);
-            ipBlack.setRemark("单位时间请求次数超过上限,IP被封");
+            ipBlack.setRemark(remark);
             ipBlackService.save(ipBlack);
             return remark;
         }
