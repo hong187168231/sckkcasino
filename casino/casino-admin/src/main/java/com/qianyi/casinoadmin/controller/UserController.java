@@ -301,7 +301,8 @@ public class UserController {
 
         //默认中文
         user.setLanguage(Constants.USER_LANGUAGE_CH);
-
+        //来源 公司会员
+        user.setType(Constants.USER_TYPE0);
         //随机生成
         String password = PasswordUtil.getRandomPwd();
         String bcryptPassword = LoginUtil.bcrypt(password);
@@ -464,9 +465,9 @@ public class UserController {
         if (LoginUtil.checkNull(user)){
             return ResponseUtil.custom("账户不存在");
         }
-        if (user.getThirdProxy() != null && user.getThirdProxy() >= CommonConst.LONG_1){
-            return ResponseUtil.custom("代理会员不能操作");
-        }
+//        if (user.getThirdProxy() != null && user.getThirdProxy() >= CommonConst.LONG_1){
+//            return ResponseUtil.custom("代理会员不能操作");
+//        }
         Long userId = LoginUtil.getLoginUserId();
         SysUser sysUser = sysUserService.findById(userId);
         String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
@@ -478,6 +479,7 @@ public class UserController {
         chargeOrder.setOrderNo(orderService.getOrderNo());
         chargeOrder.setChargeAmount(money);
         chargeOrder.setLastModifier(lastModifier);
+        chargeOrder.setType(user.getType());
 //        chargeOrder.setRealityAmount(money);
         return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_masterControl);
     }
@@ -508,9 +510,9 @@ public class UserController {
         if (LoginUtil.checkNull(user)){
             return ResponseUtil.custom("找不到这个会员");
         }
-        if (user.getThirdProxy() != null && user.getThirdProxy() >= CommonConst.LONG_1){
-            return ResponseUtil.custom("代理会员不能操作");
-        }
+//        if (user.getThirdProxy() != null && user.getThirdProxy() >= CommonConst.LONG_1){
+//            return ResponseUtil.custom("代理会员不能操作");
+//        }
         Long userId = LoginUtil.getLoginUserId();
         SysUser sysUser = sysUserService.findById(userId);
         String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();

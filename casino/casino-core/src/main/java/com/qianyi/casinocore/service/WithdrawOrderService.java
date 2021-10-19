@@ -66,6 +66,9 @@ public class WithdrawOrderService {
                 if(withdrawOrder.getStatus() != null){
                     list.add(cb.equal(root.get("status").as(Integer.class), withdrawOrder.getStatus()));
                 }
+                if(withdrawOrder.getType() != null){
+                    list.add(cb.equal(root.get("type").as(Integer.class), withdrawOrder.getType()));
+                }
                 if(withdrawOrder.getUserId() != null){
                     list.add(cb.equal(root.get("userId").as(Long.class), withdrawOrder.getUserId()));
                 }

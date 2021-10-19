@@ -16,7 +16,7 @@ public class WithdrawOrder extends BaseEntity {
 
     @ApiModelProperty(value = "用户id")
     private Long userId;
-    @ApiModelProperty(value = "状态 0: 未确认 1：通过，2：拒绝，3：冻结  4.总控上分 5.代理上分")
+    @ApiModelProperty(value = "状态 0: 未确认 1：通过，2：拒绝，3：冻结  4.总控下分 5.代理下分")
     private Integer status;
     @ApiModelProperty(value = "订单号")
     private String no;
@@ -37,7 +37,7 @@ public class WithdrawOrder extends BaseEntity {
     @ApiModelProperty(value = "银行账号")
     private String bankAccount;
 
-    @ApiModelProperty(value = "收款方式 1银行卡 2支付宝 3微信")
+    @ApiModelProperty(value = "收款方式 1银行卡 2支付宝 3微信 4人工下分")
     private Integer remitType;
 
     @ApiModelProperty("总代ID")

@@ -20,13 +20,13 @@ public class ChargeOrder extends BaseEntity{
     private String orderNo;
 
     //0.未确认。 1.成功   2.失败, 3.失效
-    @ApiModelProperty(value = "订单状态0.未确认,1.成功,2.失败,3.失效 4.总控提交 5.代理提交")
+    @ApiModelProperty(value = "订单状态0.未确认,1.成功,2.失败,3.失效 4.总控上分 5.代理上分")
     private Integer status;
 
     @ApiModelProperty(value = "汇款人")
     private String remitter;
 
-    @ApiModelProperty(value = "汇款方式 1银行卡 2支付宝 3微信")
+    @ApiModelProperty(value = "汇款方式 1银行卡 2支付宝 3微信 4人工上分")
     private Integer remitType;
 
     @ApiModelProperty(value = "汇款金额")

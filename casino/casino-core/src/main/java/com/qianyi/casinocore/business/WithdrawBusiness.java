@@ -3,6 +3,7 @@ package com.qianyi.casinocore.business;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.executor.AsyncService;
@@ -223,6 +224,8 @@ public class WithdrawBusiness {
         withdrawOrder.setNo(orderService.getOrderNo());
         withdrawOrder.setStatus(status);
         withdrawOrder.setLastModifier(lastModifier);
+        withdrawOrder.setType(user.getType());
+        withdrawOrder.setRemitType(CommonConst.NUMBER_4);
         withdrawOrderService.saveOrder(withdrawOrder);
         BigDecimal amountBefore = userMoney.getMoney();
         BigDecimal money = amountBefore.subtract(withdrawMoney);
