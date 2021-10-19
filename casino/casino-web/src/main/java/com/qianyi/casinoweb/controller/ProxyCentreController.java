@@ -167,24 +167,22 @@ public class ProxyCentreController {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
-        if (userMoney == null) {
-            return ResponseUtil.custom("用户钱包不存在");
+        BigDecimal shareProfit = BigDecimal.ZERO;
+        if (userMoney != null && userMoney.getShareProfit() != null) {
+            shareProfit = userMoney.getShareProfit();
         }
-        if (userMoney.getShareProfit() == null) {
-            userMoney.setShareProfit(BigDecimal.ZERO);
-        }
-        if (userMoney.getWashCode().compareTo(BigDecimal.ONE) == -1) {
+        if (shareProfit.compareTo(BigDecimal.ONE) == -1) {
             return ResponseUtil.custom("金额小于1,不能领取");
         }
-        userMoneyService.addMoney(userId, userMoney.getShareProfit());
-        userMoneyService.subShareProfit(userId, userMoney.getShareProfit());
+        userMoneyService.addMoney(userId, shareProfit);
+        userMoneyService.subShareProfit(userId, shareProfit);
 
         AccountChangeVo vo = new AccountChangeVo();
         vo.setUserId(userId);
         vo.setChangeEnum(AccountChangeEnum.SHARE_PROFIT);
-        vo.setAmount(userMoney.getShareProfit());
+        vo.setAmount(shareProfit);
         vo.setAmountBefore(userMoney.getMoney());
-        vo.setAmountAfter(userMoney.getMoney().add(userMoney.getShareProfit()));
+        vo.setAmountAfter(userMoney.getMoney().add(shareProfit));
         asyncService.executeAsync(vo);
         return ResponseUtil.success();
     }

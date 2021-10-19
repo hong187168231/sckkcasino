@@ -73,10 +73,10 @@ public class WashCodeController {
             return ResponseUtil.custom("date值仅限于0,1,2");
         }
         UserMoney userMoney = userMoneyService.findByUserId(userId);
-        if (userMoney == null) {
-            return ResponseUtil.custom("用户钱包不存在");
+        BigDecimal washCode = BigDecimal.ZERO;
+        if (userMoney != null && userMoney.getWashCode() != null) {
+            washCode = userMoney.getWashCode();
         }
-        BigDecimal washCode = userMoney.getWashCode() == null ? BigDecimal.ZERO : userMoney.getWashCode();
         List<WashCodeConfig> washCodeConfig = userWashCodeConfigService.getWashCodeConfig(Constants.PLATFORM,userId);
         List<WashCodeChange> list = washCodeChangeService.getList(userId, startTime, endTime);
         Map<String, Object> data = new HashMap<>();
@@ -130,24 +130,22 @@ public class WashCodeController {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
-        if (userMoney == null) {
-            return ResponseUtil.custom("用户钱包不存在");
+        BigDecimal washCode = BigDecimal.ZERO;
+        if (userMoney != null && userMoney.getWashCode() != null) {
+            washCode = userMoney.getWashCode();
         }
-        if (userMoney.getWashCode() == null) {
-            userMoney.setWashCode(BigDecimal.ZERO);
-        }
-        if (userMoney.getWashCode().compareTo(BigDecimal.ONE) == -1) {
+        if (washCode.compareTo(BigDecimal.ONE) == -1) {
             return ResponseUtil.custom("洗码金额小于1,不能领取");
         }
-        userMoneyService.addMoney(userId, userMoney.getWashCode());
-        userMoneyService.subWashCode(userId, userMoney.getWashCode());
+        userMoneyService.addMoney(userId, washCode);
+        userMoneyService.subWashCode(userId, washCode);
 
         AccountChangeVo vo=new AccountChangeVo();
         vo.setUserId(userId);
         vo.setChangeEnum(AccountChangeEnum.WASH_CODE);
-        vo.setAmount(userMoney.getWashCode());
+        vo.setAmount(washCode);
         vo.setAmountBefore(userMoney.getMoney());
-        vo.setAmountAfter(userMoney.getMoney().add(userMoney.getWashCode()));
+        vo.setAmountAfter(userMoney.getMoney().add(washCode));
         asyncService.executeAsync(vo);
         return ResponseUtil.success();
     }

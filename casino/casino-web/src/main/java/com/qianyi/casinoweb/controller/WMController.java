@@ -342,12 +342,14 @@ public class WMController {
         //把额度加回本地
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         if (userMoney == null) {
-            return ResponseUtil.custom("用户钱包不存在");
+            userMoney = new UserMoney();
+            userMoney.setUserId(userId);
+            userMoneyService.save(userMoney);
         }
         //wm余额大于0
-        if (BigDecimal.ZERO.compareTo(balance) == -1) {
+        if (balance.compareTo(BigDecimal.ZERO) == 1) {
             userMoneyService.addMoney(userId, balance);
-        } else if (BigDecimal.ZERO.compareTo(balance) == 1) {//wm余额小于0
+        } else if (balance.compareTo(BigDecimal.ZERO) == -1) {//wm余额小于0
             userMoneyService.subMoney(userId, balance.abs());
         }
         Order order = new Order();
