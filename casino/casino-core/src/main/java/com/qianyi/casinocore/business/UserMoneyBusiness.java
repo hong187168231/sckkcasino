@@ -137,7 +137,8 @@ public class UserMoneyBusiness {
         Long userId = gameRecord.getUserId();
         log.info("开始洗码={}", gameRecord.toString());
         WashCodeConfig config = userWashCodeConfigService.getWashCodeConfigByUserIdAndGameId(platform, userId, gameRecord.getGid().toString());
-        if (config == null && config.getRate() == null || validbet == null || BigDecimal.ZERO.compareTo(config.getRate()) == 0 || BigDecimal.ZERO.compareTo(validbet) == 0) {
+        log.info("开始洗码游戏配置={}", config.toString());
+        if (config == null || config.getRate() == null || validbet == null || BigDecimal.ZERO.compareTo(config.getRate()) == 0 || BigDecimal.ZERO.compareTo(validbet) == 0) {
             gameRecord.setWashCodeStatus(Constants.yes);
             gameRecordService.save(gameRecord);
             return;

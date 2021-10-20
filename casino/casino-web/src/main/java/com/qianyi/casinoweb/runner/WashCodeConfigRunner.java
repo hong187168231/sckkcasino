@@ -52,7 +52,7 @@ public class WashCodeConfigRunner implements CommandLineRunner {
         codeConfig.setPlatform("wm");
         codeConfig.setGameId(gameId);
         codeConfig.setGameName(gameName);
-        codeConfig.setState(Constants.yes);
+        codeConfig.setState(Constants.open);
         return codeConfig;
     }
 }

@@ -305,8 +305,8 @@ public class WMController {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(userId);
-        if (third == null) {
-            return ResponseUtil.custom("当前用户未在第三方注册,请注册后再重试");
+        if (third == null || ObjectUtils.isEmpty(third.getAccount())) {
+            return ResponseUtil.custom("WM余额为0");
         }
         User user = userService.findById(userId);
         Integer lang = user.getLanguage();
@@ -385,21 +385,6 @@ public class WMController {
             }
         }
         return false;
-    }
-
-    /**
-     * 判断请求设备是移动端还是pc端
-     *
-     * @param request
-     * @return
-     */
-    private boolean checkMobileOrPc(HttpServletRequest request) {
-        String userAgent = request.getHeader("user-agent");
-        // 移动端
-        if (userAgent.indexOf("Android") != -1 || userAgent.indexOf("iPhone") != -1 || userAgent.indexOf("iPad") != -1) {
-            return false;
-        }
-        return true;
     }
 
     @Data

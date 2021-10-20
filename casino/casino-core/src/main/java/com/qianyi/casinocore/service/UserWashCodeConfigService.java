@@ -38,7 +38,7 @@ public class UserWashCodeConfigService {
 
     public List<WashCodeConfig> getWashCodeConfig(String platform,Long userId) {
         //先查询用户级的洗码配置
-        List<UserWashCodeConfig> codeConfigs = userWashCodeConfigRepository.findByUserIdAndPlatformAndState(userId, platform,Constants.yes);
+        List<UserWashCodeConfig> codeConfigs = userWashCodeConfigRepository.findByUserIdAndPlatformAndState(userId, platform,Constants.open);
         if (!CollectionUtils.isEmpty(codeConfigs)) {
             List<WashCodeConfig> list = new ArrayList<>();
             WashCodeConfig config = null;
@@ -50,7 +50,7 @@ public class UserWashCodeConfigService {
             return list;
         }
         //先查询全局洗码配置
-        List<WashCodeConfig> configs = washCodeConfigService.findByPlatformAndState(platform,Constants.yes);
+        List<WashCodeConfig> configs = washCodeConfigService.findByPlatformAndState(platform,Constants.open);
         return configs;
     }
 
