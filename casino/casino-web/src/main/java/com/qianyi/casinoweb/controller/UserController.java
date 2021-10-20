@@ -9,6 +9,7 @@ import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.vo.UserVo;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -92,8 +93,6 @@ public class UserController {
         if (user == null) {
             return ResponseUtil.custom("用户不存在");
         }
-        String regex = "^[0-9a-zA-Z]{0,20}$";
-        String emailRegex = "\\w+@\\w+(\\.\\w{2,3})*\\.\\w{2,3}";
         if ("0".equals(type)) {
             if(!ObjectUtils.isEmpty(user.getRealName())){
                 return ResponseUtil.custom("信息已录入，不允许修改");
@@ -109,7 +108,7 @@ public class UserController {
             if(ObjectUtils.isEmpty(value)){
                 return ResponseUtil.custom("邮箱不允许为空");
             }
-            if (!value.matches(emailRegex)) {
+            if (!value.matches(RegexEnum.EMAIL.getRegex())) {
                 return ResponseUtil.custom("邮箱格式填写错误");
             }
             user.setEmail(value);
@@ -120,8 +119,8 @@ public class UserController {
             if(ObjectUtils.isEmpty(value)){
                 return ResponseUtil.custom("微信号不允许为空");
             }
-            if (!value.matches(regex)) {
-                return ResponseUtil.custom("微信号只能是数字或字母且长度不超过20");
+            if (!value.matches(RegexEnum.WEBCHAT.getRegex())) {
+                return ResponseUtil.custom("微信号"+RegexEnum.WEBCHAT.getDesc());
             }
             user.setWebChat(value);
         } else if ("3".equals(type)) {
@@ -131,8 +130,8 @@ public class UserController {
             if(ObjectUtils.isEmpty(value)){
                 return ResponseUtil.custom("QQ号不允许为空");
             }
-            if (!value.matches(regex)) {
-                return ResponseUtil.custom("QQ号只能是数字或字母且长度不超过20");
+            if (!value.matches(RegexEnum.NUMBER_OR_LETTER.getRegex())) {
+                return ResponseUtil.custom("QQ号"+RegexEnum.NUMBER_OR_LETTER.getDesc());
             }
             user.setQq(value);
         } else{
@@ -156,18 +155,16 @@ public class UserController {
         if(ObjectUtils.isEmpty(email)&&ObjectUtils.isEmpty(webChat)&&ObjectUtils.isEmpty(qq)&&ObjectUtils.isEmpty(phone)){
             return ResponseUtil.custom("参数为空");
         }
-        String regex = "^[0-9a-zA-Z]{0,20}$";
-        if (!ObjectUtils.isEmpty(webChat) && !webChat.matches(regex)) {
-            return ResponseUtil.custom("微信号只能是数字或字母且长度不超过20");
+        if (!ObjectUtils.isEmpty(webChat) && !webChat.matches(RegexEnum.WEBCHAT.getRegex())) {
+            return ResponseUtil.custom("微信号"+RegexEnum.WEBCHAT.getDesc());
         }
-        if (!ObjectUtils.isEmpty(qq) && !qq.matches(regex)) {
-            return ResponseUtil.custom("QQ号只能是数字或字母且长度不超过20");
+        if (!ObjectUtils.isEmpty(qq) && !qq.matches(RegexEnum.NUMBER_OR_LETTER.getRegex())) {
+            return ResponseUtil.custom("QQ号"+RegexEnum.NUMBER_OR_LETTER.getDesc());
         }
-        if (!ObjectUtils.isEmpty(phone) && !phone.matches(regex)) {
-            return ResponseUtil.custom("手机号只能是数字或字母且长度不超过20");
+        if (!ObjectUtils.isEmpty(phone) && !phone.matches(RegexEnum.NUMBER_OR_LETTER.getRegex())) {
+            return ResponseUtil.custom("手机号"+RegexEnum.NUMBER_OR_LETTER.getDesc());
         }
-        String emailRegex = "\\w+@\\w+(\\.\\w{2,3})*\\.\\w{2,3}";
-        if (!ObjectUtils.isEmpty(email) && !email.matches(emailRegex)) {
+        if (!ObjectUtils.isEmpty(email) && !email.matches(RegexEnum.EMAIL.getRegex())) {
             return ResponseUtil.custom("邮箱格式填写错误");
         }
         //这4个字段数据添加后不能再修改
@@ -216,8 +213,8 @@ public class UserController {
     }
 
     public static void main(String[] args) {
-        String regex = "^[0-9 ()+-]{6,15}+$";
-        String phone="+(63)-14111";
+        String regex = "^[a-zA-Z]{1}[-_a-zA-Z0-9]{5,19}+$";
+        String phone="qweq-11";
         System.out.println(phone.matches(regex));
     }
 
