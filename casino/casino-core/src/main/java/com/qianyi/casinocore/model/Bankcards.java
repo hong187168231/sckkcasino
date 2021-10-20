@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.model;
 
+import com.qianyi.modulecommon.RegexEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -76,8 +77,8 @@ public class Bankcards extends BaseEntity{
         if (!StringUtils.hasLength(bankAccount)) {
             return "银行账号不能为空！";
         }
-        if (bankAccount.length() > 20 || bankAccount.length() < 16) {
-            return "长度只能在16~20位！";
+        if (!bankAccount.matches(RegexEnum.BANK_ACCOUNT.getRegex())) {
+            return "银行账号" + RegexEnum.BANK_ACCOUNT.getDesc();
         }
         return null;
     }
