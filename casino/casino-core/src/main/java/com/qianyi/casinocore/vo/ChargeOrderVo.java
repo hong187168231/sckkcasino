@@ -25,7 +25,7 @@ public class ChargeOrderVo implements Serializable {
     private Integer status;
     @ApiModelProperty(value = "汇款人")
     private String remitter;
-    @ApiModelProperty(value = "汇款方式 1银行卡 2支付宝 3微信 4人工上分")
+    @ApiModelProperty(value = "汇款方式 1银行卡 2支付宝 3微信 4人工操作")
     private Integer remitType;
     @ApiModelProperty(value = "汇款金额")
     private BigDecimal chargeAmount;
