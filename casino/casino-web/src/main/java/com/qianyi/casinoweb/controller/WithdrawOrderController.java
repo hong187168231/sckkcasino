@@ -35,7 +35,7 @@ public class WithdrawOrderController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "status", value = "订单状态：全部：不传值，0: 正在出款 1：成功出款，2：退回出款，3：已经锁定，4.总控下分 5.代理下分", required = false),
+            @ApiImplicitParam(name = "status", value = "订单状态：全部：不传值，0: 正在出款 1：成功出款，2：退回出款，4.总控下分 5.代理下分", required = false),
             @ApiImplicitParam(name = "date", value = "时间：全部：不传值，0：今天，1：昨天，2：一个月内", required = false)
     })
     @GetMapping("/withdrawList")

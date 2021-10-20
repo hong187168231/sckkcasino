@@ -45,7 +45,7 @@ public class ChargeOrderController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "status", value = "状态:全部.不传值，0.入款审核中,1.入款成功，2.入款已取消,3.失效 4.总控上分 5.代理上分", required = false),
+            @ApiImplicitParam(name = "status", value = "状态:全部.不传值，0.入款审核中,1.入款成功，2.入款已取消,4.总控上分 5.代理上分", required = false),
             @ApiImplicitParam(name = "date", value = "时间：全部：不传值，0：今天，1：昨天，2：一个月内", required = false)
     })
     @GetMapping("/chargeOrderList")
