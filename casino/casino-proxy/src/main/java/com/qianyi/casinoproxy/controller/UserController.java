@@ -495,9 +495,10 @@ public class UserController {
             @ApiImplicitParam(name = "id", value = "用户id", required = true),
             @ApiImplicitParam(name = "withdrawMoney", value = "提现金额", required = true),
             @ApiImplicitParam(name = "bankId", value = "银行id", required = false),
+            @ApiImplicitParam(name = "remark", value = "备注", required = false),
     })
     @PostMapping("/saveWithdrawOrder")
-    public ResponseEntity saveWithdrawOrder(Long id,String withdrawMoney,String bankId){
+    public ResponseEntity saveWithdrawOrder(Long id,String withdrawMoney,String bankId,String remark){
         if (CasinoProxyUtil.checkNull(id,withdrawMoney)){
             return ResponseUtil.custom("参数不合法");
         }
@@ -512,7 +513,7 @@ public class UserController {
         Long authId = CasinoProxyUtil.getAuthId();
         ProxyUser byId = proxyUserService.findById(authId);
         String lastModifier = (byId == null || byId.getUserName() == null)? "" : byId.getUserName();
-        return withdrawBusiness.updateWithdrawAndUser(user,id,money,bankId,Constants.withdrawOrder_proxy,lastModifier);
+        return withdrawBusiness.updateWithdrawAndUser(user,id,money,bankId,Constants.withdrawOrder_proxy,lastModifier,remark);
     }
 
     /**
