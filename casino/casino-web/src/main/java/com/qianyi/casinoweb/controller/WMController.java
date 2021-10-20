@@ -1,8 +1,6 @@
 package com.qianyi.casinoweb.controller;
 
 import java.math.BigDecimal;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.UUID;
 
 import com.qianyi.casinocore.enums.AccountChangeEnum;
@@ -367,7 +365,7 @@ public class WMController {
         //账变中心记录账变
         AccountChangeVo vo = new AccountChangeVo();
         vo.setUserId(userId);
-        vo.setChangeEnum(AccountChangeEnum.WM_OUT);
+        vo.setChangeEnum(AccountChangeEnum.RECOVERY);
         vo.setAmount(balance);
         vo.setAmountBefore(userMoney.getMoney());
         vo.setAmountAfter(userMoney.getMoney().add(balance));

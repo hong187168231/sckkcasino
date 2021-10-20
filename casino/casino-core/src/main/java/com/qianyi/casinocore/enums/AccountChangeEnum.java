@@ -13,7 +13,7 @@ public enum AccountChangeEnum {
     SUB_CODE(5, "RGKJ","人工扣减"),
     WITHDRAW_APPLY(6, "QY","提现申请"),
     WM_IN(7, "WMIN","转入WM"),
-    WM_OUT(8, "WMOUT","一键回收"),
+    RECOVERY(8, "RECOVERY","一键回收"),
     SHARE_PROFIT(9, "SP","代理佣金领取");
 
     private Integer type;
