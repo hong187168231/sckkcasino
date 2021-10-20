@@ -46,22 +46,23 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
      */
     @Override
     protected boolean multiDeviceCheck() {
-        Long authId = CasinoProxyUtil.getAuthId();
-        String token = CasinoProxyUtil.getToken();
-        String key = "token:" + authId;
-        Object redisToken = null;
-        try {
-            redisToken = redisTemplate.opsForValue().get(key);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return true;
-        }
-        if (ObjectUtils.isEmpty(redisToken)) {
-            return true;
-        }
-        if (token.equals(redisToken)) {
-            return true;
-        }
-        return false;
+//        Long authId = CasinoProxyUtil.getAuthId();
+//        String token = CasinoProxyUtil.getToken();
+//        String key = "token:" + authId;
+//        Object redisToken = null;
+//        try {
+//            redisToken = redisTemplate.opsForValue().get(key);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return true;
+//        }
+//        if (ObjectUtils.isEmpty(redisToken)) {
+//            return true;
+//        }
+//        if (token.equals(redisToken)) {
+//            return true;
+//        }
+//        return false;
+        return true;
     }
 }

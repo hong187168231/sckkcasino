@@ -72,12 +72,10 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException e) {
             // jwt令牌过期
             log.error("{}",e);
-            log.info("{}",e);
             SecurityContextHolder.clearContext();
             this.authenticationEntryPoint.commence(wrappedRequest, response, null);
         } catch (AuthenticationException e) {
             log.error("{}",e);
-            log.info("{}",e);
             SecurityContextHolder.clearContext();
             this.authenticationEntryPoint.commence(wrappedRequest, response, e);
         } finally {
