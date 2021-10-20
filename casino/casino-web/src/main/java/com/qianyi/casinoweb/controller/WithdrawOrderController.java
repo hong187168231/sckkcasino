@@ -15,9 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * 提现记录表
@@ -56,6 +59,16 @@ public class WithdrawOrderController {
             endTime = DateUtil.getEndTime(0);
         }
         Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, userId,status,startTime,endTime);
+        List<WithdrawOrder> content = withdrawOrderPage.getContent();
+        if (!CollectionUtils.isEmpty(content)) {
+            for (WithdrawOrder withdrawOrder : content) {
+                Integer orderStatus = withdrawOrder.getStatus();
+                //总控和代理的操作为人工操作
+                if (orderStatus != null && (orderStatus == 4 || orderStatus == 5)) {
+                    withdrawOrder.setType(4);
+                }
+            }
+        }
         return ResponseUtil.success(withdrawOrderPage);
     }
 }

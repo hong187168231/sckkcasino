@@ -1,6 +1,7 @@
 package com.qianyi.casinoweb.controller;
 
 import com.qianyi.casinocore.model.ChargeOrder;
+import com.qianyi.casinocore.model.WithdrawOrder;
 import com.qianyi.casinocore.service.ChargeOrderService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -68,6 +70,16 @@ public class ChargeOrderController {
         }
         Specification<ChargeOrder> condition = this.getCondition(userId,status,startTime,endTime);
         Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(condition, pageable);
+        List<ChargeOrder> content = chargeOrderPage.getContent();
+        if (!CollectionUtils.isEmpty(content)) {
+            for (ChargeOrder chargeOrder : content) {
+                Integer orderStatus = chargeOrder.getStatus();
+                //总控和代理的操作为人工操作
+                if (orderStatus != null && (orderStatus == 4 || orderStatus == 5)) {
+                    chargeOrder.setType(4);
+                }
+            }
+        }
         return ResponseUtil.success(chargeOrderPage);
     }
 
