@@ -265,7 +265,7 @@ public class LoginController {
     })
     public ResponseEntity refreshJwtToken(String token) {
         JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
-        ProxyUser proxyUser = proxyUserService.findAllById(Long.parseLong(subject.getUserId()));
+        ProxyUser proxyUser = proxyUserService.findById(Long.parseLong(subject.getUserId()));
         String refreshToken = JjwtUtil.refreshToken(token,proxyUser.getPassWord(), "casino-proxy");
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();
