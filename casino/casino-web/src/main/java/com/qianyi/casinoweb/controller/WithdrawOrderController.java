@@ -65,7 +65,7 @@ public class WithdrawOrderController {
                 Integer orderStatus = withdrawOrder.getStatus();
                 //总控和代理的操作为人工操作
                 if (orderStatus != null && (orderStatus == 4 || orderStatus == 5)) {
-                    withdrawOrder.setType(4);
+                    withdrawOrder.setRemitType(4);
                 }
             }
         }
