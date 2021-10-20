@@ -19,7 +19,7 @@ public class WithdrawOrderVo implements Serializable {
     private Long userId;
     @ApiModelProperty(value = "会员账号")
     private String account;
-    @ApiModelProperty(value = "状态 0: 未确认 1：通过，2：拒绝，3：冻结  4.总控下分 5.代理下分")
+    @ApiModelProperty(value = "状态 0: 未确认 1：通过，2：拒绝，4.总控下分 5.代理下分")
     private Integer status;
     @ApiModelProperty(value = "订单号")
     private String no;

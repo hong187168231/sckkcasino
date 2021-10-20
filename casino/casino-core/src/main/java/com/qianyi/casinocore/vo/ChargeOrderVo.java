@@ -21,7 +21,7 @@ public class ChargeOrderVo implements Serializable {
     private Long userId;
     @ApiModelProperty(value = "订单号")
     private String orderNo;
-    @ApiModelProperty(value = "订单状态0.未确认,1.成功,2.失败,3.失效 4.总控上分 5.代理上分")
+    @ApiModelProperty(value = "订单状态0.未确认,1.成功,2.失败 4.总控上分 5.代理上分")
     private Integer status;
     @ApiModelProperty(value = "汇款人")
     private String remitter;
