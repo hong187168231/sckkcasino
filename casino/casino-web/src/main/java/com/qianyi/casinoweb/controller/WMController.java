@@ -77,7 +77,6 @@ public class WMController {
     public ResponseEntity openGame(Integer gameType, HttpServletRequest request) {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
-        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(authId);
         UserThird third = userThirdService.findByUserId(authId);
         //未注册自动注册到第三方
         if (third == null || third.getUserId() == null) {
@@ -113,7 +112,7 @@ public class WMController {
         }
         PlatformConfig platformConfig = platformConfigService.findFirst();
         //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
-
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(authId);
         BigDecimal userCenterMoney = BigDecimal.ZERO;
         if (userMoney != null && userMoney.getMoney() != null) {
             userCenterMoney = userMoney.getMoney();
@@ -163,7 +162,7 @@ public class WMController {
         //开游戏
         String mode = getMode(gameType);
         //获取进游戏地址
-        String url = getOpenGameUrl(request, third, mode, lang);
+        String url = getOpenGameUrl(request, third, mode, lang,platformConfig);
         if (CommonUtil.checkNull(url)) {
             log.error("进游戏失败");
             return ResponseUtil.custom("服务器异常,请重新操作");
@@ -180,17 +179,18 @@ public class WMController {
      * @param lang
      * @return
      */
-    private String getOpenGameUrl(HttpServletRequest request, UserThird third, String mode, Integer lang) {
+    private String getOpenGameUrl(HttpServletRequest request, UserThird third, String mode, Integer lang,PlatformConfig platformConfig) {
         //检测请求设备
         String ua = request.getHeader("User-Agent");
         boolean checkMobileOrPc = DeviceUtil.checkAgentIsMobile(ua);
         String returnUrl = "";
         if (!checkMobileOrPc) {
             //pc端直接获取请求地址域名作为返回地址
-            String schema = request.getScheme();
-            String host = request.getRemoteHost();
-            int port = request.getRemotePort();
-            returnUrl = schema + "://" + host + ":" + port;
+//            String schema = request.getScheme();
+//            String host = request.getRemoteHost();
+//            int port = request.getRemotePort();
+//            returnUrl = schema + "://" + host + ":" + port;
+            returnUrl = platformConfig.getDomainNameConfiguration();
             System.out.println(returnUrl);
         }
         String openGameUrl = wmApi.openGame(third.getAccount(), third.getPassword(), lang, null, 4, mode, null, returnUrl);
