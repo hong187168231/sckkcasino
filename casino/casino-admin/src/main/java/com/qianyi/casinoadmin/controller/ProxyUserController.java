@@ -77,7 +77,7 @@ public class ProxyUserController {
         if (!LoginUtil.checkNull(userName)){
             ProxyUser byUserName = proxyUserService.findByUserName(userName);
             if (LoginUtil.checkNull(byUserName)){
-                ResponseUtil.success(new PageResultVO());
+                return ResponseUtil.success(new PageResultVO());
             }
             if (tag == CommonConst.NUMBER_1){
                 if (byUserName.getProxyRole() == CommonConst.NUMBER_1){

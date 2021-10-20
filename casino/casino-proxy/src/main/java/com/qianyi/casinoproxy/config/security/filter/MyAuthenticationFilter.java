@@ -62,7 +62,7 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
                 Long userId = CasinoProxyUtil.getAuthId();
                 log.info("userid is {}",userId);
                 if(userId !=null){
-                    ProxyUser proxyUser = proxyUserService.findAllById(userId);
+                    ProxyUser proxyUser = proxyUserService.findById(userId);
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(proxyUser, null, proxyUser.getAuthorities());
                     // 全局注入角色权限信息和登录用户基本信息
                     SecurityContextHolder.getContext().setAuthentication(authentication);

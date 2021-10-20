@@ -105,7 +105,7 @@ public class ProxyUserController {
                         proxyUser.setId(null);
                     }
                 }else {
-                    ResponseUtil.success(new PageResultVO());
+                    return ResponseUtil.success(new PageResultVO());
                 }
             }else if(byUserName.getProxyRole() > byId.getProxyRole()){
                 if (byUserName.getProxyRole() == CommonConst.NUMBER_2 && byUserName.getFirstProxy() == authId){//1级搜2级
@@ -115,10 +115,10 @@ public class ProxyUserController {
                     proxyUser.setUserName(userName);
                     proxyUser.setId(null);
                 }else {//没有权限
-                    ResponseUtil.success(new PageResultVO());
+                    return ResponseUtil.success(new PageResultVO());
                 }
             }else {
-                ResponseUtil.success(new PageResultVO());
+                return ResponseUtil.success(new PageResultVO());
             }
         }else if(tag == CommonConst.NUMBER_0 && !CasinoProxyUtil.checkNull(userName)){
             ProxyUser byUserName = proxyUserService.findByUserName(userName);
@@ -126,10 +126,10 @@ public class ProxyUserController {
                 proxyUser.setUserName(userName);
                 proxyUser.setId(null);
             }else {
-                ResponseUtil.success(new PageResultVO());
+                return ResponseUtil.success(new PageResultVO());
             }
         }else {
-            ResponseUtil.success(new PageResultVO());
+            return ResponseUtil.success(new PageResultVO());
         }
         Page<ProxyUser> proxyUserPage = proxyUserService.findProxyUserPage(pageable, proxyUser, startDate, endDate);
         PageResultVO<ProxyUserVo> pageResultVO = new PageResultVO(proxyUserPage);

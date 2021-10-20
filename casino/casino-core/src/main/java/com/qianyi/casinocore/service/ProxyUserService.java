@@ -37,10 +37,7 @@ public class ProxyUserService {
     public ProxyUser save(ProxyUser proxyUser) {
         return proxyUserRepository.save(proxyUser);
     }
-    @Cacheable(key = "#id")
-    public ProxyUser findAllById(Long id){
-        return proxyUserRepository.findAllById(id);
-    }
+
     @Cacheable(key = "#id")
     public ProxyUser findById(Long id){
         Optional<ProxyUser> optional = proxyUserRepository.findById(id);
