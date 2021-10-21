@@ -327,7 +327,7 @@ public class BankCardsController {
     }
 
     private Integer isFirstCard(Bankcards bankcards){
-        return bankcards==null?0:1;
+        return bankcards==null?1:0;
     }
 
 
