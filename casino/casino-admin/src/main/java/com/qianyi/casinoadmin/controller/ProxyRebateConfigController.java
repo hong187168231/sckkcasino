@@ -62,7 +62,7 @@ public class ProxyRebateConfigController {
             proxyRebateConfig.setFourMoney(money);
             proxyRebateConfig.setFirstProfit(profit);
         }
-        if(level == 4){
+        if(level == 5){
             proxyRebateConfig.setFiveMoney(money);
             proxyRebateConfig.setFiveProfit(profit);
         }
