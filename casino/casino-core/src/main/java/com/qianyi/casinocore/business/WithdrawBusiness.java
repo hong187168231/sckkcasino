@@ -204,7 +204,7 @@ public class WithdrawBusiness {
 //    }
     //后台直接下分
     @Transactional
-    public ResponseEntity updateWithdrawAndUser(User user,Long userId, BigDecimal withdrawMoney,String bankId,Integer status,String lastModifier) {
+    public ResponseEntity updateWithdrawAndUser(User user,Long userId, BigDecimal withdrawMoney,String bankId,Integer status,String lastModifier,String remark) {
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         if(userMoney == null){
             return ResponseUtil.custom("用户钱包不存在");
@@ -223,6 +223,7 @@ public class WithdrawBusiness {
         withdrawOrder.setUserId(userId);
         withdrawOrder.setNo(orderService.getOrderNo());
         withdrawOrder.setStatus(status);
+        withdrawOrder.setRemark(remark);
         withdrawOrder.setLastModifier(lastModifier);
         withdrawOrder.setType(user.getType());
         withdrawOrder.setRemitType(CommonConst.NUMBER_4);

@@ -40,6 +40,8 @@ public class WithdrawOrderVo implements Serializable {
     private Integer remitType;
     @ApiModelProperty("会员类型:0、公司会员，1、渠道会员")
     private Integer type;
+    @ApiModelProperty(value = "备注")
+    private String remark;
     @ApiModelProperty("创建时间")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
@@ -61,6 +63,7 @@ public class WithdrawOrderVo implements Serializable {
         this.remitType = withdrawOrder.getRemitType();
         this.status = withdrawOrder.getStatus();
         this.type = withdrawOrder.getType();
+        this.remark = withdrawOrder.getRemark();
         this.createBy = withdrawOrder.getCreateBy();
         this.createTime =withdrawOrder.getCreateTime();
         this.updateBy = withdrawOrder.getLastModifier();
