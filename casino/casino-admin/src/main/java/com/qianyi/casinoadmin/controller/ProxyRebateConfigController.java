@@ -6,6 +6,7 @@ import com.qianyi.casinocore.service.ProxyRebateConfigService;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.DateUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -39,6 +40,9 @@ public class ProxyRebateConfigController {
     })
     @PostMapping("/updateProxyRebate")
     public ResponseEntity updateRegisterSwitch(Integer level, Integer money, Double profit){
+        if (DateUtil.verifyTime()){
+            return ResponseUtil.custom("0点到1点不能修改该配置");
+        }
         if(level < 1 || level > 5 || money < 0 || profit < 0){
             return ResponseUtil.custom("参数不合法");
         }
