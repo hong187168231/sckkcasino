@@ -493,9 +493,6 @@ public class AuthController {
             return ResponseUtil.authenticationNopass();
         }
         User user = userService.findById(authId);
-        if(!User.checkUser(user)){
-            return ResponseUtil.custom("账号被封");
-        }
         String refreshToken = JjwtUtil.refreshToken(token, user.getPassword(),Constants.CASINO_WEB);
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();
