@@ -33,8 +33,31 @@ public class PasswordUtil {
         return n;
     }
 
+
+    public static String getWithdrawPassword(){
+
+        Random rd = new Random();
+        int rn= rd.nextInt(1) + Constants.MIN_PASSWORD_NUM;
+        String n = "";
+        int getNum;
+        int getNum1;
+        do {
+            getNum = Math.abs(rd.nextInt()) % 10 + 48;// 产生数字0-9的随机数
+            char num1 = (char) getNum;
+            String dn = Character.toString(num1);
+            if(Math.random()>0.5){
+                n += dn;
+            }
+        } while (n.length() < rn);
+
+        return n;
+    }
+
+
     public static void main(String[] args) {
-        String randomPwd = getRandomPwd();
-        System.out.println(randomPwd);
+        for (int i = 0; i < 100; i++) {
+            String randomPwd = getWithdrawPassword();
+            System.out.println(randomPwd);
+        }
     }
 }
