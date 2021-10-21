@@ -15,6 +15,7 @@ import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
+import com.qianyi.modulecommon.util.DateUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -32,6 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -427,6 +430,9 @@ public class ProxyUserController {
     @PostMapping("updateProxyCommission")
     @Transactional
     public ResponseEntity updateProxyCommission(Long id, String bigDecimal){
+        if (DateUtil.verifyTime()){
+            return ResponseUtil.custom("0点到1点不能修改该配置");
+        }
         if (CasinoProxyUtil.checkNull(bigDecimal,id)){
             return ResponseUtil.custom("参数不合法");
         }

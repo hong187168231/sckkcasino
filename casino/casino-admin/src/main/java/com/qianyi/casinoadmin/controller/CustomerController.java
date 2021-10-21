@@ -51,6 +51,9 @@ public class CustomerController {
             customer = new Customer();
         }
         if (!CommonUtil.checkNull(qq)){
+            if (!qq.matches(RegexEnum.NUMBER_OR_LETTER.getRegex())) {
+                return ResponseUtil.custom("qq格式错误！");
+            }
             customer.setQq(qq);
         }
         if (!CommonUtil.checkNull(telegram)){
@@ -69,6 +72,9 @@ public class CustomerController {
             customer.setOnlineUrl(onlineUrl);
         }
         if (!CommonUtil.checkNull(wechat)){
+            if (!wechat.matches(RegexEnum.WEBCHAT.getRegex())) {
+                return ResponseUtil.custom("微信号格式错误！");
+            }
             customer.setWechat(wechat);
         }
         if (!CommonUtil.checkNull(meiqia)){

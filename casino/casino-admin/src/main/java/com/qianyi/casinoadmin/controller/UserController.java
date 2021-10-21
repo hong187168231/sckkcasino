@@ -402,7 +402,7 @@ public class UserController {
             return ResponseUtil.custom("账户不存在");
         }
         //随机生成
-        String withdrawPassword = PasswordUtil.getRandomPwd();
+        String withdrawPassword = PasswordUtil.getWithdrawPassword();
         String bcryptPassword = LoginUtil.bcrypt(withdrawPassword);
         user.setWithdrawPassword(bcryptPassword);
         userService.save(user);
