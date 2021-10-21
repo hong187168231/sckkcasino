@@ -35,7 +35,7 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
                 if(multiDeviceCheck()){
                     return true;
                 }
-                response.sendRedirect(request.getContextPath()+"/authenticationNopass");
+                response.sendRedirect(request.getContextPath()+"/authenticationMultiDevice");
                 return false;
             }
             response.sendRedirect(request.getContextPath()+"/authenticationNopass");

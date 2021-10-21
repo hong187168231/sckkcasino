@@ -39,4 +39,11 @@ public class InteceptorController implements ErrorController {
     public ResponseEntity risk() {
         return ResponseUtil.risk();
     }
+
+
+    @NoAuthentication
+    @RequestMapping("authenticationMultiDevice")
+    public ResponseEntity authenticationMultiDevice() {
+        return ResponseUtil.multiDevice();
+    }
 }
