@@ -111,10 +111,6 @@ public class WithdrawBusiness {
         if (money == null) {
             return ResponseUtil.custom("提现金额不允许为空");
         }
-        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
-        if (userMoney == null || userMoney.getCodeNum() == null || userMoney.getMoney() == null) {
-            return ResponseUtil.custom("用户钱包不存在");
-        }
         Bankcards bankcards = bankcardsService.findById(Long.parseLong(bankId));
         if (bankcards == null || !bankcards.getUserId().equals(userId)) {
             return ResponseUtil.custom("银行卡不属于当前用户");
@@ -123,6 +119,7 @@ public class WithdrawBusiness {
         if (count > 0) {
             return ResponseUtil.custom("您有一笔提款订单正在审核,请交易完成后再提交");
         }
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         BigDecimal codeNum = userMoney.getCodeNum();
         //打码量未清0没有可提现金额
         if (codeNum.compareTo(BigDecimal.ZERO) == 1) {

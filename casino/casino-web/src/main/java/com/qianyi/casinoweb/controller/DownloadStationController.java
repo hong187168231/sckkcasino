@@ -61,7 +61,7 @@ public class DownloadStationController {
     public ResponseEntity getWebUrl() {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (platformConfig == null || ObjectUtils.isEmpty(platformConfig.getDomainNameConfiguration())) {
-            return ResponseUtil.custom("网站域名未配置");
+            return ResponseUtil.custom("网站域名未配置,请联系客服");
         }
         String domain = platformConfig.getDomainNameConfiguration();
         return ResponseUtil.success(domain);
