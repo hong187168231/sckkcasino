@@ -5,19 +5,21 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
+import java.math.BigDecimal;
+
 @Configuration
 @ConfigurationProperties(prefix = "rebate")
 @PropertySource("classpath:install/proxyRebateConfig.properties")
 @Data
 public class ProxyRebateConfigFile {
     private Integer firstMoney;
-    private Double firstProfit;
+    private BigDecimal firstProfit;
     private Integer secondMoney;
-    private Double secondProfit;
+    private BigDecimal secondProfit;
     private Integer thirdMoney;
-    private Double thirdProfit;
+    private BigDecimal thirdProfit;
     private Integer fourMoney;
-    private Double fourProfit;
+    private BigDecimal fourProfit;
     private Integer fiveMoney;
-    private Double fiveProfit;
+    private BigDecimal fiveProfit;
 }
