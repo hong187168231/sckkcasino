@@ -246,7 +246,7 @@ public class WMController {
     }
 
     @ApiOperation("查询当前登录用户WM余额")
-    @RequestLimit(limit = 1, timeout = 5)
+//    @RequestLimit(limit = 1, timeout = 5)
     @GetMapping("getWmBalance")
     public ResponseEntity getWmBalance() {
         //获取登陆用户
@@ -272,7 +272,7 @@ public class WMController {
     }
 
     @ApiOperation("查询用户WM余额外部接口")
-    @RequestLimit(limit = 1, timeout = 5)
+//    @RequestLimit(limit = 1, timeout = 5)
     @GetMapping("getWmBalanceApi")
     @NoAuthentication
     @ApiImplicitParams({
@@ -299,7 +299,7 @@ public class WMController {
 
     @ApiOperation("一键回收当前登录用户WM余额")
     @Transactional
-    @RequestLimit(limit = 1, timeout = 5)
+//    @RequestLimit(limit = 1, timeout = 5)
     @GetMapping("oneKeyRecover")
     public ResponseEntity oneKeyRecover() {
         //获取登陆用户
