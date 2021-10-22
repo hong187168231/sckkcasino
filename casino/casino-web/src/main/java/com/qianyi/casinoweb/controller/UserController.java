@@ -86,7 +86,7 @@ public class UserController {
     })
     public ResponseEntity updateUserInfo(String type, String value) {
         if (ObjectUtils.isEmpty(type)) {
-            return ResponseUtil.custom("type字段不允许为空");
+            return ResponseUtil.parameterNotNull();
         }
         Long authId = CasinoWebUtil.getAuthId();
         User user = userService.findById(authId);
@@ -135,7 +135,7 @@ public class UserController {
             }
             user.setQq(value);
         } else{
-            return ResponseUtil.custom("type字段值仅限于0,1,2,3");
+            return ResponseUtil.custom("参数值错误");
         }
         userService.save(user);
         return ResponseUtil.success();
@@ -153,7 +153,7 @@ public class UserController {
     })
     public ResponseEntity webUpdateUserInfo(String email, String webChat, String qq, String phone) {
         if(ObjectUtils.isEmpty(email)&&ObjectUtils.isEmpty(webChat)&&ObjectUtils.isEmpty(qq)&&ObjectUtils.isEmpty(phone)){
-            return ResponseUtil.custom("参数为空");
+            return ResponseUtil.parameterNotNull();
         }
         if (!ObjectUtils.isEmpty(webChat) && !webChat.matches(RegexEnum.WEBCHAT.getRegex())) {
             return ResponseUtil.custom("微信号"+RegexEnum.WEBCHAT.getDesc());
@@ -200,7 +200,7 @@ public class UserController {
         //查询后台配置域名
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (platformConfig == null || ObjectUtils.isEmpty(platformConfig.getProxyConfiguration())) {
-            return ResponseUtil.custom("推广域名未配置");
+            return ResponseUtil.custom("推广域名未配置，请联系客服");
         }
         String domain = platformConfig.getProxyConfiguration();
         Long authId = CasinoWebUtil.getAuthId();

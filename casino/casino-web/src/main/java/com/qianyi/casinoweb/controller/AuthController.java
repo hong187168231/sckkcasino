@@ -457,9 +457,6 @@ public class AuthController {
         if (user == null) {
             return ResponseUtil.custom("账号不存在");
         }
-        if(!User.checkUser(user)){
-            return ResponseUtil.custom("账号被封");
-        }
         JjwtUtil.Subject subject = new JjwtUtil.Subject();
         subject.setUserId(String.valueOf(user.getId()));
         subject.setBcryptPassword(user.getPassword());
@@ -538,7 +535,7 @@ public class AuthController {
             ipBlackService.save(ipBlack);
             return ResponseUtil.custom("邀请码填写错误,ip被封");
         } else {
-            return ResponseUtil.custom("inviteType值填写错误");
+            return ResponseUtil.custom("参数值错误");
         }
     }
 

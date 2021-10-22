@@ -70,7 +70,7 @@ public class WashCodeController {
             startTime = DateUtil.getStartTime(-7);
             endTime = DateUtil.getEndTime(0);
         } else {
-            return ResponseUtil.custom("date值仅限于0,1,2");
+            return ResponseUtil.custom("参数值错误");
         }
         UserMoney userMoney = userMoneyService.findByUserId(userId);
         BigDecimal washCode = BigDecimal.ZERO;
@@ -135,7 +135,7 @@ public class WashCodeController {
             washCode = userMoney.getWashCode();
         }
         if (washCode.compareTo(BigDecimal.ONE) == -1) {
-            return ResponseUtil.custom("洗码金额小于1,不能领取");
+            return ResponseUtil.custom("金额小于1,不能领取");
         }
         userMoneyService.addMoney(userId, washCode);
         userMoneyService.subWashCode(userId, washCode);
