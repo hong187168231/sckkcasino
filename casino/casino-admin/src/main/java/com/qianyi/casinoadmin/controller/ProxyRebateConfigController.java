@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/proxyRebate")
 @Api(tags = "运营中心")
@@ -39,11 +41,11 @@ public class ProxyRebateConfigController {
             @ApiImplicitParam(name = "profit", value = "返佣比例", required = true),
     })
     @PostMapping("/updateProxyRebate")
-    public ResponseEntity updateRegisterSwitch(Integer level, Integer money, Double profit){
+    public ResponseEntity updateRegisterSwitch(Integer level, Integer money, BigDecimal profit){
         if (DateUtil.verifyTime()){
             return ResponseUtil.custom("0点到1点不能修改该配置");
         }
-        if(level < 1 || level > 5 || money < 0 || profit < 0){
+        if(level < 1 || level > 5 || money < 0 || profit.compareTo(BigDecimal.ZERO) < 0 || profit.compareTo(BigDecimal.valueOf(30l)) > 0){
             return ResponseUtil.custom("参数不合法");
         }
         ProxyRebateConfig proxyRebateConfig = proxyRebateConfigService.findFirst();

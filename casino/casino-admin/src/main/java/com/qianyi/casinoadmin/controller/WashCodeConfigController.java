@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,11 @@ public class WashCodeConfigController {
     @Operation(summary = "编辑游戏洗码配置")
     public ResponseEntity<WashCodeConfig> updateWashCodeConfigs(@RequestBody List<WashCodeConfig> washCodeConfigList){
         if(washCodeConfigList != null && washCodeConfigList.size() > 0){
+            for (WashCodeConfig washCodeConfig : washCodeConfigList) {
+                if(washCodeConfig.getRate().compareTo(BigDecimal.valueOf(60L)) > 0){
+                    return ResponseUtil.custom("洗码倍率超过限制");
+                }
+            }
             List<WashCodeConfig> washCodeConfigs = washCodeConfigService.saveAll(washCodeConfigList);
             Map<String, List<WashCodeConfig>> collect = washCodeConfigList.stream().collect(Collectors.groupingBy(WashCodeConfig::getPlatform));
 

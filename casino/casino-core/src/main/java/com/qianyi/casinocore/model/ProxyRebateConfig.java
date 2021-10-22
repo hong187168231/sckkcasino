@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.math.BigDecimal;
 
 @Data
 @Entity
@@ -22,29 +23,29 @@ public class ProxyRebateConfig {
     private Integer firstMoney;
 
     @ApiModelProperty("第一级返佣比例")
-    private Double firstProfit;
+    private BigDecimal firstProfit;
 
     @ApiModelProperty("第二级业绩额度")
     private Integer secondMoney;
 
     @ApiModelProperty("第二级返佣比例")
-    private Double secondProfit;
+    private BigDecimal secondProfit;
 
     @ApiModelProperty("第三级业绩额度")
     private Integer thirdMoney;
 
     @ApiModelProperty("第三级返佣比例")
-    private Double thirdProfit;
+    private BigDecimal thirdProfit;
 
     @ApiModelProperty("第四级业绩额度")
     private Integer fourMoney;
 
     @ApiModelProperty("第四级返佣比例")
-    private Double fourProfit;
+    private BigDecimal fourProfit;
 
     @ApiModelProperty("第五级业绩额度")
     private Integer fiveMoney;
 
     @ApiModelProperty("第五级返佣比例")
-    private Double fiveProfit;
+    private BigDecimal fiveProfit;
 }
