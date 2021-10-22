@@ -72,7 +72,11 @@ public class BankCardsController {
             return ResponseUtil.custom("持卡人不能为空");
         }
         if(isGreatThan6()){
-            return ResponseUtil.custom("已经超过6张银行卡");
+            return ResponseUtil.custom("最多只能添加6张银行卡");
+        }
+        Bankcards checkBankcards=bankcardsService.findByUserIdAndBankAccount(userId,bankAccount);
+        if (checkBankcards != null) {
+            return ResponseUtil.custom("该卡号银行卡已添加,请勿重复添加");
         }
         Bankcards bankcards = boundCard(firstBankcard,bankId,bankAccount,address,realName,userId);
         bankcards= bankcardsService.boundCard(bankcards);

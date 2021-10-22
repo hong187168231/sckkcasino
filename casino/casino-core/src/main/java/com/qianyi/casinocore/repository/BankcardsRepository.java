@@ -17,4 +17,6 @@ public interface BankcardsRepository extends JpaRepository<Bankcards,Long> , Jpa
     int countByUserId(Long userId);
 
     List<Bankcards> findByUserId(Long userId);
+
+    Bankcards findByUserIdAndBankAccount(Long userId, String bankAccount);
 }

@@ -140,5 +140,9 @@ public class BankcardsService {
     public void delete(Bankcards bankcards) {
         bankcardsRepository.delete(bankcards);
     }
+
+    public Bankcards findByUserIdAndBankAccount(Long userId, String bankAccount) {
+        return bankcardsRepository.findByUserIdAndBankAccount(userId,bankAccount);
+    }
 }
 
