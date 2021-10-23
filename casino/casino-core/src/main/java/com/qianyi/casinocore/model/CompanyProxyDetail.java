@@ -2,6 +2,7 @@ package com.qianyi.casinocore.model;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
 @Entity
 @Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @ApiModel("公司代理明细")
 public class CompanyProxyDetail extends BaseEntity implements Cloneable{
 
