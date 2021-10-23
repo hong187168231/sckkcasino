@@ -161,8 +161,8 @@ public class UserController {
         if (!ObjectUtils.isEmpty(qq) && !qq.matches(RegexEnum.NUMBER_OR_LETTER.getRegex())) {
             return ResponseUtil.custom("QQ号"+RegexEnum.NUMBER_OR_LETTER.getDesc());
         }
-        if (!ObjectUtils.isEmpty(phone) && !phone.matches(RegexEnum.NUMBER_OR_LETTER.getRegex())) {
-            return ResponseUtil.custom("手机号"+RegexEnum.NUMBER_OR_LETTER.getDesc());
+        if (!ObjectUtils.isEmpty(phone) && !phone.matches(RegexEnum.PHONE.getRegex())) {
+            return ResponseUtil.custom("手机号"+RegexEnum.PHONE.getDesc());
         }
         if (!ObjectUtils.isEmpty(email) && !email.matches(RegexEnum.EMAIL.getRegex())) {
             return ResponseUtil.custom("邮箱格式填写错误");
@@ -213,8 +213,8 @@ public class UserController {
     }
 
     public static void main(String[] args) {
-        String regex = "^[a-zA-Z]{1}[-_a-zA-Z0-9]{5,19}+$";
-        String phone="qweq-11";
+        String regex = "^[0-9]{6,20}";
+        String phone="1qwe8745632147";
         System.out.println(phone.matches(regex));
     }
 
