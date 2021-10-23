@@ -21,11 +21,11 @@ public class CompanyProxyDetail extends BaseEntity implements Cloneable{
     @ApiModelProperty(value = "用户id")
     private Long userId;
     @ApiModelProperty(value = "总代理")
-    private Long firstId;
+    private Long firstProxy;
     @ApiModelProperty(value = "区域代理")
-    private Long secondeId;
+    private Long secondProxy;
     @ApiModelProperty(value = "基层代理")
-    private Long thirdId;
+    private Long thirdProxy;
     @ApiModelProperty(value = "统计时段")
     private String staticsTimes;
     @ApiModelProperty(value = "创造业绩的玩家数")

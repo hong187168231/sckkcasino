@@ -35,7 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Api(tags = "代理管理")
+@Api(tags = "代理中心")
 @RestController
 @RequestMapping("proxyUser")
 public class ProxyUserController {

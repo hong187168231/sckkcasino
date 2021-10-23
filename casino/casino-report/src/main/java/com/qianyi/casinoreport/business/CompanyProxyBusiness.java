@@ -111,9 +111,9 @@ public class CompanyProxyBusiness {
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return CompanyProxyDetail.builder()
                 .benefitRate(profitRate)
-                .firstId(companyOrderAmountVo.getFirstProxy())
-                .secondeId(companyOrderAmountVo.getSecondProxy())
-                .thirdId(companyOrderAmountVo.getThirdProxy())
+                .firstProxy(companyOrderAmountVo.getFirstProxy())
+                .secondProxy(companyOrderAmountVo.getSecondProxy())
+                .thirdProxy(companyOrderAmountVo.getThirdProxy())
                 .userId(userid)
                 .profitLevel(companyLevelBO.getProfitLevel()+"")
                 .profitRate(companyLevelBO.getProfitAmount().toString())
