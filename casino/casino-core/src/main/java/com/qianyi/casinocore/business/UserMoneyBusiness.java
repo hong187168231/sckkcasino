@@ -72,9 +72,8 @@ public class UserMoneyBusiness {
         if (codeNum.compareTo(BigDecimal.ZERO) < 1) {
             return ResponseUtil.success();
         }
-        Long gameRecordId = record.getId();
         //最小清零打码量
-        ResponseEntity responseEntity = checkClearCodeNum(platformConfig, userId, gameRecordId, user);
+        ResponseEntity responseEntity = checkClearCodeNum(platformConfig, userId, record, user);
         if (responseEntity.getCode() == 0) {
             record.setCodeNumStatus(Constants.yes);
             gameRecordService.save(record);
@@ -84,17 +83,17 @@ public class UserMoneyBusiness {
         if (validbet.compareTo(codeNum) > -1) {
             userMoneyService.subCodeNum(userId, codeNum);
             BigDecimal codeNumAfter = user.getCodeNum().subtract(codeNum);
-            codeNumChangeService.save(userId, gameRecordId, codeNum.negate(), user.getCodeNum(), codeNumAfter);
+            codeNumChangeService.save(userId, record, codeNum.negate(), user.getCodeNum(), codeNumAfter);
             user.setCodeNum(codeNumAfter);
         } else {
             //有效投注额小于剩余打码量
             userMoneyService.subCodeNum(userId, validbet);
             BigDecimal codeNumAfter = user.getCodeNum().subtract(validbet);
-            codeNumChangeService.save(userId, gameRecordId, validbet.negate(), user.getCodeNum(), codeNumAfter);
+            codeNumChangeService.save(userId, record, validbet.negate(), user.getCodeNum(), codeNumAfter);
             user.setCodeNum(codeNumAfter);
         }
         //扣减完毕后再次检查最小清零打码量
-        checkClearCodeNum(platformConfig, userId, gameRecordId, user);
+        checkClearCodeNum(platformConfig, userId, record, user);
         record.setCodeNumStatus(Constants.yes);
         gameRecordService.save(record);
         return ResponseUtil.success();
@@ -105,25 +104,25 @@ public class UserMoneyBusiness {
      *
      * @param platformConfig
      * @param userId
-     * @param gameRecordId
+     * @param record
      * @param user
      * @return
      */
     @Transactional
-    public ResponseEntity checkClearCodeNum(PlatformConfig platformConfig, Long userId, Long gameRecordId, UserMoney user) {
+    public ResponseEntity checkClearCodeNum(PlatformConfig platformConfig, Long userId, GameRecord record, UserMoney user) {
         BigDecimal codeNum = user.getCodeNum();
         if (platformConfig != null && platformConfig.getClearCodeNum() != null) {
             BigDecimal minCodeNumVal = platformConfig.getClearCodeNum();
             //剩余打码量小于等于最小清零打码量时 直接清0
             if (codeNum.compareTo(minCodeNumVal) < 1) {
                 userMoneyService.subCodeNum(userId, codeNum);
-                codeNumChangeService.save(userId, gameRecordId, codeNum.negate(), user.getCodeNum(), user.getCodeNum().subtract(codeNum));
+                codeNumChangeService.save(userId, record, codeNum.negate(), user.getCodeNum(), user.getCodeNum().subtract(codeNum));
                 return ResponseUtil.success();
             }
         } else {
             if (codeNum.compareTo(DEFAULT_CLEAR) < 1) {
                 userMoneyService.subCodeNum(userId, codeNum);
-                codeNumChangeService.save(userId, gameRecordId, codeNum.negate(), user.getCodeNum(), user.getCodeNum().subtract(codeNum));
+                codeNumChangeService.save(userId, record, codeNum.negate(), user.getCodeNum(), user.getCodeNum().subtract(codeNum));
                 return ResponseUtil.success();
             }
         }

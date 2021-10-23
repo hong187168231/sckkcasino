@@ -4,10 +4,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
+import com.qianyi.response.ResponseCode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -64,7 +66,10 @@ public class BukaController {
             Integer status = jsonObject.getInteger("status");
             if (status != 0) {
                 String message = jsonObject.getString("reason");
-                return ResponseUtil.custom(message);
+                if(!ObjectUtils.isEmpty(message)){
+                    return ResponseUtil.custom(message);
+                }
+                return ResponseUtil.custom(ResponseCode.getMsgByCode(status));
             }
 
 //            JSONArray array = jsonObject.getJSONArray("array");
@@ -90,7 +95,10 @@ public class BukaController {
             Integer status = jsonObject.getInteger("status");
             if (status != 0) {
                 String message = jsonObject.getString("reason");
-                return ResponseUtil.custom(message);
+                if(!ObjectUtils.isEmpty(message)){
+                    return ResponseUtil.custom(message);
+                }
+                return ResponseUtil.custom(ResponseCode.getMsgByCode(status));
             }
 
             String balance = jsonObject.getString("balance");

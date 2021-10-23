@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.CodeNumChange;
+import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.repository.CodeNumChangeRepository;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,13 @@ public class CodeNumChangeService {
     @Autowired
     private CodeNumChangeRepository codeNumChangeRepository;
 
-    public void save(Long userId, Long gameRecordId, BigDecimal amount, BigDecimal amountBefore, BigDecimal amountAfter) {
+    public void save(Long userId, GameRecord record, BigDecimal amount, BigDecimal amountBefore, BigDecimal amountAfter) {
         CodeNumChange codeNumChange=new CodeNumChange();
         codeNumChange.setUserId(userId);
-        codeNumChange.setGameRecordId(gameRecordId);
+        if (record != null) {
+            codeNumChange.setGameRecordId(record.getId());
+            codeNumChange.setBetId(record.getBetId());
+        }
         codeNumChange.setAmount(amount);
         codeNumChange.setAmountBefore(amountBefore);
         codeNumChange.setAmountAfter(amountAfter);
