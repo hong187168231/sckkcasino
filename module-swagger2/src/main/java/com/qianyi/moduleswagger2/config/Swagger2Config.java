@@ -23,7 +23,7 @@ import java.util.List;
 @EnableOpenApi
 public class Swagger2Config {
 
-    @Value("${project.title}")
+    @Value("${project.title:null}")
     String title;
 
     @Bean

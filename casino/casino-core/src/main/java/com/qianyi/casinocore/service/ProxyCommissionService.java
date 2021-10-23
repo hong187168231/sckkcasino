@@ -17,6 +17,9 @@ import java.util.List;
 public class ProxyCommissionService {
     @Autowired
     private ProxyCommissionRepository proxyCommissionRepository;
+
+
+
     @CachePut(key="#proxyCommission.proxyUserId")
     public ProxyCommission save(ProxyCommission proxyCommission){
         return proxyCommissionRepository.save(proxyCommission);
