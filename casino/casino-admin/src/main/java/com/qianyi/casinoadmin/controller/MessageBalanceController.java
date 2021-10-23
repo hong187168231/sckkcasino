@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.TreeMap;
 
 @RestController
-@RequestMapping("buka")
-@Api(value = "运营中心")
-public class BukaController {
+@RequestMapping("messageBalance")
+@Api(tags = "运营中心")
+public class MessageBalanceController {
 
     private final static String url_half = "https://api.onbuka.com/v3/";
 
