@@ -1,5 +1,6 @@
 package com.qianyi.modulecommon.inteceptor;
 
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -30,8 +31,8 @@ public class InteceptorController implements ErrorController {
 
     @NoAuthentication
     @RequestMapping("authenticationIpLimit")
-    public ResponseEntity authenticationIpLimit(String remark) {
-        return ResponseUtil.custom(remark);
+    public ResponseEntity authenticationIpLimit() {
+        return ResponseUtil.custom(Constants.IP_BLOCK);
     }
 
     @NoAuthentication

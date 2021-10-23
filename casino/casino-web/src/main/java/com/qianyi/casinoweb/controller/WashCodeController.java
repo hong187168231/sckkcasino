@@ -57,20 +57,17 @@ public class WashCodeController {
     public ResponseEntity chargeOrderList(String date) {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
-        List<String> dateList = new ArrayList<>();
         String startTime = null;
         String endTime = null;
-        if ("0".equals(date)) {
-            startTime = DateUtil.getStartTime(0);
-            endTime = DateUtil.getEndTime(0);
-        } else if ("1".equals(date)) {
+        if ("1".equals(date)) {
             startTime = DateUtil.getStartTime(-1);
             endTime = DateUtil.getEndTime(-1);
         } else if ("2".equals(date)) {
             startTime = DateUtil.getStartTime(-7);
             endTime = DateUtil.getEndTime(0);
-        } else {
-            return ResponseUtil.custom("参数值错误");
+        } else {//默认查今天
+            startTime = DateUtil.getStartTime(0);
+            endTime = DateUtil.getEndTime(0);
         }
         UserMoney userMoney = userMoneyService.findByUserId(userId);
         BigDecimal washCode = BigDecimal.ZERO;

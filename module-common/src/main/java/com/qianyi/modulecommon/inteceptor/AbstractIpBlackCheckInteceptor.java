@@ -18,8 +18,8 @@ public abstract class AbstractIpBlackCheckInteceptor implements HandlerIntercept
         }
         String ipRemark = ipBlackCheck(request);
         if(!ObjectUtils.isEmpty(ipRemark)){
-            ipRemark = URLEncoder.encode(ipRemark,"UTF-8");
-            response.sendRedirect(request.getContextPath()+"/authenticationIpLimit?remark="+ipRemark);
+//            ipRemark = URLEncoder.encode(ipRemark,"UTF-8");
+            response.sendRedirect(request.getContextPath()+"/authenticationIpLimit");
             return false;
         }
         return true;

@@ -520,7 +520,7 @@ public class AuthController {
             ipBlack.setStatus(Constants.no);
             ipBlack.setRemark("人人代邀请码填写错误，IP被封");
             ipBlackService.save(ipBlack);
-            return ResponseUtil.custom("邀请码填写错误,ip被封");
+            return ResponseUtil.custom(Constants.IP_BLOCK);
         } else if (Constants.INVITE_TYPE_PROXY.equals(inviteType)) {
             ProxyUser proxyUser = proxyUserService.findByProxyCode(inviteCode);
             if (proxyUser != null) {
@@ -532,9 +532,9 @@ public class AuthController {
             ipBlack.setStatus(Constants.no);
             ipBlack.setRemark("基层代理邀请码填写错误，IP被封");
             ipBlackService.save(ipBlack);
-            return ResponseUtil.custom("邀请码填写错误,ip被封");
+            return ResponseUtil.custom(Constants.IP_BLOCK);
         } else {
-            return ResponseUtil.custom("参数值错误");
+            return ResponseUtil.custom("邀请码检验失败");
         }
     }
 

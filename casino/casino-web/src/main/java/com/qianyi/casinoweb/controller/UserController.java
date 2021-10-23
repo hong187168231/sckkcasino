@@ -130,12 +130,12 @@ public class UserController {
             if(ObjectUtils.isEmpty(value)){
                 return ResponseUtil.custom("QQ号不允许为空");
             }
-            if (!value.matches(RegexEnum.NUMBER_OR_LETTER.getRegex())) {
-                return ResponseUtil.custom("QQ号"+RegexEnum.NUMBER_OR_LETTER.getDesc());
+            if (!value.matches(RegexEnum.QQ.getRegex())) {
+                return ResponseUtil.custom("QQ号"+RegexEnum.QQ.getDesc());
             }
             user.setQq(value);
         } else{
-            return ResponseUtil.custom("参数值错误");
+            return ResponseUtil.custom("修改失败");
         }
         userService.save(user);
         return ResponseUtil.success();
@@ -158,8 +158,8 @@ public class UserController {
         if (!ObjectUtils.isEmpty(webChat) && !webChat.matches(RegexEnum.WEBCHAT.getRegex())) {
             return ResponseUtil.custom("微信号"+RegexEnum.WEBCHAT.getDesc());
         }
-        if (!ObjectUtils.isEmpty(qq) && !qq.matches(RegexEnum.NUMBER_OR_LETTER.getRegex())) {
-            return ResponseUtil.custom("QQ号"+RegexEnum.NUMBER_OR_LETTER.getDesc());
+        if (!ObjectUtils.isEmpty(qq) && !qq.matches(RegexEnum.QQ.getRegex())) {
+            return ResponseUtil.custom("QQ号"+RegexEnum.QQ.getDesc());
         }
         if (!ObjectUtils.isEmpty(phone) && !phone.matches(RegexEnum.PHONE.getRegex())) {
             return ResponseUtil.custom("手机号"+RegexEnum.PHONE.getDesc());
@@ -213,8 +213,8 @@ public class UserController {
     }
 
     public static void main(String[] args) {
-        String regex = "^[0-9]{6,20}";
-        String phone="1qwe8745632147";
+        String regex = "[1-9][0-9]{4,14}";
+        String phone="11111a";
         System.out.println(phone.matches(regex));
     }
 

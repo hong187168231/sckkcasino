@@ -80,5 +80,7 @@ public class Constants {
     public static final Integer USER_TYPE0= 0;
     //会员类型：渠道会员
     public static final Integer USER_TYPE1= 1;
+    //会员类型：渠道会员
+    public static final String IP_BLOCK= "IP被封。请联系管理员解锁";
 
 }

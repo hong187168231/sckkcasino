@@ -103,7 +103,7 @@ public class BankCardsController {
         }
         Long authId = CasinoWebUtil.getAuthId();
         if (!authId.equals(bankcards.getUserId())) {
-            return ResponseUtil.custom("当前银行卡不属于登录用户");
+            return ResponseUtil.custom("银行卡错误");
         }
         bankcardsService.delete(bankcards);
         //如果删除的是默认银行卡,重新再设置一张卡为默认卡
@@ -138,7 +138,7 @@ public class BankCardsController {
         }
         Long authId = CasinoWebUtil.getAuthId();
         if (!authId.equals(bankcards.getUserId())) {
-            return ResponseUtil.custom("当前银行卡不属于登录用户");
+            return ResponseUtil.custom("银行卡错误");
         }
         Bankcards defaultBankcards = findDefaultCardByUserId(authId);
         if (defaultBankcards != null) {

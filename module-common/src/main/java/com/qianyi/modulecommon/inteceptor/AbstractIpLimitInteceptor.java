@@ -18,8 +18,8 @@ public abstract class AbstractIpLimitInteceptor implements HandlerInterceptor {
         }
         String ipRemark = ipLimit(request);
         if(!ObjectUtils.isEmpty(ipRemark)){
-            ipRemark = URLEncoder.encode(ipRemark,"UTF-8");
-            response.sendRedirect(request.getContextPath()+"/authenticationIpLimit?remark="+ipRemark);
+//            ipRemark = URLEncoder.encode(ipRemark,"UTF-8");
+            response.sendRedirect(request.getContextPath()+"/authenticationIpLimit");
             return false;
         }
         return true;
