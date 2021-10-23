@@ -3,6 +3,7 @@ package com.qianyi.casinocore.service;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.repository.GameRecordRepository;
+import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -134,5 +135,9 @@ public class GameRecordService {
             }
         };
         return specification;
+    }
+
+    public List<CompanyOrderAmountVo> getStatisticsResult(String startTime, String endTime){
+        return gameRecordRepository.getStatisticsResult(startTime,endTime);
     }
 }
