@@ -48,6 +48,9 @@ public class ChargeOrderBusiness {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private CodeNumChangeService codeNumChangeService;
+
     /**
      * 成功订单确认
      * @param id 充值订单id
@@ -116,6 +119,8 @@ public class ChargeOrderBusiness {
         //流水表记录
         RechargeTurnover turnover = getRechargeTurnover(chargeOrder,userMoney, codeNum, codeTimes);
         rechargeTurnoverService.save(turnover);
+        //打吗记录
+        codeNumChangeService.save(userMoney.getUserId(),null,codeNum,userMoney.getCodeNum().subtract(codeNum),userMoney.getCodeNum());
         log.info("后台上分userId {} 类型 {}订单号 {} chargeAmount is {}, money is {}",userMoney.getUserId(),
                 changeEnum.getCode(),chargeOrder.getOrderNo(),subtract, userMoney.getMoney());
         //用户账变记录
