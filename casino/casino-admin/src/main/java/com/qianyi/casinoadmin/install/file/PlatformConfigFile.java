@@ -31,4 +31,5 @@ public class PlatformConfigFile {
     private String domainNameConfiguration;
     private Integer registerSwitch;
     private String proxyConfiguration;
+    private BigDecimal sendMessageWarning;
 }

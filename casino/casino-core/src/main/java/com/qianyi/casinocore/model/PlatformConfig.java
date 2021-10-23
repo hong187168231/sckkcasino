@@ -94,6 +94,10 @@ public class PlatformConfig {
     @ApiModelProperty("注册开关 0 关闭 1 开启")
     private Integer registerSwitch = 1;
 
+    @ApiModelProperty("短信余额警戒线")
+    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    private BigDecimal sendMessageWarning;
+
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){
         if (this.chargeRate == null){

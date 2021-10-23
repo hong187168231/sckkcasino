@@ -1,10 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinoadmin.vo.BetRatioConfigVo;
-import com.qianyi.casinoadmin.vo.DomainNameVo;
-import com.qianyi.casinoadmin.vo.RegisterSwitchVo;
-import com.qianyi.casinoadmin.vo.UserCommissionVo;
+import com.qianyi.casinoadmin.vo.*;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.modulecommon.reponse.ResponseCode;
@@ -158,6 +155,43 @@ public class PlatformConfigController {
         first.setId(id);
         first.setRegisterSwitch(registerSwitch);
         platformConfigService.save(first);
+        return ResponseUtil.success();
+    }
+
+    /**
+     * 短信风险警戒线查询
+     * @return
+     */
+    @ApiOperation("短信余额警戒线查询")
+    @GetMapping("/findMessageBalance")
+    public ResponseEntity<PlatformConfig> findMessageBalance(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        SendMessageVo sendMessageVo = new SendMessageVo();
+        BigDecimal sendMessageWarning = platformConfig.getSendMessageWarning();
+        sendMessageVo.setSendMessageWarning(sendMessageWarning);
+        return ResponseUtil.success(sendMessageVo);
+    }
+
+    /**
+     * 编辑短信余额风险警戒线
+     * @param sendMessageWarning 短信余额风险警戒值
+     * @return
+     */
+    @ApiOperation("编辑短信余额风险警戒线")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "sendMessageWarning", value = "短信余额风险警戒值", required = false),
+    })
+    @PostMapping("/uodateMessageBalance")
+    public ResponseEntity uodateMessageBalance(BigDecimal sendMessageWarning){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (LoginUtil.checkNull(platformConfig)){
+            platformConfig = new PlatformConfig();
+        }
+
+        if (!LoginUtil.checkNull(sendMessageWarning)){
+            platformConfig.setSendMessageWarning(sendMessageWarning);
+        }
+        platformConfigService.save(platformConfig);
         return ResponseUtil.success();
     }
 }
