@@ -70,7 +70,7 @@ public class UserMoneyBusiness {
         BigDecimal codeNum = user.getCodeNum();
         //剩余打码量小于等于0时
         if (codeNum.compareTo(BigDecimal.ZERO) < 1) {
-            return ResponseUtil.fail();
+            return ResponseUtil.success();
         }
         Long gameRecordId = record.getId();
         //最小清零打码量
