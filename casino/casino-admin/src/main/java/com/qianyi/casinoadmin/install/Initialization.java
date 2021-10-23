@@ -73,6 +73,7 @@ public class Initialization implements CommandLineRunner {
             platformConfig.setDomainNameConfiguration(platformConfigFile.getDomainNameConfiguration());
             platformConfig.setRegisterSwitch(platformConfigFile.getRegisterSwitch());
             platformConfig.setProxyConfiguration(platformConfigFile.getProxyConfiguration());
+            platformConfig.setSendMessageWarning(platformConfigFile.getSendMessageWarning());
             platformConfigService.save(platformConfig);
         }
     }
