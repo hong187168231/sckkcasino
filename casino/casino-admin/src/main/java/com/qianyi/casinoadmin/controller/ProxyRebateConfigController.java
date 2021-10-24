@@ -82,17 +82,19 @@ public class ProxyRebateConfigController {
         if (proxyUser.getProxyRole() != CommonConst.NUMBER_1){
             return ResponseUtil.custom("只能设置总代");
         }
+        ProxyRebateConfig byId = proxyRebateConfigService.findById(proxyUser.getId());
         if (tag == CommonConst.NUMBER_0){
-            ProxyRebateConfig byId = proxyRebateConfigService.findById(proxyUser.getId());
             if (!LoginUtil.checkNull(byId)){
-                proxyRebateConfigService.deleteById(proxyUser.getId());
+                proxyRebateConfigService.delete(byId.getProxyUserId(),byId);
             }
             return ResponseUtil.success();
         }else if (tag == CommonConst.NUMBER_1){
             if (LoginUtil.checkNull(proxyRebateConfig)){
                 return ResponseUtil.custom("参数不合法");
             }
-            proxyRebateConfig.setProxyUserId(proxyUser.getId());
+            if (!LoginUtil.checkNull(byId)){
+                proxyRebateConfig.setId(byId.getId());
+            }
             proxyRebateConfigService.save(proxyRebateConfig);
             return ResponseUtil.success();
         }
