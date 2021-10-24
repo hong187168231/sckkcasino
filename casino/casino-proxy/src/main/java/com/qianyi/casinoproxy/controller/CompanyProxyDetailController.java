@@ -1,6 +1,5 @@
-package com.qianyi.casinoadmin.controller;
+package com.qianyi.casinoproxy.controller;
 
-import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.CompanyProxyDetail;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.service.CompanyProxyDetailService;
@@ -10,6 +9,7 @@ import com.qianyi.casinocore.util.PageUtil;
 import com.qianyi.casinocore.vo.CompanyProxyDetailVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.PageVo;
+import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -23,7 +23,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Api(tags = "代理中心")
@@ -50,29 +53,28 @@ public class CompanyProxyDetailController {
                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         CompanyProxyDetail companyProxyDetail = new CompanyProxyDetail();
+        if (CasinoProxyUtil.setParameter(companyProxyDetail)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
         List<CompanyProxyDetailVo> companyProxyDetailVos = new LinkedList<>();
-        if (!LoginUtil.checkNull(userName)){
-            if (LoginUtil.checkNull(tag)){
+        Long authId = CasinoProxyUtil.getAuthId();
+        ProxyUser byId = proxyUserService.findById(authId);
+        if (!CasinoProxyUtil.checkNull(userName)){
+            if (CasinoProxyUtil.checkNull(tag)){
                 return ResponseUtil.custom("参数不合法");
             }
             ProxyUser byUserName = proxyUserService.findByUserName(userName);
-            if (LoginUtil.checkNull(byUserName)){
+            if (CasinoProxyUtil.checkNull(byUserName)){
+                return ResponseUtil.success(new PageResultVO());
+            }
+            if (byId.getProxyRole() == byUserName.getProxyRole() && byId.getId() != byUserName.getId()){//不能搜同级别的
+                return ResponseUtil.success(new PageResultVO());
+            }
+            if (byId.getProxyRole() > byUserName.getProxyRole()){//不能搜上级的
                 return ResponseUtil.success(new PageResultVO());
             }
             if (tag == CommonConst.NUMBER_1){//包含下级
-                if (byUserName.getProxyRole() == CommonConst.NUMBER_1){
-                    companyProxyDetail.setFirstProxy(byUserName.getId());
-                    List<CompanyProxyDetail> companyProxyDetails = companyProxyDetailService.findCompanyProxyDetails(companyProxyDetail, startDate, endDate);
-                    this.allCompanyProxyDetail(companyProxyDetails,companyProxyDetailVos);
-                }else if(byUserName.getProxyRole() == CommonConst.NUMBER_2){
-                    companyProxyDetail.setSecondProxy(byUserName.getId());
-                    List<CompanyProxyDetail> companyProxyDetails = companyProxyDetailService.findCompanyProxyDetails(companyProxyDetail, startDate, endDate);
-                    this.secondCompanyProxyDetail(companyProxyDetails,companyProxyDetailVos);
-                }else {
-                    companyProxyDetail.setThirdProxy(byUserName.getId());
-                    List<CompanyProxyDetail> companyProxyDetails = companyProxyDetailService.findCompanyProxyDetails(companyProxyDetail, startDate, endDate);
-                    this.thirdCompanyProxyDetail(companyProxyDetails,companyProxyDetailVos);
-                }
+                this.allCompanyProxyDetail(byUserName,startDate,endDate,companyProxyDetail,companyProxyDetailVos);
             }else {
                 if (byUserName.getProxyRole() == CommonConst.NUMBER_1){
                     companyProxyDetail.setFirstProxy(byUserName.getId());
@@ -89,12 +91,11 @@ public class CompanyProxyDetailController {
                 }
             }
         }else {
-            List<CompanyProxyDetail> companyProxyDetails = companyProxyDetailService.findCompanyProxyDetails(companyProxyDetail, startDate, endDate);
-            this.allCompanyProxyDetail(companyProxyDetails,companyProxyDetailVos);
+            this.allCompanyProxyDetail(byId,startDate,endDate,companyProxyDetail,companyProxyDetailVos);
         }
         PageVo pageVO = new PageVo(pageCode,pageSize);
         PageResultVO<CompanyProxyDetailVo> pageResultVO;
-        if (!LoginUtil.checkNull(proxyRole)){
+        if (!CasinoProxyUtil.checkNull(proxyRole)){
             List<CompanyProxyDetailVo> companyProxyDetailVoList = companyProxyDetailVos.stream().filter(item -> item.getProxyRole().equals(proxyRole)).collect(Collectors.toList());
             pageResultVO = (PageResultVO<CompanyProxyDetailVo>) PageUtil.handlePageResult(companyProxyDetailVoList, pageVO);
         }else {
@@ -126,12 +127,12 @@ public class CompanyProxyDetailController {
     })
     public ResponseEntity<CompanyProxyDetail> findDailyDetails(Long id,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
-        if (LoginUtil.checkNull(id)){
+        if (CasinoProxyUtil.checkNull(id)){
             return ResponseUtil.custom("参数不合法");
         }
         ProxyUser byUserName = proxyUserService.findById(id);
         List<CompanyProxyDetail> companyProxyDetailList = new LinkedList<>();
-        if (LoginUtil.checkNull(byUserName)){
+        if (CasinoProxyUtil.checkNull(byUserName)){
             return ResponseUtil.success(companyProxyDetailList);
         }
         CompanyProxyDetail companyProxyDetail = new CompanyProxyDetail();
@@ -149,6 +150,21 @@ public class CompanyProxyDetailController {
         }
 
         return ResponseUtil.success(companyProxyDetailList);
+    }
+    private void allCompanyProxyDetail(ProxyUser proxyUser,Date startDate,Date endDate,CompanyProxyDetail companyProxyDetail,List<CompanyProxyDetailVo> companyProxyDetailVos){
+        if (proxyUser.getProxyRole() == CommonConst.NUMBER_1){
+            companyProxyDetail.setFirstProxy(proxyUser.getId());
+            List<CompanyProxyDetail> companyProxyDetails = companyProxyDetailService.findCompanyProxyDetails(companyProxyDetail, startDate, endDate);
+            this.allCompanyProxyDetail(companyProxyDetails,companyProxyDetailVos);
+        }else if(proxyUser.getProxyRole() == CommonConst.NUMBER_2){
+            companyProxyDetail.setSecondProxy(proxyUser.getId());
+            List<CompanyProxyDetail> companyProxyDetails = companyProxyDetailService.findCompanyProxyDetails(companyProxyDetail, startDate, endDate);
+            this.secondCompanyProxyDetail(companyProxyDetails,companyProxyDetailVos);
+        }else {
+            companyProxyDetail.setThirdProxy(proxyUser.getId());
+            List<CompanyProxyDetail> companyProxyDetails = companyProxyDetailService.findCompanyProxyDetails(companyProxyDetail, startDate, endDate);
+            this.thirdCompanyProxyDetail(companyProxyDetails,companyProxyDetailVos);
+        }
     }
     private void thirdCompanyProxyDetail(List<CompanyProxyDetail> companyProxyDetails,List<CompanyProxyDetailVo> companyProxyDetailVos){
         Map<Long, List<CompanyProxyDetail>> thirdMap = companyProxyDetails.stream().collect(Collectors.groupingBy(CompanyProxyDetail::getThirdProxy));
@@ -174,6 +190,8 @@ public class CompanyProxyDetailController {
         });
     }
     private void assemble(List<CompanyProxyDetail> list,List<CompanyProxyDetailVo> companyProxyDetailVos,Long proxyId,Integer proxyRole){
+        if (CasinoProxyUtil.checkNull(list) && list.size() == CommonConst.NUMBER_0)
+            return;
         CompanyProxyDetailVo vo = new CompanyProxyDetailVo();
         BigDecimal groupBetAmount = list.stream().map(CompanyProxyDetail::getGroupBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal groupTotalprofit = list.stream().map(CompanyProxyDetail::getGroupTotalprofit).reduce(BigDecimal.ZERO, BigDecimal::add);

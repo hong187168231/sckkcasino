@@ -3,8 +3,15 @@ package com.qianyi.casinocore.service;
 import com.qianyi.casinocore.model.CompanyProxyDetail;
 import com.qianyi.casinocore.repository.CompanyProxyDetailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -23,5 +30,46 @@ public class CompanyProxyDetailService {
 
     public CompanyProxyDetail getCompanyProxyDetailByUidAndTime(Long uid,String staticsTime){
         return companyProxyDetailRepository.getCompanyProxyDetailByUserIdAndStaticsTimes(uid,staticsTime);
+    }
+    public List<CompanyProxyDetail> findCompanyProxyDetails(CompanyProxyDetail companyProxyDetail, Date startDate, Date endDate) {
+        Specification<CompanyProxyDetail> condition = this.getCondition(companyProxyDetail,startDate,endDate);
+        return companyProxyDetailRepository.findAll(condition);
+    }
+    /**
+     * 查询条件拼接，灵活添加条件
+     *
+     * @param companyProxyDetail
+     * @return
+     */
+    private Specification<CompanyProxyDetail> getCondition(CompanyProxyDetail companyProxyDetail, Date startDate, Date endDate) {
+        Specification<CompanyProxyDetail> specification = new Specification<CompanyProxyDetail>() {
+            @Override
+            public Predicate toPredicate(Root<CompanyProxyDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+//                if (!CommonUtil.checkNull(companyProxyDetail.getProfitRate())) {
+//                    list.add(cb.equal(root.get("userName").as(String.class), proxyUser.getUserName()));
+//                }
+//                if (proxyUser.getProxyRole() != null) {
+//                    list.add(cb.equal(root.get("proxyRole").as(Integer.class), proxyUser.getProxyRole()));
+//                }
+                if (companyProxyDetail.getFirstProxy() != null) {
+                    list.add(cb.equal(root.get("firstProxy").as(Long.class), companyProxyDetail.getFirstProxy()));
+                }
+                if (companyProxyDetail.getSecondProxy() != null) {
+                    list.add(cb.equal(root.get("secondProxy").as(Long.class), companyProxyDetail.getSecondProxy()));
+                }
+                if (companyProxyDetail.getThirdProxy() != null) {
+                    list.add(cb.equal(root.get("thirdProxy").as(Long.class), companyProxyDetail.getThirdProxy()));
+                }
+                if (startDate != null) {
+                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+                }
+                if (endDate != null) {
+                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
     }
 }
