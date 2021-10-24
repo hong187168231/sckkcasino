@@ -5,8 +5,10 @@ import com.qianyi.casinoadmin.install.file.ProxyRebateConfigFile;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.model.ProxyRebateConfig;
+import com.qianyi.casinocore.model.RebateConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.ProxyRebateConfigService;
+import com.qianyi.casinocore.service.RebateConfigService;
 import com.qianyi.casinocore.util.CommonConst;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +27,7 @@ public class Initialization implements CommandLineRunner {
     @Autowired
     private PlatformConfigService platformConfigService;
     @Autowired
-    private ProxyRebateConfigService proxyRebateConfigService;
+    private RebateConfigService rebateConfigService;
     @Override
     public void run(String... args) throws Exception {
         log.info("初始化数据开始============================================》");
@@ -34,9 +36,9 @@ public class Initialization implements CommandLineRunner {
     }
 
     private void runProxyRebateConfig(){
-        List<ProxyRebateConfig> all = proxyRebateConfigService.findAll();
+        List<RebateConfig> all = rebateConfigService.findAll();
         if (LoginUtil.checkNull(all) || all.size() == CommonConst.NUMBER_0){
-            ProxyRebateConfig first = new ProxyRebateConfig();
+            RebateConfig first = new RebateConfig();
             first.setFirstMoney(proxyRebateConfigFile.getFirstMoney());
             first.setFirstProfit(proxyRebateConfigFile.getFirstProfit());
             first.setSecondMoney(proxyRebateConfigFile.getSecondMoney());
@@ -47,7 +49,13 @@ public class Initialization implements CommandLineRunner {
             first.setFourProfit(proxyRebateConfigFile.getFourProfit());
             first.setFiveMoney(proxyRebateConfigFile.getFiveMoney());
             first.setFiveProfit(proxyRebateConfigFile.getFiveProfit());
-            proxyRebateConfigService.save(first);
+            first.setSixMoney(proxyRebateConfigFile.getSixMoney());
+            first.setSixProfit(proxyRebateConfigFile.getSixProfit());
+            first.setSevenMoney(proxyRebateConfigFile.getSevenMoney());
+            first.setSevenProfit(proxyRebateConfigFile.getSevenProfit());
+            first.setEightMoney(proxyRebateConfigFile.getEightMoney());
+            first.setEightProfit(proxyRebateConfigFile.getEightProfit());
+            rebateConfigService.save(first);
         }
     }
     private void runPlatformConfig(){

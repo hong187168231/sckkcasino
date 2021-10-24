@@ -12,15 +12,11 @@ import java.math.BigDecimal;
 
 @Data
 @Entity
-@ApiModel("代理返佣等级配置")
-public class ProxyRebateConfig {
-
+@ApiModel("全局代理返佣等级配置")
+public class RebateConfig {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ApiModelProperty("总代理id")
-    private Long proxyUserId;
 
     @ApiModelProperty("第一级业绩额度")
     private Integer firstMoney;

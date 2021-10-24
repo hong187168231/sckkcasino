@@ -1,8 +1,14 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.ProxyRebateConfig;
+import com.qianyi.casinocore.model.ProxyUser;
+import com.qianyi.casinocore.model.RebateConfig;
 import com.qianyi.casinocore.service.ProxyRebateConfigService;
+import com.qianyi.casinocore.service.ProxyUserService;
+import com.qianyi.casinocore.service.RebateConfigService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -17,62 +23,79 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
-
 @RestController
-@RequestMapping("/proxyRebate")
-@Api(tags = "运营中心")
+@RequestMapping("/proxyRebateConfig")
+@Api(tags = "代理中心")
 public class ProxyRebateConfigController {
-
     @Autowired
     private ProxyRebateConfigService proxyRebateConfigService;
 
+    @Autowired
+    private RebateConfigService rebateConfigService;
+
+    @Autowired
+    private ProxyUserService proxyUserService;
+
     @ApiOperation("查询代理返佣等级配置")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "当前详情页面代理id", required = true),
+    })
     @GetMapping("/findAll")
-    public ResponseEntity<ProxyRebateConfig> findRegisterSwitchVo(){
-        ProxyRebateConfig first = proxyRebateConfigService.findFirst();
-        return new ResponseEntity(ResponseCode.SUCCESS, first);
+    public ResponseEntity findAll(Long id){
+        ProxyUser proxyUser = proxyUserService.findById(id);
+        if (LoginUtil.checkNull(proxyUser)){
+            return ResponseUtil.custom("代理不存在");
+        }
+        Integer tag = CommonConst.NUMBER_1;
+        ProxyRebateConfig proxyRebateConfig = proxyRebateConfigService.findById(proxyUser.getFirstProxy());
+        JSONObject jsonObject = new JSONObject();
+        if (!LoginUtil.checkNull(proxyRebateConfig)){
+            jsonObject.put("data", proxyRebateConfig);
+            jsonObject.put("tag", tag);
+            return ResponseUtil.success(jsonObject);
+        }
+        RebateConfig rebateConfig = rebateConfigService.findFirst();
+        tag = CommonConst.NUMBER_0;
+        jsonObject.put("data", rebateConfig);
+        jsonObject.put("tag", tag);
+        return ResponseUtil.success(jsonObject);
     }
 
     @ApiOperation("编辑代理返佣等级配置")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "level", value = "返佣等级", required = true),
-            @ApiImplicitParam(name = "money", value = "业绩额度(整数)", required = true),
-            @ApiImplicitParam(name = "profit", value = "返佣比例", required = true),
+            @ApiImplicitParam(name = "proxyRebateConfig", value = "返佣等级对象", required = false),
+            @ApiImplicitParam(name = "tag", value = "0 启用全局 1 启用个人", required = true),
+            @ApiImplicitParam(name = "proxyUserId", value = "当前详情页面代理id", required = true),
     })
     @PostMapping("/updateProxyRebate")
-    public ResponseEntity updateRegisterSwitch(Integer level, Integer money, BigDecimal profit){
+    public ResponseEntity updateRegisterSwitch(ProxyRebateConfig proxyRebateConfig,Long proxyUserId,Integer tag){
         if (DateUtil.verifyTime()){
             return ResponseUtil.custom("0点到1点不能修改该配置");
         }
-        if(level < 1 || level > 5 || money < 0 || profit.compareTo(BigDecimal.ZERO) < 0 || profit.compareTo(BigDecimal.valueOf(30l)) > 0){
-            return ResponseUtil.custom("参数不合法");
+        if (LoginUtil.checkNull(tag,proxyUserId)){
+            return ResponseUtil.custom("参数必填");
         }
-        ProxyRebateConfig proxyRebateConfig = proxyRebateConfigService.findFirst();
-        if (LoginUtil.checkNull(proxyRebateConfig)){
-            proxyRebateConfig = new ProxyRebateConfig();
+        ProxyUser proxyUser = proxyUserService.findById(proxyUserId);
+        if (LoginUtil.checkNull(proxyUser)){
+            return ResponseUtil.custom("代理不存在");
         }
-        if(level == 1){
-            proxyRebateConfig.setFirstMoney(money);
-            proxyRebateConfig.setFirstProfit(profit);
+        if (proxyUser.getProxyRole() != CommonConst.NUMBER_1){
+            return ResponseUtil.custom("只能设置总代");
         }
-        if(level == 2){
-            proxyRebateConfig.setSecondMoney(money);
-            proxyRebateConfig.setSecondProfit(profit);
+        if (tag == CommonConst.NUMBER_0){
+            ProxyRebateConfig byId = proxyRebateConfigService.findById(proxyUser.getId());
+            if (!LoginUtil.checkNull(byId)){
+                proxyRebateConfigService.deleteById(proxyUser.getId());
+            }
+            return ResponseUtil.success();
+        }else if (tag == CommonConst.NUMBER_1){
+            if (LoginUtil.checkNull(proxyRebateConfig)){
+                return ResponseUtil.custom("参数不合法");
+            }
+            proxyRebateConfig.setProxyUserId(proxyUser.getId());
+            proxyRebateConfigService.save(proxyRebateConfig);
+            return ResponseUtil.success();
         }
-        if(level == 3){
-            proxyRebateConfig.setThirdMoney(money);
-            proxyRebateConfig.setThirdProfit(profit);
-        }
-        if(level == 4){
-            proxyRebateConfig.setFourMoney(money);
-            proxyRebateConfig.setFourProfit(profit);
-        }
-        if(level == 5){
-            proxyRebateConfig.setFiveMoney(money);
-            proxyRebateConfig.setFiveProfit(profit);
-        }
-        proxyRebateConfigService.save(proxyRebateConfig);
-        return ResponseUtil.success();
+        return ResponseUtil.custom("参数不合法");
     }
 }

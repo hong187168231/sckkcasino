@@ -22,4 +22,10 @@ public class ProxyRebateConfigFile {
     private BigDecimal fourProfit;
     private Integer fiveMoney;
     private BigDecimal fiveProfit;
+    private Integer sixMoney;
+    private BigDecimal sixProfit;
+    private Integer sevenMoney;
+    private BigDecimal sevenProfit;
+    private Integer eightMoney;
+    private BigDecimal eightProfit;
 }
