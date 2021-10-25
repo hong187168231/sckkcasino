@@ -1,7 +1,9 @@
 package com.qianyi.casinoreport.business;
 
 import com.qianyi.casinocore.model.ProxyRebateConfig;
+import com.qianyi.casinocore.model.RebateConfig;
 import com.qianyi.casinocore.service.ProxyRebateConfigService;
+import com.qianyi.casinocore.service.RebateConfigService;
 import com.qianyi.casinoreport.vo.CompanyLevelBO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,12 +19,12 @@ import java.util.stream.Collectors;
 public class CompanyLevelProcessBusiness {
 
     @Autowired
-    private ProxyRebateConfigService proxyRebateConfigService;
+    private RebateConfigService rebateConfigService;
 
     public CompanyLevelBO getLevelData(BigDecimal amount){
-        ProxyRebateConfig proxyRebateConfig = proxyRebateConfigService.findFirst();
-        List<Integer> profitLevelList = getProfitLevelList(proxyRebateConfig);
-        Map<Integer,BigDecimal> profitLevelMap = getProfitLevelMap(proxyRebateConfig);
+        RebateConfig RebateConfig = rebateConfigService.findFirst();
+        List<Integer> profitLevelList = getProfitLevelList(RebateConfig);
+        Map<Integer,BigDecimal> profitLevelMap = getProfitLevelMap(RebateConfig);
         return getProfitLevel(amount,profitLevelList,profitLevelMap);
     }
 
@@ -45,23 +47,23 @@ public class CompanyLevelProcessBusiness {
         return level;
     }
 
-    private Map<Integer, BigDecimal> getProfitLevelMap(ProxyRebateConfig proxyRebateConfig) {
+    private Map<Integer, BigDecimal> getProfitLevelMap(RebateConfig RebateConfig) {
         Map<Integer,BigDecimal> profitLevelMap = new HashMap<>();
-        profitLevelMap.put(proxyRebateConfig.getFirstMoney(),proxyRebateConfig.getFirstProfit());
-        profitLevelMap.put(proxyRebateConfig.getSecondMoney(),proxyRebateConfig.getSecondProfit());
-        profitLevelMap.put(proxyRebateConfig.getThirdMoney(),proxyRebateConfig.getThirdProfit());
-        profitLevelMap.put(proxyRebateConfig.getFourMoney(),proxyRebateConfig.getFourProfit());
-        profitLevelMap.put(proxyRebateConfig.getFiveMoney(),proxyRebateConfig.getFiveProfit());
+        profitLevelMap.put(RebateConfig.getFirstMoney(),RebateConfig.getFirstProfit());
+        profitLevelMap.put(RebateConfig.getSecondMoney(),RebateConfig.getSecondProfit());
+        profitLevelMap.put(RebateConfig.getThirdMoney(),RebateConfig.getThirdProfit());
+        profitLevelMap.put(RebateConfig.getFourMoney(),RebateConfig.getFourProfit());
+        profitLevelMap.put(RebateConfig.getFiveMoney(),RebateConfig.getFiveProfit());
         return profitLevelMap;
     }
 
-    private List<Integer> getProfitLevelList(ProxyRebateConfig proxyRebateConfig){
+    private List<Integer> getProfitLevelList(RebateConfig RebateConfig){
         List<Integer> profitLevelList = new ArrayList<>();
-        profitLevelList.add(proxyRebateConfig.getFirstMoney());
-        profitLevelList.add(proxyRebateConfig.getSecondMoney());
-        profitLevelList.add(proxyRebateConfig.getThirdMoney());
-        profitLevelList.add(proxyRebateConfig.getFourMoney());
-        profitLevelList.add(proxyRebateConfig.getFiveMoney());
+        profitLevelList.add(RebateConfig.getFirstMoney());
+        profitLevelList.add(RebateConfig.getSecondMoney());
+        profitLevelList.add(RebateConfig.getThirdMoney());
+        profitLevelList.add(RebateConfig.getFourMoney());
+        profitLevelList.add(RebateConfig.getFiveMoney());
         return profitLevelList.stream().sorted().collect(Collectors.toList());
     }
 }
