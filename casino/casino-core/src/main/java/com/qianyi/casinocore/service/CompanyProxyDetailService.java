@@ -1,10 +1,12 @@
 package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.CompanyProxyDetail;
+import com.qianyi.casinocore.model.LoginLog;
 import com.qianyi.casinocore.repository.CompanyProxyDetailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Sort;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -31,9 +33,12 @@ public class CompanyProxyDetailService {
     public CompanyProxyDetail getCompanyProxyDetailByUidAndTime(Long uid,String staticsTime){
         return companyProxyDetailRepository.getCompanyProxyDetailByUserIdAndStaticsTimes(uid,staticsTime);
     }
-    public List<CompanyProxyDetail> findCompanyProxyDetails(CompanyProxyDetail companyProxyDetail, Date startDate, Date endDate) {
+    public List<CompanyProxyDetail> findCompanyProxyDetails(CompanyProxyDetail companyProxyDetail, Date startDate, Date endDate,Sort sort) {
         Specification<CompanyProxyDetail> condition = this.getCondition(companyProxyDetail,startDate,endDate);
-        return companyProxyDetailRepository.findAll(condition);
+        if (sort == null){
+            return companyProxyDetailRepository.findAll(condition);
+        }
+        return companyProxyDetailRepository.findAll(condition,sort);
     }
     /**
      * 查询条件拼接，灵活添加条件
@@ -52,6 +57,12 @@ public class CompanyProxyDetailService {
 //                if (proxyUser.getProxyRole() != null) {
 //                    list.add(cb.equal(root.get("proxyRole").as(Integer.class), proxyUser.getProxyRole()));
 //                }
+                if (companyProxyDetail.getUserId() != null) {
+                    list.add(cb.equal(root.get("userId").as(Long.class), companyProxyDetail.getUserId()));
+                }
+                if (companyProxyDetail.getProxyRole() != null) {
+                    list.add(cb.equal(root.get("proxyRole").as(Integer.class), companyProxyDetail.getProxyRole()));
+                }
                 if (companyProxyDetail.getFirstProxy() != null) {
                     list.add(cb.equal(root.get("firstProxy").as(Long.class), companyProxyDetail.getFirstProxy()));
                 }
