@@ -4,6 +4,7 @@ import com.google.code.kaptcha.Producer;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
+import com.qianyi.casinoweb.util.DeviceUtil;
 import com.qianyi.casinoweb.util.InviteCodeUtil;
 import com.qianyi.casinoweb.vo.LoginLogVo;
 import com.qianyi.moduleauthenticator.WangyiDunAuthUtil;
@@ -199,7 +200,14 @@ public class AuthController {
         vo.setIp(ip);
         vo.setAccount(user.getAccount());
         vo.setUserId(user.getId());
-        vo.setRemark(Constants.CASINO_WEB);
+        //检测请求设备
+        String ua = request.getHeader("User-Agent");
+        boolean checkMobileOrPc = DeviceUtil.checkAgentIsMobile(ua);
+        if(checkMobileOrPc){
+            vo.setRemark("Mobile");
+        }else{
+            vo.setRemark("PC");
+        }
         vo.setType(2);
         asyncService.executeAsync(vo);
         //推送MQ
@@ -261,7 +269,7 @@ public class AuthController {
     public ResponseEntity loginA(
             String account,
             String password,
-            String validate,String deviceId) {
+            String validate,String deviceId,HttpServletRequest request) {
         if (CasinoWebUtil.checkNull(account, password, validate)) {
             return ResponseUtil.parameterNotNull();
         }
@@ -306,7 +314,14 @@ public class AuthController {
         vo.setIp(ip);
         vo.setAccount(user.getAccount());
         vo.setUserId(user.getId());
-        vo.setRemark(Constants.CASINO_WEB);
+        //检测请求设备
+        String ua = request.getHeader("User-Agent");
+        boolean checkMobileOrPc = DeviceUtil.checkAgentIsMobile(ua);
+        if(checkMobileOrPc){
+            vo.setRemark("Mobile");
+        }else{
+            vo.setRemark("PC");
+        }
         vo.setType(1);
         asyncService.executeAsync(vo);
 
