@@ -3,8 +3,10 @@ package com.qianyi.casinoproxy.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.model.ProxyCommission;
 import com.qianyi.casinocore.model.ProxyUser;
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.ProxyCommissionService;
 import com.qianyi.casinocore.service.ProxyUserService;
+import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.PasswordUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
@@ -50,6 +52,9 @@ public class ProxyUserController {
 
     @Autowired
     private ProxyCommissionService proxyCommissionService;
+
+    @Autowired
+    private UserService userService;
 
     private static final String METHOD_SECOND_FORMAT = "总代{0}% - 区域代理(自己){1}";
 
@@ -139,7 +144,7 @@ public class ProxyUserController {
         List<ProxyUser> proxyUserList = proxyUserPage.getContent();
         if(proxyUserList != null && proxyUserList.size() > 0){
             List<ProxyUserVo> userVoList = new LinkedList();
-            List<Long> firstProxyIds = proxyUserList.stream().filter(item -> item.getProxyRole() == CommonConst.NUMBER_2).map(ProxyUser::getFirstProxy).collect(Collectors.toList());
+            List<Long> firstProxyIds = proxyUserList.stream().filter(item -> item.getProxyRole() != CommonConst.NUMBER_1).map(ProxyUser::getFirstProxy).collect(Collectors.toList());
             List<Long> secondProxyIds = proxyUserList.stream().filter(item -> item.getProxyRole() == CommonConst.NUMBER_3).map(ProxyUser::getSecondProxy).collect(Collectors.toList());
             firstProxyIds.addAll(secondProxyIds);
             List<ProxyUser> proxyUsers = proxyUserService.findProxyUser(firstProxyIds);
@@ -151,9 +156,16 @@ public class ProxyUserController {
                     proxyUsers.stream().forEach(proxy->{
                         if (u.getProxyRole() == CommonConst.NUMBER_2 && u.getFirstProxy().equals(proxy.getId())){
                             proxyUserVo.setSuperiorProxyAccount(proxy.getUserName());
+                            proxyUserVo.setFirstProxyAccount(proxy.getUserName());
                         }
                         if (u.getProxyRole() == CommonConst.NUMBER_3 && u.getSecondProxy().equals(proxy.getId())){
                             proxyUserVo.setSuperiorProxyAccount(proxy.getUserName());
+                        }
+                        if (u.getProxyRole() == CommonConst.NUMBER_3 && u.getFirstProxy().equals(proxy.getId())){
+                            proxyUserVo.setFirstProxyAccount(proxy.getUserName());
+                        }
+                        if (u.getProxyRole() == CommonConst.NUMBER_1){
+                            proxyUserVo.setFirstProxyAccount(proxyUserVo.getUserName());
                         }
                     });
                     proxyCommissions.stream().forEach(proxyCommission->{
@@ -175,7 +187,34 @@ public class ProxyUserController {
         }
         return ResponseUtil.success(pageResultVO);
     }
+    @ApiOperation("查询详情页面直属玩家数")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "id", required = true),
+    })
+    @GetMapping("findUsersNum")
+    public ResponseEntity findUsersNum(Long id){
+        if (CasinoProxyUtil.checkNull(id)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        ProxyUser byId = proxyUserService.findById(id);
+        if (CasinoProxyUtil.checkNull(byId)){
+            return ResponseUtil.custom("没有这个代理");
+        }
+        User user = new User();
+        List<User> userList;
+        if (byId.getProxyRole() == CommonConst.NUMBER_1){
+            user.setFirstProxy(id);
+            userList = userService.findUserList(user);
 
+        }else if(byId.getProxyRole() == CommonConst.NUMBER_2){
+            user.setSecondProxy(id);
+            userList = userService.findUserList(user);
+        }else {
+            user.setThirdProxy(id);
+            userList = userService.findUserList(user);
+        }
+        return ResponseUtil.success(userList==null ? CommonConst.NUMBER_0 : userList.size());
+    }
     @ApiOperation("添加代理")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userName", value = "账号", required = true),
@@ -256,6 +295,9 @@ public class ProxyUserController {
         ProxyUser byId = proxyUserService.findById(id);
         if (CasinoProxyUtil.checkNull(byId)){
             return ResponseUtil.custom("没有这个代理");
+        }
+        if (CasinoProxyUtil.getAuthId().equals(byId.getId())){
+            return ResponseUtil.custom("不能充值自己的密码");
         }
         //随机生成
         String password = PasswordUtil.getRandomPwd();
