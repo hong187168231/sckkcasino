@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/proxyRebateConfig")
 @Api(tags = "代理中心")
@@ -92,6 +94,9 @@ public class ProxyRebateConfigController {
             if (LoginUtil.checkNull(proxyRebateConfig)){
                 return ResponseUtil.custom("参数不合法");
             }
+            if (this.verify(proxyRebateConfig)){
+                return ResponseUtil.custom("返佣不能大于30块");
+            }
             if (!LoginUtil.checkNull(byId)){
                 proxyRebateConfig.setId(byId.getId());
             }
@@ -99,5 +104,32 @@ public class ProxyRebateConfigController {
             return ResponseUtil.success();
         }
         return ResponseUtil.custom("参数不合法");
+    }
+    private Boolean verify(ProxyRebateConfig proxyRebateConfig){
+        if (!LoginUtil.checkNull(proxyRebateConfig.getFirstProfit()) && proxyRebateConfig.getFirstProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        if (!LoginUtil.checkNull(proxyRebateConfig.getSecondProfit()) && proxyRebateConfig.getSecondProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        if (!LoginUtil.checkNull(proxyRebateConfig.getThirdProfit()) && proxyRebateConfig.getThirdProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        if (!LoginUtil.checkNull(proxyRebateConfig.getFourProfit()) && proxyRebateConfig.getFourProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        if (!LoginUtil.checkNull(proxyRebateConfig.getFiveProfit()) && proxyRebateConfig.getFiveProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        if (!LoginUtil.checkNull(proxyRebateConfig.getSixProfit()) && proxyRebateConfig.getSixProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        if (!LoginUtil.checkNull(proxyRebateConfig.getSevenProfit()) && proxyRebateConfig.getSevenProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        if (!LoginUtil.checkNull(proxyRebateConfig.getEightProfit()) && proxyRebateConfig.getEightProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        return false;
     }
 }

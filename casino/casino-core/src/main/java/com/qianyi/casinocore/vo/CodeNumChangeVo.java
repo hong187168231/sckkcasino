@@ -20,6 +20,8 @@ public class CodeNumChangeVo implements Serializable {
     private Long userId;
     @ApiModelProperty(value = "游戏记录ID")
     private Long gameRecordId;
+    @ApiModelProperty(value = "注单号")
+    private String betId;
     @ApiModelProperty(value = "打码量")
     private BigDecimal amount;
     @ApiModelProperty(value = "打码量变化前")
@@ -40,6 +42,7 @@ public class CodeNumChangeVo implements Serializable {
         this.id = codeNumChange.getId();
         this.userId = codeNumChange.getUserId();
         this.gameRecordId = codeNumChange.getGameRecordId();
+        this.betId = codeNumChange.getBetId();
         this.amount = codeNumChange.getAmount();
         this.amountBefore = codeNumChange.getAmountBefore();
         this.amountAfter = codeNumChange.getAmountAfter();
