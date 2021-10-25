@@ -88,7 +88,37 @@ public class RebateConfigController {
             rebateConfig.setEightMoney(money);
             rebateConfig.setEightProfit(profit);
         }
+        if (this.verify(rebateConfig)){
+            return ResponseUtil.custom("返佣不能大于30块");
+        }
         rebateConfigService.save(rebateConfig);
         return ResponseUtil.success();
+    }
+    private Boolean verify(RebateConfig rebateConfig){
+        if (!LoginUtil.checkNull(rebateConfig.getFirstProfit()) && rebateConfig.getFirstProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        if (!LoginUtil.checkNull(rebateConfig.getSecondProfit()) && rebateConfig.getSecondProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        if (!LoginUtil.checkNull(rebateConfig.getThirdProfit()) && rebateConfig.getThirdProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        if (!LoginUtil.checkNull(rebateConfig.getFourProfit()) && rebateConfig.getFourProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        if (!LoginUtil.checkNull(rebateConfig.getFiveProfit()) && rebateConfig.getFiveProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        if (!LoginUtil.checkNull(rebateConfig.getSixProfit()) && rebateConfig.getSixProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        if (!LoginUtil.checkNull(rebateConfig.getSevenProfit()) && rebateConfig.getSevenProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        if (!LoginUtil.checkNull(rebateConfig.getEightProfit()) && rebateConfig.getEightProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        return false;
     }
 }
