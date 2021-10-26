@@ -1,5 +1,7 @@
 package com.qianyi.casinoweb.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.code.kaptcha.Producer;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
@@ -18,8 +20,10 @@ import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.ExpiringMapUtil;
+import com.qianyi.modulecommon.util.HttpClient4Util;
 import com.qianyi.modulecommon.util.IpUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
+import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -30,6 +34,7 @@ import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,6 +50,8 @@ import javax.transaction.Transactional;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Api(tags = "认证中心")
@@ -62,7 +69,7 @@ public class AuthController {
     @Autowired
     UserMoneyService userMoneyService;
     @Autowired
-    RedisTemplate redisTemplate;
+    RedisUtil redisUtil;
     @Autowired
     PlatformConfigService platformConfigService;
     @Autowired
@@ -75,6 +82,10 @@ public class AuthController {
     @Autowired
     @Qualifier("loginLogJob")
     AsyncService asyncService;
+    @Value("${project.smsUrl}")
+    private String smsUrl;
+    @Value("${project.merchant}")
+    private String merchant;
 
     @PostMapping("spreadRegister")
     @ApiOperation("推广用户注册")
@@ -85,13 +96,15 @@ public class AuthController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "account", value = "帐号", required = true),
             @ApiImplicitParam(name = "password", value = "密码", required = true),
-            @ApiImplicitParam(name = "phone", value = "电话号码", required = true),
+            @ApiImplicitParam(name = "country", value = "区号，柬埔寨：855", required = true),
+            @ApiImplicitParam(name = "phone", value = "手机号", required = true),
+            @ApiImplicitParam(name = "phoneCode", value = "手机号验证码", required = true),
             @ApiImplicitParam(name = "validate", value = "网易易顿", required = true),
             @ApiImplicitParam(name = "inviteCode", value = "邀请码", required = true),
             @ApiImplicitParam(name = "inviteType", value = "邀请类型:everyone:人人代，proxy:基层代理", required = true),
     })
-    public ResponseEntity spreadRegister(String account, String password, String phone,HttpServletRequest request, String validate, String inviteCode, String inviteType) {
-        boolean checkNull = CommonUtil.checkNull(account, password, phone, validate,inviteCode,inviteType);
+    public ResponseEntity spreadRegister(String account, String password, String country, String phone, String phoneCode, HttpServletRequest request, String validate, String inviteCode, String inviteType) {
+        boolean checkNull = CommonUtil.checkNull(account, password, country, phone, phoneCode, validate, inviteCode, inviteType);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
@@ -99,7 +112,7 @@ public class AuthController {
         if (checkInviteCode.getCode() != 0) {
             return checkInviteCode;
         }
-        ResponseEntity responseEntity = registerCommon(account, password, phone, request, validate, inviteCode, inviteType);
+        ResponseEntity responseEntity = registerCommon(account, password,country, phone,phoneCode, request, validate, inviteCode, inviteType);
         return responseEntity;
     }
 
@@ -112,13 +125,15 @@ public class AuthController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "account", value = "帐号", required = true),
             @ApiImplicitParam(name = "password", value = "密码", required = true),
+            @ApiImplicitParam(name = "country", value = "区号，柬埔寨：855", required = true),
             @ApiImplicitParam(name = "phone", value = "电话号码", required = true),
+            @ApiImplicitParam(name = "phoneCode", value = "手机号验证码", required = true),
             @ApiImplicitParam(name = "validate", value = "网易易顿", required = true),
             @ApiImplicitParam(name = "inviteCode", value = "邀请码", required = false),
     })
-    public ResponseEntity register(String account, String password, String phone,
-                                   HttpServletRequest request, String validate,String inviteCode) {
-        boolean checkNull = CommonUtil.checkNull(account, password, phone, validate);
+    public ResponseEntity register(String account, String password, String country, String phone, String phoneCode,
+                                   HttpServletRequest request, String validate, String inviteCode) {
+        boolean checkNull = CommonUtil.checkNull(account, password, country, phone, phoneCode, validate);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
@@ -126,7 +141,7 @@ public class AuthController {
         if (platformConfig == null || platformConfig.getRegisterSwitch() == null || platformConfig.getRegisterSwitch() == Constants.close) {
             return ResponseUtil.custom("注册通道已关闭");
         }
-        ResponseEntity responseEntity = registerCommon(account, password, phone, request, validate, inviteCode, null);
+        ResponseEntity responseEntity = registerCommon(account, password, country, phone, phoneCode, request, validate, inviteCode, null);
         return responseEntity;
     }
 
@@ -142,7 +157,7 @@ public class AuthController {
      * @return
      */
     @Transactional
-    public ResponseEntity registerCommon(String account, String password, String phone,
+    public ResponseEntity registerCommon(String account, String password,String country, String phone,String phoneCode,
                                    HttpServletRequest request, String validate,String inviteCode,String inviteType) {
         boolean wangyidun = WangyiDunAuthUtil.verify(validate);
         if (!wangyidun) {
@@ -161,7 +176,11 @@ public class AuthController {
         if (!checkPhone) {
             return ResponseUtil.custom("手机号"+ RegexEnum.PHONE.getDesc());
         }
-
+        String redisKey = country + phone;
+        Object redisCode = redisUtil.get(redisKey);
+        if (!phoneCode.equals(redisCode)) {
+            return ResponseUtil.custom("手机号验证码错误");
+        }
         String ip = IpUtil.getIp(request);
         //查询ip注册账号限制
         if (!ObjectUtils.isEmpty(ip)) {
@@ -553,9 +572,61 @@ public class AuthController {
         }
     }
 
+    @GetMapping("getVerificationCode")
+    @ApiOperation("通过手机号获取验证码")
+    @NoAuthentication
+//    @RequestLimit(limit = 1, timeout = 60)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "country", value = "区号，柬埔寨：855", required = true),
+            @ApiImplicitParam(name = "phone", value = "手机号", required = true)
+    })
+    public ResponseEntity getVerificationCode(String country, String phone) {
+        boolean checkNull = CommonUtil.checkNull(country, phone);
+        if (checkNull) {
+            return ResponseUtil.parameterNotNull();
+        }
+        String regex = "^[0-9]*[1-9][0-9]*$";
+        if (!country.matches(regex) || !phone.matches(regex)) {
+            return ResponseUtil.custom("区号和手机号必须是纯数字");
+        }
+        String key = country + phone;
+        Object redisCode = redisUtil.get(key);
+        if (!ObjectUtils.isEmpty(redisCode)) {
+            return ResponseUtil.custom("验证码已发送,请在手机上查看");
+        }
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("merchant", merchant);
+        paramMap.put("country", country);
+        paramMap.put("phone", phone);
+        Integer language = 1;
+        if ("855".equals(country)) {
+            language = 3;
+        }
+        paramMap.put("language", language);
+        String code = InviteCodeUtil.randomNumCode(6);
+        paramMap.put("code", code);
+        String response = HttpClient4Util.doPost(smsUrl + "/buka/sendRegister", paramMap);
+        if (CommonUtil.checkNull(response)) {
+            return ResponseUtil.custom("获取验证码失败,请重新操作");
+        }
+        ResponseEntity responseEntity = JSONObject.parseObject(response, ResponseEntity.class);
+        if (responseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return responseEntity;
+        }
+        redisUtil.set(key, code, 60);
+        return ResponseUtil.success();
+    }
+
+    public static void main(String[] args) {
+        Map<String, Object> paramMap=new HashMap<>();
+        paramMap.put("merchant","asd");
+        String s = HttpClient4Util.doPost("http://127.0.0.1:9600/buka/sendRegister", paramMap);
+        System.out.println(s);
+    }
+
     private void setUserTokenToRedis(Long userId, String token) {
         try {
-            redisTemplate.opsForValue().set("token:" + userId, token);
+            redisUtil.set("token:" + userId, token);
         } catch (Exception e) {
             e.printStackTrace();
         }

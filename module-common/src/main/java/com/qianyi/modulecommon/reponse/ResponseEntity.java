@@ -9,7 +9,13 @@ public class ResponseEntity<T> implements Serializable {
 	private int code;
     private String msg;
     private T data;
-    
+
+    public ResponseEntity(int code, String msg, T data) {
+        this.code = code;
+        this.msg = msg;
+        this.data = data;
+    }
+
     public ResponseEntity(String msg) {
         this.code=ResponseCode.CUSTOM.getCode();
         this.msg = msg;

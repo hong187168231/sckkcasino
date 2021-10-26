@@ -52,4 +52,13 @@ public class InviteCodeUtil {
         }
         return stringBuilder.toString();
     }
+
+    public static String randomNumCode(int length) {
+        StringBuilder str = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < length; i++) {
+            str.append(random.nextInt(10));
+        }
+        return str.toString();
+    }
 }
