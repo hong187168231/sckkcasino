@@ -297,7 +297,7 @@ public class ProxyUserController {
             return ResponseUtil.custom("没有这个代理");
         }
         if (CasinoProxyUtil.getAuthId().equals(byId.getId())){
-            return ResponseUtil.custom("不能充值自己的密码");
+            return ResponseUtil.custom("不能重置自己的密码");
         }
         //随机生成
         String password = PasswordUtil.getRandomPwd();
