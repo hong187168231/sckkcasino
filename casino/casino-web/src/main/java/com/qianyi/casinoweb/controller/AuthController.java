@@ -18,10 +18,7 @@ import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
-import com.qianyi.modulecommon.util.CommonUtil;
-import com.qianyi.modulecommon.util.ExpiringMapUtil;
-import com.qianyi.modulecommon.util.HttpClient4Util;
-import com.qianyi.modulecommon.util.IpUtil;
+import com.qianyi.modulecommon.util.*;
 import com.qianyi.modulejjwt.JjwtUtil;
 import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
@@ -50,6 +47,7 @@ import javax.transaction.Transactional;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -202,6 +200,29 @@ public class AuthController {
         user = new User();
         //设置父级
         setParent(inviteCode, inviteType, user);
+        //设置user
+        phone = country + phone;
+        User save = setUser(user,account,password,phone,ip);
+        //userMoney表初始化数据
+        UserMoney userMoney = new UserMoney();
+        userMoney.setUserId(save.getId());
+        userMoneyService.save(userMoney);
+        //记录注册日志
+        setLoginLog(ip,user,request);
+        //推送MQ
+        sendUserMq(save);
+        return ResponseUtil.success();
+    }
+
+    /**
+     * 初始化user,userMoney
+     * @param user
+     * @param account
+     * @param password
+     * @param phone
+     * @param ip
+     */
+    public User setUser(User user,String account,String password,String phone,String ip){
         user.setAccount(account);
         user.setPassword(CasinoWebUtil.bcrypt(password));
         user.setPhone(phone);
@@ -210,11 +231,16 @@ public class AuthController {
         //生成邀请码
         user.setInviteCode(createInviteCode());
         User save = userService.save(user);
-        //userMoney表初始化数据
-        UserMoney userMoney = new UserMoney();
-        userMoney.setUserId(save.getId());
-        userMoneyService.save(userMoney);
-        //记录注册日志
+        return save;
+    }
+
+    /**
+     * 记录注册日志
+     * @param ip
+     * @param user
+     * @param request
+     */
+    public void setLoginLog(String ip,User user,HttpServletRequest request){
         LoginLogVo vo = new LoginLogVo();
         vo.setIp(ip);
         vo.setAccount(user.getAccount());
@@ -229,11 +255,16 @@ public class AuthController {
         }
         vo.setType(2);
         asyncService.executeAsync(vo);
-        //推送MQ
-        log.info("开始推送团队新增成员消息", save);
-        rabbitTemplate.convertAndSend(RabbitMqConstants.ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.ADDUSERTOTEAM_DIRECT, save, new CorrelationData(UUID.randomUUID().toString()));
-        log.info("团队新增成员消息发送成功={}", save);
-        return ResponseUtil.success();
+    }
+
+    /**
+     * 推送团队新增成员MQ
+     * @param user
+     */
+    public void sendUserMq(User user){
+        log.info("开始推送团队新增成员消息", user);
+        rabbitTemplate.convertAndSend(RabbitMqConstants.ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.ADDUSERTOTEAM_DIRECT, user, new CorrelationData(UUID.randomUUID().toString()));
+        log.info("团队新增成员消息发送成功={}", user);
     }
 
     /**
@@ -274,6 +305,76 @@ public class AuthController {
                 user.setThirdPid(parentUser.getSecondPid());
             }
         }
+    }
+
+
+    @PostMapping("directOpenAccount")
+    @ApiOperation("直接开户")
+    @Transactional
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "account", value = "帐号", required = true),
+            @ApiImplicitParam(name = "password", value = "密码", required = true),
+            @ApiImplicitParam(name = "confirmPassword", value = "确认密码", required = true),
+            @ApiImplicitParam(name = "country", value = "区号，柬埔寨：855", required = false),
+            @ApiImplicitParam(name = "phone", value = "手机号", required = false),
+    })
+    public ResponseEntity directOpenAccount(String account, String password, String confirmPassword, String country, String phone, HttpServletRequest request) {
+        boolean checkNull = CommonUtil.checkNull(account, password, confirmPassword);
+        if (checkNull) {
+            return ResponseUtil.parameterNotNull();
+        }
+        //卫语句校验
+        boolean checkAccountLength = User.checkAccountLength(account);
+        if (!checkAccountLength) {
+            return ResponseUtil.custom("用户名" + RegexEnum.ACCOUNT.getDesc());
+        }
+        boolean checkPasswordLength = User.checkPasswordLength(password);
+        if (!checkPasswordLength) {
+            return ResponseUtil.custom("密码" + RegexEnum.ACCOUNT.getDesc());
+        }
+        if (!password.equals(confirmPassword)) {
+            return ResponseUtil.custom("两次密码输入不一致");
+        }
+        if (!ObjectUtils.isEmpty(country) && !ObjectUtils.isEmpty(phone)) {
+            phone = country + phone;
+        }
+        if (!ObjectUtils.isEmpty(phone)) {
+            boolean checkPhone = User.checkPhone(phone);
+            if (!checkPhone) {
+                return ResponseUtil.custom("手机号" + RegexEnum.PHONE.getDesc());
+            }
+        }
+        Long userId = CasinoWebUtil.getAuthId();
+        Integer count = userService.countByFirstPidAndSource(userId, 0);
+        if (count >= 20) {
+            return ResponseUtil.custom("直推数量已达上限");
+        }
+        User user = userService.findByAccount(account);
+        if (user != null && !CommonUtil.checkNull(user.getPassword())) {
+            return ResponseUtil.custom("该帐号已存在");
+        }
+        user = new User();
+        //设置父级
+
+        User parentUser = userService.findById(userId);
+        user.setFirstPid(userId);
+        user.setSecondPid(parentUser.getFirstPid());
+        user.setThirdPid(parentUser.getSecondPid());
+        user.setType(Constants.USER_TYPE0);
+        user.setSource(0);
+
+        String ip = IpUtil.getIp(request);
+        //设置user
+        User save = setUser(user, account, password, phone, ip);
+        //userMoney表初始化数据
+        UserMoney userMoney = new UserMoney();
+        userMoney.setUserId(save.getId());
+        userMoneyService.save(userMoney);
+        //记录注册日志
+        setLoginLog(ip, user, request);
+        //推送MQ
+        sendUserMq(save);
+        return ResponseUtil.success();
     }
 
     @NoAuthentication
@@ -589,11 +690,15 @@ public class AuthController {
         if (!country.matches(regex) || !phone.matches(regex)) {
             return ResponseUtil.custom("区号和手机号必须是纯数字");
         }
-        String key = "smsCode::" + country + phone;
-//        Object redisCode = redisUtil.get(key);
-//        if (!ObjectUtils.isEmpty(redisCode)) {
-//            return ResponseUtil.custom("验证码已发送,请在手机上查看");
-//        }
+        //每日ip发送短信数量限制为10条
+        String today = DateUtil.dateToyyyyMMdd(new Date());
+        String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
+        String todayIpKey = "smsIp::" + today + "::" + ip;
+        Object todayIpNum = redisUtil.get(todayIpKey);
+        if (todayIpNum != null && (int) todayIpNum >= 10) {
+            return ResponseUtil.custom("当前IP今日获取验证码次数已达上限");
+        }
+        String phoneKey = "smsCode::" + country + phone;
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("merchant", merchant);
         paramMap.put("country", country);
@@ -613,25 +718,24 @@ public class AuthController {
         if (responseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
             return responseEntity;
         }
-        redisUtil.set(key, code, 60 * 5);
+        redisUtil.set(phoneKey, code, 60 * 5);
+        //ip每天发送短信数量限制加1
+        if (todayIpNum == null) {
+            redisUtil.set(todayIpKey, 1, 60 * 60 * 24);
+        } else {
+            redisUtil.incr(todayIpKey, 1);
+        }
         return ResponseUtil.success();
     }
 
-    public static void main(String[] args) {
-        Map<String, Object> paramMap=new HashMap<>();
-        paramMap.put("merchant","asd");
-        String s = HttpClient4Util.doPost("http://127.0.0.1:9600/buka/sendRegister", paramMap);
-        System.out.println(s);
-    }
-
     private void setUserTokenToRedis(Long userId, String token) {
-        try {
-            redisUtil.set("token:" + userId, token);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        redisUtil.set("token:" + userId, token);
     }
 
+    /**
+     * 生成邀请码
+     * @return
+     */
     private String createInviteCode() {
         User user = null;
         String inviteCode = null;

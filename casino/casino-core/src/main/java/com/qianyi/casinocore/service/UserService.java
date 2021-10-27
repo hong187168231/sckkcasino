@@ -194,5 +194,7 @@ public class UserService {
         return specification;
     }
 
-
+    public Integer countByFirstPidAndSource(Long userId, int source) {
+        return userRepository.countByFirstPidAndSource(userId,source);
+    }
 }
