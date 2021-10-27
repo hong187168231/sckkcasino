@@ -176,7 +176,7 @@ public class AuthController {
         if (!checkPhone) {
             return ResponseUtil.custom("手机号"+ RegexEnum.PHONE.getDesc());
         }
-        String redisKey = country + phone;
+        String redisKey = "smsCode::" + country + phone;
         Object redisCode = redisUtil.get(redisKey);
         if (!phoneCode.equals(redisCode)) {
             return ResponseUtil.custom("手机号验证码错误");
@@ -589,7 +589,7 @@ public class AuthController {
         if (!country.matches(regex) || !phone.matches(regex)) {
             return ResponseUtil.custom("区号和手机号必须是纯数字");
         }
-        String key = country + phone;
+        String key = "smsCode::" + country + phone;
         Object redisCode = redisUtil.get(key);
         if (!ObjectUtils.isEmpty(redisCode)) {
             return ResponseUtil.custom("验证码已发送,请在手机上查看");
@@ -613,7 +613,7 @@ public class AuthController {
         if (responseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
             return responseEntity;
         }
-        redisUtil.set(key, code, 60);
+        redisUtil.set(key, code, 60 * 5);
         return ResponseUtil.success();
     }
 
