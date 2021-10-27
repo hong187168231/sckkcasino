@@ -590,10 +590,10 @@ public class AuthController {
             return ResponseUtil.custom("区号和手机号必须是纯数字");
         }
         String key = "smsCode::" + country + phone;
-        Object redisCode = redisUtil.get(key);
-        if (!ObjectUtils.isEmpty(redisCode)) {
-            return ResponseUtil.custom("验证码已发送,请在手机上查看");
-        }
+//        Object redisCode = redisUtil.get(key);
+//        if (!ObjectUtils.isEmpty(redisCode)) {
+//            return ResponseUtil.custom("验证码已发送,请在手机上查看");
+//        }
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("merchant", merchant);
         paramMap.put("country", country);
