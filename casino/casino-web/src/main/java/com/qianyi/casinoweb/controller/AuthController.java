@@ -700,7 +700,7 @@ public class AuthController {
         String todayIpKey = Constants.REDIS_SMSIPSENDNUM + today + "::" + ip;
         Object todayIpNum = redisUtil.get(todayIpKey);
         if (todayIpNum != null && (int) todayIpNum >= 10) {
-            return ResponseUtil.custom("当前IP今日获取验证码次数已达上限");
+            //return ResponseUtil.custom("当前IP今日获取验证码次数已达上限");
         }
         String phoneKey = Constants.REDIS_SMSCODE + country + phone;
         Map<String, Object> paramMap = new HashMap<>();
