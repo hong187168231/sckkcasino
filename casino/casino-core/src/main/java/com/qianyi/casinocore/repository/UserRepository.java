@@ -29,4 +29,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     List<User> findByFirstPid(Long id);
 
     Integer countByFirstPidAndSource(Long userId, int source);
+
+    List<User> findByPhone(String phone);
 }

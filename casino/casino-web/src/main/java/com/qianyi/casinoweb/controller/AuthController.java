@@ -31,6 +31,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,10 +46,7 @@ import javax.transaction.Transactional;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Api(tags = "认证中心")
 @RestController
@@ -153,8 +151,8 @@ public class AuthController {
      * @return
      */
     @Transactional
-    public ResponseEntity registerCommon(String account, String password,String country, String phone,String phoneCode,
-                                   HttpServletRequest request, String validate,String inviteCode,String inviteType) {
+    public ResponseEntity registerCommon(String account, String password, String country, String phone, String phoneCode,
+                                         HttpServletRequest request, String validate, String inviteCode, String inviteType) {
         boolean wangyidun = WangyiDunAuthUtil.verify(validate);
         if (!wangyidun) {
             return ResponseUtil.custom("验证码错误");
@@ -162,33 +160,37 @@ public class AuthController {
         //卫语句校验
         boolean checkAccountLength = User.checkAccountLength(account);
         if (!checkAccountLength) {
-            return ResponseUtil.custom("用户名"+RegexEnum.ACCOUNT.getDesc());
+            return ResponseUtil.custom("用户名" + RegexEnum.ACCOUNT.getDesc());
         }
         boolean checkPasswordLength = User.checkPasswordLength(password);
         if (!checkPasswordLength) {
-            return ResponseUtil.custom("密码"+RegexEnum.ACCOUNT.getDesc());
+            return ResponseUtil.custom("密码" + RegexEnum.ACCOUNT.getDesc());
         }
         boolean checkPhone = User.checkPhone(phone);
         if (!checkPhone) {
-            return ResponseUtil.custom("手机号"+ RegexEnum.PHONE.getDesc());
+            return ResponseUtil.custom("手机号" + RegexEnum.PHONE.getDesc());
         }
-        String redisKey = Constants.REDIS_SMSCODE + country + phone;
+        phone = country + phone;
+        String redisKey = Constants.REDIS_SMSCODE + phone;
         Object redisCode = redisUtil.get(redisKey);
         if (!phoneCode.equals(redisCode)) {
-            return ResponseUtil.custom("手机号验证码错误");
+             return ResponseUtil.custom("手机号验证码错误");
+        }
+        //一个手机号只能注册一个账号
+        List<User> phoneUser = userService.findByPhone(phone);
+        if (!CollectionUtils.isEmpty(phoneUser)) {
+            return ResponseUtil.custom("当前手机号已注册");
         }
         String ip = IpUtil.getIp(request);
         //查询ip注册账号限制
-        if (!ObjectUtils.isEmpty(ip)) {
-            PlatformConfig platformConfig = platformConfigService.findFirst();
-            Integer timeLimit = null;
-            if (platformConfig != null) {
-                timeLimit = platformConfig.getIpMaxNum() == null ? 5 : platformConfig.getIpMaxNum();
-            }
-            Integer count = userService.countByIp(ip);
-            if (count != null && count > timeLimit) {
-                return ResponseUtil.custom("当前IP注册帐号数量超过上限");
-            }
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        Integer timeLimit = null;
+        if (platformConfig != null) {
+            timeLimit = platformConfig.getIpMaxNum() == null ? 5 : platformConfig.getIpMaxNum();
+        }
+        Integer count = userService.countByIp(ip);
+        if (count != null && count > timeLimit) {
+            return ResponseUtil.custom("当前IP注册帐号数量超过上限");
         }
 
         User user = userService.findByAccount(account);
@@ -199,14 +201,13 @@ public class AuthController {
         //设置父级
         setParent(inviteCode, inviteType, user);
         //设置user
-        phone = country + phone;
-        User save = setUser(user,account,password,phone,ip);
+        User save = setUser(user, account, password, phone, ip);
         //userMoney表初始化数据
         UserMoney userMoney = new UserMoney();
         userMoney.setUserId(save.getId());
         userMoneyService.save(userMoney);
         //记录注册日志
-        setLoginLog(ip,user,request);
+        setLoginLog(ip, user, request);
         //推送MQ
         sendUserMq(save);
         return ResponseUtil.success();
@@ -674,7 +675,7 @@ public class AuthController {
     @GetMapping("getVerificationCode")
     @ApiOperation("通过手机号获取验证码")
     @NoAuthentication
-//    @RequestLimit(limit = 1, timeout = 60) //不能用这种方式，发送失败后还可以继续重发
+    @RequestLimit(limit = 1, timeout = 60)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "country", value = "区号，柬埔寨：855", required = true),
             @ApiImplicitParam(name = "phone", value = "手机号", required = true)
@@ -687,12 +688,6 @@ public class AuthController {
         String regex = "^[0-9]*[1-9][0-9]*$";
         if (!country.matches(regex) || !phone.matches(regex)) {
             return ResponseUtil.custom("区号和手机号必须是纯数字");
-        }
-        //发送频率限制，60s间隔
-        String intervalKey = Constants.REDIS_SMSCODE_INTERVAL + country + phone;
-        boolean hasKey = redisUtil.hasKey(intervalKey);
-        if (hasKey) {
-            return ResponseUtil.custom("规定时间超过请求次数");
         }
         //每日ip发送短信数量限制为10条
         String today = DateUtil.dateToyyyyMMdd(new Date());
@@ -724,8 +719,6 @@ public class AuthController {
         }
         //验证码有效期为5分钟
         redisUtil.set(phoneKey, code, 60 * 5);
-        //验证码刷新频率为60s
-        redisUtil.set(intervalKey, country + phone, 60);
         //ip每天发送短信数量限制加1
         if (todayIpNum == null) {
             redisUtil.set(todayIpKey, 1, 60 * 60 * 24);

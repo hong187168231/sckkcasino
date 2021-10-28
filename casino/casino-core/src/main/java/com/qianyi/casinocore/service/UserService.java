@@ -197,4 +197,13 @@ public class UserService {
     public Integer countByFirstPidAndSource(Long userId, int source) {
         return userRepository.countByFirstPidAndSource(userId,source);
     }
+
+    /**
+     * 正常情况一个手机号只能注册一个号，这里是为了兼容历史数据，防止查询报错
+     * @param phone
+     * @return
+     */
+    public List<User> findByPhone(String phone) {
+        return userRepository.findByPhone(phone);
+    }
 }
