@@ -354,7 +354,6 @@ public class AuthController {
         }
         user = new User();
         //设置父级
-
         User parentUser = userService.findById(userId);
         user.setFirstPid(userId);
         user.setSecondPid(parentUser.getFirstPid());
@@ -675,7 +674,7 @@ public class AuthController {
     @GetMapping("getVerificationCode")
     @ApiOperation("通过手机号获取验证码")
     @NoAuthentication
-    @RequestLimit(limit = 1, timeout = 60)
+    @RequestLimit(limit = 1, timeout = 50)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "country", value = "区号，柬埔寨：855", required = true),
             @ApiImplicitParam(name = "phone", value = "手机号", required = true)
