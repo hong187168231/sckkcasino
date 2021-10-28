@@ -70,7 +70,7 @@ public class WashCodeController {
             endTime = DateUtil.getEndTime(0);
         }
         UserMoney userMoney = userMoneyService.findByUserId(userId);
-        BigDecimal washCode = BigDecimal.ZERO;
+        BigDecimal washCode = BigDecimal.ZERO.setScale(2);;
         if (userMoney != null && userMoney.getWashCode() != null) {
             washCode = userMoney.getWashCode();
         }
@@ -89,7 +89,7 @@ public class WashCodeController {
                 washCodeVo.setAmount(BigDecimal.ZERO);
                 voList.add(washCodeVo);
             }
-            data.put("totalAmount", washCode);
+            data.put("totalAmount", washCode.toString());
             data.put("list", voList);
             return ResponseUtil.success(data);
         }
