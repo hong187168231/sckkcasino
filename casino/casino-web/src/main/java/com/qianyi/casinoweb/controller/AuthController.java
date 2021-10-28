@@ -1,6 +1,5 @@
 package com.qianyi.casinoweb.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.code.kaptcha.Producer;
 import com.qianyi.casinocore.model.*;
@@ -32,7 +31,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -174,7 +172,7 @@ public class AuthController {
         if (!checkPhone) {
             return ResponseUtil.custom("手机号"+ RegexEnum.PHONE.getDesc());
         }
-        String redisKey = "smsCode::" + country + phone;
+        String redisKey = Constants.REDIS_SMSCODE + country + phone;
         Object redisCode = redisUtil.get(redisKey);
         if (!phoneCode.equals(redisCode)) {
             return ResponseUtil.custom("手机号验证码错误");
@@ -676,7 +674,7 @@ public class AuthController {
     @GetMapping("getVerificationCode")
     @ApiOperation("通过手机号获取验证码")
     @NoAuthentication
-    @RequestLimit(limit = 1, timeout = 60)
+//    @RequestLimit(limit = 1, timeout = 60) //不能用这种方式，发送失败后还可以继续重发
     @ApiImplicitParams({
             @ApiImplicitParam(name = "country", value = "区号，柬埔寨：855", required = true),
             @ApiImplicitParam(name = "phone", value = "手机号", required = true)
@@ -690,15 +688,21 @@ public class AuthController {
         if (!country.matches(regex) || !phone.matches(regex)) {
             return ResponseUtil.custom("区号和手机号必须是纯数字");
         }
+        //发送频率限制，60s间隔
+        String intervalKey = Constants.REDIS_SMSCODE_INTERVAL + country + phone;
+        boolean hasKey = redisUtil.hasKey(intervalKey);
+        if (hasKey) {
+            return ResponseUtil.custom("规定时间超过请求次数");
+        }
         //每日ip发送短信数量限制为10条
         String today = DateUtil.dateToyyyyMMdd(new Date());
         String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
-        String todayIpKey = "smsIp::" + today + "::" + ip;
+        String todayIpKey = Constants.REDIS_SMSIPSENDNUM + today + "::" + ip;
         Object todayIpNum = redisUtil.get(todayIpKey);
         if (todayIpNum != null && (int) todayIpNum >= 10) {
             return ResponseUtil.custom("当前IP今日获取验证码次数已达上限");
         }
-        String phoneKey = "smsCode::" + country + phone;
+        String phoneKey = Constants.REDIS_SMSCODE + country + phone;
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("merchant", merchant);
         paramMap.put("country", country);
@@ -718,7 +722,10 @@ public class AuthController {
         if (responseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
             return responseEntity;
         }
+        //验证码有效期为5分钟
         redisUtil.set(phoneKey, code, 60 * 5);
+        //验证码刷新频率为60s
+        redisUtil.set(intervalKey, country + phone, 60);
         //ip每天发送短信数量限制加1
         if (todayIpNum == null) {
             redisUtil.set(todayIpKey, 1, 60 * 60 * 24);
