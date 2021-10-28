@@ -42,7 +42,7 @@ public class ExpandController {
             return ResponseUtil.custom("推广链接未配置");
         }
         String domain = platformConfig.getProxyConfiguration();
-        String url = domain + "/" + Constants.INVITE_TYPE_PROXY + "/" + byId.getProxyCode() + "/" + Constants.SPREAD_REGISTER_VIEW;
+        String url = domain + "/" + Constants.INVITE_TYPE_PROXY + "/" + byId.getProxyCode();
         return ResponseUtil.success(url);
     }
 }
