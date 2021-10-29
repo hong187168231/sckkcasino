@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Service
-public class CompanyProxyBusiness {
+public class CompanyProxyDailyBusiness {
 
     @Autowired
     private CompanyProxyDetailService companyProxyDetailService;
@@ -45,6 +45,10 @@ public class CompanyProxyBusiness {
     @Autowired
     private CompanyLevelProcessBusiness companyLevelProcessBusiness;
 
+    @Autowired
+    private CompanyProxyMonthBusiness companyProxyMonthBusiness;
+
+    //传入计算当天的时间  yyyy-MM-dd 格式
     public void processDailyReport(String dayTime){
         String startTime = getStartTime(dayTime);
         String endTime = getEndTime(dayTime);
@@ -62,6 +66,8 @@ public class CompanyProxyBusiness {
         List<CompanyProxyDetail> resultList = Stream.concat(thirdList.stream(),secondeCompanyProxyDetail.stream()).collect(Collectors.toList());
         resultList.add(firstCompanyProxyDetail);
         companyProxyDetailService.saveAll(resultList);
+
+        companyProxyMonthBusiness.processCompanyMonth(dayTime);
     }
 
     private List<CompanyProxyDetail> processSec(List<CompanyProxyDetail> secondeList,List<CompanyProxyDetail> thirdList) {
@@ -75,7 +81,7 @@ public class CompanyProxyBusiness {
             companyProxyDetailList.add(secondeItem);
         }
 
-        return null;
+        return companyProxyDetailList;
     }
 
     private CompanyProxyDetail processfirst(List<CompanyProxyDetail> firstList,List<CompanyProxyDetail> subList) {
@@ -101,12 +107,12 @@ public class CompanyProxyBusiness {
         CompanyLevelBO companyLevelBO = companyLevelProcessBusiness.getLevelData(new BigDecimal(companyOrderAmountVo.getValidbet()));
         ProxyCommission proxyCommission = proxyCommissionService.findByProxyUserId(companyOrderAmountVo.getThirdProxy());
 
-        firstList.add(calculateDetail(companyLevelBO,companyOrderAmountVo,companyOrderAmountVo.getFirstProxy(),proxyCommission.getFirstCommission()));
-        secondeList.add( calculateDetail(companyLevelBO,companyOrderAmountVo,companyOrderAmountVo.getSecondProxy(),proxyCommission.getFirstCommission()));
-        thirdList.add(calculateDetail(companyLevelBO,companyOrderAmountVo,companyOrderAmountVo.getThirdProxy(),proxyCommission.getFirstCommission()));
+        firstList.add(calculateDetail(companyLevelBO,companyOrderAmountVo,companyOrderAmountVo.getFirstProxy(),proxyCommission.getFirstCommission(),1));
+        secondeList.add( calculateDetail(companyLevelBO,companyOrderAmountVo,companyOrderAmountVo.getSecondProxy(),proxyCommission.getFirstCommission(),2));
+        thirdList.add(calculateDetail(companyLevelBO,companyOrderAmountVo,companyOrderAmountVo.getThirdProxy(),proxyCommission.getFirstCommission(),3));
     }
 
-    public CompanyProxyDetail calculateDetail(CompanyLevelBO companyLevelBO,CompanyOrderAmountVo companyOrderAmountVo,Long userid,BigDecimal profitRate){
+    public CompanyProxyDetail calculateDetail(CompanyLevelBO companyLevelBO,CompanyOrderAmountVo companyOrderAmountVo,Long userid,BigDecimal profitRate,Integer proxyType){
         BigDecimal totalAmount = companyLevelBO.getProfitAmount().multiply(BigDecimal.valueOf(companyLevelBO.getProfitActTimes()));
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return CompanyProxyDetail.builder()
@@ -114,6 +120,7 @@ public class CompanyProxyBusiness {
                 .firstProxy(companyOrderAmountVo.getFirstProxy())
                 .secondProxy(companyOrderAmountVo.getSecondProxy())
                 .thirdProxy(companyOrderAmountVo.getThirdProxy())
+                .proxyRole(proxyType)
                 .userId(userid)
                 .profitLevel(companyLevelBO.getProfitLevel()+"")
                 .profitRate(companyLevelBO.getProfitAmount().toString())
@@ -122,7 +129,8 @@ public class CompanyProxyBusiness {
                 .profitAmount(totalAmount.multiply(profitRate))
                 .groupTotalprofit(totalAmount.multiply(profitRate))
                 .settleStatus("未结清")
-                .staticsTimes(df.format(LocalDateTime.now()))
+                .staticsTimes(companyOrderAmountVo.getBetTime().substring(0,10))
+                .betTime(LocalDateTime.parse(companyOrderAmountVo.getBetTime()))
                 .build();
     }
 
@@ -130,13 +138,13 @@ public class CompanyProxyBusiness {
     public String getStartTime(String dayTime){
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime startTime = LocalDateTime.parse(dayTime+"T00:00:00");
-        return df.format(startTime);
+        return df.format(startTime.plusDays(-1));
     }
 
     public String getEndTime(String dayTime){
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime endTime = LocalDateTime.parse(dayTime+"T00:00:00");
-        endTime=endTime.plusDays(1l).plusSeconds(-1);
+        endTime=endTime.plusSeconds(-1);
         return df.format(endTime);
     }
 

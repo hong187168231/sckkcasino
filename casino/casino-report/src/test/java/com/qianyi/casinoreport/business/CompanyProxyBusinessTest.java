@@ -6,6 +6,8 @@ import org.junit.Test;
 import javax.persistence.criteria.CriteriaBuilder;
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,16 +37,16 @@ public class CompanyProxyBusinessTest {
     }
 
     @Test
-    public void should_get_correct_start_time() throws ParseException {
-        CompanyProxyBusiness companyProxyBusiness = new CompanyProxyBusiness();
+    public void should_get_correct_start_time() {
+        CompanyProxyDailyBusiness companyProxyBusiness = new CompanyProxyDailyBusiness();
         String dayTime = "2021-10-21";
         String startTime = companyProxyBusiness.getStartTime("2021-10-21");
         System.out.println(dayTime+":"+startTime);
     }
 
     @Test
-    public void should_get_correct_end_time() throws ParseException {
-        CompanyProxyBusiness companyProxyBusiness = new CompanyProxyBusiness();
+    public void should_get_correct_end_time() {
+        CompanyProxyDailyBusiness companyProxyBusiness = new CompanyProxyDailyBusiness();
         String dayTime = "2021-10-21";
         String endTime = companyProxyBusiness.getEndTime("2021-10-21");
         System.out.println(dayTime+":"+endTime);
@@ -53,5 +55,33 @@ public class CompanyProxyBusinessTest {
     @Test
     public void grouping_by_convert_result_test(){
 //        List<BlogPost>
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String dateTime = df.format(LocalDateTime.now());
+        System.out.println(dateTime);
+        System.out.println(dateTime.substring(0,10));
+    }
+
+    @Test
+    public void should_get_month_correct_local_time() {
+        CompanyProxyMonthBusiness companyProxyBusiness = new CompanyProxyMonthBusiness();
+        String dayTime = "2021-10-28";
+        String startTime = companyProxyBusiness.getMonthTime(dayTime);
+        System.out.println(dayTime+":"+startTime);
+    }
+
+    @Test
+    public void should_get_month_correct_start_time() {
+        CompanyProxyMonthBusiness companyProxyBusiness = new CompanyProxyMonthBusiness();
+        String dayTime = "2021-10-28";
+        String startTime = companyProxyBusiness.getStartTime(dayTime);
+        System.out.println(dayTime+":"+startTime);
+    }
+
+    @Test
+    public void should_get_month_correct_end_time() {
+        CompanyProxyMonthBusiness companyProxyBusiness = new CompanyProxyMonthBusiness();
+        String dayTime = "2021-10-28";
+        String endTime = companyProxyBusiness.getEndTime(dayTime);
+        System.out.println(dayTime+":"+endTime);
     }
 }

@@ -1,5 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinocore.model.SysUser;
+import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.CollectionBankcardVo;
@@ -40,6 +42,9 @@ public class CollectionBankcardController {
     @Autowired
     private BankInfoService bankInfoService;
 
+    @Autowired
+    private SysUserService sysUserService;
+
     @GetMapping("bankList")
     @ApiOperation("收款银行卡列表")
     @ApiImplicitParams({
@@ -61,14 +66,19 @@ public class CollectionBankcardController {
             List<CollectionBankcardVo> collectionBankcardList = new LinkedList<>();
             List<String> collect = content.stream().map(CollectionBankcard::getBankId).collect(Collectors.toList());
             List<BankInfo> bankInfos = bankInfoService.findAll(collect);
+            List<String> updateBys = content.stream().map(CollectionBankcard::getUpdateBy).collect(Collectors.toList());
+            List<SysUser> sysUsers = sysUserService.findAll(updateBys);
             if(bankInfos != null){
                 content.stream().forEach(collectionBank ->{
                     CollectionBankcardVo collectionBankcardVo = new CollectionBankcardVo(collectionBank);
                     bankInfos.stream().forEach(bank->{
-                        System.out.println(bank.getId());
-                        System.out.println(collectionBank.getBankId());
                         if (bank.getId().toString().equals(collectionBank.getBankId())){
                             collectionBankcardVo.setBankName(bank.getBankName());
+                        }
+                    });
+                     sysUsers.stream().forEach(sysUser->{
+                        if (sysUser.getId().toString().equals(collectionBank.getUpdateBy() == null?"":collectionBank.getUpdateBy())){
+                            collectionBankcardVo.setUpdateBy(sysUser.getUserName());
                         }
                     });
                     collectionBankcardList.add(collectionBankcardVo);

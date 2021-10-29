@@ -74,7 +74,7 @@ public class ProxyUserController {
                                         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         ProxyUser proxyUser = new ProxyUser();
         Sort sort=Sort.by("proxyRole").ascending();
-        sort.and(Sort.by("id").descending());
+        sort = sort.and(Sort.by("id").descending());
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         proxyUser.setProxyRole(proxyRole);
         proxyUser.setUserFlag(userFlag);
