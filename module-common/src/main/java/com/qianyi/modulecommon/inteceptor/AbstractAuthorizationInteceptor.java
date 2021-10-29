@@ -28,7 +28,7 @@ public abstract class AbstractAuthorizationInteceptor  implements HandlerInterce
             }
 
             if (hasPermission(request)) {
-
+                return true;
             }
         }
         return true;

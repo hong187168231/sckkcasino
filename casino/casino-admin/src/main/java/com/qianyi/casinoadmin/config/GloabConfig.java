@@ -47,7 +47,7 @@ public class GloabConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/v3/**")
                 .excludePathPatterns("/doc.html")
                 .excludePathPatterns("/public/**");
-//        registry.addInterceptor(authorizationInteceptor);
+        registry.addInterceptor(authorizationInteceptor);
     }
 
     @Override

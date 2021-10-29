@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class AuthorizationInteceptor extends AbstractAuthorizationInteceptor {
@@ -46,7 +47,10 @@ public class AuthorizationInteceptor extends AbstractAuthorizationInteceptor {
             }
 
             String servletPath = request.getServletPath();
-            sysPermissionList.stream().filter(sysPermission -> sysPermission.getUrl())
+            List<SysPermission> sysPermissions = sysPermissionList.stream().filter(sysPermission -> sysPermission.getUrl().trim().equals(servletPath)).collect(Collectors.toList());
+            if(LoginUtil.checkNull(sysPermissions)){
+                return false;
+            }
             return true;
         }
 
