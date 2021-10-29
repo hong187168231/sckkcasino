@@ -100,6 +100,9 @@ public class CompanyProxyMonthController {
         CompanyProxyMonth companyProxyMonth = new CompanyProxyMonth();
         companyProxyMonth.setProxyRole(proxyRole);
         companyProxyMonth.setStaticsTimes(staticsTimes);
+        if (CasinoProxyUtil.setParameter(companyProxyMonth)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
         List<CompanyProxyMonth> companyProxyMonths = new ArrayList<>();
         Long authId = CasinoProxyUtil.getAuthId();
         ProxyUser byId = proxyUserService.findById(authId);
