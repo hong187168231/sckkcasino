@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -82,6 +84,25 @@ public class CompanyProxyMonthController {
         }
         return ResponseUtil.success(pageResult);
     }
+    @ApiOperation("统计代理月结表")
+    @GetMapping("/findSum")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "proxyRole", value = "代理级别1：总代理 2：区域代理 3：基层代理", required = false),
+            @ApiImplicitParam(name = "userName", value = "账号", required = false),
+            @ApiImplicitParam(name = "tag", value = "1：含下级 0：不包含", required = false),
+            @ApiImplicitParam(name = "staticsTimes", value = "统计时段", required = true),
+    })
+    public ResponseEntity<CompanyProxyMonth> findSum(Integer proxyRole, Integer tag, String userName,String staticsTimes){
+        CompanyProxyMonth companyProxyMonth = new CompanyProxyMonth();
+        companyProxyMonth.setProxyRole(proxyRole);
+        companyProxyMonth.setStaticsTimes(staticsTimes);
+        List<CompanyProxyMonth> companyProxyMonths = new ArrayList<>();
+        if (this.findCompanyProxyMonths(tag,userName,companyProxyMonth,null,companyProxyMonths)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        this.assemble(companyProxyMonths,companyProxyMonth);
+        return ResponseUtil.success(companyProxyMonth);
+    }
     @ApiOperation("结清佣金")
     @GetMapping("/update")
     @ApiImplicitParams({
@@ -102,6 +123,20 @@ public class CompanyProxyMonthController {
         companyProxyMonthService.save(byId);
         return ResponseUtil.success();
     }
+
+    private void assemble(List<CompanyProxyMonth> list,CompanyProxyMonth vo){
+        if (LoginUtil.checkNull(list) && list.size() == CommonConst.NUMBER_0)
+            return;
+        BigDecimal groupBetAmount = list.stream().map(CompanyProxyMonth::getGroupBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal groupTotalprofit = list.stream().map(CompanyProxyMonth::getGroupTotalprofit).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal profitAmount = list.stream().map(CompanyProxyMonth::getProfitAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        Integer playerNum = list.stream().mapToInt(CompanyProxyMonth::getPlayerNum).sum();
+        vo.setPlayerNum(playerNum);
+        vo.setGroupBetAmount(groupBetAmount);
+        vo.setGroupTotalprofit(groupTotalprofit);
+        vo.setProfitAmount(profitAmount);
+    }
+
     private Boolean findCompanyProxyMonths(Integer tag, String userName, CompanyProxyMonth companyProxyMonth, Sort sort, List<CompanyProxyMonth> companyProxyMonthList){
         List<CompanyProxyMonth> companyProxyMonths;
         if (!LoginUtil.checkNull(userName)){

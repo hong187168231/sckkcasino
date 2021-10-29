@@ -49,6 +49,9 @@ public class CompanyProxyMonthService {
     }
     public List<CompanyProxyMonth> findAll(CompanyProxyMonth companyProxyMonth, Sort sort){
         Specification<CompanyProxyMonth> condition = this.getCondition(companyProxyMonth);
+        if (sort == null){
+            return companyProxyMonthRepository.findAll(condition);
+        }
         return companyProxyMonthRepository.findAll(condition,sort);
     }
     /**
