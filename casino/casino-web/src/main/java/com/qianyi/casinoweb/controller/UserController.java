@@ -208,13 +208,13 @@ public class UserController {
         if (ObjectUtils.isEmpty(user.getInviteCode())) {
             return ResponseUtil.custom("当前用户邀请码为空");
         }
-        String url = domain + "/" + Constants.INVITE_TYPE_EVERYONE + "/" + user.getInviteCode() + "/" + Constants.SPREAD_REGISTER_VIEW;
+        String url = domain + "/" + Constants.INVITE_TYPE_EVERYONE + "/" + user.getInviteCode();
         return ResponseUtil.success(url);
     }
 
     public static void main(String[] args) {
-        String regex = "[1-9][0-9]{4,14}";
-        String phone="11111a";
+        String regex = "^[0-9]*[1-9][0-9]*$";
+        String phone="123q";
         System.out.println(phone.matches(regex));
     }
 

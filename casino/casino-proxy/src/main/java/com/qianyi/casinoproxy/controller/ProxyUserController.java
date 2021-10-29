@@ -103,6 +103,9 @@ public class ProxyUserController {
             }
         }else if(tag == CommonConst.NUMBER_1 && !CasinoProxyUtil.checkNull(userName)){
             ProxyUser byUserName = proxyUserService.findByUserName(userName);
+            if (CasinoProxyUtil.checkNull(byUserName)){
+                return ResponseUtil.success(new PageResultVO());
+            }
             if (byUserName.getProxyRole() == byId.getProxyRole()){//级别相同
                 if (byUserName.getId() == authId){//自己查自己
                     if (byUserName.getProxyRole() == CommonConst.NUMBER_1){//自己总代查自己
@@ -130,6 +133,9 @@ public class ProxyUserController {
             }
         }else if(tag == CommonConst.NUMBER_0 && !CasinoProxyUtil.checkNull(userName)){
             ProxyUser byUserName = proxyUserService.findByUserName(userName);
+            if (CasinoProxyUtil.checkNull(byUserName)){
+                return ResponseUtil.success(new PageResultVO());
+            }
             if ((byUserName.getSecondProxy() == authId||byUserName.getFirstProxy() == authId) || byUserName.getId() == authId){
                 proxyUser.setUserName(userName);
                 proxyUser.setId(null);

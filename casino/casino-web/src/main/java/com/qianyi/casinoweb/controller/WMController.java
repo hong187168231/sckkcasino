@@ -128,6 +128,10 @@ public class WMController {
         if (userCenterMoney.compareTo(BigDecimal.ZERO) == 1) {
             String orderNo = orderService.getOrderNo();
             PublicWMApi.ResponseEntity entity = wmApi.changeBalance(third.getAccount(), userCenterMoney, orderNo, lang);
+            if (entity == null) {
+                log.error("进游戏加扣点失败");
+                return ResponseUtil.custom("服务器异常,请重新操作");
+            }
             if (entity.getErrorCode() != 0) {
                 return ResponseUtil.custom(entity.getErrorMessage());
             }
@@ -260,15 +264,18 @@ public class WMController {
         if (lang == null) {
             lang = 0;
         }
-        BigDecimal balance = BigDecimal.ZERO;
         try {
-            balance = wmApi.getBalance(third.getAccount(), lang);
+            BigDecimal balance = wmApi.getBalance(third.getAccount(), lang);
+            if (balance == null) {
+                log.error("获取用户WM余额为null");
+                return ResponseUtil.custom("服务器异常,请重新操作");
+            }
+            return ResponseUtil.success(balance);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("获取用户WM余额失败{}", e.getMessage());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
-        return ResponseUtil.success(balance);
     }
 
     @ApiOperation("查询用户WM余额外部接口")
@@ -286,15 +293,18 @@ public class WMController {
         if (!ipWhiteCheck()) {
             return ResponseUtil.custom("ip禁止访问");
         }
-        BigDecimal balance = BigDecimal.ZERO;
         try {
-            balance = wmApi.getBalance(account, lang);
+            BigDecimal balance = wmApi.getBalance(account, lang);
+            if (balance == null) {
+                log.error("获取用户WM余额为null");
+                return ResponseUtil.custom("服务器异常,请重新操作");
+            }
+            return ResponseUtil.success(balance);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("获取用户WM余额失败{}", e.getMessage());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
-        return ResponseUtil.success(balance);
     }
 
     @ApiOperation("一键回收当前登录用户WM余额")
@@ -324,6 +334,10 @@ public class WMController {
         BigDecimal balance = BigDecimal.ZERO;
         try {
             balance = wmApi.getBalance(account, lang);
+            if (balance == null) {
+                log.error("获取用户WM余额为null");
+                return ResponseUtil.custom("服务器异常,请重新操作");
+            }
         } catch (Exception e) {
             log.error("获取用户WM余额失败{}", e.getMessage());
             e.printStackTrace();

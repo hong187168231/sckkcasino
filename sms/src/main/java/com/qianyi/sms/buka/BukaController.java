@@ -120,13 +120,13 @@ public class BukaController {
     }
 
     private String getContent(String merchant, Integer language, String code) {
-        String content = "【" + merchant + "】" + " 您的验证码为:" + code;
+        String content = "【" + merchant + "】" + " 您的验证码为:" + code + ",5分钟内有效";
         switch (language) {
             case 2:
-                content = "【" + merchant + "】" + "verification code:" + code;
+                content = "【" + merchant + "】" + "verification code:" + code + ",valid within 5 minutes";
                 break;
             case 3:
-                content = "【" + merchant + "】" + "កូដ ផ្ទៀង ផ្ទាត់ :" + code;
+                content = "【" + merchant + "】" + "កូដ ផ្ទៀង ផ្ទាត់ :" + code + ",មាន\u200Bសុពលភាព\u200Bក្នុង\u200B៥ នាទី";
                 break;
             default:
         }
@@ -168,7 +168,7 @@ public class BukaController {
 
     public static void main(String[] args) {
         BukaController controller = new BukaController();
-        ResponseEntity responseEntity = controller.sendRegister("js", "855", "11806648", "123456", 1);
+        ResponseEntity responseEntity = controller.sendRegister("js", "855", "965299206", "123456", 3);
 //        ResponseEntity responseEntity = controller.balance();
         System.out.println(JSONObject.toJSONString(responseEntity));
     }

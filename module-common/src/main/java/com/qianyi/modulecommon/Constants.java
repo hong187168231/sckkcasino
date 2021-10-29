@@ -76,6 +76,12 @@ public class Constants {
     public static final String SPREAD_REGISTER_VIEW= "index.html";
     //redis用户key前缀
     public static final String REDIS_USERID= "userId::";
+    //redis每日短信发送数量前缀
+    public static final String REDIS_SMSIPSENDNUM= "sms::ipSendNum::";
+    //redis每日短信前缀
+    public static final String REDIS_SMSCODE = "sms::code::";
+    //redis短信重发时间间隔
+    public static final String REDIS_SMSCODE_INTERVAL= "sms::interval::";
     //会员类型：公司会员
     public static final Integer USER_TYPE0= 0;
     //会员类型：渠道会员
