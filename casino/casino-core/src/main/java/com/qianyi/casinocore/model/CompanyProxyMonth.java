@@ -1,23 +1,14 @@
 package com.qianyi.casinocore.model;
 
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@ApiModel("公司代理明细")
-public class CompanyProxyDetail extends BaseEntity implements Cloneable{
+public class CompanyProxyMonth extends BaseEntity{
 
     @ApiModelProperty(value = "用户id")
     private Long userId;
@@ -47,18 +38,4 @@ public class CompanyProxyDetail extends BaseEntity implements Cloneable{
     private BigDecimal profitAmount;
     @ApiModelProperty(value = "结清状态")
     private String settleStatus;
-    @ApiModelProperty(value = "投注时间")
-    private LocalDateTime betTime;
-
-    @Override
-    public Object clone() {
-        CompanyProxyDetail companyProxyDetail = null;
-        try{
-            companyProxyDetail = (CompanyProxyDetail)super.clone();
-        }catch(CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-        return companyProxyDetail;
-    }
-
 }

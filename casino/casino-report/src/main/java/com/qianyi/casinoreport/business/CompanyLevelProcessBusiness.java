@@ -54,6 +54,9 @@ public class CompanyLevelProcessBusiness {
         profitLevelMap.put(RebateConfig.getThirdMoney(),RebateConfig.getThirdProfit());
         profitLevelMap.put(RebateConfig.getFourMoney(),RebateConfig.getFourProfit());
         profitLevelMap.put(RebateConfig.getFiveMoney(),RebateConfig.getFiveProfit());
+        profitLevelMap.put(RebateConfig.getSixMoney(),RebateConfig.getSixProfit());
+        profitLevelMap.put(RebateConfig.getSevenMoney(),RebateConfig.getSevenProfit());
+        profitLevelMap.put(RebateConfig.getEightMoney(),RebateConfig.getEightProfit());
         return profitLevelMap;
     }
 
@@ -64,6 +67,9 @@ public class CompanyLevelProcessBusiness {
         profitLevelList.add(RebateConfig.getThirdMoney());
         profitLevelList.add(RebateConfig.getFourMoney());
         profitLevelList.add(RebateConfig.getFiveMoney());
+        profitLevelList.add(RebateConfig.getSixMoney());
+        profitLevelList.add(RebateConfig.getSevenMoney());
+        profitLevelList.add(RebateConfig.getEightMoney());
         return profitLevelList.stream().sorted().collect(Collectors.toList());
     }
 }
