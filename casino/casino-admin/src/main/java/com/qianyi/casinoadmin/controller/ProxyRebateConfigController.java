@@ -94,8 +94,14 @@ public class ProxyRebateConfigController {
             if (LoginUtil.checkNull(proxyRebateConfig)){
                 return ResponseUtil.custom("参数不合法");
             }
+            if (this.check(proxyRebateConfig)){
+                return ResponseUtil.custom("参数必填");
+            }
             if (this.verify(proxyRebateConfig)){
                 return ResponseUtil.custom("返佣不能大于30块");
+            }
+            if (this.verifySize(proxyRebateConfig)){
+                return ResponseUtil.custom("低级别值不能大于高级别");
             }
             if (!LoginUtil.checkNull(byId)){
                 proxyRebateConfig.setId(byId.getId());
@@ -104,6 +110,33 @@ public class ProxyRebateConfigController {
             return ResponseUtil.success();
         }
         return ResponseUtil.custom("参数不合法");
+    }
+    private Boolean check(ProxyRebateConfig proxyRebateConfig){
+        if (LoginUtil.checkNull(proxyRebateConfig.getFirstMoney()) || LoginUtil.checkNull(proxyRebateConfig.getFirstProfit())){
+            return true;
+        }
+        if (LoginUtil.checkNull(proxyRebateConfig.getSecondMoney()) || LoginUtil.checkNull(proxyRebateConfig.getSecondProfit())){
+            return true;
+        }
+        if (LoginUtil.checkNull(proxyRebateConfig.getThirdMoney()) || LoginUtil.checkNull(proxyRebateConfig.getThirdProfit())){
+            return true;
+        }
+        if (LoginUtil.checkNull(proxyRebateConfig.getFourMoney()) || LoginUtil.checkNull(proxyRebateConfig.getFourProfit())){
+            return true;
+        }
+        if (LoginUtil.checkNull(proxyRebateConfig.getFiveMoney()) || LoginUtil.checkNull(proxyRebateConfig.getFiveProfit())){
+            return true;
+        }
+        if (LoginUtil.checkNull(proxyRebateConfig.getSixMoney()) || LoginUtil.checkNull(proxyRebateConfig.getSixProfit())){
+            return true;
+        }
+        if (LoginUtil.checkNull(proxyRebateConfig.getSevenMoney()) || LoginUtil.checkNull(proxyRebateConfig.getSevenProfit())){
+            return true;
+        }
+        if (LoginUtil.checkNull(proxyRebateConfig.getEightMoney()) || LoginUtil.checkNull(proxyRebateConfig.getEightProfit())){
+            return true;
+        }
+        return false;
     }
     private Boolean verify(ProxyRebateConfig proxyRebateConfig){
         if (!LoginUtil.checkNull(proxyRebateConfig.getFirstProfit()) && proxyRebateConfig.getFirstProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
@@ -128,6 +161,30 @@ public class ProxyRebateConfigController {
             return true;
         }
         if (!LoginUtil.checkNull(proxyRebateConfig.getEightProfit()) && proxyRebateConfig.getEightProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        return false;
+    }
+    private Boolean verifySize(ProxyRebateConfig rebateConfig){
+        if (rebateConfig.getFirstProfit().compareTo(rebateConfig.getSecondProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getFirstMoney() >= rebateConfig.getSecondMoney() ){
+            return true;
+        }
+        if (rebateConfig.getSecondProfit().compareTo(rebateConfig.getThirdProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getSecondMoney() >= rebateConfig.getThirdMoney() ){
+            return true;
+        }
+        if (rebateConfig.getThirdProfit().compareTo(rebateConfig.getFourProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getThirdMoney() >= rebateConfig.getFourMoney() ){
+            return true;
+        }
+        if (rebateConfig.getFourProfit().compareTo(rebateConfig.getFiveProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getFourMoney() >= rebateConfig.getFiveMoney() ){
+            return true;
+        }
+        if (rebateConfig.getFiveProfit().compareTo(rebateConfig.getSixProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getFiveMoney() >= rebateConfig.getSixMoney() ){
+            return true;
+        }
+        if (rebateConfig.getSixProfit().compareTo(rebateConfig.getSevenProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getSixMoney() >= rebateConfig.getSevenMoney() ){
+            return true;
+        }
+        if (rebateConfig.getSevenProfit().compareTo(rebateConfig.getEightProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getSevenMoney() >= rebateConfig.getEightMoney() ){
             return true;
         }
         return false;

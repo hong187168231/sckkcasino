@@ -99,6 +99,9 @@ public class CompanyProxyDetailController {
         CompanyProxyDetail companyProxyDetail = new CompanyProxyDetail();
         List<CompanyProxyDetail> companyProxyDetailList = new LinkedList<>();
         companyProxyDetail.setUserId(id);
+        if (CasinoProxyUtil.setParameter(companyProxyDetail)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
         List<CompanyProxyDetail> companyProxyDetails = companyProxyDetailService.findCompanyProxyDetails(companyProxyDetail, startDate, endDate,sort);
         this.assemble(companyProxyDetails,companyProxyDetailList);
 
@@ -118,6 +121,9 @@ public class CompanyProxyDetailController {
                                                       @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         CompanyProxyDetail companyProxyDetail = new CompanyProxyDetail();
         companyProxyDetail.setProxyRole(proxyRole);
+        if (CasinoProxyUtil.setParameter(companyProxyDetail)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
         List<CompanyProxyDetail> companyProxyDetails = new ArrayList<>();
         Long authId = CasinoProxyUtil.getAuthId();
         ProxyUser byId = proxyUserService.findById(authId);
@@ -142,6 +148,9 @@ public class CompanyProxyDetailController {
         }
         CompanyProxyDetail companyProxyDetail = new CompanyProxyDetail();
         companyProxyDetail.setUserId(id);
+        if (CasinoProxyUtil.setParameter(companyProxyDetail)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
         List<CompanyProxyDetail> companyProxyDetails = companyProxyDetailService.findCompanyProxyDetails(companyProxyDetail, startDate, endDate,null);
         CompanyProxyDetail companyProxyDetail1 = new CompanyProxyDetail();
         this.assemble(companyProxyDetails,companyProxyDetail1,null);

@@ -12,6 +12,8 @@ public class PageUtil {
         PageResultVO<?> pageResult = new PageResultVO<>();
         if (list == null || list.size() == 0) {
             pageResult.setContent(Collections.emptyList());
+            pageResult.setTotalPages(0);
+            pageResult.setTotalElements(0L);
             return pageResult;
         }
         int startIndex = (pageVO.getPageNo() - 1) * pageVO.getPageSize(); // 开始取值
