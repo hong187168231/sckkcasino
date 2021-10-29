@@ -1,6 +1,8 @@
 package com.qianyi.casinoadmin.inteceptor;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.business.CustomUserServiceBusiness;
+import com.qianyi.casinocore.model.SysPermission;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.modulecommon.inteceptor.AbstractAuthorizationInteceptor;
@@ -8,12 +10,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @Component
 public class AuthorizationInteceptor extends AbstractAuthorizationInteceptor {
 
     @Autowired
     SysUserService sysUserService;
+
+    @Autowired
+    CustomUserServiceBusiness customUserServiceBusiness;
 
     @Override
     protected boolean hasBan() {
@@ -34,8 +40,13 @@ public class AuthorizationInteceptor extends AbstractAuthorizationInteceptor {
         Long authId= LoginUtil.getLoginUserId();
         if(authId != null){
             //进行权限认证操作
+            List<SysPermission> sysPermissionList = customUserServiceBusiness.findByAdminUserId(authId);
+            if(LoginUtil.checkNull(sysPermissionList)){
+                return false;
+            }
 
-
+            String servletPath = request.getServletPath();
+            sysPermissionList.stream().filter(sysPermission -> sysPermission.getUrl())
             return true;
         }
 
