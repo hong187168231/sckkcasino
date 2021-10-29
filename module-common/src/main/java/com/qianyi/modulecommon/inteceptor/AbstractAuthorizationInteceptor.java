@@ -23,6 +23,10 @@ public abstract class AbstractAuthorizationInteceptor  implements HandlerInterce
         NoAuthorization noAuthorization = method.getAnnotation(NoAuthorization.class);
 
         if (noAuthorization == null) {
+            if(hasBan()){
+                return false;
+            }
+
             if (hasPermission(request)) {
 
             }

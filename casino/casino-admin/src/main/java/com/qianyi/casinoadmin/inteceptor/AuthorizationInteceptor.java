@@ -4,7 +4,6 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.modulecommon.inteceptor.AbstractAuthorizationInteceptor;
-import com.qianyi.modulejjwt.JjwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,8 +31,8 @@ public class AuthorizationInteceptor extends AbstractAuthorizationInteceptor {
      */
     @Override
     public boolean hasPermission(HttpServletRequest request) {
-        String token = LoginUtil.getToken();
-        if(JjwtUtil.check(token, "casino-admin")){
+        Long authId= LoginUtil.getLoginUserId();
+        if(authId != null){
             //进行权限认证操作
 
 
