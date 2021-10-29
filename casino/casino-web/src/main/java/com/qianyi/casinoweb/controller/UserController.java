@@ -6,9 +6,9 @@ import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinoweb.runner.GenerateInviteCodeRunner;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.util.DeviceUtil;
-import com.qianyi.casinoweb.util.InviteCodeUtil;
 import com.qianyi.casinoweb.vo.LoginLogVo;
 import com.qianyi.casinoweb.vo.UserVo;
 import com.qianyi.modulecommon.Constants;
@@ -52,6 +52,8 @@ public class UserController {
     @Autowired
     @Qualifier("loginLogJob")
     AsyncService asyncService;
+    @Autowired
+    GenerateInviteCodeRunner generateInviteCodeRunner;
 
     @GetMapping("info")
     @ApiOperation("获取当前用户的基本信息(不包含 余额，打码量，可提现金额,洗码金额)")
@@ -281,7 +283,8 @@ public class UserController {
         }
         //设置user基本参数
         String ip = IpUtil.getIp(request);
-        user = User.setBaseUser(account, CasinoWebUtil.bcrypt(password), phone, ip,createInviteCode());
+        String inviteCodeNew = generateInviteCodeRunner.getInviteCode();
+        user = User.setBaseUser(account, CasinoWebUtil.bcrypt(password), phone, ip,inviteCodeNew);
         //设置父级
         User parentUser = userService.findById(userId);
         user.setFirstPid(userId);
@@ -332,20 +335,6 @@ public class UserController {
         log.info("开始推送团队新增成员消息", user);
         rabbitTemplate.convertAndSend(RabbitMqConstants.ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.ADDUSERTOTEAM_DIRECT, user, new CorrelationData(UUID.randomUUID().toString()));
         log.info("团队新增成员消息发送成功={}", user);
-    }
-
-    /**
-     * 生成邀请码
-     * @return
-     */
-    private String createInviteCode() {
-        User user = null;
-        String inviteCode = null;
-        do {
-            inviteCode = InviteCodeUtil.randomCode6();
-            user = userService.findByInviteCode(inviteCode);
-        } while (user != null);
-        return inviteCode;
     }
 
     public static void main(String[] args) {

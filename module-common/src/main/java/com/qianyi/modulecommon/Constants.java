@@ -80,8 +80,8 @@ public class Constants {
     public static final String REDIS_SMSIPSENDNUM= "sms::ipSendNum::";
     //redis每日短信前缀
     public static final String REDIS_SMSCODE = "sms::code::";
-    //redis短信重发时间间隔
-    public static final String REDIS_SMSCODE_INTERVAL= "sms::interval::";
+    //redis批量邀请码
+    public static final String REDIS_INVITECODELIST= "inviteCodeList";
     //会员类型：公司会员
     public static final Integer USER_TYPE0= 0;
     //会员类型：渠道会员

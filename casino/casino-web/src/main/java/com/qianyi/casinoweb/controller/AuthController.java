@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.code.kaptcha.Producer;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinoweb.runner.GenerateInviteCodeRunner;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.util.DeviceUtil;
 import com.qianyi.casinoweb.util.InviteCodeUtil;
@@ -72,6 +73,8 @@ public class AuthController {
     IpBlackService ipBlackService;
     @Autowired
     ProxyUserService proxyUserService;
+    @Autowired
+    GenerateInviteCodeRunner generateInviteCodeRunner;
 
     @Autowired
     @Qualifier("loginLogJob")
@@ -198,9 +201,13 @@ public class AuthController {
             return ResponseUtil.custom("该帐号已存在");
         }
         //设置user基本参数
-        user = User.setBaseUser(account, CasinoWebUtil.bcrypt(password), phone, ip,createInviteCode());
+        String inviteCodeNew = generateInviteCodeRunner.getInviteCode();
+        user = User.setBaseUser(account, CasinoWebUtil.bcrypt(password), phone, ip,inviteCodeNew);
         //设置父级
-        setParent(inviteCode, inviteType, user);
+        ResponseEntity responseEntity = setParent(inviteCode, inviteType, user);
+        if (responseEntity != null) {
+            return responseEntity;
+        }
         User save = userService.save(user);
         //userMoney表初始化数据
         UserMoney userMoney = new UserMoney();
@@ -252,10 +259,13 @@ public class AuthController {
      * @param inviteType
      * @param user
      */
-    public void setParent(String inviteCode,String inviteType,User user){
+    public ResponseEntity setParent(String inviteCode,String inviteType,User user){
         //人人代
         if(Constants.INVITE_TYPE_EVERYONE.equals(inviteType)){
             User parentUser = userService.findByInviteCode(inviteCode);
+            if (parentUser == null) {
+                return ResponseUtil.custom(Constants.IP_BLOCK);
+            }
             user.setFirstPid(parentUser.getId());
             user.setSecondPid(parentUser.getFirstPid());
             user.setThirdPid(parentUser.getSecondPid());
@@ -263,6 +273,9 @@ public class AuthController {
             //基层代理
         }else if(Constants.INVITE_TYPE_PROXY.equals(inviteType)){
             ProxyUser parentProxy = proxyUserService.findByProxyCode(inviteCode);
+            if (parentProxy == null) {
+                return ResponseUtil.custom(Constants.IP_BLOCK);
+            }
             user.setFirstProxy(parentProxy.getFirstProxy());
             user.setSecondProxy(parentProxy.getSecondProxy());
             user.setThirdProxy(parentProxy.getId());
@@ -284,6 +297,7 @@ public class AuthController {
                 user.setThirdPid(parentUser.getSecondPid());
             }
         }
+        return null;
     }
 
     @NoAuthentication
@@ -640,19 +654,5 @@ public class AuthController {
 
     private void setUserTokenToRedis(Long userId, String token) {
         redisUtil.set("token:" + userId, token);
-    }
-
-    /**
-     * 生成邀请码
-     * @return
-     */
-    private String createInviteCode() {
-        User user = null;
-        String inviteCode = null;
-        do {
-            inviteCode = InviteCodeUtil.randomCode6();
-            user = userService.findByInviteCode(inviteCode);
-        } while (user != null);
-        return inviteCode;
     }
 }
