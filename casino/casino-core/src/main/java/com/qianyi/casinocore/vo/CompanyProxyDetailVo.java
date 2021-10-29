@@ -3,10 +3,12 @@ package com.qianyi.casinocore.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
-public class CompanyProxyDetailVo {
+public class CompanyProxyDetailVo implements Serializable {
+    private static final long serialVersionUID = -6975317983298432179L;
     @ApiModelProperty(value = "代理id")
     private Long proxyUserId;
     @ApiModelProperty(value = "账号")

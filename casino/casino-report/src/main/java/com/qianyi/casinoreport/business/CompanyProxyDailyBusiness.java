@@ -128,7 +128,7 @@ public class CompanyProxyDailyBusiness {
                 .playerNum(companyOrderAmountVo.getPlayerNum())
                 .profitAmount(totalAmount.multiply(profitRate))
                 .groupTotalprofit(totalAmount.multiply(profitRate))
-                .settleStatus("未结清")
+                .settleStatus(0)
                 .staticsTimes(companyOrderAmountVo.getBetTime().substring(0,10))
                 .betTime(LocalDateTime.parse(companyOrderAmountVo.getBetTime()))
                 .build();
