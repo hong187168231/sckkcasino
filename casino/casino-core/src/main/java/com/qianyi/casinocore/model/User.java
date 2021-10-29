@@ -57,6 +57,7 @@ public class User extends BaseEntity implements UserDetails {
     private Long secondPid;
     @ApiModelProperty("第三级ID")
     private Long thirdPid;
+    @Column(unique = true)
     @ApiModelProperty("邀请码")
     private String inviteCode;
     @ApiModelProperty("是否是首次下注：0是，1,否")
