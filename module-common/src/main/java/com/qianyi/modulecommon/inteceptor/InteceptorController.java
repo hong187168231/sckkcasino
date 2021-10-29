@@ -2,7 +2,7 @@ package com.qianyi.modulecommon.inteceptor;
 
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
-import com.qianyi.modulecommon.reponse.ResponseCode;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -34,6 +34,13 @@ public class InteceptorController implements ErrorController {
     public ResponseEntity authenticationIpLimit() {
         return ResponseUtil.custom(Constants.IP_BLOCK);
     }
+
+    @NoAuthorization
+    @RequestMapping("authorizationNopass")
+    public ResponseEntity authorizationNopass() {
+        return ResponseUtil.authorizationNopass();
+    }
+
 
     @NoAuthentication
     @RequestMapping("risk")

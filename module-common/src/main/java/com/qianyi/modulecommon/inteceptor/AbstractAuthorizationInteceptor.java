@@ -24,11 +24,17 @@ public abstract class AbstractAuthorizationInteceptor  implements HandlerInterce
 
         if (noAuthorization == null) {
             if(hasBan()){
+                String url=request.getServletPath();
+                if(url.contains("authenticationBan")){
+                    return true;
+                }
+                response.sendRedirect(request.getContextPath()+"/authenticationNopass");
                 return false;
             }
 
-            if (hasPermission(request)) {
-                return true;
+            if (!hasPermission(request)) {
+                response.sendRedirect(request.getContextPath()+"/authorizationNopass");
+                return false;
             }
         }
         return true;

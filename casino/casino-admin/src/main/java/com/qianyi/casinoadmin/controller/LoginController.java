@@ -10,6 +10,7 @@ import com.qianyi.moduleauthenticator.GoogleAuthUtil;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -285,6 +286,7 @@ public class LoginController {
             @ApiImplicitParam(name = "account", value = "已注册的帐号", required = true),
     })
     @NoAuthentication
+    @NoAuthorization
     public ResponseEntity getJwtToken(String account) {
         SysUser user = sysUserService.findByUserName(account);
         if (user == null) {
