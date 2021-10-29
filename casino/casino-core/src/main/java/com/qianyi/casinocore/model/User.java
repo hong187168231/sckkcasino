@@ -147,6 +147,17 @@ public class User extends BaseEntity implements UserDetails {
         return true;
     }
 
+    public static User setBaseUser(String account,String password,String phone,String ip,String inviteCode){
+        User user = new User();
+        user.setAccount(account);
+        user.setPassword(password);
+        user.setPhone(phone);
+        user.setState(Constants.open);
+        user.setRegisterIp(ip);
+        user.setInviteCode(inviteCode);
+        return user;
+    }
+
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
