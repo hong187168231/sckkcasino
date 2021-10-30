@@ -11,6 +11,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -42,8 +44,12 @@ public class GenerateInviteCodeRunner implements CommandLineRunner {
      * 批量生成邀请码
      */
     public void batchGenerateInviteCode() {
+        Set<String> sets = new HashSet<>();
+        //防止生成的100个里面有重复的
         for (int i = 0; i < initNum; i++) {
-            String inviteCode = createInviteCode();
+            sets.add(createInviteCode());
+        }
+        for (String inviteCode : sets) {
             redisUtil.lSet(Constants.REDIS_INVITECODELIST, inviteCode);
         }
     }
