@@ -52,7 +52,7 @@ public class GameRecordJob {
     WashCodeChangeService washCodeChangeService;
 
     //每隔5分钟执行一次
-    @Scheduled(fixedRate = 1000 * 60 * 5)
+    @Scheduled(cron = "0 0/5 * * * ?")
     public void testTasks() {
         try {
             log.info("开始拉取wm游戏记录");

@@ -21,6 +21,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -156,7 +158,12 @@ public class ProxyCentreController {
         Long userId = CasinoWebUtil.getAuthId();
         Sort sort = Sort.by("allBetAmount").descending();
         Pageable pageable = CasinoWebUtil.setPageable(pageCode, pageSize, sort);
-        Page<ProxyReport> list = proxyReportService.findAchievementPage(pageable, userId,account);
+        List<User> users = userService.findByStateAndFirstPid(Constants.open, userId);
+        if (CollectionUtils.isEmpty(users)){
+            Page<ProxyReport> proxyReports = new PageImpl<>(new ArrayList<ProxyReport>(), pageable, 0);
+            return ResponseUtil.success(proxyReports);
+        }
+        Page<ProxyReport> list  = proxyReportService.findAchievementPage(pageable, users,account);
         return ResponseUtil.success(list);
     }
 

@@ -58,11 +58,11 @@ public class UserMoneyBusiness {
         if (validbet == null || userId == null) {
             return ResponseUtil.fail();
         }
-        UserMoney user = userMoneyService.findUserByUserIdUseLock(userId);
-        if (user == null || user.getCodeNum() == null) {
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        if (userMoney == null || userMoney.getCodeNum() == null) {
             return ResponseUtil.fail();
         }
-        BigDecimal codeNum = user.getCodeNum();
+        BigDecimal codeNum = userMoney.getCodeNum();
         //剩余打码量小于等于0时
         if (codeNum.compareTo(BigDecimal.ZERO) < 1) {
             record.setCodeNumStatus(Constants.yes);
@@ -70,7 +70,7 @@ public class UserMoneyBusiness {
             return ResponseUtil.success();
         }
         //最小清零打码量
-        ResponseEntity responseEntity = checkClearCodeNum(platformConfig, userId, record, user);
+        ResponseEntity responseEntity = checkClearCodeNum(platformConfig, userId, record, userMoney);
         if (responseEntity.getCode() == 0) {
             record.setCodeNumStatus(Constants.yes);
             gameRecordService.save(record);
@@ -79,18 +79,18 @@ public class UserMoneyBusiness {
         //有效投注额大于等于等于剩余打码量
         if (validbet.compareTo(codeNum) > -1) {
             userMoneyService.subCodeNum(userId, codeNum);
-            BigDecimal codeNumAfter = user.getCodeNum().subtract(codeNum);
-            codeNumChangeService.save(userId, record, codeNum.negate(), user.getCodeNum(), codeNumAfter);
-            user.setCodeNum(codeNumAfter);
+            BigDecimal codeNumAfter = userMoney.getCodeNum().subtract(codeNum);
+            codeNumChangeService.save(userId, record, codeNum.negate(), userMoney.getCodeNum(), codeNumAfter);
+            userMoney.setCodeNum(codeNumAfter);
         } else {
             //有效投注额小于剩余打码量
             userMoneyService.subCodeNum(userId, validbet);
-            BigDecimal codeNumAfter = user.getCodeNum().subtract(validbet);
-            codeNumChangeService.save(userId, record, validbet.negate(), user.getCodeNum(), codeNumAfter);
-            user.setCodeNum(codeNumAfter);
+            BigDecimal codeNumAfter = userMoney.getCodeNum().subtract(validbet);
+            codeNumChangeService.save(userId, record, validbet.negate(), userMoney.getCodeNum(), codeNumAfter);
+            userMoney.setCodeNum(codeNumAfter);
         }
         //扣减完毕后再次检查最小清零打码量
-        checkClearCodeNum(platformConfig, userId, record, user);
+        checkClearCodeNum(platformConfig, userId, record, userMoney);
         record.setCodeNumStatus(Constants.yes);
         gameRecordService.save(record);
         return ResponseUtil.success();
@@ -105,23 +105,17 @@ public class UserMoneyBusiness {
      * @param user
      * @return
      */
-    @Transactional
     public ResponseEntity checkClearCodeNum(PlatformConfig platformConfig, Long userId, GameRecord record, UserMoney user) {
         BigDecimal codeNum = user.getCodeNum();
-        if (platformConfig != null && platformConfig.getClearCodeNum() != null) {
-            BigDecimal minCodeNumVal = platformConfig.getClearCodeNum();
-            //剩余打码量小于等于最小清零打码量时 直接清0
-            if (codeNum.compareTo(minCodeNumVal) < 1) {
-                userMoneyService.subCodeNum(userId, codeNum);
-                codeNumChangeService.save(userId, record, codeNum.negate(), user.getCodeNum(), user.getCodeNum().subtract(codeNum));
-                return ResponseUtil.success();
-            }
-        } else {
-            if (codeNum.compareTo(DEFAULT_CLEAR) < 1) {
-                userMoneyService.subCodeNum(userId, codeNum);
-                codeNumChangeService.save(userId, record, codeNum.negate(), user.getCodeNum(), user.getCodeNum().subtract(codeNum));
-                return ResponseUtil.success();
-            }
+        BigDecimal minCodeNumVal = DEFAULT_CLEAR;
+        if (platformConfig != null) {
+            minCodeNumVal = platformConfig.getClearCodeNum() == null ? DEFAULT_CLEAR : platformConfig.getClearCodeNum();
+        }
+        //剩余打码量小于等于最小清零打码量时 直接清0
+        if (codeNum.compareTo(minCodeNumVal) < 1) {
+            userMoneyService.subCodeNum(userId, codeNum);
+            codeNumChangeService.save(userId, record, codeNum.negate(), user.getCodeNum(), user.getCodeNum().subtract(codeNum));
+            return ResponseUtil.success();
         }
         return ResponseUtil.fail();
     }
