@@ -82,12 +82,13 @@ public class ShareProfitBusiness {
         User user = userService.findById(shareProfitMqVo.getUserId());
         String betTime = shareProfitMqVo.getBetTime().substring(0,10);
         List<ShareProfitBO> shareProfitBOList = new ArrayList<>();
-        if(user.getFirstPid()!=null)
+        if(user.getFirstPid()!=null || user.getFirstPid()!=0)
             shareProfitBOList.add(getShareProfitBO(user.getFirstPid(),shareProfitMqVo.getValidbet(),platformConfig.getFirstCommission(),getUserIsFirstBet(user),betTime,true));
-        if(user.getSecondPid()!=null)
+        if(user.getSecondPid()!=null || user.getSecondPid()!=0)
             shareProfitBOList.add(getShareProfitBO(user.getSecondPid(),shareProfitMqVo.getValidbet(),platformConfig.getSecondCommission(),getUserIsFirstBet(user),betTime,false));
-        if(user.getThirdPid()!=null)
+        if(user.getThirdPid()!=null || user.getThirdPid()!=0)
             shareProfitBOList.add(getShareProfitBO(user.getThirdPid(),shareProfitMqVo.getValidbet(),platformConfig.getThirdCommission(),getUserIsFirstBet(user),betTime,false));
+        log.info("get list object is {}",shareProfitBOList);
         return shareProfitBOList;
     }
 
@@ -134,6 +135,8 @@ public class ShareProfitBusiness {
         ProxyDayReport proxyDayReport = proxyDayReportBusiness.processReport(shareProfitBO);
         //进行总报表处理
         ProxyReport proxyReport = proxyReportBusiness.processReport(shareProfitBO);
+
+        log.info("userMoney:{} \n shareProfitChange:{} \n proxyDayReport:{} \n proxyReport:{}",userMoney, shareProfitChange,proxyDayReport,proxyReport);
 
         proxyDayReportList.add(proxyDayReport);
         proxyReportList.add(proxyReport);

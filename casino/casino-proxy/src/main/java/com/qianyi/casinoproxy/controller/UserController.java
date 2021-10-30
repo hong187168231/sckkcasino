@@ -268,7 +268,7 @@ public class UserController {
             return ResponseUtil.custom("参数不合法");
         }
         if (!account.matches(RegexEnum.ACCOUNT.getRegex())){
-            return ResponseUtil.custom("账号格式错误！");
+            return ResponseUtil.custom("账号请输入6~15位数字或字母！");
         }
         User us = userService.findByAccount(account);
         if(us != null){
@@ -285,7 +285,7 @@ public class UserController {
             user.setName(account);
         }else{
             if (!name.matches(RegexEnum.NAME.getRegex())){
-                return ResponseUtil.custom("用户昵称格式错误！");
+                return ResponseUtil.custom("昵称请输入1~20位中文或字母！");
             }
             user.setName(name);
         }
