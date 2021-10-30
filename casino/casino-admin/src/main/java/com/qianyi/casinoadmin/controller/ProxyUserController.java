@@ -186,10 +186,10 @@ public class ProxyUserController {
             return ResponseUtil.custom("参数不合法");
         }
         if (!userName.matches(RegexEnum.ACCOUNT.getRegex())){
-            return ResponseUtil.custom("账号请输入数字或字母！");
+            return ResponseUtil.custom("账号请输入6~15位数字或字母！");
         }
         if (!nickName.matches(RegexEnum.NAME.getRegex())){
-            return ResponseUtil.custom("昵称请输入中文或字母！");
+            return ResponseUtil.custom("昵称请输入1~20位中文或字母！");
         }
         ProxyUser byUserName = proxyUserService.findByUserName(userName);
         if (!LoginUtil.checkNull(byUserName)){
