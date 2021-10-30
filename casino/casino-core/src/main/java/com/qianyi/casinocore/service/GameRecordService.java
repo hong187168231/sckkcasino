@@ -40,7 +40,7 @@ public class GameRecordService {
         return gameRecordRepository.findAll(condition, pageable);
     }
 
-    public  GameRecord  findRecordRecordSum(String user, String betId, String gname, Integer gid) {
+    public  GameRecord  findRecordRecordSum(GameRecord game) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<GameRecord> query = builder.createQuery(GameRecord.class);
         Root<GameRecord> root = query.from(GameRecord.class);
@@ -55,24 +55,39 @@ public class GameRecordService {
 
         List<Predicate> predicates = new ArrayList();
 
-        if (!CommonUtil.checkNull(betId)) {
+        if (!CommonUtil.checkNull(game.getBetId())) {
             predicates.add(
-                    builder.equal(root.get("betId").as(String.class), betId)
+                    builder.equal(root.get("betId").as(String.class), game.getBetId())
             );
         }
-        if (!CommonUtil.checkNull(user)) {
+        if (!CommonUtil.checkNull(game.getUser())) {
             predicates.add(
-                    builder.equal(root.get("user").as(String.class), user)
+                    builder.equal(root.get("user").as(String.class), game.getUser())
             );
         }
-        if (!CommonUtil.checkNull(gname)) {
+        if (!CommonUtil.checkNull(game.getGname())) {
             predicates.add(
-                    builder.equal(root.get("gname").as(String.class), gname)
+                    builder.equal(root.get("gname").as(String.class), game.getGname())
             );
         }
-        if (gid != null) {
+        if (game.getGid() != null) {
             predicates.add(
-                    builder.equal(root.get("gid").as(Integer.class), gid)
+                    builder.equal(root.get("gid").as(Integer.class), game.getGid())
+            );
+        }
+        if (game.getFirstProxy() != null) {
+            predicates.add(
+                    builder.equal(root.get("firstProxy").as(Long.class), game.getFirstProxy())
+            );
+        }
+        if (game.getSecondProxy() != null) {
+            predicates.add(
+                    builder.equal(root.get("secondProxy").as(Long.class), game.getSecondProxy())
+            );
+        }
+        if (game.getThirdProxy() != null) {
+            predicates.add(
+                    builder.equal(root.get("thirdProxy").as(Long.class), game.getThirdProxy())
             );
         }
         query
@@ -139,5 +154,9 @@ public class GameRecordService {
 
     public List<CompanyOrderAmountVo> getStatisticsResult(String startTime, String endTime){
         return gameRecordRepository.getStatisticsResult(startTime,endTime);
+    }
+
+    public List<GameRecord> findGameRecordIdAll(List<Long> recordIdList) {
+        return gameRecordRepository.findAllById(recordIdList);
     }
 }

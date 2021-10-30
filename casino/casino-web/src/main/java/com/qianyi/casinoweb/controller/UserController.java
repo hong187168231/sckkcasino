@@ -61,8 +61,15 @@ public class UserController {
         Long authId = CasinoWebUtil.getAuthId();
         User user = userService.findById(authId);
         UserVo vo = new UserVo();
-        BeanUtils.copyProperties(user,vo);
+        BeanUtils.copyProperties(user, vo);
         vo.setUserId(user.getId());
+        User firstParent = null;
+        if (user.getFirstPid() != null) {
+            firstParent = userService.findById(user.getFirstPid());
+        }
+        if (firstParent != null) {
+            vo.setSuperiorAccount(firstParent.getAccount());
+        }
         //查询后台配置域名
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (platformConfig != null) {

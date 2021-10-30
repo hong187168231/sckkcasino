@@ -149,14 +149,14 @@ public class ProxyCentreController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "memberId", value = "会员ID", required = false),
+            @ApiImplicitParam(name = "account", value = "会员账号", required = false),
     })
-    public ResponseEntity<ProxyReport> findAchievementPage(Integer pageSize, Integer pageCode,Long memberId) {
+    public ResponseEntity<ProxyReport> findAchievementPage(Integer pageSize, Integer pageCode,String account) {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         Sort sort = Sort.by("allBetAmount").descending();
         Pageable pageable = CasinoWebUtil.setPageable(pageCode, pageSize, sort);
-        Page<ProxyReport> list = proxyReportService.findAchievementPage(pageable, userId,memberId);
+        Page<ProxyReport> list = proxyReportService.findAchievementPage(pageable, userId,account);
         return ResponseUtil.success(list);
     }
 

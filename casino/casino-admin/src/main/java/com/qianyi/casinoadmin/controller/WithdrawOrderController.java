@@ -124,9 +124,10 @@ public class WithdrawOrderController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "订单id", required = true),
             @ApiImplicitParam(name = "status", value = "审核状态，1：通过，2：拒绝", required = true),
+            @ApiImplicitParam(name = "remark", value = "备注", required = false),
     })
     @PostMapping("saveWithdraw")
-    public ResponseEntity saveWithdraw(Long id, Integer status){
+    public ResponseEntity saveWithdraw(Long id, Integer status,String remark){
         if (LoginUtil.checkNull(id,status)){
             return ResponseUtil.custom("参数不合法");
         }
@@ -143,6 +144,6 @@ public class WithdrawOrderController {
         Long userId = LoginUtil.getLoginUserId();
         SysUser sysUser = sysUserService.findById(userId);
         String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
-        return withdrawBusiness.updateWithdrawAndUser(id,status,lastModifier);
+        return withdrawBusiness.updateWithdrawAndUser(id,status,lastModifier,remark);
     }
 }

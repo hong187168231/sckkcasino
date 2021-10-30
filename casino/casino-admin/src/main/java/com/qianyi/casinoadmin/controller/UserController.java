@@ -285,7 +285,7 @@ public class UserController {
             user.setName(account);
         }else{
             if (!name.matches(RegexEnum.NAME.getRegex())){
-                return ResponseUtil.custom("昵称请输入中文或字母！");
+                return ResponseUtil.custom("昵称请输入1~20位中文或字母！");
             }
             user.setName(name);
         }

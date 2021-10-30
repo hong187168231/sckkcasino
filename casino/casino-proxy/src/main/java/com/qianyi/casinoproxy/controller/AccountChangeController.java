@@ -1,5 +1,6 @@
 package com.qianyi.casinoproxy.controller;
 
+import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.AccountChange;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.AccountChangeService;
@@ -22,8 +23,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Api(tags = "报表中心")
@@ -89,5 +92,15 @@ public class AccountChangeController {
             pageResultVO.setContent(accountChangeVoList);
         }
         return ResponseUtil.success(pageResultVO);
+    }
+    @ApiOperation("查询账变类型")
+    @GetMapping("/getData")
+    public ResponseEntity getData(){
+        AccountChangeEnum[] values = AccountChangeEnum.values();
+        Map<Integer,String> map = new HashMap<>();
+        for (AccountChangeEnum accountChangeEnum:values){
+            map.put(accountChangeEnum.getType(),accountChangeEnum.getName());
+        }
+        return ResponseUtil.success(map);
     }
 }

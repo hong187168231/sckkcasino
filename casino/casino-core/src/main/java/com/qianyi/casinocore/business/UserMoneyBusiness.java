@@ -58,11 +58,6 @@ public class UserMoneyBusiness {
         if (validbet == null || userId == null) {
             return ResponseUtil.fail();
         }
-        if (BigDecimal.ZERO.compareTo(validbet) == 0) {
-            record.setCodeNumStatus(Constants.yes);
-            gameRecordService.save(record);
-            return ResponseUtil.success();
-        }
         UserMoney user = userMoneyService.findUserByUserIdUseLock(userId);
         if (user == null || user.getCodeNum() == null) {
             return ResponseUtil.fail();
@@ -70,6 +65,8 @@ public class UserMoneyBusiness {
         BigDecimal codeNum = user.getCodeNum();
         //剩余打码量小于等于0时
         if (codeNum.compareTo(BigDecimal.ZERO) < 1) {
+            record.setCodeNumStatus(Constants.yes);
+            gameRecordService.save(record);
             return ResponseUtil.success();
         }
         //最小清零打码量

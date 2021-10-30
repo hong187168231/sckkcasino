@@ -119,6 +119,11 @@ public class GameRecordController {
             @ApiImplicitParam(name = "gid", value = "游戏类型", required = false),
     })
     public ResponseEntity findRecordRecordSum(String user,String betId,String gname,Integer gid){
-        return ResponseUtil.success(gameRecordService.findRecordRecordSum(user,betId,gname,gid));
+        GameRecord game = new GameRecord();
+        game.setUser(user);
+        game.setBetId(betId);
+        game.setGname(gname);
+        game.setGid(gid);
+        return ResponseUtil.success(gameRecordService.findRecordRecordSum(game));
     }
 }

@@ -9,6 +9,7 @@ import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.casinoproxy.util.LoginUtil;
 import com.qianyi.moduleauthenticator.GoogleAuthUtil;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -190,7 +191,35 @@ public class LoginController {
         return ResponseUtil.success(qrcode);
 
     }
-
+    @PostMapping("updatePassword")
+    @ApiOperation("修改当前用户密码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "oldPassword", value = "原密码", required = true),
+            @ApiImplicitParam(name = "newPassword", value = "新密码", required = true),
+            @ApiImplicitParam(name = "repetitionPassword", value = "重复新密码", required = true),
+    })
+    public ResponseEntity updatePassword(String oldPassword,String newPassword,String repetitionPassword){
+        if (CasinoProxyUtil.checkNull(oldPassword,newPassword,repetitionPassword)){
+            return ResponseUtil.custom("参数必填");
+        }
+        Long authId = CasinoProxyUtil.getAuthId();
+        ProxyUser byId = proxyUserService.findById(authId);
+        String bcryptPassword = byId.getPassWord();
+        boolean bcrypt = CasinoProxyUtil.checkBcrypt(oldPassword, bcryptPassword);
+        if (!bcrypt) {
+            return ResponseUtil.custom("原密码错误");
+        }
+        if (!newPassword.equals(repetitionPassword)){
+            return ResponseUtil.custom("两次输入的新密码不一致！");
+        }
+        if (!newPassword.matches(RegexEnum.PASSWORD.getRegex())){
+            return ResponseUtil.custom("密码请输入6~15位数字和字母组合！");
+        }
+        bcryptPassword = CasinoProxyUtil.bcrypt(newPassword);
+        byId.setPassWord(bcryptPassword);
+        proxyUserService.save(byId);
+        return ResponseUtil.success();
+    }
     @GetMapping("getProxyUser")
     @ApiOperation("查询用户数据")
     @ApiImplicitParams({
@@ -329,7 +358,7 @@ public class LoginController {
 //    }
 
     //1分钟3次
-    @RequestLimit(limit = 10,timeout = 60)
+//    @RequestLimit(limit = 10,timeout = 60)
     @ApiOperation("获取当前登录用户")
     @PostMapping("getPaoxyUser")
     public ResponseEntity<ProxyUser> getPaoxyUser() {
