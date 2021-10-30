@@ -172,7 +172,7 @@ public class CollectionBankcardController {
         }
         if(!LoginUtil.checkNull(accountName)){
             if (!accountName.matches(RegexEnum.NAME.getRegex())){
-                return ResponseUtil.custom("持卡人姓名格式错误！");
+                return ResponseUtil.custom("持卡人请输入中文或字母！");
             }
             collectionBankcard.setAccountName(accountName);
         }
