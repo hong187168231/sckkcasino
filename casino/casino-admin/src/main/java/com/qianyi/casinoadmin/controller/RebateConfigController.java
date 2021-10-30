@@ -91,9 +91,9 @@ public class RebateConfigController {
         if (this.verify(rebateConfig)){
             return ResponseUtil.custom("返佣不能大于30块");
         }
-        if (this.verifySize(rebateConfig)){
-            return ResponseUtil.custom("低级别值不能大于高级别");
-        }
+//        if (this.verifySize(rebateConfig)){
+//            return ResponseUtil.custom("低级别值不能大于高级别");
+//        }
         rebateConfigService.save(rebateConfig);
         return ResponseUtil.success();
     }
