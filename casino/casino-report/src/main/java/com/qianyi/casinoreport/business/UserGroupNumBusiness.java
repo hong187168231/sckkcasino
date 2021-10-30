@@ -44,12 +44,12 @@ public class UserGroupNumBusiness {
      */
     public void processUser(User user){
         try{
-        log.info("新增的用户对象：{}", user);
-        if(user == null){
-            return;
-        }
-        List<ProxyUserBO> proxyUserBOList = getGroupUserNum(user);
-        processProxyUserBOList(proxyUserBOList);
+            log.info("新增的用户对象：{}", user);
+            if(user == null){
+                return;
+            }
+            List<ProxyUserBO> proxyUserBOList = getGroupUserNum(user);
+            processProxyUserBOList(proxyUserBOList);
         }catch (Exception e){
             log.error("user consumer error is {}",e);
             recordFailVo(user);
@@ -81,12 +81,12 @@ public class UserGroupNumBusiness {
 
     private List<ProxyUserBO> getGroupUserNum(User user) {
         List<ProxyUserBO> proxyUserBOList = new ArrayList<>();
-        if(user.getFirstPid()!=null)
+        if(user.getFirstPid()!=null || user.getFirstPid() != 0)
             proxyUserBOList.add(getProxyUser(user.getFirstPid(),user,true));
-        if(user.getSecondPid()!=null)
-            proxyUserBOList.add(getProxyUser(user.getSecondPid(),user,true));
-        if(user.getThirdPid()!=null)
-            proxyUserBOList.add(getProxyUser(user.getThirdPid(),user,true));
+        if(user.getSecondPid()!=null || user.getSecondPid() != 0)
+            proxyUserBOList.add(getProxyUser(user.getSecondPid(),user,false));
+        if(user.getThirdPid()!=null || user.getThirdPid() != 0)
+            proxyUserBOList.add(getProxyUser(user.getThirdPid(),user,false));
         log.info("get list BO {}",proxyUserBOList);
         return proxyUserBOList;
     }

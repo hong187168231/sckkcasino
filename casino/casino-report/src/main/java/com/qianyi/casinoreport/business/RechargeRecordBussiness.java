@@ -93,11 +93,11 @@ public class RechargeRecordBussiness {
 
     public List<RechargeProxyBO> getRechargeProxys(RechargeRecordVo rechargeRecordVo){
         List<RechargeProxyBO> rechargeProxyList = new ArrayList<>();
-        if(rechargeRecordVo.getFirstUserId() != null)
+        if(rechargeRecordVo.getFirstUserId() != null || rechargeRecordVo.getFirstUserId() != 0)
             rechargeProxyList.add(getItemByVo(rechargeRecordVo.getFirstUserId(),rechargeRecordVo,true));
-        if(rechargeRecordVo.getSecondUserId() != null)
+        if(rechargeRecordVo.getSecondUserId() != null || rechargeRecordVo.getSecondUserId() != 0)
             rechargeProxyList.add(getItemByVo(rechargeRecordVo.getSecondUserId(),rechargeRecordVo,false));
-        if(rechargeRecordVo.getThirdUserId() != null)
+        if(rechargeRecordVo.getThirdUserId() != null || rechargeRecordVo.getThirdUserId() != 0)
             rechargeProxyList.add(getItemByVo(rechargeRecordVo.getThirdUserId(),rechargeRecordVo,false));
         log.info("get list object is {}",rechargeProxyList);
         return rechargeProxyList;
