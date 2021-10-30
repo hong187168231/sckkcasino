@@ -329,14 +329,14 @@ public class LoginController {
             return ResponseUtil.parameterNotNull();
         }
         if (!userName.matches(RegexEnum.ACCOUNT.getRegex())){
-            return ResponseUtil.custom("账号格式错误！");
+            return ResponseUtil.custom("账号请输入数字或字母！");
         }
         if (!password.matches(RegexEnum.PASSWORD.getRegex())){
             return ResponseUtil.custom("密码6~15位数字和字母的组合！");
         }
         if (!LoginUtil.checkNull(nickName)){
             if (!nickName.matches(RegexEnum.NAME.getRegex())){
-                return ResponseUtil.custom("用户昵称格式错误！");
+                return ResponseUtil.custom("昵称请输入中文或字母！");
             }
         }
 

@@ -590,4 +590,18 @@ public class RedisUtil {
         }
     }
 
+    /**
+     * 弹出(删除)list中最左边的元素
+     * @param key
+     * @return
+     */
+    public Object lleftPop(String key) {
+        try {
+            Object value = redisTemplate.opsForList().leftPop(key);
+            return value;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

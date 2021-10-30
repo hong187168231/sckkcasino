@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.code.kaptcha.Producer;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinoweb.runner.GenerateInviteCodeRunner;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.util.DeviceUtil;
 import com.qianyi.casinoweb.util.InviteCodeUtil;
@@ -72,6 +73,8 @@ public class AuthController {
     IpBlackService ipBlackService;
     @Autowired
     ProxyUserService proxyUserService;
+    @Autowired
+    GenerateInviteCodeRunner generateInviteCodeRunner;
 
     @Autowired
     @Qualifier("loginLogJob")
@@ -197,11 +200,15 @@ public class AuthController {
         if (user != null && !CommonUtil.checkNull(user.getPassword())) {
             return ResponseUtil.custom("该帐号已存在");
         }
-        user = new User();
+        //设置user基本参数
+        String inviteCodeNew = generateInviteCodeRunner.getInviteCode();
+        user = User.setBaseUser(account, CasinoWebUtil.bcrypt(password), phone, ip,inviteCodeNew);
         //设置父级
-        setParent(inviteCode, inviteType, user);
-        //设置user
-        User save = setUser(user, account, password, phone, ip);
+        ResponseEntity responseEntity = setParent(inviteCode, inviteType, user);
+        if (responseEntity != null) {
+            return responseEntity;
+        }
+        User save = userService.save(user);
         //userMoney表初始化数据
         UserMoney userMoney = new UserMoney();
         userMoney.setUserId(save.getId());
@@ -211,26 +218,6 @@ public class AuthController {
         //推送MQ
         sendUserMq(save);
         return ResponseUtil.success();
-    }
-
-    /**
-     * 初始化user,userMoney
-     * @param user
-     * @param account
-     * @param password
-     * @param phone
-     * @param ip
-     */
-    public User setUser(User user,String account,String password,String phone,String ip){
-        user.setAccount(account);
-        user.setPassword(CasinoWebUtil.bcrypt(password));
-        user.setPhone(phone);
-        user.setState(Constants.open);
-        user.setRegisterIp(ip);
-        //生成邀请码
-        user.setInviteCode(createInviteCode());
-        User save = userService.save(user);
-        return save;
     }
 
     /**
@@ -272,10 +259,13 @@ public class AuthController {
      * @param inviteType
      * @param user
      */
-    public void setParent(String inviteCode,String inviteType,User user){
+    public ResponseEntity setParent(String inviteCode,String inviteType,User user){
         //人人代
         if(Constants.INVITE_TYPE_EVERYONE.equals(inviteType)){
             User parentUser = userService.findByInviteCode(inviteCode);
+            if (parentUser == null) {
+                return ResponseUtil.custom(Constants.IP_BLOCK);
+            }
             user.setFirstPid(parentUser.getId());
             user.setSecondPid(parentUser.getFirstPid());
             user.setThirdPid(parentUser.getSecondPid());
@@ -283,6 +273,9 @@ public class AuthController {
             //基层代理
         }else if(Constants.INVITE_TYPE_PROXY.equals(inviteType)){
             ProxyUser parentProxy = proxyUserService.findByProxyCode(inviteCode);
+            if (parentProxy == null) {
+                return ResponseUtil.custom(Constants.IP_BLOCK);
+            }
             user.setFirstProxy(parentProxy.getFirstProxy());
             user.setSecondProxy(parentProxy.getSecondProxy());
             user.setThirdProxy(parentProxy.getId());
@@ -304,75 +297,7 @@ public class AuthController {
                 user.setThirdPid(parentUser.getSecondPid());
             }
         }
-    }
-
-
-    @PostMapping("directOpenAccount")
-    @ApiOperation("直接开户")
-    @Transactional
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "account", value = "帐号", required = true),
-            @ApiImplicitParam(name = "password", value = "密码", required = true),
-            @ApiImplicitParam(name = "confirmPassword", value = "确认密码", required = true),
-            @ApiImplicitParam(name = "country", value = "区号，柬埔寨：855", required = false),
-            @ApiImplicitParam(name = "phone", value = "手机号", required = false),
-    })
-    public ResponseEntity directOpenAccount(String account, String password, String confirmPassword, String country, String phone, HttpServletRequest request) {
-        boolean checkNull = CommonUtil.checkNull(account, password, confirmPassword);
-        if (checkNull) {
-            return ResponseUtil.parameterNotNull();
-        }
-        //卫语句校验
-        boolean checkAccountLength = User.checkAccountLength(account);
-        if (!checkAccountLength) {
-            return ResponseUtil.custom("用户名" + RegexEnum.ACCOUNT.getDesc());
-        }
-        boolean checkPasswordLength = User.checkPasswordLength(password);
-        if (!checkPasswordLength) {
-            return ResponseUtil.custom("密码" + RegexEnum.ACCOUNT.getDesc());
-        }
-        if (!password.equals(confirmPassword)) {
-            return ResponseUtil.custom("两次密码输入不一致");
-        }
-        if (!ObjectUtils.isEmpty(country) && !ObjectUtils.isEmpty(phone)) {
-            phone = country + phone;
-        }
-        if (!ObjectUtils.isEmpty(phone)) {
-            boolean checkPhone = User.checkPhone(phone);
-            if (!checkPhone) {
-                return ResponseUtil.custom("手机号" + RegexEnum.PHONE.getDesc());
-            }
-        }
-        Long userId = CasinoWebUtil.getAuthId();
-        Integer count = userService.countByFirstPidAndSource(userId, 0);
-        if (count >= 20) {
-            return ResponseUtil.custom("直推数量已达上限");
-        }
-        User user = userService.findByAccount(account);
-        if (user != null && !CommonUtil.checkNull(user.getPassword())) {
-            return ResponseUtil.custom("该帐号已存在");
-        }
-        user = new User();
-        //设置父级
-        User parentUser = userService.findById(userId);
-        user.setFirstPid(userId);
-        user.setSecondPid(parentUser.getFirstPid());
-        user.setThirdPid(parentUser.getSecondPid());
-        user.setType(Constants.USER_TYPE0);
-        user.setSource(0);
-
-        String ip = IpUtil.getIp(request);
-        //设置user
-        User save = setUser(user, account, password, phone, ip);
-        //userMoney表初始化数据
-        UserMoney userMoney = new UserMoney();
-        userMoney.setUserId(save.getId());
-        userMoneyService.save(userMoney);
-        //记录注册日志
-        setLoginLog(ip, user, request);
-        //推送MQ
-        sendUserMq(save);
-        return ResponseUtil.success();
+        return null;
     }
 
     @NoAuthentication
@@ -729,19 +654,5 @@ public class AuthController {
 
     private void setUserTokenToRedis(Long userId, String token) {
         redisUtil.set("token:" + userId, token);
-    }
-
-    /**
-     * 生成邀请码
-     * @return
-     */
-    private String createInviteCode() {
-        User user = null;
-        String inviteCode = null;
-        do {
-            inviteCode = InviteCodeUtil.randomCode6();
-            user = userService.findByInviteCode(inviteCode);
-        } while (user != null);
-        return inviteCode;
     }
 }

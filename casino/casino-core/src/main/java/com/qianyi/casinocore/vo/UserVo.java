@@ -43,8 +43,8 @@ public class UserVo implements Serializable {
     private BigDecimal freezeMoney = BigDecimal.ZERO;
     @ApiModelProperty("可提现余额")
     private BigDecimal withdrawMoney = BigDecimal.ZERO;
-    @ApiModelProperty("WM余额")
-    private BigDecimal wmMoney;
+//    @ApiModelProperty("WM余额")
+//    private BigDecimal wmMoney;
     @ApiModelProperty("提款密码")
     private String withdrawPassword;
     @ApiModelProperty("email")

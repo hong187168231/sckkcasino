@@ -44,4 +44,10 @@ public class PageResultVO<T>  implements Serializable {
         this.totalElements = pageage.getTotalElements();
         this.totalPages = pageage.getTotalPages();
     }
+    public PageResultVO(PageResultVO<T> pageResultVO) {
+        this.number = pageResultVO.getNumber();
+        this.size = pageResultVO.getSize();
+        this.totalElements = pageResultVO.getTotalElements();
+        this.totalPages = pageResultVO.getTotalPages();
+    }
 }

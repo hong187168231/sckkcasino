@@ -91,6 +91,9 @@ public class RebateConfigController {
         if (this.verify(rebateConfig)){
             return ResponseUtil.custom("返佣不能大于30块");
         }
+        if (this.verifySize(rebateConfig)){
+            return ResponseUtil.custom("低级别值不能大于高级别");
+        }
         rebateConfigService.save(rebateConfig);
         return ResponseUtil.success();
     }
@@ -117,6 +120,30 @@ public class RebateConfigController {
             return true;
         }
         if (!LoginUtil.checkNull(rebateConfig.getEightProfit()) && rebateConfig.getEightProfit().compareTo(new BigDecimal(CommonConst.NUMBER_30)) > CommonConst.NUMBER_0){
+            return true;
+        }
+        return false;
+    }
+    private Boolean verifySize(RebateConfig rebateConfig){
+        if (rebateConfig.getFirstProfit().compareTo(rebateConfig.getSecondProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getFirstMoney() >= rebateConfig.getSecondMoney() ){
+            return true;
+        }
+        if (rebateConfig.getSecondProfit().compareTo(rebateConfig.getThirdProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getSecondMoney() >= rebateConfig.getThirdMoney() ){
+            return true;
+        }
+        if (rebateConfig.getThirdProfit().compareTo(rebateConfig.getFourProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getThirdMoney() >= rebateConfig.getFourMoney() ){
+            return true;
+        }
+        if (rebateConfig.getFourProfit().compareTo(rebateConfig.getFiveProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getFourMoney() >= rebateConfig.getFiveMoney() ){
+            return true;
+        }
+        if (rebateConfig.getFiveProfit().compareTo(rebateConfig.getSixProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getFiveMoney() >= rebateConfig.getSixMoney() ){
+            return true;
+        }
+        if (rebateConfig.getSixProfit().compareTo(rebateConfig.getSevenProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getSixMoney() >= rebateConfig.getSevenMoney() ){
+            return true;
+        }
+        if (rebateConfig.getSevenProfit().compareTo(rebateConfig.getEightProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getSevenMoney() >= rebateConfig.getEightMoney() ){
             return true;
         }
         return false;

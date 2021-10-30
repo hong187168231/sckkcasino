@@ -85,7 +85,7 @@ public class ProxyUserController {
                                         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         ProxyUser proxyUser = new ProxyUser();
         Sort sort=Sort.by("proxyRole").ascending();
-        sort.and(Sort.by("id").descending());
+        sort = sort.and(Sort.by("id").descending());
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         proxyUser.setProxyRole(proxyRole);
         proxyUser.setUserFlag(userFlag);
@@ -233,10 +233,10 @@ public class ProxyUserController {
             return ResponseUtil.custom("参数不合法");
         }
         if (!userName.matches(RegexEnum.ACCOUNT.getRegex())){
-            return ResponseUtil.custom("账号格式错误！");
+            return ResponseUtil.custom("账号请输入数字或字母！");
         }
         if (!nickName.matches(RegexEnum.NAME.getRegex())){
-            return ResponseUtil.custom("用户昵称格式错误！");
+            return ResponseUtil.custom("昵称请输入中文或字母！");
         }
         ProxyUser byUserName = proxyUserService.findByUserName(userName);
         if (!CasinoProxyUtil.checkNull(byUserName)){

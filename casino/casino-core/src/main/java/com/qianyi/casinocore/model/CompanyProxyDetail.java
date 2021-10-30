@@ -45,8 +45,8 @@ public class CompanyProxyDetail extends BaseEntity implements Cloneable{
     private BigDecimal benefitRate;
     @ApiModelProperty(value = "个人结算佣金")
     private BigDecimal profitAmount;
-    @ApiModelProperty(value = "结清状态")
-    private String settleStatus;
+    @ApiModelProperty(value = "结清状态 0 未结清 1已结清")
+    private Integer settleStatus;
     @ApiModelProperty(value = "投注时间")
     private LocalDateTime betTime;
 

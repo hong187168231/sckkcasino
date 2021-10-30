@@ -57,6 +57,7 @@ public class User extends BaseEntity implements UserDetails {
     private Long secondPid;
     @ApiModelProperty("第三级ID")
     private Long thirdPid;
+    @Column(unique = true)
     @ApiModelProperty("邀请码")
     private String inviteCode;
     @ApiModelProperty("是否是首次下注：0是，1,否")
@@ -145,6 +146,17 @@ public class User extends BaseEntity implements UserDetails {
             return false;
         }
         return true;
+    }
+
+    public static User setBaseUser(String account,String password,String phone,String ip,String inviteCode){
+        User user = new User();
+        user.setAccount(account);
+        user.setPassword(password);
+        user.setPhone(phone);
+        user.setState(Constants.open);
+        user.setRegisterIp(ip);
+        user.setInviteCode(inviteCode);
+        return user;
     }
 
     @JsonIgnore
