@@ -36,18 +36,18 @@ public class ProxyReportService {
         return proxyReportRepository.saveAll(proxyReportList);
     }
 
-    public Page<ProxyReport> findAchievementPage(Pageable pageable, Long userId, Long memberId) {
-        Specification<ProxyReport> condition = this.getCondition(userId,memberId);
+    public Page<ProxyReport> findAchievementPage(Pageable pageable, Long userId, String account) {
+        Specification<ProxyReport> condition = this.getCondition(userId,account);
         return proxyReportRepository.findAll(condition, pageable);
     }
 
-    private Specification<ProxyReport> getCondition(Long userId, Long memberId) {
+    private Specification<ProxyReport> getCondition(Long userId, String account) {
         Specification<ProxyReport> specification = new Specification<ProxyReport>() {
             @Override
             public Predicate toPredicate(Root<ProxyReport> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
-                if (memberId != null) {
-                    list.add(cb.equal(root.get("userId").as(Long.class), memberId));
+                if (!ObjectUtils.isEmpty(account)) {
+                    list.add(cb.equal(root.get("account").as(String.class), account));
                 } else {
                     List<User> users = userService.findByStateAndFirstPid(Constants.open, userId);
                     if (!CollectionUtils.isEmpty(users)) {
