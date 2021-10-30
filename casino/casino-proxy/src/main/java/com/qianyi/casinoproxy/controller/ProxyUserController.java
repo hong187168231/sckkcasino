@@ -465,7 +465,7 @@ public class ProxyUserController {
         ProxyCommission byProxyUserId = proxyCommissionService.findByProxyUserId(proxyUser.getId());
         if (proxyUser.getProxyRole() == CommonConst.NUMBER_3){
             if (CasinoProxyUtil.checkNull(byProxyUserId) || CasinoProxyUtil.checkNull(byProxyUserId.getFirstCommission())){
-                return ResponseUtil.success("未设置");
+                return ResponseUtil.success("总代未设置");
             }else{
                 BigDecimal multiply = byProxyUserId.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100);
                 commission = MessageFormat.format(METHOD_SECOND_FORMAT,CommonConst.BIGDECIMAL_100.subtract(multiply));
