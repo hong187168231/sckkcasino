@@ -155,4 +155,8 @@ public class GameRecordService {
     public List<CompanyOrderAmountVo> getStatisticsResult(String startTime, String endTime){
         return gameRecordRepository.getStatisticsResult(startTime,endTime);
     }
+
+    public List<GameRecord> findGameRecordIdAll(List<Long> recordIdList) {
+        return gameRecordRepository.findAllById(recordIdList);
+    }
 }
