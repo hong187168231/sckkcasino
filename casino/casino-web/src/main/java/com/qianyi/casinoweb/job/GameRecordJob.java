@@ -62,6 +62,7 @@ public class GameRecordJob {
             String startTime = null;
             SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
             String endTime = format.format(new Date());
+            //第一次拉取数据取当前时间前5分钟为开始时间，之后以上次拉取数据的结束时间为开始时间
             if (gameRecord == null) {
                 Date date = format.parse(endTime);
                 Calendar now = Calendar.getInstance();
@@ -72,10 +73,13 @@ public class GameRecordJob {
             } else {
                 startTime = gameRecord.getEndTime();
             }
+            //查询时间范围内的所有游戏记录，（以结算时间为条件）
             String result = wmApi.getDateTimeReport(null, startTime, endTime, 0, 1, 2, null, null);
+            //远程请求异常
             if (ObjectUtils.isEmpty(result)) {
                 return;
             }
+            //查询结果无记录
             if ("notData".equals(result)) {
                 updateEndTime(endTime, gameRecord);
                 return;
@@ -104,6 +108,7 @@ public class GameRecordJob {
     }
 
     public void saveAll(List<GameRecord> gameRecordList) {
+        log.info("开始处理游戏记录数据");
         //查询最小清0打码量
         PlatformConfig platformConfig = platformConfigService.findFirst();
         for (GameRecord gameRecord : gameRecordList) {
