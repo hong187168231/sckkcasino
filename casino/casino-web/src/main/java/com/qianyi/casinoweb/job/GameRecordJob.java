@@ -1,14 +1,17 @@
 package com.qianyi.casinoweb.job;
 
 import com.alibaba.fastjson.JSON;
-import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.GameRecordEndTime;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.model.UserThird;
-import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.service.GameRecordEndTimeService;
+import com.qianyi.casinocore.service.GameRecordService;
+import com.qianyi.casinocore.service.PlatformConfigService;
+import com.qianyi.casinocore.service.UserThirdService;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -41,17 +45,9 @@ public class GameRecordJob {
     @Autowired
     UserThirdService userThirdService;
     @Autowired
-    UserService userService;
-    @Autowired
-    UserMoneyBusiness userMoneyBusiness;
-    @Autowired
-    UserWashCodeConfigService userWashCodeConfigService;
-    @Autowired
-    WashCodeConfigService washCodeConfigService;
-    @Autowired
     PlatformConfigService platformConfigService;
     @Autowired
-    WashCodeChangeService washCodeChangeService;
+    GameRecordAsyncOper gameRecordAsyncOper;
 
     //每隔5分钟执行一次
     @Scheduled(cron = "0 0/5 * * * ?")
@@ -59,20 +55,11 @@ public class GameRecordJob {
         try {
             log.info("开始拉取wm游戏记录");
             GameRecordEndTime gameRecord = gameRecordEndTimeService.findFirstByEndTimeDesc();
-            String startTime = null;
-            SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-            String endTime = format.format(new Date());
-            //第一次拉取数据取当前时间前5分钟为开始时间，之后以上次拉取数据的结束时间为开始时间
-            if (gameRecord == null) {
-                Date date = format.parse(endTime);
-                Calendar now = Calendar.getInstance();
-                now.setTime(date);
-                now.add(Calendar.MINUTE, -5);
-                Date afterFiveMin = now.getTime();
-                startTime = format.format(afterFiveMin);
-            } else {
-                startTime = gameRecord.getEndTime();
-            }
+            String time = gameRecord == null ? null : gameRecord.getEndTime();
+            //获取查询游戏记录的时间范围
+            StartTimeAndEndTime startTimeAndEndTime = getStartTimeAndEndTime(time);
+            String startTime = startTimeAndEndTime.getStartTime();
+            String endTime = startTimeAndEndTime.getEndTime();
             //查询时间范围内的所有游戏记录，（以结算时间为条件）
             String result = wmApi.getDateTimeReport(null, startTime, endTime, 0, 1, 2, null, null);
             //远程请求异常
@@ -92,6 +79,46 @@ public class GameRecordJob {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 获取拉取游戏的开始时间和结束时间
+     *
+     * @param time
+     * @return
+     * @throws ParseException
+     */
+    private StartTimeAndEndTime getStartTimeAndEndTime(String time) throws ParseException {
+        String startTime = null;
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+        Date nowDate = new Date();
+        String endTime = format.format(nowDate);
+        //第一次拉取数据取当前时间前5分钟为开始时间，之后以上次拉取数据的结束时间为开始时间
+        if (ObjectUtils.isEmpty(time)) {
+            Date date = format.parse(endTime);
+            Calendar now = Calendar.getInstance();
+            now.setTime(date);
+            now.add(Calendar.MINUTE, -5);
+            Date afterFiveMin = now.getTime();
+            startTime = format.format(afterFiveMin);
+        } else {
+            startTime = time;
+        }
+        Date startDate = format.parse(startTime);
+        long startTimeNum = startDate.getTime();
+        long endTimeNum = nowDate.getTime();
+        //第三方要求拉取数据时间范围不能大于1天，大于1天，取开始时间的后一天为结束时间
+        if ((endTimeNum - startTimeNum) > 60 * 60 * 24) {
+            Calendar now = Calendar.getInstance();
+            now.setTime(startDate);
+            now.add(Calendar.DAY_OF_MONTH, 1);
+            Date afterFiveMin = now.getTime();
+            endTime = format.format(afterFiveMin);
+        }
+        StartTimeAndEndTime startTimeAndEndTime = new StartTimeAndEndTime();
+        startTimeAndEndTime.setStartTime(startTime);
+        startTimeAndEndTime.setEndTime(endTime);
+        return startTimeAndEndTime;
     }
 
     /**
@@ -132,15 +159,21 @@ public class GameRecordJob {
                     continue;
                 }
                 //洗码
-                userMoneyBusiness.washCode(Constants.PLATFORM, record);
+                gameRecordAsyncOper.washCode(Constants.PLATFORM, record);
                 //扣减打码量
-                userMoneyBusiness.subCodeNum(platformConfig, record);
+                gameRecordAsyncOper.subCodeNum(platformConfig, record);
                 //代理分润
-                userMoneyBusiness.shareProfit(record);
+                gameRecordAsyncOper.shareProfit(record);
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("保存游戏记录时报错,message={}", e.getMessage());
             }
         }
+    }
+
+    @Data
+    class StartTimeAndEndTime {
+        private String startTime;
+        private String endTime;
     }
 }

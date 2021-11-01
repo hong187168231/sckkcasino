@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +44,6 @@ public class UserMoneyBusiness {
      * @param record
      * @return
      */
-    @Async("asyncExecutor")
     @Transactional
     public void subCodeNum(PlatformConfig platformConfig, GameRecord record) {
         log.info("开始打码,注单ID={},注单明细={}",record.getBetId(), record.toString());
@@ -98,7 +96,6 @@ public class UserMoneyBusiness {
         }
     }
 
-    @Async("asyncExecutor")
     @Transactional
     public void washCode(String platform, GameRecord gameRecord) {
         BigDecimal validbet = new BigDecimal(gameRecord.getValidbet());
@@ -133,7 +130,6 @@ public class UserMoneyBusiness {
      *
      * @param record
      */
-    @Async("asyncExecutor")
     @Transactional
     public void shareProfit(GameRecord record) {
         log.info("开始三级分润,注单ID={},注单明细={}",record.getBetId(), record.toString());
