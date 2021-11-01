@@ -20,4 +20,8 @@ public class SysUserRoleService {
 
         return sysUserRoleRepository.findBySysUserId(userid);
     }
+
+    public SysUserRole save(SysUserRole sysUserRole) {
+        return sysUserRoleRepository.save(sysUserRole);
+    }
 }

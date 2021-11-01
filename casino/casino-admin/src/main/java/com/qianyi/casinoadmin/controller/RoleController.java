@@ -7,6 +7,8 @@ import com.qianyi.casinoadmin.vo.SysPermissionVo;
 import com.qianyi.casinocore.business.RoleServiceBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.SysPermissionService;
+import com.qianyi.casinocore.service.SysRoleService;
+import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -14,6 +16,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -31,6 +35,48 @@ public class RoleController {
 
     @Autowired
     private RoleServiceBusiness roleServiceBusiness;
+
+    @Autowired
+    private SysUserService sysUserService;
+
+    /**
+     * 权限数据列表
+     *
+     * @return
+     */
+    @GetMapping("getRoleList")
+    @ApiOperation("查询角色数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "roleId", value = "角色id", required = false)
+    })
+    public ResponseEntity<SysRole> getRoleList(Long roleId) {
+        List<SysRole> sysRoleList = roleServiceBusiness.findRoleList(roleId);
+        return ResponseUtil.success(sysRoleList);
+    }
+
+    @GetMapping("getUserRoleBind")
+    @ApiOperation("绑定用户角色")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "roleId", value = "角色id", required = true),
+            @ApiImplicitParam(name = "userId", value = "用户id", required = true)
+    })
+    public ResponseEntity<SysRole> getUserRoleBind(Long roleId, Long userid) {
+        SysUser sysUser = sysUserService.findById(userid);
+        if(sysUser == null){
+            return ResponseUtil.custom("用户不存在");
+        }
+        List<SysRole> sysRoleList = roleServiceBusiness.findRoleList(roleId);
+        if(LoginUtil.checkNull(sysRoleList)){
+            return ResponseUtil.custom("角色不存在");
+        }
+
+        SysUserRole sysUserRole = new SysUserRole();
+        sysUserRole.setSysRoleId(roleId);
+        sysUserRole.setSysUserId(userid);
+        roleServiceBusiness.saveSysUserRole(sysUserRole);
+        return ResponseUtil.success(sysRoleList);
+    }
+
 
     /**
      * 权限数据列表

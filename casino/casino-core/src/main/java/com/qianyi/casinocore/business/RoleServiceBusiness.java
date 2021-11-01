@@ -3,9 +3,8 @@ package com.qianyi.casinocore.business;
 import com.qianyi.casinocore.model.SysPermission;
 import com.qianyi.casinocore.model.SysPermissionRole;
 import com.qianyi.casinocore.model.SysRole;
-import com.qianyi.casinocore.service.SysPermissionRoleService;
-import com.qianyi.casinocore.service.SysPermissionService;
-import com.qianyi.casinocore.service.SysRoleService;
+import com.qianyi.casinocore.model.SysUserRole;
+import com.qianyi.casinocore.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +24,9 @@ public class RoleServiceBusiness {
 
     @Autowired
     private SysPermissionService sysPermissionService;
+
+    @Autowired
+    private SysUserRoleService sysUserRoleService;
 
     @Transactional
     public Boolean save(String roleName, String remark, Long roleId, List<Long> menuIdList) {
@@ -66,4 +68,21 @@ public class RoleServiceBusiness {
     }
 
 
+    public List<SysRole> findRoleList(Long roleId) {
+        if(roleId != null){
+            List<SysRole> sysRoleList = new ArrayList<>();
+            SysRole sysRole = sysRoleService.findById(roleId);
+            if(sysRole != null){
+                sysRoleList.add(sysRole);
+            }
+            return sysRoleList;
+        }
+
+        return sysRoleService.findAll();
+    }
+
+    public void saveSysUserRole(SysUserRole sysUserRole) {
+        SysUserRole sys = sysUserRoleService.save(sysUserRole);
+
+    }
 }
