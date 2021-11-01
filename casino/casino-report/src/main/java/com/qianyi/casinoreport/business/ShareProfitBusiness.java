@@ -9,6 +9,7 @@ import com.qianyi.casinocore.vo.ShareProfitVo;
 import com.qianyi.casinoreport.business.ProxyDayReportBusiness;
 import com.qianyi.casinoreport.business.ProxyReportBusiness;
 import com.qianyi.casinoreport.util.ReportConstant;
+import com.qianyi.casinoreport.util.ShareProfitUtils;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -80,13 +81,14 @@ public class ShareProfitBusiness {
 
     private List<ShareProfitBO> shareProfitOperator(PlatformConfig platformConfig, ShareProfitMqVo shareProfitMqVo) {
         User user = userService.findById(shareProfitMqVo.getUserId());
+        log.info("shareProfitOperator user:{}",user);
         String betTime = shareProfitMqVo.getBetTime().substring(0,10);
         List<ShareProfitBO> shareProfitBOList = new ArrayList<>();
-        if(user.getFirstPid()!=null || user.getFirstPid()!=0)
+        if(ShareProfitUtils.compareIntegerNotNull( user.getFirstPid()))
             shareProfitBOList.add(getShareProfitBO(user.getFirstPid(),shareProfitMqVo.getValidbet(),platformConfig.getFirstCommission(),getUserIsFirstBet(user),betTime,true));
-        if(user.getSecondPid()!=null || user.getSecondPid()!=0)
+        if(ShareProfitUtils.compareIntegerNotNull( user.getSecondPid()))
             shareProfitBOList.add(getShareProfitBO(user.getSecondPid(),shareProfitMqVo.getValidbet(),platformConfig.getSecondCommission(),getUserIsFirstBet(user),betTime,false));
-        if(user.getThirdPid()!=null || user.getThirdPid()!=0)
+        if(ShareProfitUtils.compareIntegerNotNull( user.getThirdPid()))
             shareProfitBOList.add(getShareProfitBO(user.getThirdPid(),shareProfitMqVo.getValidbet(),platformConfig.getThirdCommission(),getUserIsFirstBet(user),betTime,false));
         log.info("get list object is {}",shareProfitBOList);
         return shareProfitBOList;

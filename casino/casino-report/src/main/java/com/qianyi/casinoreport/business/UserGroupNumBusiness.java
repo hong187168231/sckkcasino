@@ -10,6 +10,7 @@ import com.qianyi.casinocore.service.ProxyReportService;
 import com.qianyi.casinocore.vo.ProxyUserBO;
 import com.qianyi.casinocore.vo.RechargeRecordVo;
 import com.qianyi.casinoreport.util.ReportConstant;
+import com.qianyi.casinoreport.util.ShareProfitUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -81,11 +82,11 @@ public class UserGroupNumBusiness {
 
     private List<ProxyUserBO> getGroupUserNum(User user) {
         List<ProxyUserBO> proxyUserBOList = new ArrayList<>();
-        if(user.getFirstPid()!=null || user.getFirstPid() != 0)
+        if(ShareProfitUtils.compareIntegerNotNull(user.getFirstPid()))
             proxyUserBOList.add(getProxyUser(user.getFirstPid(),user,true));
-        if(user.getSecondPid()!=null || user.getSecondPid() != 0)
+        if(ShareProfitUtils.compareIntegerNotNull(user.getSecondPid()))
             proxyUserBOList.add(getProxyUser(user.getSecondPid(),user,false));
-        if(user.getThirdPid()!=null || user.getThirdPid() != 0)
+        if(ShareProfitUtils.compareIntegerNotNull(user.getThirdPid()))
             proxyUserBOList.add(getProxyUser(user.getThirdPid(),user,false));
         log.info("get list BO {}",proxyUserBOList);
         return proxyUserBOList;

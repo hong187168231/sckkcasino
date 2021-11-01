@@ -236,12 +236,13 @@ public class WithdrawBusiness {
     }
 
     @Transactional
-    public ResponseEntity updateWithdrawAndUser(Long id, Integer status,String lastModifier) {
+    public ResponseEntity updateWithdrawAndUser(Long id, Integer status,String lastModifier,String remark) {
         WithdrawOrder withdrawOrder = withdrawOrderService.findUserByIdUseLock(id);
         if(withdrawOrder == null || withdrawOrder.getStatus() != 0){
             return ResponseUtil.custom("订单已被处理");
         }
         withdrawOrder.setLastModifier(lastModifier);
+        withdrawOrder.setRemark(remark);
         //提现通过或其他
 //        if(status == Constants.withdrawOrder_freeze){//冻结提现金额
 //            withdrawOrder.setStatus(status);

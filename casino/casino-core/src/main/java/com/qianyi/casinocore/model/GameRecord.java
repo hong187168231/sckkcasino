@@ -160,13 +160,13 @@ public class GameRecord extends BaseEntity{
     @ApiModelProperty(value = "电子游戏代码")
     private String slotGameId;
 
-    @ApiModelProperty(value = "洗码状态：0：成功，1：失败")
+    @ApiModelProperty(value = "洗码状态：0：成功")
     private Integer washCodeStatus;
 
-    @ApiModelProperty(value = "打码状态：0：成功，1：失败")
+    @ApiModelProperty(value = "打码状态：0：成功")
     private Integer codeNumStatus;
 
-    @ApiModelProperty(value = "分润状态：0：成功，1：失败")
+    @ApiModelProperty(value = "分润状态：0：成功")
     private Integer shareProfitStatus;
 
     @ApiModelProperty("总代ID")

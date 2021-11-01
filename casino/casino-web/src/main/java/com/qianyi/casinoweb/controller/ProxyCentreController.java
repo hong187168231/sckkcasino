@@ -21,6 +21,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -149,14 +151,19 @@ public class ProxyCentreController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "memberId", value = "会员ID", required = false),
+            @ApiImplicitParam(name = "account", value = "会员账号", required = false),
     })
-    public ResponseEntity<ProxyReport> findAchievementPage(Integer pageSize, Integer pageCode,Long memberId) {
+    public ResponseEntity<ProxyReport> findAchievementPage(Integer pageSize, Integer pageCode,String account) {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         Sort sort = Sort.by("allBetAmount").descending();
         Pageable pageable = CasinoWebUtil.setPageable(pageCode, pageSize, sort);
-        Page<ProxyReport> list = proxyReportService.findAchievementPage(pageable, userId,memberId);
+        List<User> users = userService.findByStateAndFirstPid(Constants.open, userId);
+        if (CollectionUtils.isEmpty(users)){
+            Page<ProxyReport> proxyReports = new PageImpl<>(new ArrayList<ProxyReport>(), pageable, 0);
+            return ResponseUtil.success(proxyReports);
+        }
+        Page<ProxyReport> list  = proxyReportService.findAchievementPage(pageable, users,account);
         return ResponseUtil.success(list);
     }
 
