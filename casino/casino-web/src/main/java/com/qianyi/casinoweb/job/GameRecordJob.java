@@ -49,21 +49,23 @@ public class GameRecordJob {
     @Scheduled(cron = "0 0/5 * * * ?")
     public void testTasks() {
         try {
-            log.info("开始拉取wm游戏记录");
             GameRecordEndTime gameRecord = gameRecordEndTimeService.findFirstByEndTimeDesc();
             String time = gameRecord == null ? null : gameRecord.getEndTime();
             //获取查询游戏记录的时间范围
             StartTimeAndEndTime startTimeAndEndTime = getStartTimeAndEndTime(time);
             String startTime = startTimeAndEndTime.getStartTime();
             String endTime = startTimeAndEndTime.getEndTime();
+            log.info("开始拉取{}到{}的wm游戏记录",startTime,endTime);
             //查询时间范围内的所有游戏记录，（以结算时间为条件）
             String result = wmApi.getDateTimeReport(null, startTime, endTime, 0, 1, 2, null, null);
             //远程请求异常
             if (ObjectUtils.isEmpty(result)) {
+                log.error("游戏记录拉取异常");
                 return;
             }
             //查询结果无记录
             if ("notData".equals(result)) {
+                log.info("当前时间范围无记录");
                 updateEndTime(endTime, gameRecord);
                 return;
             }

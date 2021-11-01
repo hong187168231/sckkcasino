@@ -102,8 +102,8 @@ public class UserMoneyBusiness {
         Long userId = gameRecord.getUserId();
         log.info("开始洗码,注单ID={},注单明细={}", gameRecord.getBetId(), gameRecord.toString());
         WashCodeConfig config = userWashCodeConfigService.getWashCodeConfigByUserIdAndGameId(platform, userId, gameRecord.getGid().toString());
-        log.info("游戏洗码配置={}", config.toString());
         if (config != null && config.getRate() != null && config.getRate().compareTo(BigDecimal.ZERO) == 1) {
+            log.info("游戏洗码配置={}", config.toString());
             //数据库存的10是代表百分之10
             BigDecimal rate = config.getRate().divide(new BigDecimal(100));//转换百分比
             BigDecimal washCodeVal = validbet.multiply(rate);
