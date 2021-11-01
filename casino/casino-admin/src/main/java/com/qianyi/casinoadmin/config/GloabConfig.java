@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.config;
 
 import com.qianyi.casinoadmin.inteceptor.AuthenticationInteceptor;
+import com.qianyi.casinoadmin.inteceptor.AuthorizationInteceptor;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +33,11 @@ public class GloabConfig implements WebMvcConfigurer {
     @Autowired
     AuthenticationInteceptor authenticationInteceptor;
 
+
+    @Autowired
+    AuthorizationInteceptor authorizationInteceptor;
+
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authenticationInteceptor).addPathPatterns("/**")
@@ -41,6 +47,7 @@ public class GloabConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/v3/**")
                 .excludePathPatterns("/doc.html")
                 .excludePathPatterns("/public/**");
+        registry.addInterceptor(authorizationInteceptor);
     }
 
     @Override

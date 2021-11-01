@@ -18,6 +18,11 @@ public class ResponseUtil {
         return new ResponseEntity(ResponseCode.AUTHENTICATION_NOPASS);
     }
 
+    public static ResponseEntity authorizationNopass() {
+        return new ResponseEntity(ResponseCode.AUTHORIZATION_NOPASS);
+    }
+
+
     public static ResponseEntity requestLimit() {
         return new ResponseEntity(ResponseCode.REQUEST_LIMIT);
     }
