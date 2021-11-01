@@ -60,4 +60,8 @@ public class SysPermissionService {
     public void saveAllList(List<SysPermission> sysPermissionList) {
         sysPermissionRepository.saveAll(sysPermissionList);
     }
+
+    public void delete() {
+        sysPermissionRepository.deleteAll();
+    }
 }

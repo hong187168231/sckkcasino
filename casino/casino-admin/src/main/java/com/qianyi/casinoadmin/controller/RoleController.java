@@ -9,6 +9,8 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.SysPermissionService;
 import com.qianyi.casinocore.service.SysRoleService;
 import com.qianyi.casinocore.service.SysUserService;
+import com.qianyi.modulecommon.annotation.NoAuthentication;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -38,6 +40,24 @@ public class RoleController {
 
     @Autowired
     private SysUserService sysUserService;
+
+    @GetMapping("getSysUser")
+    @ApiOperation("查询用户数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "sysId", value = "id"),
+    })
+    public ResponseEntity<SysUser> getSysUser(Long sysId) {
+        if(sysId != null){
+            SysUser sysUser = sysUserService.findById(sysId);
+            List<SysUser> sysUsers = new ArrayList<>();
+            if(sysUser != null){
+                sysUsers.add(sysUser);
+            }
+            return ResponseUtil.success(sysUsers);
+        }
+        List<SysUser> all = sysUserService.findAll();
+        return ResponseUtil.success(all);
+    }
 
     /**
      * 权限数据列表

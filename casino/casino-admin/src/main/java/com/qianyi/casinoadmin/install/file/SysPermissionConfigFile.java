@@ -18,7 +18,8 @@ public class SysPermissionConfigFile {
     public List<SysPermission> getPermissionConfig() {
         List<SysPermission> all = sysPermissionService.findAll();
         if(!LoginUtil.checkNull(all)){
-            return null;
+            //TODO 调试完需要删除
+            sysPermissionService.delete();
         }
         List<SysPermission> sysPermissionList = new ArrayList<>();
         //一级菜单栏位
@@ -231,8 +232,15 @@ public class SysPermissionConfigFile {
 
         SysPermission findPermissionList = new SysPermission("权限查询", "权限查询", "/role/findPermissionList", sysUserList.getId(), 3, 0);
         SysPermission updatePermissionList = new SysPermission("编辑权限", "编辑权限", "/role/updatePermissionList", sysUserList.getId(), 3, 0);
+        SysPermission getRoleList = new SysPermission("查询角色数据", "查询角色数据", "/role/getRoleList", sysUserList.getId(), 3, 0);
+        SysPermission getUserRoleBind = new SysPermission("绑定用户角色", "绑定用户角色", "/role/getUserRoleBind", sysUserList.getId(), 3, 0);
+        SysPermission getSysUser = new SysPermission("查询用户数据", "查询用户数据", "/role/getSysUser", sysUserList.getId(), 3, 0);
         thridPermissions.add(findPermissionList);
         thridPermissions.add(updatePermissionList);
+        thridPermissions.add(getRoleList);
+        thridPermissions.add(getUserRoleBind);
+        thridPermissions.add(getSysUser);
+
 
         sysPermissionService.saveAllList(thridPermissions);
         return null;
