@@ -44,14 +44,22 @@ public class RoleController {
     @GetMapping("getSysUser")
     @ApiOperation("查询用户数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "sysId", value = "id"),
+            @ApiImplicitParam(name = "sysId", value = "id", required = false),
+            @ApiImplicitParam(name = "account", value = "用户名", required = false),
     })
-    public ResponseEntity<SysUser> getSysUser(Long sysId) {
+    public ResponseEntity<SysUser> getSysUser(Long sysId, String account) {
+        List<SysUser> sysUsers = new ArrayList<>();
         if(sysId != null){
             SysUser sysUser = sysUserService.findById(sysId);
-            List<SysUser> sysUsers = new ArrayList<>();
             if(sysUser != null){
                 sysUsers.add(sysUser);
+            }
+            return ResponseUtil.success(sysUsers);
+        }
+        if(!LoginUtil.checkNull(account)){
+            SysUser byUserName = sysUserService.findByUserName(account);
+            if(byUserName != null){
+                sysUsers.add(byUserName);
             }
             return ResponseUtil.success(sysUsers);
         }
