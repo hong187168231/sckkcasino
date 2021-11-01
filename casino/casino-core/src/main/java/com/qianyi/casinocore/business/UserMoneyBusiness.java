@@ -48,7 +48,7 @@ public class UserMoneyBusiness {
     @Async("asyncExecutor")
     @Transactional
     public void subCodeNum(PlatformConfig platformConfig, GameRecord record) {
-        log.info("开始打码={}", record.toString());
+        log.info("开始打码,注单ID={},注单明细={}",record.getBetId(), record.toString());
         BigDecimal validbet = new BigDecimal(record.getValidbet());
         Long userId = record.getUserId();
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
@@ -71,7 +71,7 @@ public class UserMoneyBusiness {
         }
         record.setCodeNumStatus(Constants.yes);
         gameRecordService.save(record);
-        log.info("打码结束={}", record.toString());
+        log.info("打码结束,注单ID={}", record.getBetId());
     }
 
     /**
@@ -94,6 +94,7 @@ public class UserMoneyBusiness {
             userMoneyService.subCodeNum(userId, codeNum);
             CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, record, codeNum.negate(), user.getCodeNum(), user.getCodeNum().subtract(codeNum));
             codeNumChangeService.save(codeNumChange);
+            log.info("触发最小清零打码量，打码量清0,最小清0点={},注单ID={},UserId={}",minCodeNumVal,record.getBetId(),userId);
         }
     }
 
@@ -102,7 +103,7 @@ public class UserMoneyBusiness {
     public void washCode(String platform, GameRecord gameRecord) {
         BigDecimal validbet = new BigDecimal(gameRecord.getValidbet());
         Long userId = gameRecord.getUserId();
-        log.info("开始洗码={}", gameRecord.toString());
+        log.info("开始洗码,注单ID={},注单明细={}", gameRecord.getBetId(), gameRecord.toString());
         WashCodeConfig config = userWashCodeConfigService.getWashCodeConfigByUserIdAndGameId(platform, userId, gameRecord.getGid().toString());
         log.info("游戏洗码配置={}", config.toString());
         if (config != null && config.getRate() != null && config.getRate().compareTo(BigDecimal.ZERO) == 1) {
@@ -124,7 +125,7 @@ public class UserMoneyBusiness {
         }
         gameRecord.setWashCodeStatus(Constants.yes);
         gameRecordService.save(gameRecord);
-        log.info("洗码完成={}", gameRecord.toString());
+        log.info("洗码完成,注单ID={}", gameRecord.getBetId());
     }
 
     /**
@@ -135,7 +136,7 @@ public class UserMoneyBusiness {
     @Async("asyncExecutor")
     @Transactional
     public void shareProfit(GameRecord record) {
-        log.info("开始三级分润={}", record.toString());
+        log.info("开始三级分润,注单ID={},注单明细={}",record.getBetId(), record.toString());
         BigDecimal validbet = new BigDecimal(record.getValidbet());
         Long userId = record.getUserId();
         ShareProfitMqVo shareProfitMqVo=new ShareProfitMqVo();
