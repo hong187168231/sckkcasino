@@ -1,14 +1,8 @@
 package com.qianyi.casinoweb.job;
 
 import com.alibaba.fastjson.JSON;
-import com.qianyi.casinocore.model.GameRecord;
-import com.qianyi.casinocore.model.GameRecordEndTime;
-import com.qianyi.casinocore.model.PlatformConfig;
-import com.qianyi.casinocore.model.UserThird;
-import com.qianyi.casinocore.service.GameRecordEndTimeService;
-import com.qianyi.casinocore.service.GameRecordService;
-import com.qianyi.casinocore.service.PlatformConfigService;
-import com.qianyi.casinocore.service.UserThirdService;
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
 import lombok.Data;
@@ -44,6 +38,8 @@ public class GameRecordJob {
     GameRecordEndTimeService gameRecordEndTimeService;
     @Autowired
     UserThirdService userThirdService;
+    @Autowired
+    UserService userService;
     @Autowired
     PlatformConfigService platformConfigService;
     @Autowired
@@ -154,7 +150,7 @@ public class GameRecordJob {
                     gameRecord.setShareProfitStatus(Constants.yes);
                 }
                 //有数据会重复注单id唯一约束会报错，所以一条一条保存，避免影响后面的
-                GameRecord record = gameRecordService.save(gameRecord);
+                GameRecord record = save(gameRecord);
                 if (validbet.compareTo(BigDecimal.ZERO) == 0) {
                     continue;
                 }
@@ -169,6 +165,17 @@ public class GameRecordJob {
                 log.error("保存游戏记录时报错,message={}", e.getMessage());
             }
         }
+    }
+
+    public GameRecord save(GameRecord gameRecord) throws Exception{
+        User user = userService.findById(gameRecord.getUserId());
+        if (user != null) {
+            gameRecord.setFirstProxy(user.getFirstProxy());
+            gameRecord.setSecondProxy(user.getSecondProxy());
+            gameRecord.setThirdProxy(user.getThirdProxy());
+        }
+        GameRecord record = gameRecordService.save(gameRecord);
+        return record;
     }
 
     @Data

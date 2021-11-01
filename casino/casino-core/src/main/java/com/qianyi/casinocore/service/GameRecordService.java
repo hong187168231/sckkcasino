@@ -101,12 +101,6 @@ public class GameRecordService {
     public GameRecord save(GameRecord gameRecord) {
         //防止多条记录同时更新互相影响
         synchronized (gameRecord.getBetId()){
-            User user = userService.findById(gameRecord.getUserId());
-            if (user != null) {
-                gameRecord.setFirstProxy(user.getFirstProxy());
-                gameRecord.setSecondProxy(user.getSecondProxy());
-                gameRecord.setThirdProxy(user.getThirdProxy());
-            }
             return gameRecordRepository.save(gameRecord);
         }
     }
