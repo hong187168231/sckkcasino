@@ -36,7 +36,7 @@ public class DownloadStationController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "versionNumber", value = "版本号", required = true),
     })
-    public ResponseEntity<DownloadStation> getIosNewestVersion(String versionNumber) {
+    public ResponseEntity<List<DownloadStation>> getIosNewestVersion(String versionNumber) {
         boolean checkNull = CommonUtil.checkNull(versionNumber);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
@@ -51,7 +51,7 @@ public class DownloadStationController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "versionNumber", value = "版本号", required = true),
     })
-    public ResponseEntity<DownloadStation> getAndroidNewestVersion(String versionNumber) {
+    public ResponseEntity<List<DownloadStation>> getAndroidNewestVersion(String versionNumber) {
         boolean checkNull = CommonUtil.checkNull(versionNumber);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();

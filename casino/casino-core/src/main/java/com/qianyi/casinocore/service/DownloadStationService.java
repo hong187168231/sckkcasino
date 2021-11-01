@@ -24,7 +24,7 @@ public class DownloadStationService {
     @Autowired
     private DownloadStationRepository downloadStationRepository;
 
-    @Cacheable(key="'terminalType::' + #p0")
+    @Cacheable(key = "#p0+'::'+#p1")
     public List<DownloadStation> findByterminalTypeAndVersionNumberGreaterThan(Integer terminalType, String versionNumber){
         return downloadStationRepository.findByterminalTypeAndVersionNumberGreaterThan(terminalType,versionNumber);
     }
@@ -33,7 +33,7 @@ public class DownloadStationService {
         return downloadStationRepository.findAll(pageable);
     }
 
-    @CacheEvict(key="'terminalType::' + #p0.terminalType",allEntries = true)
+    @CacheEvict(key="#p0.terminalType",allEntries = true)
     public DownloadStation save(DownloadStation downloadStation) {
         return downloadStationRepository.save(downloadStation);
 
