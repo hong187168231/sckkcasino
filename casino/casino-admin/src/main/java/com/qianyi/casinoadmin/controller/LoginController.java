@@ -88,6 +88,7 @@ public class LoginController {
             @ApiImplicitParam(name = "password", value = "密码", required = true),
             @ApiImplicitParam(name = "code", value = "验证码", required = true),
     })
+    @NoAuthorization
     @PostMapping("loginB")
     public ResponseEntity loginB(String userName, String password, Integer code) {
         if (ObjectUtils.isEmpty(userName) || ObjectUtils.isEmpty(password) || ObjectUtils.isEmpty(code)) {
@@ -190,6 +191,7 @@ public class LoginController {
     @RequestLimit(limit = 6,timeout = 60)
     @GetMapping("google/auth/bind")
     @NoAuthentication
+    @NoAuthorization
     @ApiOperation("绑定谷歌身份验证器")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "password", value = "密码", required = true),
@@ -234,6 +236,7 @@ public class LoginController {
 
     @GetMapping("getSysUser")
     @ApiOperation("查询用户数据")
+    @NoAuthorization
     @ApiImplicitParams({
             @ApiImplicitParam(name = "account", value = "已注册的帐号", required = true),
             @ApiImplicitParam(name = "password", value = "密码", required = true),
@@ -259,6 +262,7 @@ public class LoginController {
 
     @GetMapping("gaBind")
     @ApiOperation("绑定谷歌验证码标记")
+    @NoAuthorization
     @ApiImplicitParams({
             @ApiImplicitParam(name = "account", value = "已注册的帐号", required = true)
     })
@@ -305,6 +309,7 @@ public class LoginController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "token", value = "旧TOKEN", required = true),
     })
+    @NoAuthorization
     public ResponseEntity refreshJwtToken(String token) {
         JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
         SysUser sysUser = sysUserService.findAllById(Long.parseLong(subject.getUserId()));
@@ -362,6 +367,7 @@ public class LoginController {
     @RequestLimit(limit = 10,timeout = 60)
     @ApiOperation("获取当前登录用户")
     @PostMapping("getSysUser")
+    @NoAuthorization
     public ResponseEntity<SysUser> getSysUser() {
         Long loginUserId = LoginUtil.getLoginUserId();
         SysUser sys = sysUserService.findById(loginUserId);

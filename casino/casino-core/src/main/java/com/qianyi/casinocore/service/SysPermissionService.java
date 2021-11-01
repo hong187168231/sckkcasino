@@ -56,4 +56,8 @@ public class SysPermissionService {
         List<SysPermission> sysPermissionList = sysPermissionRepository.findAllById(permissionIds);
         return sysPermissionList;
     }
+
+    public void saveAllList(List<SysPermission> sysPermissionList) {
+        sysPermissionRepository.saveAll(sysPermissionList);
+    }
 }

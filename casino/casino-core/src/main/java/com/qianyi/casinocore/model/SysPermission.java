@@ -3,7 +3,9 @@ package com.qianyi.casinocore.model;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 
 @Entity
@@ -26,7 +28,7 @@ public class SysPermission extends BaseEntity{
 
     //父节点id
     @ApiModelProperty(value = "父节点id")
-    private Integer pid;
+    private Long pid;
 
     //菜单层级
     @ApiModelProperty(value = "菜单层级")
@@ -36,4 +38,15 @@ public class SysPermission extends BaseEntity{
     @ApiModelProperty(value = "是否删除0：否，1：是")
     private Integer isDetele;
 
+    public SysPermission() {
+    }
+
+    public SysPermission(String name, String descritpion, String url, Long pid, Integer menuLevel, Integer isDetele) {
+        this.name = name;
+        this.descritpion = descritpion;
+        this.url = url;
+        this.pid = pid;
+        this.menuLevel = menuLevel;
+        this.isDetele = isDetele;
+    }
 }

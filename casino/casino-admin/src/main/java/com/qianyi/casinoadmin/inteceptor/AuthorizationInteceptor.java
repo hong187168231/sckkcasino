@@ -33,6 +33,19 @@ public class AuthorizationInteceptor extends AbstractAuthorizationInteceptor {
         return !flag;
     }
 
+    @Override
+    protected boolean discharged() {
+        Long authId= LoginUtil.getLoginUserId();
+        if(authId == null){
+            return true;
+        }
+        SysUser user=sysUserService.findById(authId);
+        if(user.getUserName().equals("alantest008")){
+            return false;
+        }
+        return true;
+    }
+
     /**
      * 此处进行权限认证
      *

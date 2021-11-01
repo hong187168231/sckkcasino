@@ -38,7 +38,7 @@ public class RoleController {
      * @return
      */
     @GetMapping("findPermissionList")
-    @ApiOperation("查询权限略表数据")
+    @ApiOperation("查询权限表数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "roleId", value = "角色id", required = false),
     })
@@ -86,8 +86,8 @@ public class RoleController {
             @ApiImplicitParam(name = "remark", value = "备注", required = false),
             @ApiImplicitParam(name = "menuIdList", value = "权限id", required = false),
     })
-    @PostMapping("/findIp")
-    public ResponseEntity<SysRole> findIp(String roleName, String remark, Long roleId, @RequestBody List<Long> menuIdList){
+    @PostMapping("/updatePermissionList")
+    public ResponseEntity<SysRole> updatePermissionList(String roleName, String remark, Long roleId, @RequestBody List<Long> menuIdList){
         if(LoginUtil.checkNull(roleName)){
             return ResponseUtil.custom("参数错误");
         }

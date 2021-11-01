@@ -2,12 +2,11 @@ package com.qianyi.casinoadmin.install;
 
 import com.qianyi.casinoadmin.install.file.PlatformConfigFile;
 import com.qianyi.casinoadmin.install.file.ProxyRebateConfigFile;
+import com.qianyi.casinoadmin.install.file.SysPermissionConfigFile;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.PlatformConfig;
-import com.qianyi.casinocore.model.ProxyRebateConfig;
 import com.qianyi.casinocore.model.RebateConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
-import com.qianyi.casinocore.service.ProxyRebateConfigService;
 import com.qianyi.casinocore.service.RebateConfigService;
 import com.qianyi.casinocore.util.CommonConst;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +27,19 @@ public class Initialization implements CommandLineRunner {
     private PlatformConfigService platformConfigService;
     @Autowired
     private RebateConfigService rebateConfigService;
+    @Autowired
+    private SysPermissionConfigFile sysPermissionConfigFile;
+
     @Override
     public void run(String... args) throws Exception {
         log.info("初始化数据开始============================================》");
        this.runPlatformConfig();
        this.runProxyRebateConfig();
+       this.runSysPermissionConfig();
+    }
+
+    private void runSysPermissionConfig() {
+        sysPermissionConfigFile.getPermissionConfig();
     }
 
     private void runProxyRebateConfig(){
