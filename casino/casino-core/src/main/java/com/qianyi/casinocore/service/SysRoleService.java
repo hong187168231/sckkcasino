@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,5 +26,9 @@ public class SysRoleService {
 
     public SysRole save(SysRole sysRole) {
         return sysRoleRepository.save(sysRole);
+    }
+
+    public List<SysRole> findAll() {
+        return sysRoleRepository.findAll();
     }
 }
