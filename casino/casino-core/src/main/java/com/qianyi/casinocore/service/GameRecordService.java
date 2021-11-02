@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -152,5 +153,36 @@ public class GameRecordService {
 
     public List<GameRecord> findGameRecordIdAll(List<Long> recordIdList) {
         return gameRecordRepository.findAllById(recordIdList);
+    }
+    public List<GameRecord> findAll(Long userId,String startTime,String endTime){
+        Specification<GameRecord> condition = this.getCondition1(userId, startTime, endTime);
+        return gameRecordRepository.findAll(condition);
+    }
+    /**
+     * 查询条件拼接，灵活添加条件
+     * @param
+     * @return
+     */
+    private Specification<GameRecord> getCondition1(Long userId,String startTime,String endTime) {
+        Specification<GameRecord> specification = new Specification<GameRecord>() {
+            @Override
+            public Predicate toPredicate(Root<GameRecord> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (userId != null) {
+                    list.add(cb.equal(root.get("userId").as(Long.class), userId));
+                }
+                if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
+                    list.add(cb.between(root.get("betTime").as(String.class), startTime, endTime));
+                }
+//                if (startDate != null) {
+//                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+//                }
+//                if (endDate != null) {
+//                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
+//                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
     }
 }
