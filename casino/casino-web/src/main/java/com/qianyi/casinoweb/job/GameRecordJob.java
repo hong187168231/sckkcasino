@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -44,11 +45,17 @@ public class GameRecordJob {
     PlatformConfigService platformConfigService;
     @Autowired
     GameRecordAsyncOper gameRecordAsyncOper;
+    @Value("${spring.profiles.active}")
+    String active;
 
     //每隔5分钟执行一次
-    @Scheduled(cron = "0 0/5 * * * ?")
+    @Scheduled(cron = "0 0/1 * * * ?")
     public void testTasks() {
         try {
+            //多环境不能同时发起请求，test环境延迟30s执行，正式环境优先,报表查询需间隔30秒，未搜寻到数据需间隔10秒。
+            if ("test".equals(active)) {
+                Thread.sleep(30 * 1000);
+            }
             GameRecordEndTime gameRecord = gameRecordEndTimeService.findFirstByEndTimeDesc();
             String time = gameRecord == null ? null : gameRecord.getEndTime();
             //获取查询游戏记录的时间范围
