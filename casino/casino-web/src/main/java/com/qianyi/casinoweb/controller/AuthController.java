@@ -263,9 +263,6 @@ public class AuthController {
         //人人代
         if(Constants.INVITE_TYPE_EVERYONE.equals(inviteType)){
             User parentUser = userService.findByInviteCode(inviteCode);
-            if (parentUser == null) {
-                return ResponseUtil.custom(Constants.IP_BLOCK);
-            }
             user.setFirstPid(parentUser.getId());
             user.setSecondPid(parentUser.getFirstPid());
             user.setThirdPid(parentUser.getSecondPid());
@@ -273,9 +270,6 @@ public class AuthController {
             //基层代理
         }else if(Constants.INVITE_TYPE_PROXY.equals(inviteType)){
             ProxyUser parentProxy = proxyUserService.findByProxyCode(inviteCode);
-            if (parentProxy == null) {
-                return ResponseUtil.custom(Constants.IP_BLOCK);
-            }
             user.setFirstProxy(parentProxy.getFirstProxy());
             user.setSecondProxy(parentProxy.getSecondProxy());
             user.setThirdProxy(parentProxy.getId());
@@ -283,15 +277,12 @@ public class AuthController {
             //前台自己注册
         }else{
             user.setType(Constants.USER_TYPE0);
-            User parentUser =null;
-            if(ObjectUtils.isEmpty(inviteCode)){
-                user.setFirstPid(0L);//默认公司级别
-            }else{
+            user.setFirstPid(0L);//默认公司级别
+            User parentUser = null;
+            if (!ObjectUtils.isEmpty(inviteCode)) {
                 parentUser = userService.findByInviteCode(inviteCode);
             }
-            if (parentUser == null) {
-                user.setFirstPid(0L);//默认公司级别
-            } else {
+            if (parentUser != null) {
                 user.setFirstPid(parentUser.getId());
                 user.setSecondPid(parentUser.getFirstPid());
                 user.setThirdPid(parentUser.getSecondPid());
