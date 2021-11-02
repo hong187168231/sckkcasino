@@ -523,7 +523,7 @@ public class AuthController {
 
     @PostMapping("rjt")
     @ApiOperation("JWT过期后，30分钟内可颁发新的token")
-    @NoAuthentication
+//    @NoAuthentication
     @ApiImplicitParams({
             @ApiImplicitParam(name = "token", value = "旧TOKEN", required = true),
     })
