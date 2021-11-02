@@ -18,8 +18,8 @@ import java.util.UUID;
 public class JjwtUtil {
 
     private final static String secrect = "fda#$&%$3t55v785A45DF$^&#*JGRstTRG";
-//            private final static long ttl = 1 * 60 * 1000;
-    private final static long ttl = 24 * 60 * 60 * 1000;
+            private final static long ttl = 5 * 60 * 1000;
+//    private final static long ttl = 24 * 60 * 60 * 1000;
     private final static Long refresh_ttl = 30 * 60L;//秒
 
     /**
@@ -109,36 +109,45 @@ public class JjwtUtil {
         return refreshToken(token, bcryptPassword, ttl,iss);
     }
 
+    public static boolean checkTokenExp(String token, String bcryptPassword,String iss) {
+        Long exp = getExp(token);
+        if (exp == null) {
+            return false;
+        }
+        String tolkenIss = getIss(token);
+        if (!(iss.equals(tolkenIss))) {
+            return false;
+        }
+
+        Subject subject = getSubject(token);
+        if (subject == null) {
+            return false;
+        }
+
+        String bcrypt = subject.getBcryptPassword();
+        if (!(bcryptPassword.equals(bcrypt))) {
+            return false;
+        }
+
+        Long now = System.currentTimeMillis();
+        Long diff = now / 1000 - exp;
+        if (diff > refresh_ttl) {
+            return false;
+        }
+        return true;
+    }
+
+
     private static String refreshToken(String token, String bcryptPassword, Long ttl,String iss) {
         if (ObjectUtils.isEmpty(token) || ObjectUtils.isEmpty(bcryptPassword)||ObjectUtils.isEmpty(iss)) {
             return null;
         }
         try {
-            Long exp = getExp(token);
-            if (exp == null) {
+            boolean checkTokenExp=checkTokenExp(token,bcryptPassword,iss);
+            if(!checkTokenExp){
                 return null;
             }
-            String tolkenIss = getIss(token);
-            if (!(iss.equals(tolkenIss))) {
-                return null;
-            }
-
             Subject subject = getSubject(token);
-            if (subject == null) {
-                return null;
-            }
-
-            String bcrypt = subject.getBcryptPassword();
-            if (!(bcryptPassword.equals(bcrypt))) {
-                return null;
-            }
-
-            Long now = System.currentTimeMillis();
-            Long diff = now / 1000 - exp;
-            if (diff > refresh_ttl) {
-                return null;
-            }
-
             return generic(subject,iss);
 
         } catch (Exception e) {
