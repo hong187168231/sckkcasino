@@ -10,4 +10,7 @@ import java.util.List;
 public interface DownloadStationRepository extends JpaRepository<DownloadStation,Long>, JpaSpecificationExecutor<DownloadStation> {
 
     List<DownloadStation> findByterminalTypeAndVersionNumberGreaterThan(Integer terminalType, String versionNumber);
+
+    DownloadStation findFirstByTerminalTypeOrderByCreateTimeDesc(Integer terminalType);
+
 }
