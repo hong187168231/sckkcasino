@@ -204,10 +204,7 @@ public class AuthController {
         String inviteCodeNew = generateInviteCodeRunner.getInviteCode();
         user = User.setBaseUser(account, CasinoWebUtil.bcrypt(password), phone, ip,inviteCodeNew);
         //设置父级
-        ResponseEntity responseEntity = setParent(inviteCode, inviteType, user);
-        if (responseEntity != null) {
-            return responseEntity;
-        }
+        setParent(inviteCode, inviteType, user);
         User save = userService.save(user);
         //userMoney表初始化数据
         UserMoney userMoney = new UserMoney();
@@ -259,7 +256,7 @@ public class AuthController {
      * @param inviteType
      * @param user
      */
-    public ResponseEntity setParent(String inviteCode,String inviteType,User user){
+    public void setParent(String inviteCode,String inviteType,User user){
         //人人代
         if(Constants.INVITE_TYPE_EVERYONE.equals(inviteType)){
             User parentUser = userService.findByInviteCode(inviteCode);
@@ -288,7 +285,6 @@ public class AuthController {
                 user.setThirdPid(parentUser.getSecondPid());
             }
         }
-        return null;
     }
 
     @NoAuthentication
