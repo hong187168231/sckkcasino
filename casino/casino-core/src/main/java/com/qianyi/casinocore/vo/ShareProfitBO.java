@@ -20,4 +20,6 @@ public class ShareProfitBO {
     private String betTime;
     @ApiModelProperty(value = "是否直属")
     private boolean direct;
+    @ApiModelProperty(value = "返佣比例")
+    private BigDecimal commission;
 }

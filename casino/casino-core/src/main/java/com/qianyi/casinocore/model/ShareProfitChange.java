@@ -26,4 +26,10 @@ public class ShareProfitChange extends BaseEntity {
 
     @ApiModelProperty(value = "额度变化后")
     private BigDecimal amountAfter;
+
+    @ApiModelProperty("返佣比例")
+    private BigDecimal profitRate;
+
+    @ApiModelProperty("贡献者")
+    private Long fromUserId;
 }
