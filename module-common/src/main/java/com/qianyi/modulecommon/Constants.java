@@ -8,8 +8,8 @@ public class Constants {
     //是/否，开/关, 真/假
     public final static Integer open = 1;
     public final static Integer close = 0;
-    public final static Integer yes = 0;
-    public final static Integer no = 1;
+    public final static Integer yes = 1;
+    public final static Integer no = 0;
 
     //订单状态
     public final static Integer order_wait = 1;//等待确认
