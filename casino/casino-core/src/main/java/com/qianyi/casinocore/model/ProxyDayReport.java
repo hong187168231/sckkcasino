@@ -26,4 +26,8 @@ public class ProxyDayReport extends BaseEntity{
     @ApiModelProperty("日期")
     private String dayTime;
 
+
+    @ApiModelProperty("团队业绩流水")
+    private BigDecimal groupBeAmount=BigDecimal.ZERO;
+
 }

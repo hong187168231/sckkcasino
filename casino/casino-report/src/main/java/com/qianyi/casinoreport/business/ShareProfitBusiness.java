@@ -102,6 +102,7 @@ public class ShareProfitBusiness {
         shareProfitBO.setFirst(isFirst);
         shareProfitBO.setBetTime(betTime);
         shareProfitBO.setDirect(direct);
+        shareProfitBO.setCommission(commission);
         return shareProfitBO;
     }
 
@@ -156,6 +157,8 @@ public class ShareProfitBusiness {
         shareProfitChange.setAmountBefore(userMoney.getShareProfit());
         shareProfitChange.setAmountAfter(getAfterAmount(shareProfitBO,userMoney));
         shareProfitChange.setType(ShareProfitConstant.SHARE_PROFIT_TYPE);
+        shareProfitChange.setFromUserId(record.getUserId());
+        shareProfitChange.setProfitRate(shareProfitBO.getCommission());
         return shareProfitChange;
 //        shareProfitChangeService.save(shareProfitChange);
     }
