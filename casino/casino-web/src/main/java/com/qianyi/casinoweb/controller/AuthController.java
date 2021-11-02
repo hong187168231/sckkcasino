@@ -578,9 +578,8 @@ public class AuthController {
             ipBlack.setRemark("基层代理邀请码填写错误，IP被封");
             ipBlackService.save(ipBlack);
             return ResponseUtil.custom(Constants.IP_BLOCK);
-        } else {
-            return ResponseUtil.custom("邀请码检验失败");
         }
+        return ResponseUtil.custom("邀请码检验失败");
     }
 
     @GetMapping("getVerificationCode")

@@ -50,7 +50,7 @@ public class GameRecordJob {
 
     //每隔5分钟执行一次
     @Scheduled(cron = "0 0/5 * * * ?")
-    public void testTasks() {
+    public void pullGameRecord() {
         try {
             //多环境不能同时发起请求，test环境延迟30s执行，正式环境优先,报表查询需间隔30秒，未搜寻到数据需间隔10秒。
             if ("test".equals(active)) {
