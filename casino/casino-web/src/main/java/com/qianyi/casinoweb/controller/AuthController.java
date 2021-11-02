@@ -182,7 +182,7 @@ public class AuthController {
         //一个手机号只能注册一个账号
         List<User> phoneUser = userService.findByPhone(phone);
         if (!CollectionUtils.isEmpty(phoneUser)) {
-            return ResponseUtil.custom("当前手机号已注册");
+//            return ResponseUtil.custom("当前手机号已注册");
         }
         String ip = IpUtil.getIp(request);
         //查询ip注册账号限制
