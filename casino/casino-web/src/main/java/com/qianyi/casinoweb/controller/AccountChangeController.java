@@ -43,7 +43,7 @@ public class AccountChangeController {
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "date", value = "时间：全部：不传值，0：今天，1：昨天，2：一个月内", required = false)
     })
-    public ResponseEntity<AccountChange> findAccountChangePage(Integer pageSize, Integer pageCode, String date) {
+    public ResponseEntity<Page<AccountChange>> findAccountChangePage(Integer pageSize, Integer pageCode, String date) {
         Sort sort = Sort.by("id").descending();
         Pageable pageable = CasinoWebUtil.setPageable(pageCode, pageSize, sort);
         String startTime = null;

@@ -153,7 +153,7 @@ public class ProxyCentreController {
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "account", value = "会员账号", required = false),
     })
-    public ResponseEntity<ProxyReport> findAchievementPage(Integer pageSize, Integer pageCode,String account) {
+    public ResponseEntity<Page<ProxyReport>> findAchievementPage(Integer pageSize, Integer pageCode,String account) {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         Sort sort = Sort.by("allBetAmount").descending();

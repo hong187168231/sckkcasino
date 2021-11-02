@@ -226,7 +226,7 @@ public class UserController {
 
     @GetMapping("everyoneSpread")
     @ApiOperation("获取当前用户人人代推广链接")
-    public ResponseEntity everyoneSpread() {
+    public ResponseEntity<String> everyoneSpread() {
         //查询后台配置域名
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (platformConfig == null || ObjectUtils.isEmpty(platformConfig.getProxyConfiguration())) {

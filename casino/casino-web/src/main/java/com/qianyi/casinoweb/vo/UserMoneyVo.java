@@ -8,7 +8,7 @@ import javax.persistence.Column;
 import java.math.BigDecimal;
 
 @Data
-@ApiModel("用户信息")
+@ApiModel("用户钱包信息")
 public class UserMoneyVo {
     @ApiModelProperty("账户余额")
     private BigDecimal money;

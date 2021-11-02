@@ -88,7 +88,7 @@ public class DownloadStationController {
     @GetMapping("getWebUrl")
     @ApiOperation("网页版链接")
     @NoAuthentication
-    public ResponseEntity getWebUrl() {
+    public ResponseEntity<String> getWebUrl() {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (platformConfig == null || ObjectUtils.isEmpty(platformConfig.getDomainNameConfiguration())) {
             return ResponseUtil.custom("网站域名未配置,请联系客服");

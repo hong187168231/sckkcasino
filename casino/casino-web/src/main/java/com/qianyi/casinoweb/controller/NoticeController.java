@@ -29,7 +29,7 @@ public class NoticeController {
     @GetMapping("newest")
     @ApiOperation("公告/活动")
     @NoAuthentication
-    public ResponseEntity<NoticeVo> newest() {
+    public ResponseEntity<List<NoticeVo>> newest() {
         List<Notice> list = noticeService.newest();
         List<NoticeVo> voList = new ArrayList<>();
         if (CollectionUtils.isEmpty(list)) {

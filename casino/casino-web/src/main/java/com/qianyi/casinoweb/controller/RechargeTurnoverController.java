@@ -39,7 +39,7 @@ public class RechargeTurnoverController {
             @ApiImplicitParam(name = "date", value = "时间：全部：不传值，0：今天，1：昨天，2：一个月内", required = false)
     })
     @GetMapping("/findPage")
-    public ResponseEntity<RechargeTurnover> findPage(Integer pageSize, Integer pageCode, String date) {
+    public ResponseEntity<Page<RechargeTurnover>> findPage(Integer pageSize, Integer pageCode, String date) {
         Long userId = CasinoWebUtil.getAuthId();
         Sort sort = Sort.by("id").descending();
         Pageable pageable = CasinoWebUtil.setPageable(pageCode, pageSize, sort);

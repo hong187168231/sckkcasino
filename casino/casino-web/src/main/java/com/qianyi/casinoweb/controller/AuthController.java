@@ -497,7 +497,7 @@ public class AuthController {
             @ApiImplicitParam(name = "account", value = "账号。", required = true),
     })
     @NoAuthentication
-    public ResponseEntity getJwtToken(String account) {
+    public ResponseEntity<String> getJwtToken(String account) {
         User user = userService.findByAccount(account);
         if (user == null) {
             return ResponseUtil.custom("账号不存在");
@@ -513,7 +513,7 @@ public class AuthController {
     @GetMapping("getRegisterStatus")
     @ApiOperation("查询注册通道状态")
     @NoAuthentication
-    public ResponseEntity getRegisterStatus() {
+    public ResponseEntity<Integer> getRegisterStatus() {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (platformConfig == null || platformConfig.getRegisterSwitch() == null) {
             return ResponseUtil.success(Constants.close);
@@ -527,7 +527,7 @@ public class AuthController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "token", value = "旧TOKEN", required = true),
     })
-    public ResponseEntity refreshJwtToken(String token) {
+    public ResponseEntity<String> refreshJwtToken(String token) {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId(token);
         if (authId == null) {

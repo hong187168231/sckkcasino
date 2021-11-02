@@ -39,7 +39,7 @@ public class BankCardsController {
     @GetMapping("/banklist")
     @ApiOperation("银行列表")
     @ResponseBody
-    public ResponseEntity<BankInfo> bankList() {
+    public ResponseEntity<List<BankInfo>> bankList() {
         BankInfo bankInfo=new BankInfo();
         bankInfo.setDisable(0);
         return ResponseUtil.success(bankInfoService.findAll(bankInfo));

@@ -30,7 +30,7 @@ public class PictureController {
             @ApiImplicitParam(name = "type", value = "终端类型： 1.pc端（默认）  2.移动端", required = false),
     })
     @NoAuthentication
-    public ResponseEntity<LunboPic> lunbo(Integer type) {
+    public ResponseEntity<List<LunboPic>> lunbo(Integer type) {
         if (type == null) {
             type = 1;
         }
