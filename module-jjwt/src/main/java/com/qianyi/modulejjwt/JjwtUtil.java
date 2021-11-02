@@ -109,45 +109,36 @@ public class JjwtUtil {
         return refreshToken(token, bcryptPassword, ttl,iss);
     }
 
-    public static boolean checkTokenExp(String token, String bcryptPassword,String iss) {
-        Long exp = getExp(token);
-        if (exp == null) {
-            return false;
-        }
-        String tolkenIss = getIss(token);
-        if (!(iss.equals(tolkenIss))) {
-            return false;
-        }
-
-        Subject subject = getSubject(token);
-        if (subject == null) {
-            return false;
-        }
-
-        String bcrypt = subject.getBcryptPassword();
-        if (!(bcryptPassword.equals(bcrypt))) {
-            return false;
-        }
-
-        Long now = System.currentTimeMillis();
-        Long diff = now / 1000 - exp;
-        if (diff > refresh_ttl) {
-            return false;
-        }
-        return true;
-    }
-
-
     private static String refreshToken(String token, String bcryptPassword, Long ttl,String iss) {
         if (ObjectUtils.isEmpty(token) || ObjectUtils.isEmpty(bcryptPassword)||ObjectUtils.isEmpty(iss)) {
             return null;
         }
         try {
-            boolean checkTokenExp=checkTokenExp(token,bcryptPassword,iss);
-            if(!checkTokenExp){
+            Long exp = getExp(token);
+            if (exp == null) {
                 return null;
             }
+            String tolkenIss = getIss(token);
+            if (!(iss.equals(tolkenIss))) {
+                return null;
+            }
+
             Subject subject = getSubject(token);
+            if (subject == null) {
+                return null;
+            }
+
+            String bcrypt = subject.getBcryptPassword();
+            if (!(bcryptPassword.equals(bcrypt))) {
+                return null;
+            }
+
+            Long now = System.currentTimeMillis();
+            Long diff = now / 1000 - exp;
+            if (diff > refresh_ttl) {
+                return null;
+            }
+
             return generic(subject,iss);
 
         } catch (Exception e) {
