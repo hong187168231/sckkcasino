@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -23,32 +24,16 @@ public class DownloadStationService {
     @Autowired
     private DownloadStationRepository downloadStationRepository;
 
-    /**
-     * 根据终端类型查询最新版本
-     * @param terminalType
-     * @return
-     */
-    @Cacheable(key = "#terminalType")
-    public DownloadStation getNewestVersion(Integer terminalType) {
-        return downloadStationRepository.findFirstByTerminalTypeOrderByCreateTimeDesc(terminalType);
-    }
-
-    /**
-     * 根据终端类型查询最新强制更新版本
-     * @param terminalType
-     * @param isForced
-     * @return
-     */
-    @Cacheable(key = "#terminalType+'::'+#isForced")
-    public DownloadStation getForcedNewestVersion(Integer terminalType,Integer isForced) {
-        return downloadStationRepository.findFirstByTerminalTypeAndIsForcedOrderByCreateTimeDesc(terminalType,isForced);
+    @Cacheable(key = "#p0+'::'+#p1")
+    public List<DownloadStation> findByterminalTypeAndVersionNumberGreaterThan(Integer terminalType, String versionNumber){
+        return downloadStationRepository.findByterminalTypeAndVersionNumberGreaterThan(terminalType,versionNumber);
     }
 
     public Page<DownloadStation> findPage(Pageable pageable) {
         return downloadStationRepository.findAll(pageable);
     }
 
-    @CacheEvict(key = "#p0.terminalType",allEntries = true)
+    @CacheEvict(key="#p0.terminalType",allEntries = true)
     public DownloadStation save(DownloadStation downloadStation) {
         return downloadStationRepository.save(downloadStation);
 

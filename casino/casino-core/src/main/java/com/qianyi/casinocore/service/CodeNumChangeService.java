@@ -35,6 +35,11 @@ public class CodeNumChangeService {
         codeNumChange.setAmountAfter(amountAfter);
         codeNumChangeRepository.save(codeNumChange);
     }
+
+    public void save(CodeNumChange codeNumChange){
+        codeNumChangeRepository.save(codeNumChange);
+    }
+
     public Page<CodeNumChange> findCodeNumChangePage(Pageable pageable, CodeNumChange codeNumChange){
         Specification<CodeNumChange> condition = this.getCondition(codeNumChange);
         Page<CodeNumChange> all = codeNumChangeRepository.findAll(condition, pageable);

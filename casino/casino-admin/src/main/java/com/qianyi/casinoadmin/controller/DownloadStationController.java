@@ -1,8 +1,14 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinoadmin.vo.CollectionBankcardVo;
+import com.qianyi.casinoadmin.vo.DownloadStationVo;
+import com.qianyi.casinocore.model.CollectionBankcard;
 import com.qianyi.casinocore.model.DownloadStation;
+import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.DownloadStationService;
+import com.qianyi.casinocore.service.SysUserService;
+import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -18,6 +24,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/download")
 @Api(tags = "系统管理")
@@ -26,6 +36,8 @@ public class DownloadStationController {
     @Autowired
     private DownloadStationService downloadStationService;
 
+    @Autowired
+    private SysUserService sysUserService;
     /**
      *
      * @param pageSize
@@ -38,11 +50,30 @@ public class DownloadStationController {
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
     })
-    public ResponseEntity<DownloadStation> findDownloadStationPage(Integer pageSize, Integer pageCode){
+    public ResponseEntity<DownloadStationVo> findDownloadStationPage(Integer pageSize, Integer pageCode){
         Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<DownloadStation> downloadStationPage = downloadStationService.findPage(pageable);
-        return ResponseUtil.success(downloadStationPage);
+        PageResultVO<CollectionBankcardVo> pageResultVO =new PageResultVO(downloadStationPage);
+        List<DownloadStation> content = downloadStationPage.getContent();
+        if(content != null && content.size() > 0){
+            List<DownloadStationVo> downloadStationVos = new LinkedList<>();
+            List<String> updateBys = content.stream().map(DownloadStation::getUpdateBy).collect(Collectors.toList());
+            List<SysUser> sysUsers = sysUserService.findAll(updateBys);
+            if(sysUsers != null){
+                content.stream().forEach(downloadStation ->{
+                    DownloadStationVo downloadStationVo = new DownloadStationVo(downloadStation);
+                    sysUsers.stream().forEach(sysUser->{
+                        if (sysUser.getId().toString().equals(downloadStation.getUpdateBy() == null?"":downloadStation.getUpdateBy())){
+                            downloadStationVo.setUpdateBy(sysUser.getUserName());
+                        }
+                    });
+                    downloadStationVos.add(downloadStationVo);
+                });
+            }
+            pageResultVO.setContent(downloadStationVos);
+        }
+        return ResponseUtil.success(pageResultVO);
     }
 
     @ApiOperation("编辑下载站")

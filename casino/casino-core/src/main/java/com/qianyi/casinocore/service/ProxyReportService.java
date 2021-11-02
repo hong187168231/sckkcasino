@@ -36,29 +36,23 @@ public class ProxyReportService {
         return proxyReportRepository.saveAll(proxyReportList);
     }
 
-    public Page<ProxyReport> findAchievementPage(Pageable pageable, Long userId, String account) {
-        Specification<ProxyReport> condition = this.getCondition(userId,account);
+    public Page<ProxyReport> findAchievementPage(Pageable pageable, List<User> users, String account) {
+        Specification<ProxyReport> condition = this.getCondition(users,account);
         return proxyReportRepository.findAll(condition, pageable);
     }
 
-    private Specification<ProxyReport> getCondition(Long userId, String account) {
+    private Specification<ProxyReport> getCondition(List<User> users, String account) {
         Specification<ProxyReport> specification = new Specification<ProxyReport>() {
             @Override
             public Predicate toPredicate(Root<ProxyReport> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
+                CriteriaBuilder.In<Object> in = cb.in(root.get("userId"));
+                for (User user : users) {
+                    in.value(user.getId());
+                }
+                list.add(cb.and(cb.and(in)));
                 if (!ObjectUtils.isEmpty(account)) {
-                    list.add(cb.equal(root.get("account").as(String.class), account));
-                } else {
-                    List<User> users = userService.findByStateAndFirstPid(Constants.open, userId);
-                    if (!CollectionUtils.isEmpty(users)) {
-                        CriteriaBuilder.In<Object> in = cb.in(root.get("userId"));
-                        for (User user : users) {
-                            in.value(user.getId());
-                        }
-                        list.add(cb.and(cb.and(in)));
-                    }else{
-                        list.add(cb.equal(root.get("userId").as(Long.class), 0L));
-                    }
+                    list.add(cb.like(root.get("account").as(String.class), "%" + account + "%"));
                 }
                 return cb.and(list.toArray(new Predicate[list.size()]));
             }

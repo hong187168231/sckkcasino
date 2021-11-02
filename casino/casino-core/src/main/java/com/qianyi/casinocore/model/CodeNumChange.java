@@ -34,4 +34,16 @@ public class CodeNumChange extends BaseEntity {
 	@ApiModelProperty(value = "打码量变化后")
 	private BigDecimal amountAfter;
 
+	public static CodeNumChange setCodeNumChange(Long userId, GameRecord record, BigDecimal amount, BigDecimal amountBefore, BigDecimal amountAfter) {
+		CodeNumChange codeNumChange = new CodeNumChange();
+		codeNumChange.setUserId(userId);
+		if (record != null) {
+			codeNumChange.setGameRecordId(record.getId());
+			codeNumChange.setBetId(record.getBetId());
+		}
+		codeNumChange.setAmount(amount);
+		codeNumChange.setAmountBefore(amountBefore);
+		codeNumChange.setAmountAfter(amountAfter);
+		return codeNumChange;
+	}
 }
