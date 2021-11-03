@@ -120,4 +120,9 @@ public class RoleServiceBusiness {
         sysPermissionService.save(sysPermission);
         return true;
     }
+
+    public Boolean deleteAllPermission(List<Long> permissionList) {
+        sysPermissionService.deleteAllIds(permissionList);
+        return true;
+    }
 }

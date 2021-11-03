@@ -188,5 +188,20 @@ public class RoleController {
         return ResponseUtil.fail();
     }
 
+    @PostMapping("/deletePermissionList")
+    @ApiOperation("删除权限表数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "permissionList", value = "权限id", required = true),
+    })
+    public ResponseEntity<SysPermission> deletePermissionList(@RequestBody List<Long> permissionList){
 
+        if(LoginUtil.checkNull(permissionList)){
+            return ResponseUtil.custom("参数错误");
+        }
+        Boolean result = roleServiceBusiness.deleteAllPermission(permissionList);
+        if(result){
+            return ResponseUtil.success();
+        }
+        return ResponseUtil.fail();
+    }
 }
