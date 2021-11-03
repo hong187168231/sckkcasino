@@ -185,6 +185,9 @@ public class GameRecord extends BaseEntity{
         this.waterbet = waterbet==null?"0":waterbet.toString();
         this.winLoss = winLoss==null?"0":winLoss.toString();
     }
+    public GameRecord(BigDecimal validbet){
+        this.validbet = validbet==null?"0":validbet.toString();
+    }
     public GameRecord(){
 
     }
