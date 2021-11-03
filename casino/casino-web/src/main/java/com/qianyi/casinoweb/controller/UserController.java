@@ -10,7 +10,8 @@ import com.qianyi.casinoweb.runner.GenerateInviteCodeRunner;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.util.DeviceUtil;
 import com.qianyi.casinoweb.vo.LoginLogVo;
-import com.qianyi.casinoweb.vo.UserVo;
+import com.qianyi.casinoweb.vo.UserInfoVo;
+import com.qianyi.casinoweb.vo.UserMoneyVo;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.executor.AsyncService;
@@ -57,10 +58,10 @@ public class UserController {
 
     @GetMapping("info")
     @ApiOperation("获取当前用户的基本信息(不包含 余额，打码量，可提现金额,洗码金额)")
-    public ResponseEntity<UserVo> info() {
+    public ResponseEntity<UserInfoVo> info() {
         Long authId = CasinoWebUtil.getAuthId();
         User user = userService.findById(authId);
-        UserVo vo = new UserVo();
+        UserInfoVo vo = new UserInfoVo();
         BeanUtils.copyProperties(user, vo);
         vo.setUserId(user.getId());
         User firstParent = null;
@@ -80,9 +81,9 @@ public class UserController {
 
     @GetMapping("getMoney")
     @ApiOperation("获取当前用户的余额,打码量,可提现金额,洗码金额,分润金额")
-    public ResponseEntity<UserVo> getMoney() {
+    public ResponseEntity<UserMoneyVo> getMoney() {
         Long userId = CasinoWebUtil.getAuthId();
-        UserVo vo = new UserVo();
+        UserMoneyVo vo = new UserMoneyVo();
         //TODO 查询可提金额，未完成流水(打码量)
         UserMoney userMoney = userMoneyService.findByUserId(userId);
         BigDecimal defaultVal = BigDecimal.ZERO.setScale(2);
@@ -225,7 +226,7 @@ public class UserController {
 
     @GetMapping("everyoneSpread")
     @ApiOperation("获取当前用户人人代推广链接")
-    public ResponseEntity everyoneSpread() {
+    public ResponseEntity<String> everyoneSpread() {
         //查询后台配置域名
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (platformConfig == null || ObjectUtils.isEmpty(platformConfig.getProxyConfiguration())) {

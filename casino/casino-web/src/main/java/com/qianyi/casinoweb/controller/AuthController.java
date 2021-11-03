@@ -182,7 +182,7 @@ public class AuthController {
         //一个手机号只能注册一个账号
         List<User> phoneUser = userService.findByPhone(phone);
         if (!CollectionUtils.isEmpty(phoneUser)) {
-            return ResponseUtil.custom("当前手机号已注册");
+//            return ResponseUtil.custom("当前手机号已注册");
         }
         String ip = IpUtil.getIp(request);
         //查询ip注册账号限制
@@ -204,10 +204,7 @@ public class AuthController {
         String inviteCodeNew = generateInviteCodeRunner.getInviteCode();
         user = User.setBaseUser(account, CasinoWebUtil.bcrypt(password), phone, ip,inviteCodeNew);
         //设置父级
-        ResponseEntity responseEntity = setParent(inviteCode, inviteType, user);
-        if (responseEntity != null) {
-            return responseEntity;
-        }
+        setParent(inviteCode, inviteType, user);
         User save = userService.save(user);
         //userMoney表初始化数据
         UserMoney userMoney = new UserMoney();
@@ -259,13 +256,10 @@ public class AuthController {
      * @param inviteType
      * @param user
      */
-    public ResponseEntity setParent(String inviteCode,String inviteType,User user){
+    public void setParent(String inviteCode,String inviteType,User user){
         //人人代
         if(Constants.INVITE_TYPE_EVERYONE.equals(inviteType)){
             User parentUser = userService.findByInviteCode(inviteCode);
-            if (parentUser == null) {
-                return ResponseUtil.custom(Constants.IP_BLOCK);
-            }
             user.setFirstPid(parentUser.getId());
             user.setSecondPid(parentUser.getFirstPid());
             user.setThirdPid(parentUser.getSecondPid());
@@ -273,9 +267,6 @@ public class AuthController {
             //基层代理
         }else if(Constants.INVITE_TYPE_PROXY.equals(inviteType)){
             ProxyUser parentProxy = proxyUserService.findByProxyCode(inviteCode);
-            if (parentProxy == null) {
-                return ResponseUtil.custom(Constants.IP_BLOCK);
-            }
             user.setFirstProxy(parentProxy.getFirstProxy());
             user.setSecondProxy(parentProxy.getSecondProxy());
             user.setThirdProxy(parentProxy.getId());
@@ -283,21 +274,17 @@ public class AuthController {
             //前台自己注册
         }else{
             user.setType(Constants.USER_TYPE0);
-            User parentUser =null;
-            if(ObjectUtils.isEmpty(inviteCode)){
-                user.setFirstPid(0L);//默认公司级别
-            }else{
+            user.setFirstPid(0L);//默认公司级别
+            User parentUser = null;
+            if (!ObjectUtils.isEmpty(inviteCode)) {
                 parentUser = userService.findByInviteCode(inviteCode);
             }
-            if (parentUser == null) {
-                user.setFirstPid(0L);//默认公司级别
-            } else {
+            if (parentUser != null) {
                 user.setFirstPid(parentUser.getId());
                 user.setSecondPid(parentUser.getFirstPid());
                 user.setThirdPid(parentUser.getSecondPid());
             }
         }
-        return null;
     }
 
     @NoAuthentication
@@ -510,7 +497,7 @@ public class AuthController {
             @ApiImplicitParam(name = "account", value = "账号。", required = true),
     })
     @NoAuthentication
-    public ResponseEntity getJwtToken(String account) {
+    public ResponseEntity<String> getJwtToken(String account) {
         User user = userService.findByAccount(account);
         if (user == null) {
             return ResponseUtil.custom("账号不存在");
@@ -526,7 +513,7 @@ public class AuthController {
     @GetMapping("getRegisterStatus")
     @ApiOperation("查询注册通道状态")
     @NoAuthentication
-    public ResponseEntity getRegisterStatus() {
+    public ResponseEntity<Integer> getRegisterStatus() {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (platformConfig == null || platformConfig.getRegisterSwitch() == null) {
             return ResponseUtil.success(Constants.close);
@@ -540,11 +527,21 @@ public class AuthController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "token", value = "旧TOKEN", required = true),
     })
-    public ResponseEntity refreshJwtToken(String token) {
-        //获取登陆用户
-        Long authId = CasinoWebUtil.getAuthId(token);
-        if (authId == null) {
+    public ResponseEntity<String> refreshJwtToken(String token) {
+        boolean checkNull = CommonUtil.checkNull(token);
+        if (checkNull) {
+            return ResponseUtil.parameterNotNull();
+        }
+        JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
+        if (subject == null || ObjectUtils.isEmpty(subject.getUserId())) {
             return ResponseUtil.authenticationNopass();
+        }
+        //获取登陆用户
+        Long authId = Long.parseLong(subject.getUserId());
+        //只能拿最新的token来刷新
+        Object redisToken = redisUtil.get(Constants.REDIS_TOKEN + authId);
+        if(!token.equals(redisToken)){
+            return ResponseUtil.multiDevice();
         }
         User user = userService.findById(authId);
         String refreshToken = JjwtUtil.refreshToken(token, user.getPassword(),Constants.CASINO_WEB);
@@ -591,9 +588,8 @@ public class AuthController {
             ipBlack.setRemark("基层代理邀请码填写错误，IP被封");
             ipBlackService.save(ipBlack);
             return ResponseUtil.custom(Constants.IP_BLOCK);
-        } else {
-            return ResponseUtil.custom("邀请码检验失败");
         }
+        return ResponseUtil.custom("邀请码检验失败");
     }
 
     @GetMapping("getVerificationCode")
@@ -653,6 +649,6 @@ public class AuthController {
     }
 
     private void setUserTokenToRedis(Long userId, String token) {
-        redisUtil.set("token:" + userId, token);
+        redisUtil.set(Constants.REDIS_TOKEN + userId, token);
     }
 }

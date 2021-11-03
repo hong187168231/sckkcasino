@@ -46,6 +46,8 @@ spring:
         acknowledge-mode: manual
     template:
       mandatory: true
+  profiles:
+    active: test
 project:
   title: 千亿科技
   vendorId: qy01twapi

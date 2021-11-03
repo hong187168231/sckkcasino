@@ -160,13 +160,13 @@ public class GameRecord extends BaseEntity{
     @ApiModelProperty(value = "电子游戏代码")
     private String slotGameId;
 
-    @ApiModelProperty(value = "洗码状态：0：成功")
+    @ApiModelProperty(value = "洗码状态：1：成功")
     private Integer washCodeStatus;
 
-    @ApiModelProperty(value = "打码状态：0：成功")
+    @ApiModelProperty(value = "打码状态：1：成功")
     private Integer codeNumStatus;
 
-    @ApiModelProperty(value = "分润状态：0：成功")
+    @ApiModelProperty(value = "分润状态：1：成功")
     private Integer shareProfitStatus;
 
     @ApiModelProperty("总代ID")
@@ -184,6 +184,9 @@ public class GameRecord extends BaseEntity{
         this.water = water==null?"0":water.toString();
         this.waterbet = waterbet==null?"0":waterbet.toString();
         this.winLoss = winLoss==null?"0":winLoss.toString();
+    }
+    public GameRecord(BigDecimal validbet){
+        this.validbet = validbet==null?"0":validbet.toString();
     }
     public GameRecord(){
 

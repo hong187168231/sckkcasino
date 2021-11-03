@@ -62,6 +62,7 @@ public class UserMoneyBusiness {
             userMoneyService.subCodeNum(userId, validbet);
             BigDecimal codeNumAfter = userMoney.getCodeNum().subtract(validbet);
             CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, record, validbet.negate(), userMoney.getCodeNum(), codeNumAfter);
+            codeNumChange.setType(0);
             codeNumChangeService.save(codeNumChange);
             userMoney.setCodeNum(codeNumAfter);
             //检查最小清零打码量
@@ -90,7 +91,9 @@ public class UserMoneyBusiness {
         //剩余打码量小于等于最小清零打码量时 直接清0
         if (codeNum.compareTo(minCodeNumVal) < 1) {
             userMoneyService.subCodeNum(userId, codeNum);
-            CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, record, codeNum.negate(), user.getCodeNum(), user.getCodeNum().subtract(codeNum));
+            CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, null, null, user.getCodeNum(), user.getCodeNum().subtract(codeNum));
+            codeNumChange.setType(1);
+            codeNumChange.setClearCodeNum(minCodeNumVal);
             codeNumChangeService.save(codeNumChange);
             log.info("触发最小清零打码量，打码量清0,最小清0点={},注单ID={},UserId={}",minCodeNumVal,record.getBetId(),userId);
         }
@@ -113,7 +116,7 @@ public class UserMoneyBusiness {
             washCodeChange.setPlatform(platform);
             washCodeChange.setGameId(gameRecord.getGid().toString());
             washCodeChange.setGameName(gameRecord.getGname());
-            washCodeChange.setRate(rate);
+            washCodeChange.setRate(config.getRate());
             washCodeChange.setValidbet(validbet);
             washCodeChange.setGameRecordId(gameRecord.getId());
             washCodeChangeService.save(washCodeChange);

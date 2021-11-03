@@ -252,7 +252,7 @@ public class WMController {
     @ApiOperation("查询当前登录用户WM余额")
 //    @RequestLimit(limit = 1, timeout = 5)
     @GetMapping("getWmBalance")
-    public ResponseEntity getWmBalance() {
+    public ResponseEntity<BigDecimal> getWmBalance() {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
@@ -286,7 +286,7 @@ public class WMController {
             @ApiImplicitParam(name = "account", value = "第三方账号", required = true),
             @ApiImplicitParam(name = "lang", value = "语言", required = true),
     })
-    public ResponseEntity getWmBalanceApi(String account, Integer lang) {
+    public ResponseEntity<BigDecimal> getWmBalanceApi(String account, Integer lang) {
         if (CasinoWebUtil.checkNull(account, lang)) {
             return ResponseUtil.parameterNotNull();
         }

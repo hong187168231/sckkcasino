@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -99,10 +100,7 @@ public class GameRecordService {
     }
 
     public GameRecord save(GameRecord gameRecord) {
-        //防止多条记录同时更新互相影响
-        synchronized (gameRecord.getBetId()){
-            return gameRecordRepository.save(gameRecord);
-        }
+        return gameRecordRepository.save(gameRecord);
     }
 
     public GameRecord findGameRecordById(Long gameId){return gameRecordRepository.findById(gameId).orElse(null);}
@@ -155,5 +153,32 @@ public class GameRecordService {
 
     public List<GameRecord> findGameRecordIdAll(List<Long> recordIdList) {
         return gameRecordRepository.findAllById(recordIdList);
+    }
+    public  GameRecord  findRecordRecordSum(Long userId,String startTime,String endTime) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<GameRecord> query = builder.createQuery(GameRecord.class);
+        Root<GameRecord> root = query.from(GameRecord.class);
+
+        query.multiselect(
+                builder.sum(root.get("validbet").as(BigDecimal.class)).alias("validbet")
+        );
+
+        List<Predicate> predicates = new ArrayList();
+        if (userId != null) {
+            predicates.add(
+                    builder.equal(root.get("userId").as(Long.class), userId)
+            );
+        }
+        if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
+            predicates.add(
+                    builder.between(root.get("betTime").as(String.class), startTime, endTime)
+            );
+        }
+        query
+                .where(predicates.toArray(new Predicate[predicates.size()]));
+//                .groupBy(root.get("conversionStepCode"))
+//                .orderBy(builder.desc(root.get("contactUserNums")));
+        GameRecord singleResult = entityManager.createQuery(query).getSingleResult();
+        return singleResult;
     }
 }

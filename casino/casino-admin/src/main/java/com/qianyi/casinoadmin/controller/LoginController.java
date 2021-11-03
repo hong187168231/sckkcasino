@@ -283,7 +283,7 @@ public class LoginController {
     }
 
     //1分钟3次
-    @RequestLimit(limit = 5,timeout = 60)
+    @RequestLimit(limit = 20,timeout = 60)
     @GetMapping("getJwtToken")
     @ApiOperation("开发者通过此令牌调试接口。不可用于正式请求")
     @ApiImplicitParams({

@@ -38,7 +38,7 @@ public class ChargeController {
     @GetMapping("/collect_bankcards")
     @ApiOperation("收款银行卡列表")
     @ResponseBody
-    public ResponseEntity<CollectionBankcard> bankList() {
+    public ResponseEntity<List<CollectionBankcardVo>> bankList() {
         List<CollectionBankcard> bankcardList = collectionBankcardService.findByDisable(0);
         if (CollectionUtils.isEmpty(bankcardList)) {
             return ResponseUtil.success();

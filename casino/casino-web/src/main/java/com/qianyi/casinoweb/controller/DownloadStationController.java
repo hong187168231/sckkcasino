@@ -30,6 +30,9 @@ public class DownloadStationController {
     @Autowired
     private PlatformConfigService platformConfigService;
 
+    private final static Integer ANDROID_TERMINAL=1;
+    private final static Integer IOS_TERMINAL=2;
+
     @GetMapping("getIosNewestVersion")
     @ApiOperation("ios最新版本检查")
     @NoAuthentication
@@ -41,7 +44,7 @@ public class DownloadStationController {
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
-        List<DownloadStation> list = downloadStationService.findByterminalTypeAndVersionNumberGreaterThan(2, versionNumber);
+        List<DownloadStation> list = downloadStationService.findByterminalTypeAndVersionNumberGreaterThan(IOS_TERMINAL, versionNumber);
         return ResponseUtil.success(list);
     }
 
@@ -56,14 +59,36 @@ public class DownloadStationController {
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
-        List<DownloadStation> list = downloadStationService.findByterminalTypeAndVersionNumberGreaterThan(1, versionNumber);
+        List<DownloadStation> list = downloadStationService.findByterminalTypeAndVersionNumberGreaterThan(ANDROID_TERMINAL, versionNumber);
         return ResponseUtil.success(list);
+    }
+
+    @GetMapping("getIosDownloadUrl")
+    @ApiOperation("获取ios最新下载链接")
+    @NoAuthentication
+    public ResponseEntity<String> getIosDownloadUrl() {
+        DownloadStation downloadStation = downloadStationService.getNewestVersion(IOS_TERMINAL);
+        if (downloadStation == null) {
+            return ResponseUtil.success();
+        }
+        return ResponseUtil.success(downloadStation.getDownloadUrl());
+    }
+
+    @GetMapping("getAndroidDownloadUrl")
+    @ApiOperation("获取Android最新下载链接")
+    @NoAuthentication
+    public ResponseEntity<String> getAndroidDownloadUrl() {
+        DownloadStation downloadStation = downloadStationService.getNewestVersion(ANDROID_TERMINAL);
+        if (downloadStation == null) {
+            return ResponseUtil.success();
+        }
+        return ResponseUtil.success(downloadStation.getDownloadUrl());
     }
 
     @GetMapping("getWebUrl")
     @ApiOperation("网页版链接")
     @NoAuthentication
-    public ResponseEntity getWebUrl() {
+    public ResponseEntity<String> getWebUrl() {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (platformConfig == null || ObjectUtils.isEmpty(platformConfig.getDomainNameConfiguration())) {
             return ResponseUtil.custom("网站域名未配置,请联系客服");

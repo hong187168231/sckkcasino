@@ -24,6 +24,16 @@ public class DownloadStationService {
     @Autowired
     private DownloadStationRepository downloadStationRepository;
 
+    /**
+     * 根据终端类型查询最新版本
+     * @param terminalType
+     * @return
+     */
+    @Cacheable(key = "'terminalType::'+#p0")
+    public DownloadStation getNewestVersion(Integer terminalType) {
+        return downloadStationRepository.findFirstByTerminalTypeOrderByCreateTimeDesc(terminalType);
+    }
+
     @Cacheable(key = "#p0+'::'+#p1")
     public List<DownloadStation> findByterminalTypeAndVersionNumberGreaterThan(Integer terminalType, String versionNumber){
         return downloadStationRepository.findByterminalTypeAndVersionNumberGreaterThan(terminalType,versionNumber);

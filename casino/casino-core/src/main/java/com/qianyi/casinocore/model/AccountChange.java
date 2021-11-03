@@ -13,7 +13,7 @@ import java.math.BigDecimal;
  */
 @Entity
 @Data
-@ApiModel("账变中心")
+@ApiModel("资金详情")
 public class AccountChange extends BaseEntity {
 
 	@ApiModelProperty(value = "用户ID")

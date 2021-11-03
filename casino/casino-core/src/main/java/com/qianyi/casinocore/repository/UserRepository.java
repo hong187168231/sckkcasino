@@ -26,6 +26,10 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     List<User> findByStateAndFirstPid(Integer state, Long firstPid);
 
+    List<User> findByStateAndSecondPid(Integer state, Long firstPid);
+
+    List<User> findByStateAndThirdPid(Integer state, Long firstPid);
+
     List<User> findByFirstPid(Long id);
 
     Integer countByFirstPidAndSource(Long userId, int source);

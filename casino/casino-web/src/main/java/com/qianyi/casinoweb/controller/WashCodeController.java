@@ -1,5 +1,6 @@
 package com.qianyi.casinoweb.controller;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
@@ -11,10 +12,8 @@ import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.DateUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
+import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,7 +53,7 @@ public class WashCodeController {
             @ApiImplicitParam(name = "date", value = "时间：0：今天，1：昨天，2：近7天", required = true)
     })
     @GetMapping("/getList")
-    public ResponseEntity chargeOrderList(String date) {
+    public ResponseEntity<ChargeOrderListData> chargeOrderList(String date) {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         String startTime = null;
@@ -76,7 +75,7 @@ public class WashCodeController {
         }
         List<WashCodeConfig> washCodeConfig = userWashCodeConfigService.getWashCodeConfig(Constants.PLATFORM,userId);
         List<WashCodeChange> list = washCodeChangeService.getList(userId, startTime, endTime);
-        Map<String, Object> data = new HashMap<>();
+        ChargeOrderListData chargeOrderListData=new ChargeOrderListData();
         List<WashCodeVo> voList = new ArrayList<>();
         //洗码比例取配置表的,数据为空返回默认值
         if (CollectionUtils.isEmpty(list)) {
@@ -89,9 +88,9 @@ public class WashCodeController {
                 washCodeVo.setAmount(BigDecimal.ZERO);
                 voList.add(washCodeVo);
             }
-            data.put("totalAmount", washCode.toString());
-            data.put("list", voList);
-            return ResponseUtil.success(data);
+            chargeOrderListData.setTotalAmount(washCode);
+            chargeOrderListData.setList(voList);
+            return ResponseUtil.success(chargeOrderListData);
         }
         WashCodeVo washCodeVo = null;
         for (WashCodeConfig config : washCodeConfig) {
@@ -115,9 +114,9 @@ public class WashCodeController {
                 voList.add(washCodeVo);
             }
         }
-        data.put("totalAmount", washCode);
-        data.put("list", voList);
-        return ResponseUtil.success(data);
+        chargeOrderListData.setTotalAmount(washCode);
+        chargeOrderListData.setList(voList);
+        return ResponseUtil.success(chargeOrderListData);
     }
 
     @ApiOperation("用户领取洗码")
@@ -145,5 +144,16 @@ public class WashCodeController {
         vo.setAmountAfter(userMoney.getMoney().add(washCode));
         asyncService.executeAsync(vo);
         return ResponseUtil.success();
+    }
+
+    @Data
+    @ApiModel("用户洗码列表")
+    class ChargeOrderListData{
+        @ApiModelProperty(value = "洗码金额")
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
+        private BigDecimal totalAmount;
+
+        @ApiModelProperty(value = "数据列表")
+        private List<WashCodeVo> list;
     }
 }

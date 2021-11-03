@@ -8,8 +8,8 @@ public class Constants {
     //是/否，开/关, 真/假
     public final static Integer open = 1;
     public final static Integer close = 0;
-    public final static Integer yes = 0;
-    public final static Integer no = 1;
+    public final static Integer yes = 1;
+    public final static Integer no = 0;
 
     //订单状态
     public final static Integer order_wait = 1;//等待确认
@@ -86,7 +86,9 @@ public class Constants {
     public static final Integer USER_TYPE0= 0;
     //会员类型：渠道会员
     public static final Integer USER_TYPE1= 1;
-    //会员类型：渠道会员
+    //ip被封返回前端提示语
     public static final String IP_BLOCK= "IP被封。请联系管理员解锁";
+    //redis token前缀
+    public static final String REDIS_TOKEN= "token::";
 
 }
