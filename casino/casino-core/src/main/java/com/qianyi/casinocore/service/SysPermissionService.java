@@ -10,6 +10,7 @@ import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,5 +64,17 @@ public class SysPermissionService {
 
     public void delete() {
         sysPermissionRepository.deleteAll();
+    }
+
+    public SysPermission findById(Long pid) {
+        Optional<SysPermission> optional = sysPermissionRepository.findById(pid);
+        if (optional.isPresent()) {
+            return optional.get();
+        }
+        return null;
+    }
+
+    public void save(SysPermission sysPermission) {
+        sysPermissionRepository.save(sysPermission);
     }
 }

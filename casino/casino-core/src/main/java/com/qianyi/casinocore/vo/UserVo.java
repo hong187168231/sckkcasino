@@ -61,6 +61,8 @@ public class UserVo implements Serializable {
     private String thirdProxyAccount;
     @ApiModelProperty("所属总代")
     private String firstProxyAccount;
+    @ApiModelProperty("个人业绩流水")
+    private BigDecimal performance;
     @ApiModelProperty("创建时间")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;

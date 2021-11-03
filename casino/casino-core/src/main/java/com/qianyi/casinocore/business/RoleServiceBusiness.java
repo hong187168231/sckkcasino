@@ -31,11 +31,15 @@ public class RoleServiceBusiness {
     @Transactional
     public Boolean save(String roleName, String remark, Long roleId, List<Long> menuIdList) {
         if(roleId != null){
-            SysRole byId = sysRoleService.findById(roleId);
-            if(byId == null){
+            SysRole sysRole = sysRoleService.findById(roleId);
+            if(sysRole == null){
                 return false;
             }
-            sysPermissionRoleService.delete(roleId);
+            String name = "ROLE_" + roleName;
+            sysRole.setName(name);
+            sysRole.setRoleName(roleName);
+            sysRole.setRemark(remark);
+            SysRole role = sysRoleService.save(sysRole);
         }else{
             SysRole sysRole = new SysRole();
             String name = "ROLE_" + roleName;
@@ -48,7 +52,6 @@ public class RoleServiceBusiness {
             }
             roleId = sysRole.getId();
         }
-
         List<SysPermissionRole> sysPermissionRoleList = new ArrayList<>();
         for (Long id : menuIdList) {
             SysPermissionRole sysPermissionRole = new SysPermissionRole();
@@ -68,10 +71,20 @@ public class RoleServiceBusiness {
     }
 
 
-    public List<SysRole> findRoleList(Long roleId) {
+    public List<SysRole> findRoleList(Long roleId, Long userId) {
         if(roleId != null){
             List<SysRole> sysRoleList = new ArrayList<>();
             SysRole sysRole = sysRoleService.findById(roleId);
+            if(sysRole != null){
+                sysRoleList.add(sysRole);
+            }
+            return sysRoleList;
+        }
+
+        if(userId != null){
+            List<SysRole> sysRoleList = new ArrayList<>();
+            SysUserRole sysUserRole = sysUserRoleService.findbySysUserId(userId);
+            SysRole sysRole = sysRoleService.findById(sysUserRole.getSysRoleId());
             if(sysRole != null){
                 sysRoleList.add(sysRole);
             }
@@ -84,5 +97,25 @@ public class RoleServiceBusiness {
     public void saveSysUserRole(SysUserRole sysUserRole) {
         SysUserRole sys = sysUserRoleService.save(sysUserRole);
 
+    }
+
+    public Boolean savePermission(String descritpion, String name, Long pid, String permissionUrl) {
+        SysPermission sys = sysPermissionService.findById(pid);
+        if(sys == null){
+            return false;
+        }
+
+        SysPermission sysPermission = new SysPermission();
+        sysPermission.setName(name);
+        sysPermission.setUrl(permissionUrl);
+        sysPermission.setPid(pid);
+        sysPermission.setMenuLevel(sys.getMenuLevel() + 1);
+        if(descritpion != null && !sysPermission.equals("")){
+            sysPermission.setDescritpion(descritpion);
+        }else{
+            sysPermission.setDescritpion(name);
+        }
+        sysPermissionService.save(sysPermission);
+        return true;
     }
 }
