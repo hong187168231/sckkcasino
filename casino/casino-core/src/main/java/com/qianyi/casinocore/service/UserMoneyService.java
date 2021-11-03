@@ -40,10 +40,13 @@ public class UserMoneyService {
     }
 
     public List<UserMoney> saveAll(List<UserMoney> userMoneyList){
-        userMoneyList.forEach(item->{
-            userMoneyRepository.changeProfit(item.getUserId(),item.getShareProfit());
-        });
-        return userMoneyList;
+        return userMoneyRepository.saveAll(userMoneyList);
+    }
+
+    @CacheEvict(key = "#userId")
+    @Transactional
+    public void changeProfit(Long userId,BigDecimal shareProfit){
+        userMoneyRepository.changeProfit(userId,shareProfit);
     }
 
     /**

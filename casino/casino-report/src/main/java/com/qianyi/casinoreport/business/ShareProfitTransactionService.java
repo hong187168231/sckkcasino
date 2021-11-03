@@ -44,7 +44,7 @@ public class ShareProfitTransactionService {
         shareProfitBOList.forEach(item-> sharepointItemService.processItem(item,record,proxyDayReportList,proxyReportList,userMoneyList,shareProfitChangeList));
         proxyDayReportService.saveAll(proxyDayReportList);
         proxyReportService.saveAll(proxyReportList);
-        userMoneyService.saveAll(userMoneyList);
+        userMoneyList.forEach(item->userMoneyService.changeProfit(item.getUserId(),item.getShareProfit()));
         shareProfitChangeService.saveAll(shareProfitChangeList);
 //        int i = 1/0;
         updateShareProfitStatus(record);
