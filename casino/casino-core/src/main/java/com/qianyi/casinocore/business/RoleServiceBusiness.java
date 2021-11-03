@@ -40,6 +40,8 @@ public class RoleServiceBusiness {
             sysRole.setRoleName(roleName);
             sysRole.setRemark(remark);
             SysRole role = sysRoleService.save(sysRole);
+            sysPermissionRoleService.delete(roleId);
+
         }else{
             SysRole sysRole = new SysRole();
             String name = "ROLE_" + roleName;
