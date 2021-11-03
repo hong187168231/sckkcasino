@@ -13,7 +13,7 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
     @Query(value = "select third_proxy,count(distinct user_id) player_num ,max(first_proxy) first_proxy ,max(second_proxy) second_proxy , sum(validbet)validbet,max(bet_time) bet_time \n" +
             "from game_record gr\n" +
             "where\n" +
-            "validbet between ?1 and ?2\n" +
+            "bet_time between ?1 and ?2\n" +
             "and third_proxy is not null \n" +
             "group by third_proxy ",nativeQuery = true)
     List<CompanyOrderAmountVo> getStatisticsResult(String startTime, String endTime);
