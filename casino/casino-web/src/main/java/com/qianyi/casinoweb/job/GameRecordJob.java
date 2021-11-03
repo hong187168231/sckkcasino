@@ -93,7 +93,7 @@ public class GameRecordJob {
      * @return
      * @throws ParseException
      */
-    private static StartTimeAndEndTime getStartTimeAndEndTime(String time) throws ParseException {
+    private StartTimeAndEndTime getStartTimeAndEndTime(String time) throws ParseException {
         String startTime = null;
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
         Date nowDate = new Date();
@@ -124,11 +124,6 @@ public class GameRecordJob {
         startTimeAndEndTime.setStartTime(startTime);
         startTimeAndEndTime.setEndTime(endTime);
         return startTimeAndEndTime;
-    }
-
-    public static void main(String[] args) throws ParseException {
-        StartTimeAndEndTime startTimeAndEndTime = getStartTimeAndEndTime("20211102184530");
-        System.out.println(startTimeAndEndTime);
     }
 
     /**
@@ -193,7 +188,7 @@ public class GameRecordJob {
     }
 
     @Data
-   static class StartTimeAndEndTime {
+    class StartTimeAndEndTime {
         private String startTime;
         private String endTime;
     }
