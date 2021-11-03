@@ -35,11 +35,18 @@ public class UserMoneyService {
     private String url = "http://127.0.0.1:9200/wm/getWmBalanceApi?";
 
     public UserMoney findUserByUserIdUseLock(Long userId) {
-        return userMoneyRepository.findUserByUserIdUseLock(userId);
+//        return userMoneyRepository.findUserByUserIdUseLock(userId);
+        return userMoneyRepository.findUserMoneyByUserId(userId);
     }
 
     public List<UserMoney> saveAll(List<UserMoney> userMoneyList){
         return userMoneyRepository.saveAll(userMoneyList);
+    }
+
+    @CacheEvict(key = "#userId")
+    @Transactional
+    public void changeProfit(Long userId,BigDecimal shareProfit){
+        userMoneyRepository.changeProfit(userId,shareProfit);
     }
 
     /**

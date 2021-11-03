@@ -26,5 +26,6 @@ public class SharePointConsumer {
         log.info("消费者接受到的消息是：{}",shareProfitMqVo);
         shareProfitBusiness.procerssShareProfit(shareProfitMqVo);
         channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        log.info("消费者处理完当前消息：{}",shareProfitMqVo);
     }
 }
