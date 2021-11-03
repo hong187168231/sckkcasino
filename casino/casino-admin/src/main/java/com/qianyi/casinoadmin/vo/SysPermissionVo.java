@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -37,5 +38,5 @@ public class SysPermissionVo implements Serializable {
     @ApiModelProperty(value = "是否删除0：否，1：是")
     private Integer isDetele;
 
-    private List<SysPermissionVo> sysPermissionVoList;
+    private List<SysPermissionVo> sysPermissionVoList = new ArrayList<>();
 }
