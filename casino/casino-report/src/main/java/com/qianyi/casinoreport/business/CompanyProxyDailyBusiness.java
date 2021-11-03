@@ -16,6 +16,7 @@ import org.springframework.security.config.web.servlet.oauth2.resourceserver.OAu
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -49,9 +50,11 @@ public class CompanyProxyDailyBusiness {
     private CompanyProxyMonthBusiness companyProxyMonthBusiness;
 
     //传入计算当天的时间  yyyy-MM-dd 格式
+    @Transactional
     public void processDailyReport(String dayTime){
         String startTime = getStartTime(dayTime);
         String endTime = getEndTime(dayTime);
+        companyProxyDetailService.deleteByDayTime(startTime.substring(0,10));
         log.info("processDailyReport start startTime:{} endTime:{}",startTime,endTime);
         List<CompanyOrderAmountVo> companyOrderAmountVoList = gameRecordService.getStatisticsResult(startTime,endTime);
 
@@ -69,10 +72,10 @@ public class CompanyProxyDailyBusiness {
         log.info("firstList size is {}, secondeList size is {}, thirdList size is {}",firstList.size(),secondeList.size(),thirdList.size());
 
         List<CompanyProxyDetail> secondeCompanyProxyDetail = processSec(secondeList,thirdList);
-        CompanyProxyDetail firstCompanyProxyDetail = processfirst(firstList,secondeCompanyProxyDetail);
+        List<CompanyProxyDetail> firstCompanyProxyDetail = processSec(firstList,secondeCompanyProxyDetail);
 
         List<CompanyProxyDetail> resultList = Stream.concat(thirdList.stream(),secondeCompanyProxyDetail.stream()).collect(Collectors.toList());
-        resultList.add(firstCompanyProxyDetail);
+        resultList.addAll(firstCompanyProxyDetail);
 
         log.info("save all proxyDetail data");
         companyProxyDetailService.saveAll(resultList);
@@ -83,13 +86,13 @@ public class CompanyProxyDailyBusiness {
         log.info("start process month report finish");
     }
 
-    private List<CompanyProxyDetail> processSec(List<CompanyProxyDetail> secondeList,List<CompanyProxyDetail> thirdList) {
+    private List<CompanyProxyDetail> processSec(List<CompanyProxyDetail> firstList,List<CompanyProxyDetail> secList) {
         List<CompanyProxyDetail> companyProxyDetailList = new ArrayList<>();
-        Map<Long,List<CompanyProxyDetail>> groupSec = secondeList.stream().collect(Collectors.groupingBy(CompanyProxyDetail::getUserId));
+        Map<Long,List<CompanyProxyDetail>> groupSec = firstList.stream().collect(Collectors.groupingBy(CompanyProxyDetail::getUserId));
 
         for (Long userId : groupSec.keySet()) {
             List<CompanyProxyDetail> subList = groupSec.get(userId);
-            List<CompanyProxyDetail> subThird = thirdList.stream().filter(x->x.getUserId()==userId).collect(Collectors.toList());
+            List<CompanyProxyDetail> subThird = secList.stream().filter(x->x.getUserId()==userId).collect(Collectors.toList());
             CompanyProxyDetail secondeItem = processfirst(subList,subThird);
             companyProxyDetailList.add(secondeItem);
         }
@@ -101,6 +104,7 @@ public class CompanyProxyDailyBusiness {
         BigDecimal groupBetAmount = firstList.stream().map(x->x.getGroupBetAmount()).reduce(BigDecimal.ZERO,BigDecimal::add);
         BigDecimal profitAmount = firstList.stream().map(x->x.getProfitAmount()).reduce(BigDecimal.ZERO,BigDecimal::add);
         CompanyProxyDetail item = firstList.get(0);
+
         CompanyProxyDetail actItem = (CompanyProxyDetail) item.clone();
         actItem.setGroupBetAmount(groupBetAmount);
         actItem.setProfitAmount(profitAmount);
@@ -119,6 +123,10 @@ public class CompanyProxyDailyBusiness {
     public void processOrder(CompanyOrderAmountVo companyOrderAmountVo,List<CompanyProxyDetail> firstList,List<CompanyProxyDetail> secondeList,List<CompanyProxyDetail> thirdList){
         CompanyLevelBO companyLevelBO = companyLevelProcessBusiness.getLevelData(new BigDecimal(companyOrderAmountVo.getValidbet()));
         ProxyCommission proxyCommission = proxyCommissionService.findByProxyUserId(companyOrderAmountVo.getThirdProxy());
+
+        log.info("companyLevelBO:{}",companyLevelBO);
+        log.info("proxyCommission:{}",proxyCommission);
+
 
         firstList.add(calculateDetail(companyLevelBO,companyOrderAmountVo,companyOrderAmountVo.getFirstProxy(),proxyCommission.getFirstCommission(),1));
         secondeList.add(calculateDetail(companyLevelBO,companyOrderAmountVo,companyOrderAmountVo.getSecondProxy(),proxyCommission.getSecondCommission(),2));
@@ -142,7 +150,7 @@ public class CompanyProxyDailyBusiness {
                 .groupTotalprofit(totalAmount.multiply(profitRate))
                 .settleStatus(0)
                 .staticsTimes(companyOrderAmountVo.getBetTime().substring(0,10))
-                .betTime(LocalDateTime.parse(companyOrderAmountVo.getBetTime()))
+                .betTime(LocalDateTime.parse(companyOrderAmountVo.getBetTime().replace(' ','T')))
                 .build();
     }
 

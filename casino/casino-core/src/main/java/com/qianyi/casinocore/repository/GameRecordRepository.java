@@ -6,15 +6,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
+import javax.persistence.Tuple;
 import java.util.List;
+import java.util.Map;
 
 public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, JpaSpecificationExecutor<GameRecord> {
 
-    @Query(value = "select third_proxy,count(distinct user_id) player_num ,max(first_proxy) first_proxy ,max(second_proxy) second_proxy , sum(validbet)validbet,max(bet_time) bet_time \n" +
+    @Query(value = "select max(first_proxy) first_proxy ,max(second_proxy) second_proxy ,third_proxy third_proxy,count(distinct user_id) player_num ,max(bet_time) bet_time, sum(validbet) validbet \n" +
             "from game_record gr\n" +
             "where\n" +
             "bet_time between ?1 and ?2\n" +
             "and third_proxy is not null \n" +
             "group by third_proxy ",nativeQuery = true)
-    List<CompanyOrderAmountVo> getStatisticsResult(String startTime, String endTime);
+    List<Map<String,Object>> getStatisticsResult(String startTime, String endTime);
 }
