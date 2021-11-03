@@ -78,6 +78,22 @@ public class RoleController {
         return ResponseUtil.success(sysRoleList);
     }
 
+    /**
+     * 权限数据列表
+     *
+     * @return
+     */
+    @GetMapping("deleteRoleList")
+    @ApiOperation("删除角色数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "roleId", value = "角色id", required = true)
+    })
+    public ResponseEntity<SysRole> deleteRoleList(Long roleId) {
+        roleServiceBusiness.deleteRoleList(roleId);
+        return ResponseUtil.success();
+    }
+
+
     @GetMapping("getUserRoleBind")
     @ApiOperation("绑定用户角色")
     @ApiImplicitParams({
@@ -172,16 +188,17 @@ public class RoleController {
     @ApiOperation("添加权限表数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "descritpion", value = "权限描述", required = false),
+            @ApiImplicitParam(name = "id", value = "权限描述", required = false),
             @ApiImplicitParam(name = "name", value = "权限名称", required = true),
             @ApiImplicitParam(name = "pid", value = "上级id,没有传0", required = true),
             @ApiImplicitParam(name = "permissionUrl", value = "权限id", required = true),
     })
-    public ResponseEntity<SysPermission> addPermissionList(String descritpion, String name, Long pid, String permissionUrl){
+    public ResponseEntity<SysPermission> addPermissionList(String descritpion, String name, Long pid, String permissionUrl, Long id){
 
         if(LoginUtil.checkNull(name, permissionUrl)){
             return ResponseUtil.custom("参数错误");
         }
-        Boolean result = roleServiceBusiness.savePermission(descritpion, name, pid, permissionUrl);
+        Boolean result = roleServiceBusiness.savePermission(descritpion, name, pid, permissionUrl, id);
         if(result){
             return ResponseUtil.success();
         }
@@ -189,4 +206,22 @@ public class RoleController {
     }
 
 
+
+
+    @PostMapping("/deletePermissionList")
+    @ApiOperation("删除权限表数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "permissionList", value = "权限id", required = true),
+    })
+    public ResponseEntity<SysPermission> deletePermissionList(@RequestBody List<Long> permissionList){
+
+        if(LoginUtil.checkNull(permissionList)){
+            return ResponseUtil.custom("参数错误");
+        }
+        Boolean result = roleServiceBusiness.deleteAllPermission(permissionList);
+        if(result){
+            return ResponseUtil.success();
+        }
+        return ResponseUtil.fail();
+    }
 }

@@ -40,6 +40,8 @@ public class RoleServiceBusiness {
             sysRole.setRoleName(roleName);
             sysRole.setRemark(remark);
             SysRole role = sysRoleService.save(sysRole);
+            sysPermissionRoleService.delete(roleId);
+
         }else{
             SysRole sysRole = new SysRole();
             String name = "ROLE_" + roleName;
@@ -99,13 +101,15 @@ public class RoleServiceBusiness {
 
     }
 
-    public Boolean savePermission(String descritpion, String name, Long pid, String permissionUrl) {
+    public Boolean savePermission(String descritpion, String name, Long pid, String permissionUrl, Long id) {
         SysPermission sys = sysPermissionService.findById(pid);
         if(sys == null){
             return false;
         }
-
-        SysPermission sysPermission = new SysPermission();
+        SysPermission sysPermission = sysPermissionService.findById(id);
+        if(sysPermission == null){
+            sysPermission = new SysPermission();
+        }
         sysPermission.setName(name);
         sysPermission.setUrl(permissionUrl);
         sysPermission.setPid(pid);
@@ -117,5 +121,16 @@ public class RoleServiceBusiness {
         }
         sysPermissionService.save(sysPermission);
         return true;
+    }
+
+    public Boolean deleteAllPermission(List<Long> permissionList) {
+        sysPermissionService.deleteAllIds(permissionList);
+        return true;
+    }
+
+    public void deleteRoleList(Long roleId) {
+        //删除角色对应的用户权限
+        sysUserRoleService.deleteById(roleId);
+        sysRoleService.deleteById(roleId);
     }
 }

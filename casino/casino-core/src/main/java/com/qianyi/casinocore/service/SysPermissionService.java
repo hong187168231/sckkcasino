@@ -77,4 +77,8 @@ public class SysPermissionService {
     public void save(SysPermission sysPermission) {
         sysPermissionRepository.save(sysPermission);
     }
+
+    public void deleteAllIds(List<Long> permissionList) {
+        sysPermissionRepository.deleteAllById(permissionList);
+    }
 }
