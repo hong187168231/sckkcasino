@@ -10,13 +10,16 @@ import java.math.BigDecimal;
 public class ProxyReportVo implements Serializable {
 
     private static final long serialVersionUID = -6875619842312305179L;
-
+    @ApiModelProperty("id")
+    private Long userId;
     @ApiModelProperty("账号")
     private String account;
     @ApiModelProperty("层级 0 当前 1 一级 2 二级 3 三级")
     private Integer tier;
     @ApiModelProperty("直属父级账号")
     private String firstPidAccount;
+    @ApiModelProperty("直属父级ID")
+    private Long firstPid;
     @ApiModelProperty("团队人数")
     private Integer allGroupNum;
     @ApiModelProperty("个人业绩流水")

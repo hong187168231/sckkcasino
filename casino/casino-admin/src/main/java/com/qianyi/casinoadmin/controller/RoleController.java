@@ -7,10 +7,7 @@ import com.qianyi.casinoadmin.vo.SysPermissionVo;
 import com.qianyi.casinocore.business.RoleServiceBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.SysPermissionService;
-import com.qianyi.casinocore.service.SysRoleService;
 import com.qianyi.casinocore.service.SysUserService;
-import com.qianyi.modulecommon.annotation.NoAuthentication;
-import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -18,8 +15,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -75,10 +70,11 @@ public class RoleController {
     @GetMapping("getRoleList")
     @ApiOperation("查询角色数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "roleId", value = "角色id", required = false)
+            @ApiImplicitParam(name = "roleId", value = "角色id", required = false),
+            @ApiImplicitParam(name = "userId", value = "用户id", required = false)
     })
-    public ResponseEntity<SysRole> getRoleList(Long roleId) {
-        List<SysRole> sysRoleList = roleServiceBusiness.findRoleList(roleId);
+    public ResponseEntity<SysRole> getRoleList(Long roleId, Long userId) {
+        List<SysRole> sysRoleList = roleServiceBusiness.findRoleList(roleId, userId);
         return ResponseUtil.success(sysRoleList);
     }
 
@@ -93,7 +89,7 @@ public class RoleController {
         if(sysUser == null){
             return ResponseUtil.custom("用户不存在");
         }
-        List<SysRole> sysRoleList = roleServiceBusiness.findRoleList(roleId);
+        List<SysRole> sysRoleList = roleServiceBusiness.findRoleList(roleId, userid);
         if(LoginUtil.checkNull(sysRoleList)){
             return ResponseUtil.custom("角色不存在");
         }
@@ -166,6 +162,26 @@ public class RoleController {
             return ResponseUtil.custom("参数错误");
         }
         Boolean result = roleServiceBusiness.save(roleName, remark, roleId, menuIdList);
+        if(result){
+            return ResponseUtil.success();
+        }
+        return ResponseUtil.fail();
+    }
+
+    @PostMapping("/addPermissionList")
+    @ApiOperation("添加权限表数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "descritpion", value = "权限描述", required = false),
+            @ApiImplicitParam(name = "name", value = "权限名称", required = true),
+            @ApiImplicitParam(name = "pid", value = "上级id,没有传0", required = true),
+            @ApiImplicitParam(name = "permissionUrl", value = "权限id", required = true),
+    })
+    public ResponseEntity<SysPermission> addPermissionList(String descritpion, String name, Long pid, String permissionUrl){
+
+        if(LoginUtil.checkNull(name, permissionUrl)){
+            return ResponseUtil.custom("参数错误");
+        }
+        Boolean result = roleServiceBusiness.savePermission(descritpion, name, pid, permissionUrl);
         if(result){
             return ResponseUtil.success();
         }

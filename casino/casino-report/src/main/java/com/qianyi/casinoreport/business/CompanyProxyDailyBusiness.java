@@ -52,6 +52,7 @@ public class CompanyProxyDailyBusiness {
     public void processDailyReport(String dayTime){
         String startTime = getStartTime(dayTime);
         String endTime = getEndTime(dayTime);
+        log.info("processDailyReport start startTime:{} endTime:{}",startTime,endTime);
         List<CompanyOrderAmountVo> companyOrderAmountVoList = gameRecordService.getStatisticsResult(startTime,endTime);
 
         List<CompanyProxyDetail> firstList= new ArrayList<>();
@@ -60,14 +61,26 @@ public class CompanyProxyDailyBusiness {
 
         companyOrderAmountVoList.forEach(item->processOrder(item,firstList,secondeList,thirdList));
 
+        if(firstList.size() == 0) {
+            log.info("first level is no user");
+            return;
+        }
+
+        log.info("firstList size is {}, secondeList size is {}, thirdList size is {}",firstList.size(),secondeList.size(),thirdList.size());
+
         List<CompanyProxyDetail> secondeCompanyProxyDetail = processSec(secondeList,thirdList);
         CompanyProxyDetail firstCompanyProxyDetail = processfirst(firstList,secondeCompanyProxyDetail);
 
         List<CompanyProxyDetail> resultList = Stream.concat(thirdList.stream(),secondeCompanyProxyDetail.stream()).collect(Collectors.toList());
         resultList.add(firstCompanyProxyDetail);
-        companyProxyDetailService.saveAll(resultList);
 
+        log.info("save all proxyDetail data");
+        companyProxyDetailService.saveAll(resultList);
+        log.info("save all proxyDetail data finish");
+
+        log.info("start process month report");
         companyProxyMonthBusiness.processCompanyMonth(dayTime);
+        log.info("start process month report finish");
     }
 
     private List<CompanyProxyDetail> processSec(List<CompanyProxyDetail> secondeList,List<CompanyProxyDetail> thirdList) {
@@ -108,13 +121,12 @@ public class CompanyProxyDailyBusiness {
         ProxyCommission proxyCommission = proxyCommissionService.findByProxyUserId(companyOrderAmountVo.getThirdProxy());
 
         firstList.add(calculateDetail(companyLevelBO,companyOrderAmountVo,companyOrderAmountVo.getFirstProxy(),proxyCommission.getFirstCommission(),1));
-        secondeList.add( calculateDetail(companyLevelBO,companyOrderAmountVo,companyOrderAmountVo.getSecondProxy(),proxyCommission.getFirstCommission(),2));
-        thirdList.add(calculateDetail(companyLevelBO,companyOrderAmountVo,companyOrderAmountVo.getThirdProxy(),proxyCommission.getFirstCommission(),3));
+        secondeList.add(calculateDetail(companyLevelBO,companyOrderAmountVo,companyOrderAmountVo.getSecondProxy(),proxyCommission.getSecondCommission(),2));
+        thirdList.add(calculateDetail(companyLevelBO,companyOrderAmountVo,companyOrderAmountVo.getThirdProxy(),proxyCommission.getThirdCommission(),3));
     }
 
     public CompanyProxyDetail calculateDetail(CompanyLevelBO companyLevelBO,CompanyOrderAmountVo companyOrderAmountVo,Long userid,BigDecimal profitRate,Integer proxyType){
         BigDecimal totalAmount = companyLevelBO.getProfitAmount().multiply(BigDecimal.valueOf(companyLevelBO.getProfitActTimes()));
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return CompanyProxyDetail.builder()
                 .benefitRate(profitRate)
                 .firstProxy(companyOrderAmountVo.getFirstProxy())

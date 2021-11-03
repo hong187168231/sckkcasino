@@ -236,11 +236,13 @@ public class SysPermissionConfigFile {
         SysPermission getRoleList = new SysPermission("查询角色数据", "查询角色数据", "/role/getRoleList", sysUserList.getId(), 3, 0);
         SysPermission getUserRoleBind = new SysPermission("绑定用户角色", "绑定用户角色", "/role/getUserRoleBind", sysUserList.getId(), 3, 0);
         SysPermission getSysUser = new SysPermission("查询用户数据", "查询用户数据", "/role/getSysUser", sysUserList.getId(), 3, 0);
+        SysPermission addPermissionList = new SysPermission("添加权限表数据", "添加权限表数据", "/role/addPermissionList", sysUserList.getId(), 3, 0);
         thridPermissions.add(findPermissionList);
         thridPermissions.add(updatePermissionList);
         thridPermissions.add(getRoleList);
         thridPermissions.add(getUserRoleBind);
         thridPermissions.add(getSysUser);
+        thridPermissions.add(addPermissionList);
 
 
         sysPermissionService.saveAllList(thridPermissions);
