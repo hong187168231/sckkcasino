@@ -116,7 +116,7 @@ public class UserMoneyBusiness {
             washCodeChange.setPlatform(platform);
             washCodeChange.setGameId(gameRecord.getGid().toString());
             washCodeChange.setGameName(gameRecord.getGname());
-            washCodeChange.setRate(rate);
+            washCodeChange.setRate(config.getRate());
             washCodeChange.setValidbet(validbet);
             washCodeChange.setGameRecordId(gameRecord.getId());
             washCodeChangeService.save(washCodeChange);
