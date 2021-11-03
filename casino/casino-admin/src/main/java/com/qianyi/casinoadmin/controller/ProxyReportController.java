@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.ProxyReportVo;
 import com.qianyi.casinocore.model.*;
@@ -88,9 +89,9 @@ public class ProxyReportController {
                 }
             }
         }
-        return ResponseUtil.success(list);
+        return this.getData(list);
     }
-    @ApiOperation("每日结算细节")
+    @ApiOperation("下级明细")
     @GetMapping("/findDetail")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "当前列id", required = true),
@@ -98,6 +99,49 @@ public class ProxyReportController {
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
     public ResponseEntity<ProxyReportVo> findDetail(Long id, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+                                              @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        if (LoginUtil.checkNull(id,startDate,endDate)){
+            return ResponseUtil.custom("参数必填");
+        }
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            return ResponseUtil.custom("找不到该会员");
+        }
+        String startTime = format.format(startDate);
+        String endTime = format.format(endDate);
+        List<ProxyReportVo> list = new LinkedList();
+        this.assemble(user.getId(),startTime,endTime,list, CommonConst.NUMBER_1,startDate,endDate);
+        List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, user.getId());
+        if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
+            firstUsers.forEach(f ->{
+                this.assemble(f.getId(),startTime,endTime,list, CommonConst.NUMBER_2,startDate,endDate);
+            });
+            List<User> secondPid = userService.findByStateAndSecondPid(Constants.open, user.getId());
+            if (!LoginUtil.checkNull(secondPid) && secondPid.size() > CommonConst.NUMBER_0){
+                secondPid.forEach(s ->{
+                    this.assemble(s.getId(),startTime,endTime,list, CommonConst.NUMBER_3,startDate,endDate);
+                });
+            }
+        }
+        return this.getData(list);
+    }
+    private ResponseEntity<ProxyReportVo> getData(List<ProxyReportVo> list){
+        ProxyReportVo proxyReportVo = new ProxyReportVo();
+        proxyReportVo.setPerformance(list.stream().map(ProxyReportVo::getPerformance).reduce(BigDecimal.ZERO, BigDecimal::add));
+        proxyReportVo.setContribution(list.stream().map(ProxyReportVo::getContribution).reduce(BigDecimal.ZERO, BigDecimal::add));
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("data", list);
+        jsonObject.put("sum", proxyReportVo);
+        return ResponseUtil.success(jsonObject);
+    }
+    @ApiOperation("每日结算细节")
+    @GetMapping("/findDayDetail")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "当前列id", required = true),
+            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
+    })
+    public ResponseEntity<ProxyReportVo> findDayDetail(Long id, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(id,startDate,endDate)){
             return ResponseUtil.custom("参数必填");
