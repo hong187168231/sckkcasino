@@ -101,13 +101,15 @@ public class RoleServiceBusiness {
 
     }
 
-    public Boolean savePermission(String descritpion, String name, Long pid, String permissionUrl) {
+    public Boolean savePermission(String descritpion, String name, Long pid, String permissionUrl, Long id) {
         SysPermission sys = sysPermissionService.findById(pid);
         if(sys == null){
             return false;
         }
-
-        SysPermission sysPermission = new SysPermission();
+        SysPermission sysPermission = sysPermissionService.findById(id);
+        if(sysPermission == null){
+            sysPermission = new SysPermission();
+        }
         sysPermission.setName(name);
         sysPermission.setUrl(permissionUrl);
         sysPermission.setPid(pid);
