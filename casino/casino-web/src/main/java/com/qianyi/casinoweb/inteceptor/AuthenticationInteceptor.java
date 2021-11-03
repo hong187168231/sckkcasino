@@ -6,8 +6,8 @@ import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.inteceptor.AbstractAuthenticationInteceptor;
 import com.qianyi.modulejjwt.JjwtUtil;
+import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
@@ -19,7 +19,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
     @Autowired
     UserService userService;
     @Autowired
-    RedisTemplate redisTemplate;
+    RedisUtil redisUtil;
 
     @Override
     protected boolean hasBan() {
@@ -47,14 +47,8 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
     protected boolean multiDeviceCheck() {
         Long authId = CasinoWebUtil.getAuthId();
         String token = CasinoWebUtil.getToken();
-        String key = "token:" + authId;
-        Object redisToken = null;
-        try {
-            redisToken = redisTemplate.opsForValue().get(key);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return true;
-        }
+        String key = Constants.REDIS_TOKEN + authId;
+        Object redisToken = redisUtil.get(key);
         if (ObjectUtils.isEmpty(redisToken)) {
             return true;
         }

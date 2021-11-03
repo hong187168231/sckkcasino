@@ -523,15 +523,25 @@ public class AuthController {
 
     @PostMapping("rjt")
     @ApiOperation("JWT过期后，30分钟内可颁发新的token")
-//    @NoAuthentication
+    @NoAuthentication
     @ApiImplicitParams({
             @ApiImplicitParam(name = "token", value = "旧TOKEN", required = true),
     })
     public ResponseEntity<String> refreshJwtToken(String token) {
-        //获取登陆用户
-        Long authId = CasinoWebUtil.getAuthId(token);
-        if (authId == null) {
+        boolean checkNull = CommonUtil.checkNull(token);
+        if (checkNull) {
+            return ResponseUtil.parameterNotNull();
+        }
+        JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
+        if (subject == null || ObjectUtils.isEmpty(subject.getUserId())) {
             return ResponseUtil.authenticationNopass();
+        }
+        //获取登陆用户
+        Long authId = Long.parseLong(subject.getUserId());
+        //只能拿最新的token来刷新
+        Object redisToken = redisUtil.get(Constants.REDIS_TOKEN + authId);
+        if(!token.equals(redisToken)){
+            return ResponseUtil.multiDevice();
         }
         User user = userService.findById(authId);
         String refreshToken = JjwtUtil.refreshToken(token, user.getPassword(),Constants.CASINO_WEB);
@@ -639,6 +649,6 @@ public class AuthController {
     }
 
     private void setUserTokenToRedis(Long userId, String token) {
-        redisUtil.set("token:" + userId, token);
+        redisUtil.set(Constants.REDIS_TOKEN + userId, token);
     }
 }
