@@ -238,7 +238,7 @@ public class UserController {
         if (ObjectUtils.isEmpty(user.getInviteCode())) {
             return ResponseUtil.custom("当前用户邀请码为空");
         }
-        String url = domain + "/" + Constants.INVITE_TYPE_EVERYONE + "/" + user.getInviteCode();
+        String url = domain + "/#/" + Constants.INVITE_TYPE_EVERYONE + "/" + user.getInviteCode();
         return ResponseUtil.success(url);
     }
 
