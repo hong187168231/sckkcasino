@@ -2,7 +2,6 @@ package com.qianyi.casinoadmin.util;
 
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.UserService;
-import com.qianyi.casinoweb.util.InviteCodeUtil;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
