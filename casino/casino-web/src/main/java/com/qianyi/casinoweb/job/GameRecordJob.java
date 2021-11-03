@@ -93,7 +93,7 @@ public class GameRecordJob {
      * @return
      * @throws ParseException
      */
-    private StartTimeAndEndTime getStartTimeAndEndTime(String time) throws ParseException {
+    private static StartTimeAndEndTime getStartTimeAndEndTime(String time) throws ParseException {
         String startTime = null;
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
         Date nowDate = new Date();
@@ -113,7 +113,7 @@ public class GameRecordJob {
         long startTimeNum = startDate.getTime();
         long endTimeNum = nowDate.getTime();
         //第三方要求拉取数据时间范围不能大于1天，大于1天，取开始时间的后一天为结束时间
-        if ((endTimeNum - startTimeNum) > 60 * 60 * 24) {
+        if ((endTimeNum - startTimeNum) > 60 * 60 * 24 * 1000) {
             Calendar now = Calendar.getInstance();
             now.setTime(startDate);
             now.add(Calendar.DAY_OF_MONTH, 1);
@@ -124,6 +124,11 @@ public class GameRecordJob {
         startTimeAndEndTime.setStartTime(startTime);
         startTimeAndEndTime.setEndTime(endTime);
         return startTimeAndEndTime;
+    }
+
+    public static void main(String[] args) throws ParseException {
+        StartTimeAndEndTime startTimeAndEndTime = getStartTimeAndEndTime("20211102184530");
+        System.out.println(startTimeAndEndTime);
     }
 
     /**
@@ -188,7 +193,7 @@ public class GameRecordJob {
     }
 
     @Data
-    class StartTimeAndEndTime {
+   static class StartTimeAndEndTime {
         private String startTime;
         private String endTime;
     }
