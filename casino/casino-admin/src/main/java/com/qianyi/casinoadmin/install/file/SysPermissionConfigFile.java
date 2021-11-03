@@ -238,6 +238,7 @@ public class SysPermissionConfigFile {
         SysPermission getSysUser = new SysPermission("查询用户数据", "查询用户数据", "/role/getSysUser", sysUserList.getId(), 3, 0);
         SysPermission addPermissionList = new SysPermission("添加权限表数据", "添加权限表数据", "/role/addPermissionList", sysUserList.getId(), 3, 0);
         SysPermission deletePermissionList = new SysPermission("删除权限表数据", "删除权限表数据", "/role/deletePermissionList", sysUserList.getId(), 3, 0);
+        SysPermission deleteRoleList = new SysPermission("删除角色", "删除角色", "/role/deleteRoleList", sysUserList.getId(), 3, 0);
         thridPermissions.add(findPermissionList);
         thridPermissions.add(updatePermissionList);
         thridPermissions.add(getRoleList);
@@ -245,6 +246,7 @@ public class SysPermissionConfigFile {
         thridPermissions.add(getSysUser);
         thridPermissions.add(addPermissionList);
         thridPermissions.add(deletePermissionList);
+        thridPermissions.add(deleteRoleList);
 
 
         sysPermissionService.saveAllList(thridPermissions);

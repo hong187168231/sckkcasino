@@ -78,6 +78,22 @@ public class RoleController {
         return ResponseUtil.success(sysRoleList);
     }
 
+    /**
+     * 权限数据列表
+     *
+     * @return
+     */
+    @GetMapping("deleteRoleList")
+    @ApiOperation("删除角色数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "roleId", value = "角色id", required = true)
+    })
+    public ResponseEntity<SysRole> deleteRoleList(Long roleId) {
+        roleServiceBusiness.deleteRoleList(roleId);
+        return ResponseUtil.success();
+    }
+
+
     @GetMapping("getUserRoleBind")
     @ApiOperation("绑定用户角色")
     @ApiImplicitParams({

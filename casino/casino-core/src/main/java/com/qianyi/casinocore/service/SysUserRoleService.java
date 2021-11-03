@@ -24,4 +24,8 @@ public class SysUserRoleService {
     public SysUserRole save(SysUserRole sysUserRole) {
         return sysUserRoleRepository.save(sysUserRole);
     }
+
+    public void deleteById(Long roleId) {
+        sysUserRoleRepository.deleteBySysRoleId(roleId);
+    }
 }

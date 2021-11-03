@@ -127,4 +127,10 @@ public class RoleServiceBusiness {
         sysPermissionService.deleteAllIds(permissionList);
         return true;
     }
+
+    public void deleteRoleList(Long roleId) {
+        //删除角色对应的用户权限
+        sysUserRoleService.deleteById(roleId);
+        sysRoleService.deleteById(roleId);
+    }
 }
