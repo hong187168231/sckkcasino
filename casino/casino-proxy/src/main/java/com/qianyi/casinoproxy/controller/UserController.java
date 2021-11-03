@@ -70,6 +70,9 @@ public class UserController {
     @Autowired
     private ProxyUserService proxyUserService;
 
+    @Autowired
+    private GameRecordService gameRecordService;
+
     @ApiOperation("查询代理下级的用户数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "客户id", required = true),
@@ -191,6 +194,8 @@ public class UserController {
                             userVo.setFirstProxyAccount(proxyUser.getUserName());
                         }
                     });
+                    GameRecord gameRecord = gameRecordService.findRecordRecordSum(u.getId(), null, null);
+                    userVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
                     userVoList.add(userVo);
                 });
                 pageResultVO.setContent(userVoList);
