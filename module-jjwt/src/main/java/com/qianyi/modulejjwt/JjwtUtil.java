@@ -109,6 +109,14 @@ public class JjwtUtil {
         return refreshToken(token, bcryptPassword, refresh_ttl,iss);
     }
 
+    /**
+     *
+     * @param token
+     * @param bcryptPassword 用户密码
+     * @param refresh_ttl 刷新时间：秒
+     * @param iss 模块标识
+     * @return
+     */
     public static String refreshToken(String token, String bcryptPassword, Long refresh_ttl,String iss) {
         if (ObjectUtils.isEmpty(token) || ObjectUtils.isEmpty(bcryptPassword)||ObjectUtils.isEmpty(iss)) {
             return null;
