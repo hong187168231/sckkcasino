@@ -6,9 +6,13 @@ import com.qianyi.casinoadmin.install.file.SysPermissionConfigFile;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.model.RebateConfig;
+import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.RebateConfigService;
+import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -29,13 +33,31 @@ public class Initialization implements CommandLineRunner {
     private RebateConfigService rebateConfigService;
     @Autowired
     private SysPermissionConfigFile sysPermissionConfigFile;
+    @Autowired
+    private SysUserService sysUserService;
 
     @Override
     public void run(String... args) throws Exception {
         log.info("初始化数据开始============================================》");
+        this.runAddSysUser();
        this.runPlatformConfig();
        this.runProxyRebateConfig();
        this.runSysPermissionConfig();
+    }
+
+    private void runAddSysUser() {
+        SysUser sys = sysUserService.findByUserName("admin");
+        if(sys != null){
+            return;
+        }
+        //加密
+        String bcryptPassword = LoginUtil.bcrypt("123456");
+        SysUser sysUser = new SysUser();
+        sysUser.setUserName("admin");
+        sysUser.setNickName("admin");
+        sysUser.setPassWord(bcryptPassword);
+        sysUser.setUserFlag(Constants.open);
+        sysUserService.save(sysUser);
     }
 
     private void runSysPermissionConfig() {
