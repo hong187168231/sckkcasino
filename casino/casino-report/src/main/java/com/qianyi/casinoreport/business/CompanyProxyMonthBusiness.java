@@ -24,6 +24,7 @@ public class CompanyProxyMonthBusiness {
     public void processCompanyMonth(String dayTime){
         String starTime = getStartTime(dayTime);
         String endTime = getEndTime(dayTime);
+
         //删除当月的数据
         companyProxyMonthService.deleteAllMonth(getMonthTime(dayTime));
         //统计当月的数据

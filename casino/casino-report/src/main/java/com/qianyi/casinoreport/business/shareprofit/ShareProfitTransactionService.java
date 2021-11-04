@@ -1,4 +1,4 @@
-package com.qianyi.casinoreport.business;
+package com.qianyi.casinoreport.business.shareprofit;
 
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;

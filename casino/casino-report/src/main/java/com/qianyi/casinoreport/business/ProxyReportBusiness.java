@@ -94,7 +94,7 @@ public class ProxyReportBusiness {
     public ProxyReport processUser(ProxyUserBO proxyUserBO){
         log.info("query proxy report from db");
         ProxyReport proxyReport = getProxyReport(proxyUserBO.getProxyUserId());
-        log.info("set proxy report  group num value {} {} {}",proxyReport.getAllGroupNum(), proxyReport.getDirectGroupNum(), proxyReport.getOtherGroupNum());
+        log.info("set proxy report userId {} group num value {} {} {}", proxyReport.getUserId(),proxyReport.getAllGroupNum(), proxyReport.getDirectGroupNum(), proxyReport.getOtherGroupNum());
         proxyReport.setAllGroupNum(proxyReport.getAllGroupNum()+1);
         if(proxyUserBO.isDrect())
             proxyReport.setDirectGroupNum(proxyReport.getDirectGroupNum()+1);

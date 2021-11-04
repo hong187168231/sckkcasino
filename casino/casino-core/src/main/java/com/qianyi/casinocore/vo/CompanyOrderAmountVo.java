@@ -1,9 +1,33 @@
 package com.qianyi.casinocore.vo;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import javax.persistence.ColumnResult;
+import javax.persistence.ConstructorResult;
+import javax.persistence.SqlResultSetMapping;
+
+@SqlResultSetMapping(
+        name="getStatisticsResult",
+        classes = {
+                @ConstructorResult(
+                        targetClass = com.qianyi.casinocore.vo.CompanyOrderAmountVo.class,
+                        columns={
+                            @ColumnResult(name="first_proxy",type = Long.class),
+                                @ColumnResult(name="second_proxy",type = Long.class),
+                                @ColumnResult(name="third_proxy",type = Long.class),
+                                @ColumnResult(name="player_num",type = Integer.class),
+                                @ColumnResult(name="bet_time",type = String.class),
+                                @ColumnResult(name="validbet",type = String.class)
+                        }
+                )
+        }
+)
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class CompanyOrderAmountVo {
 
     @ApiModelProperty("总代ID")

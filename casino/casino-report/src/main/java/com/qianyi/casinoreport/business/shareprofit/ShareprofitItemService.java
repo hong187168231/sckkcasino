@@ -1,10 +1,12 @@
-package com.qianyi.casinoreport.business;
+package com.qianyi.casinoreport.business.shareprofit;
 
 import com.qianyi.casinocore.constant.ShareProfitConstant;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.vo.ShareProfitBO;
+import com.qianyi.casinoreport.business.ProxyDayReportBusiness;
+import com.qianyi.casinoreport.business.ProxyReportBusiness;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
