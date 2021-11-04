@@ -523,7 +523,8 @@ public class ProxyUserController {
                         return ResponseUtil.custom("超过最高占成比!");
                     }
                     p.setFirstCommission(money);
-                    p.setThirdCommission(new BigDecimal(CommonConst.NUMBER_1).subtract(add));
+                    p.setSecondCommission(new BigDecimal(CommonConst.NUMBER_1).subtract(add));
+                    p.setThirdCommission(BigDecimal.ZERO);
                 }
                 bySecondProxy.stream().forEach(proxyCommission ->{
                     proxyCommissionService.save(proxyCommission);

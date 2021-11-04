@@ -71,6 +71,7 @@ public class CommonConst {
     public static final Long LONG_2 = 2L;
     public static final Long LONG_3 = 3L;
     public static final Float FLOAT_0 = 0F;
+    public static final Float FLOAT_001 = 0.01F;
     public static final Float FLOAT_1 = 1F;
 
     public static final BigDecimal BIGDECIMAL_100 = new BigDecimal(NUMBER_100);
