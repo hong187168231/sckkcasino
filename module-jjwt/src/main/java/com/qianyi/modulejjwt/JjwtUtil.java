@@ -106,10 +106,10 @@ public class JjwtUtil {
     }
 
     public static String refreshToken(String token, String bcryptPassword,String iss) {
-        return refreshToken(token, bcryptPassword, ttl,iss);
+        return refreshToken(token, bcryptPassword, refresh_ttl,iss);
     }
 
-    private static String refreshToken(String token, String bcryptPassword, Long ttl,String iss) {
+    public static String refreshToken(String token, String bcryptPassword, Long refresh_ttl,String iss) {
         if (ObjectUtils.isEmpty(token) || ObjectUtils.isEmpty(bcryptPassword)||ObjectUtils.isEmpty(iss)) {
             return null;
         }

@@ -544,7 +544,7 @@ public class AuthController {
             return ResponseUtil.multiDevice();
         }
         User user = userService.findById(authId);
-        String refreshToken = JjwtUtil.refreshToken(token, user.getPassword(),Constants.CASINO_WEB);
+        String refreshToken = JjwtUtil.refreshToken(token, user.getPassword(),Constants.WEB_REFRESH_TTL,Constants.CASINO_WEB);
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();
         }
