@@ -120,7 +120,8 @@ public class ChargeOrderBusiness {
         RechargeTurnover turnover = getRechargeTurnover(chargeOrder,userMoney, codeNum, codeTimes);
         rechargeTurnoverService.save(turnover);
         //打吗记录
-        codeNumChangeService.save(userMoney.getUserId(),null,codeNum,userMoney.getCodeNum().subtract(codeNum),userMoney.getCodeNum());
+        CodeNumChange codeNumChange = getCodeNumCharge(userMoney.getUserId(),chargeOrder.getOrderNo(),codeNum,userMoney.getCodeNum().subtract(codeNum),userMoney.getCodeNum());
+        codeNumChangeService.save(codeNumChange);
         log.info("后台上分userId {} 类型 {}订单号 {} chargeAmount is {}, money is {}",userMoney.getUserId(),
                 changeEnum.getCode(),chargeOrder.getOrderNo(),subtract, userMoney.getMoney());
         //用户账变记录
@@ -129,6 +130,18 @@ public class ChargeOrderBusiness {
         this.sendMessage(userMoney.getUserId(),isFirst,chargeOrder);
         return ResponseUtil.success();
     }
+
+    private CodeNumChange getCodeNumCharge(Long userId, String orderNo, BigDecimal codeNum, BigDecimal subtract, BigDecimal amountAfter) {
+        CodeNumChange codeNumChange = new CodeNumChange();
+        codeNumChange.setUserId(userId);
+        codeNumChange.setBetId(orderNo);
+        codeNumChange.setAmount(codeNum);
+        codeNumChange.setAmountBefore(subtract);
+        codeNumChange.setAmountAfter(amountAfter);
+        codeNumChange.setType(2);
+        return codeNumChange;
+    }
+
     private void saveAccountChang(AccountChangeEnum changeEnum, Long userId, BigDecimal amount, BigDecimal amountAfter, String orderNo){
         AccountChangeVo vo=new AccountChangeVo();
         vo.setUserId(userId);

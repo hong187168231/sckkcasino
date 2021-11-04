@@ -38,6 +38,8 @@ public class CodeNumChangeVo implements Serializable {
     private Date updateTime;
     @ApiModelProperty("最后修改人")
     private String updateBy;
+    @ApiModelProperty(value = "0:消码，1:清0点，2上分")
+    private Integer type;
     public CodeNumChangeVo(CodeNumChange codeNumChange){
         this.id = codeNumChange.getId();
         this.userId = codeNumChange.getUserId();
@@ -50,6 +52,8 @@ public class CodeNumChangeVo implements Serializable {
         this.createBy = codeNumChange.getCreateBy();
         this.updateBy = codeNumChange.getUpdateBy();
         this.updateTime = codeNumChange.getUpdateTime();
+        int codeType = null == codeNumChange.getType()? 2 : codeNumChange.getType();
+        this.type = codeType;
 
     }
 }
