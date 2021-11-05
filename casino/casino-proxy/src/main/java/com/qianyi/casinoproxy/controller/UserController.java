@@ -305,7 +305,7 @@ public class UserController {
         }
 
         //默认中文
-        user.setLanguage(Constants.USER_LANGUAGE_CH);
+//        user.setLanguage(Constants.USER_LANGUAGE_CH);
 
         //随机生成
         String password = PasswordUtil.getRandomPwd();

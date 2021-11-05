@@ -59,6 +59,9 @@ public class ShareprofitItemService {
         shareProfitChange.setType(ShareProfitConstant.SHARE_PROFIT_TYPE);
         shareProfitChange.setFromUserId(record.getUserId());
         shareProfitChange.setProfitRate(shareProfitBO.getCommission());
+        shareProfitChange.setAccount(shareProfitBO.getAccount());
+        shareProfitChange.setParentLevel(shareProfitBO.getParentLevel());
+        shareProfitChange.setValidbet(shareProfitBO.getBetAmount());
         return shareProfitChange;
 //        shareProfitChangeService.save(shareProfitChange);
     }

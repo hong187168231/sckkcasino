@@ -304,7 +304,7 @@ public class UserController {
         }
 
         //默认中文
-        user.setLanguage(Constants.USER_LANGUAGE_CH);
+//        user.setLanguage(Constants.USER_LANGUAGE_CH);
         //来源 公司会员
         user.setType(Constants.USER_TYPE0);
         //随机生成

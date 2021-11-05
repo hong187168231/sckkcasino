@@ -35,6 +35,7 @@ public class ShareProfitChange extends BaseEntity {
     private BigDecimal amountAfter;
 
     @ApiModelProperty("返佣比例")
+    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
     private BigDecimal profitRate;
 
     @ApiModelProperty("贡献者")

@@ -29,7 +29,8 @@ public class CompanyLevelProcessBusiness {
     }
 
     public CompanyLevelBO getProfitLevel(BigDecimal amount, List<Integer> profitLevelList,Map<Integer,BigDecimal> profitLevelMap) {
-        BigDecimal result = amount.divide(BigDecimal.valueOf(10000));
+//        BigDecimal result = amount.divide(BigDecimal.valueOf(10000));
+        BigDecimal result = amount.divide(BigDecimal.valueOf(100));
         Integer level = getLevel(result.intValue(),profitLevelList);
         BigDecimal profitAmount = profitLevelMap.get(level);
 
