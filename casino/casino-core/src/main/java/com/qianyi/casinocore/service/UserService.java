@@ -214,4 +214,8 @@ public class UserService {
     public List<User> findByPhone(String phone) {
         return userRepository.findByPhone(phone);
     }
+
+    public List<User> findByFirstPidAndAccountLike(Long userId,String account) {
+        return userRepository.findByFirstPidAndAccountLike(userId,account);
+    }
 }

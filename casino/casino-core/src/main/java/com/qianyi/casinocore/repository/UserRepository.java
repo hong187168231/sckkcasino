@@ -35,4 +35,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     Integer countByFirstPid(Long userId);
 
     List<User> findByPhone(String phone);
+
+    List<User> findByFirstPidAndAccountLike(Long userId, String account);
 }

@@ -2,14 +2,10 @@ package com.qianyi.casinoweb.controller;
 
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
-import com.qianyi.casinocore.service.ProxyDayReportService;
-import com.qianyi.casinocore.service.ProxyReportService;
-import com.qianyi.casinocore.service.UserMoneyService;
-import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.vo.ProxyCentreVo;
-import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -20,11 +16,8 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,6 +46,8 @@ public class ProxyCentreController {
     private ProxyDayReportService proxyDayReportService;
     @Autowired
     private ProxyReportService proxyReportService;
+    @Autowired
+    private ShareProfitChangeService shareProfitChangeService;
 
 
     @ApiOperation("查询今日，昨日，本周佣金")
@@ -147,30 +142,69 @@ public class ProxyCentreController {
     }
 
     @ApiOperation("业绩查询")
-    @GetMapping("/findAchievementPage")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
-            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "account", value = "会员账号", required = false),
+    @GetMapping("/findAchievementList")
+    @ApiImplicitParams({@ApiImplicitParam(name = "account", value = "会员账号", required = false),
     })
-    public ResponseEntity<Page<ProxyReport>> findAchievementPage(Integer pageSize, Integer pageCode,String account) {
+    public ResponseEntity<ProxyCentreVo.ShareProfit> findAchievementList(String account) {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
-        Sort sort = Sort.by("allBetAmount").descending();
-        Pageable pageable = CasinoWebUtil.setPageable(pageCode, pageSize, sort);
-        List<User> users = userService.findByStateAndFirstPid(Constants.open, userId);
-        if (CollectionUtils.isEmpty(users)){
-            Page<ProxyReport> proxyReports = new PageImpl<>(new ArrayList<ProxyReport>(), pageable, 0);
-            return ResponseUtil.success(proxyReports);
+        //查询所有直属
+        List<User> users = null;
+        if (ObjectUtils.isEmpty(account)) {
+            users = userService.findFirstUser(userId);
+        } else {
+            users = userService.findByFirstPidAndAccountLike(userId, "%" + account + "%");
         }
-        Page<ProxyReport> list  = proxyReportService.findAchievementPage(pageable, users,account);
-        return ResponseUtil.success(list);
+        List<ProxyCentreVo.ShareProfit> dataList = new ArrayList<>();
+        if (CollectionUtils.isEmpty(users)) {
+            return ResponseUtil.success(dataList);
+        }
+        //查询直属总贡献
+        List<ShareProfitChange> directList = shareProfitChangeService.getShareProfitList(userId, 1, account);
+        //查询两级附属
+        for (ShareProfitChange direct : directList) {
+            ProxyCentreVo.ShareProfit shareProfit = new ProxyCentreVo.ShareProfit();
+            shareProfit.setUserId(direct.getFromUserId());
+            shareProfit.setAccount(direct.getAccount());
+            shareProfit.setDirectProfitAmount(direct.getAmount());
+            shareProfit.setDirectBetAmount(direct.getValidbet());
+            //第一级附属
+            List<ShareProfitChange> subsidiary1 = shareProfitChangeService.getShareProfitList(direct.getFromUserId(), 1, null);
+            //第一级附属总贡献
+            BigDecimal subsidiary1Sum = subsidiary1.stream().filter(item -> item.getAmount() != null).map(ShareProfitChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            //第二级附属总贡献
+            BigDecimal subsidiary2Sum = BigDecimal.ZERO;
+            for (ShareProfitChange change2 : subsidiary1) {
+                List<ShareProfitChange> subsidiary2List = shareProfitChangeService.getShareProfitList(change2.getFromUserId(), 1, null);
+                BigDecimal subsidiary2 = subsidiary2List.stream().filter(item -> item.getAmount() != null).map(ShareProfitChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+                subsidiary2Sum = subsidiary2Sum.add(subsidiary2);
+            }
+            shareProfit.setOtherProfitAmount(subsidiary1Sum.add(subsidiary2Sum));
+            dataList.add(shareProfit);
+        }
+        //没有数据的直属默认显示0
+        for (User user : users) {
+            boolean flag = true;
+            for (ProxyCentreVo.ShareProfit shareProfit : dataList) {
+                if (user.getId() == shareProfit.getUserId()) {
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag) {
+                ProxyCentreVo.ShareProfit shareProfit = new ProxyCentreVo.ShareProfit();
+                shareProfit.setUserId(user.getId());
+                shareProfit.setAccount(user.getAccount());
+                dataList.add(shareProfit);
+            }
+        }
+        return ResponseUtil.success(dataList);
     }
 
     @ApiOperation("用户领取分润金额")
     @GetMapping("/receiveShareProfit")
     @Transactional
-    public ResponseEntity<AccountChangeVo> receiveWashCode() {
+    public ResponseEntity<String> receiveWashCode() {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
@@ -191,6 +225,6 @@ public class ProxyCentreController {
         vo.setAmountBefore(userMoney.getMoney());
         vo.setAmountAfter(userMoney.getMoney().add(shareProfit));
         asyncService.executeAsync(vo);
-        return ResponseUtil.success();
+        return ResponseUtil.success("成功领取金额：" + shareProfit);
     }
 }

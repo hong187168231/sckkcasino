@@ -47,4 +47,22 @@ public class ProxyCentreVo {
         @ApiModelProperty("直属人数")
         private Integer directGroupNum;
     }
+
+    @Data
+    @ApiModel("业绩查询")
+    public static class ShareProfit {
+        @ApiModelProperty("用户ID")
+        private Long userId;
+        @ApiModelProperty("账号")
+        private String account;
+        @ApiModelProperty("直属总业绩")
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
+        private BigDecimal directBetAmount = BigDecimal.ZERO;
+        @ApiModelProperty("直属总贡献")
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
+        private BigDecimal directProfitAmount = BigDecimal.ZERO;
+        @ApiModelProperty("附属总贡献")
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
+        private BigDecimal otherProfitAmount = BigDecimal.ZERO;
+    }
 }

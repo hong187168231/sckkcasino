@@ -1,16 +1,20 @@
 package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.ShareProfitChange;
+import com.qianyi.casinocore.model.WashCodeChange;
 import com.qianyi.casinocore.repository.ShareProfitChangeRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,6 +25,8 @@ public class ShareProfitChangeService {
 
     @Autowired
     private ShareProfitChangeRepository shareProfitChangeRepository;
+    @Autowired
+    private EntityManager entityManager;
 
     public ShareProfitChange save(ShareProfitChange shareProfitChange){
         return shareProfitChangeRepository.save(shareProfitChange);
@@ -58,5 +64,28 @@ public class ShareProfitChangeService {
             }
         };
         return specification;
+    }
+
+    public List<ShareProfitChange> getShareProfitList(Long userId, int parentLevel,String account) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ShareProfitChange> query = builder.createQuery(ShareProfitChange.class);
+        Root<ShareProfitChange> root = query.from(ShareProfitChange.class);
+        query.multiselect(
+                root.get("userId").as(Long.class),
+                root.get("account").as(String.class),
+                root.get("fromUserId").as(Long.class),
+                builder.sum(root.get("amount").as(BigDecimal.class)).alias("amount"),
+                builder.sum(root.get("validbet").as(BigDecimal.class)).alias("validbet")
+        );
+        List<Predicate> predicates = new ArrayList();
+        if (!ObjectUtils.isEmpty(account)) {
+            predicates.add(builder.like(root.get("account").as(String.class), "%" + account + "%"));
+        }
+        predicates.add(builder.equal(root.get("userId").as(Long.class), userId));
+        predicates.add(builder.equal(root.get("type").as(Integer.class), 1));
+        predicates.add(builder.equal(root.get("parentLevel").as(Integer.class), parentLevel));
+        query.where(predicates.toArray(new Predicate[predicates.size()])).groupBy(root.get("fromUserId"));
+        List<ShareProfitChange> list = entityManager.createQuery(query).getResultList();
+        return list;
     }
 }

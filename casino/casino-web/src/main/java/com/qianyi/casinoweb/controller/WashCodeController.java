@@ -122,7 +122,7 @@ public class WashCodeController {
     @ApiOperation("用户领取洗码")
     @GetMapping("/receiveWashCode")
     @Transactional
-    public ResponseEntity receiveWashCode() {
+    public ResponseEntity<String> receiveWashCode() {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
@@ -143,7 +143,7 @@ public class WashCodeController {
         vo.setAmountBefore(userMoney.getMoney());
         vo.setAmountAfter(userMoney.getMoney().add(washCode));
         asyncService.executeAsync(vo);
-        return ResponseUtil.success();
+        return ResponseUtil.success("成功领取金额：" + washCode);
     }
 
     @Data
