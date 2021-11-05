@@ -45,7 +45,7 @@ public class Initialization implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
        log.info("初始化数据开始============================================》");
-       this.saveBanner();
+//       this.saveBanner();
        this.saveBankInfo();
        this.runAddSysUser();
        this.runPlatformConfig();
