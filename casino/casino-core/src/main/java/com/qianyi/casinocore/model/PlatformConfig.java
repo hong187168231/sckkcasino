@@ -98,6 +98,9 @@ public class PlatformConfig {
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal sendMessageWarning;
 
+    @ApiModelProperty("人人代直属下级最大个数")
+    private Integer directlyUnderTheLower;
+
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){
         if (this.chargeRate == null){
