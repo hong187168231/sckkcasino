@@ -53,13 +53,11 @@ public class RoleController {
             if(sysUser != null){
                 sysUsers.add(sysUser);
             }
-            return ResponseUtil.success(sysUsers);
         }else if(!LoginUtil.checkNull(account)){
             SysUser byUserName = sysUserService.findByUserName(account);
             if(byUserName != null){
                 sysUsers.add(byUserName);
             }
-            return ResponseUtil.success(sysUsers);
         }else{
             sysUsers = sysUserService.findAll();
         }
@@ -68,7 +66,7 @@ public class RoleController {
         if(LoginUtil.checkNull(sysUserRoleList)){
             return ResponseUtil.success(sysUsers);
         }
-        List<Long> roleIds = sysUserRoleList.stream().map(SysUserRole::getId).distinct().collect(Collectors.toList());
+        List<Long> roleIds = sysUserRoleList.stream().map(SysUserRole::getSysRoleId).distinct().collect(Collectors.toList());
         List<SysRole> sysRoleList = roleServiceBusiness.findRoleIdsList(roleIds);
 
         List<SysUserRoleVo> sysUserRoleVoList = new ArrayList<>();
