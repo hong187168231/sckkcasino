@@ -54,4 +54,8 @@ public class PictureService {
     public List<LunboPic> findByTheShowEnd(Integer theShowEnd) {
         return pictureRepository.findByTheShowEndAndUrlNotNull(theShowEnd);
     }
+
+    public LunboPic findByNo(Integer no){
+        return pictureRepository.findByNo(no);
+    }
 }
