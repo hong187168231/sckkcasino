@@ -2,6 +2,7 @@ package com.qianyi.casinocore.vo;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.id.IntegralDataTypeHolder;
 
 import java.math.BigDecimal;
 
@@ -22,4 +23,8 @@ public class ShareProfitBO {
     private boolean direct;
     @ApiModelProperty(value = "返佣比例")
     private BigDecimal commission;
+    @ApiModelProperty(value = "上级层级")
+    private Integer parentLevel;
+    @ApiModelProperty(value = "用户账户")
+    private String account;
 }
