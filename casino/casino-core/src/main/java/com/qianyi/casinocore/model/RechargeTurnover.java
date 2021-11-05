@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -18,6 +19,7 @@ public class RechargeTurnover extends BaseEntity{
     @ApiModelProperty("客户id")
     private Long userId;
     @ApiModelProperty("订单金额")
+    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
     private BigDecimal orderMoney;
     @ApiModelProperty("打码量")
     private BigDecimal codeNum;

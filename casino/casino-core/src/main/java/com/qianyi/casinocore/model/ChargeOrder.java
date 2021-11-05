@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 import java.math.BigDecimal;
@@ -30,6 +31,7 @@ public class ChargeOrder extends BaseEntity{
     private Integer remitType;
 
     @ApiModelProperty(value = "汇款金额")
+    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
     private BigDecimal chargeAmount;
 
 //    @ApiModelProperty(value = "实际充值金额")

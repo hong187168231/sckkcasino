@@ -3,6 +3,7 @@ package com.qianyi.casinocore.model;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import java.math.BigDecimal;
 
@@ -19,12 +20,15 @@ public class ShareProfitChange extends BaseEntity {
     private Integer type;
 
     @ApiModelProperty(value = "额度变化")
+    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
     private BigDecimal amount;
 
     @ApiModelProperty(value = "额度变化前")
+    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
     private BigDecimal amountBefore;
 
     @ApiModelProperty(value = "额度变化后")
+    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
     private BigDecimal amountAfter;
 
     @ApiModelProperty("返佣比例")
