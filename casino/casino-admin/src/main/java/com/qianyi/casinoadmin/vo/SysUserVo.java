@@ -11,6 +11,8 @@ public class SysUserVo implements Serializable {
 
     private static final long serialVersionUID = -3005417929250305179L;
 
+    private Long id;
+
     private String userName;
 
     /**
