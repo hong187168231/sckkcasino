@@ -281,8 +281,13 @@ public class UserController {
             }
         }
         Long userId = CasinoWebUtil.getAuthId();
-        Integer count = userService.countByFirstPidAndSource(userId, 0);
-        if (count >= 20) {
+        Integer count = userService.countByFirstPid(userId);
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        Integer underTheLower = 20;
+        if (platformConfig != null) {
+            underTheLower = platformConfig.getDirectlyUnderTheLower() == null ? 20 : platformConfig.getDirectlyUnderTheLower();
+        }
+        if (count >= underTheLower) {
             return ResponseUtil.custom("直推数量已达上限");
         }
         User user = userService.findByAccount(account);
@@ -299,7 +304,6 @@ public class UserController {
         user.setSecondPid(parentUser.getFirstPid());
         user.setThirdPid(parentUser.getSecondPid());
         user.setType(Constants.USER_TYPE0);
-        user.setSource(0);
         User save = userService.save(user);
         //userMoney表初始化数据
         UserMoney userMoney = new UserMoney();
