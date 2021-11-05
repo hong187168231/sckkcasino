@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.SysRole;
+import com.qianyi.casinocore.model.SysUserRole;
 import com.qianyi.casinocore.repository.SysRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,5 +39,9 @@ public class SysRoleService {
 
     public List<SysRole> findAllIds(List<Long> roleIds) {
         return sysRoleRepository.findAllById(roleIds);
+    }
+
+    public SysUserRole findByRoleUserId(Long id) {
+        return sysRoleRepository.findBySysUserId(id);
     }
 }

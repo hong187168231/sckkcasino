@@ -10,6 +10,7 @@ import com.qianyi.casinocore.business.RoleServiceBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.SysPermissionService;
 import com.qianyi.casinocore.service.SysUserService;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -131,10 +132,10 @@ public class RoleController {
     @PostMapping("getUserRoleBind")
     @ApiOperation("绑定用户角色")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "roleId", value = "角色id", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户id", required = true)
+            @ApiImplicitParam(name = "userId", value = "用户id", required = true),
+            @ApiImplicitParam(name = "roleId", value = "角色id", required = true)
     })
-    public ResponseEntity<SysRole> getUserRoleBind(Long roleId, Long userid) {
+    public ResponseEntity<SysRole> getUserRoleBind(Long userid, Long roleId) {
         SysUser sysUser = sysUserService.findById(userid);
         if(sysUser == null){
             return ResponseUtil.custom("用户不存在");
@@ -150,6 +151,54 @@ public class RoleController {
         roleServiceBusiness.saveSysUserRole(sysUserRole);
         return ResponseUtil.success(sysRoleList);
     }
+
+
+    @GetMapping("findUserList")
+    @ApiOperation("查询用户当前权限")
+    @NoAuthorization
+    public ResponseEntity<SysPermissionVo> findSysUser() {
+        Long authId=LoginUtil.getLoginUserId();
+        SysUser user = sysUserService.findById(authId);
+        SysUserRole sysUserRole = roleServiceBusiness.getSysUserRole(user.getId());
+        if(sysUserRole == null){
+            return ResponseUtil.success();
+        }
+        Long roleId = sysUserRole.getSysRoleId();
+        List<SysPermission> sysPermissionList = new ArrayList<>();
+        if(roleId != null){
+            sysPermissionList = roleServiceBusiness.getSysPermissionList(roleId);
+        }else{
+            //得到第一层数据
+            sysPermissionList = sysPermissionService.findAll();
+        }
+        List<SysPermission> sysPermissions = sysPermissionList.stream().filter(sysPermission -> sysPermission.getIsDetele() == 0).collect(Collectors.toList());
+        if(null == sysPermissions || sysPermissions.size() <= 0){
+            return ResponseUtil.success();
+        }
+        List<SysPermissionVo> sysPermissionVos = JSON.parseArray(JSONObject.toJSONString(sysPermissions), SysPermissionVo.class);
+        //得到第三层权限数据
+        List<SysPermissionVo> sysPermissionThird = sysPermissionVos.stream().filter(sysPermissionVo -> sysPermissionVo.getMenuLevel() == 3).collect(Collectors.toList());
+        List<SysPermissionVo> sysPermissionTwo = sysPermissionVos.stream().filter(sysPermissionVo -> sysPermissionVo.getMenuLevel() == 2).collect(Collectors.toList());
+        List<SysPermissionVo> sysPermissionOne = sysPermissionVos.stream().filter(sysPermissionVo -> sysPermissionVo.getMenuLevel() == 1).collect(Collectors.toList());
+        for (SysPermissionVo sysTwo : sysPermissionTwo) {
+            for (SysPermissionVo sysThrid : sysPermissionThird) {
+                if(sysTwo.getId().intValue() == sysThrid.getPid().intValue()){
+                    sysTwo.getSysPermissionVoList().add(sysThrid);
+                }
+            }
+
+        }
+        sysPermissionOne.stream().forEach(sysOne -> {
+            sysPermissionTwo.stream().forEach(sysTwo ->{
+                if(sysOne.getId().intValue() == sysTwo.getPid().intValue()){
+                    sysOne.getSysPermissionVoList().add(sysTwo);
+                }
+            });
+        });
+
+        return ResponseUtil.success(sysPermissionOne);
+    }
+
 
 
     /**

@@ -144,4 +144,8 @@ public class RoleServiceBusiness {
     public List<SysRole> findRoleIdsList(List<Long> roleIds) {
         return sysRoleService.findAllIds(roleIds);
     }
+
+    public SysUserRole getSysUserRole(Long id) {
+        return sysRoleService.findByRoleUserId(id);
+    }
 }
