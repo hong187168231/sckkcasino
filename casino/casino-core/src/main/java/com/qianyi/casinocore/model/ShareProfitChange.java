@@ -46,6 +46,9 @@ public class ShareProfitChange extends BaseEntity {
     @ApiModelProperty("有效投注金额")
     private BigDecimal validbet;
 
+    public ShareProfitChange() {
+    }
+
     public ShareProfitChange(Long userId, String account, Long fromUserId, BigDecimal amount, BigDecimal validbet) {
         this.userId = userId;
         this.account = account;
