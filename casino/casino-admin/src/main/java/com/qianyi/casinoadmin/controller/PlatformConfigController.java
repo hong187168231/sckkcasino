@@ -4,6 +4,7 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.*;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -191,6 +192,31 @@ public class PlatformConfigController {
         if (!LoginUtil.checkNull(sendMessageWarning)){
             platformConfig.setSendMessageWarning(sendMessageWarning);
         }
+        platformConfigService.save(platformConfig);
+        return ResponseUtil.success();
+    }
+
+    @ApiOperation("查询人人代直属下级最大个数")
+    @GetMapping("/findDirectly")
+    public ResponseEntity<DirectlyVo> findDirectly(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        DirectlyVo directlyVo = new DirectlyVo();
+        directlyVo.setName("人人代直属下级最大个数");
+        directlyVo.setDirectlyUnderTheLower((platformConfig == null || platformConfig.getDirectlyUnderTheLower() ==null)? CommonConst.NUMBER_0:platformConfig.getDirectlyUnderTheLower());
+        return ResponseUtil.success(directlyVo);
+    }
+
+    @ApiOperation("修改人人代直属下级最大个数")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "directlyUnderTheLower", value = "人人代直属下级最大个数", required = true),
+    })
+    @PostMapping("/updateDirectly")
+    public ResponseEntity updateDirectly(Integer directlyUnderTheLower){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (LoginUtil.checkNull(platformConfig)){
+            platformConfig = new PlatformConfig();
+        }
+        platformConfig.setDirectlyUnderTheLower(directlyUnderTheLower);
         platformConfigService.save(platformConfig);
         return ResponseUtil.success();
     }
