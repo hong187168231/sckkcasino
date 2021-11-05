@@ -32,4 +32,5 @@ public class PlatformConfigFile {
     private Integer registerSwitch;
     private String proxyConfiguration;
     private BigDecimal sendMessageWarning;
+    private Integer directlyUnderTheLower;
 }

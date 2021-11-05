@@ -187,7 +187,7 @@ public class AuthController {
         String ip = IpUtil.getIp(request);
         //查询ip注册账号限制
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        Integer timeLimit = null;
+        Integer timeLimit = 5;
         if (platformConfig != null) {
             timeLimit = platformConfig.getIpMaxNum() == null ? 5 : platformConfig.getIpMaxNum();
         }
@@ -205,6 +205,18 @@ public class AuthController {
         user = User.setBaseUser(account, CasinoWebUtil.bcrypt(password), phone, ip,inviteCodeNew);
         //设置父级
         setParent(inviteCode, inviteType, user);
+        Long firstPid = user.getFirstPid();
+        //直推数量限制
+        if (firstPid != null && firstPid != 0) {
+            Integer firstCount = userService.countByFirstPid(firstPid);
+            Integer underTheLower = 20;
+            if (platformConfig != null) {
+                underTheLower = platformConfig.getDirectlyUnderTheLower() == null ? 20 : platformConfig.getDirectlyUnderTheLower();
+            }
+            if (firstCount >= underTheLower) {
+                return ResponseUtil.custom("直推数量已达上限");
+            }
+        }
         User save = userService.save(user);
         //userMoney表初始化数据
         UserMoney userMoney = new UserMoney();

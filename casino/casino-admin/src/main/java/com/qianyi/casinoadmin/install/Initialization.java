@@ -45,7 +45,7 @@ public class Initialization implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
        log.info("初始化数据开始============================================》");
-       this.saveBanner();
+//       this.saveBanner();
        this.saveBankInfo();
        this.runAddSysUser();
        this.runPlatformConfig();
@@ -184,6 +184,7 @@ public class Initialization implements CommandLineRunner {
             platformConfig.setRegisterSwitch(platformConfigFile.getRegisterSwitch());
             platformConfig.setProxyConfiguration(platformConfigFile.getProxyConfiguration());
             platformConfig.setSendMessageWarning(platformConfigFile.getSendMessageWarning());
+            platformConfig.setDirectlyUnderTheLower(platformConfigFile.getDirectlyUnderTheLower());
             platformConfigService.save(platformConfig);
         }
     }

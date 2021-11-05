@@ -36,4 +36,10 @@ public class ShareProfitChange extends BaseEntity {
 
     @ApiModelProperty("贡献者")
     private Long fromUserId;
+
+    @ApiModelProperty("返佣等级")
+    private Integer parentLevel;
+
+    @ApiModelProperty("有效投注金额")
+    private BigDecimal validbet;
 }
