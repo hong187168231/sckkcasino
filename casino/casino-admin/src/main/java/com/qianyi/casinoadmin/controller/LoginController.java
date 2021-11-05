@@ -398,8 +398,10 @@ public class LoginController {
             Long authId=LoginUtil.getLoginUserId();
             SysUser user = sysUserService.findById(authId);
             SysUserRole sysUserRole = roleServiceBusiness.getSysUserRole(user.getId());
+            SysUserVo sysUserVo = new SysUserVo();
+            BeanUtils.copyProperties(sys, sysUserVo);
             if(sysUserRole == null){
-                return ResponseUtil.success();
+                return ResponseUtil.success(sysUserVo);
             }
             Long roleId = sysUserRole.getSysRoleId();
             List<SysPermission> sysPermissionList = new ArrayList<>();
@@ -433,8 +435,7 @@ public class LoginController {
                     }
                 });
             });
-            SysUserVo sysUserVo = new SysUserVo();
-            BeanUtils.copyProperties(sys, sysUserVo);
+
             List<SysPermissionVo> sysPermissionVoList = new ArrayList<>();
             sysUserVo.setSysPermissionVoList(sysPermissionOne);
             return ResponseUtil.success(sysUserVo);
