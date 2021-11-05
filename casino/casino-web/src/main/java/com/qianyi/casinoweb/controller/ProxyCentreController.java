@@ -145,7 +145,7 @@ public class ProxyCentreController {
     @GetMapping("/findAchievementList")
     @ApiImplicitParams({@ApiImplicitParam(name = "account", value = "会员账号", required = false),
     })
-    public ResponseEntity<ProxyCentreVo.ShareProfit> findAchievementList(String account) {
+    public ResponseEntity<List<ProxyCentreVo.ShareProfit>> findAchievementList(String account) {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         //查询所有直属
