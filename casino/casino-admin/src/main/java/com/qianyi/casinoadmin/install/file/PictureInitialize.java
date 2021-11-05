@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.install.file;
 
+import com.qianyi.casinocore.util.CommonConst;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -13,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class BankInfoImg {
+public class PictureInitialize {
     public static Map<String, String> bank = new HashMap<>();
     static {
         bank.put("/img/bank-photo-gongshang.png","工商银行");
@@ -29,6 +30,18 @@ public class BankInfoImg {
         bank.put("/img/bank-photo-zhaoshang.png","招商银行");
         bank.put("/img/bank-photo-zhongguo.png","中国银行");
         bank.put("/img/bank-photo-zhongxin.png","中信银行");
+    }
+    public static Map<String, Integer> PCbanner = new HashMap<>();
+    static {
+        PCbanner.put("/banner/6.jpg", CommonConst.NUMBER_6);
+        PCbanner.put("/banner/7.jpg",CommonConst.NUMBER_7);
+        PCbanner.put("/banner/8.jpg",CommonConst.NUMBER_8);
+    }
+    public static Map<String, Integer> APPbanner = new HashMap<>();
+    static {
+        APPbanner.put("/banner/1.png",CommonConst.NUMBER_1);
+        APPbanner.put("/banner/2.png",CommonConst.NUMBER_2);
+        APPbanner.put("/banner/3.png",CommonConst.NUMBER_3);
     }
     public void single(){
         try {
