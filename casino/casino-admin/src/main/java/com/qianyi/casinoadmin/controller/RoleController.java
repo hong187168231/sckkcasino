@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.SysPermissionVo;
+import com.qianyi.casinoadmin.vo.SysUserRoleVo;
+import com.qianyi.casinoadmin.vo.SysUserVo;
 import com.qianyi.casinocore.business.RoleServiceBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.SysPermissionService;
@@ -14,6 +16,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,16 +53,47 @@ public class RoleController {
                 sysUsers.add(sysUser);
             }
             return ResponseUtil.success(sysUsers);
-        }
-        if(!LoginUtil.checkNull(account)){
+        }else if(!LoginUtil.checkNull(account)){
             SysUser byUserName = sysUserService.findByUserName(account);
             if(byUserName != null){
                 sysUsers.add(byUserName);
             }
             return ResponseUtil.success(sysUsers);
+        }else{
+            sysUsers = sysUserService.findAll();
         }
-        List<SysUser> all = sysUserService.findAll();
-        return ResponseUtil.success(all);
+        List<Long> userIds = sysUsers.stream().map(SysUser::getId).distinct().collect(Collectors.toList());
+        List<SysUserRole> sysUserRoleList = roleServiceBusiness.findSysRoleUserList(userIds);
+        if(LoginUtil.checkNull(sysUserRoleList)){
+            return ResponseUtil.success(sysUsers);
+        }
+        List<Long> roleIds = sysUserRoleList.stream().map(SysUserRole::getId).distinct().collect(Collectors.toList());
+        List<SysRole> sysRoleList = roleServiceBusiness.findRoleIdsList(roleIds);
+
+        List<SysUserRoleVo> sysUserRoleVoList = new ArrayList<>();
+        for (SysUserRole sysUserRole : sysUserRoleList) {
+            SysUserRoleVo sysUserRoleVo = new SysUserRoleVo();
+            BeanUtils.copyProperties(sysUserRole, sysUserRoleVo);
+            for (SysRole sysRole : sysRoleList) {
+                if(sysRole.getId().intValue() == sysUserRole.getSysRoleId().intValue()){
+                    sysUserRoleVo.setRoleName(sysRole.getRoleName());
+                }
+            }
+            if(!LoginUtil.checkNull(sysUserRoleVo)){
+                sysUserRoleVoList.add(sysUserRoleVo);
+            }
+        }
+        for (SysUser sysUser : sysUsers) {
+            SysUserVo sysUserVo = new SysUserVo();
+            BeanUtils.copyProperties(sysUser, sysUserVo);
+            for (SysUserRoleVo sysUserRoleVo : sysUserRoleVoList) {
+                if(sysUser.getId().intValue() == sysUserRoleVo.getSysUserId().intValue()){
+                    sysUserVo.setSysRoleId(sysUserRoleVo.getSysRoleId());
+                    sysUserVo.setRoleName(sysUserRoleVo.getRoleName());
+                }
+            }
+        }
+        return ResponseUtil.success(sysUserRoleVoList);
     }
 
     /**

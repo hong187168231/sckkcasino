@@ -35,4 +35,8 @@ public class SysRoleService {
     public void deleteById(Long roleId) {
         sysRoleRepository.deleteById(roleId);
     }
+
+    public List<SysRole> findAllIds(List<Long> roleIds) {
+        return sysRoleRepository.findAllById(roleIds);
+    }
 }
