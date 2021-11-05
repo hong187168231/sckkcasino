@@ -43,7 +43,7 @@ public class SysUserRoleService {
                 List<Predicate> list = new ArrayList<Predicate>();
                 Predicate predicate = cb.conjunction();
                 if (userIds != null && userIds.size() > 0) {
-                    Path<Object> userId = root.get("sysRoleId");
+                    Path<Object> userId = root.get("sysUserId");
                     CriteriaBuilder.In<Object> in = cb.in(userId);
                     for (Long id : userIds) {
                         in.value(id);
