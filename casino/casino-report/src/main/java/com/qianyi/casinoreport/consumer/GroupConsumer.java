@@ -1,6 +1,6 @@
 package com.qianyi.casinoreport.consumer;
 
-import com.qianyi.casinoreport.business.UserGroupNumBusiness;
+import com.qianyi.casinoreport.business.usergroup.UserGroupNumBusiness;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import com.rabbitmq.client.Channel;
@@ -26,5 +26,6 @@ public class GroupConsumer {
         log.info("消费者接受到的消息是：{}",user);
         userGroupNumBusiness.processUser(user);
         channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        log.info("消费者处理完当前消息：{}",user);
     }
 }

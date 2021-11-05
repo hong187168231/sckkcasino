@@ -30,6 +30,10 @@ public class CompanyProxyDetailService {
         return companyProxyDetailRepository.saveAll(companyProxyDetailList);
     }
 
+    public void deleteByDayTime(String dayTime){
+        companyProxyDetailRepository.deleteByStaticsTimes(dayTime);
+    }
+
     public CompanyProxyDetail getCompanyProxyDetailByUidAndTime(Long uid,String staticsTime){
         return companyProxyDetailRepository.getCompanyProxyDetailByUserIdAndStaticsTimes(uid,staticsTime);
     }

@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.service;
 
+import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.model.CompanyProxyDetail;
 import com.qianyi.casinocore.model.CompanyProxyMonth;
 import com.qianyi.casinocore.repository.CompanyProxyMonthRepository;
@@ -14,10 +15,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class CompanyProxyMonthService {
@@ -38,7 +36,10 @@ public class CompanyProxyMonthService {
     }
 
     public List<CompanyProxyMonth> queryMonthByDay(String startDate,String endDate){
-        return companyProxyMonthRepository.queryMonthData(startDate,endDate);
+        List<Map<String,Object>> mapList = companyProxyMonthRepository.queryMonthData(startDate,endDate);
+        String jsonString = JSON.toJSONString(mapList);
+        return JSON.parseArray(jsonString,CompanyProxyMonth.class);
+
     }
     public CompanyProxyMonth findById(Long id){
         Optional<CompanyProxyMonth> byId = companyProxyMonthRepository.findById(id);

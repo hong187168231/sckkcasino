@@ -1,28 +1,19 @@
-package com.qianyi.casinoreport.business;
+package com.qianyi.casinoreport.business.shareprofit;
 
-import com.qianyi.casinocore.constant.ShareProfitConstant;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.ShareProfitBO;
 import com.qianyi.casinocore.vo.ShareProfitMqVo;
-import com.qianyi.casinocore.vo.ShareProfitVo;
-import com.qianyi.casinoreport.business.ProxyDayReportBusiness;
-import com.qianyi.casinoreport.business.ProxyReportBusiness;
 import com.qianyi.casinoreport.util.ReportConstant;
 import com.qianyi.casinoreport.util.ShareProfitUtils;
 import com.qianyi.modulecommon.Constants;
-import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Service
