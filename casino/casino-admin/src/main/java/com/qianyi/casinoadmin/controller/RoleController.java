@@ -84,6 +84,7 @@ public class RoleController {
                 sysUserRoleVoList.add(sysUserRoleVo);
             }
         }
+        List<SysUserVo> sysUserVoList = new ArrayList<>();
         for (SysUser sysUser : sysUsers) {
             SysUserVo sysUserVo = new SysUserVo();
             BeanUtils.copyProperties(sysUser, sysUserVo);
@@ -93,8 +94,9 @@ public class RoleController {
                     sysUserVo.setRoleName(sysUserRoleVo.getRoleName());
                 }
             }
+            sysUserVoList.add(sysUserVo);
         }
-        return ResponseUtil.success(sysUserRoleVoList);
+        return ResponseUtil.success(sysUserVoList);
     }
 
     /**
