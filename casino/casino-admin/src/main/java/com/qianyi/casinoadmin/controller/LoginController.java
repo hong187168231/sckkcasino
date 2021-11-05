@@ -436,7 +436,7 @@ public class LoginController {
             SysUserVo sysUserVo = new SysUserVo();
             BeanUtils.copyProperties(sys, sysUserVo);
             List<SysPermissionVo> sysPermissionVoList = new ArrayList<>();
-            sysUserVo.setSysPermissionVoList(sysPermissionVoList);
+            sysUserVo.setSysPermissionVoList(sysPermissionOne);
             return ResponseUtil.success(sysUserVo);
         }
     }
