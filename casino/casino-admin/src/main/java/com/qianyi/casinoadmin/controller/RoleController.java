@@ -114,7 +114,7 @@ public class RoleController {
 
     /**
      * 权限数据列表
-     *
+
      * @return
      */
     @GetMapping("deleteRoleList")
@@ -128,7 +128,7 @@ public class RoleController {
     }
 
 
-    @GetMapping("getUserRoleBind")
+    @PostMapping("getUserRoleBind")
     @ApiOperation("绑定用户角色")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "roleId", value = "角色id", required = true),

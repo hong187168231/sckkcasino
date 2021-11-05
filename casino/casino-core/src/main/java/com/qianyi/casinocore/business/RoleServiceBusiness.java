@@ -85,6 +85,9 @@ public class RoleServiceBusiness {
         if(userId != null){
             List<SysRole> sysRoleList = new ArrayList<>();
             SysUserRole sysUserRole = sysUserRoleService.findbySysUserId(userId);
+            if(sysUserRole == null){
+                return sysRoleList;
+            }
             SysRole sysRole = sysRoleService.findById(sysUserRole.getSysRoleId());
             if(sysRole != null){
                 sysRoleList.add(sysRole);
