@@ -7,5 +7,4 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface SysRoleRepository extends JpaRepository<SysRole, Long>, JpaSpecificationExecutor<SysRole> {
 
-    SysUserRole findBySysUserId(Long id);
 }

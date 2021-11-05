@@ -55,4 +55,8 @@ public class SysUserRoleService {
         };
         return specification;
     }
+
+    public SysUserRole findByRoleUserId(Long id) {
+        return sysUserRoleRepository.findBySysUserId(id);
+    }
 }

@@ -146,6 +146,6 @@ public class RoleServiceBusiness {
     }
 
     public SysUserRole getSysUserRole(Long id) {
-        return sysRoleService.findByRoleUserId(id);
+        return sysUserRoleService.findByRoleUserId(id);
     }
 }
