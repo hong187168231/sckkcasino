@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.service;
 
+import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.repository.GameRecordRepository;
@@ -22,6 +23,7 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class GameRecordService {
@@ -148,7 +150,9 @@ public class GameRecordService {
     }
 
     public List<CompanyOrderAmountVo> getStatisticsResult(String startTime, String endTime){
-        return gameRecordRepository.getStatisticsResult(startTime,endTime);
+        List<Map<String,Object>> orderAmountVoList = gameRecordRepository.getStatisticsResult(startTime,endTime);
+        String json = JSON.toJSONString(orderAmountVoList);
+        return JSON.parseArray(json,CompanyOrderAmountVo.class);
     }
 
     public List<GameRecord> findGameRecordIdAll(List<Long> recordIdList) {

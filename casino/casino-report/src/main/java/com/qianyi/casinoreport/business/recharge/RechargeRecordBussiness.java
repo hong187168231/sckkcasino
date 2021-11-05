@@ -1,4 +1,4 @@
-package com.qianyi.casinoreport.business;
+package com.qianyi.casinoreport.business.recharge;
 
 
 import com.qianyi.casinocore.model.ConsumerError;
@@ -10,6 +10,8 @@ import com.qianyi.casinocore.service.ProxyReportService;
 import com.qianyi.casinocore.vo.RechargeProxyBO;
 import com.qianyi.casinocore.vo.RechargeRecordVo;
 import com.qianyi.casinocore.vo.ShareProfitMqVo;
+import com.qianyi.casinoreport.business.ProxyDayReportBusiness;
+import com.qianyi.casinoreport.business.ProxyReportBusiness;
 import com.qianyi.casinoreport.util.ReportConstant;
 import com.qianyi.casinoreport.util.ShareProfitUtils;
 import lombok.extern.slf4j.Slf4j;

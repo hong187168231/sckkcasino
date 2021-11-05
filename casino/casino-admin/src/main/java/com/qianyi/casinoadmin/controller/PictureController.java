@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.model.LunboPic;
 import com.qianyi.casinocore.service.PictureService;
@@ -71,7 +72,10 @@ public class PictureController {
         return this.savePicture(file,no,lunboPic, remark);
     }
     public ResponseEntity savePicture(MultipartFile file,Integer no,LunboPic lunboPic, String remark){
-        lunboPic.setId(no.longValue());
+        LunboPic byNo = pictureService.findByNo(no);
+        if (!LoginUtil.checkNull(byNo)){
+            lunboPic.setId(byNo.getId());
+        }
         lunboPic.setNo(no);
         lunboPic.setRemark(remark + "");
         try {

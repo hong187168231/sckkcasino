@@ -1,6 +1,7 @@
 package com.qianyi.casinoreport.business;
 
 import com.qianyi.casinoreport.vo.CompanyLevelBO;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -15,6 +16,7 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
+@Slf4j
 public class CompanyProxyBusinessTest {
 
     @Test
@@ -34,6 +36,13 @@ public class CompanyProxyBusinessTest {
         bigDecimalMap.put(30,BigDecimal.valueOf(5));
         CompanyLevelBO rs = companyProxyBusiness.getProfitLevel(BigDecimal.valueOf(210293),valList,bigDecimalMap);
         System.out.println(rs);
+    }
+
+    @Test
+    public void should_parseDateTime(){
+        String time = "2021-11-03 20:37:08".replace(' ','T');
+        LocalDateTime localDateTime = LocalDateTime.parse(time);
+        log.info("{}",localDateTime);
     }
 
     @Test

@@ -1,4 +1,4 @@
-package com.qianyi.casinoreport.business;
+package com.qianyi.casinoreport.business.usergroup;
 
 import com.qianyi.casinocore.model.ConsumerError;
 import com.qianyi.casinocore.model.ProxyDayReport;
@@ -9,6 +9,8 @@ import com.qianyi.casinocore.service.ProxyDayReportService;
 import com.qianyi.casinocore.service.ProxyReportService;
 import com.qianyi.casinocore.vo.ProxyUserBO;
 import com.qianyi.casinocore.vo.RechargeRecordVo;
+import com.qianyi.casinoreport.business.ProxyDayReportBusiness;
+import com.qianyi.casinoreport.business.ProxyReportBusiness;
 import com.qianyi.casinoreport.util.ReportConstant;
 import com.qianyi.casinoreport.util.ShareProfitUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -25,16 +27,7 @@ import java.util.List;
 public class UserGroupNumBusiness {
 
     @Autowired
-    private ProxyDayReportBusiness proxyDayReportBusiness;
-
-    @Autowired
-    private ProxyReportBusiness proxyReportBusiness;
-
-    @Autowired
-    private ProxyDayReportService proxyDayReportService;
-
-    @Autowired
-    private ProxyReportService proxyReportService;
+    private UserGroupTransactionService userGroupTransactionService;
 
     @Autowired
     private ConsumerErrorService consumerErrorService;
@@ -50,7 +43,7 @@ public class UserGroupNumBusiness {
                 return;
             }
             List<ProxyUserBO> proxyUserBOList = getGroupUserNum(user);
-            processProxyUserBOList(proxyUserBOList);
+            userGroupTransactionService.processProxyUserBOList(proxyUserBOList);
         }catch (Exception e){
             log.error("user consumer error is {}",e);
             recordFailVo(user);
@@ -65,20 +58,7 @@ public class UserGroupNumBusiness {
         consumerErrorService.save(consumerError);
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void processProxyUserBOList(List<ProxyUserBO> proxyUserBOList) {
-        List<ProxyDayReport> proxyDayReportList = new ArrayList<>();
-        List<ProxyReport> proxyReportList = new ArrayList<>();
-        proxyUserBOList.forEach(item->processItem(item,proxyDayReportList,proxyReportList));
-        proxyDayReportService.saveAll(proxyDayReportList);
-        proxyReportService.saveAll(proxyReportList);
-    }
 
-    private void processItem(ProxyUserBO proxyUserBO,List<ProxyDayReport> proxyDayReportList,List<ProxyReport> proxyReportList){
-        log.info("process proxy user BO item");
-        proxyReportList.add(proxyReportBusiness.processUser(proxyUserBO));
-        proxyDayReportList.add(proxyDayReportBusiness.processUser(proxyUserBO));
-    }
 
     private List<ProxyUserBO> getGroupUserNum(User user) {
         List<ProxyUserBO> proxyUserBOList = new ArrayList<>();
