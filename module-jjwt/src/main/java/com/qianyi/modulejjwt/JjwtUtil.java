@@ -18,7 +18,7 @@ import java.util.UUID;
 public class JjwtUtil {
 
     private final static String secrect = "fda#$&%$3t55v785A45DF$^&#*JGRstTRG";
-            private final static long ttl = 5 * 60 * 1000;
+            private final static long ttl = 5 * 60 * 1000 * 10;
 //    private final static long ttl = 24 * 60 * 60 * 1000;
     private final static Long refresh_ttl = 30 * 60L;//秒
 
@@ -106,10 +106,18 @@ public class JjwtUtil {
     }
 
     public static String refreshToken(String token, String bcryptPassword,String iss) {
-        return refreshToken(token, bcryptPassword, ttl,iss);
+        return refreshToken(token, bcryptPassword, refresh_ttl,iss);
     }
 
-    private static String refreshToken(String token, String bcryptPassword, Long ttl,String iss) {
+    /**
+     *
+     * @param token
+     * @param bcryptPassword 用户密码
+     * @param refresh_ttl 刷新时间：秒
+     * @param iss 模块标识
+     * @return
+     */
+    public static String refreshToken(String token, String bcryptPassword, Long refresh_ttl,String iss) {
         if (ObjectUtils.isEmpty(token) || ObjectUtils.isEmpty(bcryptPassword)||ObjectUtils.isEmpty(iss)) {
             return null;
         }

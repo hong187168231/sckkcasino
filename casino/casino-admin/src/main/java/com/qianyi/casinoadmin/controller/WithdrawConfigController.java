@@ -67,7 +67,7 @@ public class WithdrawConfigController {
         if (fixedAmount != null && percentage != null){
             return ResponseUtil.custom("参数错误");
         }
-        if (percentage != null && (percentage > CommonConst.FLOAT_1 || percentage < CommonConst.FLOAT_0)){
+        if (percentage != null && (percentage > CommonConst.FLOAT_1 || percentage < CommonConst.FLOAT_001)){
             return ResponseUtil.custom("百分比金额设置错误");
         }
         if (fixedAmount != null && minMoney != null){

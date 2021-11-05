@@ -1,13 +1,12 @@
 package com.qianyi.casinocore.business;
 
-import com.qianyi.casinocore.model.SysPermission;
-import com.qianyi.casinocore.model.SysPermissionRole;
-import com.qianyi.casinocore.model.SysRole;
-import com.qianyi.casinocore.model.SysUserRole;
+import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,6 +85,9 @@ public class RoleServiceBusiness {
         if(userId != null){
             List<SysRole> sysRoleList = new ArrayList<>();
             SysUserRole sysUserRole = sysUserRoleService.findbySysUserId(userId);
+            if(sysUserRole == null){
+                return sysRoleList;
+            }
             SysRole sysRole = sysRoleService.findById(sysUserRole.getSysRoleId());
             if(sysRole != null){
                 sysRoleList.add(sysRole);
@@ -132,5 +134,18 @@ public class RoleServiceBusiness {
         //删除角色对应的用户权限
         sysUserRoleService.deleteById(roleId);
         sysRoleService.deleteById(roleId);
+    }
+
+    public List<SysUserRole> findSysRoleUserList(List<Long> userIds) {
+        return sysUserRoleService.findAllIds(userIds);
+    }
+
+
+    public List<SysRole> findRoleIdsList(List<Long> roleIds) {
+        return sysRoleService.findAllIds(roleIds);
+    }
+
+    public SysUserRole getSysUserRole(Long id) {
+        return sysUserRoleService.findByRoleUserId(id);
     }
 }

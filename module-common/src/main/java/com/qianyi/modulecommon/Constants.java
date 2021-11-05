@@ -90,5 +90,7 @@ public class Constants {
     public static final String IP_BLOCK= "IP被封。请联系管理员解锁";
     //redis token前缀
     public static final String REDIS_TOKEN= "token::";
+    //web端JWT过期后，24H内可颁发新的token
+    public static final Long WEB_REFRESH_TTL = 60 * 60L * 24;//秒
 
 }
