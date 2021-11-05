@@ -135,19 +135,19 @@ public class RoleController {
             @ApiImplicitParam(name = "userId", value = "用户id", required = true),
             @ApiImplicitParam(name = "roleId", value = "角色id", required = true)
     })
-    public ResponseEntity<SysRole> getUserRoleBind(Long userid, Long roleId) {
-        SysUser sysUser = sysUserService.findById(userid);
+    public ResponseEntity<SysRole> getUserRoleBind(Long userId, Long roleId) {
+        SysUser sysUser = sysUserService.findById(userId);
         if(sysUser == null){
             return ResponseUtil.custom("用户不存在");
         }
-        List<SysRole> sysRoleList = roleServiceBusiness.findRoleList(roleId, userid);
+        List<SysRole> sysRoleList = roleServiceBusiness.findRoleList(roleId, userId);
         if(LoginUtil.checkNull(sysRoleList)){
             return ResponseUtil.custom("角色不存在");
         }
 
         SysUserRole sysUserRole = new SysUserRole();
         sysUserRole.setSysRoleId(roleId);
-        sysUserRole.setSysUserId(userid);
+        sysUserRole.setSysUserId(userId);
         roleServiceBusiness.saveSysUserRole(sysUserRole);
         return ResponseUtil.success(sysRoleList);
     }
