@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 public class SysUserVo implements Serializable {
@@ -81,4 +82,6 @@ public class SysUserVo implements Serializable {
     private Long sysRoleId;
 
     private String roleName;
+
+    private List<SysPermissionVo> sysPermissionVoList;
 }

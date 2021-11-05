@@ -1,10 +1,18 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.code.kaptcha.Producer;
 import com.qianyi.casinoadmin.service.SysUserLoginLogService;
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinoadmin.vo.SysPermissionVo;
+import com.qianyi.casinoadmin.vo.SysUserVo;
+import com.qianyi.casinocore.business.RoleServiceBusiness;
+import com.qianyi.casinocore.model.SysPermission;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinoadmin.model.SysUserLoginLog;
+import com.qianyi.casinocore.model.SysUserRole;
+import com.qianyi.casinocore.service.SysPermissionService;
 import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.moduleauthenticator.GoogleAuthUtil;
 import com.qianyi.modulecommon.Constants;
@@ -17,12 +25,17 @@ import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.IpUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
 import io.swagger.annotations.*;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -42,6 +55,12 @@ public class LoginController {
 
     @Autowired
     private SysUserLoginLogService sysUserLoginLogService;
+
+    @Autowired
+    private SysPermissionService sysPermissionService;
+
+    @Autowired
+    private RoleServiceBusiness roleServiceBusiness;
 
 //    @NoAuthentication
 //    @ApiOperation("帐密登陆.谷歌验证码")
@@ -371,10 +390,54 @@ public class LoginController {
     public ResponseEntity<SysUser> getSysUser() {
         Long loginUserId = LoginUtil.getLoginUserId();
         SysUser sys = sysUserService.findById(loginUserId);
+
         if(sys == null){
             return ResponseUtil.custom("用户不存在");
         }else{
-            return ResponseUtil.success(sys);
+
+            Long authId=LoginUtil.getLoginUserId();
+            SysUser user = sysUserService.findById(authId);
+            SysUserRole sysUserRole = roleServiceBusiness.getSysUserRole(user.getId());
+            if(sysUserRole == null){
+                return ResponseUtil.success();
+            }
+            Long roleId = sysUserRole.getSysRoleId();
+            List<SysPermission> sysPermissionList = new ArrayList<>();
+            if(roleId != null){
+                sysPermissionList = roleServiceBusiness.getSysPermissionList(roleId);
+            }else{
+                //得到第一层数据
+                sysPermissionList = sysPermissionService.findAll();
+            }
+            List<SysPermission> sysPermissions = sysPermissionList.stream().filter(sysPermission -> sysPermission.getIsDetele() == 0).collect(Collectors.toList());
+            if(null == sysPermissions || sysPermissions.size() <= 0){
+                return ResponseUtil.success();
+            }
+            List<SysPermissionVo> sysPermissionVos = JSON.parseArray(JSONObject.toJSONString(sysPermissions), SysPermissionVo.class);
+            //得到第三层权限数据
+            List<SysPermissionVo> sysPermissionThird = sysPermissionVos.stream().filter(sysPermissionVo -> sysPermissionVo.getMenuLevel() == 3).collect(Collectors.toList());
+            List<SysPermissionVo> sysPermissionTwo = sysPermissionVos.stream().filter(sysPermissionVo -> sysPermissionVo.getMenuLevel() == 2).collect(Collectors.toList());
+            List<SysPermissionVo> sysPermissionOne = sysPermissionVos.stream().filter(sysPermissionVo -> sysPermissionVo.getMenuLevel() == 1).collect(Collectors.toList());
+            for (SysPermissionVo sysTwo : sysPermissionTwo) {
+                for (SysPermissionVo sysThrid : sysPermissionThird) {
+                    if(sysTwo.getId().intValue() == sysThrid.getPid().intValue()){
+                        sysTwo.getSysPermissionVoList().add(sysThrid);
+                    }
+                }
+
+            }
+            sysPermissionOne.stream().forEach(sysOne -> {
+                sysPermissionTwo.stream().forEach(sysTwo ->{
+                    if(sysOne.getId().intValue() == sysTwo.getPid().intValue()){
+                        sysOne.getSysPermissionVoList().add(sysTwo);
+                    }
+                });
+            });
+            SysUserVo sysUserVo = new SysUserVo();
+            BeanUtils.copyProperties(sys, sysUserVo);
+            List<SysPermissionVo> sysPermissionVoList = new ArrayList<>();
+            sysUserVo.setSysPermissionVoList(sysPermissionVoList);
+            return ResponseUtil.success(sysUserVo);
         }
     }
 
