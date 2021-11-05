@@ -86,24 +86,14 @@ public class UserController {
         UserMoneyVo vo = new UserMoneyVo();
         //TODO 查询可提金额，未完成流水(打码量)
         UserMoney userMoney = userMoneyService.findByUserId(userId);
-        BigDecimal defaultVal = BigDecimal.ZERO.setScale(2);
         if (userMoney == null) {
-            vo.setUnfinshTurnover(defaultVal);
-            vo.setDrawMoney(defaultVal);
-            vo.setMoney(defaultVal);
-            vo.setWashCode(defaultVal);
-            vo.setShareProfit(defaultVal);
             return new ResponseEntity(ResponseCode.SUCCESS, vo);
         }
-        BigDecimal money = userMoney.getMoney() == null ? defaultVal : userMoney.getMoney().setScale(2, BigDecimal.ROUND_HALF_UP);
-        vo.setMoney(money);
+        vo.setMoney(userMoney.getMoney());
         vo.setDrawMoney(userMoney.getWithdrawMoney());
-        BigDecimal codeNum = userMoney.getCodeNum() == null ? defaultVal : userMoney.getCodeNum().setScale(2, BigDecimal.ROUND_HALF_UP);
-        vo.setUnfinshTurnover(codeNum);
-        BigDecimal washCode= userMoney.getWashCode() == null ? defaultVal : userMoney.getWashCode().setScale(2, BigDecimal.ROUND_HALF_UP);
-        vo.setWashCode(washCode);
-        BigDecimal shareProfit= userMoney.getShareProfit() == null ? defaultVal : userMoney.getShareProfit().setScale(2, BigDecimal.ROUND_HALF_UP);
-        vo.setShareProfit(shareProfit);
+        vo.setUnfinshTurnover(userMoney.getCodeNum());
+        vo.setWashCode(userMoney.getWashCode());
+        vo.setShareProfit(userMoney.getShareProfit());
         return new ResponseEntity(ResponseCode.SUCCESS, vo);
     }
 
