@@ -144,8 +144,10 @@ public class RoleController {
         if(LoginUtil.checkNull(sysRoleList)){
             return ResponseUtil.custom("角色不存在");
         }
-
-        SysUserRole sysUserRole = new SysUserRole();
+        SysUserRole sysUserRole = roleServiceBusiness.getSysUserRole(userId);
+        if(sysUserRole == null){
+            sysUserRole = new SysUserRole();
+        }
         sysUserRole.setSysRoleId(roleId);
         sysUserRole.setSysUserId(userId);
         roleServiceBusiness.saveSysUserRole(sysUserRole);
