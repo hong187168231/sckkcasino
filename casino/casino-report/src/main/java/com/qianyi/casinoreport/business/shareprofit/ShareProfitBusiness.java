@@ -76,7 +76,7 @@ public class ShareProfitBusiness {
         ShareProfitBO shareProfitBO = new ShareProfitBO();
         shareProfitBO.setUserId(userId);
         shareProfitBO.setBetAmount(betAmount);
-        shareProfitBO.setProfitAmount(betAmount.multiply(commission));
+        shareProfitBO.setProfitAmount(betAmount.multiply(commission.divide(BigDecimal.valueOf(100))));
         shareProfitBO.setFirst(isFirst);
         shareProfitBO.setBetTime(betTime);
         shareProfitBO.setDirect(direct);
