@@ -61,22 +61,15 @@ public class ProxyCentreController {
         calendar.add(Calendar.DATE, 0);
         String today = formatter.format(calendar.getTime());
         List<ProxyDayReport> todayData = proxyDayReportService.getCommission(userId, today, null);
-        BigDecimal defaultVal = BigDecimal.ZERO.setScale(2);
-        if (CollectionUtils.isEmpty(todayData)) {
-            vo.setTodayCommission(defaultVal);
-        } else {
-            BigDecimal todayCommission = todayData.get(0).getProfitAmount() == null ? defaultVal : todayData.get(0).getProfitAmount();
-            vo.setTodayCommission(todayCommission);
+        if (!CollectionUtils.isEmpty(todayData)) {
+            vo.setTodayCommission(todayData.get(0).getProfitAmount());
         }
         //昨日佣金
         calendar.add(Calendar.DATE, -1);
         String yesterday = formatter.format(calendar.getTime());
         List<ProxyDayReport> yesterdayData = proxyDayReportService.getCommission(userId, yesterday, null);
-        if (CollectionUtils.isEmpty(yesterdayData)) {
-            vo.setYesterdayCommission(defaultVal);
-        } else {
-            BigDecimal yesterdayCommission = yesterdayData.get(0).getProfitAmount() == null ? defaultVal : yesterdayData.get(0).getProfitAmount();
-            vo.setYesterdayCommission(yesterdayCommission);
+        if (!CollectionUtils.isEmpty(yesterdayData)) {
+            vo.setYesterdayCommission(yesterdayData.get(0).getProfitAmount());
         }
         //本周佣金
         Date weekStartDate = DateUtil.getWeekStartDate();
@@ -84,9 +77,7 @@ public class ProxyCentreController {
         Date weekEndDate = DateUtil.getWeekEndDate();
         String weekEnd = formatter.format(weekEndDate);
         List<ProxyDayReport> weekData = proxyDayReportService.getCommission(userId, weekStart, weekEnd);
-        if (CollectionUtils.isEmpty(weekData)) {
-            vo.setWeekCommission(defaultVal);
-        } else {
+        if (!CollectionUtils.isEmpty(weekData)) {
             BigDecimal weekSum = weekData.stream().filter(item -> item.getProfitAmount() != null).map(ProxyDayReport::getProfitAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             vo.setWeekCommission(weekSum);
         }
@@ -100,27 +91,17 @@ public class ProxyCentreController {
         Long userId = CasinoWebUtil.getAuthId();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         String today = formatter.format(new Date());
-        BigDecimal defaultVal = BigDecimal.ZERO.setScale(2);
         ProxyCentreVo.MyTeam myTeam = new ProxyCentreVo.MyTeam();
         List<ProxyDayReport> todayData = proxyDayReportService.getCommission(userId, today, null);
-        if (CollectionUtils.isEmpty(todayData)) {
-            myTeam.setDeppositeAmount(defaultVal);
-            myTeam.setBetAmount(defaultVal);
-            myTeam.setNewNum(0);
-        } else {
+        if (!CollectionUtils.isEmpty(todayData)) {
             ProxyDayReport proxyDayReport = todayData.get(0);
-            BigDecimal deppositeAmount = proxyDayReport.getDeppositeAmount() == null ? defaultVal : proxyDayReport.getDeppositeAmount();
-            myTeam.setDeppositeAmount(deppositeAmount);
-            BigDecimal betAmount = proxyDayReport.getBetAmount() == null ? defaultVal : proxyDayReport.getBetAmount();
-            myTeam.setBetAmount(betAmount);
+            myTeam.setDeppositeAmount(proxyDayReport.getDeppositeAmount());
+            myTeam.setBetAmount(proxyDayReport.getBetAmount());
             int newNum = proxyDayReport.getNewNum() == null ? 0 : proxyDayReport.getNewNum();
             myTeam.setNewNum(newNum);
         }
         ProxyReport proxyReport = proxyReportService.findByUserId(userId);
-        if (proxyReport == null) {
-            myTeam.setAllGroupNum(0);
-            myTeam.setDirectGroupNum(0);
-        } else {
+        if (proxyReport != null) {
             int allGroupNum = proxyReport.getAllGroupNum() == null ? 0 : proxyReport.getAllGroupNum();
             int directGroupNum = proxyReport.getDirectGroupNum() == null ? 0 : proxyReport.getDirectGroupNum();
             myTeam.setAllGroupNum(allGroupNum);

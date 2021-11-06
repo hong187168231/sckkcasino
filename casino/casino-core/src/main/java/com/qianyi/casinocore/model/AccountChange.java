@@ -1,9 +1,12 @@
 package com.qianyi.casinocore.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 import java.math.BigDecimal;
@@ -26,12 +29,18 @@ public class AccountChange extends BaseEntity {
 	private Integer type;
 
 	@ApiModelProperty(value = "额度变化")
+	@Column(columnDefinition = "Decimal(10,6) default '0.00'")
+	@JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
 	private BigDecimal amount;
 
 	@ApiModelProperty(value = "额度变化前")
+	@Column(columnDefinition = "Decimal(10,6) default '0.00'")
+	@JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
 	private BigDecimal amountBefore;
 
 	@ApiModelProperty(value = "额度变化后")
+	@Column(columnDefinition = "Decimal(10,6) default '0.00'")
+	@JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
 	private BigDecimal amountAfter;
 
 	@ApiModelProperty("总代ID")

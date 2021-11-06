@@ -1,6 +1,8 @@
 package com.qianyi.casinoweb.vo;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.qianyi.casinocore.model.BaseEntity;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -26,6 +28,7 @@ public class WashCodeVo{
     private String rate;
 
     @ApiModelProperty(value = "洗码金额")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal amount;
 
 }

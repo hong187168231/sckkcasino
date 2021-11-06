@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import java.math.BigDecimal;
 
@@ -37,6 +38,7 @@ public class WashCodeChange extends BaseEntity {
 	private BigDecimal rate;
 
 	@ApiModelProperty(value = "洗码金额")
+	@Column(columnDefinition = "Decimal(10,6) default '0.00'")
 	private BigDecimal amount;
 
 	public WashCodeChange(String platform, String gameId, String gameName, BigDecimal amount,BigDecimal validbet) {

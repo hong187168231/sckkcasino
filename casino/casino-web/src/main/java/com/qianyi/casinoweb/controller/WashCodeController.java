@@ -1,6 +1,7 @@
 package com.qianyi.casinoweb.controller;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
@@ -8,6 +9,7 @@ import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.vo.WashCodeVo;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -150,7 +152,7 @@ public class WashCodeController {
     @ApiModel("用户洗码列表")
     class ChargeOrderListData{
         @ApiModelProperty(value = "洗码金额")
-        @JsonFormat(shape = JsonFormat.Shape.STRING)
+        @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
         private BigDecimal totalAmount;
 
         @ApiModelProperty(value = "数据列表")
