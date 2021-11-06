@@ -62,8 +62,8 @@ public class ShareprofitItemService {
         shareProfitChange.setAccount(shareProfitBO.getAccount());
         shareProfitChange.setParentLevel(shareProfitBO.getParentLevel());
         shareProfitChange.setValidbet(shareProfitBO.getBetAmount());
+        log.info("shareProfitBO:{}",shareProfitBO);
         return shareProfitChange;
-//        shareProfitChangeService.save(shareProfitChange);
     }
 
     private BigDecimal getAfterAmount(ShareProfitBO shareProfitBO, UserMoney userMoney){
