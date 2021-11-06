@@ -83,6 +83,7 @@ public class ShareProfitBusiness {
         shareProfitBO.setCommission(commission);
         shareProfitBO.setParentLevel(parentLevel);
         shareProfitBO.setAccount(user.getAccount());
+        log.info("user:{} \\n shareProfitBO{}",user,shareProfitBO);
         return shareProfitBO;
     }
 
