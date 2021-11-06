@@ -50,9 +50,8 @@ public class ShareProfitChange extends BaseEntity {
     public ShareProfitChange() {
     }
 
-    public ShareProfitChange(Long userId, String account, Long fromUserId, BigDecimal amount, BigDecimal validbet) {
+    public ShareProfitChange(Long userId,Long fromUserId, BigDecimal amount, BigDecimal validbet) {
         this.userId = userId;
-        this.account = account;
         this.fromUserId = fromUserId;
         this.amount = amount;
         this.validbet = validbet;

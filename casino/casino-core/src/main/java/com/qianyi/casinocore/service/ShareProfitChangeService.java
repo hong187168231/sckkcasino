@@ -1,12 +1,14 @@
 package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.ShareProfitChange;
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.WashCodeChange;
 import com.qianyi.casinocore.repository.ShareProfitChangeRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import javax.persistence.EntityManager;
@@ -66,20 +68,23 @@ public class ShareProfitChangeService {
         return specification;
     }
 
-    public List<ShareProfitChange> getShareProfitList(Long userId, int parentLevel,String account) {
+    public List<ShareProfitChange> getShareProfitList(Long userId, int parentLevel,List<User> users) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<ShareProfitChange> query = builder.createQuery(ShareProfitChange.class);
         Root<ShareProfitChange> root = query.from(ShareProfitChange.class);
         query.multiselect(
                 root.get("userId").as(Long.class),
-                root.get("account").as(String.class),
                 root.get("fromUserId").as(Long.class),
                 builder.sum(root.get("amount").as(BigDecimal.class)).alias("amount"),
                 builder.sum(root.get("validbet").as(BigDecimal.class)).alias("validbet")
         );
         List<Predicate> predicates = new ArrayList();
-        if (!ObjectUtils.isEmpty(account)) {
-            predicates.add(builder.like(root.get("account").as(String.class), "%" + account + "%"));
+        if (!CollectionUtils.isEmpty(users)) {
+            CriteriaBuilder.In<Object> in = builder.in(root.get("fromUserId"));
+            for (User user : users) {
+                in.value(user.getId());
+            }
+            predicates.add(builder.and(builder.and(in)));
         }
         predicates.add(builder.equal(root.get("userId").as(Long.class), userId));
         predicates.add(builder.equal(root.get("type").as(Integer.class), 1));

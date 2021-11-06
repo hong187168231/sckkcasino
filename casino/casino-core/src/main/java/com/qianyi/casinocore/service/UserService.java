@@ -3,6 +3,7 @@ package com.qianyi.casinocore.service;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.repository.UserRepository;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.*;
@@ -27,11 +28,15 @@ public class UserService {
     @Autowired
     UserRepository userRepository;
 
+    @Cacheable(key = "#account")
     public User findByAccount(String account) {
         return userRepository.findByAccount(account);
     }
 
-    @CachePut(key="#result.id",condition = "#result != null")
+    @Caching(
+            evict = @CacheEvict(key = "#result.account"),
+            put = @CachePut(key="#result.id")
+    )
     public User save(User user) {
         return userRepository.save(user);
     }
@@ -215,7 +220,7 @@ public class UserService {
         return userRepository.findByPhone(phone);
     }
 
-    public List<User> findByFirstPidAndAccountLike(Long userId,String account) {
-        return userRepository.findByFirstPidAndAccountLike(userId,account);
+    public List<User> findByFirstPidAndAccount(Long userId,String account) {
+        return userRepository.findByFirstPidAndAccount(userId,account);
     }
 }
