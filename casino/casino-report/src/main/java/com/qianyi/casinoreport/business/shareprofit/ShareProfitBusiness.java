@@ -63,18 +63,18 @@ public class ShareProfitBusiness {
         String betTime = shareProfitMqVo.getBetTime().substring(0,10);
         List<ShareProfitBO> shareProfitBOList = new ArrayList<>();
         if(ShareProfitUtils.compareIntegerNotNull( user.getFirstPid()))
-            shareProfitBOList.add(getShareProfitBO(user,shareProfitMqVo.getValidbet(),platformConfig.getFirstCommission(),getUserIsFirstBet(user),betTime,true,1));
+            shareProfitBOList.add(getShareProfitBO(user,user.getFirstPid(),shareProfitMqVo.getValidbet(),platformConfig.getFirstCommission(),getUserIsFirstBet(user),betTime,true,1));
         if(ShareProfitUtils.compareIntegerNotNull( user.getSecondPid()))
-            shareProfitBOList.add(getShareProfitBO(user,shareProfitMqVo.getValidbet(),platformConfig.getSecondCommission(),getUserIsFirstBet(user),betTime,false,2));
+            shareProfitBOList.add(getShareProfitBO(user,user.getSecondPid(),shareProfitMqVo.getValidbet(),platformConfig.getSecondCommission(),getUserIsFirstBet(user),betTime,false,2));
         if(ShareProfitUtils.compareIntegerNotNull( user.getThirdPid()))
-            shareProfitBOList.add(getShareProfitBO(user,shareProfitMqVo.getValidbet(),platformConfig.getThirdCommission(),getUserIsFirstBet(user),betTime,false,3));
+            shareProfitBOList.add(getShareProfitBO(user,user.getThirdPid(),shareProfitMqVo.getValidbet(),platformConfig.getThirdCommission(),getUserIsFirstBet(user),betTime,false,3));
         log.info("get list object is {}",shareProfitBOList);
         return shareProfitBOList;
     }
 
-    private ShareProfitBO getShareProfitBO(User user,BigDecimal betAmount,BigDecimal commission,Boolean isFirst,String betTime,boolean direct,Integer parentLevel){
+    private ShareProfitBO getShareProfitBO(User user,Long userId,BigDecimal betAmount,BigDecimal commission,Boolean isFirst,String betTime,boolean direct,Integer parentLevel){
         ShareProfitBO shareProfitBO = new ShareProfitBO();
-        shareProfitBO.setUserId(user.getId());
+        shareProfitBO.setUserId(userId);
         shareProfitBO.setBetAmount(betAmount);
         shareProfitBO.setProfitAmount(betAmount.multiply(commission));
         shareProfitBO.setFirst(isFirst);
