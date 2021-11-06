@@ -28,13 +28,13 @@ public class UserService {
     @Autowired
     UserRepository userRepository;
 
-    @Cacheable(key = "#account")
+    @Cacheable(key = "'account::'+#account")
     public User findByAccount(String account) {
         return userRepository.findByAccount(account);
     }
 
     @Caching(
-            evict = @CacheEvict(key = "#result.account"),
+            evict = @CacheEvict(key = "'account::'+#result.account"),
             put = @CachePut(key="#result.id")
     )
     public User save(User user) {
