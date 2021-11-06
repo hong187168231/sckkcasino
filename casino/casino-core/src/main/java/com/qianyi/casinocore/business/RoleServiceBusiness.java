@@ -39,7 +39,12 @@ public class RoleServiceBusiness {
             sysRole.setRoleName(roleName);
             sysRole.setRemark(remark);
             SysRole role = sysRoleService.save(sysRole);
-            sysPermissionRoleService.delete(roleId);
+            List<SysPermissionRole> byRoleId = sysPermissionRoleService.findByRoleId(roleId);
+            if(byRoleId != null && byRoleId.size() > 0){
+                List<Long> longList = byRoleId.stream().map(SysPermissionRole::getId).collect(Collectors.toList());
+                sysPermissionRoleService.deleteAllIds(longList);
+
+            }
 
         }else{
             SysRole sysRole = new SysRole();
