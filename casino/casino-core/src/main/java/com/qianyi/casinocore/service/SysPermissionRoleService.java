@@ -35,4 +35,8 @@ public class SysPermissionRoleService {
         sysPermissionRoleRepository.deleteByRoleId(id);
     }
 
+    public void deleteAllIds(List<Long> longList) {
+        sysPermissionRoleRepository.deleteAllByIdInBatch(longList);
+
+    }
 }
