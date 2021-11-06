@@ -36,5 +36,5 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     List<User> findByPhone(String phone);
 
-    List<User> findByFirstPidAndAccount(Long userId, String account);
+    User findByFirstPidAndAccount(Long userId, String account);
 }
