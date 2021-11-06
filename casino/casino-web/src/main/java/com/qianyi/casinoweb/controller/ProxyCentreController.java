@@ -134,19 +134,18 @@ public class ProxyCentreController {
         if (ObjectUtils.isEmpty(account)) {
             users = userService.findFirstUser(userId);
         } else {
-            users = userService.findByFirstPidAndAccountLike(userId, "%" + account + "%");
+            users = userService.findByFirstPidAndAccount(userId, account);
         }
         List<ProxyCentreVo.ShareProfit> dataList = new ArrayList<>();
         if (CollectionUtils.isEmpty(users)) {
             return ResponseUtil.success(dataList);
         }
         //查询直属总贡献
-        List<ShareProfitChange> directList = shareProfitChangeService.getShareProfitList(userId, 1, account);
+        List<ShareProfitChange> directList = shareProfitChangeService.getShareProfitList(userId, 1, users);
         //查询两级附属
         for (ShareProfitChange direct : directList) {
             ProxyCentreVo.ShareProfit shareProfit = new ProxyCentreVo.ShareProfit();
             shareProfit.setUserId(direct.getFromUserId());
-            shareProfit.setAccount(direct.getAccount());
             shareProfit.setDirectProfitAmount(direct.getAmount());
             shareProfit.setDirectBetAmount(direct.getValidbet());
             //第一级附属
@@ -168,6 +167,7 @@ public class ProxyCentreController {
             boolean flag = true;
             for (ProxyCentreVo.ShareProfit shareProfit : dataList) {
                 if (user.getId() == shareProfit.getUserId()) {
+                    shareProfit.setAccount(user.getAccount());
                     flag = false;
                     break;
                 }
