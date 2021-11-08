@@ -388,6 +388,7 @@ public class LoginController {
     @PostMapping("getSysUser")
     @NoAuthorization
     public ResponseEntity<SysUser> getSysUser() {
+
         Long loginUserId = LoginUtil.getLoginUserId();
         SysUser sys = sysUserService.findById(loginUserId);
 
