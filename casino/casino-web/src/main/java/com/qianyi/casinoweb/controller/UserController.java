@@ -113,9 +113,10 @@ public class UserController {
         if (user == null) {
             return ResponseUtil.custom("用户不存在");
         }
+        String remark="该信息不可修改";
         if ("0".equals(type)) {
             if(!ObjectUtils.isEmpty(user.getRealName())){
-                return ResponseUtil.custom("信息已录入，不允许修改");
+                return ResponseUtil.custom(remark);
             }
             if(ObjectUtils.isEmpty(value)){
                 return ResponseUtil.custom("真实姓名不允许为空");
@@ -123,7 +124,7 @@ public class UserController {
             user.setRealName(value);
         } else if ("1".equals(type)) {
             if(!ObjectUtils.isEmpty(user.getEmail())){
-                return ResponseUtil.custom("信息已录入，不允许修改");
+                return ResponseUtil.custom(remark);
             }
             if(ObjectUtils.isEmpty(value)){
                 return ResponseUtil.custom("邮箱不允许为空");
@@ -134,7 +135,7 @@ public class UserController {
             user.setEmail(value);
         } else if ("2".equals(type)) {
             if(!ObjectUtils.isEmpty(user.getWebChat())){
-                return ResponseUtil.custom("信息已录入，不允许修改");
+                return ResponseUtil.custom(remark);
             }
             if(ObjectUtils.isEmpty(value)){
                 return ResponseUtil.custom("微信号不允许为空");
@@ -145,7 +146,7 @@ public class UserController {
             user.setWebChat(value);
         } else if ("3".equals(type)) {
             if(!ObjectUtils.isEmpty(user.getQq())){
-                return ResponseUtil.custom("信息已录入，不允许修改");
+                return ResponseUtil.custom(remark);
             }
             if(ObjectUtils.isEmpty(value)){
                 return ResponseUtil.custom("QQ号不允许为空");

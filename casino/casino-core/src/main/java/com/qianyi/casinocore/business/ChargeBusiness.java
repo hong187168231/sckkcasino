@@ -64,7 +64,7 @@ public class ChargeBusiness {
         }
         Integer count = chargeOrderService.countByUserIdAndStatus(userId,0);
         if (count > 0) {
-            return ResponseUtil.custom("您有一笔充值订单正在审核,请交易完成后再提交");
+            return ResponseUtil.custom("您有一笔充值订单正在审核,无法再次提交");
         }
         BigDecimal decChargeAmount = new BigDecimal(chargeAmount);
         //查询充值金额限制
@@ -76,13 +76,13 @@ public class ChargeBusiness {
                 if (new BigDecimal(minMoney.intValue()).compareTo(minMoney) == 0) {//整数不显示小数点
                     minMoney = minMoney.setScale(0);
                 }
-                return ResponseUtil.custom("充值金额小于单笔最低充值金额,单笔最低充值金额为:" + minMoney);
+                return ResponseUtil.custom("充值金额小于最低限额,单笔最低限额为:" + minMoney);
             }
             if (maxMoney != null && decChargeAmount.compareTo(maxMoney) == 1) {
                 if (new BigDecimal(maxMoney.intValue()).compareTo(maxMoney) == 0) {
                     maxMoney = maxMoney.setScale(0);
                 }
-                return ResponseUtil.custom("充值金额大于单笔最高充值金额,单笔最高充值金额为:" + maxMoney);
+                return ResponseUtil.custom("充值金额大于最高限额,单笔最高限额为:" + maxMoney);
             }
         }
         ChargeOrder chargeOrder = getChargeOrder(decChargeAmount,remitType,remitterName,bankcardId,userId);

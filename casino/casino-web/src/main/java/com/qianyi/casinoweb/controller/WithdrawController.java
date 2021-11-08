@@ -120,7 +120,7 @@ public class WithdrawController {
             return ResponseUtil.parameterNotNull();
         }
         if (!newsWithdrawPassword.equals(confirmWithdrawPassword)) {
-            return ResponseUtil.custom("新密码和确认密码输入不一致");
+            return ResponseUtil.custom("两次输入密码不匹配，请仔细确认");
         }
         if (!ObjectUtils.isEmpty(user.getWithdrawPassword())) {
             if (ObjectUtils.isEmpty(oldWithdrawPassword)) {
