@@ -67,7 +67,7 @@ public class ChargeConfigController {
             return ResponseUtil.custom("参数错误");
         }
         if (percentage != null && (percentage > CommonConst.FLOAT_1 || percentage < CommonConst.FLOAT_001)){
-            return ResponseUtil.custom("百分比金额设置错误");
+            return ResponseUtil.custom("百分比金额1%-100%区间");
         }
         if (fixedAmount != null && minMoney != null){
             if (fixedAmount.compareTo(minMoney) > CommonConst.NUMBER_0){
