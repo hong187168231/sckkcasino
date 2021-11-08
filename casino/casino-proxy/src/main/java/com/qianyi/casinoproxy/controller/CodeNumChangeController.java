@@ -1,8 +1,10 @@
 package com.qianyi.casinoproxy.controller;
 
 import com.qianyi.casinocore.model.CodeNumChange;
+import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.CodeNumChangeService;
+import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.vo.CodeNumChangeVo;
 import com.qianyi.casinocore.vo.PageResultVO;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,6 +34,10 @@ import java.util.stream.Collectors;
 public class CodeNumChangeController {
     @Autowired
     private CodeNumChangeService codeNumChangeService;
+
+    @Autowired
+    private GameRecordService gameRecordService;
+
     @Autowired
     private UserService userService;
     @ApiOperation("查询用户打码明细表")
@@ -63,10 +70,34 @@ public class CodeNumChangeController {
                     accountChangeVoList.add(accountChangeVo);
                 });
             }
+            //注单id为空查询赋值
+            List<GameRecord> gameRecordList = getGameRecordList(accountChangeVoList);
+            setGameBetId(accountChangeVoList, gameRecordList);
             pageResultVO.setContent(accountChangeVoList);
         }
         return ResponseUtil.success(pageResultVO);
 
+    }
+    private void setGameBetId(List<CodeNumChangeVo> accountChangeVoList, List<GameRecord> gameRecordList) {
+        for (CodeNumChangeVo codeNumChangeVo : accountChangeVoList) {
+            for (GameRecord gameRecord : gameRecordList) {
+                if(codeNumChangeVo.getGameRecordId().intValue() == gameRecord.getId().intValue()){
+                    codeNumChangeVo.setBetId(gameRecord.getBetId());
+                }
+            }
+        }
+    }
+
+    private List<GameRecord> getGameRecordList(List<CodeNumChangeVo> accountChangeVoList) {
+        List<Long> recordIdList = new ArrayList<>();
+        for (CodeNumChangeVo codeNumChangeVo : accountChangeVoList) {
+            if(CasinoProxyUtil                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       .checkNull(codeNumChangeVo.getBetId())){
+                recordIdList.add(codeNumChangeVo.getGameRecordId());
+            }
+        }
+
+        List<GameRecord> gameRecordList = gameRecordService.findGameRecordIdAll(recordIdList);
+        return gameRecordList;
     }
 
 }

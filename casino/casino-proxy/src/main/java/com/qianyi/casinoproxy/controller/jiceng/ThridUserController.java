@@ -7,6 +7,7 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.PasswordUtil;
+import com.qianyi.casinocore.vo.CodeNumConfigVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.UserVo;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
@@ -168,11 +169,7 @@ public class ThridUserController {
             List<UserVo> userVoList = new LinkedList();
             List<Long> userIds = userList.stream().map(User::getId).collect(Collectors.toList());
             List<UserMoney> userMoneyList =  userMoneyService.findAll(userIds);
-            List<Long> firstPids = userList.stream().map(User::getFirstPid).collect(Collectors.toList());
-            List<User> firstPidUsers = userService.findAll(firstPids);
             List<Long> thirdProxys = userList.stream().map(User::getThirdProxy).collect(Collectors.toList());
-            List<Long> firstProxys = userList.stream().map(User::getFirstProxy).collect(Collectors.toList());
-            thirdProxys.addAll(firstProxys);
             List<ProxyUser> proxyUsers = proxyUserService.findProxyUser(thirdProxys);
             if(userMoneyList != null){
                 userList.stream().forEach(u -> {
@@ -184,21 +181,11 @@ public class ThridUserController {
                             userVo.setWithdrawMoney(userMoney.getWithdrawMoney());//可以提现金额
                         }
                     });
-                    firstPidUsers.stream().forEach(firstPid -> {
-                        if(firstPid.getId().equals(u.getFirstPid() == null ? "":u.getFirstPid())){
-                            userVo.setFirstPidAccount(firstPid.getAccount());
-                        }
-                    });
                     proxyUsers.stream().forEach(proxyUser -> {
                         if(proxyUser.getId().equals(u.getThirdProxy() == null ? "":u.getThirdProxy())){
                             userVo.setThirdProxyAccount(proxyUser.getUserName());
                         }
-                        if(proxyUser.getId().equals(u.getFirstProxy() == null ? "":u.getFirstProxy())){
-                            userVo.setFirstProxyAccount(proxyUser.getUserName());
-                        }
                     });
-                    GameRecord gameRecord = gameRecordService.findRecordRecordSum(u.getId(), null, null);
-                    userVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
                     userVoList.add(userVo);
                 });
                 pageResultVO.setContent(userVoList);
@@ -207,6 +194,17 @@ public class ThridUserController {
         }
         return ResponseUtil.success(pageResultVO);
     }
+
+    @ApiOperation("累计流水")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("getPerformance")
+    public ResponseEntity getPerformance(Long id){
+        GameRecord gameRecord = gameRecordService.findRecordRecordSum(id, null, null);
+        return ResponseUtil.success((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
+    }
+
 
     @ApiOperation("刷新WM余额")
     @ApiImplicitParams({
