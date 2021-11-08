@@ -5,6 +5,7 @@ import com.qianyi.casinocore.model.RebateConfig;
 import com.qianyi.casinocore.service.ProxyRebateConfigService;
 import com.qianyi.casinocore.service.RebateConfigService;
 import com.qianyi.casinoreport.vo.CompanyLevelBO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class CompanyLevelProcessBusiness {
 
@@ -22,17 +24,21 @@ public class CompanyLevelProcessBusiness {
     private RebateConfigService rebateConfigService;
 
     public CompanyLevelBO getLevelData(BigDecimal amount){
-        RebateConfig RebateConfig = rebateConfigService.findFirst();
-        List<Integer> profitLevelList = getProfitLevelList(RebateConfig);
-        Map<Integer,BigDecimal> profitLevelMap = getProfitLevelMap(RebateConfig);
+        RebateConfig rebateConfig = rebateConfigService.findFirst();
+        log.info("rebateConfig:{}",rebateConfig);
+        List<Integer> profitLevelList = getProfitLevelList(rebateConfig);
+        Map<Integer,BigDecimal> profitLevelMap = getProfitLevelMap(rebateConfig);
         return getProfitLevel(amount,profitLevelList,profitLevelMap);
     }
 
     public CompanyLevelBO getProfitLevel(BigDecimal amount, List<Integer> profitLevelList,Map<Integer,BigDecimal> profitLevelMap) {
 //        BigDecimal result = amount.divide(BigDecimal.valueOf(10000));
+//        Integer level = getLevel(result.intValue(),profitLevelList);
         BigDecimal result = amount.divide(BigDecimal.valueOf(100));
-        Integer level = getLevel(result.intValue(),profitLevelList);
-        BigDecimal profitAmount = profitLevelMap.get(level);
+        Integer level = getLevel(result.multiply(BigDecimal.valueOf(100)).intValue(),profitLevelList);
+        log.info("level:{},amount:{}",level,amount);
+
+        BigDecimal profitAmount = profitLevelMap.containsKey(level)?profitLevelMap.get(level):BigDecimal.valueOf(0);
 
         return CompanyLevelBO.builder().profitLevel(level).profitAmount(profitAmount).profitActTimes(result.intValue()).build();
     }
