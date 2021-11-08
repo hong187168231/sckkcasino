@@ -7,6 +7,7 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.PasswordUtil;
+import com.qianyi.casinocore.vo.CodeNumConfigVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.UserVo;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
@@ -72,6 +73,9 @@ public class UserController {
 
     @Autowired
     private GameRecordService gameRecordService;
+
+    @Autowired
+    private PlatformConfigService platformConfigService;
 
     @ApiOperation("查询代理下级的用户数据")
     @ApiImplicitParams({
@@ -223,6 +227,31 @@ public class UserController {
         return ResponseUtil.success(wMonetUser);
     }
 
+
+    @ApiOperation("查询打码与充提配置")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "当前详情页面会员id", required = true),
+    })
+    @GetMapping("/findCodeNumConfig")
+    public ResponseEntity findCodeNumConfig(Long id){
+        CodeNumConfigVo codeNumConfigVo = new CodeNumConfigVo();
+        JSONObject jsonObject = new JSONObject();
+        Integer tag = CommonConst.NUMBER_0;
+        PlatformConfig first = platformConfigService.findFirst();
+        if (CasinoProxyUtil.checkNull(first)){
+            jsonObject.put("data", codeNumConfigVo);
+            jsonObject.put("tag", tag);
+            return ResponseUtil.success(jsonObject);
+        }
+        codeNumConfigVo.setBetRate(first.getBetRate());
+        codeNumConfigVo.setChargeMaxMoney(first.getChargeMaxMoney());
+        codeNumConfigVo.setChargeMinMoney(first.getChargeMinMoney());
+        codeNumConfigVo.setWithdrawMaxMoney(first.getWithdrawMaxMoney());
+        codeNumConfigVo.setWithdrawMinMoney(first.getWithdrawMinMoney());
+        jsonObject.put("data", codeNumConfigVo);
+        jsonObject.put("tag", tag);
+        return ResponseUtil.success(jsonObject);
+    }
 //    public void setWMMoney(List<User> userList) {
 //
 //        log.info("query WM money data：【{}】 ", userList);

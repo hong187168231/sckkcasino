@@ -30,7 +30,7 @@ public class ProxyCentreVo {
 
     @Data
     @ApiModel("我的团队")
-    public static class MyTeam{
+    public static class MyTeam {
 
         @ApiModelProperty(value = "今日存款")
         @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
@@ -59,12 +59,12 @@ public class ProxyCentreVo {
         private String account;
         @ApiModelProperty("直属总业绩")
         @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
-        private BigDecimal directBetAmount;
+        private BigDecimal directBetAmount = BigDecimal.ZERO;
         @ApiModelProperty("直属总贡献")
         @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
-        private BigDecimal directProfitAmount;
+        private BigDecimal directProfitAmount = BigDecimal.ZERO;
         @ApiModelProperty("附属总贡献")
         @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
-        private BigDecimal otherProfitAmount;
+        private BigDecimal otherProfitAmount = BigDecimal.ZERO;
     }
 }

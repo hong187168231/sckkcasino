@@ -27,7 +27,6 @@ public class UserService {
     @Autowired
     UserRepository userRepository;
 
-    @Cacheable(key = "#account")
     public User findByAccount(String account) {
         return userRepository.findByAccount(account);
     }
@@ -216,7 +215,7 @@ public class UserService {
         return userRepository.findByPhone(phone);
     }
 
-    public List<User> findByFirstPidAndAccount(Long userId,String account) {
+    public User findByFirstPidAndAccount(Long userId,String account) {
         return userRepository.findByFirstPidAndAccount(userId,account);
     }
 }
