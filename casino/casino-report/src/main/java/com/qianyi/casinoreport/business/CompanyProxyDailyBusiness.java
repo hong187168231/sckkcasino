@@ -78,6 +78,7 @@ public class CompanyProxyDailyBusiness {
         resultList.addAll(firstCompanyProxyDetail);
 
         log.info("save all proxyDetail data");
+        log.info("resultList:{}",resultList);
         companyProxyDetailService.saveAll(resultList);
         log.info("save all proxyDetail data finish");
 
