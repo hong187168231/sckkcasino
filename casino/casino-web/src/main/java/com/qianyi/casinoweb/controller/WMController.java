@@ -104,10 +104,11 @@ public class WMController {
             }
         }
         User user = userService.findById(authId);
-        Integer lang = user.getLanguage();
-        if (lang == null) {
-            lang = 0;
-        }
+//        Integer lang = user.getLanguage();
+//        if (lang == null) {
+//            lang = 0;
+//        }
+        Integer lang = 1;//1为英文  wm那边先默认设置成英文
         PlatformConfig platformConfig = platformConfigService.findFirst();
         //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(authId);

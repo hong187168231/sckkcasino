@@ -68,7 +68,7 @@ public class ShareProfitChangeService {
         return specification;
     }
 
-    public List<ShareProfitChange> getShareProfitList(Long userId, int parentLevel,List<User> users) {
+    public List<ShareProfitChange> getShareProfitList(Long userId, Integer parentLevel, Long directUserId) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<ShareProfitChange> query = builder.createQuery(ShareProfitChange.class);
         Root<ShareProfitChange> root = query.from(ShareProfitChange.class);
@@ -79,12 +79,8 @@ public class ShareProfitChangeService {
                 builder.sum(root.get("validbet").as(BigDecimal.class)).alias("validbet")
         );
         List<Predicate> predicates = new ArrayList();
-        if (!CollectionUtils.isEmpty(users)) {
-            CriteriaBuilder.In<Object> in = builder.in(root.get("fromUserId"));
-            for (User user : users) {
-                in.value(user.getId());
-            }
-            predicates.add(builder.and(builder.and(in)));
+        if(directUserId!=null){
+            predicates.add(builder.equal(root.get("fromUserId").as(Long.class), directUserId));
         }
         predicates.add(builder.equal(root.get("userId").as(Long.class), userId));
         predicates.add(builder.equal(root.get("type").as(Integer.class), 1));

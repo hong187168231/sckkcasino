@@ -130,53 +130,63 @@ public class ProxyCentreController {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         //查询所有直属
-        List<User> users = null;
-        if (ObjectUtils.isEmpty(account)) {
-            users = userService.findFirstUser(userId);
-        } else {
-            users = userService.findByFirstPidAndAccount(userId, account);
-        }
+        List<User> users = userService.findFirstUser(userId);
+        //没有直属直接返回
         List<ProxyCentreVo.ShareProfit> dataList = new ArrayList<>();
         if (CollectionUtils.isEmpty(users)) {
             return ResponseUtil.success(dataList);
         }
-        //查询直属总贡献
-        List<ShareProfitChange> directList = shareProfitChangeService.getShareProfitList(userId, 1, users);
-        //查询两级附属
-        for (ShareProfitChange direct : directList) {
-            ProxyCentreVo.ShareProfit shareProfit = new ProxyCentreVo.ShareProfit();
-            shareProfit.setUserId(direct.getFromUserId());
-            shareProfit.setDirectProfitAmount(direct.getAmount());
-            shareProfit.setDirectBetAmount(direct.getValidbet());
-            //第一级附属
-            List<ShareProfitChange> subsidiary1 = shareProfitChangeService.getShareProfitList(direct.getFromUserId(), 1, null);
-            //第一级附属总贡献
-            BigDecimal subsidiary1Sum = subsidiary1.stream().filter(item -> item.getAmount() != null).map(ShareProfitChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-            //第二级附属总贡献
-            BigDecimal subsidiary2Sum = BigDecimal.ZERO;
-            for (ShareProfitChange change2 : subsidiary1) {
-                List<ShareProfitChange> subsidiary2List = shareProfitChangeService.getShareProfitList(change2.getFromUserId(), 1, null);
-                BigDecimal subsidiary2 = subsidiary2List.stream().filter(item -> item.getAmount() != null).map(ShareProfitChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-                subsidiary2Sum = subsidiary2Sum.add(subsidiary2);
+        //根据前端传递的账号查询对应id
+        Long directUserId = null;
+        if (!ObjectUtils.isEmpty(account)) {
+            User directUser = userService.findByFirstPidAndAccount(userId, account);
+            if (directUser == null) {
+                return ResponseUtil.success(dataList);
             }
-            shareProfit.setOtherProfitAmount(subsidiary1Sum.add(subsidiary2Sum));
-            dataList.add(shareProfit);
+            directUserId = directUser.getId();
         }
-        //没有数据的直属默认显示0
+        //查询直属总贡献
+        List<ShareProfitChange> directList = shareProfitChangeService.getShareProfitList(userId, 1, directUserId);
+        //补全直属，没有数据的直属默认显示0
         for (User user : users) {
             boolean flag = true;
-            for (ProxyCentreVo.ShareProfit shareProfit : dataList) {
+            for (ShareProfitChange shareProfit : directList) {
                 if (user.getId() == shareProfit.getUserId()) {
-                    shareProfit.setAccount(user.getAccount());
                     flag = false;
+                    ProxyCentreVo.ShareProfit share = new ProxyCentreVo.ShareProfit();
+                    share.setUserId(shareProfit.getFromUserId());
+                    share.setAccount(user.getAccount());
+                    share.setDirectProfitAmount(shareProfit.getAmount());
+                    share.setDirectBetAmount(shareProfit.getValidbet());
+                    dataList.add(share);
                     break;
                 }
             }
             if (flag) {
-                ProxyCentreVo.ShareProfit shareProfit = new ProxyCentreVo.ShareProfit();
-                shareProfit.setUserId(user.getId());
-                shareProfit.setAccount(user.getAccount());
-                dataList.add(shareProfit);
+                ProxyCentreVo.ShareProfit share = new ProxyCentreVo.ShareProfit();
+                share.setUserId(user.getId());
+                share.setAccount(user.getAccount());
+                dataList.add(share);
+            }
+        }
+        //查询第一级附属,查询出来后的数据的上级是当前用户的直属，数据按直属归类
+        List<ShareProfitChange> subsidiaryList1 = shareProfitChangeService.getShareProfitList(userId, 2, null);
+        for (ProxyCentreVo.ShareProfit direct : dataList) {
+            for (ShareProfitChange change : subsidiaryList1) {
+                User user = userService.findById(change.getFromUserId());
+                if (user.getFirstPid() != null && user.getFirstPid().equals(direct.getUserId())) {
+                    direct.setOtherProfitAmount(direct.getOtherProfitAmount().add(change.getAmount()));
+                }
+            }
+        }
+        //查询第二级附属,查询出来后的数据的上上级是当前用户的直属，数据按直属归类
+        List<ShareProfitChange> subsidiaryList2 = shareProfitChangeService.getShareProfitList(userId, 3, null);
+        for (ProxyCentreVo.ShareProfit direct : dataList) {
+            for (ShareProfitChange change : subsidiaryList2) {
+                User user = userService.findById(change.getFromUserId());
+                if (user.getSecondPid() != null && user.getSecondPid().equals(direct.getUserId())) {
+                    direct.setOtherProfitAmount(direct.getOtherProfitAmount().add(change.getAmount()));
+                }
             }
         }
         return ResponseUtil.success(dataList);
