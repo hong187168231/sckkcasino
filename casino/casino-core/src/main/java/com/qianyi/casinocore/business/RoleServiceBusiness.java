@@ -139,6 +139,12 @@ public class RoleServiceBusiness {
         //删除角色对应的用户权限
         sysUserRoleService.deleteById(roleId);
         sysRoleService.deleteById(roleId);
+        List<SysPermissionRole> byRoleId = sysPermissionRoleService.findByRoleId(roleId);
+        if(byRoleId != null && byRoleId.size() > 0){
+            List<Long> longList = byRoleId.stream().map(SysPermissionRole::getId).collect(Collectors.toList());
+            sysPermissionRoleService.deleteAllIds(longList);
+
+        }
     }
 
     public List<SysUserRole> findSysRoleUserList(List<Long> userIds) {

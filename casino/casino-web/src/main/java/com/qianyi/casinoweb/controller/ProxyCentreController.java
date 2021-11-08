@@ -129,21 +129,27 @@ public class ProxyCentreController {
     public ResponseEntity<List<ProxyCentreVo.ShareProfit>> findAchievementList(String account) {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
-        //查询所有直属
-        List<User> users = userService.findFirstUser(userId);
-        //没有直属直接返回
         List<ProxyCentreVo.ShareProfit> dataList = new ArrayList<>();
-        if (CollectionUtils.isEmpty(users)) {
-            return ResponseUtil.success(dataList);
-        }
         //根据前端传递的账号查询对应id
         Long directUserId = null;
+        User directUser = null;
         if (!ObjectUtils.isEmpty(account)) {
-            User directUser = userService.findByFirstPidAndAccount(userId, account);
+            directUser = userService.findByFirstPidAndAccount(userId, account);
             if (directUser == null) {
                 return ResponseUtil.success(dataList);
             }
             directUserId = directUser.getId();
+        }
+        //查询所有直属,条件查询时只显示对应的直属数据
+        List<User> users = new ArrayList<>();
+        if (directUser != null) {
+            users.add(directUser);
+        } else {
+            users = userService.findFirstUser(userId);
+        }
+        //没有直属直接返回
+        if (CollectionUtils.isEmpty(users)) {
+            return ResponseUtil.success(dataList);
         }
         //查询直属总贡献
         List<ShareProfitChange> directList = shareProfitChangeService.getShareProfitList(userId, 1, directUserId);
@@ -151,7 +157,7 @@ public class ProxyCentreController {
         for (User user : users) {
             boolean flag = true;
             for (ShareProfitChange shareProfit : directList) {
-                if (user.getId() == shareProfit.getUserId()) {
+                if (user.getId() == shareProfit.getFromUserId()) {
                     flag = false;
                     ProxyCentreVo.ShareProfit share = new ProxyCentreVo.ShareProfit();
                     share.setUserId(shareProfit.getFromUserId());
