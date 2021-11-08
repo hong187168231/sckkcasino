@@ -117,7 +117,7 @@ public class WithdrawBusiness {
         }
         Integer count = withdrawOrderService.countByUserIdAndStatus(userId,0);
         if (count > 0) {
-            return ResponseUtil.custom("您有一笔提款订单正在审核,请交易完成后再提交");
+            return ResponseUtil.custom("您有一笔提款订单正在审核,无法再次提交");
         }
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         BigDecimal codeNum = userMoney.getCodeNum();
@@ -141,13 +141,13 @@ public class WithdrawBusiness {
                 if (new BigDecimal(minMoney.intValue()).compareTo(minMoney)==0){//整数不显示小数点
                     minMoney=minMoney.setScale(0);
                 }
-                return ResponseUtil.custom("提现金额小于单笔最低提现金额,单笔最低提现金额为:" + minMoney);
+                return ResponseUtil.custom("提现金额小于最低限额,单笔最低限额为:" + minMoney);
             }
             if (maxMoney != null && money.compareTo(maxMoney) == 1) {
                 if (new BigDecimal(maxMoney.intValue()).compareTo(maxMoney) == 0) {
                     maxMoney = maxMoney.setScale(0);
                 }
-                return ResponseUtil.custom("提现金额大于单笔最高提现金额,单笔最高提现金额为:" + maxMoney);
+                return ResponseUtil.custom("提现金额大于最高限额,单笔最高限额为:" + maxMoney);
             }
         }
         WithdrawOrder withdrawOrder = getWidrawOrder(money,bankId,userId,bankcards);

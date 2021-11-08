@@ -619,7 +619,7 @@ public class AuthController {
         }
         String regex = "^[0-9]*[1-9][0-9]*$";
         if (!country.matches(regex) || !phone.matches(regex)) {
-            return ResponseUtil.custom("区号和手机号必须是纯数字");
+            return ResponseUtil.custom("手机号只能填写纯数字");
         }
         //每日ip发送短信数量限制为10条
         String today = DateUtil.dateToyyyyMMdd(new Date());
