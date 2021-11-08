@@ -78,6 +78,7 @@ public class CompanyProxyDailyBusiness {
         resultList.addAll(firstCompanyProxyDetail);
 
         log.info("save all proxyDetail data");
+        log.info("resultList:{}",resultList);
         companyProxyDetailService.saveAll(resultList);
         log.info("save all proxyDetail data finish");
 
@@ -134,6 +135,7 @@ public class CompanyProxyDailyBusiness {
     }
 
     public CompanyProxyDetail calculateDetail(CompanyLevelBO companyLevelBO,CompanyOrderAmountVo companyOrderAmountVo,Long userid,BigDecimal profitRate,Integer proxyType){
+        log.info("companyLevelBO:{}",companyLevelBO);
         BigDecimal totalAmount = companyLevelBO.getProfitAmount().multiply(BigDecimal.valueOf(companyLevelBO.getProfitActTimes()));
         return CompanyProxyDetail.builder()
                 .benefitRate(profitRate)

@@ -388,6 +388,7 @@ public class LoginController {
     @PostMapping("getSysUser")
     @NoAuthorization
     public ResponseEntity<SysUser> getSysUser() {
+
         Long loginUserId = LoginUtil.getLoginUserId();
         SysUser sys = sysUserService.findById(loginUserId);
 
@@ -397,20 +398,26 @@ public class LoginController {
 
             Long authId=LoginUtil.getLoginUserId();
             SysUser user = sysUserService.findById(authId);
-            SysUserRole sysUserRole = roleServiceBusiness.getSysUserRole(user.getId());
-            SysUserVo sysUserVo = new SysUserVo();
-            BeanUtils.copyProperties(sys, sysUserVo);
-            if(sysUserRole == null){
-                return ResponseUtil.success(sysUserVo);
-            }
-            Long roleId = sysUserRole.getSysRoleId();
             List<SysPermission> sysPermissionList = new ArrayList<>();
-            if(roleId != null){
-                sysPermissionList = roleServiceBusiness.getSysPermissionList(roleId);
-            }else{
-                //得到第一层数据
+            SysUserVo sysUserVo = new SysUserVo();
+            if(user.getUserName().equals("admin")){
                 sysPermissionList = sysPermissionService.findAll();
+            }else{
+                SysUserRole sysUserRole = roleServiceBusiness.getSysUserRole(user.getId());
+                BeanUtils.copyProperties(sys, sysUserVo);
+                if(sysUserRole == null){
+                    return ResponseUtil.success(sysUserVo);
+                }
+                Long roleId = sysUserRole.getSysRoleId();
+
+                if(roleId != null){
+                    sysPermissionList = roleServiceBusiness.getSysPermissionList(roleId);
+                }else{
+                    //得到第一层数据
+                    sysPermissionList = sysPermissionService.findAll();
+                }
             }
+
             List<SysPermission> sysPermissions = sysPermissionList.stream().filter(sysPermission -> sysPermission.getIsDetele() == 0).collect(Collectors.toList());
             if(null == sysPermissions || sysPermissions.size() <= 0){
                 return ResponseUtil.success();
