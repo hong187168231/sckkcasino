@@ -32,6 +32,9 @@ public class ShareProfitTransactionService {
     private UserMoneyService userMoneyService;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private GameRecordService gameRecordService;
 
     @Transactional(rollbackFor = Exception.class)
@@ -39,13 +42,15 @@ public class ShareProfitTransactionService {
         List<ProxyDayReport> proxyDayReportList = new ArrayList<>();
         List<ProxyReport> proxyReportList = new ArrayList<>();
         List<UserMoney> userMoneyList = new ArrayList<>();
+        List<User> userList = new ArrayList<>();
         List<ShareProfitChange> shareProfitChangeList = new ArrayList<>();
 
-        shareProfitBOList.forEach(item-> sharepointItemService.processItem(item,record,proxyDayReportList,proxyReportList,userMoneyList,shareProfitChangeList));
+        shareProfitBOList.forEach(item-> sharepointItemService.processItem(item,record,proxyDayReportList,proxyReportList,userList,userMoneyList,shareProfitChangeList));
         proxyDayReportService.saveAll(proxyDayReportList);
         proxyReportService.saveAll(proxyReportList);
         userMoneyList.forEach(item->userMoneyService.changeProfit(item.getUserId(),item.getShareProfit()));
         shareProfitChangeService.saveAll(shareProfitChangeList);
+        userService.saveAll(userList);
 //        int i = 1/0;
         updateShareProfitStatus(record);
     }

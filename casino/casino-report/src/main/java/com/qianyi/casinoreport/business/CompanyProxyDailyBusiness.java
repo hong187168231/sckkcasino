@@ -13,6 +13,7 @@ import com.qianyi.casinoreport.vo.CompanyLevelBO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.web.servlet.oauth2.resourceserver.OAuth2ResourceServerSecurityMarker;
+import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -71,8 +72,8 @@ public class CompanyProxyDailyBusiness {
 
         log.info("firstList size is {}, secondeList size is {}, thirdList size is {}",firstList.size(),secondeList.size(),thirdList.size());
 
-        List<CompanyProxyDetail> secondeCompanyProxyDetail = processSec(secondeList,thirdList);
-        List<CompanyProxyDetail> firstCompanyProxyDetail = processSec(firstList,secondeCompanyProxyDetail);
+        List<CompanyProxyDetail> secondeCompanyProxyDetail = processSec(secondeList,thirdList,2);
+        List<CompanyProxyDetail> firstCompanyProxyDetail = processSec(firstList,secondeCompanyProxyDetail,1);
 
         List<CompanyProxyDetail> resultList = Stream.concat(thirdList.stream(),secondeCompanyProxyDetail.stream()).collect(Collectors.toList());
         resultList.addAll(firstCompanyProxyDetail);
@@ -87,13 +88,17 @@ public class CompanyProxyDailyBusiness {
         log.info("start process month report finish");
     }
 
-    private List<CompanyProxyDetail> processSec(List<CompanyProxyDetail> firstList,List<CompanyProxyDetail> secList) {
+    private List<CompanyProxyDetail> processSec(List<CompanyProxyDetail> firstList,List<CompanyProxyDetail> secList,int level) {
         List<CompanyProxyDetail> companyProxyDetailList = new ArrayList<>();
         Map<Long,List<CompanyProxyDetail>> groupSec = firstList.stream().collect(Collectors.groupingBy(CompanyProxyDetail::getUserId));
-
+        List<CompanyProxyDetail> subThird = new ArrayList<>();
         for (Long userId : groupSec.keySet()) {
             List<CompanyProxyDetail> subList = groupSec.get(userId);
-            List<CompanyProxyDetail> subThird = secList.stream().filter(x->x.getUserId()==userId).collect(Collectors.toList());
+            if(level==2)
+                subThird = secList.stream().filter(x->x.getSecondProxy()==userId).collect(Collectors.toList());
+            else
+                subThird = secList.stream().filter(x->x.getFirstProxy()==userId).collect(Collectors.toList());
+
             CompanyProxyDetail secondeItem = processfirst(subList,subThird);
             companyProxyDetailList.add(secondeItem);
         }
@@ -104,12 +109,14 @@ public class CompanyProxyDailyBusiness {
     private CompanyProxyDetail processfirst(List<CompanyProxyDetail> firstList,List<CompanyProxyDetail> subList) {
         BigDecimal groupBetAmount = firstList.stream().map(x->x.getGroupBetAmount()).reduce(BigDecimal.ZERO,BigDecimal::add);
         BigDecimal profitAmount = firstList.stream().map(x->x.getProfitAmount()).reduce(BigDecimal.ZERO,BigDecimal::add);
+        BigDecimal groupTotalProfit = subList.stream().map(x->x.getProfitAmount()).reduce(BigDecimal.ZERO,BigDecimal::add);
+
         CompanyProxyDetail item = firstList.get(0);
 
         CompanyProxyDetail actItem = (CompanyProxyDetail) item.clone();
         actItem.setGroupBetAmount(groupBetAmount);
         actItem.setProfitAmount(profitAmount);
-        actItem.setGroupTotalprofit(subList.stream().map(x->x.getProfitAmount()).reduce(BigDecimal.ZERO,BigDecimal::add));
+        actItem.setGroupTotalprofit(groupTotalProfit);
         return actItem;
     }
 
@@ -137,7 +144,7 @@ public class CompanyProxyDailyBusiness {
     public CompanyProxyDetail calculateDetail(CompanyLevelBO companyLevelBO,CompanyOrderAmountVo companyOrderAmountVo,Long userid,BigDecimal profitRate,Integer proxyType){
         log.info("companyLevelBO:{}",companyLevelBO);
         BigDecimal totalAmount = companyLevelBO.getProfitAmount().multiply(BigDecimal.valueOf(companyLevelBO.getProfitActTimes()));
-        return CompanyProxyDetail.builder()
+        CompanyProxyDetail companyProxyDetail= CompanyProxyDetail.builder()
                 .benefitRate(profitRate)
                 .firstProxy(companyOrderAmountVo.getFirstProxy())
                 .secondProxy(companyOrderAmountVo.getSecondProxy())
@@ -149,11 +156,13 @@ public class CompanyProxyDailyBusiness {
                 .groupBetAmount(new BigDecimal(companyOrderAmountVo.getValidbet()))
                 .playerNum(companyOrderAmountVo.getPlayerNum())
                 .profitAmount(totalAmount.multiply(profitRate))
-                .groupTotalprofit(totalAmount.multiply(profitRate))
+                .groupTotalprofit(BigDecimal.ZERO)
                 .settleStatus(0)
                 .staticsTimes(companyOrderAmountVo.getBetTime().substring(0,10))
                 .betTime(LocalDateTime.parse(companyOrderAmountVo.getBetTime().replace(' ','T')))
                 .build();
+        log.info("companyProxyDetail:{}",companyProxyDetail);
+        return companyProxyDetail;
     }
 
 

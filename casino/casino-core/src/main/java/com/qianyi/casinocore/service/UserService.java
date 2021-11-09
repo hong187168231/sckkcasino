@@ -36,6 +36,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public List<User> saveAll(List<User> userList){
+        return userRepository.saveAll(userList);
+    }
+
     @Cacheable(key = "#id")
     public User findById(Long id) {
         Optional<User> optional = userRepository.findById(id);
