@@ -22,13 +22,17 @@ public class ShareprofitItemService {
     private UserMoneyService userMoneyService;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private ProxyDayReportBusiness proxyDayReportBusiness;
 
     @Autowired
     private ProxyReportBusiness proxyReportBusiness;
 
-    public void processItem(ShareProfitBO shareProfitBO, GameRecord record, List<ProxyDayReport> proxyDayReportList, List<ProxyReport> proxyReportList, List<UserMoney> userMoneyList, List<ShareProfitChange> shareProfitChangeList){
+    public void processItem(ShareProfitBO shareProfitBO, GameRecord record, List<ProxyDayReport> proxyDayReportList, List<ProxyReport> proxyReportList, List<User> userList, List<UserMoney> userMoneyList, List<ShareProfitChange> shareProfitChangeList){
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(shareProfitBO.getUserId());
+        User user = userService.findUserByIdUseLock(shareProfitBO.getUserId());
         if(userMoney==null)return;
         //明细入库
         ShareProfitChange shareProfitChange = processProfitDetail(shareProfitBO,userMoney,record);
@@ -38,6 +42,8 @@ public class ShareprofitItemService {
         ProxyDayReport proxyDayReport = proxyDayReportBusiness.processReport(shareProfitBO);
         //进行总报表处理
         ProxyReport proxyReport = proxyReportBusiness.processReport(shareProfitBO);
+        //设置第一次投注用户
+        user.setIsFirstBet(1);
 
         log.info("userMoney:{} \n shareProfitChange:{} \n proxyDayReport:{} \n proxyReport:{}",userMoney, shareProfitChange,proxyDayReport,proxyReport);
 
@@ -45,6 +51,7 @@ public class ShareprofitItemService {
         proxyReportList.add(proxyReport);
         userMoneyList.add(userMoney);
         shareProfitChangeList.add(shareProfitChange);
+        userList.add(user);
 
     }
 

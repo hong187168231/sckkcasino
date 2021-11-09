@@ -31,7 +31,7 @@ public class CompanyProxyDailyBusinessTest {
 
     @Test
     public void report_correct(){
-        companyProxyDailyBusiness.processDailyReport("2021-11-07");
+        companyProxyDailyBusiness.processDailyReport("2021-11-06");
     }
 
     @Test
