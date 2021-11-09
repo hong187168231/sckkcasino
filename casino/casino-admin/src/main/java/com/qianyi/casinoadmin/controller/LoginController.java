@@ -395,15 +395,13 @@ public class LoginController {
         if(sys == null){
             return ResponseUtil.custom("用户不存在");
         }else{
-
-            Long authId=LoginUtil.getLoginUserId();
-            SysUser user = sysUserService.findById(authId);
             List<SysPermission> sysPermissionList = new ArrayList<>();
             SysUserVo sysUserVo = new SysUserVo();
-            if(user.getUserName().equals("admin")){
+            if(sys.getUserName().equals("admin")){
+                BeanUtils.copyProperties(sys, sysUserVo);
                 sysPermissionList = sysPermissionService.findAll();
             }else{
-                SysUserRole sysUserRole = roleServiceBusiness.getSysUserRole(user.getId());
+                SysUserRole sysUserRole = roleServiceBusiness.getSysUserRole(sys.getId());
                 BeanUtils.copyProperties(sys, sysUserVo);
                 if(sysUserRole == null){
                     return ResponseUtil.success(sysUserVo);
