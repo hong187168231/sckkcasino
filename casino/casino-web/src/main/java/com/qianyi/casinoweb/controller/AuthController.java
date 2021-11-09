@@ -661,6 +661,8 @@ public class AuthController {
     }
 
     private void setUserTokenToRedis(Long userId, String token) {
-        redisUtil.set(Constants.REDIS_TOKEN + userId, token);
+        JjwtUtil.Token jwtToken = new JjwtUtil.Token();
+        jwtToken.setOldToken(token);
+        redisUtil.set(Constants.REDIS_TOKEN + userId, jwtToken);
     }
 }

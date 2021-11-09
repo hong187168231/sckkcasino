@@ -21,7 +21,7 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
         Method method = handlerMethod.getMethod();
         NoAuthentication annotation = method.getAnnotation(NoAuthentication.class);
         if (annotation == null) {
-            if (hasPermission(request)) {
+            if (hasPermission(request,response)) {
                 //帐号封号拦截
                 if(hasBan()){
                     String url=request.getServletPath();
@@ -49,7 +49,7 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
 
     protected abstract boolean hasBan();
 
-    public abstract boolean hasPermission(HttpServletRequest request);
+    public abstract boolean hasPermission(HttpServletRequest request, HttpServletResponse response);
 
     protected abstract boolean multiDeviceCheck();
 

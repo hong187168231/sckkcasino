@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Component
 public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
@@ -31,7 +32,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
     }
 
     @Override
-    public boolean hasPermission(HttpServletRequest request) {
+    public boolean hasPermission(HttpServletRequest request, HttpServletResponse response) {
         String token = LoginUtil.getToken();
 
         if(JjwtUtil.check(token, "casino-admin")){
