@@ -39,6 +39,8 @@ public class ProxyUserVo  implements Serializable {
     private String firstProxyAccount;
     @ApiModelProperty(value = "佣金分成比")
     private String commissionRatio;
+    @ApiModelProperty(value = "直属玩家数")
+    private Integer usersNum;
     @ApiModelProperty(value = "是否锁定 1：正常 2：锁定, 3：删除")
     private Integer userFlag;
     @ApiModelProperty("创建时间")

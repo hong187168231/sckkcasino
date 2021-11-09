@@ -19,11 +19,11 @@ public class PlatformConfig {
     private Long id;
 
     @ApiModelProperty("最低金额清除打码量")
-    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
     private BigDecimal clearCodeNum;
 
     @ApiModelProperty("打码倍率")
-    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
     private BigDecimal betRate;
 
     @ApiModelProperty("每笔最低充值")
@@ -39,7 +39,7 @@ public class PlatformConfig {
     private BigDecimal chargeServiceMoney;
 
     @ApiModelProperty("充值手续费百分比")
-    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
     private BigDecimal chargeRate;
 
     @ApiModelProperty("每笔最低提现额")

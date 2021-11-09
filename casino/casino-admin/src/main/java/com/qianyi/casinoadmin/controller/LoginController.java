@@ -388,21 +388,21 @@ public class LoginController {
     @PostMapping("getSysUser")
     @NoAuthorization
     public ResponseEntity<SysUser> getSysUser() {
+
         Long loginUserId = LoginUtil.getLoginUserId();
         SysUser sys = sysUserService.findById(loginUserId);
 
         if(sys == null){
             return ResponseUtil.custom("用户不存在");
         }else{
-
-            Long authId=LoginUtil.getLoginUserId();
-            SysUser user = sysUserService.findById(authId);
             List<SysPermission> sysPermissionList = new ArrayList<>();
             SysUserVo sysUserVo = new SysUserVo();
-            if(user.getUserName().equals("admin")){
+            if(sys.getUserName().equals("admin")){
+                BeanUtils.copyProperties(sys, sysUserVo);
+                sysUserVo.setSysRoleId(0l);
                 sysPermissionList = sysPermissionService.findAll();
             }else{
-                SysUserRole sysUserRole = roleServiceBusiness.getSysUserRole(user.getId());
+                SysUserRole sysUserRole = roleServiceBusiness.getSysUserRole(sys.getId());
                 BeanUtils.copyProperties(sys, sysUserVo);
                 if(sysUserRole == null){
                     return ResponseUtil.success(sysUserVo);
