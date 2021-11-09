@@ -90,6 +90,8 @@ public class CommonConst {
 
     public static final String THIRD_FORMAT = "{0}%(总) - {1}%(区) - {2}%(基)";
 
+    public static final String JICENG = "{0}%(基)";
+
     public static final String STRING_1 = "1";
     public static final String STRING_2 = "2";
     public static final String STRING_3 = "3";
