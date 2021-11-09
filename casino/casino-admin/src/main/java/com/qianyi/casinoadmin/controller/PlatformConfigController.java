@@ -182,7 +182,7 @@ public class PlatformConfigController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "sendMessageWarning", value = "短信余额风险警戒值", required = false),
     })
-    @PostMapping("/uodateMessageBalance")
+    @PostMapping("/updateMessageBalance")
     public ResponseEntity uodateMessageBalance(BigDecimal sendMessageWarning){
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (LoginUtil.checkNull(platformConfig)){
