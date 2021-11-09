@@ -44,8 +44,8 @@ public class CompanyProxyDetailController {
             @ApiImplicitParam(name = "proxyRole", value = "代理级别1：总代理 2：区域代理 3：基层代理", required = false),
             @ApiImplicitParam(name = "userName", value = "账号", required = false),
             @ApiImplicitParam(name = "tag", value = "1：含下级 0：不包含", required = false),
-            @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
+            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<CompanyProxyDetailVo> find(Integer pageSize, Integer pageCode, Integer proxyRole, Integer tag, String userName,
                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
@@ -87,8 +87,8 @@ public class CompanyProxyDetailController {
     @GetMapping("/findDailyDetails")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "当前id", required = true),
-            @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
+            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<CompanyProxyDetail> findDailyDetails(Long id,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
@@ -113,8 +113,8 @@ public class CompanyProxyDetailController {
             @ApiImplicitParam(name = "proxyRole", value = "代理级别1：总代理 2：区域代理 3：基层代理", required = false),
             @ApiImplicitParam(name = "userName", value = "账号", required = false),
             @ApiImplicitParam(name = "tag", value = "1：含下级 0：不包含", required = false),
-            @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
+            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<CompanyProxyDetail> findSum(Integer proxyRole, Integer tag, String userName,
                                                       @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
@@ -138,8 +138,8 @@ public class CompanyProxyDetailController {
     @GetMapping("/findDailyDetailsSum")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "当前代理id", required = true),
-            @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
+            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<CompanyProxyDetail> findDailyDetailsSum(Long id,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                                   @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){

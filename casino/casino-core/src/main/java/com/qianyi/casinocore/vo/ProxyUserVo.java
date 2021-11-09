@@ -13,7 +13,7 @@ public class ProxyUserVo  implements Serializable {
     private static final long serialVersionUID = -6875619845650305179L;
     @ApiModelProperty(value = "ID")
     private Long id;
-    @ApiModelProperty(value = "ID")
+    @ApiModelProperty(value = "账号")
     private String userName;
     @ApiModelProperty(value = "昵称")
     private String nickName;

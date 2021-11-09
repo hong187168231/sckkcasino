@@ -1,7 +1,5 @@
 package com.qianyi.casinocore.service;
 
-import com.qianyi.casinocore.model.RechargeTurnover;
-import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.WithdrawOrder;
 import com.qianyi.casinocore.repository.WithdrawOrderRepository;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -17,6 +15,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,16 +42,16 @@ public class WithdrawOrderService {
     }
 
     public Page<WithdrawOrder> findUserPage(Pageable pageable, WithdrawOrder withdrawOrder) {
-        Specification<WithdrawOrder> condition = this.getCondition(withdrawOrder);
+        Specification<WithdrawOrder> condition = this.getCondition(withdrawOrder,null,null);
         return withdrawOrderRepository.findAll(condition, pageable);
     }
 
-    public List<WithdrawOrder> findOrderList( WithdrawOrder withdrawOrder) {
-        Specification<WithdrawOrder> condition = this.getCondition(withdrawOrder);
+    public List<WithdrawOrder> findOrderList( WithdrawOrder withdrawOrder,Date startDate,Date endDate) {
+        Specification<WithdrawOrder> condition = this.getCondition(withdrawOrder,startDate,endDate);
         return withdrawOrderRepository.findAll(condition);
     }
 
-    private Specification<WithdrawOrder> getCondition(WithdrawOrder withdrawOrder) {
+    private Specification<WithdrawOrder> getCondition(WithdrawOrder withdrawOrder,Date startDate,Date endDate) {
         Specification<WithdrawOrder> specification = new Specification<WithdrawOrder>() {
             List<Predicate> list = new ArrayList<Predicate>();
             @Override
@@ -80,6 +79,12 @@ public class WithdrawOrderService {
                 }
                 if (withdrawOrder.getThirdProxy() != null) {
                     list.add(cb.equal(root.get("thirdProxy").as(Long.class), withdrawOrder.getThirdProxy()));
+                }
+                if (startDate != null) {
+                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+                }
+                if (endDate != null) {
+                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
                 }
                 return cb.and(list.toArray(new Predicate[list.size()]));
             }
