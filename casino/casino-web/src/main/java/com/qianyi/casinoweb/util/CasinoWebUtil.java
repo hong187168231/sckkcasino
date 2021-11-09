@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoweb.config.security.exception.ValidateCodeException;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.ExpiringMapUtil;
 import com.qianyi.modulecommon.util.IpUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
@@ -26,7 +27,9 @@ public class CasinoWebUtil {
     //获取当前操作者的身份
     public static Long getAuthId() {
         String token = getToken();
-        return getAuthId(token);
+        JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
+        return Long.parseLong(subject.getUserId());
+//        return getAuthId(token);
     }
 
     //获取当前操作者的身份

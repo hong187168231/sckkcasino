@@ -7,6 +7,7 @@ import com.qianyi.payadmin.util.PayUtil;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Component
 public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
@@ -17,7 +18,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
     }
 
     @Override
-    public boolean hasPermission(HttpServletRequest request) {
+    public boolean hasPermission(HttpServletRequest request, HttpServletResponse response) {
         String token = PayUtil.getToken();
 
         if(JjwtUtil.check(token, Constants.PAY_ADMIN)){
