@@ -15,6 +15,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,9 +31,15 @@ public class ChargeOrderService {
     }
 
     public Page<ChargeOrder> findChargeOrderPage(ChargeOrder chargeOrder, Pageable pageable){
-        Specification<ChargeOrder> condition = getCondition(chargeOrder);
+        Specification<ChargeOrder> condition = getCondition(chargeOrder,null,null);
         return chargeOrderRepository.findAll(condition,pageable);
     }
+
+    public List<ChargeOrder> findChargeOrders(ChargeOrder chargeOrder,Date startDate,Date endDate){
+        Specification<ChargeOrder> condition = getCondition(chargeOrder,startDate,endDate);
+        return chargeOrderRepository.findAll(condition);
+    }
+
     public Page<ChargeOrder> findChargeOrderPage(Specification<ChargeOrder> condition, Pageable pageable){
         return chargeOrderRepository.findAll(condition,pageable);
     }
@@ -63,7 +70,7 @@ public class ChargeOrderService {
      * @param
      * @return
      */
-    private Specification<ChargeOrder> getCondition(ChargeOrder chargeOrder) {
+    private Specification<ChargeOrder> getCondition(ChargeOrder chargeOrder,Date startDate,Date endDate) {
         Specification<ChargeOrder> specification = new Specification<ChargeOrder>() {
             @Override
             public Predicate toPredicate(Root<ChargeOrder> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -89,6 +96,12 @@ public class ChargeOrderService {
                 }
                 if (chargeOrder.getThirdProxy() != null) {
                     list.add(cb.equal(root.get("thirdProxy").as(Long.class), chargeOrder.getThirdProxy()));
+                }
+                if (startDate != null) {
+                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+                }
+                if (endDate != null) {
+                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
                 }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));
 

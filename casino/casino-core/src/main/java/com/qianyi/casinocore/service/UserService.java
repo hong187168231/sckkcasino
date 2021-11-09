@@ -85,6 +85,11 @@ public class UserService {
         Specification<User> condition = this.getCondition(user,null,null);
         return userRepository.findAll(condition);
     }
+
+    public List<User> findUserList(User user,Date startDate,Date endDate) {
+        Specification<User> condition = this.getCondition(user,startDate,endDate);
+        return userRepository.findAll(condition);
+    }
     /**
      * 查询条件拼接，灵活添加条件
      *

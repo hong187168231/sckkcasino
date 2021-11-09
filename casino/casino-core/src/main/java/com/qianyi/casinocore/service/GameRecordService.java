@@ -30,8 +30,6 @@ public class GameRecordService {
 
     @Autowired
     private GameRecordRepository gameRecordRepository;
-    @Autowired
-    private UserService userService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -39,8 +37,13 @@ public class GameRecordService {
 
 
     public Page<GameRecord> findGameRecordPage(GameRecord gameRecord, Pageable pageable) {
-        Specification<GameRecord> condition = getCondition(gameRecord);
+        Specification<GameRecord> condition = getCondition(gameRecord,null,null);
         return gameRecordRepository.findAll(condition, pageable);
+    }
+
+    public List<GameRecord> findGameRecords(GameRecord gameRecord,String startTime,String endTime) {
+        Specification<GameRecord> condition = getCondition(gameRecord,startTime,endTime);
+        return gameRecordRepository.findAll(condition);
     }
 
     public  GameRecord  findRecordRecordSum(GameRecord game) {
@@ -112,7 +115,7 @@ public class GameRecordService {
      * @param
      * @return
      */
-    private Specification<GameRecord> getCondition(GameRecord gameRecord) {
+    private Specification<GameRecord> getCondition(GameRecord gameRecord,String startTime,String endTime) {
         Specification<GameRecord> specification = new Specification<GameRecord>() {
             @Override
             public Predicate toPredicate(Root<GameRecord> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -141,6 +144,11 @@ public class GameRecordService {
                 }
                 if (gameRecord.getThirdProxy() != null) {
                     list.add(cb.equal(root.get("thirdProxy").as(Long.class), gameRecord.getThirdProxy()));
+                }
+                if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
+                    list.add(
+                            cb.between(root.get("betTime").as(String.class), startTime, endTime)
+                    );
                 }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));
                 return predicate;
