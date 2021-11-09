@@ -2,6 +2,7 @@ package com.qianyi.casinoadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.util.BukaHttpClient4Util;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -24,6 +25,7 @@ public class MessageBalanceController {
 
     @PostMapping("balance")
     @ApiOperation("查询短信平台余额")
+    @NoAuthorization
     public ResponseEntity balance() {
         String url = getUrl("getBalance");
         String result = BukaHttpClient4Util.doGet(url);

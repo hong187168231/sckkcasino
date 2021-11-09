@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -28,6 +29,7 @@ public class WMBalanceController {
      *
      * @return
      */
+    @NoAuthorization
     @ApiOperation("web定时查询WM总余额")
     @GetMapping("/findWMBalance")
     public ResponseEntity findWMBalance(){
