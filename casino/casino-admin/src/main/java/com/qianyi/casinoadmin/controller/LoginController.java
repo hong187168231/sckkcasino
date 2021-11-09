@@ -399,6 +399,7 @@ public class LoginController {
             SysUserVo sysUserVo = new SysUserVo();
             if(sys.getUserName().equals("admin")){
                 BeanUtils.copyProperties(sys, sysUserVo);
+                sysUserVo.setSysRoleId(0l);
                 sysPermissionList = sysPermissionService.findAll();
             }else{
                 SysUserRole sysUserRole = roleServiceBusiness.getSysUserRole(sys.getId());
