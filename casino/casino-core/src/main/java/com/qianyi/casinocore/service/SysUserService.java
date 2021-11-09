@@ -41,7 +41,7 @@ public class SysUserService {
     public SysUser findAllById(Long id){
         return sysUserRepository.findAllById(id);
     }
-//    @Cacheable(key = "#id")
+    @Cacheable(key = "#id")
     public SysUser findById(Long id){
         Optional<SysUser> optional = sysUserRepository.findById(id);
         if (optional.isPresent()) {
