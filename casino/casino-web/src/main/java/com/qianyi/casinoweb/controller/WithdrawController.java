@@ -9,6 +9,7 @@ import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.BankcardsService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.vo.BankcardVo;
+import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -122,6 +123,10 @@ public class WithdrawController {
         if (!newsWithdrawPassword.equals(confirmWithdrawPassword)) {
             return ResponseUtil.custom("两次输入密码不匹配，请仔细确认");
         }
+        String regx="^[0-9a-zA-Z]{6}$";
+        if (!newsWithdrawPassword.matches(regx)) {
+            return ResponseUtil.custom("取款密码必须是6位的字母或数字");
+        }
         if (!ObjectUtils.isEmpty(user.getWithdrawPassword())) {
             if (ObjectUtils.isEmpty(oldWithdrawPassword)) {
                 return ResponseUtil.custom("原取款密码不允许为空");
@@ -166,6 +171,9 @@ public class WithdrawController {
         boolean checkBcrypt = CasinoWebUtil.checkBcrypt(oldLoginPassword, user.getPassword());
         if(!checkBcrypt){
             return ResponseUtil.custom("原登录密码填写错误");
+        }
+        if (!newsLoginPassword.matches(RegexEnum.ACCOUNT.getRegex())) {
+            return ResponseUtil.custom("密码" + RegexEnum.ACCOUNT.getDesc());
         }
         String bcryptLoginPassword = CasinoWebUtil.bcrypt(newsLoginPassword);
         user.setPassword(bcryptLoginPassword);
