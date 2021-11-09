@@ -53,6 +53,31 @@ public class SysPermissionService {
         return specification;
     }
 
+    public List<SysPermission> findAllConditionPid(List<Long> permissionIds) {
+        Specification<SysPermission> conditionthis = this.getConditionPid(permissionIds);
+        return sysPermissionRepository.findAll(conditionthis);
+    }
+
+    private Specification<SysPermission> getConditionPid(List<Long> permissionIds) {
+        Specification<SysPermission> specification = new Specification<SysPermission>() {
+            @Override
+            public Predicate toPredicate(Root<SysPermission> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                Predicate predicate = cb.conjunction();
+                if (permissionIds != null && permissionIds.size() > 0) {
+                    Path<Object> pid = root.get("pid");
+                    CriteriaBuilder.In<Object> in = cb.in(pid);
+                    for (Long id : permissionIds) {
+                        in.value(id);
+                    }
+                    list.add(cb.and(cb.and(in)));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
+    }
+
     public List<SysPermission> findByPromission(List<Long> permissionIds) {
         List<SysPermission> sysPermissionList = sysPermissionRepository.findAllById(permissionIds);
         return sysPermissionList;

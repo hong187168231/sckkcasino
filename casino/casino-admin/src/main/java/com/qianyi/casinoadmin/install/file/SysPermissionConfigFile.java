@@ -98,6 +98,7 @@ public class SysPermissionConfigFile {
 
         SysPermission APPMeange = new SysPermission("APP升级管理", "APP升级管理", "/download/findDownloadStationPage", systemPermission.getId(), 2, 0);
         SysPermission sysUserList = new SysPermission("用户列表", "用户列表", "/sysUser/userList", systemPermission.getId(), 2, 0);
+        SysPermission roleUserList = new SysPermission("角色列表", "角色列表", "/sysUser/roleList", systemPermission.getId(), 2, 0);
         secordPermissions.add(APPMeange);
         secordPermissions.add(sysUserList);
         sysPermissionService.saveAllList(secordPermissions);
@@ -231,21 +232,21 @@ public class SysPermissionConfigFile {
         SysPermission saveDownloadStation = new SysPermission("保存", "保存", "/download/saveDownloadStation", APPMeange.getId(), 3, 0);
         thridPermissions.add(saveDownloadStation);
 
-        SysPermission findPermissionList = new SysPermission("权限查询", "权限查询", "/role/findPermissionList", sysUserList.getId(), 3, 0);
-        SysPermission updatePermissionList = new SysPermission("编辑权限", "编辑权限", "/role/updatePermissionList", sysUserList.getId(), 3, 0);
-        SysPermission getRoleList = new SysPermission("查询角色数据", "查询角色数据", "/role/getRoleList", sysUserList.getId(), 3, 0);
+        SysPermission findPermissionList = new SysPermission("权限查询", "权限查询", "/role/findPermissionList", roleUserList.getId(), 3, 0);
+        SysPermission updatePermissionList = new SysPermission("编辑权限", "编辑权限", "/role/updatePermissionList", roleUserList.getId(), 3, 0);
+        SysPermission getRoleList = new SysPermission("查询角色数据", "查询角色数据", "/role/getRoleList", roleUserList.getId(), 3, 0);
         SysPermission getUserRoleBind = new SysPermission("绑定用户角色", "绑定用户角色", "/role/getUserRoleBind", sysUserList.getId(), 3, 0);
         SysPermission getSysUser = new SysPermission("查询用户数据", "查询用户数据", "/role/getSysUser", sysUserList.getId(), 3, 0);
-        SysPermission addPermissionList = new SysPermission("添加权限表数据", "添加权限表数据", "/role/addPermissionList", sysUserList.getId(), 3, 0);
-        SysPermission deletePermissionList = new SysPermission("删除权限表数据", "删除权限表数据", "/role/deletePermissionList", sysUserList.getId(), 3, 0);
+//        SysPermission addPermissionList = new SysPermission("添加权限表数据", "添加权限表数据", "/role/addPermissionList", roleUserList.getId(), 3, 0);
+//        SysPermission deletePermissionList = new SysPermission("删除权限表数据", "删除权限表数据", "/role/deletePermissionList", sysUserList.getId(), 3, 0);
         SysPermission deleteRoleList = new SysPermission("删除角色", "删除角色", "/role/deleteRoleList", sysUserList.getId(), 3, 0);
         thridPermissions.add(findPermissionList);
         thridPermissions.add(updatePermissionList);
         thridPermissions.add(getRoleList);
         thridPermissions.add(getUserRoleBind);
         thridPermissions.add(getSysUser);
-        thridPermissions.add(addPermissionList);
-        thridPermissions.add(deletePermissionList);
+//        thridPermissions.add(addPermissionList);
+//        thridPermissions.add(deletePermissionList);
         thridPermissions.add(deleteRoleList);
 
 

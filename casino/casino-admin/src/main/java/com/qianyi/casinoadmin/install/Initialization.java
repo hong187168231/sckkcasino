@@ -1,9 +1,6 @@
 package com.qianyi.casinoadmin.install;
 
-import com.qianyi.casinoadmin.install.file.PictureInitialize;
-import com.qianyi.casinoadmin.install.file.PlatformConfigFile;
-import com.qianyi.casinoadmin.install.file.ProxyRebateConfigFile;
-import com.qianyi.casinoadmin.install.file.SysPermissionConfigFile;
+import com.qianyi.casinoadmin.install.file.*;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
@@ -41,6 +38,8 @@ public class Initialization implements CommandLineRunner {
     private BankInfoService bankInfoService;
     @Autowired
     private PictureService pictureService;
+    @Autowired
+    private InitializationSuperRole initializationSuperRole;
 
     @Override
     public void run(String... args) throws Exception {
@@ -51,6 +50,7 @@ public class Initialization implements CommandLineRunner {
        this.runPlatformConfig();
        this.runProxyRebateConfig();
        this.runSysPermissionConfig();
+       initializationSuperRole.saveSuperRole();;
     }
     private void saveBanner(){
         List<LunboPic> PCLunboPics = pictureService.findByTheShowEnd(CommonConst.NUMBER_1);

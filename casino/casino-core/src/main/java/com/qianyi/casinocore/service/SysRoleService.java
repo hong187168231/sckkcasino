@@ -55,20 +55,27 @@ public class SysRoleService {
     /**
      * 查询条件拼接，灵活添加条件
      *
-     * @param sysUserRole
+     * sysRole
      * @return
      */
-    private Specification<SysUserRole> getCondition(SysUserRole sysUserRole) {
-        Specification<SysUserRole> specification = new Specification<SysUserRole>() {
+    private Specification<SysRole> getCondition(SysRole sysRole) {
+        Specification<SysRole> specification = new Specification<SysRole>() {
             @Override
-            public Predicate toPredicate(Root<SysUserRole> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+            public Predicate toPredicate(Root<SysRole> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
-                if (sysUserRole.getSysUserId() != null) {
-                    list.add(cb.equal(root.get("sysRoleId").as(String.class), sysUserRole.getSysUserId()));
+                if (sysRole.getRoleName() != null) {
+                    list.add(cb.equal(root.get("roleName").as(String.class), sysRole.getRoleName()));
                 }
+
                 return cb.and(list.toArray(new Predicate[list.size()]));
             }
         };
         return specification;
+    }
+
+    public List<SysRole> findbyRoleName(SysRole sysRole) {
+        List<SysRole> sysRoleList = sysRoleRepository.findAll(getCondition(sysRole));
+
+        return sysRoleList;
     }
 }
