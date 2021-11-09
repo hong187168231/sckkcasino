@@ -23,9 +23,9 @@ public abstract class AbstractAuthorizationInteceptor  implements HandlerInterce
         NoAuthorization noAuthorization = method.getAnnotation(NoAuthorization.class);
         //临时调试
         if (noAuthorization == null) {
-//            if(discharged()){
-//                return true;
-//            }
+            if(discharged()){
+                return true;
+            }
             if(hasBan()){
                 String url=request.getServletPath();
                 if(url.contains("authenticationBan")){
