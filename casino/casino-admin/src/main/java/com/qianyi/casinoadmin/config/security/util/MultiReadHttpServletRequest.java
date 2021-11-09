@@ -151,7 +151,7 @@ public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
         catch(Exception e) {
             log.error("请求参数转换错误!",e);
         }
-        log.info("json is {}",json.toString());
+//        log.info("json is {}",json.toString());
         return json.toString();
     }
 

@@ -25,9 +25,9 @@ public class AuthorizationInteceptor extends AbstractAuthorizationInteceptor {
     @Override
     protected boolean hasBan() {
         Long authId= LoginUtil.getLoginUserId();
-        if(authId == null){
-            return true;
-        }
+//        if(authId == null){
+//            return true;
+//        }
         SysUser user=sysUserService.findById(authId);
         boolean flag= SysUser.checkUser(user);
         return !flag;
@@ -36,6 +36,9 @@ public class AuthorizationInteceptor extends AbstractAuthorizationInteceptor {
     @Override
     protected boolean discharged() {
         Long authId= LoginUtil.getLoginUserId();
+        if(authId == null){
+            return false;
+        }
         SysUser user=sysUserService.findById(authId);
         if(user.getUserName().equals("admin")){//admin所有权限
             return true;
