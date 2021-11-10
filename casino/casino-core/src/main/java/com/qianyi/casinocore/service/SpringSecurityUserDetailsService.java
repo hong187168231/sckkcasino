@@ -21,12 +21,12 @@ import java.util.Collection;
 public class SpringSecurityUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
 
-        User user = userRepository.findByAccount(userName);
+        User user = userService.findByAccount(userName);
         if(user != null){
             return user;
         }
@@ -35,7 +35,7 @@ public class SpringSecurityUserDetailsService implements UserDetailsService {
     }
 
     public UserDetails getUserDetaisByUserId(Long userid){
-        User user = userRepository.findById(userid).orElse(null);
+        User user = userService.findById(userid);
         if(user == null){
             throw new BadCredentialsException("TOKEN已过期，请重新登录!");
         }
