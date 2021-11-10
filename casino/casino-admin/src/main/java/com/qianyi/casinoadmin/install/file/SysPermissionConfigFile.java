@@ -17,12 +17,12 @@ public class SysPermissionConfigFile {
 
     public List<SysPermission> getPermissionConfig() {
         List<SysPermission> all = sysPermissionService.findAll();
-//        getTemp();
+        getTemp();
         if(!LoginUtil.checkNull(all)){
             //TODO 调试完需要删除
 //            sysPermissionService.delete();
 
-//            return null;
+            return null;
         }
         List<SysPermission> sysPermissionList = new ArrayList<>();
         //一级菜单栏位
