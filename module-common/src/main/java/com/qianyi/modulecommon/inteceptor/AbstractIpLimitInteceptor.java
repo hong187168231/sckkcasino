@@ -1,5 +1,7 @@
 package com.qianyi.modulecommon.inteceptor;
 
+import com.qianyi.modulecommon.Constants;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -7,7 +9,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URLEncoder;
-
+@Slf4j
 public abstract class AbstractIpLimitInteceptor implements HandlerInterceptor {
 
     @Override
@@ -18,6 +20,7 @@ public abstract class AbstractIpLimitInteceptor implements HandlerInterceptor {
         }
         String ipRemark = ipLimit(request);
         if(!ObjectUtils.isEmpty(ipRemark)){
+            log.error("ip被封，原因:{},请求路径:{},token:{}",ipRemark,request.getRequestURI(),request.getHeader(Constants.AUTHORIZATION));
 //            ipRemark = URLEncoder.encode(ipRemark,"UTF-8");
             response.sendRedirect(request.getContextPath()+"/authenticationIpLimit");
             return false;
