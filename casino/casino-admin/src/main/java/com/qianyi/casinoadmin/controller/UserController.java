@@ -14,6 +14,7 @@ import com.qianyi.casinocore.service.*;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -622,6 +623,7 @@ public class UserController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "用户id", required = true),
     })
+    @NoAuthorization
     @GetMapping("/findProxyReport")
     public ResponseEntity<ProxyReport> findProxyReport(Long id){
         if (LoginUtil.checkNull(id)){
@@ -640,6 +642,7 @@ public class UserController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "用户id", required = true),
     })
+    @NoAuthorization
     @GetMapping("/findAgency")
     public ResponseEntity findAgency(Long id){
         if (LoginUtil.checkNull(id)){
