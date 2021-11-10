@@ -13,6 +13,7 @@ import com.qianyi.casinocore.service.BankcardsService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -56,6 +57,7 @@ public class BankCardsController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "disable", value = "0:未禁用 1：禁用", required = false),
     })
+    @NoAuthorization
     public ResponseEntity<BankInfo> bankList(Integer disable) {
         BankInfo bankInfo = new BankInfo();
         bankInfo.setDisable(disable);

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 public class SysPermissionConfigFile {
@@ -22,7 +23,7 @@ public class SysPermissionConfigFile {
             //TODO 调试完需要删除
 //            sysPermissionService.delete();
 
-//            return null;
+            return null;
         }
         List<SysPermission> sysPermissionList = new ArrayList<>();
         //一级菜单栏位
@@ -275,23 +276,28 @@ public class SysPermissionConfigFile {
     }
 
     private void getTemp() {
-        List<SysPermission> thridPermissionsAdd1 = new ArrayList<>();
-        SysPermission updateDirectly = new SysPermission("修改人人代直属下级最大个数", "修改人人代直属下级最大个数", "/platformConfig/updateDirectly", 18l, 3, 0);
-        SysPermission findDirectly = new SysPermission("查询人人代直属下级最大个数", "查询人人代直属下级最大个数", "/platformConfig/findDirectly", 18l, 3, 0);
-        SysPermission updateMessageBalance = new SysPermission("编辑短信余额风险警戒线", "编辑短信余额风险警戒线", "/platformConfig/updateMessageBalance", 18l, 3, 0);
-        thridPermissionsAdd1.add(updateDirectly);
-        thridPermissionsAdd1.add(findDirectly);
-        thridPermissionsAdd1.add(updateMessageBalance);
-        sysPermissionService.saveAllList(thridPermissionsAdd1);
+        List<SysPermission> sysPermissionList = sysPermissionService.findAll();
+        List<SysPermission> sysList = sysPermissionList.subList(sysPermissionList.size() - 6, sysPermissionList.size());
+        List<Long> ids = sysList.stream().map(SysPermission::getId).collect(Collectors.toList());
+        sysPermissionService.deleteAllIds(ids);
 
-        List<SysPermission> secordPermissionsAdd1 = new ArrayList<>();
-        //代理中心下菜单
-        SysPermission findDetail = new SysPermission("人人代下级明细", "人人代下级明细", "/proxyReport /findDetail", 2l, 2, 0);
-        SysPermission findDayDetail = new SysPermission("人人代每日结算细节", "人人代每日结算细节", "/proxyReport /findDayDetail", 2l, 2, 0);
-        SysPermission proxyReportFind = new SysPermission("查询人人代报表", "查询人人代报表", "/proxyReport /find", 2l, 2, 0);
-        secordPermissionsAdd1.add(findDetail);
-        secordPermissionsAdd1.add(findDayDetail);
-        secordPermissionsAdd1.add(proxyReportFind);
-        sysPermissionService.saveAllList(secordPermissionsAdd1);
+//        List<SysPermission> thridPermissionsAdd1 = new ArrayList<>();
+//        SysPermission updateDirectly = new SysPermission("修改人人代直属下级最大个数", "修改人人代直属下级最大个数", "/platformConfig/updateDirectly", 18l, 3, 0);
+//        SysPermission findDirectly = new SysPermission("查询人人代直属下级最大个数", "查询人人代直属下级最大个数", "/platformConfig/findDirectly", 18l, 3, 0);
+//        SysPermission updateMessageBalance = new SysPermission("编辑短信余额风险警戒线", "编辑短信余额风险警戒线", "/platformConfig/updateMessageBalance", 18l, 3, 0);
+//        thridPermissionsAdd1.add(updateDirectly);
+//        thridPermissionsAdd1.add(findDirectly);
+//        thridPermissionsAdd1.add(updateMessageBalance);
+//        sysPermissionService.saveAllList(thridPermissionsAdd1);
+//
+//        List<SysPermission> secordPermissionsAdd1 = new ArrayList<>();
+//        //代理中心下菜单
+//        SysPermission findDetail = new SysPermission("人人代下级明细", "人人代下级明细", "/proxyReport /findDetail", 2l, 2, 0);
+//        SysPermission findDayDetail = new SysPermission("人人代每日结算细节", "人人代每日结算细节", "/proxyReport /findDayDetail", 2l, 2, 0);
+//        SysPermission proxyReportFind = new SysPermission("查询人人代报表", "查询人人代报表", "/proxyReport /find", 2l, 2, 0);
+//        secordPermissionsAdd1.add(findDetail);
+//        secordPermissionsAdd1.add(findDayDetail);
+//        secordPermissionsAdd1.add(proxyReportFind);
+//        sysPermissionService.saveAllList(secordPermissionsAdd1);
     }
 }

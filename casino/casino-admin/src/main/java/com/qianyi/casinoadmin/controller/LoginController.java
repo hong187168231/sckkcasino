@@ -419,7 +419,7 @@ public class LoginController {
 
             List<SysPermission> sysPermissions = sysPermissionList.stream().filter(sysPermission -> sysPermission.getIsDetele() == 0).collect(Collectors.toList());
             if(null == sysPermissions || sysPermissions.size() <= 0){
-                return ResponseUtil.success();
+                return ResponseUtil.success(sysUserVo);
             }
             List<SysPermissionVo> sysPermissionVos = JSON.parseArray(JSONObject.toJSONString(sysPermissions), SysPermissionVo.class);
             //得到第三层权限数据
@@ -428,6 +428,9 @@ public class LoginController {
             List<SysPermissionVo> sysPermissionOne = sysPermissionVos.stream().filter(sysPermissionVo -> sysPermissionVo.getMenuLevel() == 1).collect(Collectors.toList());
             for (SysPermissionVo sysTwo : sysPermissionTwo) {
                 for (SysPermissionVo sysThrid : sysPermissionThird) {
+                    if(sysThrid.getPid() == null){
+                        continue;
+                    }
                     if(sysTwo.getId().intValue() == sysThrid.getPid().intValue()){
                         sysTwo.getSysPermissionVoList().add(sysThrid);
                     }

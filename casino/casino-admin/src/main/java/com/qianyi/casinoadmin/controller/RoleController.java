@@ -186,6 +186,9 @@ public class RoleController {
         List<SysPermissionVo> sysPermissionOne = sysPermissionVos.stream().filter(sysPermissionVo -> sysPermissionVo.getMenuLevel() == 1).collect(Collectors.toList());
         for (SysPermissionVo sysTwo : sysPermissionTwo) {
             for (SysPermissionVo sysThrid : sysPermissionThird) {
+                if(sysThrid.getPid() == null){
+                    continue;
+                }
                 if(sysTwo.getId().intValue() == sysThrid.getPid().intValue()){
                     sysTwo.getSysPermissionVoList().add(sysThrid);
                 }

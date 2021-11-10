@@ -7,6 +7,7 @@ import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -118,6 +119,7 @@ public class GameRecordController {
             @ApiImplicitParam(name = "gname", value = "游戏名称", required = false),
             @ApiImplicitParam(name = "gid", value = "游戏类型", required = false),
     })
+    @NoAuthorization
     public ResponseEntity findRecordRecordSum(String user,String betId,String gname,Integer gid){
         GameRecord game = new GameRecord();
         game.setUser(user);
