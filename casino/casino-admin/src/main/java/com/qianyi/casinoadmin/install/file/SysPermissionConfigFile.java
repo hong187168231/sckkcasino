@@ -17,7 +17,7 @@ public class SysPermissionConfigFile {
 
     public List<SysPermission> getPermissionConfig() {
         List<SysPermission> all = sysPermissionService.findAll();
-        getTemp();
+//        getTemp();
         if(!LoginUtil.checkNull(all)){
             //TODO 调试完需要删除
 //            sysPermissionService.delete();
