@@ -11,7 +11,7 @@ public enum ResponseCode {
     FAIL(-2,"fail"),
     ERROR(-1, "error"),
     SUCCESS(0, "success"),
-    AUTHENTICATION_NOPASS(1, "认证失败"),
+    AUTHENTICATION_NOPASS(1, "登录已过期，请重新登录"),
     AUTHORIZATION_NOPASS(2, "授权失败"),
     GOOGLEAUTH_NOPASS(3, "谷歌身份验证码错误"),
     REQUEST_LIMIT(4, "规定时间超过请求次数"),
