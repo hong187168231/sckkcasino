@@ -21,10 +21,11 @@
         <module>module-swagger2</module>
         <module>module-authenticator</module>
         <module>module-springcache-redis</module>
+        <module>module-spring-rabbitmq</module>
         <module>pay</module>
         <module>casino</module>
         <module>sms</module>
-        <module>module-spring-rabbitmq</module>
+        <module>file-upload-download</module>
     </modules>
 
     <properties>
