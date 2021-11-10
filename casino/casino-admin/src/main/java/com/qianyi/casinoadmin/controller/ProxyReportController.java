@@ -192,7 +192,7 @@ public class ProxyReportController {
         ProxyReportVo proxyReportVo = new ProxyReportVo();
         if (tier != CommonConst.NUMBER_3){
             ProxyReport byUserId = proxyReportService.findByUserId(user.getId());
-            proxyReportVo.setAllGroupNum(byUserId.getAllGroupNum());
+            proxyReportVo.setAllGroupNum(byUserId==null?CommonConst.NUMBER_0:byUserId.getAllGroupNum());
         }
         proxyReportVo.setTier(tier);
         GameRecord gameRecord = gameRecordService.findRecordRecordSum(user.getId(), startTime+start, endTime+end);
