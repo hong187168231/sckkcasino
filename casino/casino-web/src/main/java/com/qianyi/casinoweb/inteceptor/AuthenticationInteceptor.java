@@ -86,7 +86,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
             jwtTiken.setNewToken(refreshToken);
             //不是最新的token也可以获取到新token，但是多设备校验的时候会拦截
             if (redisJwtToken != null && (token.equals(redisJwtToken.getOldToken()) || token.equals(redisJwtToken.getNewToken()))) {
-                redisUtil.set(Constants.REDIS_TOKEN + authId, jwtTiken);
+                redisUtil.set(Constants.REDIS_TOKEN + authId, jwtTiken,Constants.WEB_REFRESH_TTL);
             }
             return jwtTiken;
         }

@@ -93,7 +93,6 @@ public class Constants {
     //redis token前缀
     public static final String AUTHORIZATION= "authorization";
     //web端JWT过期后，24H内可颁发新的token
-//    public static final Long WEB_REFRESH_TTL = 60 * 60L * 24;//秒
-    public static final Long WEB_REFRESH_TTL = 2 * 60L;//秒
+    public static final Long WEB_REFRESH_TTL = 60 * 60L * 24;//秒
 
 }
