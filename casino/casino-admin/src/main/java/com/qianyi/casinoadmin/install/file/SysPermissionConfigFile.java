@@ -23,7 +23,7 @@ public class SysPermissionConfigFile {
             //TODO 调试完需要删除
             sysPermissionService.delete();
 
-            return null;
+//            return null;
         }
         List<SysPermission> sysPermissionList = new ArrayList<>();
         //一级菜单栏位
