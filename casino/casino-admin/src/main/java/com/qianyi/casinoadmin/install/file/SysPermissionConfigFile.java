@@ -21,9 +21,9 @@ public class SysPermissionConfigFile {
 //        getTemp();
         if(!LoginUtil.checkNull(all)){
             //TODO 调试完需要删除
-//            sysPermissionService.delete();
+            sysPermissionService.delete();
 
-            return null;
+//            return null;
         }
         List<SysPermission> sysPermissionList = new ArrayList<>();
         //一级菜单栏位
