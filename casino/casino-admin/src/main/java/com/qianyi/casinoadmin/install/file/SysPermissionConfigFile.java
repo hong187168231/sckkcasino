@@ -21,9 +21,9 @@ public class SysPermissionConfigFile {
 //        getTemp();
         if(!LoginUtil.checkNull(all)){
             //TODO 调试完需要删除
-//            sysPermissionService.delete();
+            sysPermissionService.delete();
 
-            return null;
+//            return null;
         }
         List<SysPermission> sysPermissionList = new ArrayList<>();
         //一级菜单栏位
@@ -67,7 +67,7 @@ public class SysPermissionConfigFile {
         secordPermissions.add(withdrawalOrder);
 
         SysPermission bankChannel = new SysPermission("银行渠道设置", "银行渠道设置", "/bankcard/banklist", financePermission.getId(), 2, 0);
-        SysPermission collectionSet = new SysPermission("收款银行卡设置", "收款银行卡设置", "/chargeOrder/chargeOrderList", financePermission.getId(), 2, 0);
+        SysPermission collectionSet = new SysPermission("收款银行卡设置", "收款银行卡设置", "/collection/bankList", financePermission.getId(), 2, 0);
         secordPermissions.add(bankChannel);
         secordPermissions.add(collectionSet);
 
@@ -160,8 +160,12 @@ public class SysPermissionConfigFile {
 
         SysPermission findSum = new SysPermission("代理日报表统计", "代理报表统计", "/companyProxyDetail/findSum", agentReport.getId(), 3, 0);
         SysPermission companyProxyDetail = new SysPermission("代理月报表统计", "代理月报表统计", "/companyProxyDetail/findSum", agentMonthReport.getId(), 3, 0);
+        SysPermission findDailyDetails = new SysPermission("每日结算细节", "每日结算细节", "/companyProxyDetail/findDailyDetails", agentReport.getId(), 3, 0);
+        SysPermission findDailyDetailsSum = new SysPermission("统计每日结算细节", "统计每日结算细节", "/companyProxyDetail/findDailyDetailsSum", agentReport.getId(), 3, 0);
         thridPermissions.add(findSum);
         thridPermissions.add(companyProxyDetail);
+        thridPermissions.add(findDailyDetails);
+        thridPermissions.add(findDailyDetailsSum);
 
         SysPermission updateChargeOrder = new SysPermission("充值审核", "充值审核", "/chargeOrder/updateChargeOrder", chargeOrder.getId(), 3, 0);
         SysPermission saveWithdraw = new SysPermission("提现审核", "提现审核", "/withdraw/saveWithdraw", withdrawalOrder.getId(), 3, 0);
