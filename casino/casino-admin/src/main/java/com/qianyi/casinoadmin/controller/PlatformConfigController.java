@@ -5,6 +5,7 @@ import com.qianyi.casinoadmin.vo.*;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -165,6 +166,7 @@ public class PlatformConfigController {
      */
     @ApiOperation("短信余额警戒线查询")
     @GetMapping("/findMessageBalance")
+    @NoAuthorization
     public ResponseEntity<PlatformConfig> findMessageBalance(){
         PlatformConfig platformConfig = platformConfigService.findFirst();
         SendMessageVo sendMessageVo = new SendMessageVo();
