@@ -229,7 +229,7 @@ public class PlatformConfigController {
     @GetMapping("/findPromotionCode")
     public ResponseEntity findPromotionCode(){
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        return ResponseUtil.success(platformConfig==null?"":platformConfig.getPromotionCode());
+        return ResponseUtil.success(platformConfig==null?"":platformConfig.getCompanyInviteCode());
     }
 
     @ApiOperation("修改推广链接码")
@@ -249,7 +249,7 @@ public class PlatformConfigController {
         if (LoginUtil.checkNull(platformConfig)){
             platformConfig = new PlatformConfig();
         }
-        platformConfig.setPromotionCode(promotionCode);
+        platformConfig.setCompanyInviteCode(promotionCode);
         platformConfigService.save(platformConfig);
         return ResponseUtil.success();
     }
