@@ -74,7 +74,7 @@ public class SysPermissionConfigFile {
         SysPermission platformConfig = new SysPermission("平台配置", "平台配置", "/chargeConfig/findChargeConfig", operatePermission.getId(), 2, 0);
         SysPermission agentPromotion = new SysPermission("代理推广返佣配置", "代理推广返佣配置", "/proxyRebate/findAll", operatePermission.getId(), 2, 0);
         SysPermission pcBanner = new SysPermission("PC端轮播图配置", "PC端轮播图配置", "/picture/findByBannerList", operatePermission.getId(), 2, 0);
-        SysPermission mobileBanner = new SysPermission("移动端轮播图配置", "移动端轮播图配置", "/picture/findByBannerList", operatePermission.getId(), 2, 0);
+        SysPermission mobileBanner = new SysPermission("移动端轮播图配置", "移动端轮播图配置", "/picture/findByBannerListYD", operatePermission.getId(), 2, 0);
         SysPermission noticeConfig = new SysPermission("公告消息配置", "公告消息配置", "/notice/findNotice", operatePermission.getId(), 2, 0);
         SysPermission gameConfig = new SysPermission("游戏洗码配置", "游戏洗码配置", "/washCodeConfig/findAll", operatePermission.getId(), 2, 0);
         SysPermission customerConfig = new SysPermission("客服中心配置", "客服中心配置", "/customer/findCustomer", operatePermission.getId(), 2, 0);
@@ -220,12 +220,15 @@ public class SysPermissionConfigFile {
         thridPermissions.add(savePCPicture);
         thridPermissions.add(savePicture);
 
+        SysPermission findByBanner = new SysPermission("轮播图查询", "移动端轮播图配置", "/picture/findByBannerList", mobileBanner.getId(), 2, 0);
+
         SysPermission deleteNotice = new SysPermission("上下架", "上下架", "/notice/deleteNotice", noticeConfig.getId(), 3, 0);
         SysPermission updateNotice = new SysPermission("编辑", "编辑", "/notice/updateNotice", noticeConfig.getId(), 3, 0);
         SysPermission saveNotice = new SysPermission("新增", "新增", "/notice/saveNotice", noticeConfig.getId(), 3, 0);
         thridPermissions.add(deleteNotice);
         thridPermissions.add(updateNotice);
         thridPermissions.add(saveNotice);
+        thridPermissions.add(findByBanner);
 
         SysPermission updateKeyCustomer = new SysPermission("保存", "保存", "/customer/updateKeyCustomer", customerConfig.getId(), 3, 0);
         thridPermissions.add(updateKeyCustomer);
