@@ -145,7 +145,7 @@ public class WashCodeController {
         vo.setAmountBefore(userMoney.getMoney());
         vo.setAmountAfter(userMoney.getMoney().add(washCode));
         asyncService.executeAsync(vo);
-        return ResponseUtil.success("成功领取金额：" + washCode);
+        return ResponseUtil.success("成功领取金额" , washCode);
     }
 
     @Data
