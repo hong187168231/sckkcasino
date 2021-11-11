@@ -1,7 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.qianyi.casinoadmin.util.GenerateInviteCodeRunner;
+import com.qianyi.casinocore.util.GenerateInviteCodeRunner;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.util.PasswordUtil;

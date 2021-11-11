@@ -6,6 +6,7 @@ import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.util.GenerateInviteCodeRunner;
 import com.qianyi.casinocore.util.PasswordUtil;
 import com.qianyi.casinocore.vo.CodeNumConfigVo;
 import com.qianyi.casinocore.vo.PageResultVO;
@@ -76,6 +77,9 @@ public class UserController {
 
     @Autowired
     private PlatformConfigService platformConfigService;
+
+    @Autowired
+    private GenerateInviteCodeRunner generateInviteCodeRunner;
 
     @ApiOperation("查询代理下级的用户数据")
     @ApiImplicitParams({
@@ -346,6 +350,8 @@ public class UserController {
         user.setSecondProxy(byId.getSecondProxy());
         user.setThirdProxy(byId.getId());
         user.setType(Constants.USER_TYPE1);
+        String inviteCodeNew = generateInviteCodeRunner.getInviteCode();
+        user.setInviteCode(inviteCodeNew);
         User save = userService.save(user);
         //userMoney表初始化数据
         UserMoney userMoney=new UserMoney();

@@ -1,4 +1,4 @@
-package com.qianyi.casinoadmin.util;
+package com.qianyi.casinocore.util;
 
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.UserService;
