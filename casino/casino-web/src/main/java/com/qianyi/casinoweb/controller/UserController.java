@@ -6,7 +6,7 @@ import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
-import com.qianyi.casinoweb.runner.GenerateInviteCodeRunner;
+import com.qianyi.casinocore.util.GenerateInviteCodeRunner;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.util.DeviceUtil;
 import com.qianyi.casinoweb.vo.LoginLogVo;
@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @RestController
