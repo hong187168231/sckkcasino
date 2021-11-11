@@ -101,8 +101,8 @@ public class PlatformConfig {
     @ApiModelProperty("人人代直属下级最大个数")
     private Integer directlyUnderTheLower;
 
-    @ApiModelProperty("公司推广链接")
-    private String promotionCode;
+    @ApiModelProperty("公司推广邀请码")
+    private String companyInviteCode;
 
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){
