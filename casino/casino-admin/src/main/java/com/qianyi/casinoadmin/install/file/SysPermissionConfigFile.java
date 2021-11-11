@@ -21,9 +21,9 @@ public class SysPermissionConfigFile {
 //        getTemp();
         if(!LoginUtil.checkNull(all)){
             //TODO 调试完需要删除
-//            sysPermissionService.delete();
+            sysPermissionService.delete();
 
-            return null;
+//            return null;
         }
         List<SysPermission> sysPermissionList = new ArrayList<>();
         //一级菜单栏位
@@ -263,13 +263,13 @@ public class SysPermissionConfigFile {
 
         List<SysPermission> secordPermissionsAdd1 = new ArrayList<>();
         //代理中心下菜单
-        SysPermission proxyReportFind = new SysPermission("查询人人代报表", "查询人人代报表", "/proxyReport /find", memberPermission.getId(), 2, 0);
+        SysPermission proxyReportFind = new SysPermission("查询人人代报表", "查询人人代报表", "/proxyReport/find", memberPermission.getId(), 2, 0);
         secordPermissionsAdd1.add(proxyReportFind);
         sysPermissionService.saveAllList(secordPermissionsAdd1);
 
         List<SysPermission> sysPermissions = new ArrayList<>();
-        SysPermission findDetail = new SysPermission("人人代下级明细", "人人代下级明细", "/proxyReport /findDetail", proxyReportFind.getId(), 2, 0);
-        SysPermission findDayDetail = new SysPermission("人人代每日结算细节", "人人代每日结算细节", "/proxyReport /findDayDetail", proxyReportFind.getId(), 2, 0);
+        SysPermission findDetail = new SysPermission("人人代下级明细", "人人代下级明细", "/proxyReport /findDetail", proxyReportFind.getId(), 3, 0);
+        SysPermission findDayDetail = new SysPermission("人人代每日结算细节", "人人代每日结算细节", "/proxyReport /findDayDetail", proxyReportFind.getId(), 3, 0);
         sysPermissions.add(findDetail);
         sysPermissions.add(findDayDetail);
         sysPermissionService.saveAllList(sysPermissions);
