@@ -244,16 +244,12 @@ public class SysPermissionConfigFile {
         SysPermission getRoleList = new SysPermission("查询角色数据", "查询角色数据", "/role/getRoleList", roleUserList.getId(), 3, 0);
         SysPermission getUserRoleBind = new SysPermission("绑定用户角色", "绑定用户角色", "/role/getUserRoleBind", sysUserList.getId(), 3, 0);
         SysPermission getSysUser = new SysPermission("查询用户数据", "查询用户数据", "/role/getSysUser", sysUserList.getId(), 3, 0);
-//        SysPermission addPermissionList = new SysPermission("添加权限表数据", "添加权限表数据", "/role/addPermissionList", roleUserList.getId(), 3, 0);
-//        SysPermission deletePermissionList = new SysPermission("删除权限表数据", "删除权限表数据", "/role/deletePermissionList", sysUserList.getId(), 3, 0);
         SysPermission deleteRoleList = new SysPermission("删除角色", "删除角色", "/role/deleteRoleList", sysUserList.getId(), 3, 0);
         thridPermissions.add(findPermissionList);
         thridPermissions.add(updatePermissionList);
         thridPermissions.add(getRoleList);
         thridPermissions.add(getUserRoleBind);
         thridPermissions.add(getSysUser);
-//        thridPermissions.add(addPermissionList);
-//        thridPermissions.add(deletePermissionList);
         thridPermissions.add(deleteRoleList);
 
         List<SysPermission> thridPermissionsAdd1 = new ArrayList<>();
@@ -276,7 +272,7 @@ public class SysPermissionConfigFile {
         SysPermission findDayDetail = new SysPermission("人人代每日结算细节", "人人代每日结算细节", "/proxyReport /findDayDetail", proxyReportFind.getId(), 2, 0);
         sysPermissions.add(findDetail);
         sysPermissions.add(findDayDetail);
-
+        sysPermissionService.saveAllList(sysPermissions);
 
 
         sysPermissionService.saveAllList(thridPermissions);
