@@ -50,8 +50,17 @@ public class Initialization implements CommandLineRunner {
        this.runPlatformConfig();
        this.runProxyRebateConfig();
        this.runSysPermissionConfig();
-       initializationSuperRole.saveSuperRole();;
+       this.addPermissionConfig();
+       initializationSuperRole.saveSuperRole();
     }
+
+    /**
+     * 添加新的权限脚本
+     */
+    private void addPermissionConfig() {
+        sysPermissionConfigFile.addPermissionConfig();
+    }
+
     private void saveBanner(){
         List<LunboPic> PCLunboPics = pictureService.findByTheShowEnd(CommonConst.NUMBER_1);
         if (LoginUtil.checkNull(PCLunboPics) || PCLunboPics.size() == CommonConst.NUMBER_0){

@@ -451,5 +451,59 @@ public class LoginController {
         }
     }
 
+    /**
+     * 重置用户密码
+     *
+     * @param userName
+     * @param password
+     * @return
+     */
+    @ApiOperation("重置用户密码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userName", value = "帐号", required = true),
+            @ApiImplicitParam(name = "password", value = "密码", required = true),
+    })
+    @PostMapping("resetPassword")
+    public ResponseEntity resetPassword(String userName, String password) {
+        if(LoginUtil.checkNull(userName, password)){
+            return ResponseUtil.custom("参数错误");
+        }
+        SysUser sys = sysUserService.findByUserName(userName);
+        if(sys == null){
+            return ResponseUtil.custom("账号不存在！");
+        }
+        //加密
+        String bcryptPassword = LoginUtil.bcrypt(password);
+        if(bcryptPassword.equals(sys.getPassWord())){
+            return ResponseUtil.custom("新密码和旧密码相同！");
+        }
+        sys.setPassWord(bcryptPassword);
+        sysUserService.save(sys);
+        return ResponseUtil.success();
+    }
 
+    /**
+     * 充值谷歌验证码
+     *
+     * @param userName
+     * @return
+     */
+    @ApiOperation("重置谷歌验证码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userName", value = "帐号", required = true),
+    })
+    @PostMapping("resetGaKey")
+    public ResponseEntity resetGaKey(String userName) {
+        if(LoginUtil.checkNull(userName)){
+            return ResponseUtil.custom("参数错误！");
+        }
+        SysUser sys = sysUserService.findByUserName(userName);
+        if(sys == null){
+            return ResponseUtil.custom("账号不存在！");
+        }
+        sys.setGaBind(Constants.open + "");
+        sys.setGaKey(null);
+        sysUserService.save(sys);
+        return ResponseUtil.success();
+    }
 }
