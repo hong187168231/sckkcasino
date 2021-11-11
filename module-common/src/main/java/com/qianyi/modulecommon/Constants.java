@@ -73,7 +73,7 @@ public class Constants {
     //推广类型,基层代理
     public static final String INVITE_TYPE_PROXY= "proxy";
     //推广类型,SEO
-    public static final String INVITE_TYPE_SEO= "seo";
+    public static final String INVITE_TYPE_PROMOTION= "promotion";
     //推广注册页面
     public static final String SPREAD_REGISTER_VIEW= "index.html";
     //redis用户key前缀
