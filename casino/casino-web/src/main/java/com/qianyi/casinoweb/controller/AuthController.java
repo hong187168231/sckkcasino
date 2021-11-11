@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.code.kaptcha.Producer;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
-import com.qianyi.casinoweb.runner.GenerateInviteCodeRunner;
+import com.qianyi.casinocore.util.GenerateInviteCodeRunner;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.util.DeviceUtil;
 import com.qianyi.casinoweb.util.InviteCodeUtil;
@@ -656,6 +656,18 @@ public class AuthController {
             redisUtil.set(todayIpKey, 1, 60 * 60 * 24);
         } else {
             redisUtil.incr(todayIpKey, 1);
+        }
+        return ResponseUtil.success();
+    }
+
+    @GetMapping("switchLanguage")
+    @ApiOperation("切换语言")
+    @ApiImplicitParam(name = "lang", value = "语言,中文:zh_CN,英文:en_US,柬语:km_KH", required = true)
+    @NoAuthentication
+    public ResponseEntity switchLanguage(String lang) {
+        boolean checkNull = CommonUtil.checkNull(lang);
+        if (checkNull) {
+            return ResponseUtil.parameterNotNull();
         }
         return ResponseUtil.success();
     }
