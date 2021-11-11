@@ -38,6 +38,9 @@ public class SysPermission extends BaseEntity{
     @ApiModelProperty(value = "是否删除0：否，1：是")
     private Integer isDetele;
 
+    @ApiModelProperty(value = "标识ID")
+    private Integer tagId;
+
     public SysPermission() {
     }
 
