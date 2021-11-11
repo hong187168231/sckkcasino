@@ -21,7 +21,7 @@ public class SysPermissionConfigFile {
 //        getTemp();
         if(!LoginUtil.checkNull(all)){
             //TODO 调试完需要删除
-//            sysPermissionService.delete();
+            sysPermissionService.delete();
 
             return null;
         }
@@ -268,8 +268,8 @@ public class SysPermissionConfigFile {
         sysPermissionService.saveAllList(secordPermissionsAdd1);
 
         List<SysPermission> sysPermissions = new ArrayList<>();
-        SysPermission findDetail = new SysPermission("人人代下级明细", "人人代下级明细", "/proxyReport /findDetail", proxyReportFind.getId(), 3, 0);
-        SysPermission findDayDetail = new SysPermission("人人代每日结算细节", "人人代每日结算细节", "/proxyReport /findDayDetail", proxyReportFind.getId(), 3, 0);
+        SysPermission findDetail = new SysPermission("人人代下级明细", "人人代下级明细", "/proxyReport/findDetail", proxyReportFind.getId(), 3, 0);
+        SysPermission findDayDetail = new SysPermission("人人代每日结算细节", "人人代每日结算细节", "/proxyReport/findDayDetail", proxyReportFind.getId(), 3, 0);
         sysPermissions.add(findDetail);
         sysPermissions.add(findDayDetail);
         sysPermissionService.saveAllList(sysPermissions);
