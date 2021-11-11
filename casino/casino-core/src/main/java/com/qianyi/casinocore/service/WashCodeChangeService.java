@@ -3,7 +3,7 @@ package com.qianyi.casinocore.service;
 import com.qianyi.casinocore.model.WashCodeChange;
 import com.qianyi.casinocore.repository.WashCodeChangeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -14,6 +14,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -50,5 +51,27 @@ public class WashCodeChangeService {
 
         List<WashCodeChange> list = entityManager.createQuery(query).getResultList();
         return list;
+    }
+    public List<WashCodeChange> findUserList( Date startDate, Date endDate) {
+        Specification<WashCodeChange> condition = this.getCondition(startDate,endDate);
+        return washCodeChangeRepository.findAll(condition);
+    }
+
+    private Specification<WashCodeChange> getCondition(Date startDate,Date endDate) {
+        Specification<WashCodeChange> specification = new Specification<WashCodeChange>() {
+            @Override
+            public Predicate toPredicate(Root<WashCodeChange> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+
+                if (startDate != null) {
+                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+                }
+                if (endDate != null) {
+                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
     }
 }

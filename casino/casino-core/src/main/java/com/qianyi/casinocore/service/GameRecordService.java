@@ -193,4 +193,27 @@ public class GameRecordService {
         GameRecord singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
     }
+    public  GameRecord  findRecordRecordSum(String startTime,String endTime) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<GameRecord> query = builder.createQuery(GameRecord.class);
+        Root<GameRecord> root = query.from(GameRecord.class);
+
+        query.multiselect(
+                builder.sum(root.get("bet").as(BigDecimal.class)).alias("bet"),
+                builder.sum(root.get("winLoss").as(BigDecimal.class)).alias("winLoss")
+        );
+
+        List<Predicate> predicates = new ArrayList();
+        if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
+            predicates.add(
+                    builder.between(root.get("betTime").as(String.class), startTime, endTime)
+            );
+        }
+        query
+                .where(predicates.toArray(new Predicate[predicates.size()]));
+//                .groupBy(root.get("conversionStepCode"))
+//                .orderBy(builder.desc(root.get("contactUserNums")));
+        GameRecord singleResult = entityManager.createQuery(query).getSingleResult();
+        return singleResult;
+    }
 }
