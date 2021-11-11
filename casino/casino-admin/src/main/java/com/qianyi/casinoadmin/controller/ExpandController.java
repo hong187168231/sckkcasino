@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ExpandController {
     @Autowired
     private PlatformConfigService platformConfigService;
-    @ApiOperation("获取SEO推广链接")
-    @GetMapping("getSEOChainedAddress")
+    @ApiOperation("获取推广链接")
+    @GetMapping("getChainedAddress")
     public ResponseEntity getChainedAddress(){
 
         PlatformConfig platformConfig = platformConfigService.findFirst();
@@ -30,7 +30,7 @@ public class ExpandController {
             return ResponseUtil.custom("推广链接未配置");
         }
         String domain = platformConfig.getProxyConfiguration();
-        String url = domain + "/#/" + Constants.INVITE_TYPE_SEO + "/" + platformConfig.getSeoCode();
+        String url = domain + "/#/" + Constants.INVITE_TYPE_PROMOTION + "/" + platformConfig.getPromotionCode();
         return ResponseUtil.success(url);
     }
 }

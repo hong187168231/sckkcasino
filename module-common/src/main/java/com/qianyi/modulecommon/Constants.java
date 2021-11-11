@@ -72,10 +72,8 @@ public class Constants {
     public static final String INVITE_TYPE_EVERYONE= "everyone";
     //推广类型,基层代理
     public static final String INVITE_TYPE_PROXY= "proxy";
-    //推广类型,SEO
-    public static final String INVITE_TYPE_SEO= "seo";
-    //推广注册页面
-    public static final String SPREAD_REGISTER_VIEW= "index.html";
+    //推广类型,公司
+    public static final String INVITE_TYPE_COMPANY= "company";
     //redis用户key前缀
     public static final String REDIS_USERID= "userId::";
     //redis每日短信发送数量前缀
@@ -88,6 +86,8 @@ public class Constants {
     public static final Integer USER_TYPE0= 0;
     //会员类型：渠道会员
     public static final Integer USER_TYPE1= 1;
+    //会员类型：公司内部推广会员
+    public static final Integer USER_TYPE2= 2;
     //ip被封返回前端提示语
     public static final String IP_BLOCK= "IP被封，请联系客服";
     //redis token前缀

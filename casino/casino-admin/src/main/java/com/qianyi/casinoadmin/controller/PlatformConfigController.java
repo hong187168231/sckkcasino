@@ -225,31 +225,31 @@ public class PlatformConfigController {
     }
 
 
-    @ApiOperation("查询SEO码")
-    @GetMapping("/findSeoCode")
-    public ResponseEntity findSeoCode(){
+    @ApiOperation("查询推广链接码")
+    @GetMapping("/findPromotionCode")
+    public ResponseEntity findPromotionCode(){
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        return ResponseUtil.success(platformConfig==null?"":platformConfig.getSeoCode());
+        return ResponseUtil.success(platformConfig==null?"":platformConfig.getPromotionCode());
     }
 
-    @ApiOperation("修改SEO码")
+    @ApiOperation("修改推广链接码")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "seoCode", value = "seo", required = true),
+            @ApiImplicitParam(name = "promotionCode", value = "推广链接", required = true),
     })
-    @PostMapping("/updateSeoCode")
-    public ResponseEntity updateDirectly(String seoCode){
-        if (LoginUtil.checkNull(seoCode)){
+    @PostMapping("/updatePromotionCode")
+    public ResponseEntity updatePromotionCode(String promotionCode){
+        if (LoginUtil.checkNull(promotionCode)){
             return ResponseUtil.custom("参数必填");
         }
         String regex = "^[0-9a-zA-Z]{3,20}$";
-        if (!seoCode.matches(regex)){
+        if (!promotionCode.matches(regex)){
             return ResponseUtil.custom("必须输入长度3-20位的数字或者字母");
         }
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (LoginUtil.checkNull(platformConfig)){
             platformConfig = new PlatformConfig();
         }
-        platformConfig.setSeoCode(seoCode);
+        platformConfig.setPromotionCode(promotionCode);
         platformConfigService.save(platformConfig);
         return ResponseUtil.success();
     }
