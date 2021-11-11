@@ -101,6 +101,9 @@ public class PlatformConfig {
     @ApiModelProperty("人人代直属下级最大个数")
     private Integer directlyUnderTheLower;
 
+    @ApiModelProperty("seo")
+    private String seoCode;
+
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){
         if (this.chargeRate == null){
