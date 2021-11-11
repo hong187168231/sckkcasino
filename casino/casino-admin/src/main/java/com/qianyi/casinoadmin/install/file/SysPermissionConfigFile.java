@@ -283,4 +283,41 @@ public class SysPermissionConfigFile {
         return null;
     }
 
+    /**
+     * 新加接口权限脚本
+     */
+    public void addPermissionConfig() {
+        List<SysPermission> sysPermissionList = sysPermissionService.findAll();
+        SysPermission systemPermission = null;
+        SysPermission resetPassword = null;
+        SysPermission resetGaKey = null;
+
+        for (SysPermission sysPermission : sysPermissionList) {
+            if(sysPermission.getUrl().equals("/sysUser/userList")){
+                systemPermission = sysPermission;
+            }
+            if(sysPermission.getUrl().equals("/login/resetPassword")){
+                resetPassword = sysPermission;
+            }
+            if(sysPermission.getUrl().equals("/login/resetGaKey")){
+                resetGaKey = sysPermission;
+            }
+        }
+
+        List<SysPermission> sysPermList = new ArrayList<>();
+        if(systemPermission != null){
+            if(resetPassword == null){
+                resetPassword = new SysPermission("重置用户密码", "重置用户密码", "/login/resetPassword", systemPermission.getId(), 3, 0);
+                sysPermList.add(resetPassword);
+            }
+            if(resetGaKey == null){
+                resetGaKey = new SysPermission("重置谷歌验证码", "重置谷歌验证码", "/login/resetGaKey", systemPermission.getId(), 3, 0);
+                sysPermList.add(resetGaKey);
+            }
+        }
+        if(sysPermList.size() > 0){
+            sysPermissionService.saveAllList(sysPermList);
+        }
+
+    }
 }
