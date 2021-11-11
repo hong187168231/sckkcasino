@@ -10,6 +10,7 @@ import com.qianyi.casinocore.util.PageUtil;
 import com.qianyi.casinocore.vo.CompanyProxyMonthVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.PageVo;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -108,6 +109,7 @@ public class CompanyProxyMonthController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "当前列id", required = true),
     })
+    @NoAuthorization
     public ResponseEntity update(Long id){
         if (LoginUtil.checkNull(id)){
             return ResponseUtil.custom("参数必填");
