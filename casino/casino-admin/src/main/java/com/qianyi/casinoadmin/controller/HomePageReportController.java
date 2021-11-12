@@ -15,14 +15,17 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 @Api(tags = "首页报表")
@@ -47,28 +50,15 @@ public class HomePageReportController {
     })
     public ResponseEntity<HomePageReportVo> find(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                  @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
-        Calendar nowTime = Calendar.getInstance();
-        String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
+        if (LoginUtil.checkNull(startDate,endDate)){
+            ResponseUtil.custom("参数必填");
+        }
         HomePageReportVo homePageReportVo = null;
         try {
-            String startTime = format + start;
-            String endTime = format + end;
-            Date start = DateUtil.getSimpleDateFormat().parse(startTime);
-            Date end = DateUtil.getSimpleDateFormat().parse(endTime);
-            HomePageReport homePageReport = new HomePageReport();
-            homePageReportTask.chargeOrder(start,end,homePageReport);
-            homePageReportTask.withdrawOrder(start,end,homePageReport);
-            homePageReportTask.gameRecord(startTime,endTime,homePageReport);
-            homePageReportTask.shareProfitChange(start,end,homePageReport);
-            homePageReportTask.getNewUsers(start,end,homePageReport);
-            homePageReportTask.bonusAmount(startDate,endDate,homePageReport);
-            homePageReportTask.proxyAmount(startDate,endDate,homePageReport);
-            homePageReportTask.washCodeAmount(startDate,endDate,homePageReport);
-            homePageReportVo = new HomePageReportVo(homePageReport);
-
+            homePageReportVo = this.assemble(startDate,endDate);
             List<HomePageReport> homePageReports = homePageReportService.findHomePageReports(DateUtil.getSimpleDateFormat1().format(startDate), DateUtil.getSimpleDateFormat1().format(endDate));
             if (LoginUtil.checkNull(homePageReports) || homePageReports.size() == CommonConst.NUMBER_0){
-                return this.getHomePageReportVo(homePageReportVo);
+                return ResponseUtil.success(this.getHomePageReportVo(homePageReportVo));
             }
             BigDecimal chargeAmount = homePageReports.stream().map(HomePageReport::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             Integer chargeNums = homePageReports.stream().mapToInt(HomePageReport::getChargeNums).sum();
@@ -96,15 +86,64 @@ public class HomePageReportController {
             homePageReportVo.setWithdrawNums(withdrawNums + homePageReportVo.getWithdrawNums());
             homePageReportVo.setActiveUsers(activeUsers + homePageReportVo.getActiveUsers());
             homePageReportVo.setNewUsers(newUsers + homePageReportVo.getNewUsers());
-            return this.getHomePageReportVo(homePageReportVo);
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
         }
-        return this.getHomePageReportVo(homePageReportVo);
+        return ResponseUtil.success(this.getHomePageReportVo(homePageReportVo));
     }
-    private ResponseEntity<HomePageReportVo> getHomePageReportVo(HomePageReportVo homePageReportVo){
+    @ApiOperation("查找走势图")
+    @GetMapping("/findTrendChart")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
+    })
+    public ResponseEntity<HomePageReportVo> findTrendChart(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+                                                              @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate) {
+        if (LoginUtil.checkNull(startDate, endDate)) {
+            ResponseUtil.custom("参数必填");
+        }
+        List<HomePageReportVo> list = new LinkedList<>();
+        try {
+            HomePageReportVo homePageReportVo = this.assemble(startDate,endDate);
+            list.add(this.getHomePageReportVo(homePageReportVo));
+            Sort sort=Sort.by("id").descending();
+            List<HomePageReport> homePageReports = homePageReportService.findHomePageReports(sort,DateUtil.getSimpleDateFormat1().format(startDate), DateUtil.getSimpleDateFormat1().format(endDate));
+            if (LoginUtil.checkNull(homePageReports) || homePageReports.size() == CommonConst.NUMBER_0){
+                return ResponseUtil.success(list);
+            }
+            homePageReports.forEach(homePageReport1 -> {
+                HomePageReportVo vo = new HomePageReportVo(homePageReport1);
+                list.add(this.getHomePageReportVo(vo));
+            });
+        }catch (Exception ex){
+            log.error("首页报表统计失败",ex);
+        }
+        return ResponseUtil.success(list);
+
+    }
+    private HomePageReportVo assemble(Date startDate,Date endDate) throws ParseException {
+        Calendar nowTime = Calendar.getInstance();
+        String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
+        String startTime = format + start;
+        String endTime = format + end;
+        Date start = DateUtil.getSimpleDateFormat().parse(startTime);
+        Date end = DateUtil.getSimpleDateFormat().parse(endTime);
+        HomePageReport homePageReport = new HomePageReport();
+        homePageReport.setStaticsTimes(format);
+        homePageReportTask.chargeOrder(start,end,homePageReport);
+        homePageReportTask.withdrawOrder(start,end,homePageReport);
+        homePageReportTask.gameRecord(startTime,endTime,homePageReport);
+        homePageReportTask.shareProfitChange(start,end,homePageReport);
+        homePageReportTask.getNewUsers(start,end,homePageReport);
+        homePageReportTask.bonusAmount(startDate,endDate,homePageReport);
+        homePageReportTask.proxyAmount(startDate,endDate,homePageReport);
+        homePageReportTask.washCodeAmount(startDate,endDate,homePageReport);
+        HomePageReportVo homePageReportVo = new HomePageReportVo(homePageReport);
+        return homePageReportVo;
+    }
+    private HomePageReportVo getHomePageReportVo(HomePageReportVo homePageReportVo){
         homePageReportVo.setGrossMargin1(homePageReportVo.getWinLossAmount().subtract(homePageReportVo.getWashCodeAmount()));
         homePageReportVo.setGrossMargin2(homePageReportVo.getGrossMargin1().subtract(homePageReportVo.getShareAmount()).subtract(homePageReportVo.getBonusAmount()).add(homePageReportVo.getServiceCharge()));
-        return ResponseUtil.success(homePageReportVo);
+        return homePageReportVo;
     }
 }

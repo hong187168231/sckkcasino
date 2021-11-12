@@ -3,7 +3,7 @@ package com.qianyi.casinoadmin.task;
 import com.qianyi.casinoadmin.model.HomePageReport;
 import com.qianyi.casinoadmin.service.HomePageReportService;
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinoadmin.util.TaskConst;
+import com.qianyi.casinocore.util.TaskConst;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;

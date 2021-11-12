@@ -75,6 +75,7 @@ public class HomePageReportVo implements Serializable {
         this.proxyAmount = homePageReport.getProxyAmount();
         this.bonusAmount = homePageReport.getBonusAmount();
         this.serviceCharge = homePageReport.getServiceCharge();
+        this.staticsTimes = homePageReport.getStaticsTimes();
         this.activeUsers = homePageReport.getActiveUsers();
         this.newUsers = homePageReport.getNewUsers();
     }

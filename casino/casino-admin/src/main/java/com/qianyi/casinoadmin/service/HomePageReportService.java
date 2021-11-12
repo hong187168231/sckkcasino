@@ -3,6 +3,7 @@ package com.qianyi.casinoadmin.service;
 import com.qianyi.casinoadmin.model.HomePageReport;
 import com.qianyi.casinoadmin.repository.HomePageReportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -28,6 +29,11 @@ public class HomePageReportService {
     public List<HomePageReport> findHomePageReports(String startTime, String endTime) {
         Specification<HomePageReport> condition = this.getCondition(startTime,endTime);
         return homePageReportRepository.findAll(condition);
+    }
+
+    public List<HomePageReport> findHomePageReports(Sort sort,String startTime, String endTime) {
+        Specification<HomePageReport> condition = this.getCondition(startTime,endTime);
+        return homePageReportRepository.findAll(condition,sort);
     }
     /**
      * 查询条件拼接，灵活添加条件
