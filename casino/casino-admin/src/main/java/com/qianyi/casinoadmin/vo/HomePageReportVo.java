@@ -1,6 +1,6 @@
 package com.qianyi.casinoadmin.vo;
 
-import com.qianyi.casinocore.model.HomePageReport;
+import com.qianyi.casinoadmin.model.HomePageReport;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -24,8 +24,8 @@ public class HomePageReportVo implements Serializable {
     @ApiModelProperty(value = "提款笔数")
     private Integer withdrawNums;
 
-    @ApiModelProperty(value = "下注金额")
-    private BigDecimal betAmount;
+    @ApiModelProperty(value = "有效下注金额")
+    private BigDecimal validbetAmount;
 
     @ApiModelProperty(value = "输赢金额")
     private BigDecimal winLossAmount;
@@ -68,7 +68,7 @@ public class HomePageReportVo implements Serializable {
         this.chargeNums = homePageReport.getChargeNums();
         this.withdrawMoney = homePageReport.getWithdrawMoney();
         this.withdrawNums = homePageReport.getWithdrawNums();
-        this.betAmount = homePageReport.getBetAmount();
+        this.validbetAmount = homePageReport.getValidbetAmount();
         this.winLossAmount = homePageReport.getWinLossAmount();
         this.washCodeAmount = homePageReport.getWashCodeAmount();
         this.shareAmount = homePageReport.getShareAmount();

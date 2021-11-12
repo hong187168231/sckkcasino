@@ -1,6 +1,6 @@
-package com.qianyi.casinocore.repository;
+package com.qianyi.casinoadmin.repository;
 
-import com.qianyi.casinocore.model.HomePageReport;
+import com.qianyi.casinoadmin.model.HomePageReport;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

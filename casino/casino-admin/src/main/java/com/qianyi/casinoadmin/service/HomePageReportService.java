@@ -1,8 +1,7 @@
-package com.qianyi.casinocore.service;
+package com.qianyi.casinoadmin.service;
 
-import com.qianyi.casinocore.model.HomePageReport;
-import com.qianyi.casinocore.repository.HomePageReportRepository;
-import com.qianyi.modulecommon.util.CommonUtil;
+import com.qianyi.casinoadmin.model.HomePageReport;
+import com.qianyi.casinoadmin.repository.HomePageReportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;

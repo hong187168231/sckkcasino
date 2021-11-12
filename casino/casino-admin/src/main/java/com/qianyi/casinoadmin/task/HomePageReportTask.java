@@ -1,5 +1,7 @@
 package com.qianyi.casinoadmin.task;
 
+import com.qianyi.casinoadmin.model.HomePageReport;
+import com.qianyi.casinoadmin.service.HomePageReportService;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.util.TaskConst;
 import com.qianyi.casinocore.model.*;
@@ -115,18 +117,18 @@ public class HomePageReportTask {
             GameRecord gameRecord = new GameRecord();
             List<GameRecord> gameRecords = gameRecordService.findGameRecords(gameRecord, startTime, endTime);
             if (LoginUtil.checkNull(gameRecord) || gameRecords.size() == CommonConst.NUMBER_0){
-                homePageReport.setBetAmount(BigDecimal.ZERO);
+                homePageReport.setValidbetAmount(BigDecimal.ZERO);
                 homePageReport.setWinLossAmount(BigDecimal.ZERO);
                 homePageReport.setActiveUsers(CommonConst.NUMBER_0);
                 return;
             }
-            BigDecimal bet = BigDecimal.ZERO;
+            BigDecimal validbetAmount = BigDecimal.ZERO;
             BigDecimal winLoss = BigDecimal.ZERO;
             for (GameRecord g : gameRecords){
-                bet = bet.add(new BigDecimal(g.getBet()));
+                validbetAmount = validbetAmount.add(new BigDecimal(g.getValidbet()));
                 winLoss = winLoss.add(new BigDecimal(g.getWinLoss()));
             }
-            homePageReport.setBetAmount(bet);
+            homePageReport.setValidbetAmount(validbetAmount);
             homePageReport.setWinLossAmount(winLoss);
             gameRecords = gameRecords.stream().filter(CommonUtil.distinctByKey(GameRecord::getUser)).collect(Collectors.toList());
             homePageReport.setActiveUsers(gameRecords.size());

@@ -1,12 +1,10 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.service.HomePageReportService;
 import com.qianyi.casinoadmin.task.HomePageReportTask;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.HomePageReportVo;
-import com.qianyi.casinoadmin.vo.ProxyReportVo;
-import com.qianyi.casinocore.model.HomePageReport;
-import com.qianyi.casinocore.model.ProxyDayReport;
-import com.qianyi.casinocore.service.*;
+import com.qianyi.casinoadmin.model.HomePageReport;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -77,7 +75,7 @@ public class HomePageReportController {
             BigDecimal withdrawMoney = homePageReports.stream().map(HomePageReport::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
             Integer withdrawNums = homePageReports.stream().mapToInt(HomePageReport::getWithdrawNums).sum();
             BigDecimal washCodeAmount = homePageReports.stream().map(HomePageReport::getWashCodeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-            BigDecimal betAmount = homePageReports.stream().map(HomePageReport::getBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal validbetAmount = homePageReports.stream().map(HomePageReport::getValidbetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal winLossAmount = homePageReports.stream().map(HomePageReport::getWinLossAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal shareAmount = homePageReports.stream().map(HomePageReport::getShareAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal proxyAmount = homePageReports.stream().map(HomePageReport::getProxyAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -88,7 +86,7 @@ public class HomePageReportController {
             homePageReportVo.setChargeAmount(homePageReportVo.getChargeAmount().add(chargeAmount));
             homePageReportVo.setWithdrawMoney(homePageReportVo.getWithdrawMoney().add(withdrawMoney));
             homePageReportVo.setWashCodeAmount(homePageReportVo.getWashCodeAmount().add(washCodeAmount));
-            homePageReportVo.setBetAmount(homePageReportVo.getBetAmount().add(betAmount));
+            homePageReportVo.setValidbetAmount(homePageReportVo.getValidbetAmount().add(validbetAmount));
             homePageReportVo.setWinLossAmount(homePageReportVo.getWinLossAmount().add(winLossAmount));
             homePageReportVo.setShareAmount(homePageReportVo.getShareAmount().add(shareAmount));
             homePageReportVo.setProxyAmount(homePageReportVo.getProxyAmount().add(proxyAmount));

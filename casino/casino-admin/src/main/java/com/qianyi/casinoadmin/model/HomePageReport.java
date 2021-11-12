@@ -1,5 +1,6 @@
-package com.qianyi.casinocore.model;
+package com.qianyi.casinoadmin.model;
 
+import com.qianyi.casinocore.model.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -11,7 +12,7 @@ import java.math.BigDecimal;
 @Entity
 @Data
 @ApiModel("首页报表")
-public class HomePageReport extends BaseEntity{
+public class HomePageReport extends BaseEntity {
 
     @ApiModelProperty(value = "汇款金额")
     @Column(columnDefinition = "Decimal(10,6) default '0.00'")
@@ -27,9 +28,9 @@ public class HomePageReport extends BaseEntity{
     @ApiModelProperty(value = "提款笔数")
     private Integer withdrawNums;
 
-    @ApiModelProperty(value = "下注金额")
+    @ApiModelProperty(value = "有效下注金额")
     @Column(columnDefinition = "Decimal(10,6) default '0.00'")
-    private BigDecimal betAmount;
+    private BigDecimal validbetAmount;
 
     @ApiModelProperty(value = "输赢金额")
     @Column(columnDefinition = "Decimal(10,6) default '0.00'")

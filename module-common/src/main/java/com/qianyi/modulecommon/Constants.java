@@ -73,7 +73,7 @@ public class Constants {
     //推广类型,基层代理
     public static final String INVITE_TYPE_PROXY= "proxy";
     //推广类型,官方
-    public static final String INVITE_TYPE_COMPANY= "company";
+    public static final String INVITE_TYPE_COMPANY= "888";
     //redis用户key前缀
     public static final String REDIS_USERID= "userId::";
     //redis每日短信发送数量前缀
