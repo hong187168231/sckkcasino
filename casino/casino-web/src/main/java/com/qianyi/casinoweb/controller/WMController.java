@@ -292,9 +292,9 @@ public class WMController {
         if (CasinoWebUtil.checkNull(account, lang)) {
             return ResponseUtil.parameterNotNull();
         }
-//        if (!ipWhiteCheck()) {
-//            return ResponseUtil.custom("ip禁止访问");
-//        }
+        if (!ipWhiteCheck()) {
+            return ResponseUtil.custom("ip禁止访问");
+        }
         try {
             BigDecimal balance = wmApi.getBalance(account, lang);
             if (balance == null) {
