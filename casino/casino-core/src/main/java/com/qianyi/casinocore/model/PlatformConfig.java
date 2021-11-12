@@ -91,6 +91,9 @@ public class PlatformConfig {
     @ApiModelProperty("推广注册域名配置")
     private String proxyConfiguration;
 
+    @ApiModelProperty("web项目域名配置")
+    private String webConfiguration;
+
     @ApiModelProperty("注册开关 0 关闭 1 开启")
     private Integer registerSwitch = 1;
 

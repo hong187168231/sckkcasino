@@ -29,8 +29,10 @@ public class PlatformConfigFile {
     private BigDecimal secondCommission;
     private BigDecimal thirdCommission;
     private String domainNameConfiguration;
+    private String webConfiguration;
     private Integer registerSwitch;
     private String proxyConfiguration;
     private BigDecimal sendMessageWarning;
     private Integer directlyUnderTheLower;
+    private String companyInviteCode;
 }

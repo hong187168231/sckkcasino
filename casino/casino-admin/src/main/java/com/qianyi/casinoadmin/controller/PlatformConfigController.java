@@ -253,4 +253,29 @@ public class PlatformConfigController {
         platformConfigService.save(platformConfig);
         return ResponseUtil.success();
     }
+
+    @ApiOperation("查询web项目域名配置")
+    @GetMapping("/findWebConfiguration")
+    public ResponseEntity findWebConfiguration(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        return ResponseUtil.success(platformConfig==null?"":platformConfig.getWebConfiguration());
+    }
+
+    @ApiOperation("修改web项目域名配置")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "webConfiguration", value = "web项目域名配置", required = true),
+    })
+    @PostMapping("/updateWebConfiguration")
+    public ResponseEntity updateWebConfiguration(String webConfiguration){
+        if (LoginUtil.checkNull(webConfiguration)){
+            return ResponseUtil.custom("参数必填");
+        }
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (LoginUtil.checkNull(platformConfig)){
+            platformConfig = new PlatformConfig();
+        }
+        platformConfig.setWebConfiguration(webConfiguration);
+        platformConfigService.save(platformConfig);
+        return ResponseUtil.success();
+    }
 }
