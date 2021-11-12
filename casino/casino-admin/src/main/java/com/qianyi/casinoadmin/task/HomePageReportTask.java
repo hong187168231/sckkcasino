@@ -66,7 +66,6 @@ public class HomePageReportTask {
             this.shareProfitChange(startDate,endDate,homePageReport);
             this.getNewUsers(startDate,endDate,homePageReport);
             this.bonusAmount(startDate,endDate,homePageReport);
-            this.proxyAmount(startDate,endDate,homePageReport);
             this.washCodeAmount(startDate,endDate,homePageReport);
             homePageReportService.save(homePageReport);
             log.info("每日首页报表统计结束end=============================================》");
@@ -163,13 +162,6 @@ public class HomePageReportTask {
             homePageReport.setBonusAmount(BigDecimal.ZERO);
         }catch (Exception ex){
             log.error("统计红利失败",ex);
-        }
-    }
-    public void proxyAmount(Date startDate,Date endDate,HomePageReport homePageReport){
-        try {
-            homePageReport.setProxyAmount(BigDecimal.ZERO);
-        }catch (Exception ex){
-            log.error("统计代理佣金失败",ex);
         }
     }
     public void washCodeAmount(Date startDate,Date endDate,HomePageReport homePageReport){

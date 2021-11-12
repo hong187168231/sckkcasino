@@ -62,12 +62,4 @@ public class ProxyHomePageReport extends BaseEntity {
     @ApiModelProperty(value = "输赢金额")
     @Column(columnDefinition = "Decimal(10,6) default '0.00'")
     private BigDecimal winLossAmount;
-
-    @ApiModelProperty(value = "团队结算佣金")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
-    private BigDecimal groupTotalprofit;
-
-    @ApiModelProperty(value = "本人佣金")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
-    private BigDecimal totalprofit;
 }

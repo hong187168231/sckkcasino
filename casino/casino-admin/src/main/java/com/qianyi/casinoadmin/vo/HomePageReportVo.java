@@ -36,8 +36,11 @@ public class HomePageReportVo implements Serializable {
     @ApiModelProperty(value = "结算人人代佣金")
     private BigDecimal  shareAmount;
 
-    @ApiModelProperty(value = "结算代理佣金")
-    private BigDecimal  proxyAmount;
+    @ApiModelProperty(value = "团队结算佣金")
+    private BigDecimal groupTotalProfit;
+
+    @ApiModelProperty(value = "本人佣金")
+    private BigDecimal totalProfit;
 
     @ApiModelProperty(value = "发放红利")
     private BigDecimal bonusAmount;
@@ -72,7 +75,6 @@ public class HomePageReportVo implements Serializable {
         this.winLossAmount = homePageReport.getWinLossAmount();
         this.washCodeAmount = homePageReport.getWashCodeAmount();
         this.shareAmount = homePageReport.getShareAmount();
-        this.proxyAmount = homePageReport.getProxyAmount();
         this.bonusAmount = homePageReport.getBonusAmount();
         this.serviceCharge = homePageReport.getServiceCharge();
         this.staticsTimes = homePageReport.getStaticsTimes();

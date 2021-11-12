@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Sort;
+import org.springframework.util.ObjectUtils;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -43,6 +44,29 @@ public class CompanyProxyDetailService {
             return companyProxyDetailRepository.findAll(condition);
         }
         return companyProxyDetailRepository.findAll(condition,sort);
+    }
+
+    public List<CompanyProxyDetail> findCompanyProxyDetails(CompanyProxyDetail companyProxyDetail,String startTime, String endTime) {
+        Specification<CompanyProxyDetail> condition = this.getCondition(companyProxyDetail,startTime,endTime);
+        return companyProxyDetailRepository.findAll(condition);
+    }
+
+    private Specification<CompanyProxyDetail> getCondition(CompanyProxyDetail companyProxyDetail,String startTime, String endTime) {
+        Specification<CompanyProxyDetail> specification = new Specification<CompanyProxyDetail>() {
+            @Override
+            public Predicate toPredicate(Root<CompanyProxyDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (companyProxyDetail.getUserId() != null) {
+                    list.add(cb.equal(root.get("userId").as(Long.class), companyProxyDetail.getUserId()));
+                }
+
+                if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
+                    list.add(cb.between(root.get("staticsTimes").as(String.class), startTime, endTime));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
     }
     /**
      * 查询条件拼接，灵活添加条件

@@ -77,7 +77,6 @@ public class ProxyHomePageReportTask {
         this.withdrawOrder(proxyUser,startDate,endDate,proxyHomePageReport);
         this.gameRecord(proxyUser,startTime,endTime,proxyHomePageReport);
         this.getNewUsers(proxyUser,startDate,endDate,proxyHomePageReport);
-        this.proxyAmount(proxyUser,startDate,endDate,proxyHomePageReport);
         if (proxyUser.getProxyRole() == CommonConst.NUMBER_3){
             proxyHomePageReport.setFirstProxy(proxyUser.getFirstProxy());
             proxyHomePageReport.setSecondProxy(proxyUser.getSecondProxy());
@@ -201,14 +200,6 @@ public class ProxyHomePageReportTask {
             proxyHomePageReport.setNewSecondProxys(proxyUserList==null ? CommonConst.NUMBER_0 : proxyUserList.size());
         }catch (Exception ex){
             log.error("统计代理{}新增区域代理失败{}",proxyUser.getUserName(),ex);
-        }
-    }
-    public void proxyAmount(ProxyUser proxyUser,Date startDate,Date endDate,ProxyHomePageReport proxyHomePageReport){
-        try {
-            proxyHomePageReport.setGroupTotalprofit(BigDecimal.ZERO);
-            proxyHomePageReport.setTotalprofit(BigDecimal.ZERO);
-        }catch (Exception ex){
-            log.error("统计代理{}充值订单失败{}",proxyUser.getUserName(),ex);
         }
     }
 }
