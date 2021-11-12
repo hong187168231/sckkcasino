@@ -533,42 +533,7 @@ public class AuthController {
     @ApiOperation("查询注册通道状态")
     @NoAuthentication
     public ResponseEntity<Integer> getRegisterStatus() {
-        PlatformConfig platformConfig = platformConfigService.findFirst();
-        if (platformConfig == null || platformConfig.getRegisterSwitch() == null) {
-            return ResponseUtil.success(Constants.close);
-        }
-        return ResponseUtil.success(platformConfig.getRegisterSwitch());
-    }
-
-    @PostMapping("rjt")
-    @ApiOperation("JWT过期后，30分钟内可颁发新的token")
-    @NoAuthentication
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "token", value = "旧TOKEN", required = true),
-    })
-    public ResponseEntity<String> refreshJwtToken(String token) {
-        boolean checkNull = CommonUtil.checkNull(token);
-        if (checkNull) {
-            return ResponseUtil.parameterNotNull();
-        }
-        JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
-        if (subject == null || ObjectUtils.isEmpty(subject.getUserId())) {
-            return ResponseUtil.authenticationNopass();
-        }
-        //获取登陆用户
-        Long authId = Long.parseLong(subject.getUserId());
-        //只能拿最新的token来刷新
-        Object redisToken = redisUtil.get(Constants.REDIS_TOKEN + authId);
-        if(!token.equals(redisToken)){
-            return ResponseUtil.multiDevice();
-        }
-        User user = userService.findById(authId);
-        String refreshToken = JjwtUtil.refreshToken(token, user.getPassword(),Constants.WEB_REFRESH_TTL,Constants.CASINO_WEB);
-        if (ObjectUtils.isEmpty(refreshToken)) {
-            return ResponseUtil.authenticationNopass();
-        }
-        setUserTokenToRedis(authId, refreshToken);
-        return ResponseUtil.success(refreshToken);
+        return ResponseUtil.custom("账号不存在");
     }
 
     @GetMapping("checkInviteCode")

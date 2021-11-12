@@ -4,9 +4,11 @@ package com.qianyi.modulecommon.util;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Locale;
 
 /**
@@ -24,8 +26,14 @@ public class MessageUtil {
      */
     public String get(String msgKey) {
         try {
-            //Locale locale = new Locale("en", "US");
-            Locale locale = LocaleContextHolder.getLocale();
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+            String language = request.getHeader("language");
+            //默认中文
+            Locale locale = Locale.CHINA;
+            if (Locale.US.toString().equals(language)) {
+                locale = Locale.US;
+            }
+//            Locale locale = LocaleContextHolder.getLocale();
             //以中文为key,中文翻译可以不配，直接取key
             if (locale.equals(Locale.CHINA)) {
                 return msgKey;
