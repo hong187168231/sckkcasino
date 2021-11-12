@@ -44,10 +44,6 @@ public class HomePageReport extends BaseEntity {
     @Column(columnDefinition = "Decimal(10,6) default '0.00'")
     private BigDecimal  shareAmount;
 
-    @ApiModelProperty(value = "结算代理佣金")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
-    private BigDecimal  proxyAmount;
-
     @ApiModelProperty(value = "发放红利")
     @Column(columnDefinition = "Decimal(10,6) default '0.00'")
     private BigDecimal bonusAmount;

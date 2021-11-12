@@ -81,6 +81,9 @@ public class ThridUserController {
     @Autowired
     private GenerateInviteCodeRunner generateInviteCodeRunner;
 
+    @Autowired
+    private PlatformConfigService platformConfigService;
+
     @ApiOperation("查询代理下级的用户数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "客户id", required = true),
@@ -197,6 +200,31 @@ public class ThridUserController {
 //            this.setWMMoney(userList);
         }
         return ResponseUtil.success(pageResultVO);
+    }
+
+    @ApiOperation("查询打码与充提配置")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "当前详情页面会员id", required = true),
+    })
+    @GetMapping("/findCodeNumConfig")
+    public ResponseEntity findCodeNumConfig(Long id){
+        CodeNumConfigVo codeNumConfigVo = new CodeNumConfigVo();
+        JSONObject jsonObject = new JSONObject();
+        Integer tag = CommonConst.NUMBER_0;
+        PlatformConfig first = platformConfigService.findFirst();
+        if (CasinoProxyUtil.checkNull(first)){
+            jsonObject.put("data", codeNumConfigVo);
+            jsonObject.put("tag", tag);
+            return ResponseUtil.success(jsonObject);
+        }
+        codeNumConfigVo.setBetRate(first.getBetRate());
+        codeNumConfigVo.setChargeMaxMoney(first.getChargeMaxMoney());
+        codeNumConfigVo.setChargeMinMoney(first.getChargeMinMoney());
+        codeNumConfigVo.setWithdrawMaxMoney(first.getWithdrawMaxMoney());
+        codeNumConfigVo.setWithdrawMinMoney(first.getWithdrawMinMoney());
+        jsonObject.put("data", codeNumConfigVo);
+        jsonObject.put("tag", tag);
+        return ResponseUtil.success(jsonObject);
     }
 
     @ApiOperation("累计流水")

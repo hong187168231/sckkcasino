@@ -218,7 +218,7 @@ public class UserMoneyService {
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null?"":first.getWebConfiguration();
             WMurl = WMurl + url;
-            String s = HttpClient4Util.doGet(WMurl + param);
+            String s = HttpClient4Util.get(WMurl + param);
             log.info("{}查询web接口返回{}",user.getAccount(),s);
             JSONObject parse = JSONObject.parseObject(s);
             Object data = parse.get("data");

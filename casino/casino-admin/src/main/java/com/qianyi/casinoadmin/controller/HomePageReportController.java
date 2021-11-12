@@ -5,6 +5,8 @@ import com.qianyi.casinoadmin.task.HomePageReportTask;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.HomePageReportVo;
 import com.qianyi.casinoadmin.model.HomePageReport;
+import com.qianyi.casinocore.model.CompanyProxyDetail;
+import com.qianyi.casinocore.service.CompanyProxyDetailService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -42,6 +44,9 @@ public class HomePageReportController {
     public final static String start = " 00:00:00";
 
     public final static String end = " 23:59:59";
+
+    @Autowired
+    private CompanyProxyDetailService companyProxyDetailService;
     @ApiOperation("查询首页报表")
     @GetMapping("/find")
     @ApiImplicitParams({
@@ -68,7 +73,6 @@ public class HomePageReportController {
             BigDecimal validbetAmount = homePageReports.stream().map(HomePageReport::getValidbetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal winLossAmount = homePageReports.stream().map(HomePageReport::getWinLossAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal shareAmount = homePageReports.stream().map(HomePageReport::getShareAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-            BigDecimal proxyAmount = homePageReports.stream().map(HomePageReport::getProxyAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal bonusAmount = homePageReports.stream().map(HomePageReport::getBonusAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal serviceCharge = homePageReports.stream().map(HomePageReport::getServiceCharge).reduce(BigDecimal.ZERO, BigDecimal::add);
             Integer activeUsers = homePageReports.stream().mapToInt(HomePageReport::getActiveUsers).sum();
@@ -79,13 +83,13 @@ public class HomePageReportController {
             homePageReportVo.setValidbetAmount(homePageReportVo.getValidbetAmount().add(validbetAmount));
             homePageReportVo.setWinLossAmount(homePageReportVo.getWinLossAmount().add(winLossAmount));
             homePageReportVo.setShareAmount(homePageReportVo.getShareAmount().add(shareAmount));
-            homePageReportVo.setProxyAmount(homePageReportVo.getProxyAmount().add(proxyAmount));
             homePageReportVo.setBonusAmount(homePageReportVo.getBonusAmount().add(bonusAmount));
             homePageReportVo.setServiceCharge(homePageReportVo.getServiceCharge().add(serviceCharge));
             homePageReportVo.setChargeNums(chargeNums + homePageReportVo.getChargeNums());
             homePageReportVo.setWithdrawNums(withdrawNums + homePageReportVo.getWithdrawNums());
             homePageReportVo.setActiveUsers(activeUsers + homePageReportVo.getActiveUsers());
             homePageReportVo.setNewUsers(newUsers + homePageReportVo.getNewUsers());
+            this.findCompanyProxyDetails(new CompanyProxyDetail(),DateUtil.getSimpleDateFormat1().format(startDate), DateUtil.getSimpleDateFormat1().format(endDate),homePageReportVo);
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
         }
@@ -121,6 +125,19 @@ public class HomePageReportController {
         return ResponseUtil.success(list);
 
     }
+    private void findCompanyProxyDetails(CompanyProxyDetail companyProxyDetail, String startTime, String endTime, HomePageReportVo homePageReportVo){
+        List<CompanyProxyDetail> companyProxyDetails = companyProxyDetailService.findCompanyProxyDetails(companyProxyDetail, startTime, endTime);
+        if (LoginUtil.checkNull(companyProxyDetails) || companyProxyDetails.size() == CommonConst.NUMBER_0){
+            homePageReportVo.setGroupTotalProfit(BigDecimal.ZERO);
+            homePageReportVo.setTotalProfit(BigDecimal.ZERO);
+            return;
+        }
+        BigDecimal groupTotalprofit = companyProxyDetails.stream().map(CompanyProxyDetail::getGroupTotalprofit).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalprofit = companyProxyDetails.stream().map(CompanyProxyDetail::getProfitAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        homePageReportVo.setGroupTotalProfit(groupTotalprofit);
+        homePageReportVo.setTotalProfit(totalprofit);
+    }
+
     private HomePageReportVo assemble(Date startDate,Date endDate) throws ParseException {
         Calendar nowTime = Calendar.getInstance();
         String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
@@ -136,7 +153,6 @@ public class HomePageReportController {
         homePageReportTask.shareProfitChange(start,end,homePageReport);
         homePageReportTask.getNewUsers(start,end,homePageReport);
         homePageReportTask.bonusAmount(startDate,endDate,homePageReport);
-        homePageReportTask.proxyAmount(startDate,endDate,homePageReport);
         homePageReportTask.washCodeAmount(startDate,endDate,homePageReport);
         HomePageReportVo homePageReportVo = new HomePageReportVo(homePageReport);
         return homePageReportVo;
