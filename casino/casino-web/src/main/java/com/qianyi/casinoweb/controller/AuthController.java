@@ -533,7 +533,11 @@ public class AuthController {
     @ApiOperation("查询注册通道状态")
     @NoAuthentication
     public ResponseEntity<Integer> getRegisterStatus() {
-        return ResponseUtil.custom("账号不存在");
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig == null || platformConfig.getRegisterSwitch() == null) {
+            return ResponseUtil.success(Constants.close);
+        }
+        return ResponseUtil.success(platformConfig.getRegisterSwitch());
     }
 
     @GetMapping("checkInviteCode")
