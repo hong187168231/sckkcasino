@@ -36,11 +36,8 @@ public class HomePageReportVo implements Serializable {
     @ApiModelProperty(value = "结算人人代佣金")
     private BigDecimal  shareAmount;
 
-    @ApiModelProperty(value = "团队结算佣金")
-    private BigDecimal groupTotalProfit;
-
-    @ApiModelProperty(value = "本人佣金")
-    private BigDecimal totalProfit;
+    @ApiModelProperty(value = "预估代理佣金")
+    private BigDecimal proxyProfit;
 
     @ApiModelProperty(value = "发放红利")
     private BigDecimal bonusAmount;
@@ -62,6 +59,9 @@ public class HomePageReportVo implements Serializable {
 
     @ApiModelProperty(value = "毛利2")
     private BigDecimal grossMargin2;
+
+    @ApiModelProperty(value = "预估净利")
+    private BigDecimal grossMargin3;
 
     public HomePageReportVo(){
 

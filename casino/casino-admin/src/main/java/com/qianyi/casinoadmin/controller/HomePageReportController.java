@@ -128,14 +128,11 @@ public class HomePageReportController {
     private void findCompanyProxyDetails(CompanyProxyDetail companyProxyDetail, String startTime, String endTime, HomePageReportVo homePageReportVo){
         List<CompanyProxyDetail> companyProxyDetails = companyProxyDetailService.findCompanyProxyDetails(companyProxyDetail, startTime, endTime);
         if (LoginUtil.checkNull(companyProxyDetails) || companyProxyDetails.size() == CommonConst.NUMBER_0){
-            homePageReportVo.setGroupTotalProfit(BigDecimal.ZERO);
-            homePageReportVo.setTotalProfit(BigDecimal.ZERO);
+            homePageReportVo.setProxyProfit(BigDecimal.ZERO);
             return;
         }
-        BigDecimal groupTotalprofit = companyProxyDetails.stream().map(CompanyProxyDetail::getGroupTotalprofit).reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal totalprofit = companyProxyDetails.stream().map(CompanyProxyDetail::getProfitAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-        homePageReportVo.setGroupTotalProfit(groupTotalprofit);
-        homePageReportVo.setTotalProfit(totalprofit);
+        BigDecimal profitAmount = companyProxyDetails.stream().map(CompanyProxyDetail::getProfitAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        homePageReportVo.setProxyProfit(profitAmount);
     }
 
     private HomePageReportVo assemble(Date startDate,Date endDate) throws ParseException {
@@ -160,6 +157,7 @@ public class HomePageReportController {
     private HomePageReportVo getHomePageReportVo(HomePageReportVo homePageReportVo){
         homePageReportVo.setGrossMargin1(homePageReportVo.getWinLossAmount().subtract(homePageReportVo.getWashCodeAmount()));
         homePageReportVo.setGrossMargin2(homePageReportVo.getGrossMargin1().subtract(homePageReportVo.getShareAmount()).subtract(homePageReportVo.getBonusAmount()).add(homePageReportVo.getServiceCharge()));
+        homePageReportVo.setGrossMargin3(homePageReportVo.getGrossMargin2().subtract(homePageReportVo.getProxyProfit()));
         return homePageReportVo;
     }
 }
