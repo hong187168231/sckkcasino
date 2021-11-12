@@ -98,7 +98,7 @@ public class AuthController {
             @ApiImplicitParam(name = "phoneCode", value = "手机号验证码", required = true),
             @ApiImplicitParam(name = "validate", value = "网易易顿", required = true),
             @ApiImplicitParam(name = "inviteCode", value = "邀请码", required = true),
-            @ApiImplicitParam(name = "inviteType", value = "邀请类型:everyone:人人代，proxy:基层代理", required = true),
+            @ApiImplicitParam(name = "inviteType", value = "邀请类型:everyone:人人代，proxy:基层代理，company:公司推广", required = true),
     })
     public ResponseEntity spreadRegister(String account, String password, String country, String phone, String phoneCode, HttpServletRequest request, String validate, String inviteCode, String inviteType) {
         boolean checkNull = CommonUtil.checkNull(account, password, country, phone, phoneCode, validate, inviteCode, inviteType);
@@ -268,34 +268,41 @@ public class AuthController {
      * @param inviteType
      * @param user
      */
-    public void setParent(String inviteCode,String inviteType,User user){
+    public void setParent(String inviteCode, String inviteType, User user) {
         //人人代
-        if(Constants.INVITE_TYPE_EVERYONE.equals(inviteType)){
+        if (Constants.INVITE_TYPE_EVERYONE.equals(inviteType)) {
             User parentUser = userService.findByInviteCode(inviteCode);
             user.setFirstPid(parentUser.getId());
             user.setSecondPid(parentUser.getFirstPid());
             user.setThirdPid(parentUser.getSecondPid());
             user.setType(Constants.USER_TYPE0);
-            //基层代理
-        }else if(Constants.INVITE_TYPE_PROXY.equals(inviteType)){
+            return;
+        }
+        //基层代理
+        if (Constants.INVITE_TYPE_PROXY.equals(inviteType)) {
             ProxyUser parentProxy = proxyUserService.findByProxyCode(inviteCode);
             user.setFirstProxy(parentProxy.getFirstProxy());
             user.setSecondProxy(parentProxy.getSecondProxy());
             user.setThirdProxy(parentProxy.getId());
             user.setType(Constants.USER_TYPE1);
-            //前台自己注册
-        }else{
-            user.setType(Constants.USER_TYPE0);
-            user.setFirstPid(0L);//默认公司级别
-            User parentUser = null;
-            if (!ObjectUtils.isEmpty(inviteCode)) {
-                parentUser = userService.findByInviteCode(inviteCode);
-            }
-            if (parentUser != null) {
-                user.setFirstPid(parentUser.getId());
-                user.setSecondPid(parentUser.getFirstPid());
-                user.setThirdPid(parentUser.getSecondPid());
-            }
+            return;
+        }
+        //公司推广
+        if (Constants.INVITE_TYPE_COMPANY.equals(inviteType)) {
+            user.setType(Constants.USER_TYPE2);
+            return;
+        }
+        //前台自己注册
+        user.setType(Constants.USER_TYPE0);
+        user.setFirstPid(0L);//默认公司级别
+        User parentUser = null;
+        if (!ObjectUtils.isEmpty(inviteCode)) {
+            parentUser = userService.findByInviteCode(inviteCode);
+        }
+        if (parentUser != null) {
+            user.setFirstPid(parentUser.getId());
+            user.setSecondPid(parentUser.getFirstPid());
+            user.setThirdPid(parentUser.getSecondPid());
         }
     }
 
@@ -568,7 +575,7 @@ public class AuthController {
     @ApiOperation("校验邀请码")
     @NoAuthentication
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "inviteType", value = "邀请类型:everyone:人人代，proxy:基层代理", required = true),
+            @ApiImplicitParam(name = "inviteType", value = "邀请类型:everyone:人人代，proxy:基层代理,company:公司推广", required = true),
             @ApiImplicitParam(name = "inviteCode", value = "邀请码", required = true),
     })
     public ResponseEntity checkInviteCode(String inviteType, String inviteCode) {
@@ -576,32 +583,36 @@ public class AuthController {
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
+        if (!Constants.INVITE_TYPE_EVERYONE.equals(inviteType) && !Constants.INVITE_TYPE_PROXY.equals(inviteType) && !Constants.INVITE_TYPE_COMPANY.equals(inviteType)) {
+            return ResponseUtil.custom("邀请码类型错误");
+        }
         if (Constants.INVITE_TYPE_EVERYONE.equals(inviteType)) {
             User user = userService.findByInviteCode(inviteCode);
             if (user != null) {
                 return ResponseUtil.success();
             }
-            String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
-            IpBlack ipBlack = new IpBlack();
-            ipBlack.setIp(ip);
-            ipBlack.setStatus(Constants.no);
-            ipBlack.setRemark("人人代邀请码填写错误，IP被封");
+            IpBlack ipBlack = new IpBlack(IpUtil.getIp(CasinoWebUtil.getRequest()), Constants.no, "人人代邀请码填写错误，IP被封");
             ipBlackService.save(ipBlack);
             return ResponseUtil.custom(Constants.IP_BLOCK);
-        } else if (Constants.INVITE_TYPE_PROXY.equals(inviteType)) {
+        }
+        if (Constants.INVITE_TYPE_PROXY.equals(inviteType)) {
             ProxyUser proxyUser = proxyUserService.findByProxyCode(inviteCode);
             if (proxyUser != null) {
                 return ResponseUtil.success();
             }
-            String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
-            IpBlack ipBlack = new IpBlack();
-            ipBlack.setIp(ip);
-            ipBlack.setStatus(Constants.no);
-            ipBlack.setRemark("基层代理邀请码填写错误，IP被封");
+            IpBlack ipBlack = new IpBlack(IpUtil.getIp(CasinoWebUtil.getRequest()), Constants.no, "基层代理邀请码填写错误，IP被封");
             ipBlackService.save(ipBlack);
             return ResponseUtil.custom(Constants.IP_BLOCK);
         }
-        return ResponseUtil.custom("邀请码检验失败");
+        if (Constants.INVITE_TYPE_COMPANY.equals(inviteType)) {
+            PlatformConfig platformConfig = platformConfigService.findFirst();
+            if (platformConfig != null && !inviteCode.equals(platformConfig.getCompanyInviteCode())) {
+                IpBlack ipBlack = new IpBlack(IpUtil.getIp(CasinoWebUtil.getRequest()), Constants.no, "公司推广邀请码填写错误，IP被封");
+                ipBlackService.save(ipBlack);
+                return ResponseUtil.custom(Constants.IP_BLOCK);
+            }
+        }
+        return ResponseUtil.success();
     }
 
     @GetMapping("getVerificationCode")
@@ -656,18 +667,6 @@ public class AuthController {
             redisUtil.set(todayIpKey, 1, 60 * 60 * 24);
         } else {
             redisUtil.incr(todayIpKey, 1);
-        }
-        return ResponseUtil.success();
-    }
-
-    @GetMapping("switchLanguage")
-    @ApiOperation("切换语言")
-    @ApiImplicitParam(name = "lang", value = "语言,中文:zh_CN,英文:en_US,柬语:km_KH", required = true)
-    @NoAuthentication
-    public ResponseEntity switchLanguage(String lang) {
-        boolean checkNull = CommonUtil.checkNull(lang);
-        if (checkNull) {
-            return ResponseUtil.parameterNotNull();
         }
         return ResponseUtil.success();
     }

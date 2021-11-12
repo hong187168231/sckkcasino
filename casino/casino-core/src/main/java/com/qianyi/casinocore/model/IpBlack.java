@@ -22,4 +22,13 @@ public class IpBlack extends BaseEntity{
 
     @ApiModelProperty(value = "备注")
     private String remark;
+
+    public IpBlack() {
+    }
+
+    public IpBlack(String ip, Integer status, String remark) {
+        this.ip = ip;
+        this.status = status;
+        this.remark = remark;
+    }
 }
