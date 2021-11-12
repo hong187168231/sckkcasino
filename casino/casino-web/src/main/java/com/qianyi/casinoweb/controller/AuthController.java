@@ -98,7 +98,7 @@ public class AuthController {
             @ApiImplicitParam(name = "phoneCode", value = "手机号验证码", required = true),
             @ApiImplicitParam(name = "validate", value = "网易易顿", required = true),
             @ApiImplicitParam(name = "inviteCode", value = "邀请码", required = true),
-            @ApiImplicitParam(name = "inviteType", value = "邀请类型:everyone:人人代，proxy:基层代理，company:公司推广", required = true),
+            @ApiImplicitParam(name = "inviteType", value = "邀请类型:everyone:人人代，proxy:基层代理，888:官方推广", required = true),
     })
     public ResponseEntity spreadRegister(String account, String password, String country, String phone, String phoneCode, HttpServletRequest request, String validate, String inviteCode, String inviteType) {
         boolean checkNull = CommonUtil.checkNull(account, password, country, phone, phoneCode, validate, inviteCode, inviteType);
@@ -287,7 +287,7 @@ public class AuthController {
             user.setType(Constants.USER_TYPE1);
             return;
         }
-        //公司推广
+        //官方推广
         if (Constants.INVITE_TYPE_COMPANY.equals(inviteType)) {
             user.setType(Constants.USER_TYPE2);
             return;
@@ -575,7 +575,7 @@ public class AuthController {
     @ApiOperation("校验邀请码")
     @NoAuthentication
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "inviteType", value = "邀请类型:everyone:人人代，proxy:基层代理,company:公司推广", required = true),
+            @ApiImplicitParam(name = "inviteType", value = "邀请类型:everyone:人人代，proxy:基层代理,888:官方推广", required = true),
             @ApiImplicitParam(name = "inviteCode", value = "邀请码", required = true),
     })
     public ResponseEntity checkInviteCode(String inviteType, String inviteCode) {
@@ -607,7 +607,7 @@ public class AuthController {
         if (Constants.INVITE_TYPE_COMPANY.equals(inviteType)) {
             PlatformConfig platformConfig = platformConfigService.findFirst();
             if (platformConfig != null && !inviteCode.equals(platformConfig.getCompanyInviteCode())) {
-                IpBlack ipBlack = new IpBlack(IpUtil.getIp(CasinoWebUtil.getRequest()), Constants.no, "公司推广邀请码填写错误，IP被封");
+                IpBlack ipBlack = new IpBlack(IpUtil.getIp(CasinoWebUtil.getRequest()), Constants.no, "官方推广邀请码填写错误，IP被封");
                 ipBlackService.save(ipBlack);
                 return ResponseUtil.custom(Constants.IP_BLOCK);
             }
