@@ -14,6 +14,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -25,8 +26,8 @@ public class AccountChangeService {
         return accountChangeRepository.save(po);
     }
 
-    public Page<AccountChange> findAccountChangePage(Pageable pageable,AccountChange accountChange){
-        Specification<AccountChange> condition = this.getCondition(accountChange);
+    public Page<AccountChange> findAccountChangePage(Pageable pageable, AccountChange accountChange,Date startDate,Date endDate){
+        Specification<AccountChange> condition = this.getCondition(accountChange,startDate,endDate);
         Page<AccountChange> all = accountChangeRepository.findAll(condition, pageable);
         return all;
     }
@@ -35,7 +36,7 @@ public class AccountChangeService {
      * @param
      * @return
      */
-    private Specification<AccountChange> getCondition(AccountChange AccountChange) {
+    private Specification<AccountChange> getCondition(AccountChange AccountChange,Date startDate,Date endDate) {
         Specification<AccountChange> specification = new Specification<AccountChange>() {
             @Override
             public Predicate toPredicate(Root<AccountChange> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -58,6 +59,12 @@ public class AccountChangeService {
                 }
                 if (AccountChange.getThirdProxy() != null) {
                     list.add(cb.equal(root.get("thirdProxy").as(Long.class), AccountChange.getThirdProxy()));
+                }
+                if (startDate != null) {
+                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+                }
+                if (endDate != null) {
+                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
                 }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));
                 return predicate;

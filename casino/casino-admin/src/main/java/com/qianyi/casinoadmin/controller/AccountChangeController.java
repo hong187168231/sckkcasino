@@ -18,14 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Api(tags = "报表中心")
@@ -53,8 +51,12 @@ public class AccountChangeController {
             @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
             @ApiImplicitParam(name = "type", value = "账变类型", required = false),
             @ApiImplicitParam(name = "account", value = "会员账号", required = false),
+            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
-    public ResponseEntity<AccountChangeBackVo> findAccountChangePage(Integer pageSize, Integer pageCode, Integer type, String account, String orderNo){
+    public ResponseEntity<AccountChangeBackVo> findAccountChangePage(Integer pageSize, Integer pageCode, Integer type, String account, String orderNo,
+                                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+                                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         AccountChange accountChange = new AccountChange();
@@ -67,7 +69,7 @@ public class AccountChangeController {
         }
         accountChange.setOrderNo(orderNo);
         accountChange.setType(type);
-        Page<AccountChange> accountChangePage = accountChangeService.findAccountChangePage(pageable, accountChange);
+        Page<AccountChange> accountChangePage = accountChangeService.findAccountChangePage(pageable, accountChange,startDate,endDate);
         PageResultVO<AccountChangeBackVo> pageResultVO = new PageResultVO(accountChangePage);
         List<AccountChange> content = accountChangePage.getContent();
         if(content != null && content.size() > 0){
