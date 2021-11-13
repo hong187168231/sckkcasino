@@ -75,6 +75,17 @@ public class ThridCompanyProxyDetailController {
         ProxyUser byId = proxyUserService.findById(authId);
         List<CompanyProxyReportVo> list = new LinkedList<>();
         this.assemble(list,startDate,endDate,byId,null);
+        if (list.size() > CommonConst.NUMBER_0){
+            List<Long> collect = list.stream().map(CompanyProxyReportVo::getParentId).collect(Collectors.toList());
+            List<ProxyUser> proxyUsers = proxyUserService.findProxyUser(collect);
+            list.stream().forEach(companyProxyReportVo -> {
+                proxyUsers.forEach(proxyUser -> {
+                    if (proxyUser.getId().equals(companyProxyReportVo.getParentId())){
+                        companyProxyReportVo.setSuperiorProxyAccount(proxyUser.getUserName());
+                    }
+                });
+            });
+        }
         return ResponseUtil.success(list);
     }
     @ApiOperation("每日结算细节")
@@ -120,6 +131,7 @@ public class ThridCompanyProxyDetailController {
         companyProxyReportVo.setProxyRole(proxyUser.getProxyRole());
         companyProxyReportVo.setStaticsTimes(date);
         companyProxyReportVo.setId(proxyUser.getId());
+        companyProxyReportVo.setParentId(proxyUser.getSecondProxy());
         list.add(companyProxyReportVo);
     }
 

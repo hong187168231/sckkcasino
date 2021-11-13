@@ -11,6 +11,8 @@ public class CompanyProxyReportVo implements Serializable {
     private static final long serialVersionUID = -6875647823650305179L;
     @ApiModelProperty(value = "id")
     private Long id;
+    @ApiModelProperty(value = "上级代理id")
+    private Long parentId;
     @ApiModelProperty(value = "账号")
     private String userName;
     @ApiModelProperty(value = "昵称")
