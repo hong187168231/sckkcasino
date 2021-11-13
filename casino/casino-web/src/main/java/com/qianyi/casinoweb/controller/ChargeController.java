@@ -8,6 +8,7 @@ import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.CollectionBankcardService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.vo.CollectionBankcardVo;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -71,9 +72,11 @@ public class ChargeController {
             @ApiImplicitParam(name = "bankcardId", value = "收款银行卡ID", required = true),
     })
     public ResponseEntity submitCharge(String chargeAmount,Integer remitType,String remitterName,Long bankcardId){
-        if (CasinoWebUtil.checkNull(chargeAmount,remitType,remitterName,bankcardId)) {
+        if (CasinoWebUtil.checkNull(chargeAmount,remitterName,bankcardId)) {
             return ResponseUtil.parameterNotNull();
         }
+        //根据产品呀要求，前端暂时注释掉汇款方式，前端发起的充值默认就是银行卡充值
+        remitType = Constants.remitType_bank;
         ResponseEntity responseEntity = chargeBusiness.submitOrder(chargeAmount, remitType, remitterName,bankcardId, CasinoWebUtil.getAuthId());
         return responseEntity;
     }
