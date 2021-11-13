@@ -53,9 +53,9 @@ public class SysPermissionConfigFile {
         secordPermissions.add(thridMemberTranslate);
 
         //代理中心下菜单
-        SysPermission agentSystem = new SysPermission("代理后台管理", "代理后台查询", "/proxyUser/findProxyUser", agentPermission.getId(), 2, 0);
-        SysPermission agentReport = new SysPermission("代理后台日报表", "代理后台日报表", "/companyProxyDetail/find", agentPermission.getId(), 2, 0);
-        SysPermission agentMonthReport = new SysPermission("代理后台月报表", "代理后台月报表", "/companyProxyMonth/find", agentPermission.getId(), 2, 0);
+        SysPermission agentSystem = new SysPermission("代理管理", "代理后台查询", "/proxyUser/findProxyUser", agentPermission.getId(), 2, 0);
+        SysPermission agentReport = new SysPermission("综合报表", "代理后台日报表", "/companyProxyDetail/find", agentPermission.getId(), 2, 0);
+        SysPermission agentMonthReport = new SysPermission("佣金月结报表", "代理后台月报表", "/companyProxyMonth/find", agentPermission.getId(), 2, 0);
         secordPermissions.add(agentSystem);
         secordPermissions.add(agentReport);
         secordPermissions.add(agentMonthReport);
@@ -301,6 +301,18 @@ public class SysPermissionConfigFile {
             }
             if(sysPermission.getUrl().equals("/login/resetGaKey")){
                 resetGaKey = sysPermission;
+            }
+            if(sysPermission.getName().equals("代理后台管理")){
+                sysPermission.setName("代理管理");
+                sysPermissionService.save(sysPermission);
+            }
+            if(sysPermission.getName().equals("代理后台日报表")){
+                sysPermission.setName("综合报表");
+                sysPermissionService.save(sysPermission);
+            }
+            if(sysPermission.getName().equals("代理后台月报表")){
+                sysPermission.setName("佣金月结报表");
+                sysPermissionService.save(sysPermission);
             }
         }
 

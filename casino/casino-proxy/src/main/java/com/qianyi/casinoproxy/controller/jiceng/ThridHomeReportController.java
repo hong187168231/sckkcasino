@@ -53,20 +53,19 @@ public class ThridHomeReportController {
     @ApiOperation("查询基层代理首页报表")
     @GetMapping("/find")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
+            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<ProxyHomePageReportVo> find(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
-        if (CasinoProxyUtil.checkNull(startDate,endDate)){
-            ResponseUtil.custom("参数必填");
-        }
         ProxyHomePageReport proxyHomeReport = new  ProxyHomePageReport();
         proxyHomeReport.setProxyUserId(CasinoProxyUtil.getAuthId());
         ProxyHomePageReportVo proxyHomePageReportVo = null;
         try {
             proxyHomePageReportVo = this.assemble();
-            List<ProxyHomePageReport> proxyHomePageReports = proxyHomePageReportService.findHomePageReports(proxyHomeReport,DateUtil.getSimpleDateFormat1().format(startDate), DateUtil.getSimpleDateFormat1().format(endDate));
+            String startTime = startDate==null? null:DateUtil.getSimpleDateFormat1().format(startDate);
+            String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
+            List<ProxyHomePageReport> proxyHomePageReports = proxyHomePageReportService.findHomePageReports(proxyHomeReport,startTime,endTime);
             if (CasinoProxyUtil.checkNull(proxyHomePageReports) || proxyHomePageReports.size() == CommonConst.NUMBER_0){
                 return ResponseUtil.success(proxyHomePageReportVo);
             }
@@ -88,7 +87,7 @@ public class ThridHomeReportController {
             proxyHomePageReportVo.setNewUsers(newUsers + proxyHomePageReportVo.getNewUsers());
             CompanyProxyDetail companyProxyDetail = new CompanyProxyDetail();
             companyProxyDetail.setUserId(CasinoProxyUtil.getAuthId());
-            this.findCompanyProxyDetails(companyProxyDetail,DateUtil.getSimpleDateFormat1().format(startDate), DateUtil.getSimpleDateFormat1().format(endDate),proxyHomePageReportVo);
+            this.findCompanyProxyDetails(companyProxyDetail,startTime,endTime,proxyHomePageReportVo);
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
         }
