@@ -57,6 +57,9 @@ public class LoginLogService {
                 if (!CommonUtil.checkNull(loginLog.getIp())) {
                     list.add(cb.equal(root.get("ip").as(String.class), loginLog.getIp()));
                 }
+                if (loginLog.getType() !=null) {
+                    list.add(cb.equal(root.get("type").as(Long.class), loginLog.getType()));
+                }
                 if (loginLog.getUserId() !=null) {
                     list.add(cb.equal(root.get("userId").as(Long.class), loginLog.getUserId()));
                 }
