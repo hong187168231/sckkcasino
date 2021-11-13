@@ -11,14 +11,8 @@ import java.math.BigDecimal;
 public class ProxyHomePageReportVo  implements Serializable {
 
     private static final long serialVersionUID = -6875617745630305179L;
-    @ApiModelProperty("总代ID")
-    private Long firstProxy;
-
-    @ApiModelProperty("区域代理ID")
-    private Long secondProxy;
-
-    @ApiModelProperty("基层代理ID")
-    private Long thirdProxy;
+    @ApiModelProperty(value = "代理id")
+    private Long proxyUserId;
 
     @ApiModelProperty(value = "新增基层代理")
     private Integer newThirdProxys;
@@ -60,9 +54,7 @@ public class ProxyHomePageReportVo  implements Serializable {
     private BigDecimal totalProfit;
 
     public ProxyHomePageReportVo(ProxyHomePageReport proxyHomePageReport){
-        this.firstProxy = proxyHomePageReport.getFirstProxy();
-        this.secondProxy = proxyHomePageReport.getSecondProxy();
-        this.thirdProxy = proxyHomePageReport.getThirdProxy();
+        this.proxyUserId = proxyHomePageReport.getProxyUserId();
         this.newSecondProxys = proxyHomePageReport.getNewSecondProxys();
         this.newThirdProxys = proxyHomePageReport.getNewThirdProxys();
         this.newUsers = proxyHomePageReport.getNewUsers();

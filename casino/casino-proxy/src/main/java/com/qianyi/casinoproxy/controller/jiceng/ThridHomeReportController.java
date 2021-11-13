@@ -62,9 +62,7 @@ public class ThridHomeReportController {
             ResponseUtil.custom("参数必填");
         }
         ProxyHomePageReport proxyHomeReport = new  ProxyHomePageReport();
-        if (CasinoProxyUtil.setParameter(proxyHomeReport)){
-            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
-        }
+        proxyHomeReport.setProxyUserId(CasinoProxyUtil.getAuthId());
         ProxyHomePageReportVo proxyHomePageReportVo = null;
         try {
             proxyHomePageReportVo = this.assemble();
@@ -108,9 +106,7 @@ public class ThridHomeReportController {
             ResponseUtil.custom("参数必填");
         }
         ProxyHomePageReport proxyHomeReport = new  ProxyHomePageReport();
-        if (CasinoProxyUtil.setParameter(proxyHomeReport)){
-            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
-        }
+        proxyHomeReport.setProxyUserId(CasinoProxyUtil.getAuthId());
         List<ProxyHomePageReportVo> list = new LinkedList<>();
         try {
             ProxyHomePageReportVo proxyHomePageReportVo = this.assemble();

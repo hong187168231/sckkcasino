@@ -39,14 +39,8 @@ public class ProxyHomePageReportService {
             @Override
             public Predicate toPredicate(Root<ProxyHomePageReport> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
-                if (proxyHomePageReport.getFirstProxy() != null) {
-                    list.add(cb.equal(root.get("firstProxy").as(Long.class), proxyHomePageReport.getFirstProxy()));
-                }
-                if (proxyHomePageReport.getSecondProxy() != null) {
-                    list.add(cb.equal(root.get("secondProxy").as(Long.class), proxyHomePageReport.getSecondProxy()));
-                }
-                if (proxyHomePageReport.getThirdProxy() != null) {
-                    list.add(cb.equal(root.get("thirdProxy").as(Long.class), proxyHomePageReport.getThirdProxy()));
+                if (proxyHomePageReport.getProxyUserId() != null) {
+                    list.add(cb.equal(root.get("proxyUserId").as(Long.class), proxyHomePageReport.getProxyUserId()));
                 }
                 if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
                     list.add(cb.between(root.get("staticsTimes").as(String.class), startTime, endTime));
