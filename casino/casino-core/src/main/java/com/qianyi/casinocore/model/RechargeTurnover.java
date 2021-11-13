@@ -27,6 +27,6 @@ public class RechargeTurnover extends BaseEntity{
     private BigDecimal codeNums;
     @ApiModelProperty("打码倍率")
     private Float codeTimes;
-    @ApiModelProperty(value = "汇款方式 1银行卡 2支付宝 3微信 4人工操作")
+    @ApiModelProperty(value = "汇款方式 1银行卡，4总控操作，5代理上分，6活动赠送")
     private Integer remitType;
 }
