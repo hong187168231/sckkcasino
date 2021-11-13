@@ -67,6 +67,7 @@ public class CommonConst {
     public static final int NUMBER_30 = 30;
     public static final int NUMBER_100 = 100;
     public static final String SUCCESS = "SUCCESS";
+    public static final Long LONG_0 = 0L;
     public static final Long LONG_1 = 1L;
     public static final Long LONG_2 = 2L;
     public static final Long LONG_3 = 3L;

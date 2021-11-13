@@ -162,6 +162,7 @@ public class ThridCompanyProxyDetailController {
         if (CasinoProxyUtil.checkNull(gameRecord) || gameRecords.size() == CommonConst.NUMBER_0){
             companyProxyReportVo.setActiveUsers(CommonConst.NUMBER_0);
             companyProxyReportVo.setGroupPerformance(BigDecimal.ZERO);
+            return;
         }
         BigDecimal validbet = BigDecimal.ZERO;
         for (GameRecord g : gameRecords){

@@ -50,6 +50,9 @@ public class CasinoProxyUtil {
     }
     public static Boolean setParameter(Object object){
         ProxyUser proxyUser = casinoProxyUtil.proxyUserService.findById(getAuthId());
+        return setParameter(object,proxyUser);
+    }
+    public static Boolean setParameter(Object object,ProxyUser proxyUser){
         if (CasinoProxyUtil.checkNull(proxyUser)){
             return true;
         }
@@ -62,7 +65,6 @@ public class CasinoProxyUtil {
         }else {
             return true;
         }
-
     }
     private static Boolean setMethod(Object object,String parameter,Long proxyRole){
         try {

@@ -19,6 +19,23 @@ import java.io.UnsupportedEncodingException;
 import java.util.*;
 @Slf4j
 public class HttpClient4Util {
+    public static String get(String url) throws Exception {
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet(url);
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout(1000).setConnectionRequestTimeout(500)
+                .setSocketTimeout(1000).build();
+        httpGet.setConfig(requestConfig);
+        CloseableHttpResponse response = null;
+        try {
+            response = httpclient.execute(httpGet);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        HttpEntity entity = response.getEntity();//得到请求回来的数据
+        String s = EntityUtils.toString(entity, "UTF-8");
+        return s;
+    }
 
     public static String doGet(String url) {
         log.info("doGet请求参数{}",url);

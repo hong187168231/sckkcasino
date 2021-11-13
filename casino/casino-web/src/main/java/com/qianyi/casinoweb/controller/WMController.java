@@ -288,6 +288,7 @@ public class WMController {
             @ApiImplicitParam(name = "lang", value = "语言", required = true),
     })
     public ResponseEntity<BigDecimal> getWmBalanceApi(String account, Integer lang) {
+        log.info("开始查询WM余额:account={},lang={}", account, lang);
         if (CasinoWebUtil.checkNull(account, lang)) {
             return ResponseUtil.parameterNotNull();
         }
@@ -300,6 +301,7 @@ public class WMController {
                 log.error("获取用户WM余额为null");
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
+            log.info("WM余额查询成功:account={},lang={},balance", account, lang, balance);
             return ResponseUtil.success(balance);
         } catch (Exception e) {
             e.printStackTrace();

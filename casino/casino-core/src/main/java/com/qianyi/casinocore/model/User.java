@@ -76,7 +76,7 @@ public class User extends BaseEntity implements UserDetails {
      * 代理链接注册 渠道会员
      * 人人代链接 直属上级是什么注册的就是什么
      */
-    @ApiModelProperty("会员类型:0、公司会员，1、渠道会员")
+    @ApiModelProperty("会员类型:0、公司会员，1、渠道会员，2、官方推广")
     private Integer type;
     @JsonIgnore
     @Transient

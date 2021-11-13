@@ -27,8 +27,18 @@ public class CasinoWebUtil {
     //获取当前操作者的身份
     public static Long getAuthId() {
         String token = getToken();
+        if (ObjectUtils.isEmpty(token)) {
+            return null;
+        }
         JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
-        return Long.parseLong(subject.getUserId());
+        if (subject == null) {
+            return null;
+        }
+        String userId = subject.getUserId();
+        if (ObjectUtils.isEmpty(userId)) {
+            return null;
+        }
+        return Long.parseLong(userId);
 //        return getAuthId(token);
     }
 

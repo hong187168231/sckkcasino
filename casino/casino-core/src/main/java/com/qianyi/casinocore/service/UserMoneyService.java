@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.model.UserThird;
@@ -32,7 +33,10 @@ public class UserMoneyService {
     @Autowired
     private UserMoneyRepository userMoneyRepository;
 
-    private String url = "http://127.0.0.1:9200/wm/getWmBalanceApi?";
+    @Autowired
+    private PlatformConfigService platformConfigService;
+
+    private String url = "/wm/getWmBalanceApi?";
 
     public UserMoney findUserByUserIdUseLock(Long userId) {
 //        return userMoneyRepository.findUserByUserIdUseLock(userId);
@@ -211,7 +215,10 @@ public class UserMoneyService {
         try {
             String param = "account={0}&lang={1}";
             param = MessageFormat.format(param,third.getAccount(),lang);
-            String s = HttpClient4Util.doGet(url + param);
+            PlatformConfig first = platformConfigService.findFirst();
+            String WMurl = first == null?"":first.getWebConfiguration();
+            WMurl = WMurl + url;
+            String s = HttpClient4Util.get(WMurl + param);
             log.info("{}查询web接口返回{}",user.getAccount(),s);
             JSONObject parse = JSONObject.parseObject(s);
             Object data = parse.get("data");
