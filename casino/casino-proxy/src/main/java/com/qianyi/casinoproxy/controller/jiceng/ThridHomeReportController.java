@@ -53,14 +53,11 @@ public class ThridHomeReportController {
     @ApiOperation("查询基层代理首页报表")
     @GetMapping("/find")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
+            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<ProxyHomePageReportVo> find(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
-        if (CasinoProxyUtil.checkNull(startDate,endDate)){
-            ResponseUtil.custom("参数必填");
-        }
         ProxyHomePageReport proxyHomeReport = new  ProxyHomePageReport();
         proxyHomeReport.setProxyUserId(CasinoProxyUtil.getAuthId());
         ProxyHomePageReportVo proxyHomePageReportVo = null;
