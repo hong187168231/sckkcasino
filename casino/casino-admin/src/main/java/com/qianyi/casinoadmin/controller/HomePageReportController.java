@@ -58,7 +58,9 @@ public class HomePageReportController {
         HomePageReportVo homePageReportVo = null;
         try {
             homePageReportVo = this.assemble(startDate,endDate);
-            List<HomePageReport> homePageReports = homePageReportService.findHomePageReports(DateUtil.getSimpleDateFormat1().format(startDate), DateUtil.getSimpleDateFormat1().format(endDate));
+            String startTime = startDate==null? null:DateUtil.getSimpleDateFormat1().format(startDate);
+            String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
+            List<HomePageReport> homePageReports = homePageReportService.findHomePageReports(startTime,endTime);
             if (LoginUtil.checkNull(homePageReports) || homePageReports.size() == CommonConst.NUMBER_0){
                 return ResponseUtil.success(this.getHomePageReportVo(homePageReportVo));
             }
@@ -86,7 +88,7 @@ public class HomePageReportController {
             homePageReportVo.setWithdrawNums(withdrawNums + homePageReportVo.getWithdrawNums());
             homePageReportVo.setActiveUsers(activeUsers + homePageReportVo.getActiveUsers());
             homePageReportVo.setNewUsers(newUsers + homePageReportVo.getNewUsers());
-            this.findCompanyProxyDetails(new CompanyProxyDetail(),DateUtil.getSimpleDateFormat1().format(startDate), DateUtil.getSimpleDateFormat1().format(endDate),homePageReportVo);
+            this.findCompanyProxyDetails(new CompanyProxyDetail(),startTime,endTime,homePageReportVo);
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
         }

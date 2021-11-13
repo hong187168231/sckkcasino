@@ -63,7 +63,9 @@ public class ThridHomeReportController {
         ProxyHomePageReportVo proxyHomePageReportVo = null;
         try {
             proxyHomePageReportVo = this.assemble();
-            List<ProxyHomePageReport> proxyHomePageReports = proxyHomePageReportService.findHomePageReports(proxyHomeReport,DateUtil.getSimpleDateFormat1().format(startDate), DateUtil.getSimpleDateFormat1().format(endDate));
+            String startTime = startDate==null? null:DateUtil.getSimpleDateFormat1().format(startDate);
+            String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
+            List<ProxyHomePageReport> proxyHomePageReports = proxyHomePageReportService.findHomePageReports(proxyHomeReport,startTime,endTime);
             if (CasinoProxyUtil.checkNull(proxyHomePageReports) || proxyHomePageReports.size() == CommonConst.NUMBER_0){
                 return ResponseUtil.success(proxyHomePageReportVo);
             }
@@ -85,7 +87,7 @@ public class ThridHomeReportController {
             proxyHomePageReportVo.setNewUsers(newUsers + proxyHomePageReportVo.getNewUsers());
             CompanyProxyDetail companyProxyDetail = new CompanyProxyDetail();
             companyProxyDetail.setUserId(CasinoProxyUtil.getAuthId());
-            this.findCompanyProxyDetails(companyProxyDetail,DateUtil.getSimpleDateFormat1().format(startDate), DateUtil.getSimpleDateFormat1().format(endDate),proxyHomePageReportVo);
+            this.findCompanyProxyDetails(companyProxyDetail,startTime,endTime,proxyHomePageReportVo);
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
         }
