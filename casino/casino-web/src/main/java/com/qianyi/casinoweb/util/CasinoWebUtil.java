@@ -28,7 +28,14 @@ public class CasinoWebUtil {
     public static Long getAuthId() {
         String token = getToken();
         JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
-        return Long.parseLong(subject.getUserId());
+        if (subject == null) {
+            return null;
+        }
+        String userId = subject.getUserId();
+        if (ObjectUtils.isEmpty(userId)) {
+            return null;
+        }
+        return Long.parseLong(userId);
 //        return getAuthId(token);
     }
 
