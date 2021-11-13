@@ -29,7 +29,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
 
-@Api(tags = "首页报表")
+@Api(tags = "基层代理首页报表")
 @RestController
 @Slf4j
 @RequestMapping("thridHomeReport/jiceng")

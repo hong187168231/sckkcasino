@@ -30,7 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Api(tags = "代理中心")
+@Api(tags = "基层代理代理中心")
 @RestController
 @Slf4j
 @RequestMapping("companyProxyDetail/jiceng")

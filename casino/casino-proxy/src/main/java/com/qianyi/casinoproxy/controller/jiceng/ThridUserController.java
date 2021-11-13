@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("user/jiceng")
-@Api(tags = "客户中心")
+@Api(tags = "基层代理客户中心")
 @Slf4j
 public class ThridUserController {
 
