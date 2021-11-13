@@ -70,16 +70,16 @@ public class ChargeOrderController {
         }
         Specification<ChargeOrder> condition = this.getCondition(userId,status,startTime,endTime);
         Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(condition, pageable);
-        List<ChargeOrder> content = chargeOrderPage.getContent();
-        if (!CollectionUtils.isEmpty(content)) {
-            for (ChargeOrder chargeOrder : content) {
-                Integer orderStatus = chargeOrder.getStatus();
-                //总控和代理的操作为人工操作
-                if (orderStatus != null && (orderStatus == 4 || orderStatus == 5)) {
-                    chargeOrder.setRemitType(4);
-                }
-            }
-        }
+//        List<ChargeOrder> content = chargeOrderPage.getContent();
+//        if (!CollectionUtils.isEmpty(content)) {
+//            for (ChargeOrder chargeOrder : content) {
+//                Integer orderStatus = chargeOrder.getStatus();
+//                //总控和代理的操作为人工操作
+//                if (orderStatus != null && (orderStatus == 4 || orderStatus == 5)) {
+//                    chargeOrder.setRemitType(4);
+//                }
+//            }
+//        }
         return ResponseUtil.success(chargeOrderPage);
     }
 
