@@ -78,10 +78,18 @@ public class ProxyHomePageReportTask {
         this.gameRecord(proxyUser,startTime,endTime,proxyHomePageReport);
         this.getNewUsers(proxyUser,startDate,endDate,proxyHomePageReport);
         proxyHomePageReport.setProxyUserId(proxyUser.getId());
+        if (proxyUser.getProxyRole() == CommonConst.NUMBER_3){
+            proxyHomePageReport.setFirstProxy(proxyUser.getFirstProxy());
+            proxyHomePageReport.setSecondProxy(proxyUser.getSecondProxy());
+        }
         if (proxyUser.getProxyRole() == CommonConst.NUMBER_2){
+            proxyHomePageReport.setFirstProxy(proxyUser.getFirstProxy());
+            proxyHomePageReport.setSecondProxy(proxyUser.getId());
             this.getNewThirdProxys(proxyUser,startDate,endDate,proxyHomePageReport);
         }
         if (proxyUser.getProxyRole() == CommonConst.NUMBER_1){
+            proxyHomePageReport.setFirstProxy(proxyUser.getId());
+            proxyHomePageReport.setSecondProxy(CommonConst.LONG_0);
             this.getNewThirdProxys(proxyUser,startDate,endDate,proxyHomePageReport);
             this.getNewSecondProxys(proxyUser,startDate,endDate,proxyHomePageReport);
         }

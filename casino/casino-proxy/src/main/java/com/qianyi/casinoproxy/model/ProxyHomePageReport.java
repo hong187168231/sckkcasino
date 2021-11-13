@@ -14,11 +14,17 @@ import java.math.BigDecimal;
 @Entity
 @Data
 @ApiModel("代理首页报表")
-@Table(indexes = {@Index(columnList = "proxyUserId"),@Index(columnList = "staticsTimes")})
+@Table(indexes = {@Index(columnList = "proxyUserId"),@Index(columnList = "firstProxy"),@Index(columnList = "secondProxy"),@Index(columnList = "staticsTimes")})
 public class ProxyHomePageReport extends BaseEntity {
 
     @ApiModelProperty(value = "代理id")
     private Long proxyUserId;
+
+    @ApiModelProperty("总代ID")
+    private Long firstProxy;
+
+    @ApiModelProperty("区域代理ID")
+    private Long secondProxy;
 
     @ApiModelProperty(value = "新增基层代理")
     private Integer newThirdProxys;
