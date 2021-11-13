@@ -16,6 +16,12 @@ public class Constants {
     public final static Integer order_success = 2;//确认成功
     public final static Integer order_fail = 3;//确认失败
 
+    //充值类型
+    public final static Integer remitType_bank = 1;//银行卡充值1
+    public final static Integer remitType_general = 2;//总控上分2
+    public final static Integer remitType_proxy = 3;//代理上分3
+    public final static Integer remitType_activity = 4;//活动赠送4
+
     //充值订单状态
     public final static Integer chargeOrder_wait = 0;//原始状态，未接单
     public final static Integer chargeOrder_success = 1;//确认成功

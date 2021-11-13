@@ -77,11 +77,11 @@ public class ChargeOrderBusiness {
      * @param  chargeOrder 充值订单
      */
     @Transactional
-    public ResponseEntity saveOrderSuccess(User user,ChargeOrder chargeOrder,Integer status) {
+    public ResponseEntity saveOrderSuccess(User user,ChargeOrder chargeOrder,Integer status,Integer remitType) {
         chargeOrder.setFirstProxy(user.getFirstProxy());
         chargeOrder.setSecondProxy(user.getSecondProxy());
         chargeOrder.setThirdProxy(user.getThirdProxy());
-        chargeOrder.setRemitType(CommonConst.NUMBER_4);
+        chargeOrder.setRemitType(remitType);
         return this.saveOrder(chargeOrder,status,AccountChangeEnum.ADD_CODE);
     }
 

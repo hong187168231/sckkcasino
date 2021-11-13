@@ -50,14 +50,11 @@ public class HomePageReportController {
     @ApiOperation("查询首页报表")
     @GetMapping("/find")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
+            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<HomePageReportVo> find(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                  @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
-        if (LoginUtil.checkNull(startDate,endDate)){
-            ResponseUtil.custom("参数必填");
-        }
         HomePageReportVo homePageReportVo = null;
         try {
             homePageReportVo = this.assemble(startDate,endDate);

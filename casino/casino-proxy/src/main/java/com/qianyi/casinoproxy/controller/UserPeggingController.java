@@ -9,6 +9,7 @@ import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.BankcardsVo;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
+import com.qianyi.casinoproxy.util.LoginUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -58,22 +59,22 @@ public class UserPeggingController {
             return ResponseUtil.custom("参数不合法");
         }
         if (tag == CommonConst.NUMBER_0){//反查ip
-            User user = new User();
-            if (CasinoProxyUtil.setParameter(user)){
-                return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
-            }
-            user.setRegisterIp(context);
-            List<User> userList = userService.findUserList(user);
             LoginLog loginLog = new LoginLog();
             loginLog.setIp(context);
-            List<LoginLog> loginLogList = loginLogService.findLoginLogList(loginLog);
-            if (loginLogList.size() > CommonConst.NUMBER_0){
-                loginLogList = loginLogList.stream().filter(CommonUtil.distinctByKey(LoginLog::getAccount)).collect(Collectors.toList());
+            if (CasinoProxyUtil.setParameter(loginLog)){
+                return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
             }
-            Map<String,Object> map = new HashMap<>();
-            map.put("register",userList);
-            map.put("login",loginLogList);
-            return ResponseUtil.success(map);
+            loginLog.setType(CommonConst.NUMBER_2);
+            List<LoginLog> registerList = loginLogService.findLoginLogList(loginLog);
+            loginLog.setType(CommonConst.NUMBER_1);
+            List<LoginLog> loginList = loginLogService.findLoginLogList(loginLog);
+            if (loginList.size() > CommonConst.NUMBER_0){
+                loginList = loginList.stream().filter(CommonUtil.distinctByKey(LoginLog::getAccount)).collect(Collectors.toList());
+                if (!CasinoProxyUtil.checkNull(registerList)){
+                    registerList.addAll(loginList);
+                }
+            }
+            return ResponseUtil.success(registerList);
         }else if(tag == CommonConst.NUMBER_1){//反查银行卡号
             Bankcards bankcards = new Bankcards();
             if (CasinoProxyUtil.setParameter(bankcards)){
