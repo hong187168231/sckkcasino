@@ -32,6 +32,11 @@ public class ResponseEntity<T> implements Serializable {
         this.data=data;
     }
 
+    public ResponseEntity(ResponseCode responseCode, String msg) {
+        this.code=responseCode.getCode();
+        this.msg=msg;
+    }
+
     public int getCode() {
         return code;
     }

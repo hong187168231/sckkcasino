@@ -28,33 +28,23 @@ public class ResponseUtil {
     }
 
     public static ResponseEntity success(String msg, Object data) {
-        ResponseCode success = ResponseCode.SUCCESS;
-        success.setMsg(messageUtil.get(msg) + " " + data);
-        return new ResponseEntity(success);
+        return new ResponseEntity(ResponseCode.SUCCESS,messageUtil.get(msg) + " " + data);
     }
 
     public static ResponseEntity authenticationNopass() {
-        ResponseCode authenticationNopass = ResponseCode.AUTHENTICATION_NOPASS;
-        authenticationNopass.setMsg(messageUtil.get(authenticationNopass.getMsg()));
-        return new ResponseEntity(authenticationNopass);
+        return new ResponseEntity(ResponseCode.AUTHENTICATION_NOPASS,messageUtil.get(ResponseCode.AUTHENTICATION_NOPASS.getMsg()));
     }
 
     public static ResponseEntity authorizationNopass() {
-        ResponseCode authorizationNopass = ResponseCode.AUTHORIZATION_NOPASS;
-        authorizationNopass.setMsg(messageUtil.get(authorizationNopass.getMsg()));
-        return new ResponseEntity(authorizationNopass);
+        return new ResponseEntity(ResponseCode.AUTHORIZATION_NOPASS,messageUtil.get(ResponseCode.AUTHORIZATION_NOPASS.getMsg()));
     }
 
     public static ResponseEntity requestLimit() {
-        ResponseCode requestLimit = ResponseCode.REQUEST_LIMIT;
-        requestLimit.setMsg(requestLimit.getMsg());
-        return new ResponseEntity(requestLimit);
+        return new ResponseEntity(ResponseCode.REQUEST_LIMIT,messageUtil.get(ResponseCode.REQUEST_LIMIT.getMsg()));
     }
 
     public static ResponseEntity parameterNotNull() {
-        ResponseCode parameterNotnulll = ResponseCode.PARAMETER_NOTNULLL;
-        parameterNotnulll.setMsg(parameterNotnulll.getMsg());
-        return new ResponseEntity(ResponseCode.PARAMETER_NOTNULLL);
+        return new ResponseEntity(ResponseCode.PARAMETER_NOTNULLL,messageUtil.get(ResponseCode.PARAMETER_NOTNULLL.getMsg()));
     }
 
     public static ResponseEntity custom(String msg) {
@@ -67,15 +57,12 @@ public class ResponseUtil {
     }
 
     public static ResponseEntity risk() {
-        ResponseCode risk = ResponseCode.RISK;
-        risk.setMsg(messageUtil.get(risk.getMsg()));
-        return new ResponseEntity(risk);
+        return new ResponseEntity(ResponseCode.RISK,messageUtil.get(ResponseCode.RISK.getMsg()));
+
     }
 
     public static ResponseEntity googleAuthNoPass() {
-        ResponseCode googleauthNopass = ResponseCode.GOOGLEAUTH_NOPASS;
-        googleauthNopass.setMsg(messageUtil.get(googleauthNopass.getMsg()));
-        return new ResponseEntity(googleauthNopass);
+        return new ResponseEntity(ResponseCode.GOOGLEAUTH_NOPASS,messageUtil.get(ResponseCode.GOOGLEAUTH_NOPASS.getMsg()));
     }
 
     public static ResponseEntity fail() {
@@ -83,14 +70,10 @@ public class ResponseUtil {
     }
 
     public static ResponseEntity emptytWithdrawMoney() {
-        ResponseCode emptyTwithdrawmoney = ResponseCode.EMPTY_TWITHDRAWMONEY;
-        emptyTwithdrawmoney.setMsg(messageUtil.get(emptyTwithdrawmoney.getMsg()));
-        return new ResponseEntity(ResponseCode.EMPTY_TWITHDRAWMONEY);
-
+        return new ResponseEntity(ResponseCode.EMPTY_TWITHDRAWMONEY,messageUtil.get(ResponseCode.EMPTY_TWITHDRAWMONEY.getMsg()));
     }
+
     public static ResponseEntity multiDevice() {
-        ResponseCode multidevice = ResponseCode.MULTIDEVICE;
-        multidevice.setMsg(messageUtil.get(multidevice.getMsg()));
-        return new ResponseEntity(ResponseCode.MULTIDEVICE);
+        return new ResponseEntity(ResponseCode.MULTIDEVICE,messageUtil.get(ResponseCode.MULTIDEVICE.getMsg()));
     }
 }
