@@ -492,7 +492,7 @@ public class UserController {
         chargeOrder.setLastModifier(lastModifier);
         chargeOrder.setType(user.getType());
 //        chargeOrder.setRealityAmount(money);
-        return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_proxy);
+        return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_proxy,Constants.remitType_proxy);
     }
     /**
      * 后台新增提现订单
