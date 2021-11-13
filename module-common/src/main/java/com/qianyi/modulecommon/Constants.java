@@ -100,6 +100,8 @@ public class Constants {
     public static final String REDIS_TOKEN= "token::";
     //redis token前缀
     public static final String AUTHORIZATION= "authorization";
+    //header 中多语言key
+    public static final String LANGUAGE= "language";
     //web端JWT过期后，24H内可颁发新的token
     public static final Long WEB_REFRESH_TTL = 60 * 60L * 24;//秒
 
