@@ -34,6 +34,9 @@ public class BankcardsDel extends BaseEntity {
     @ApiModelProperty(value = "开户地址")
     private String address;
 
+    @ApiModelProperty(value = "默认卡，主卡= 1")
+    private Integer defaultCard;
+
     /**
      * 开户名
      */
@@ -49,5 +52,6 @@ public class BankcardsDel extends BaseEntity {
         this.bankAccount = bankcards.getBankAccount();
         this.address = bankcards.getAddress();
         this.realName = bankcards.getRealName();
+        this.defaultCard = bankcards.getDefaultCard();
     }
 }
