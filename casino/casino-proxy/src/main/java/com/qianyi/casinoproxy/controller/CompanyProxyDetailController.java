@@ -1,20 +1,13 @@
 package com.qianyi.casinoproxy.controller;
 
-import com.qianyi.casinocore.model.CompanyProxyDetail;
 import com.qianyi.casinocore.model.ProxyUser;
-import com.qianyi.casinocore.service.CompanyProxyDetailService;
 import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.casinocore.util.PageUtil;
-import com.qianyi.casinocore.vo.CompanyProxyDetailVo;
 import com.qianyi.casinocore.vo.CompanyProxyReportVo;
-import com.qianyi.casinocore.vo.PageResultVO;
-import com.qianyi.casinocore.vo.PageVo;
 import com.qianyi.casinoproxy.model.ProxyHomePageReport;
 import com.qianyi.casinoproxy.service.ProxyHomePageReportService;
 import com.qianyi.casinoproxy.task.ProxyHomePageReportTask;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
-import com.qianyi.casinoproxy.vo.ProxyHomePageReportVo;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.DateUtil;
@@ -58,8 +51,8 @@ public class CompanyProxyDetailController {
             @ApiImplicitParam(name = "proxyRole", value = "代理级别1：总代理 2：区域代理 3：基层代理", required = false),
             @ApiImplicitParam(name = "userName", value = "账号", required = false),
             @ApiImplicitParam(name = "tag", value = "1：含下级 0：不包含", required = false),
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
+            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<CompanyProxyReportVo> find(Integer proxyRole, Integer tag, String userName,
                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
@@ -147,8 +140,8 @@ public class CompanyProxyDetailController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "当前id", required = false),
             @ApiImplicitParam(name = "userName", value = "账号", required = false),
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
+            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<CompanyProxyReportVo> findDailyDetails(Long id,String userName,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
