@@ -57,7 +57,7 @@ public class BankcardsVo  implements Serializable {
         this.bankAccount = bankcards.getBankAccount();
         this.address = bankcards.getAddress();
         this.realName = bankcards.getRealName();
-        this.defaultCard = 1;
+        this.defaultCard = bankcards.getDefaultCard();
         this.disable = 1;
         this.updateTime = bankcards.getUpdateTime();
         this.updateBy = bankcards.getUpdateBy();
