@@ -8,6 +8,7 @@ import com.qianyi.casinoadmin.model.HomePageReport;
 import com.qianyi.casinocore.model.CompanyProxyDetail;
 import com.qianyi.casinocore.service.CompanyProxyDetailService;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.DateUtil;
@@ -53,6 +54,7 @@ public class HomePageReportController {
             @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
+    @NoAuthorization
     public ResponseEntity<HomePageReportVo> find(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                  @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         HomePageReportVo homePageReportVo = null;
@@ -100,6 +102,7 @@ public class HomePageReportController {
             @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
+    @NoAuthorization
     public ResponseEntity<HomePageReportVo> findTrendChart(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                               @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate) {
         if (LoginUtil.checkNull(startDate, endDate)) {
