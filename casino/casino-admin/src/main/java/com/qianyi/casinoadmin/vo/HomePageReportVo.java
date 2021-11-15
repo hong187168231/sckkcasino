@@ -37,7 +37,7 @@ public class HomePageReportVo implements Serializable {
     private BigDecimal  shareAmount;
 
     @ApiModelProperty(value = "预估代理佣金")
-    private BigDecimal proxyProfit;
+    private BigDecimal proxyProfit = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "发放红利")
     private BigDecimal bonusAmount;
