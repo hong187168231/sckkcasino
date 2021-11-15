@@ -51,20 +51,20 @@ public class UserThirdController {
         if (tag == CommonConst.NUMBER_0){
              user = userService.findByAccount(userAccount);
             if (LoginUtil.checkNull(user)){
-                return ResponseUtil.custom("账户不存在");
+                return ResponseUtil.success();
             }
              userThird = userThirdService.findByUserId(user.getId());
             if (LoginUtil.checkNull(userThird)){
-                return ResponseUtil.custom("三方账号不存在");
+                return ResponseUtil.success();
             }
         }else{
              userThird = userThirdService.findByAccount(userAccount);
             if (LoginUtil.checkNull(userThird)){
-                return ResponseUtil.custom("三方账号不存在");
+                return ResponseUtil.success();
             }
              user = userService.findById(userThird.getUserId());
             if (LoginUtil.checkNull(user)){
-                return ResponseUtil.custom("账户不存在");
+                return ResponseUtil.success();
             }
         }
         UserThirdVo userThirdVo = new UserThirdVo();
