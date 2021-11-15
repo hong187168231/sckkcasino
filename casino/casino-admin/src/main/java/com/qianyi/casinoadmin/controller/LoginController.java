@@ -342,7 +342,7 @@ public class LoginController {
 
     //1分钟3次
     @RequestLimit(limit = 3,timeout = 60)
-    @NoAuthentication
+//    @NoAuthentication
     @ApiOperation("添加管理员用户")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userName", value = "帐号", required = true),
