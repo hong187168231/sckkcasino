@@ -42,6 +42,15 @@ public class ProxyHomePageReportService {
                 if (proxyHomePageReport.getProxyUserId() != null) {
                     list.add(cb.equal(root.get("proxyUserId").as(Long.class), proxyHomePageReport.getProxyUserId()));
                 }
+                if (proxyHomePageReport.getProxyRole() != null) {
+                    list.add(cb.equal(root.get("proxyRole").as(Long.class), proxyHomePageReport.getProxyRole()));
+                }
+                if (proxyHomePageReport.getFirstProxy() != null) {
+                    list.add(cb.equal(root.get("firstProxy").as(Long.class), proxyHomePageReport.getFirstProxy()));
+                }
+                if (proxyHomePageReport.getSecondProxy() != null) {
+                    list.add(cb.equal(root.get("secondProxy").as(Long.class), proxyHomePageReport.getSecondProxy()));
+                }
                 if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
                     list.add(cb.between(root.get("staticsTimes").as(String.class), startTime, endTime));
                 }

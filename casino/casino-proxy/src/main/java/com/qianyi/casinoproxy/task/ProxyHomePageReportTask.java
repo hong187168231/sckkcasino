@@ -78,6 +78,7 @@ public class ProxyHomePageReportTask {
         this.gameRecord(proxyUser,startTime,endTime,proxyHomePageReport);
         this.getNewUsers(proxyUser,startDate,endDate,proxyHomePageReport);
         proxyHomePageReport.setProxyUserId(proxyUser.getId());
+        proxyHomePageReport.setProxyRole(proxyUser.getProxyRole());
         if (proxyUser.getProxyRole() == CommonConst.NUMBER_3){
             proxyHomePageReport.setFirstProxy(proxyUser.getFirstProxy());
             proxyHomePageReport.setSecondProxy(proxyUser.getSecondProxy());
