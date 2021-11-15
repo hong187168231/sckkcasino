@@ -206,7 +206,7 @@ public class WithdrawBusiness {
         if(userMoney == null){
             return ResponseUtil.custom("用户钱包不存在");
         }
-        if (userMoney.getMoney().compareTo(withdrawMoney)<=0){
+        if (userMoney.getMoney().compareTo(withdrawMoney) < 0){
             return ResponseUtil.custom("余额不足");
         }
         WithdrawOrder withdrawOrder = new WithdrawOrder();
