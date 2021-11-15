@@ -6,6 +6,7 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.repository.UserMoneyRepository;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.util.HttpClient4Util;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,9 @@ public class UserMoneyService {
     @Autowired
     private PlatformConfigService platformConfigService;
 
-    private String url = "/wm/getWmBalanceApi?";
+    private String refreshUrl = "/wm/getWmBalanceApi?";
+
+    private String recycleUrl = "/wm/oneKeyRecoverApi?";
 
     public UserMoney findUserByUserIdUseLock(Long userId) {
 //        return userMoneyRepository.findUserByUserIdUseLock(userId);
@@ -217,7 +220,7 @@ public class UserMoneyService {
             param = MessageFormat.format(param,third.getAccount(),lang);
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null?"":first.getWebConfiguration();
-            WMurl = WMurl + url;
+            WMurl = WMurl + refreshUrl;
             String s = HttpClient4Util.get(WMurl + param);
             log.info("{}查询web接口返回{}",user.getAccount(),s);
             JSONObject parse = JSONObject.parseObject(s);
@@ -225,6 +228,22 @@ public class UserMoneyService {
             return new BigDecimal(data.toString());
         } catch (Exception e) {
             return BigDecimal.ZERO;
+        }
+    }
+    public Integer oneKeyRecover(User user){
+        try {
+            String param = "userId={0}";
+            param = MessageFormat.format(param,user.getId());
+            PlatformConfig first = platformConfigService.findFirst();
+            String WMurl = first == null?"":first.getWebConfiguration();
+            WMurl = WMurl + recycleUrl;
+            String s = HttpClient4Util.get(WMurl + param);
+            log.info("{}回收余额web接口返回{}",user.getAccount(),s);
+            JSONObject parse = JSONObject.parseObject(s);
+            Integer code = (Integer) parse.get("code");
+            return code;
+        } catch (Exception e) {
+            return CommonConst.NUMBER_1;
         }
     }
 }
