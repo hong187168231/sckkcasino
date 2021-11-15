@@ -11,7 +11,6 @@ import com.qianyi.casinocore.business.ChargeOrderBusiness;
 import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
-import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
@@ -66,9 +65,6 @@ public class UserController {
 
     @Autowired
     UserThirdService userThirdService;
-
-    @Autowired
-    PublicWMApi wmApi;
 
     @Autowired
     private LoginLogService loginLogService;
