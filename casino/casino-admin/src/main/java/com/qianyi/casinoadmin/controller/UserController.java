@@ -227,6 +227,23 @@ public class UserController {
         return ResponseUtil.success(wMonetUser);
     }
 
+    @ApiOperation("一键回收用户WM余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("oneKeyRecover")
+    public ResponseEntity oneKeyRecover(Long id){
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            return ResponseUtil.custom("客户不存在");
+        }
+        Integer code = userMoneyService.oneKeyRecover(user);
+        if (code == CommonConst.NUMBER_0){
+            return ResponseUtil.success();
+        }else {
+            return ResponseUtil.custom("回收WM余额失败");
+        }
+    }
 //    public void setWMMoney(List<User> userList) {
 //
 //        log.info("query WM money data：【{}】 ", userList);

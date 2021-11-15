@@ -20,6 +20,7 @@ import java.util.*;
 @Slf4j
 public class HttpClient4Util {
     public static String get(String url) throws Exception {
+        log.info("get请求参数{}",url);
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
         RequestConfig requestConfig = RequestConfig.custom()
@@ -34,6 +35,7 @@ public class HttpClient4Util {
         }
         HttpEntity entity = response.getEntity();//得到请求回来的数据
         String s = EntityUtils.toString(entity, "UTF-8");
+        log.info("get请求返回参数{}",s);
         return s;
     }
 
