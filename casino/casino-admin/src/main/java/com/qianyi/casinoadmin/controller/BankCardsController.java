@@ -295,7 +295,6 @@ public class BankCardsController {
             @ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
 
     })
-    @NoAuthorization
     @Transactional
     public ResponseEntity disable(Long userId, Long bankId){
         if(LoginUtil.checkNull(userId,bankId)){

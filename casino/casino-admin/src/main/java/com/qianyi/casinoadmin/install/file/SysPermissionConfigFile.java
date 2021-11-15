@@ -291,10 +291,16 @@ public class SysPermissionConfigFile {
         SysPermission systemPermission = null;
         SysPermission resetPassword = null;
         SysPermission resetGaKey = null;
+        SysPermission disabeSysmission = null;
+        SysPermission findUserSysmission = null;
+
 
         for (SysPermission sysPermission : sysPermissionList) {
             if(sysPermission.getUrl().equals("/sysUser/userList")){
                 systemPermission = sysPermission;
+            }
+            if(sysPermission.getUrl().equals("/user/findUserList")){
+                findUserSysmission = sysPermission;
             }
             if(sysPermission.getUrl().equals("/login/resetPassword")){
                 resetPassword = sysPermission;
@@ -314,6 +320,9 @@ public class SysPermissionConfigFile {
                 sysPermission.setName("佣金月结报表");
                 sysPermissionService.save(sysPermission);
             }
+            if(sysPermission.getUrl().equals("/bankcard/disable")){
+                disabeSysmission = sysPermission;
+            }
         }
 
         List<SysPermission> sysPermList = new ArrayList<>();
@@ -327,6 +336,13 @@ public class SysPermissionConfigFile {
                 sysPermList.add(resetGaKey);
             }
         }
+        if(findUserSysmission != null){
+            if(disabeSysmission == null){
+                disabeSysmission = new SysPermission("解绑", "解绑银行卡", "/bankcard/disable", findUserSysmission.getId(), 3, 0);
+                sysPermissionService.save(disabeSysmission);
+            }
+        }
+
         if(sysPermList.size() > 0){
             sysPermissionService.saveAllList(sysPermList);
         }
