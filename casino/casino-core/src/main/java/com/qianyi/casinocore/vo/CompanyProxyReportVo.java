@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.vo;
 
+import com.qianyi.casinocore.util.CommonConst;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -22,17 +23,17 @@ public class CompanyProxyReportVo implements Serializable {
     @ApiModelProperty(value = "上级代理账号")
     private String superiorProxyAccount;
     @ApiModelProperty(value = "新增下级代理")
-    private Integer groupNewProxyUsers;
+    private Integer groupNewProxyUsers = CommonConst.NUMBER_0;
     @ApiModelProperty(value = "团队新增玩家数")
-    private Integer groupNewUsers;
+    private Integer groupNewUsers = CommonConst.NUMBER_0;
     @ApiModelProperty(value = "活跃玩家数")
-    private Integer activeUsers;
+    private Integer activeUsers = CommonConst.NUMBER_0;
     @ApiModelProperty(value = "团队充值")
-    private BigDecimal chargeAmount;
+    private BigDecimal chargeAmount = BigDecimal.ZERO;
     @ApiModelProperty(value = "团队提款")
-    private BigDecimal withdrawMoney;
+    private BigDecimal withdrawMoney = BigDecimal.ZERO;
     @ApiModelProperty("团队业绩(流水)")
-    private BigDecimal groupPerformance;
+    private BigDecimal groupPerformance = BigDecimal.ZERO;
     @ApiModelProperty("统计日期")
     private String staticsTimes;
 }

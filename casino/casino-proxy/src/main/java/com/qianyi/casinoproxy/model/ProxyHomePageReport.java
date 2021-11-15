@@ -1,6 +1,7 @@
 package com.qianyi.casinoproxy.model;
 
 import com.qianyi.casinocore.model.BaseEntity;
+import com.qianyi.casinocore.util.CommonConst;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -20,6 +21,9 @@ public class ProxyHomePageReport extends BaseEntity {
     @ApiModelProperty(value = "代理id")
     private Long proxyUserId;
 
+    @ApiModelProperty("代理角色 1：总代理 2：区域代理 3：基层代理")
+    private Integer proxyRole;
+
     @ApiModelProperty("总代ID")
     private Long firstProxy;
 
@@ -27,10 +31,10 @@ public class ProxyHomePageReport extends BaseEntity {
     private Long secondProxy;
 
     @ApiModelProperty(value = "新增基层代理")
-    private Integer newThirdProxys;
+    private Integer newThirdProxys = CommonConst.NUMBER_0;
 
     @ApiModelProperty(value = "新增玩区域代理")
-    private Integer newSecondProxys;
+    private Integer newSecondProxys = CommonConst.NUMBER_0;
 
     @ApiModelProperty(value = "新增玩家数")
     private Integer newUsers;
