@@ -297,6 +297,7 @@ public class SysPermissionConfigFile {
         SysPermission platformConfig = null; //平台设置
         SysPermission findPromotionCode = null; //推广链接查询
         SysPermission updatePromotionCode = null; //修改推广链接码
+        SysPermission wmBalancePermission = null; //一键回收用户WM余额
 
 
         for (SysPermission sysPermission : sysPermissionList) {
@@ -336,7 +337,9 @@ public class SysPermissionConfigFile {
             if(sysPermission.getName().equals("修改推广链接码")){
                 updatePromotionCode = sysPermission;
             }
-
+            if(sysPermission.getName().equals("一键回收用户WM余额")){
+                wmBalancePermission = sysPermission;
+            }
 
         }
 
@@ -355,6 +358,10 @@ public class SysPermissionConfigFile {
             if(disabeSysmission == null){
                 disabeSysmission = new SysPermission("解绑", "解绑银行卡", "/bankcard/disable", findUserSysmission.getId(), 3, 0);
                 sysPermissionService.save(disabeSysmission);
+            }
+            if(wmBalancePermission == null){
+                wmBalancePermission = new SysPermission("一键回收用户WM余额", "一键回收用户WM余额", "/user/oneKeyRecover", findUserSysmission.getId(), 3, 0);
+                sysPermissionService.save(wmBalancePermission);
             }
         }
         if(platformConfig != null){
