@@ -288,11 +288,15 @@ public class SysPermissionConfigFile {
      */
     public void addPermissionConfig() {
         List<SysPermission> sysPermissionList = sysPermissionService.findAll();
-        SysPermission systemPermission = null;
+        SysPermission systemPermission = null; //系统管理
         SysPermission resetPassword = null;
         SysPermission resetGaKey = null;
         SysPermission disabeSysmission = null;
-        SysPermission findUserSysmission = null;
+        SysPermission findUserSysmission = null; //会员管理
+
+        SysPermission platformConfig = null; //平台设置
+        SysPermission findPromotionCode = null; //推广链接查询
+        SysPermission updatePromotionCode = null; //修改推广链接码
 
 
         for (SysPermission sysPermission : sysPermissionList) {
@@ -323,6 +327,17 @@ public class SysPermissionConfigFile {
             if(sysPermission.getUrl().equals("/bankcard/disable")){
                 disabeSysmission = sysPermission;
             }
+            if(sysPermission.getName().equals("平台配置")){
+                platformConfig = sysPermission;
+            }
+            if(sysPermission.getName().equals("推广链接查询")){
+                findPromotionCode = sysPermission;
+            }
+            if(sysPermission.getName().equals("修改推广链接码")){
+                updatePromotionCode = sysPermission;
+            }
+
+
         }
 
         List<SysPermission> sysPermList = new ArrayList<>();
@@ -340,6 +355,16 @@ public class SysPermissionConfigFile {
             if(disabeSysmission == null){
                 disabeSysmission = new SysPermission("解绑", "解绑银行卡", "/bankcard/disable", findUserSysmission.getId(), 3, 0);
                 sysPermissionService.save(disabeSysmission);
+            }
+        }
+        if(platformConfig != null){
+            if(findPromotionCode == null){
+                findPromotionCode = new SysPermission("推广链接查询", "推广链接查询", "/platformConfig/findPromotionCode", platformConfig.getId(), 3, 0);
+                sysPermList.add(findPromotionCode);
+            }
+            if(updatePromotionCode == null){
+                updatePromotionCode = new SysPermission("修改推广链接码", "修改推广链接码", "/platformConfig/updatePromotionCode", platformConfig.getId(), 3, 0);
+                sysPermList.add(updatePromotionCode);
             }
         }
 
