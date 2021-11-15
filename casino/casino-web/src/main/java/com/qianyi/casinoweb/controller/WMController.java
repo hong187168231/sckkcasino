@@ -294,11 +294,11 @@ public class WMController {
     })
     public ResponseEntity<BigDecimal> getWmBalanceApi(String account, Integer lang) {
         log.info("开始查询WM余额:account={},lang={}", account, lang);
-        if (CasinoWebUtil.checkNull(account, lang)) {
-            return ResponseUtil.parameterNotNull();
-        }
         if (!ipWhiteCheck()) {
             return ResponseUtil.custom("ip禁止访问");
+        }
+        if (CasinoWebUtil.checkNull(account, lang)) {
+            return ResponseUtil.parameterNotNull();
         }
         try {
             BigDecimal balance = wmApi.getBalance(account, lang);
@@ -317,11 +317,30 @@ public class WMController {
 
     @ApiOperation("一键回收当前登录用户WM余额")
     @Transactional
-//    @RequestLimit(limit = 1, timeout = 5)
     @GetMapping("oneKeyRecover")
     public ResponseEntity oneKeyRecover() {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
+        return oneKeyRecoverCommon(userId);
+    }
+
+    @ApiOperation("一键回收用户WM余额外部接口")
+    @Transactional
+    @GetMapping("oneKeyRecoverApi")
+    @NoAuthentication
+    @ApiImplicitParam(name = "userId", value = "用户ID", required = true)
+    public ResponseEntity oneKeyRecoverApi(Long userId) {
+        if (!ipWhiteCheck()) {
+            return ResponseUtil.custom("ip禁止访问");
+        }
+        return oneKeyRecoverCommon(userId);
+    }
+
+    public ResponseEntity oneKeyRecoverCommon(Long userId) {
+        log.info("开始回收wm余额，userId={}",userId);
+        if (CasinoWebUtil.checkNull(userId)) {
+            return ResponseUtil.parameterNotNull();
+        }
         UserThird third = userThirdService.findByUserId(userId);
         if (third == null || ObjectUtils.isEmpty(third.getAccount())) {
             return ResponseUtil.custom("WM余额为0");
@@ -392,6 +411,7 @@ public class WMController {
         vo.setAmountBefore(userMoney.getMoney());
         vo.setAmountAfter(userMoney.getMoney().add(balance));
         asyncService.executeAsync(vo);
+        log.info("wm余额回收成功，userId={}",userId);
         return ResponseUtil.success();
     }
 
