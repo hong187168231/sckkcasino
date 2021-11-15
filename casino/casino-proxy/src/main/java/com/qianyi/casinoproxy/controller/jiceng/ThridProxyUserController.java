@@ -41,7 +41,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Api(tags = "代理中心")
+@Api(tags = "基层代理代理中心")
 @RestController
 @RequestMapping("proxyUser/jiceng")
 public class ThridProxyUserController {

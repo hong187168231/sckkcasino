@@ -576,9 +576,7 @@ public class AuthController {
         if (Constants.INVITE_TYPE_COMPANY.equals(inviteType)) {
             PlatformConfig platformConfig = platformConfigService.findFirst();
             if (platformConfig != null && !inviteCode.equals(platformConfig.getCompanyInviteCode())) {
-                IpBlack ipBlack = new IpBlack(IpUtil.getIp(CasinoWebUtil.getRequest()), Constants.no, "官方推广邀请码填写错误，IP被封");
-                ipBlackService.save(ipBlack);
-                return ResponseUtil.custom(Constants.IP_BLOCK);
+                return ResponseUtil.custom("官方推广邀请码填写错误");
             }
         }
         return ResponseUtil.success();

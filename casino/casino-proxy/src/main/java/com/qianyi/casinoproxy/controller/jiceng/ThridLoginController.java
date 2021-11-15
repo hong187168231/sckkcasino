@@ -1,4 +1,4 @@
-package com.qianyi.casinoproxy.controller;
+package com.qianyi.casinoproxy.controller.jiceng;
 
 import com.google.code.kaptcha.Producer;
 import com.qianyi.casinocore.model.ProxyUser;
@@ -7,9 +7,7 @@ import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoproxy.model.ProxyUserLoginLog;
 import com.qianyi.casinoproxy.service.ProxyUserLoginLogService;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
-import com.qianyi.casinoproxy.util.LoginUtil;
 import com.qianyi.moduleauthenticator.GoogleAuthUtil;
-import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.RequestLimit;
@@ -26,11 +24,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Api(tags = "认证中心")
+@Api(tags = "基层代理认证中心")
 @RestController
-@RequestMapping("login")
+@RequestMapping("login/jiceng")
 @Slf4j
-public class LoginController {
+public class ThridLoginController {
 
     //这里的captchaProducer要和KaptchaConfig里面的bean命名一样
     @Autowired
@@ -70,12 +68,11 @@ public class LoginController {
         if (!bcrypt) {
             return ResponseUtil.custom("帐号或密码错误");
         }
-
         boolean flag = ProxyUser.checkUser(proxyUser);
         if (!flag) {
             return ResponseUtil.custom("该帐号不可操作");
         }
-        if (proxyUser.getProxyRole() == CommonConst.NUMBER_3){
+        if (proxyUser.getProxyRole() != CommonConst.NUMBER_3){
             return ResponseUtil.custom("代理级别不对应");
         }
         JjwtUtil.Subject subject = new JjwtUtil.Subject();
@@ -177,12 +174,11 @@ public class LoginController {
         if (!bcrypt) {
             return ResponseUtil.custom("帐号或密码错误");
         }
-
         boolean flag = ProxyUser.checkUser(proxyUser);
         if (!flag) {
             return ResponseUtil.custom("该帐号不可操作");
         }
-        if (proxyUser.getProxyRole() == CommonConst.NUMBER_3){
+        if (proxyUser.getProxyRole() != CommonConst.NUMBER_3){
             return ResponseUtil.custom("代理级别不对应");
         }
         String secret = proxyUser.getGaKey();

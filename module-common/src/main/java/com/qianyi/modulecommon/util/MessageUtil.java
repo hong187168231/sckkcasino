@@ -1,6 +1,7 @@
 package com.qianyi.modulecommon.util;
 
 
+import com.qianyi.modulecommon.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -27,7 +28,7 @@ public class MessageUtil {
     public String get(String msgKey) {
         try {
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-            String language = request.getHeader("language");
+            String language = request.getHeader(Constants.LANGUAGE);
             //默认中文
             Locale locale = Locale.CHINA;
             if (Locale.US.toString().equals(language)) {

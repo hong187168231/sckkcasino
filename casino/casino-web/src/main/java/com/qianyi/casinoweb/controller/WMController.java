@@ -1,6 +1,7 @@
 package com.qianyi.casinoweb.controller;
 
 import java.math.BigDecimal;
+import java.util.Locale;
 import java.util.UUID;
 
 import com.qianyi.casinocore.enums.AccountChangeEnum;
@@ -108,7 +109,11 @@ public class WMController {
 //        if (lang == null) {
 //            lang = 0;
 //        }
+        String language = request.getHeader(Constants.LANGUAGE);
         Integer lang = 1;//1为英文  wm那边先默认设置成英文
+        if (Locale.CHINA.toString().equals(language)) {
+            lang = 0;//中文
+        }
         PlatformConfig platformConfig = platformConfigService.findFirst();
         //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(authId);

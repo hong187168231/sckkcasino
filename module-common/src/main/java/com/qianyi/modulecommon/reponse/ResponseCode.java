@@ -25,8 +25,4 @@ public enum ResponseCode {
 
     private int code;
     private String msg;
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
 }
