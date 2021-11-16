@@ -246,11 +246,11 @@ public class ThridUserController {
     public ResponseEntity getWMMoney(Long id){
         User user = userService.findById(id);
         if (CasinoProxyUtil.checkNull(user)){
-            return ResponseUtil.custom("客户不存在");
+            ResponseUtil.success(BigDecimal.ZERO);
         }
         UserThird userThird = userThirdService.findByUserId(user.getId());
         if (CasinoProxyUtil.checkNull(userThird)){
-            return ResponseUtil.custom("三方账号不存在");
+            ResponseUtil.success(BigDecimal.ZERO);
         }
         BigDecimal wMonetUser = userMoneyService.getWMonetUser(user, userThird);
         return ResponseUtil.success(wMonetUser);
