@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -71,21 +72,22 @@ public class ProxyReportController {
         String startTime = format.format(startDate);
         String endTime = format.format(endDate);
         List<ProxyReportVo> list = new LinkedList();
-        this.assemble(byAccount,startTime,endTime,list, CommonConst.NUMBER_0,startDate,endDate);
+        Map<Long,BigDecimal> map = new HashMap<>();
+        this.assemble(map,byAccount,startTime,endTime,list, CommonConst.NUMBER_0,startDate,endDate,CommonConst.NUMBER_0);
         List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, byAccount.getId());
         if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
             firstUsers.forEach(f ->{
-                this.assemble(f,startTime,endTime,list, CommonConst.NUMBER_1,startDate,endDate);
+                this.assemble(map,f,startTime,endTime,list, CommonConst.NUMBER_1,startDate,endDate,CommonConst.NUMBER_1);
             });
             List<User> secondPid = userService.findByStateAndSecondPid(Constants.open, byAccount.getId());
             if (!LoginUtil.checkNull(secondPid) && secondPid.size() > CommonConst.NUMBER_0){
                 secondPid.forEach(s ->{
-                    this.assemble(s,startTime,endTime,list, CommonConst.NUMBER_2,startDate,endDate);
+                    this.assemble(map,s,startTime,endTime,list, CommonConst.NUMBER_2,startDate,endDate,CommonConst.NUMBER_2);
                 });
                 List<User> thirdPid = userService.findByStateAndThirdPid(Constants.open, byAccount.getId());
                 if (!LoginUtil.checkNull(thirdPid) && thirdPid.size() > CommonConst.NUMBER_0){
                     thirdPid.forEach(t ->{
-                        this.assemble(t,startTime,endTime,list, CommonConst.NUMBER_3,startDate,endDate);
+                        this.assemble(map,t,startTime,endTime,list, CommonConst.NUMBER_3,startDate,endDate,CommonConst.NUMBER_3);
                     });
                 }
             }
@@ -94,6 +96,7 @@ public class ProxyReportController {
             List<Long> userIds = list.stream().map(ProxyReportVo::getFirstPid).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
             list.stream().forEach(proxyReportVo ->{
+                proxyReportVo.setAllPerformance(map.get(proxyReportVo.getUserId()));
                 userList.stream().forEach(user->{
                     if (user.getId().equals(proxyReportVo.getFirstPid())){
                         proxyReportVo.setFirstPidAccount(user.getAccount());
@@ -122,18 +125,24 @@ public class ProxyReportController {
         String startTime = format.format(startDate);
         String endTime = format.format(endDate);
         List<ProxyReportVo> list = new LinkedList();
-        this.assemble(user,startTime,endTime,list, CommonConst.NUMBER_1,startDate,endDate);
+        Map<Long,BigDecimal> map = new HashMap<>();
+        this.assemble(map,user,startTime,endTime,list, CommonConst.NUMBER_1,startDate,endDate,CommonConst.NUMBER_0);
         List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, user.getId());
         if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
             firstUsers.forEach(f ->{
-                this.assemble(f,startTime,endTime,list, CommonConst.NUMBER_2,startDate,endDate);
+                this.assemble(map,f,startTime,endTime,list, CommonConst.NUMBER_2,startDate,endDate,CommonConst.NUMBER_1);
             });
             List<User> secondPid = userService.findByStateAndSecondPid(Constants.open, user.getId());
             if (!LoginUtil.checkNull(secondPid) && secondPid.size() > CommonConst.NUMBER_0){
                 secondPid.forEach(s ->{
-                    this.assemble(s,startTime,endTime,list, CommonConst.NUMBER_3,startDate,endDate);
+                    this.assemble(map,s,startTime,endTime,list, CommonConst.NUMBER_3,startDate,endDate,CommonConst.NUMBER_2);
                 });
             }
+        }
+        if (list.size() > CommonConst.NUMBER_0){
+            list.stream().forEach(proxyReportVo ->{
+                proxyReportVo.setAllPerformance(map.get(proxyReportVo.getUserId()));
+            });
         }
         return this.getData(list);
     }
@@ -141,6 +150,16 @@ public class ProxyReportController {
         ProxyReportVo proxyReportVo = new ProxyReportVo();
         proxyReportVo.setPerformance(list.stream().map(ProxyReportVo::getPerformance).reduce(BigDecimal.ZERO, BigDecimal::add));
         proxyReportVo.setContribution(list.stream().map(ProxyReportVo::getContribution).reduce(BigDecimal.ZERO, BigDecimal::add));
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("data", list);
+        jsonObject.put("sum", proxyReportVo);
+        return ResponseUtil.success(jsonObject);
+    }
+    private ResponseEntity<ProxyReportVo> getDataDetail(List<ProxyReportVo> list){
+        ProxyReportVo proxyReportVo = new ProxyReportVo();
+        proxyReportVo.setPerformance(list.stream().map(ProxyReportVo::getPerformance).reduce(BigDecimal.ZERO, BigDecimal::add));
+        proxyReportVo.setContribution(list.stream().map(ProxyReportVo::getContribution).reduce(BigDecimal.ZERO, BigDecimal::add));
+        proxyReportVo.setAllPerformance(list.stream().map(ProxyReportVo::getAllPerformance).reduce(BigDecimal.ZERO, BigDecimal::add));
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("data", list);
         jsonObject.put("sum", proxyReportVo);
@@ -167,7 +186,7 @@ public class ProxyReportController {
 
             }
         });
-        return ResponseUtil.success(list);
+        return this.getDataDetail(list);
     }
     private void assemble(Long userId,List<ProxyReportVo> list,String date) throws ParseException {
         String startTime = date+start;
@@ -184,11 +203,13 @@ public class ProxyReportController {
         List<ShareProfitChange> shareProfitChanges = shareProfitChangeService.findAll(userId, startDate, endDate);
         proxyReportVo.setCommission((shareProfitChanges == null || shareProfitChanges.size() == CommonConst.NUMBER_0)? BigDecimal.ZERO:shareProfitChanges.get(CommonConst.NUMBER_0).getProfitRate());
         BigDecimal contribution = shareProfitChanges.stream().map(ShareProfitChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        contribution = contribution.setScale(CommonConst.NUMBER_2, RoundingMode.HALF_UP);
         proxyReportVo.setContribution(contribution);
         list.add(proxyReportVo);
     }
 
-    private void assemble(User user,String startTime,String endTime,List<ProxyReportVo> list,Integer tier,Date startDate,Date endDate){
+    private void assemble(Map<Long,BigDecimal> map,User user,String startTime,String endTime,List<ProxyReportVo> list,
+                          Integer tier,Date startDate,Date endDate,Integer tag){
         ProxyReportVo proxyReportVo = new ProxyReportVo();
         if (tier != CommonConst.NUMBER_3){
             ProxyReport byUserId = proxyReportService.findByUserId(user.getId());
@@ -197,18 +218,34 @@ public class ProxyReportController {
         proxyReportVo.setTier(tier);
         GameRecord gameRecord = gameRecordService.findRecordRecordSum(user.getId(), startTime+start, endTime+end);
         proxyReportVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
-        List<ProxyDayReport> commission = proxyDayReportService.getCommission(user.getId(), startTime, endTime);
-        BigDecimal allPerformance = commission.stream().map(ProxyDayReport::getGroupBeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-        proxyReportVo.setAllPerformance(allPerformance);
+        this.assemble(map,user,tag,proxyReportVo.getPerformance());
         List<ShareProfitChange> shareProfitChanges = shareProfitChangeService.findAll(user.getId(), startDate, endDate);
         BigDecimal contribution = shareProfitChanges.stream().map(ShareProfitChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        contribution = contribution.setScale(CommonConst.NUMBER_2, RoundingMode.HALF_UP);
         proxyReportVo.setContribution(contribution);
         proxyReportVo.setUserId(user.getId());
         proxyReportVo.setAccount(user.getAccount());
         proxyReportVo.setFirstPid(user.getFirstPid());
         list.add(proxyReportVo);
     }
+    private void assemble(Map<Long,BigDecimal> map,User user,Integer tag,BigDecimal performance){
+        if (tag == CommonConst.NUMBER_0){
+            map.put(user.getId(),performance);
+        }else if(tag == CommonConst.NUMBER_1){
+            map.put(user.getId(),performance);
+            map.put(user.getFirstPid(),performance.add(map.get(user.getFirstPid())));
+        }else if(tag == CommonConst.NUMBER_2){
+            map.put(user.getId(),performance);
+            map.put(user.getFirstPid(),performance.add(map.get(user.getFirstPid())));
+            map.put(user.getSecondPid(),performance.add(map.get(user.getSecondPid())));
+        }else {
+            map.put(user.getId(),performance);
+            map.put(user.getFirstPid(),performance.add(map.get(user.getFirstPid())));
+            map.put(user.getSecondPid(),performance.add(map.get(user.getSecondPid())));
+            map.put(user.getThirdPid(),performance.add(map.get(user.getThirdPid())));
+        }
 
+    }
     public static List<String> findDates(String dateType, Date dBegin, Date dEnd){
         List<String> listDate = new ArrayList<>();
         Calendar calBegin = Calendar.getInstance();
