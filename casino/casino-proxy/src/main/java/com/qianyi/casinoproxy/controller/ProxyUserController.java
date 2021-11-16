@@ -221,6 +221,46 @@ public class ProxyUserController {
         }
         return ResponseUtil.success(userList==null ? CommonConst.NUMBER_0 : userList.size());
     }
+    @ApiOperation("修改下级代理数")
+    @GetMapping("proxyUsersNum")
+    @Transactional
+    public ResponseEntity proxyUsersNum(){
+        ProxyUser proxyUser = new ProxyUser();
+        proxyUser.setIsDelete(CommonConst.NUMBER_1);
+        List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
+        for (ProxyUser p:proxyUserList){
+            if (p.getProxyRole() == CommonConst.NUMBER_3){
+                continue;
+            }
+            if (p.getProxyRole() == CommonConst.NUMBER_2){
+                ProxyUser proxyUser1 = new ProxyUser();
+                proxyUser1.setIsDelete(CommonConst.NUMBER_1);
+                proxyUser1.setSecondProxy(p.getId());
+                proxyUser1.setProxyRole(CommonConst.NUMBER_3);
+                List<ProxyUser> proxyUserList1 = proxyUserService.findProxyUserList(proxyUser1);
+                p.setProxyUsersNum(proxyUserList1 == null? CommonConst.NUMBER_0:proxyUserList1.size());
+                proxyUserService.save(p);
+            }
+            if (p.getProxyRole() == CommonConst.NUMBER_1){
+
+                ProxyUser proxyUser2 = new ProxyUser();
+                proxyUser2.setIsDelete(CommonConst.NUMBER_1);
+                proxyUser2.setFirstProxy(p.getId());
+                proxyUser2.setProxyRole(CommonConst.NUMBER_3);
+                List<ProxyUser> proxyUserList1 = proxyUserService.findProxyUserList(proxyUser2);
+                ProxyUser proxyUser3 = new ProxyUser();
+                proxyUser3.setFirstProxy(p.getId());
+                proxyUser3.setProxyRole(CommonConst.NUMBER_2);
+                proxyUser3.setIsDelete(CommonConst.NUMBER_1);
+                List<ProxyUser> proxyUserList2 = proxyUserService.findProxyUserList(proxyUser3);
+                Integer sum = proxyUserList1.size() + proxyUserList2.size();
+                p.setProxyUsersNum(sum);
+                proxyUserService.save(p);
+            }
+        }
+        return ResponseUtil.success();
+    }
+
     @ApiOperation("添加代理")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userName", value = "账号", required = true),
@@ -265,13 +305,17 @@ public class ProxyUserController {
         proxyUser.setProxyRole(proxyRole);
         proxyUser.setUserFlag(CommonConst.NUMBER_1);
         proxyUser.setIsDelete(CommonConst.NUMBER_1);
+        proxyUser.setProxyUsersNum(CommonConst.NUMBER_0);
         ProxyUser saveProxyUser = proxyUserService.save(proxyUser);
         if (saveProxyUser.getProxyRole() == CommonConst.NUMBER_2 && !CasinoProxyUtil.checkNull(saveProxyUser)){
             saveProxyUser.setSecondProxy(saveProxyUser.getId());
             proxyUserService.save(saveProxyUser);
+            proxyUserService.addProxyUsersNum(saveProxyUser.getFirstProxy());
             this.createrProxyCommission(saveProxyUser,saveProxyUser.getProxyRole());
         }else if(!CasinoProxyUtil.checkNull(saveProxyUser)){
             this.createrProxyCommission(saveProxyUser,saveProxyUser.getProxyRole());
+            proxyUserService.addProxyUsersNum(saveProxyUser.getFirstProxy());
+            proxyUserService.addProxyUsersNum(saveProxyUser.getSecondProxy());
         }
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("account", userName);
@@ -414,6 +458,7 @@ public class ProxyUserController {
             @ApiImplicitParam(name = "id", value = "id", required = true),
     })
     @GetMapping("delete")
+    @Transactional
     public ResponseEntity delete(Long id){
         if (CasinoProxyUtil.checkNull(id)){
             return ResponseUtil.custom("参数不合法");
@@ -434,6 +479,12 @@ public class ProxyUserController {
         }
         byId.setIsDelete(CommonConst.NUMBER_2);
         proxyUserService.save(byId);
+        if (byId.getProxyRole() == CommonConst.NUMBER_2){
+            proxyUserService.subProxyUsersNum(byId.getFirstProxy());
+        }else if(byId.getProxyRole() == CommonConst.NUMBER_3){
+            proxyUserService.subProxyUsersNum(byId.getFirstProxy());
+            proxyUserService.subProxyUsersNum(byId.getSecondProxy());
+        }
         return ResponseUtil.success();
     }
     @ApiOperation("查询单个代理分成比")

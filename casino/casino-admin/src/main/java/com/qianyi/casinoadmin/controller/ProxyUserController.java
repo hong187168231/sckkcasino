@@ -205,6 +205,7 @@ public class ProxyUserController {
         proxyUser.setProxyRole(CommonConst.NUMBER_1);
         proxyUser.setUserFlag(CommonConst.NUMBER_1);
         proxyUser.setIsDelete(CommonConst.NUMBER_1);
+        proxyUser.setProxyUsersNum(CommonConst.NUMBER_0);
         ProxyUser saveProxyUser = proxyUserService.save(proxyUser);
         if (!LoginUtil.checkNull(saveProxyUser)){
             saveProxyUser.setFirstProxy(saveProxyUser.getId());

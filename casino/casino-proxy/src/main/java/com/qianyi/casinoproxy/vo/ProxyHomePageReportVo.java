@@ -1,6 +1,7 @@
 package com.qianyi.casinoproxy.vo;
 
 import com.qianyi.casinocore.model.ProxyHomePageReport;
+import com.qianyi.casinocore.util.CommonConst;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -53,6 +54,9 @@ public class ProxyHomePageReportVo  implements Serializable {
     @ApiModelProperty(value = "本人佣金")
     private BigDecimal totalProfit;
 
+    @ApiModelProperty(value = "充投比")
+    private BigDecimal oddsRatio;
+
     public ProxyHomePageReportVo(ProxyHomePageReport proxyHomePageReport){
         this.proxyUserId = proxyHomePageReport.getProxyUserId();
         this.newSecondProxys = proxyHomePageReport.getNewSecondProxys();
@@ -66,6 +70,11 @@ public class ProxyHomePageReportVo  implements Serializable {
         this.withdrawNums = proxyHomePageReport.getWithdrawNums();
         this.winLossAmount = proxyHomePageReport.getWinLossAmount();
         this.validbetAmount = proxyHomePageReport.getValidbetAmount();
+        if (proxyHomePageReport.getValidbetAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || proxyHomePageReport.getChargeAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
+            this.oddsRatio = proxyHomePageReport.getChargeAmount();
+        }else {
+            this.oddsRatio = proxyHomePageReport.getChargeAmount().divide(proxyHomePageReport.getValidbetAmount());
+        }
     }
     public ProxyHomePageReportVo(){
 

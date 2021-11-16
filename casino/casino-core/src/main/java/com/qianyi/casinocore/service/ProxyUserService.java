@@ -14,6 +14,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.*;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -49,6 +50,22 @@ public class ProxyUserService {
     @CacheEvict(key="#id")
     public void deleteById(Long id){
         proxyUserRepository.deleteById(id);
+    }
+
+    @CacheEvict(key = "#id")
+    @Transactional
+    public void subProxyUsersNum(Long id) {
+        synchronized (id) {
+            proxyUserRepository.subProxyUsersNum(id);
+        }
+    }
+
+    @CacheEvict(key = "#id")
+    @Transactional
+    public void addProxyUsersNum(Long id) {
+        synchronized (id) {
+            proxyUserRepository.addProxyUsersNum(id);
+        }
     }
     /**
      * 用户列表查询
