@@ -6,7 +6,7 @@ import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.service.CompanyProxyMonthService;
 import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.casinocore.util.PageUtil;
+import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.casinocore.vo.CompanyProxyMonthVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.PageVo;
@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,7 +59,7 @@ public class CompanyProxyMonthController {
             return ResponseUtil.custom("参数不合法");
         }
         PageVo pageVO = new PageVo(pageCode,pageSize);
-        PageResultVO<CompanyProxyMonth> pageResultVO = (PageResultVO<CompanyProxyMonth>) PageUtil.handlePageResult(companyProxyMonths, pageVO);
+        PageResultVO<CompanyProxyMonth> pageResultVO = (PageResultVO<CompanyProxyMonth>) CommonUtil.handlePageResult(companyProxyMonths, pageVO);
         List<CompanyProxyMonth> content = (List<CompanyProxyMonth>) pageResultVO.getContent();
         PageResultVO<CompanyProxyMonthVo> pageResult = new PageResultVO(pageResultVO);
         if (content.size() > CommonConst.NUMBER_0){

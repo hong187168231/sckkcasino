@@ -5,8 +5,8 @@ import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.service.CompanyProxyDetailService;
 import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.casinoproxy.model.ProxyHomePageReport;
-import com.qianyi.casinoproxy.service.ProxyHomePageReportService;
+import com.qianyi.casinocore.model.ProxyHomePageReport;
+import com.qianyi.casinocore.service.ProxyHomePageReportService;
 import com.qianyi.casinoproxy.task.ProxyHomePageReportTask;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.casinoproxy.vo.ProxyHomePageReportVo;
@@ -43,9 +43,6 @@ public class HomeReportController {
     public final static String start = " 00:00:00";
 
     public final static String end = " 23:59:59";
-
-    @Autowired
-    private ProxyHomePageReportTask proxyHomePageReportTask;
 
     @Autowired
     private ProxyUserService proxyUserService;
@@ -155,14 +152,14 @@ public class HomeReportController {
         String endTime = format + end;
         Date start = DateUtil.getSimpleDateFormat().parse(startTime);
         Date end = DateUtil.getSimpleDateFormat().parse(endTime);
-        proxyHomePageReportTask.chargeOrder(byId, start, end, proxyHomePageReport);
-        proxyHomePageReportTask.withdrawOrder(byId, start, end, proxyHomePageReport);
-        proxyHomePageReportTask.gameRecord(byId, startTime, endTime, proxyHomePageReport);
-        proxyHomePageReportTask.getNewUsers(byId, start, end, proxyHomePageReport);
+        proxyHomePageReportService.chargeOrder(byId, start, end, proxyHomePageReport);
+        proxyHomePageReportService.withdrawOrder(byId, start, end, proxyHomePageReport);
+        proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
+        proxyHomePageReportService.getNewUsers(byId, start, end, proxyHomePageReport);
         if (byId.getProxyRole() == CommonConst.NUMBER_1){
-            proxyHomePageReportTask.getNewSecondProxys(byId,start, end,proxyHomePageReport);
+            proxyHomePageReportService.getNewSecondProxys(byId,start, end,proxyHomePageReport);
         }
-        proxyHomePageReportTask.getNewThirdProxys(byId,start, end,proxyHomePageReport);
+        proxyHomePageReportService.getNewThirdProxys(byId,start, end,proxyHomePageReport);
         ProxyHomePageReportVo proxyHomePageReportVo = new ProxyHomePageReportVo(proxyHomePageReport);
         return proxyHomePageReportVo;
     }

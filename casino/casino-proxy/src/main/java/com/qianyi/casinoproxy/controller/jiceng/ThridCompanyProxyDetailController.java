@@ -4,13 +4,12 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.CompanyProxyReportVo;
-import com.qianyi.casinoproxy.model.ProxyHomePageReport;
-import com.qianyi.casinoproxy.service.ProxyHomePageReportService;
+import com.qianyi.casinocore.model.ProxyHomePageReport;
+import com.qianyi.casinocore.service.ProxyHomePageReportService;
 import com.qianyi.casinoproxy.task.ProxyHomePageReportTask;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
-import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.DateUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -37,9 +36,6 @@ public class ThridCompanyProxyDetailController {
 
     @Autowired
     private ProxyUserService proxyUserService;
-
-    @Autowired
-    private ProxyHomePageReportTask proxyHomePageReportTask;
 
     @Autowired
     private ProxyHomePageReportService proxyHomePageReportService;
@@ -150,10 +146,10 @@ public class ThridCompanyProxyDetailController {
         String endTime = format + end;
         Date start = DateUtil.getSimpleDateFormat().parse(startTime);
         Date end = DateUtil.getSimpleDateFormat().parse(endTime);
-        proxyHomePageReportTask.chargeOrder(byId, start, end, proxyHomePageReport);
-        proxyHomePageReportTask.withdrawOrder(byId, start, end, proxyHomePageReport);
-        proxyHomePageReportTask.gameRecord(byId, startTime, endTime, proxyHomePageReport);
-        proxyHomePageReportTask.getNewUsers(byId, start, end, proxyHomePageReport);
+        proxyHomePageReportService.chargeOrder(byId, start, end, proxyHomePageReport);
+        proxyHomePageReportService.withdrawOrder(byId, start, end, proxyHomePageReport);
+        proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
+        proxyHomePageReportService.getNewUsers(byId, start, end, proxyHomePageReport);
         CompanyProxyReportVo companyProxyReportVo = this.assemble(proxyHomePageReport);
         return this.assemble(companyProxyReportVo,byId);
     }

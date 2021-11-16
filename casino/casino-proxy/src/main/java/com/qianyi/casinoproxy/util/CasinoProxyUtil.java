@@ -2,8 +2,7 @@ package com.qianyi.casinoproxy.util;
 
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.service.ProxyUserService;
-import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.modulecommon.util.CommonUtil;
+import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.modulecommon.util.ExpiringMapUtil;
 import com.qianyi.modulecommon.util.IpUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
@@ -20,8 +19,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
-import java.text.MessageFormat;
 
 @Slf4j
 @Component
@@ -33,11 +30,7 @@ public class CasinoProxyUtil {
 
     public final static String salt = "f44grgr";
     public final static String auth_header = "authorization";
-    private static final String SET = "set";
-    private static final String METHOD_FORMAT = "{0}{1}";
-    private static final String FIRSTPROXY = "firstProxy";
-    private static final String SECONDPROXY = "secondProxy";
-    private static final String THIRDPROXY = "thirdProxy";
+
     //获取当前操作者的身份
     public static Long getAuthId() {
         String token = getToken();
@@ -50,32 +43,7 @@ public class CasinoProxyUtil {
     }
     public static Boolean setParameter(Object object){
         ProxyUser proxyUser = casinoProxyUtil.proxyUserService.findById(getAuthId());
-        return setParameter(object,proxyUser);
-    }
-    public static Boolean setParameter(Object object,ProxyUser proxyUser){
-        if (CasinoProxyUtil.checkNull(proxyUser)){
-            return true;
-        }
-        if (proxyUser.getProxyRole() == CommonConst.NUMBER_1){
-            return setMethod(object,FIRSTPROXY, proxyUser.getId());
-        }else if(proxyUser.getProxyRole() == CommonConst.NUMBER_2){
-            return setMethod(object,SECONDPROXY, proxyUser.getId());
-        }else if(proxyUser.getProxyRole() == CommonConst.NUMBER_3){
-            return setMethod(object,THIRDPROXY, proxyUser.getId());
-        }else {
-            return true;
-        }
-    }
-    private static Boolean setMethod(Object object,String parameter,Long proxyRole){
-        try {
-            Method setMethod = object.getClass().getMethod(MessageFormat.format(METHOD_FORMAT, SET,
-                    CommonUtil.toUpperCaseFirstOne(parameter)), Long.class);
-            setMethod.invoke(object, proxyRole);
-        } catch (Exception e) {
-            log.error("反射生成对象异常",e);
-            return true;
-        }
-        return false;
+        return CommonUtil.setParameter(object,proxyUser);
     }
     //获取当前操作者的身份
     public static Long getAuthId(String token) {

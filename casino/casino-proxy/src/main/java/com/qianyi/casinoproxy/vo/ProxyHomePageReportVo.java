@@ -1,6 +1,6 @@
 package com.qianyi.casinoproxy.vo;
 
-import com.qianyi.casinoproxy.model.ProxyHomePageReport;
+import com.qianyi.casinocore.model.ProxyHomePageReport;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 

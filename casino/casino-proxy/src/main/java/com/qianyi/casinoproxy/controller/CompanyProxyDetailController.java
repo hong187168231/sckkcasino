@@ -4,9 +4,9 @@ import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.CompanyProxyReportVo;
-import com.qianyi.casinoproxy.model.ProxyHomePageReport;
-import com.qianyi.casinoproxy.service.ProxyHomePageReportService;
-import com.qianyi.casinoproxy.task.ProxyHomePageReportTask;
+import com.qianyi.casinocore.model.ProxyHomePageReport;
+import com.qianyi.casinocore.service.ProxyHomePageReportService;
+import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -17,6 +17,8 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,9 +39,6 @@ public class CompanyProxyDetailController {
     private ProxyUserService proxyUserService;
 
     @Autowired
-    private ProxyHomePageReportTask proxyHomePageReportTask;
-
-    @Autowired
     private ProxyHomePageReportService proxyHomePageReportService;
 
     public final static String start = " 00:00:00";
@@ -48,17 +47,23 @@ public class CompanyProxyDetailController {
     @ApiOperation("查询代理报表")
     @GetMapping("/find")
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "proxyRole", value = "代理级别1：总代理 2：区域代理 3：基层代理", required = false),
             @ApiImplicitParam(name = "userName", value = "账号", required = false),
             @ApiImplicitParam(name = "tag", value = "1：含下级 0：不包含", required = false),
             @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
-    public ResponseEntity<CompanyProxyReportVo> find(Integer proxyRole, Integer tag, String userName,
+    public ResponseEntity<CompanyProxyReportVo> find(Integer pageSize, Integer pageCode,Integer proxyRole, Integer tag, String userName,
                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
-        List<CompanyProxyReportVo> list = new LinkedList<>();
         ProxyUser proxyUser = new ProxyUser();
+        proxyUser.setProxyRole(proxyRole);
+        proxyUser.setIsDelete(CommonConst.NUMBER_1);
+        Sort sort=Sort.by("proxyRole").ascending();
+        sort = sort.and(Sort.by("id").descending());
+        Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         if (CasinoProxyUtil.setParameter(proxyUser)){
             return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
         }
@@ -66,7 +71,6 @@ public class CompanyProxyDetailController {
         if (CasinoProxyUtil.setParameter(proxyHomeReport)){
             return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
         }
-        proxyUser.setProxyRole(proxyRole);
         proxyHomeReport.setProxyRole(proxyRole);
         if (!CasinoProxyUtil.checkNull(userName)){
             if (CasinoProxyUtil.checkNull(tag)){
@@ -74,7 +78,7 @@ public class CompanyProxyDetailController {
             }
             ProxyUser byUserName = proxyUserService.findByUserName(userName);
             if (CasinoProxyUtil.checkNull(byUserName)){
-                return ResponseUtil.success(list);
+                return ResponseUtil.success(new PageResultVO());
             }
             if (tag == CommonConst.NUMBER_0){
                 proxyUser.setUserName(userName);
@@ -87,12 +91,14 @@ public class CompanyProxyDetailController {
                 }
             }
         }
-        List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
-        if (CasinoProxyUtil.checkNull(proxyUserList) || proxyUserList.size() == CommonConst.NUMBER_0){
-            return ResponseUtil.success(list);
+        Page<ProxyUser> proxyUserPage = proxyUserService.findProxyUserPage(pageable,proxyUser,null,null);
+        if (CasinoProxyUtil.checkNull(proxyUserPage) || proxyUserPage.getContent().size() == CommonConst.NUMBER_0){
+            return ResponseUtil.success(new PageResultVO());
         }
+        PageResultVO<CompanyProxyReportVo> pageResultVO = new PageResultVO(proxyUserPage);
+        List<CompanyProxyReportVo> list = new LinkedList<>();
         try {
-            proxyUserList.forEach(proxyUser1 -> {
+            proxyUserPage.getContent().forEach(proxyUser1 -> {
                 CompanyProxyReportVo companyProxyReportVo = null;
                 if ((CasinoProxyUtil.checkNull(startDate,endDate)) || DateUtil.isEffectiveDate(new Date(),startDate,endDate)){
                     try {
@@ -107,9 +113,12 @@ public class CompanyProxyDetailController {
             });
             String startTime = startDate==null? null:DateUtil.getSimpleDateFormat1().format(startDate);
             String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
-            List<ProxyHomePageReport> proxyHomePageReports = proxyHomePageReportService.findHomePageReports(proxyHomeReport,startTime,endTime);
+            List<Long> proxyUserId = list.stream().map(CompanyProxyReportVo::getId).collect(Collectors.toList());
+            List<ProxyHomePageReport> proxyHomePageReports = proxyHomePageReportService.findHomePageReports(proxyUserId,proxyHomeReport,startTime,endTime);
             if (CasinoProxyUtil.checkNull(proxyHomePageReports) || proxyHomePageReports.size() == CommonConst.NUMBER_0){
-                return ResponseUtil.success(this.getCompanyProxyReportVos(list));
+                this.getCompanyProxyReportVos(list);
+                pageResultVO.setContent(list);
+                return ResponseUtil.success(pageResultVO);
             }
             Map<Long, List<ProxyHomePageReport>> firstMap = proxyHomePageReports.stream().collect(Collectors.groupingBy(ProxyHomePageReport::getProxyUserId));
             list.forEach(vo->{
@@ -133,7 +142,9 @@ public class CompanyProxyDetailController {
         }catch (Exception ex){
             log.error("代理报表统计失败",ex);
         }
-        return ResponseUtil.success(this.getCompanyProxyReportVos(list));
+        this.getCompanyProxyReportVos(list);
+        pageResultVO.setContent(list);
+        return ResponseUtil.success(pageResultVO);
     }
     @ApiOperation("每日结算细节")
     @GetMapping("/findDailyDetails")
@@ -190,15 +201,15 @@ public class CompanyProxyDetailController {
         String endTime = format + end;
         Date start = DateUtil.getSimpleDateFormat().parse(startTime);
         Date end = DateUtil.getSimpleDateFormat().parse(endTime);
-        proxyHomePageReportTask.chargeOrder(byId, start, end, proxyHomePageReport);
-        proxyHomePageReportTask.withdrawOrder(byId, start, end, proxyHomePageReport);
-        proxyHomePageReportTask.gameRecord(byId, startTime, endTime, proxyHomePageReport);
-        proxyHomePageReportTask.getNewUsers(byId, start, end, proxyHomePageReport);
+        proxyHomePageReportService.chargeOrder(byId, start, end, proxyHomePageReport);
+        proxyHomePageReportService.withdrawOrder(byId, start, end, proxyHomePageReport);
+        proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
+        proxyHomePageReportService.getNewUsers(byId, start, end, proxyHomePageReport);
         if (byId.getProxyRole() == CommonConst.NUMBER_1){
-            proxyHomePageReportTask.getNewSecondProxys(byId,start,end,proxyHomePageReport);
+            proxyHomePageReportService.getNewSecondProxys(byId,start,end,proxyHomePageReport);
         }
         if (byId.getProxyRole() != CommonConst.NUMBER_3){
-            proxyHomePageReportTask.getNewThirdProxys(byId,start,end,proxyHomePageReport);
+            proxyHomePageReportService.getNewThirdProxys(byId,start,end,proxyHomePageReport);
         }
         CompanyProxyReportVo companyProxyReportVo = this.assemble(proxyHomePageReport);
         return this.assemble(companyProxyReportVo,byId);

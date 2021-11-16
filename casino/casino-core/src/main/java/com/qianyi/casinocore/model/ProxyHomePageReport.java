@@ -1,4 +1,4 @@
-package com.qianyi.casinoproxy.model;
+package com.qianyi.casinocore.model;
 
 import com.qianyi.casinocore.model.BaseEntity;
 import com.qianyi.casinocore.util.CommonConst;
