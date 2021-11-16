@@ -22,6 +22,9 @@ public class WashCodeConfig extends BaseEntity{
     @ApiModelProperty(value = "游戏名称")
     private String gameName;
 
+    @ApiModelProperty(value = "游戏英文名称")
+    private String gameEnName;
+
     @ApiModelProperty(value = "返水比例")
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal rate = BigDecimal.ZERO;
@@ -32,4 +35,6 @@ public class WashCodeConfig extends BaseEntity{
     @ApiModelProperty(value = "每日最低投注量")
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal minBet = BigDecimal.ZERO;
+
+
 }

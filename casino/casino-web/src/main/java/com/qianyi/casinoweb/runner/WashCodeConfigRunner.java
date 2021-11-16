@@ -31,23 +31,23 @@ public class WashCodeConfigRunner implements CommandLineRunner {
 
     private void initData() {
         List<WashCodeConfig> list = new ArrayList<>();
-        list.add(setData("101", "百家乐"));
-        list.add(setData("102", "龙虎"));
-        list.add(setData("103", "轮盘"));
-        list.add(setData("104", "骰宝"));
-        list.add(setData("105", "牛牛"));
-        list.add(setData("106", "三公"));
-        list.add(setData("107", "番摊"));
-        list.add(setData("108", "色碟"));
-        list.add(setData("110", "鱼虾蟹"));
-        list.add(setData("111", "炸金花"));
-        list.add(setData("112", "温州牌九"));
-        list.add(setData("113", "二八杠"));
-        list.add(setData("128", "安達巴哈"));
+        list.add(setData("101", "百家乐","Baccarat"));
+        list.add(setData("102", "龙虎","Dragon Tiger"));
+        list.add(setData("103", "轮盘","Roulette"));
+        list.add(setData("104", "骰宝","SicBo"));
+        list.add(setData("105", "牛牛","Niu Niu"));
+        list.add(setData("106", "三公","Three Face"));
+        list.add(setData("107", "番摊","Fantan"));
+        list.add(setData("108", "色碟","Se Die"));
+        list.add(setData("110", "鱼虾蟹","Fish-Prawn-Crab"));
+        list.add(setData("111", "炸金花","Golden Flower"));
+        list.add(setData("112", "温州牌九","Wenzhou Pai Gow"));
+        list.add(setData("113", "二八杠","Mahjong tiles"));
+        list.add(setData("128", "安達巴哈","AndarBahar"));
         washCodeConfigService.saveAll(list);
     }
 
-    private WashCodeConfig setData(String gameId, String gameName) {
+    private WashCodeConfig setData(String gameId, String gameName,String gameEnName) {
         WashCodeConfig codeConfig = new WashCodeConfig();
         codeConfig.setPlatform("wm");
         codeConfig.setGameId(gameId);

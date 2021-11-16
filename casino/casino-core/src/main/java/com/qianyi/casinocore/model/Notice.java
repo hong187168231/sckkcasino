@@ -12,8 +12,12 @@ import javax.persistence.Entity;
 public class Notice extends BaseEntity {
     @ApiModelProperty("内容")
     private String title;
+    @ApiModelProperty("英文内容")
+    private String enTitle;
     @ApiModelProperty("简介")
     private String introduction;
+    @ApiModelProperty("英文简介")
+    private String enIntroduction;
     @ApiModelProperty("详情访问页")
     private String url;
     @ApiModelProperty("是否上架")
