@@ -31,5 +31,5 @@ public class ProxyReportVo implements Serializable {
     @ApiModelProperty("统计时段")
     private String staticsTimes;
     @ApiModelProperty("返佣比例")
-    private BigDecimal commission;
+    private String commission;
 }
