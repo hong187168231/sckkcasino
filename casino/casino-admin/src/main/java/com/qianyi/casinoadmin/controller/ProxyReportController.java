@@ -273,8 +273,8 @@ public class ProxyReportController {
             proxyReportVo.setCommission("0");
         }else {
             BigDecimal commission = shareProfitChanges.get(CommonConst.NUMBER_0).getProfitRate().multiply(new BigDecimal(CommonConst.NUMBER_100));
+            commission = commission.setScale(CommonConst.NUMBER_3, RoundingMode.HALF_UP);
             proxyReportVo.setCommission(commission + "%");
-
         }
         BigDecimal contribution = shareProfitChanges.stream().map(ShareProfitChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         contribution = contribution.setScale(CommonConst.NUMBER_2, RoundingMode.HALF_UP);
