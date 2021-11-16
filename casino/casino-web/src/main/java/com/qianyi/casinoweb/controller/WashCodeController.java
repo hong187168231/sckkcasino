@@ -25,12 +25,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("washCode")
@@ -55,7 +53,7 @@ public class WashCodeController {
             @ApiImplicitParam(name = "date", value = "时间：0：今天，1：昨天，2：近7天", required = true)
     })
     @GetMapping("/getList")
-    public ResponseEntity<ChargeOrderListData> chargeOrderList(String date) {
+    public ResponseEntity<ChargeOrderListData> chargeOrderList(String date,HttpServletRequest request) {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         String startTime = null;
@@ -85,6 +83,7 @@ public class WashCodeController {
             for (WashCodeConfig config : washCodeConfig) {
                 washCodeVo = new WashCodeVo();
                 BeanUtils.copyProperties(config, washCodeVo);
+                setGameName(request, washCodeVo, config);
                 washCodeVo.setValidbet(BigDecimal.ZERO);
                 washCodeVo.setRate(config.getRate() + "%");
                 washCodeVo.setAmount(BigDecimal.ZERO);
@@ -102,7 +101,7 @@ public class WashCodeController {
                 if (!ObjectUtils.isEmpty(config.getGameId()) && config.getGameId().equals(change.getGameId())) {
                     BeanUtils.copyProperties(change, washCodeVo);
                     washCodeVo.setRate(config.getRate() + "%");
-                    washCodeVo.setGameName(config.getGameName());
+                    setGameName(request,washCodeVo,config);
                     voList.add(washCodeVo);
                     flag = false;
                     break;
@@ -110,6 +109,7 @@ public class WashCodeController {
             }
             if (flag) {
                 BeanUtils.copyProperties(config, washCodeVo);
+                setGameName(request,washCodeVo,config);
                 washCodeVo.setValidbet(BigDecimal.ZERO);
                 washCodeVo.setRate(config.getRate() + "%");
                 washCodeVo.setAmount(BigDecimal.ZERO);
@@ -119,6 +119,22 @@ public class WashCodeController {
         chargeOrderListData.setTotalAmount(washCode);
         chargeOrderListData.setList(voList);
         return ResponseUtil.success(chargeOrderListData);
+    }
+
+    /**
+     * 根据前端选择的语音切换游戏名称
+     * @param request
+     * @param washCodeVo
+     * @param config
+     */
+    private void setGameName(HttpServletRequest request, WashCodeVo washCodeVo, WashCodeConfig config) {
+        //语言切换
+        String language = request.getHeader(Constants.LANGUAGE);
+        if (Locale.US.toString().equals(language)) {
+            washCodeVo.setGameName(config.getGameEnName());
+        } else {
+            washCodeVo.setGameName(config.getGameName());
+        }
     }
 
     @ApiOperation("用户领取洗码")
