@@ -638,6 +638,13 @@ public class AuthController {
         return ResponseUtil.success();
     }
 
+    @GetMapping("serviceHealthCheck")
+    @ApiOperation("服务健康状态监测")
+    @NoAuthentication
+    public ResponseEntity serverHealthCheck() {
+        return ResponseUtil.success();
+    }
+
     private void setUserTokenToRedis(Long userId, String token) {
         JjwtUtil.Token jwtToken = new JjwtUtil.Token();
         jwtToken.setOldToken(token);
