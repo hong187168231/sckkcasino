@@ -92,6 +92,7 @@ public class CompanyProxyMonthController {
             @ApiImplicitParam(name = "tag", value = "1：含下级 0：不包含", required = false),
             @ApiImplicitParam(name = "staticsTimes", value = "统计时段", required = true),
     })
+    @NoAuthorization
     public ResponseEntity<CompanyProxyMonth> findSum(Integer proxyRole, Integer tag, String userName,String staticsTimes){
         CompanyProxyMonth companyProxyMonth = new CompanyProxyMonth();
         companyProxyMonth.setProxyRole(proxyRole);
