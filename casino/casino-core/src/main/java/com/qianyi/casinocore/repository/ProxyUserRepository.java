@@ -17,6 +17,14 @@ public interface ProxyUserRepository extends JpaRepository<ProxyUser,Long>, JpaS
     @Modifying
     void setSecretById(Long id, String gaKey);
 
+    @Modifying
+    @Query("update ProxyUser p set p.proxyUsersNum=p.proxyUsersNum+1 where p.id=?1")
+    void addProxyUsersNum(Long proxyUserId);
+
+    @Modifying
+    @Query("update ProxyUser p set p.proxyUsersNum=p.proxyUsersNum-1 where p.id=?1")
+    void subProxyUsersNum(Long proxyUserId);
+
     ProxyUser findAllById(Long id);
 
     ProxyUser findByProxyCode(String inviteCode);

@@ -41,6 +41,8 @@ public class ProxyUserVo  implements Serializable {
     private String commissionRatio;
     @ApiModelProperty(value = "直属玩家数")
     private Integer usersNum;
+    @ApiModelProperty(value = "下级代理数")
+    private Integer proxyUsersNum;
     @ApiModelProperty(value = "是否锁定 1：正常 2：锁定, 3：删除")
     private Integer userFlag;
     @ApiModelProperty("创建时间")
@@ -65,6 +67,7 @@ public class ProxyUserVo  implements Serializable {
         this.secondProxy = proxyUser.getSecondProxy();
         this.firstProxy = proxyUser.getFirstProxy();
         this.userFlag = proxyUser.getUserFlag();
+        this.proxyUsersNum = proxyUser.getProxyUsersNum();
         this.createTime = proxyUser.getCreateTime();
         this.createBy = proxyUser.getCreateBy();
         this.updateTime = proxyUser.getUpdateTime();

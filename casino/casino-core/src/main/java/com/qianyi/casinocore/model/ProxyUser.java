@@ -86,6 +86,8 @@ public class ProxyUser extends BaseEntity {
     @ApiModelProperty("总代理ID")
     private Long firstProxy;
 
+    @ApiModelProperty(value = "下级代理数")
+    private Integer proxyUsersNum;
     /**
      * 是否锁定 1：正常 2：锁定, 3：删除
      */
