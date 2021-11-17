@@ -54,8 +54,8 @@ public class NoticeController {
 
     private synchronized ResponseEntity saveNotice(Notice notice){
         List<Notice> byNoticeList = noticeService.findByNoticeList();
-        if (byNoticeList != null && byNoticeList.size() >= CommonConst.NUMBER_10){
-            return ResponseUtil.custom(CommonConst.THENUMBERISLIMITEDTO10);
+        if (byNoticeList != null && byNoticeList.size() >= CommonConst.NUMBER_20){
+            return ResponseUtil.custom(CommonConst.THENUMBERISLIMITEDTO20);
         }
         noticeService. saveNotice(notice);
         return ResponseUtil.success();
