@@ -58,6 +58,12 @@ public class HomePageReport extends BaseEntity {
     @ApiModelProperty(value = "新增玩家数")
     private Integer newUsers;
 
-    @ApiModelProperty(value = "统计时间段")
+    @ApiModelProperty(value = "统计时间段(日)")
     private String staticsTimes;
+
+    @ApiModelProperty(value = "统计时间段(周)")
+    private String staticsWeek;
+
+    @ApiModelProperty(value = "统计时间段(月)")
+    private String staticsMonth ;
 }

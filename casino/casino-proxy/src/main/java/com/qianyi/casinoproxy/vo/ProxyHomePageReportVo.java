@@ -27,8 +27,17 @@ public class ProxyHomePageReportVo  implements Serializable {
     @ApiModelProperty(value = "活跃玩家数")
     private Integer activeUsers;
 
-    @ApiModelProperty(value = "统计时间段")
+    @ApiModelProperty(value = "统计时间段(日)")
     private String staticsTimes;
+
+    @ApiModelProperty(value = "统计时间段(周)")
+    private String staticsWeek;
+
+    @ApiModelProperty(value = "统计时间段(月)")
+    private String staticsMonth ;
+
+    @ApiModelProperty(value = "时间段")
+    private String time ;
 
     @ApiModelProperty(value = "汇款金额")
     private BigDecimal chargeAmount;
@@ -64,6 +73,9 @@ public class ProxyHomePageReportVo  implements Serializable {
         this.newUsers = proxyHomePageReport.getNewUsers();
         this.activeUsers = proxyHomePageReport.getActiveUsers();
         this.staticsTimes = proxyHomePageReport.getStaticsTimes();
+        this.time = proxyHomePageReport.getStaticsTimes();
+        this.staticsWeek = proxyHomePageReport.getStaticsWeek();
+        this.staticsMonth = proxyHomePageReport.getStaticsMonth();
         this.chargeAmount = proxyHomePageReport.getChargeAmount();
         this.chargeNums = proxyHomePageReport.getChargeNums();
         this.withdrawMoney = proxyHomePageReport.getWithdrawMoney();
