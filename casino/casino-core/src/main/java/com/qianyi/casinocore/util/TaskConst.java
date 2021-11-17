@@ -13,4 +13,9 @@ public final class TaskConst {
      * 每日零点五十分
      */
     public final static String PROXY_HOME_PAGE_REPORT = "0 50 0 * * ?";
+
+    /**
+     * 每日零点四十分
+     */
+    public final static String USER_RUNNING_WATER = "0 0 16 * * ?";
 }

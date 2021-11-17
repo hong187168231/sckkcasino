@@ -1,0 +1,15 @@
+package com.qianyi.casinocore.repository;
+
+import com.qianyi.casinocore.model.UserRunningWater;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+
+import java.math.BigDecimal;
+
+public interface UserRunningWaterRepository extends JpaRepository<UserRunningWater, Long>, JpaSpecificationExecutor<UserRunningWater> {
+    @Modifying
+    @Query(value = "INSERT INTO user_running_water (user_id,statics_times,amount,commission,create_time) VALUES (?1,?2,?3,?4,sysdate()) ON DUPLICATE KEY UPDATE amount=amount + ?3,commission=commission + ?4 ;",nativeQuery = true)
+    void updateKey(Long userId,String staticsTimes ,BigDecimal amount,BigDecimal commission);
+}

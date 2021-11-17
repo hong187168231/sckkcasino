@@ -49,10 +49,10 @@ public class ProxyHomePageReportVo  implements Serializable {
     private BigDecimal winLossAmount;
 
     @ApiModelProperty(value = "团队结算佣金")
-    private BigDecimal groupTotalProfit;
+    private BigDecimal groupTotalProfit = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "本人佣金")
-    private BigDecimal totalProfit;
+    private BigDecimal totalProfit = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "充投比")
     private BigDecimal oddsRatio;

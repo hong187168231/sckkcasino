@@ -1,6 +1,5 @@
 package com.qianyi.casinocore.model;
 
-import com.qianyi.casinocore.model.BaseEntity;
 import com.qianyi.casinocore.util.CommonConst;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

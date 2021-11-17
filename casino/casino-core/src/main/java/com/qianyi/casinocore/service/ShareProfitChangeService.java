@@ -54,7 +54,7 @@ public class ShareProfitChangeService {
             public Predicate toPredicate(Root<ShareProfitChange> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
                 if (fromUserId != null) {
-                    list.add(cb.equal(root.get("fromUserId").as(String.class), fromUserId));
+                    list.add(cb.equal(root.get("fromUserId").as(Long.class), fromUserId));
                 }
                 if (startDate != null) {
                     list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
