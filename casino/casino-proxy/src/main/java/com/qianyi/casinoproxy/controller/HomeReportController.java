@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -92,24 +93,37 @@ public class HomeReportController {
             this.findCompanyProxyDetails(companyProxyDetail,startTime,endTime,proxyHomePageReportVo);
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
+            return ResponseUtil.custom("查询失败");
         }
         return ResponseUtil.success(proxyHomePageReportVo);
     }
     @ApiOperation("查找走势图")
     @GetMapping("/findTrendChart")
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
             @ApiImplicitParam(name = "tag", value = "1:每日 2:每周 3:每月", required = false),
             @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
     public ResponseEntity<ProxyHomePageReportVo> findTrendChart(Integer tag,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate) {
+                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate,String userName) {
         if (CasinoProxyUtil.checkNull(startDate, endDate)) {
-            ResponseUtil.custom("参数必填");
+            return ResponseUtil.custom("参数必填");
         }
         ProxyHomePageReport proxyHomeReport = new  ProxyHomePageReport();
-        proxyHomeReport.setProxyUserId(CasinoProxyUtil.getAuthId());
         List<ProxyHomePageReportVo> list = new LinkedList<>();
+        if (CasinoProxyUtil.checkNull(userName)){
+            proxyHomeReport.setProxyUserId(CasinoProxyUtil.getAuthId());
+        }else {
+            ProxyUser byUserName = proxyUserService.findByUserName(userName);
+            if (CasinoProxyUtil.checkNull(byUserName)){
+                return ResponseUtil.success(byUserName);
+            }
+            proxyHomeReport.setProxyUserId(CasinoProxyUtil.getAuthId());
+            if (CasinoProxyUtil.setParameter(proxyHomeReport)){
+                return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+            }
+        }
         try {
             if ((DateUtil.isEffectiveDate(new Date(),startDate,endDate))){
                 ProxyHomePageReportVo proxyHomePageReportVo = this.assemble();
@@ -141,6 +155,7 @@ public class HomeReportController {
             }
         } catch (Exception ex) {
             log.error("首页报表查找走势图失败", ex);
+            return ResponseUtil.custom("查询失败");
         }
         return ResponseUtil.success(list);
     }
@@ -153,7 +168,7 @@ public class HomeReportController {
         if (validbetAmount.compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || chargeAmount.compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
             vo.setOddsRatio(chargeAmount);
         }else {
-            vo.setOddsRatio(chargeAmount.divide(validbetAmount));
+            vo.setOddsRatio(chargeAmount.divide(validbetAmount,2, RoundingMode.HALF_UP));
         }
         Integer newUsers = list.stream().mapToInt(ProxyHomePageReportVo::getNewUsers).sum();
         vo.setNewUsers(newUsers);

@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Data
 public class ProxyHomePageReportVo  implements Serializable {
@@ -85,7 +86,7 @@ public class ProxyHomePageReportVo  implements Serializable {
         if (proxyHomePageReport.getValidbetAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || proxyHomePageReport.getChargeAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
             this.oddsRatio = proxyHomePageReport.getChargeAmount();
         }else {
-            this.oddsRatio = proxyHomePageReport.getChargeAmount().divide(proxyHomePageReport.getValidbetAmount());
+            this.oddsRatio = proxyHomePageReport.getChargeAmount().divide(proxyHomePageReport.getValidbetAmount(),2, RoundingMode.HALF_UP);
         }
     }
     public ProxyHomePageReportVo(){

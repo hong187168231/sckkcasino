@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -88,6 +89,7 @@ public class ThridHomeReportController {
             this.findCompanyProxyDetails(companyProxyDetail,startTime,endTime,proxyHomePageReportVo);
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
+            return ResponseUtil.custom("查询失败");
         }
         return ResponseUtil.success(proxyHomePageReportVo);
     }
@@ -137,6 +139,7 @@ public class ThridHomeReportController {
             }
         } catch (Exception ex) {
             log.error("首页报表查找走势图失败", ex);
+            return ResponseUtil.custom("查询失败");
         }
         return ResponseUtil.success(list);
     }
@@ -149,7 +152,7 @@ public class ThridHomeReportController {
         if (validbetAmount.compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || chargeAmount.compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
             vo.setOddsRatio(chargeAmount);
         }else {
-            vo.setOddsRatio(chargeAmount.divide(validbetAmount));
+            vo.setOddsRatio(chargeAmount.divide(validbetAmount,2, RoundingMode.HALF_UP));
         }
         Integer newUsers = list.stream().mapToInt(ProxyHomePageReportVo::getNewUsers).sum();
         vo.setNewUsers(newUsers);

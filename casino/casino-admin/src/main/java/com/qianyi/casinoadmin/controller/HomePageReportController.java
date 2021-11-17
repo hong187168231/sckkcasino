@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -91,6 +92,7 @@ public class HomePageReportController {
             this.findCompanyProxyDetails(new CompanyProxyDetail(),startTime,endTime,homePageReportVo);
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
+            return ResponseUtil.custom("查询失败");
         }
         return ResponseUtil.success(this.getHomePageReportVo(homePageReportVo));
     }
@@ -139,6 +141,7 @@ public class HomePageReportController {
             }
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
+            return ResponseUtil.custom("查询失败");
         }
         return ResponseUtil.success(list);
 
@@ -152,7 +155,7 @@ public class HomePageReportController {
         if (validbetAmount.compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || chargeAmount.compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
             vo.setOddsRatio(chargeAmount);
         }else {
-            vo.setOddsRatio(chargeAmount.divide(validbetAmount));
+            vo.setOddsRatio(chargeAmount.divide(validbetAmount,2, RoundingMode.HALF_UP));
         }
         BigDecimal grossMargin1 = list.stream().map(HomePageReportVo::getGrossMargin1).reduce(BigDecimal.ZERO, BigDecimal::add);
         vo.setGrossMargin1(grossMargin1);
