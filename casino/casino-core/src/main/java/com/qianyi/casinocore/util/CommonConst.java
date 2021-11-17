@@ -64,6 +64,7 @@ public class CommonConst {
     public static final int NUMBER_8 = 8;
     public static final int NUMBER_9 = 9;
     public static final int NUMBER_10 = 10;
+    public static final int NUMBER_20 = 20;
     public static final int NUMBER_30 = 30;
     public static final int NUMBER_100 = 100;
     public static final String SUCCESS = "SUCCESS";
@@ -83,7 +84,7 @@ public class CommonConst {
 
     public static final String TOOMANYPICTURESONTHECLIENT = "当前客户端图片序号冲突";
 
-    public static final String THENUMBERISLIMITEDTO10 = "数量限制为10条";
+    public static final String THENUMBERISLIMITEDTO20 = "数量限制为20条";
 
     public static final String NETWORK_ANOMALY = "网络异常";
 

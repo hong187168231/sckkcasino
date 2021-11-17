@@ -96,4 +96,17 @@ public class DownloadStationController {
         String domain = platformConfig.getDomainNameConfiguration();
         return ResponseUtil.success(domain);
     }
+
+
+    @GetMapping("getSpreadUrl")
+    @ApiOperation("推广域名")
+    @NoAuthentication
+    public ResponseEntity<String> getSpreadUrl() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig == null || ObjectUtils.isEmpty(platformConfig.getProxyConfiguration())) {
+            return ResponseUtil.custom("网站推广域名未配置,请联系客服");
+        }
+        String domain = platformConfig.getProxyConfiguration();
+        return ResponseUtil.success(domain);
+    }
 }

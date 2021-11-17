@@ -1,6 +1,5 @@
 package com.qianyi.casinocore.model;
 
-import com.qianyi.casinocore.model.BaseEntity;
 import com.qianyi.casinocore.util.CommonConst;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -42,8 +41,14 @@ public class ProxyHomePageReport extends BaseEntity {
     @ApiModelProperty(value = "活跃玩家数")
     private Integer activeUsers;
 
-    @ApiModelProperty(value = "统计时间段")
+    @ApiModelProperty(value = "统计时间段(日)")
     private String staticsTimes;
+
+    @ApiModelProperty(value = "统计时间段(周)")
+    private String staticsWeek;
+
+    @ApiModelProperty(value = "统计时间段(月)")
+    private String staticsMonth ;
 
     @ApiModelProperty(value = "汇款金额")
     @Column(columnDefinition = "Decimal(10,6) default '0.00'")

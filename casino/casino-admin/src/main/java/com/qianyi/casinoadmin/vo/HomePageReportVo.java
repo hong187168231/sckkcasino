@@ -1,11 +1,13 @@
 package com.qianyi.casinoadmin.vo;
 
 import com.qianyi.casinoadmin.model.HomePageReport;
+import com.qianyi.casinocore.util.CommonConst;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Data
 public class HomePageReportVo implements Serializable {
@@ -51,8 +53,14 @@ public class HomePageReportVo implements Serializable {
     @ApiModelProperty(value = "新增玩家数")
     private Integer newUsers;
 
-    @ApiModelProperty(value = "统计时间段")
+    @ApiModelProperty(value = "统计时间段(日)")
     private String staticsTimes;
+
+    @ApiModelProperty(value = "统计时间段(周)")
+    private String staticsWeek;
+
+    @ApiModelProperty(value = "统计时间段(月)")
+    private String staticsMonth ;
 
     @ApiModelProperty(value = "毛利1")
     private BigDecimal grossMargin1;
@@ -63,6 +71,11 @@ public class HomePageReportVo implements Serializable {
     @ApiModelProperty(value = "预估净利")
     private BigDecimal grossMargin3;
 
+    @ApiModelProperty(value = "充投比")
+    private BigDecimal oddsRatio;
+
+    @ApiModelProperty(value = "时间段")
+    private String time ;
     public HomePageReportVo(){
 
     }
@@ -78,7 +91,15 @@ public class HomePageReportVo implements Serializable {
         this.bonusAmount = homePageReport.getBonusAmount();
         this.serviceCharge = homePageReport.getServiceCharge();
         this.staticsTimes = homePageReport.getStaticsTimes();
+        this.time = homePageReport.getStaticsTimes();
+        this.staticsWeek = homePageReport.getStaticsWeek();
+        this.staticsMonth = homePageReport.getStaticsMonth();
         this.activeUsers = homePageReport.getActiveUsers();
         this.newUsers = homePageReport.getNewUsers();
+        if (homePageReport.getValidbetAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || homePageReport.getChargeAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
+            this.oddsRatio = homePageReport.getChargeAmount();
+        }else {
+            this.oddsRatio = homePageReport.getChargeAmount().divide(homePageReport.getValidbetAmount(), 2, RoundingMode.HALF_UP);
+        }
     }
 }

@@ -53,6 +53,19 @@ public class DateUtil {
         }
 
     }
+    public static Integer getWeek(String today){
+        SimpleDateFormat format = new SimpleDateFormat(patten1);
+        Date date = null;
+        try {
+            date = format.parse(today);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        calendar.setTime(date);
+        return calendar.get(Calendar.WEEK_OF_YEAR);
+    }
     /**
      * 零点到一点不能修改代理返佣相关配置
       * @return

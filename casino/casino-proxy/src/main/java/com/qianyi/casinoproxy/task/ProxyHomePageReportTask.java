@@ -58,6 +58,8 @@ public class ProxyHomePageReportTask {
     public void create(ProxyUser proxyUser,String startTime,String endTime,Date startDate,Date endDate,String format){
         ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
         proxyHomePageReport.setStaticsTimes(format);
+        proxyHomePageReport.setStaticsWeek(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4)+CommonConst.UNDERLINE_SYMBOL+DateUtil.getWeek(format));
+        proxyHomePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
         proxyHomePageReportService.chargeOrder(proxyUser,startDate,endDate,proxyHomePageReport);
         proxyHomePageReportService.withdrawOrder(proxyUser,startDate,endDate,proxyHomePageReport);
         proxyHomePageReportService.gameRecord(proxyUser,startTime,endTime,proxyHomePageReport);

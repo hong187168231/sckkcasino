@@ -5,6 +5,7 @@ import com.qianyi.casinocore.model.Notice;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.NoticeService;
 import com.qianyi.casinocore.service.SysUserService;
+import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -34,23 +35,27 @@ public class NoticeController {
     @PostMapping("/saveNotice")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "title", value = "内容", required = true),
+            @ApiImplicitParam(name = "enTitle", value = "英文内容", required = true),
             @ApiImplicitParam(name = "isShelves", value = "是否上架 true false", required = true),
             @ApiImplicitParam(name = "url", value = "详情访问页", required = true),
             @ApiImplicitParam(name = "introduction", value = "简介", required = true),
+            @ApiImplicitParam(name = "enIntroduction", value = "英文简介", required = true),
     })
-    public ResponseEntity<Notice> saveNotice(String title,Boolean isShelves,String introduction,String url){
+    public ResponseEntity<Notice> saveNotice(String title,String enTitle,Boolean isShelves,String introduction,String url,String enIntroduction){
         Notice notice = new Notice();
         notice.setTitle(title);
         notice.setIntroduction(introduction);
         notice.setIsShelves(isShelves);
         notice.setUrl(url);
+        notice.setEnTitle(enTitle);
+        notice.setEnIntroduction(enIntroduction);
         return this.saveNotice(notice);
     }
 
     private synchronized ResponseEntity saveNotice(Notice notice){
         List<Notice> byNoticeList = noticeService.findByNoticeList();
-        if (byNoticeList != null && byNoticeList.size() >= CommonConst.NUMBER_10){
-            return ResponseUtil.custom(CommonConst.THENUMBERISLIMITEDTO10);
+        if (byNoticeList != null && byNoticeList.size() >= CommonConst.NUMBER_20){
+            return ResponseUtil.custom(CommonConst.THENUMBERISLIMITEDTO20);
         }
         noticeService. saveNotice(notice);
         return ResponseUtil.success();
@@ -79,11 +84,13 @@ public class NoticeController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id主键", required = true),
             @ApiImplicitParam(name = "title", value = "内容", required = true),
+            @ApiImplicitParam(name = "enTitle", value = "英文内容", required = true),
             @ApiImplicitParam(name = "isShelves", value = "是否上架 true false", required = true),
             @ApiImplicitParam(name = "url", value = "详情访问页", required = true),
             @ApiImplicitParam(name = "introduction", value = "简介", required = true),
+            @ApiImplicitParam(name = "enIntroduction", value = "英文简介", required = true),
     })
-    public ResponseEntity updateNotice(String title,Boolean isShelves,String introduction,String url,Long id){
+    public ResponseEntity updateNotice(String title,String enTitle,Boolean isShelves,String introduction,String url,Long id,String enIntroduction){
         Notice notice = noticeService.findNoticeById(id);
         if (notice == null){
             return ResponseUtil.custom(CommonConst.IDNOTNULL);
@@ -92,10 +99,13 @@ public class NoticeController {
         notice.setIsShelves(isShelves);
         notice.setIntroduction(introduction);
         notice.setTitle(title);
+        notice.setEnTitle(enTitle);
+        notice.setEnIntroduction(enIntroduction);
         noticeService.saveNotice(notice);
         return ResponseUtil.success();
     }
 
+    @NoAuthentication
     @ApiOperation("查询所有")
     @GetMapping("/findNotice")
     public ResponseEntity findNotice(){

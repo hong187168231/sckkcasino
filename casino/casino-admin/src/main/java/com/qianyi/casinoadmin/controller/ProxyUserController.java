@@ -137,6 +137,12 @@ public class ProxyUserController {
                             proxyUserVo.setCommissionRatio(commissionRatio);
                         }
                     });
+                    if (u.getProxyRole() == CommonConst.NUMBER_3){
+                        User user = new User();
+                        user.setThirdProxy(u.getId());
+                        List<User> userList = userService.findUserList(user);
+                        proxyUserVo.setUsersNum(userList==null ? CommonConst.NUMBER_0 : userList.size());
+                    }
                     userVoList.add(proxyUserVo);
                 });
             }
