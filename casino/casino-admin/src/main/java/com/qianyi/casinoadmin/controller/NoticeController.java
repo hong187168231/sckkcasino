@@ -31,7 +31,6 @@ public class NoticeController {
 
     @Autowired
     private SysUserService sysUserService;
-    @NoAuthentication
     @ApiOperation("新增公告")
     @PostMapping("/saveNotice")
     @ApiImplicitParams({
