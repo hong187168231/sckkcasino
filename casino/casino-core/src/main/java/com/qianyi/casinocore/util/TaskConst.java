@@ -17,5 +17,5 @@ public final class TaskConst {
     /**
      * 每日零点四十分
      */
-    public final static String USER_RUNNING_WATER = "0 0 16 * * ?";
+    public final static String USER_RUNNING_WATER = "0 40 0 * * ?";
 }
