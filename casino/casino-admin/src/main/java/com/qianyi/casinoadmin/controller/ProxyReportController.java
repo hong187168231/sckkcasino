@@ -96,7 +96,7 @@ public class ProxyReportController {
             List<Long> userIds = list.stream().map(ProxyReportVo::getFirstPid).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
             list.stream().forEach(proxyReportVo ->{
-                proxyReportVo.setAllPerformance(map.get(proxyReportVo.getUserId()));
+                proxyReportVo.setAllPerformance(map.get(proxyReportVo.getUserId()).subtract(proxyReportVo.getPerformance()));
                 proxyReportVo.setAllGroupNum(userMap.get(proxyReportVo.getUserId()));
                 userList.stream().forEach(user->{
                     if (user.getId().equals(proxyReportVo.getFirstPid())){
@@ -158,8 +158,8 @@ public class ProxyReportController {
         }
         if (list.size() > CommonConst.NUMBER_0){
             list.stream().forEach(proxyReportVo ->{
-               proxyReportVo.setAllPerformance(map.get(proxyReportVo.getUserId()));
-                proxyReportVo.setAllGroupNum(userMap.get(proxyReportVo.getUserId()));
+               proxyReportVo.setAllPerformance(map.get(proxyReportVo.getUserId()).subtract(proxyReportVo.getPerformance()));
+               proxyReportVo.setAllGroupNum(userMap.get(proxyReportVo.getUserId()));
             });
          }
         map.clear();
@@ -297,10 +297,14 @@ public class ProxyReportController {
         GameRecord gameRecord = gameRecordService.findRecordRecordSum(user.getId(), startTime+start, endTime+end);
         proxyReportVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
         this.computePerformance(map,user,level,proxyReportVo.getPerformance());
-        List<ShareProfitChange> shareProfitChanges = shareProfitChangeService.findAll(user.getId(), startDate, endDate);
-        BigDecimal contribution = shareProfitChanges.stream().map(ShareProfitChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-        contribution = contribution.setScale(CommonConst.NUMBER_2, RoundingMode.HALF_UP);
-        proxyReportVo.setContribution(contribution);
+        if (tag == CommonConst.NUMBER_0){
+            proxyReportVo.setContribution(BigDecimal.ZERO);
+        }else {
+            List<ShareProfitChange> shareProfitChanges = shareProfitChangeService.findAll(user.getId(), startDate, endDate);
+            BigDecimal contribution = shareProfitChanges.stream().map(ShareProfitChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            contribution = contribution.setScale(CommonConst.NUMBER_2, RoundingMode.HALF_UP);
+            proxyReportVo.setContribution(contribution);
+        }
         proxyReportVo.setUserId(user.getId());
         proxyReportVo.setAccount(user.getAccount());
         proxyReportVo.setFirstPid(user.getFirstPid());
