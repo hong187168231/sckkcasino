@@ -73,21 +73,21 @@ public class ProxyReportController {
         List<ProxyReportVo> list = new LinkedList();
         Map<Long,BigDecimal> map = new HashMap<>();
         Map<Long,Integer> userMap = new HashMap<>();
-        this.assemble(map,userMap,byAccount,startTime,endTime,list, CommonConst.NUMBER_0,startDate,endDate,CommonConst.NUMBER_0,CommonConst.NUMBER_0);
+        this.assemble(map,userMap,byAccount,startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_0,CommonConst.NUMBER_0);
         List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, byAccount.getId());
         if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
             firstUsers.forEach(f ->{
-                this.assemble(map,userMap,f,startTime,endTime,list, CommonConst.NUMBER_1,startDate,endDate,CommonConst.NUMBER_1,CommonConst.NUMBER_1);
+                this.assemble(map,userMap,f,startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_1,CommonConst.NUMBER_1);
             });
             List<User> secondPid = userService.findByStateAndSecondPid(Constants.open, byAccount.getId());
             if (!LoginUtil.checkNull(secondPid) && secondPid.size() > CommonConst.NUMBER_0){
                 secondPid.forEach(s ->{
-                    this.assemble(map,userMap,s,startTime,endTime,list, CommonConst.NUMBER_2,startDate,endDate,CommonConst.NUMBER_2,CommonConst.NUMBER_2);
+                    this.assemble(map,userMap,s,startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_2,CommonConst.NUMBER_2);
                 });
                 List<User> thirdPid = userService.findByStateAndThirdPid(Constants.open, byAccount.getId());
                 if (!LoginUtil.checkNull(thirdPid) && thirdPid.size() > CommonConst.NUMBER_0){
                     thirdPid.forEach(t ->{
-                        this.assemble(map,userMap,t,startTime,endTime,list, CommonConst.NUMBER_3,startDate,endDate,CommonConst.NUMBER_3,CommonConst.NUMBER_3);
+                        this.assemble(map,userMap,t,startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_3,CommonConst.NUMBER_3);
                     });
                 }
             }
@@ -133,24 +133,24 @@ public class ProxyReportController {
         List<ProxyReportVo> list = new LinkedList();
         Map<Long,BigDecimal> map = new HashMap<>();
         Map<Long,Integer> userMap = new HashMap<>();
-        this.assemble(map,userMap,user,startTime,endTime,list, CommonConst.NUMBER_1,startDate,endDate,tier,CommonConst.NUMBER_0);
+        this.assemble(map,userMap,user,startTime,endTime,list,startDate,endDate,tier,CommonConst.NUMBER_0);
         List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, user.getId());
         if (tier == CommonConst.NUMBER_1){
             if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
                 firstUsers.forEach(f ->{
-                    this.assemble(map,userMap,f,startTime,endTime,list, CommonConst.NUMBER_2,startDate,endDate,CommonConst.NUMBER_2,CommonConst.NUMBER_1);
+                    this.assemble(map,userMap,f,startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_2,CommonConst.NUMBER_1);
                 });
                 List<User> secondPid = userService.findByStateAndSecondPid(Constants.open, user.getId());
                 if (!LoginUtil.checkNull(secondPid) && secondPid.size() > CommonConst.NUMBER_0){
                     secondPid.forEach(s ->{
-                        this.assemble(map,userMap,s,startTime,endTime,list, CommonConst.NUMBER_3,startDate,endDate,CommonConst.NUMBER_3,CommonConst.NUMBER_2);
+                        this.assemble(map,userMap,s,startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_3,CommonConst.NUMBER_2);
                     });
                 }
             }
         }else if(tier == CommonConst.NUMBER_2){
             if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
                 firstUsers.forEach(f ->{
-                    this.assemble(map,userMap,f,startTime,endTime,list, CommonConst.NUMBER_2,startDate,endDate,CommonConst.NUMBER_3,CommonConst.NUMBER_1);
+                    this.assemble(map,userMap,f,startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_3,CommonConst.NUMBER_1);
                 });
             }
         }else {
@@ -290,10 +290,10 @@ public class ProxyReportController {
     }
 
     private void assemble(Map<Long,BigDecimal> map,Map<Long,Integer> userMap,User user,String startTime,String endTime,List<ProxyReportVo> list,
-                          Integer tier,Date startDate,Date endDate,Integer tag,Integer level){
+                          Date startDate,Date endDate,Integer tag,Integer level){
         ProxyReportVo proxyReportVo = new ProxyReportVo();
         this.computeAllGroupNum(user,userMap,level);
-        proxyReportVo.setTier(tier);
+        proxyReportVo.setTier(tag);
         GameRecord gameRecord = gameRecordService.findRecordRecordSum(user.getId(), startTime+start, endTime+end);
         proxyReportVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
         this.computePerformance(map,user,level,proxyReportVo.getPerformance());
