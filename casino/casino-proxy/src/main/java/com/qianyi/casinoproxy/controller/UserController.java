@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -77,6 +78,8 @@ public class UserController {
 
     @Autowired
     private GenerateInviteCodeRunner generateInviteCodeRunner;
+
+    public final static String agentOfBelonging = "{0}(区域)-{1}(基层)";
 
     @ApiOperation("查询代理下级的用户数据")
     @ApiImplicitParams({
@@ -170,11 +173,9 @@ public class UserController {
             List<UserVo> userVoList = new LinkedList();
             List<Long> userIds = userList.stream().map(User::getId).collect(Collectors.toList());
             List<UserMoney> userMoneyList =  userMoneyService.findAll(userIds);
-            List<Long> firstPids = userList.stream().map(User::getFirstPid).collect(Collectors.toList());
-            List<User> firstPidUsers = userService.findAll(firstPids);
             List<Long> thirdProxys = userList.stream().map(User::getThirdProxy).collect(Collectors.toList());
-            List<Long> firstProxys = userList.stream().map(User::getFirstProxy).collect(Collectors.toList());
-            thirdProxys.addAll(firstProxys);
+            List<Long> secondProxys = userList.stream().map(User::getSecondProxy).collect(Collectors.toList());
+            thirdProxys.addAll(secondProxys);
             List<ProxyUser> proxyUsers = proxyUserService.findProxyUser(thirdProxys);
             if(userMoneyList != null){
                 userList.stream().forEach(u -> {
@@ -186,17 +187,12 @@ public class UserController {
                             userVo.setWithdrawMoney(userMoney.getWithdrawMoney());//可以提现金额
                         }
                     });
-                    firstPidUsers.stream().forEach(firstPid -> {
-                        if(firstPid.getId().equals(u.getFirstPid() == null ? "":u.getFirstPid())){
-                            userVo.setFirstPidAccount(firstPid.getAccount());
-                        }
-                    });
                     proxyUsers.stream().forEach(proxyUser -> {
                         if(proxyUser.getId().equals(u.getThirdProxy() == null ? "":u.getThirdProxy())){
                             userVo.setThirdProxyAccount(proxyUser.getUserName());
                         }
-                        if(proxyUser.getId().equals(u.getFirstProxy() == null ? "":u.getFirstProxy())){
-                            userVo.setFirstProxyAccount(proxyUser.getUserName());
+                        if(proxyUser.getId().equals(u.getSecondProxy() == null ? "":u.getSecondProxy())){
+                            userVo.setSecondProxyAccount(proxyUser.getUserName());
                         }
                     });
                     GameRecord gameRecord = gameRecordService.findRecordRecordSum(u.getId(), null, null);
@@ -227,118 +223,6 @@ public class UserController {
         BigDecimal wMonetUser = userMoneyService.getWMonetUser(user, userThird);
         return ResponseUtil.success(wMonetUser);
     }
-
-//    public void setWMMoney(List<User> userList) {
-//
-//        log.info("query WM money data：【{}】 ", userList);
-//        List<CompletableFuture<User>> completableFutures = new ArrayList<>();
-//        for (User user : userList) {
-//            UserThird third = userThirdService.findByUserId(user.getId());
-//            if (third == null) {
-//                continue;
-//            }
-//            CompletableFuture<User> completableFuture =  CompletableFuture.supplyAsync(() -> {
-//                return getWMonetUser(user, third);
-//            });
-//            completableFutures.add(completableFuture);
-//        }
-//        CompletableFuture<Void> voidCompletableFuture = CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[]{}));
-//        try {
-//            voidCompletableFuture.join();
-//        }catch (Exception e){
-//            //打印日志
-//            log.error("query User WM money error：【{}】", e);
-//        }
-//    }
-
-//    private User getWMonetUser(User user, UserThird third) {
-//        Integer lang = user.getLanguage();
-//        if (lang == null) {
-//            lang = 0;
-//        }
-//        BigDecimal balance = null;
-//        try {
-//            balance = wmApi.getBalance(third.getAccount(), lang);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        user.setWmMoney(balance);
-//        return user;
-//    }
-
-    @ApiOperation("添加用户")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "account", value = "账号", required = true),
-            @ApiImplicitParam(name = "name", value = "用户昵称", required = false),
-            @ApiImplicitParam(name = "phone", value = "电话号码", required = false),
-    })
-    @PostMapping("saveUser")
-    public ResponseEntity saveUser(String account, String name, String phone){
-        if (CasinoProxyUtil.checkNull(account)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        if (!account.matches(RegexEnum.ACCOUNT.getRegex())){
-            return ResponseUtil.custom("账号请输入6~15位数字或字母！");
-        }
-        User us = userService.findByAccount(account);
-        if(us != null){
-            return ResponseUtil.custom("账户已存在");
-        }
-        Long authId = CasinoProxyUtil.getAuthId();
-        ProxyUser byId = proxyUserService.findById(authId);
-        if (CasinoProxyUtil.checkNull(byId) || byId.getProxyRole() != CommonConst.NUMBER_3){
-            return ResponseUtil.custom("只有基层代理可以添加会员");
-        }
-        User user = new User();
-        user.setAccount(account);
-        if(CasinoProxyUtil.checkNull(name)){
-            user.setName(account);
-        }else{
-            if (!name.matches(RegexEnum.NAME.getRegex())){
-                return ResponseUtil.custom("昵称请输入1~20位中文或字母！");
-            }
-            user.setName(name);
-        }
-
-        user.setState(Constants.open);
-
-        if(!CasinoProxyUtil.checkNull(phone)){
-            if (!phone.matches(RegexEnum.PHONE.getRegex())) {
-                return ResponseUtil.custom("手机号格式错误！");
-            }
-            user.setPhone(phone);
-        }
-
-        //默认中文
-//        user.setLanguage(Constants.USER_LANGUAGE_CH);
-
-        //随机生成
-        String password = PasswordUtil.getRandomPwd();
-        String bcryptPassword = CasinoProxyUtil.bcrypt(password);
-        user.setPassword(bcryptPassword);
-        //默认展示两张收款卡
-        user.setCreditCard(Constants.creditCard);
-        user.setFirstProxy(byId.getFirstProxy());
-        user.setSecondProxy(byId.getSecondProxy());
-        user.setThirdProxy(byId.getId());
-        user.setType(Constants.USER_TYPE1);
-        String inviteCodeNew = generateInviteCodeRunner.getInviteCode();
-        user.setInviteCode(inviteCodeNew);
-        User save = userService.save(user);
-        //userMoney表初始化数据
-        UserMoney userMoney=new UserMoney();
-        userMoney.setUserId(save.getId());
-        userMoney.setMoney(BigDecimal.ZERO);
-        userMoney.setCodeNum(BigDecimal.ZERO);
-        userMoney.setIsFirst(CommonConst.NUMBER_0);
-        userMoneyService.save(userMoney);
-
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("account", account);
-        jsonObject.put("password", password);
-        return ResponseUtil.success(jsonObject);
-    }
-
     /**
      * 修改用户
      * 只有修改电话功能，那电话不能为空
@@ -448,109 +332,109 @@ public class UserController {
         return ResponseUtil.success(jsonObject);
     }
 
-    /**
-     * 后台新增充值订单
-     *
-     * @param id 会员id
-     * @param remitter 汇款人姓名
-     * @param chargeAmount 汇款金额
-     * @param remark 汇款备注
-     * @return
-     */
-    @ApiOperation("后台新增充值订单 上分")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "会员id", required = true),
-            @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = false),
-            @ApiImplicitParam(name = "chargeAmount", value = "汇款金额", required = true),
-            @ApiImplicitParam(name = "remark", value = "汇款备注", required = false),
-    })
-    @PostMapping("/saveChargeOrder")
-    public ResponseEntity saveChargeOrder(Long id,String remitter,String remark, String chargeAmount){
-        if (CasinoProxyUtil.checkNull(id,chargeAmount)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        BigDecimal money = CommonUtil.checkMoney(chargeAmount);
-        if(money.compareTo(BigDecimal.ZERO)<CommonConst.NUMBER_1){
-            return ResponseUtil.custom("金额类型错误");
-        }
-        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
-            return ResponseUtil.custom("测试环境加钱不能超过100RMB");
-        }
-        User user = userService.findById(id);
-        if (CasinoProxyUtil.checkNull(user)){
-            return ResponseUtil.custom("账户不存在");
-        }
-        Long authId = CasinoProxyUtil.getAuthId();
-        ProxyUser byId = proxyUserService.findById(authId);
-        String lastModifier = (byId == null || byId.getUserName() == null)? "" : byId.getUserName();
-        ChargeOrder chargeOrder = new ChargeOrder();
-        chargeOrder.setUserId(id);
-        chargeOrder.setRemitter(remitter);
-        chargeOrder.setRemark(remark);
-        chargeOrder.setOrderNo(orderService.getOrderNo());
-        chargeOrder.setChargeAmount(money);
-        chargeOrder.setLastModifier(lastModifier);
-        chargeOrder.setType(user.getType());
-//        chargeOrder.setRealityAmount(money);
-        return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_proxy,Constants.remitType_proxy);
-    }
-    /**
-     * 后台新增提现订单
-     *
-     * @param id 会员id
-     * @param withdrawMoney 提现金额
-     * @param bankId 银行id
-     * @return
-     */
-    @ApiOperation("后台新增提现订单 下分")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
-            @ApiImplicitParam(name = "withdrawMoney", value = "提现金额", required = true),
-            @ApiImplicitParam(name = "bankId", value = "银行id", required = false),
-            @ApiImplicitParam(name = "remark", value = "备注", required = false),
-    })
-    @PostMapping("/saveWithdrawOrder")
-    public ResponseEntity saveWithdrawOrder(Long id,String withdrawMoney,String bankId,String remark){
-        if (CasinoProxyUtil.checkNull(id,withdrawMoney)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        BigDecimal money = CommonUtil.checkMoney(withdrawMoney);
-        if(money.compareTo(BigDecimal.ZERO)<CommonConst.NUMBER_1){
-            return ResponseUtil.custom("金额类型错误");
-        }
-        User user = userService.findById(id);
-        if (CasinoProxyUtil.checkNull(user)){
-            return ResponseUtil.custom("找不到这个会员");
-        }
-        Long authId = CasinoProxyUtil.getAuthId();
-        ProxyUser byId = proxyUserService.findById(authId);
-        String lastModifier = (byId == null || byId.getUserName() == null)? "" : byId.getUserName();
-        return withdrawBusiness.updateWithdrawAndUser(user,id,money,bankId,Constants.withdrawOrder_proxy,lastModifier,remark);
-    }
-    @ApiOperation("后台下分检验可提款金额")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
-            @ApiImplicitParam(name = "withdrawMoney", value = "提现金额", required = true),
-    })
-    @GetMapping("/checkoutWithdrawMoney")
-    public ResponseEntity checkoutWithdrawMoney(Long id,String withdrawMoney) {
-        if (CasinoProxyUtil.checkNull(id,withdrawMoney)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        BigDecimal money = CommonUtil.checkMoney(withdrawMoney);
-        if(money.compareTo(BigDecimal.ZERO) < CommonConst.NUMBER_1){
-            return ResponseUtil.custom("金额类型错误");
-        }
-        UserMoney byUserId = userMoneyService.findByUserId(id);
-        if (CasinoProxyUtil.checkNull(byUserId)){
-            return ResponseUtil.custom("用户钱包不存在");
-        }
-        BigDecimal drawMoney = byUserId.getWithdrawMoney();//得到可提现金额
-        if(drawMoney.compareTo(money) < CommonConst.NUMBER_0){
-            return ResponseUtil.success(false);
-        }
-        return ResponseUtil.success(true);
-    }
+//    /**
+//     * 后台新增充值订单
+//     *
+//     * @param id 会员id
+//     * @param remitter 汇款人姓名
+//     * @param chargeAmount 汇款金额
+//     * @param remark 汇款备注
+//     * @return
+//     */
+//    @ApiOperation("后台新增充值订单 上分")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "id", value = "会员id", required = true),
+//            @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = false),
+//            @ApiImplicitParam(name = "chargeAmount", value = "汇款金额", required = true),
+//            @ApiImplicitParam(name = "remark", value = "汇款备注", required = false),
+//    })
+//    @PostMapping("/saveChargeOrder")
+//    public ResponseEntity saveChargeOrder(Long id,String remitter,String remark, String chargeAmount){
+//        if (CasinoProxyUtil.checkNull(id,chargeAmount)){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        BigDecimal money = CommonUtil.checkMoney(chargeAmount);
+//        if(money.compareTo(BigDecimal.ZERO)<CommonConst.NUMBER_1){
+//            return ResponseUtil.custom("金额类型错误");
+//        }
+//        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
+//            return ResponseUtil.custom("测试环境加钱不能超过100RMB");
+//        }
+//        User user = userService.findById(id);
+//        if (CasinoProxyUtil.checkNull(user)){
+//            return ResponseUtil.custom("账户不存在");
+//        }
+//        Long authId = CasinoProxyUtil.getAuthId();
+//        ProxyUser byId = proxyUserService.findById(authId);
+//        String lastModifier = (byId == null || byId.getUserName() == null)? "" : byId.getUserName();
+//        ChargeOrder chargeOrder = new ChargeOrder();
+//        chargeOrder.setUserId(id);
+//        chargeOrder.setRemitter(remitter);
+//        chargeOrder.setRemark(remark);
+//        chargeOrder.setOrderNo(orderService.getOrderNo());
+//        chargeOrder.setChargeAmount(money);
+//        chargeOrder.setLastModifier(lastModifier);
+//        chargeOrder.setType(user.getType());
+////        chargeOrder.setRealityAmount(money);
+//        return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_proxy,Constants.remitType_proxy);
+//    }
+//    /**
+//     * 后台新增提现订单
+//     *
+//     * @param id 会员id
+//     * @param withdrawMoney 提现金额
+//     * @param bankId 银行id
+//     * @return
+//     */
+//    @ApiOperation("后台新增提现订单 下分")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+//            @ApiImplicitParam(name = "withdrawMoney", value = "提现金额", required = true),
+//            @ApiImplicitParam(name = "bankId", value = "银行id", required = false),
+//            @ApiImplicitParam(name = "remark", value = "备注", required = false),
+//    })
+//    @PostMapping("/saveWithdrawOrder")
+//    public ResponseEntity saveWithdrawOrder(Long id,String withdrawMoney,String bankId,String remark){
+//        if (CasinoProxyUtil.checkNull(id,withdrawMoney)){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        BigDecimal money = CommonUtil.checkMoney(withdrawMoney);
+//        if(money.compareTo(BigDecimal.ZERO)<CommonConst.NUMBER_1){
+//            return ResponseUtil.custom("金额类型错误");
+//        }
+//        User user = userService.findById(id);
+//        if (CasinoProxyUtil.checkNull(user)){
+//            return ResponseUtil.custom("找不到这个会员");
+//        }
+//        Long authId = CasinoProxyUtil.getAuthId();
+//        ProxyUser byId = proxyUserService.findById(authId);
+//        String lastModifier = (byId == null || byId.getUserName() == null)? "" : byId.getUserName();
+//        return withdrawBusiness.updateWithdrawAndUser(user,id,money,bankId,Constants.withdrawOrder_proxy,lastModifier,remark);
+//    }
+//    @ApiOperation("后台下分检验可提款金额")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+//            @ApiImplicitParam(name = "withdrawMoney", value = "提现金额", required = true),
+//    })
+//    @GetMapping("/checkoutWithdrawMoney")
+//    public ResponseEntity checkoutWithdrawMoney(Long id,String withdrawMoney) {
+//        if (CasinoProxyUtil.checkNull(id,withdrawMoney)){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        BigDecimal money = CommonUtil.checkMoney(withdrawMoney);
+//        if(money.compareTo(BigDecimal.ZERO) < CommonConst.NUMBER_1){
+//            return ResponseUtil.custom("金额类型错误");
+//        }
+//        UserMoney byUserId = userMoneyService.findByUserId(id);
+//        if (CasinoProxyUtil.checkNull(byUserId)){
+//            return ResponseUtil.custom("用户钱包不存在");
+//        }
+//        BigDecimal drawMoney = byUserId.getWithdrawMoney();//得到可提现金额
+//        if(drawMoney.compareTo(money) < CommonConst.NUMBER_0){
+//            return ResponseUtil.success(false);
+//        }
+//        return ResponseUtil.success(true);
+//    }
 
     /**
      * 后台配置会员收款卡修改
@@ -634,41 +518,74 @@ public class UserController {
         ProxyReport proxyReport = proxyReportService.findByUserId(id);
         return ResponseUtil.success(proxyReport);
     }
-    /**
-     * 根据id查询上下三级代理线
+        /**
+     * 根据id查询代理归属
      *会员列表详情
      * @param id 会员id
      * @return
      */
-    @ApiOperation("根据id查询上下三级代理线")
+    @ApiOperation("根据id查询代理归属")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "用户id", required = true),
     })
-    @GetMapping("/findAgency")
-    public ResponseEntity findAgency(Long id){
+    @GetMapping("/findAgentOfBelonging")
+    public ResponseEntity findAgentOfBelonging(Long id){
         if (CasinoProxyUtil.checkNull(id)){
             return ResponseUtil.custom("参数不合法");
         }
+        ProxyUser byId = proxyUserService.findById(CasinoProxyUtil.getAuthId());
         User user = userService.findById(id);
         if (CasinoProxyUtil.checkNull(user)){
             return ResponseUtil.success("");
         }
-        String agency = user.getAccount()+"(当前)";
-        User first = userService.findById(user.getFirstPid() == null ? 0L:user.getFirstPid());
-        if (CasinoProxyUtil.checkNull(first)){
-            return ResponseUtil.success(agency);
+        String agentOf = "";
+        if (byId.getProxyRole() == CommonConst.NUMBER_1){
+            ProxyUser secondProxy = proxyUserService.findById(user.getSecondProxy());
+            ProxyUser thirdProxy = proxyUserService.findById(user.getThirdProxy());
+            agentOf = MessageFormat.format(agentOfBelonging,secondProxy == null ? "":secondProxy.getUserName(),thirdProxy == null ? "":thirdProxy.getUserName() );
+            return ResponseUtil.success(agentOf);
+        }else if (byId.getProxyRole() == CommonConst.NUMBER_2){
+            ProxyUser thirdProxy = proxyUserService.findById(user.getThirdProxy());
+            agentOf = thirdProxy == null ? "":thirdProxy.getUserName();
+            return ResponseUtil.success(agentOf);
         }
-        agency = first.getAccount() + " — "  + agency;
-        User second = userService.findById(user.getSecondPid() == null ? 0L:user.getSecondPid());
-        if (CasinoProxyUtil.checkNull(second)){
-            return ResponseUtil.success(agency);
-        }
-        agency = second.getAccount() + " — "  + agency;
-        User third = userService.findById(user.getThirdPid() == null ? 0L:user.getThirdPid());
-        if (CasinoProxyUtil.checkNull(third)){
-            return ResponseUtil.success(agency);
-        }
-        agency = third.getAccount() + " — "  + agency;
-        return ResponseUtil.success(agency);
+        return ResponseUtil.success(agentOf);
     }
+//    /**
+//     * 根据id查询上下三级代理线
+//     *会员列表详情
+//     * @param id 会员id
+//     * @return
+//     */
+//    @ApiOperation("根据id查询上下三级代理线")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+//    })
+//    @GetMapping("/findAgency")
+//    public ResponseEntity findAgency(Long id){
+//        if (CasinoProxyUtil.checkNull(id)){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        User user = userService.findById(id);
+//        if (CasinoProxyUtil.checkNull(user)){
+//            return ResponseUtil.success("");
+//        }
+//        String agency = user.getAccount()+"(当前)";
+//        User first = userService.findById(user.getFirstPid() == null ? 0L:user.getFirstPid());
+//        if (CasinoProxyUtil.checkNull(first)){
+//            return ResponseUtil.success(agency);
+//        }
+//        agency = first.getAccount() + " — "  + agency;
+//        User second = userService.findById(user.getSecondPid() == null ? 0L:user.getSecondPid());
+//        if (CasinoProxyUtil.checkNull(second)){
+//            return ResponseUtil.success(agency);
+//        }
+//        agency = second.getAccount() + " — "  + agency;
+//        User third = userService.findById(user.getThirdPid() == null ? 0L:user.getThirdPid());
+//        if (CasinoProxyUtil.checkNull(third)){
+//            return ResponseUtil.success(agency);
+//        }
+//        agency = third.getAccount() + " — "  + agency;
+//        return ResponseUtil.success(agency);
+//    }
 }
