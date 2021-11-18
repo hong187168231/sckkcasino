@@ -52,9 +52,6 @@ public class MinioController {
         if (file == null) {
             return ResponseUtil.custom("文件不能为null");
         }
-        if (!Bucket.checkBucketExist(bucket)) {
-            return ResponseUtil.custom("bucket无效,请联系管理员获取");
-        }
         try {
             if (!checkBucketExists(bucket)) {
                 return ResponseUtil.custom("不支持，请联系技术");
