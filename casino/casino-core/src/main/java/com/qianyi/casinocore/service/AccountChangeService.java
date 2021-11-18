@@ -2,6 +2,7 @@ package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.AccountChange;
 import com.qianyi.casinocore.repository.AccountChangeRepository;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,8 +27,8 @@ public class AccountChangeService {
         return accountChangeRepository.save(po);
     }
 
-    public Page<AccountChange> findAccountChangePage(Pageable pageable, AccountChange accountChange,Date startDate,Date endDate){
-        Specification<AccountChange> condition = this.getCondition(accountChange,startDate,endDate);
+    public Page<AccountChange> findAccountChangePage(Pageable pageable,Integer[] types, AccountChange accountChange,Date startDate,Date endDate){
+        Specification<AccountChange> condition = this.getCondition(accountChange,types,startDate,endDate);
         Page<AccountChange> all = accountChangeRepository.findAll(condition, pageable);
         return all;
     }
@@ -36,7 +37,7 @@ public class AccountChangeService {
      * @param
      * @return
      */
-    private Specification<AccountChange> getCondition(AccountChange AccountChange,Date startDate,Date endDate) {
+    private Specification<AccountChange> getCondition(AccountChange AccountChange,Integer[] types,Date startDate,Date endDate) {
         Specification<AccountChange> specification = new Specification<AccountChange>() {
             @Override
             public Predicate toPredicate(Root<AccountChange> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -67,6 +68,15 @@ public class AccountChangeService {
                     list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
                 }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));
+                if(types != null && types.length > CommonConst.NUMBER_0) {
+                    List<Predicate> listOr = new ArrayList<>();///组装or语句
+                    for (Integer type : types) {
+                        //爱好多选 用OR链接
+                        listOr.add(cb.equal(root.get("type"), type));
+                    }
+                    Predicate predicateOR = cb.or(listOr.toArray(new Predicate[listOr.size()]));
+                    predicate = criteriaQuery.where(predicate,predicateOR).getRestriction();
+                }
                 return predicate;
             }
         };

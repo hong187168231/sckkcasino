@@ -140,6 +140,7 @@ public class CompanyProxyDetailController {
             });
         }catch (Exception ex){
             log.error("admin代理报表统计失败",ex);
+            return ResponseUtil.custom("查询失败");
         }
         this.getCompanyProxyReportVos(list);
         pageResultVO.setContent(list);

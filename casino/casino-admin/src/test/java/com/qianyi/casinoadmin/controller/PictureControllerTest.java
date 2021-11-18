@@ -1,12 +1,18 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.model.AccountChange;
 import com.qianyi.casinocore.model.LunboPic;
+import com.qianyi.casinocore.service.AccountChangeService;
 import com.qianyi.casinocore.service.PictureService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
@@ -20,7 +26,6 @@ public class PictureControllerTest {
 
     @Autowired
     private PictureService pictureService;
-
 
     @Test
     public void should_cache_all_pic(){

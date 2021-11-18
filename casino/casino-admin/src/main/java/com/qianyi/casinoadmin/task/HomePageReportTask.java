@@ -60,6 +60,8 @@ public class HomePageReportTask {
             Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
             HomePageReport homePageReport = new HomePageReport();
             homePageReport.setStaticsTimes(format);
+            homePageReport.setStaticsWeek(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4)+CommonConst.UNDERLINE_SYMBOL+DateUtil.getWeek(format));
+            homePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
             this.chargeOrder(startDate,endDate,homePageReport);
             this.withdrawOrder(startDate,endDate,homePageReport);
             this.gameRecord(startTime,endTime,homePageReport);

@@ -26,11 +26,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Api(tags = "代理首页报表")
 @RestController
@@ -94,26 +93,42 @@ public class HomeReportController {
             this.findCompanyProxyDetails(companyProxyDetail,startTime,endTime,proxyHomePageReportVo);
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
+            return ResponseUtil.custom("查询失败");
         }
         return ResponseUtil.success(proxyHomePageReportVo);
     }
     @ApiOperation("查找走势图")
     @GetMapping("/findTrendChart")
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
+            @ApiImplicitParam(name = "tag", value = "1:每日 2:每周 3:每月", required = false),
             @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
-    public ResponseEntity<ProxyHomePageReportVo> findTrendChart(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate) {
+    public ResponseEntity<ProxyHomePageReportVo> findTrendChart(Integer tag,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate,String userName) {
         if (CasinoProxyUtil.checkNull(startDate, endDate)) {
-            ResponseUtil.custom("参数必填");
+            return ResponseUtil.custom("参数必填");
         }
         ProxyHomePageReport proxyHomeReport = new  ProxyHomePageReport();
-        proxyHomeReport.setProxyUserId(CasinoProxyUtil.getAuthId());
         List<ProxyHomePageReportVo> list = new LinkedList<>();
+        if (CasinoProxyUtil.checkNull(userName)){
+            proxyHomeReport.setProxyUserId(CasinoProxyUtil.getAuthId());
+        }else {
+            ProxyUser byUserName = proxyUserService.findByUserName(userName);
+            if (CasinoProxyUtil.checkNull(byUserName)){
+                return ResponseUtil.success(byUserName);
+            }
+            proxyHomeReport.setProxyUserId(CasinoProxyUtil.getAuthId());
+            if (CasinoProxyUtil.setParameter(proxyHomeReport)){
+                return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+            }
+        }
         try {
-            ProxyHomePageReportVo proxyHomePageReportVo = this.assemble();
-            list.add(proxyHomePageReportVo);
+            if ((DateUtil.isEffectiveDate(new Date(),startDate,endDate))){
+                ProxyHomePageReportVo proxyHomePageReportVo = this.assemble();
+                list.add(proxyHomePageReportVo);
+            }
             Sort sort=Sort.by("id").descending();
             List<ProxyHomePageReport> proxyHomePageReports = proxyHomePageReportService.findHomePageReports(proxyHomeReport,DateUtil.getSimpleDateFormat1().format(startDate), DateUtil.getSimpleDateFormat1().format(endDate),sort);
             if (CasinoProxyUtil.checkNull(proxyHomePageReports) || proxyHomePageReports.size() == CommonConst.NUMBER_0) {
@@ -123,10 +138,44 @@ public class HomeReportController {
                 ProxyHomePageReportVo vo = new ProxyHomePageReportVo(homePageReport1);
                 list.add(vo);
             });
+            if (CasinoProxyUtil.checkNull(tag) || tag == CommonConst.NUMBER_1){
+                return ResponseUtil.success(list);
+            }else if (tag == CommonConst.NUMBER_2){
+                Map<String, List<ProxyHomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(ProxyHomePageReportVo::getStaticsWeek));
+                list.clear();
+                map.forEach((key,value)->{
+                    list.add(this.getHomePageReportVo(value,key));
+                });
+            }else {
+                Map<String, List<ProxyHomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(ProxyHomePageReportVo::getStaticsMonth));
+                list.clear();
+                map.forEach((key,value)->{
+                    list.add(this.getHomePageReportVo(value,key));
+                });
+            }
         } catch (Exception ex) {
             log.error("首页报表查找走势图失败", ex);
+            return ResponseUtil.custom("查询失败");
         }
         return ResponseUtil.success(list);
+    }
+    private ProxyHomePageReportVo getHomePageReportVo(List<ProxyHomePageReportVo> list,String time){
+        ProxyHomePageReportVo vo = new ProxyHomePageReportVo();
+        BigDecimal chargeAmount = list.stream().map(ProxyHomePageReportVo::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        vo.setChargeAmount(chargeAmount);
+        BigDecimal validbetAmount = list.stream().map(ProxyHomePageReportVo::getValidbetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        vo.setValidbetAmount(validbetAmount);
+        if (validbetAmount.compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || chargeAmount.compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
+            vo.setOddsRatio(chargeAmount);
+        }else {
+            vo.setOddsRatio(chargeAmount.divide(validbetAmount,2, RoundingMode.HALF_UP));
+        }
+        Integer newUsers = list.stream().mapToInt(ProxyHomePageReportVo::getNewUsers).sum();
+        vo.setNewUsers(newUsers);
+        Integer activeUsers = list.stream().mapToInt(ProxyHomePageReportVo::getActiveUsers).sum();
+        vo.setActiveUsers(activeUsers);
+        vo.setTime(time);
+        return vo;
     }
     private void findCompanyProxyDetails(CompanyProxyDetail companyProxyDetail,String startTime, String endTime,ProxyHomePageReportVo proxyHomePageReportVo){
         List<CompanyProxyDetail> companyProxyDetails = companyProxyDetailService.findCompanyProxyDetails(companyProxyDetail, startTime, endTime);

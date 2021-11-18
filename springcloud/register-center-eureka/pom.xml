@@ -3,17 +3,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>pay</artifactId>
+        <artifactId>springcloud</artifactId>
         <groupId>com.qianyi</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <groupId>com.qianyi</groupId>
-    <artifactId>pay-merchant</artifactId>
+    <artifactId>register-center-eureka</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>pay-merchant</name>
-    <description>商户服务</description>
+    <name>register-center-eureka</name>
+    <description>register-center-eureka</description>
 
     <dependencies>
+        <!-- 引入的Eureka-server -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -21,14 +26,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>16</source>
-                    <target>16</target>
-                </configuration>
             </plugin>
         </plugins>
     </build>

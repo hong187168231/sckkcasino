@@ -25,11 +25,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Api(tags = "首页报表")
 @RestController
@@ -93,25 +92,29 @@ public class HomePageReportController {
             this.findCompanyProxyDetails(new CompanyProxyDetail(),startTime,endTime,homePageReportVo);
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
+            return ResponseUtil.custom("查询失败");
         }
         return ResponseUtil.success(this.getHomePageReportVo(homePageReportVo));
     }
     @ApiOperation("查找走势图")
     @GetMapping("/findTrendChart")
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "tag", value = "1:每日 2:每周 3:每月", required = false),
             @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
     @NoAuthorization
-    public ResponseEntity<HomePageReportVo> findTrendChart(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+    public ResponseEntity<HomePageReportVo> findTrendChart(Integer tag,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                               @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate) {
         if (LoginUtil.checkNull(startDate, endDate)) {
             ResponseUtil.custom("参数必填");
         }
         List<HomePageReportVo> list = new LinkedList<>();
         try {
-            HomePageReportVo homePageReportVo = this.assemble(startDate,endDate);
-            list.add(this.getHomePageReportVo(homePageReportVo));
+            if ((DateUtil.isEffectiveDate(new Date(),startDate,endDate))){
+                HomePageReportVo homePageReportVo = this.assemble(startDate,endDate);
+                list.add(this.getHomePageReportVo(homePageReportVo));
+            }
             Sort sort=Sort.by("id").descending();
             List<HomePageReport> homePageReports = homePageReportService.findHomePageReports(sort,DateUtil.getSimpleDateFormat1().format(startDate), DateUtil.getSimpleDateFormat1().format(endDate));
             if (LoginUtil.checkNull(homePageReports) || homePageReports.size() == CommonConst.NUMBER_0){
@@ -121,12 +124,49 @@ public class HomePageReportController {
                 HomePageReportVo vo = new HomePageReportVo(homePageReport1);
                 list.add(this.getHomePageReportVo(vo));
             });
+            if (LoginUtil.checkNull(tag) || tag == CommonConst.NUMBER_1){
+                return ResponseUtil.success(list);
+            }else if (tag == CommonConst.NUMBER_2){
+                Map<String, List<HomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(HomePageReportVo::getStaticsWeek));
+                list.clear();
+                map.forEach((key,value)->{
+                    list.add(this.getHomePageReportVo(value,key));
+                });
+            }else {
+                Map<String, List<HomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(HomePageReportVo::getStaticsMonth));
+                list.clear();
+                map.forEach((key,value)->{
+                    list.add(this.getHomePageReportVo(value,key));
+                });
+            }
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
+            return ResponseUtil.custom("查询失败");
         }
         return ResponseUtil.success(list);
 
     }
+    private HomePageReportVo getHomePageReportVo(List<HomePageReportVo> list,String time){
+        HomePageReportVo vo = new HomePageReportVo();
+        BigDecimal chargeAmount = list.stream().map(HomePageReportVo::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        vo.setChargeAmount(chargeAmount);
+        BigDecimal validbetAmount = list.stream().map(HomePageReportVo::getValidbetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        vo.setValidbetAmount(validbetAmount);
+        if (validbetAmount.compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || chargeAmount.compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
+            vo.setOddsRatio(chargeAmount);
+        }else {
+            vo.setOddsRatio(chargeAmount.divide(validbetAmount,2, RoundingMode.HALF_UP));
+        }
+        BigDecimal grossMargin1 = list.stream().map(HomePageReportVo::getGrossMargin1).reduce(BigDecimal.ZERO, BigDecimal::add);
+        vo.setGrossMargin1(grossMargin1);
+        BigDecimal grossMargin2 = list.stream().map(HomePageReportVo::getGrossMargin2).reduce(BigDecimal.ZERO, BigDecimal::add);
+        vo.setGrossMargin1(grossMargin2);
+        BigDecimal grossMargin3 = list.stream().map(HomePageReportVo::getGrossMargin3).reduce(BigDecimal.ZERO, BigDecimal::add);
+        vo.setGrossMargin1(grossMargin3);
+        vo.setTime(time);
+        return vo;
+    }
+
     private void findCompanyProxyDetails(CompanyProxyDetail companyProxyDetail, String startTime, String endTime, HomePageReportVo homePageReportVo){
         List<CompanyProxyDetail> companyProxyDetails = companyProxyDetailService.findCompanyProxyDetails(companyProxyDetail, startTime, endTime);
         if (LoginUtil.checkNull(companyProxyDetails) || companyProxyDetails.size() == CommonConst.NUMBER_0){
@@ -146,6 +186,8 @@ public class HomePageReportController {
         Date end = DateUtil.getSimpleDateFormat().parse(endTime);
         HomePageReport homePageReport = new HomePageReport();
         homePageReport.setStaticsTimes(format);
+        homePageReport.setStaticsWeek(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4)+CommonConst.UNDERLINE_SYMBOL+DateUtil.getWeek(format));
+        homePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
         homePageReportTask.chargeOrder(start,end,homePageReport);
         homePageReportTask.withdrawOrder(start,end,homePageReport);
         homePageReportTask.gameRecord(startTime,endTime,homePageReport);
