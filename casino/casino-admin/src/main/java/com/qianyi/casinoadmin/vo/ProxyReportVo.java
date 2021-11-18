@@ -23,9 +23,9 @@ public class ProxyReportVo implements Serializable {
     @ApiModelProperty("团队人数")
     private Integer allGroupNum;
     @ApiModelProperty("个人业绩流水")
-    private BigDecimal performance;
+    private BigDecimal performance = BigDecimal.ZERO;
     @ApiModelProperty("团队业绩流水")
-    private BigDecimal allPerformance;
+    private BigDecimal allPerformance = BigDecimal.ZERO;
     @ApiModelProperty("贡献佣金")
     private BigDecimal contribution;
     @ApiModelProperty("统计时段")

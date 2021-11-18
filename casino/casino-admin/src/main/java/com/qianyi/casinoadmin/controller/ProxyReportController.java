@@ -234,7 +234,7 @@ public class ProxyReportController {
                             }
                         }
                     }
-                    proxyReportVo.setAllPerformance(proxyReportVo.getAllPerformance().add(allPerformances.stream().reduce(BigDecimal.ZERO, BigDecimal::add)));
+                    proxyReportVo.setAllPerformance(allPerformances.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
                 }else if (tier == CommonConst.NUMBER_1){
                     proxyReportVo = this.assemble(id,user.getFirstPid(),date);
                     List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, id);
@@ -249,7 +249,7 @@ public class ProxyReportController {
                             });
                         }
                     }
-                    proxyReportVo.setAllPerformance(proxyReportVo.getAllPerformance().add(allPerformances.stream().reduce(BigDecimal.ZERO, BigDecimal::add)));
+                    proxyReportVo.setAllPerformance(allPerformances.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
                 }else if (tier == CommonConst.NUMBER_2){
                     proxyReportVo = this.assemble(id,user.getSecondPid(),date);
                     List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, id);
@@ -258,7 +258,7 @@ public class ProxyReportController {
                             this.assemble(f.getId(),date,allPerformances);
                         });
                     }
-                    proxyReportVo.setAllPerformance(proxyReportVo.getAllPerformance().add(allPerformances.stream().reduce(BigDecimal.ZERO, BigDecimal::add)));
+                    proxyReportVo.setAllPerformance(allPerformances.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
                 }else {
                     proxyReportVo = this.assemble(id,user.getThirdPid(),date);
                 }
