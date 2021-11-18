@@ -148,12 +148,16 @@ public class UserController {
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "account", value = "用户名", required = false),
+            @ApiImplicitParam(name = "account", value = "用户名", required = false),
+            @ApiImplicitParam(name = "secondProxyAccount", value = "区域代理账号", required = false),
+            @ApiImplicitParam(name = "thirdProxyAccount", value = "基层代理账号", required = false),
             @ApiImplicitParam(name = "state", value = "1：启用，其他：禁用", required = false),
             @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
             @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
     })
     @GetMapping("findUserList")
     public ResponseEntity<UserVo> findUserList(Integer pageSize, Integer pageCode, String account,Integer state,
+                                               String secondProxyAccount,String thirdProxyAccount,
                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
 
@@ -161,6 +165,14 @@ public class UserController {
         User user = new User();
         if (CasinoProxyUtil.setParameter(user)){
             return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        if (!CasinoProxyUtil.checkNull(secondProxyAccount)){
+            ProxyUser byUserName = proxyUserService.findByUserName(secondProxyAccount);
+            user.setSecondProxy(byUserName == null?CommonConst.LONG_0:byUserName.getId());
+        }
+        if (!CasinoProxyUtil.checkNull(thirdProxyAccount)){
+            ProxyUser byUserName = proxyUserService.findByUserName(thirdProxyAccount);
+            user.setThirdProxy(byUserName == null?CommonConst.LONG_0:byUserName.getId());
         }
         user.setAccount(account);
         user.setState(state);
