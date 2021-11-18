@@ -105,7 +105,7 @@ public class NoticeController {
         return ResponseUtil.success();
     }
 
-    @NoAuthentication
+
     @ApiOperation("查询所有")
     @GetMapping("/findNotice")
     public ResponseEntity findNotice(){
