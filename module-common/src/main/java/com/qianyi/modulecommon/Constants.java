@@ -86,6 +86,8 @@ public class Constants {
     public static final String REDIS_SMSIPSENDNUM= "sms::ipSendNum::";
     //redis每日短信前缀
     public static final String REDIS_SMSCODE = "sms::code::";
+    //redis ip单位时间请求次数限制前缀
+    public static final String REDIS_IPLIMIT = "ipLimit::";
     //redis批量邀请码
     public static final String REDIS_INVITECODELIST= "inviteCodeList";
     //会员类型：公司会员

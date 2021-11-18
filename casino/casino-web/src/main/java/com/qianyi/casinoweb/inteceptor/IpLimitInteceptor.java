@@ -26,7 +26,7 @@ public class IpLimitInteceptor extends AbstractIpLimitInteceptor {
     @Override
     protected String ipLimit(HttpServletRequest request) {
         String ip = IpUtil.getIp(request);
-        boolean access = redisLimitExcutor.tryAccess(ip);
+        boolean access = redisLimitExcutor.tryAccess(Constants.REDIS_IPLIMIT + ip);
         if(!access){
             String remark="单位时间内请求次数超过上限,IP被封";
             IpBlack ipBlack =new IpBlack();
