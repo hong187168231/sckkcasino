@@ -86,7 +86,7 @@ public class UserRunningWaterTask {
     }
     public void shareProfitChange(String format,Date startDate,Date endDate){
         try {
-            List<ShareProfitChange> shareProfitChanges = shareProfitChangeService.findAll(null, startDate, endDate);
+            List<ShareProfitChange> shareProfitChanges = shareProfitChangeService.findAll(null,null, startDate, endDate);
             if (shareProfitChanges  == null || shareProfitChanges.size() == CommonConst.NUMBER_0){
                 return;
             }

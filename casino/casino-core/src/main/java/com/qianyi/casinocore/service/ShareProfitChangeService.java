@@ -38,8 +38,8 @@ public class ShareProfitChangeService {
         return shareProfitChangeRepository.saveAll(shareProfitChangeList);
     }
 
-    public List<ShareProfitChange> findAll(Long fromUserId, Date startDate, Date endDate){
-        Specification<ShareProfitChange> condition = getCondition(fromUserId,startDate,endDate);
+    public List<ShareProfitChange> findAll(Long fromUserId,Long userId,Date startDate, Date endDate){
+        Specification<ShareProfitChange> condition = getCondition(fromUserId,userId,startDate,endDate);
         return shareProfitChangeRepository.findAll(condition);
     }
     /**
@@ -48,13 +48,16 @@ public class ShareProfitChangeService {
      * @param fromUserId
      * @return
      */
-    private Specification<ShareProfitChange> getCondition(Long fromUserId, Date startDate, Date endDate) {
+    private Specification<ShareProfitChange> getCondition(Long fromUserId,Long userId, Date startDate, Date endDate) {
         Specification<ShareProfitChange> specification = new Specification<ShareProfitChange>() {
             @Override
             public Predicate toPredicate(Root<ShareProfitChange> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
                 if (fromUserId != null) {
                     list.add(cb.equal(root.get("fromUserId").as(Long.class), fromUserId));
+                }
+                if (userId != null) {
+                    list.add(cb.equal(root.get("userId").as(Long.class), userId));
                 }
                 if (startDate != null) {
                     list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
