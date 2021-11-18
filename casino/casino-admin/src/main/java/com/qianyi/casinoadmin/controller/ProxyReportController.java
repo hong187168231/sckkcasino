@@ -294,7 +294,7 @@ public class ProxyReportController {
             proxyReportVo.setCommission(commission + "%");
         }
         BigDecimal contribution = shareProfitChanges.stream().map(ShareProfitChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-        contribution = contribution.setScale(CommonConst.NUMBER_2, RoundingMode.HALF_UP);
+        contribution = contribution.setScale(CommonConst.NUMBER_4, RoundingMode.HALF_UP);
         proxyReportVo.setContribution(contribution);
         return proxyReportVo;
     }
@@ -302,17 +302,16 @@ public class ProxyReportController {
     private void assemble(Map<Long,BigDecimal> map,Map<Long,Integer> userMap,User user,Long userId,String startTime,String endTime,List<ProxyReportVo> list,
                           Date startDate,Date endDate,Integer tag,Integer level){
         ProxyReportVo proxyReportVo = new ProxyReportVo();
-        this.computeAllGroupNum(user,userMap,level);
         proxyReportVo.setTier(tag);
         GameRecord gameRecord = gameRecordService.findRecordRecordSum(user.getId(), startTime+start, endTime+end);
         proxyReportVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
-        this.computePerformance(map,user,level,proxyReportVo.getPerformance());
+        this.compute(map,user,level,proxyReportVo.getPerformance(),userMap);
         if (tag == CommonConst.NUMBER_0){
             proxyReportVo.setContribution(BigDecimal.ZERO);
         }else {
             List<ShareProfitChange> shareProfitChanges = shareProfitChangeService.findAll(user.getId(),userId, startDate, endDate);
             BigDecimal contribution = shareProfitChanges.stream().map(ShareProfitChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-            contribution = contribution.setScale(CommonConst.NUMBER_2, RoundingMode.HALF_UP);
+            contribution = contribution.setScale(CommonConst.NUMBER_4, RoundingMode.HALF_UP);
             proxyReportVo.setContribution(contribution);
         }
         proxyReportVo.setUserId(user.getId());
@@ -320,39 +319,32 @@ public class ProxyReportController {
         proxyReportVo.setFirstPid(user.getFirstPid());
         list.add(proxyReportVo);
     }
-    private void computeAllGroupNum(User user,Map<Long,Integer> userMap,Integer tag){
-        if (tag == CommonConst.NUMBER_0){
-            userMap.put(user.getId(),CommonConst.NUMBER_0);
-        }else if(tag == CommonConst.NUMBER_1){
-            userMap.put(user.getId(),CommonConst.NUMBER_0);
-            userMap.put(user.getFirstPid(),userMap.get(user.getFirstPid()) + CommonConst.NUMBER_1);
-        }else if(tag == CommonConst.NUMBER_2){
-            userMap.put(user.getId(),CommonConst.NUMBER_0);
-            userMap.put(user.getFirstPid(),userMap.get(user.getFirstPid()) + CommonConst.NUMBER_1);
-            userMap.put(user.getSecondPid(),userMap.get(user.getSecondPid()) + CommonConst.NUMBER_1);
-        }else {
-            userMap.put(user.getId(),CommonConst.NUMBER_0);
-            userMap.put(user.getFirstPid(),userMap.get(user.getFirstPid()) + CommonConst.NUMBER_1);
-            userMap.put(user.getSecondPid(),userMap.get(user.getSecondPid()) + CommonConst.NUMBER_1);
-            userMap.put(user.getThirdPid(),userMap.get(user.getThirdPid()) + CommonConst.NUMBER_1);
-        }
-    }
 
-    private void computePerformance(Map<Long,BigDecimal> map,User user,Integer tag,BigDecimal performance){
+    private void compute(Map<Long,BigDecimal> map,User user,Integer tag,BigDecimal performance,Map<Long,Integer> userMap){
         if (tag == CommonConst.NUMBER_0){
             map.put(user.getId(),performance);
+            userMap.put(user.getId(),CommonConst.NUMBER_0);
         }else if(tag == CommonConst.NUMBER_1){
             map.put(user.getId(),performance);
             map.put(user.getFirstPid(),performance.add(map.get(user.getFirstPid())));
+            userMap.put(user.getId(),CommonConst.NUMBER_0);
+            userMap.put(user.getFirstPid(),userMap.get(user.getFirstPid()) + CommonConst.NUMBER_1);
         }else if(tag == CommonConst.NUMBER_2){
             map.put(user.getId(),performance);
             map.put(user.getFirstPid(),performance.add(map.get(user.getFirstPid())));
             map.put(user.getSecondPid(),performance.add(map.get(user.getSecondPid())));
+            userMap.put(user.getId(),CommonConst.NUMBER_0);
+            userMap.put(user.getFirstPid(),userMap.get(user.getFirstPid()) + CommonConst.NUMBER_1);
+            userMap.put(user.getSecondPid(),userMap.get(user.getSecondPid()) + CommonConst.NUMBER_1);
         }else {
             map.put(user.getId(),performance);
             map.put(user.getFirstPid(),performance.add(map.get(user.getFirstPid())));
             map.put(user.getSecondPid(),performance.add(map.get(user.getSecondPid())));
             map.put(user.getThirdPid(),performance.add(map.get(user.getThirdPid())));
+            userMap.put(user.getId(),CommonConst.NUMBER_0);
+            userMap.put(user.getFirstPid(),userMap.get(user.getFirstPid()) + CommonConst.NUMBER_1);
+            userMap.put(user.getSecondPid(),userMap.get(user.getSecondPid()) + CommonConst.NUMBER_1);
+            userMap.put(user.getThirdPid(),userMap.get(user.getThirdPid()) + CommonConst.NUMBER_1);
         }
 
     }
