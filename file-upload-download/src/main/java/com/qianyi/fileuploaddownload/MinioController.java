@@ -29,6 +29,8 @@ public class MinioController {
 
     @Value("${minio.endpoint:localhost}")
     private String endpoint;
+    @Value("${minio.secretKey}")
+    private String configSecretKey;
 
     //endpoint: 域名或IP  ，bucket: 不同项目不同名称
     private MinioClient getInstance() {
@@ -43,14 +45,16 @@ public class MinioController {
     @ApiOperation("文件（图片）上传,成功返回文件地址")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "bigFileSecret", type = "String", value = "大文件(2M以上)需要秘钥。找管理员获取", required = false),
-            @ApiImplicitParam(name = "bucket", type = "String", value = "bucket名称", required = true),
+            @ApiImplicitParam(name = "bucket", type = "String", value = "bucket名称,提前联系管理员获取", required = true),
     })
     @PostMapping("upload/{bucket}")
     public ResponseEntity<String> upload(@PathVariable("bucket") String bucket, @RequestPart("file") MultipartFile file, String bigFileSecret) {
         if (file == null) {
             return ResponseUtil.custom("文件不能为null");
         }
-
+        if (!Bucket.checkBucketExist(bucket)) {
+            return ResponseUtil.custom("bucket无效,请联系管理员获取");
+        }
         try {
             if (!checkBucketExists(bucket)) {
                 return ResponseUtil.custom("不支持，请联系技术");
@@ -101,10 +105,14 @@ public class MinioController {
     @ApiOperation("创建bucket")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "name", type = "String", value = "bucket名称", required = true),
+            @ApiImplicitParam(name = "secretKey", type = "String", value = "秘钥", required = true),
     })
-    public ResponseEntity createBucket(String name, HttpServletRequest request) {
+    public ResponseEntity createBucket(String name, String secretKey, HttpServletRequest request) {
         if (CommonUtil.checkNull(name) || name.length() < 3 || name.length() > 63) {
             return ResponseUtil.custom("名称长度3-63个字符");
+        }
+        if (!configSecretKey.equals(secretKey)) {
+            return ResponseUtil.custom("秘钥无效");
         }
         try {
 
