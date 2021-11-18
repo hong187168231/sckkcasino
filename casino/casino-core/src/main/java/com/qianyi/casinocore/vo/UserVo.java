@@ -57,8 +57,10 @@ public class UserVo implements Serializable {
     private String realName;
     @ApiModelProperty("直属父级账号")
     private String firstPidAccount;
-    @ApiModelProperty("代理归属")
+    @ApiModelProperty("所属基层代理")
     private String thirdProxyAccount;
+    @ApiModelProperty("所属区域代理")
+    private String secondProxyAccount;
     @ApiModelProperty("所属总代")
     private String firstProxyAccount;
     @ApiModelProperty("个人业绩流水")

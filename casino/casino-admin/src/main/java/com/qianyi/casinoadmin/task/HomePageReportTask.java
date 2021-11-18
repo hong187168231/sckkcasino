@@ -139,7 +139,7 @@ public class HomePageReportTask {
     }
     public void shareProfitChange(Date startDate,Date endDate,HomePageReport homePageReport){
         try {
-            List<ShareProfitChange> shareProfitChanges = shareProfitChangeService.findAll(null, startDate, endDate);
+            List<ShareProfitChange> shareProfitChanges = shareProfitChangeService.findAll(null,null, startDate, endDate);
             if (LoginUtil.checkNull(shareProfitChanges) || shareProfitChanges.size() == CommonConst.NUMBER_0){
                 homePageReport.setShareAmount(BigDecimal.ZERO);
                 return;
