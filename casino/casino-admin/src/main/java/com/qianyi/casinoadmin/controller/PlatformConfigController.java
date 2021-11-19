@@ -5,6 +5,7 @@ import com.qianyi.casinoadmin.vo.*;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -278,4 +279,40 @@ public class PlatformConfigController {
         platformConfigService.save(platformConfig);
         return ResponseUtil.success();
     }
+
+
+    /**
+     * 图片服务器地址查询
+     * @return
+     */
+    @ApiOperation("图片服务器地址查询")
+    @GetMapping("/findUploadUrl")
+    public ResponseEntity findUploadUrl(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        return ResponseUtil.success(platformConfig==null?"":platformConfig.getUploadUrl());
+    }
+
+    /**
+     * 修改图片服务器地址
+     * @param uploadUrl 图片服务器地址
+     * @return
+     */
+    @ApiOperation("修改图片服务器地址")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "uploadUrl", value = "图片服务器地址", required = true),
+    })
+    @PostMapping("/updateUploadUrl")
+    public ResponseEntity updateUploadUrl(String uploadUrl){
+        if (LoginUtil.checkNull(uploadUrl)){
+            return ResponseUtil.custom("参数错误");
+        }
+        PlatformConfig first = platformConfigService.findFirst();
+        if (LoginUtil.checkNull(first)){
+            first = new PlatformConfig();
+        }
+        first.setUploadUrl(uploadUrl);
+        platformConfigService.save(first);
+        return ResponseUtil.success();
+    }
+
 }

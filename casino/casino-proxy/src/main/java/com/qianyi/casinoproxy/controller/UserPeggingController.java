@@ -72,6 +72,8 @@ public class UserPeggingController {
                 loginList = loginList.stream().filter(CommonUtil.distinctByKey(LoginLog::getAccount)).collect(Collectors.toList());
                 if (!CasinoProxyUtil.checkNull(registerList)){
                     registerList.addAll(loginList);
+                }else {
+                    registerList = loginList;
                 }
             }
             return ResponseUtil.success(registerList);

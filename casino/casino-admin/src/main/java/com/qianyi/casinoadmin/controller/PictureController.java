@@ -1,13 +1,17 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.model.PlatformConfig;
+import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.model.LunboPic;
 import com.qianyi.casinocore.service.PictureService;
 import com.qianyi.casinocore.service.SysUserService;
+import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
+import com.qianyi.modulecommon.util.HttpClient4Util;
 import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -23,8 +27,11 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/picture")
@@ -34,6 +41,9 @@ public class PictureController {
     private PictureService pictureService;
     @Autowired
     private SysUserService sysUserService;
+
+    @Autowired
+    private PlatformConfigService platformConfigService;
 
     private static List PCNo = new ArrayList();
     private static List AppNo = new ArrayList();
@@ -60,6 +70,7 @@ public class PictureController {
         }
         return this.savePicture(file,no,lunboPic, remark);
     }
+    @NoAuthentication
     @ApiOperation("新增修改移动端轮播图")
     @PostMapping(value = "/saveAppPicture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增移动端轮播图")
     public ResponseEntity saveAppPicture(@RequestPart(value = "file", required = false) MultipartFile file,@RequestParam(value = "序号1-5") Integer no,
@@ -82,7 +93,9 @@ public class PictureController {
             if(file == null){
                 lunboPic.setUrl(null);
             }else{
-                String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
+                PlatformConfig platformConfig= platformConfigService.findFirst();
+                String uploadUrl = platformConfig.getUploadUrl();
+                String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file,uploadUrl);
                 lunboPic.setUrl(fileUrl);
             }
         } catch (Exception e) {
