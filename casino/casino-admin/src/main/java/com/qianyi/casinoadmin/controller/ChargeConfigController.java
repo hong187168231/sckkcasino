@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Slf4j
 @RestController
@@ -40,7 +41,7 @@ public class ChargeConfigController {
             return ResponseUtil.success(amountConfigVo);
         }
         amountConfigVo.setFixedAmount(platformConfig.getChargeServiceMoney());
-        amountConfigVo.setPercentage(platformConfig.getChargeRate());
+        amountConfigVo.setPercentage(platformConfig.getChargeRate().multiply(CommonConst.BIGDECIMAL_100));
         amountConfigVo.setMaxMoney(platformConfig.getChargeMaxMoney());
         amountConfigVo.setMinMoney(platformConfig.getChargeMinMoney());
         return ResponseUtil.success(amountConfigVo);
@@ -66,7 +67,7 @@ public class ChargeConfigController {
         if (fixedAmount != null && percentage != null){
             return ResponseUtil.custom("参数错误");
         }
-        if (percentage != null && (percentage > CommonConst.FLOAT_100 || percentage < CommonConst.FLOAT_0)){
+        if (percentage != null && (percentage > CommonConst.FLOAT_100 || percentage <= CommonConst.FLOAT_0)){
             return ResponseUtil.custom("百分比金额0%-100%区间");
         }
         if (fixedAmount != null && minMoney != null){

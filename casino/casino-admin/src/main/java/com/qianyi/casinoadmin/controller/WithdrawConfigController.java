@@ -41,7 +41,7 @@ public class WithdrawConfigController {
             return ResponseUtil.success(amountConfigVo);
         }
         amountConfigVo.setFixedAmount(platformConfig.getWithdrawServiceMoney());
-        amountConfigVo.setPercentage(platformConfig.getWithdrawRate());
+        amountConfigVo.setPercentage(platformConfig.getWithdrawRate().multiply(CommonConst.BIGDECIMAL_100));
         amountConfigVo.setMaxMoney(platformConfig.getWithdrawMaxMoney());
         amountConfigVo.setMinMoney(platformConfig.getWithdrawMinMoney());
         return ResponseUtil.success(amountConfigVo);
@@ -67,7 +67,7 @@ public class WithdrawConfigController {
         if (fixedAmount != null && percentage != null){
             return ResponseUtil.custom("参数错误");
         }
-        if (percentage != null && (percentage > CommonConst.FLOAT_100 || percentage < CommonConst.FLOAT_0)){
+        if (percentage != null && (percentage > CommonConst.FLOAT_100 || percentage <= CommonConst.FLOAT_0)){
             return ResponseUtil.custom("百分比金额0%-100%区间");
         }
         if (fixedAmount != null && minMoney != null){
