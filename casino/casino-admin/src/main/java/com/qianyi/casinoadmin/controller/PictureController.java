@@ -95,7 +95,8 @@ public class PictureController {
             }else{
                 PlatformConfig platformConfig= platformConfigService.findFirst();
                 String uploadUrl = platformConfig.getUploadUrl();
-                String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file,uploadUrl);
+//                String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file,uploadUrl);
+                String fileUrl = UploadAndDownloadUtil.fileUpload(file,uploadUrl);
                 lunboPic.setUrl(fileUrl);
             }
         } catch (Exception e) {
