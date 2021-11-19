@@ -3,11 +3,16 @@ package com.qianyi.modulecommon.util;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 /**
  * 文件工具类
  */
 public class UploadAndDownloadUtil {
+
+    private static String urlName = "http://127.0.0.1:9700/minio/upload";
+    private static String urlNameBucket = "http://127.0.0.1:9700/minio/createBucket";
     /**
      * 图片上传 basePath  PreReadUploadConfig.getBasePath
      */
@@ -15,14 +20,22 @@ public class UploadAndDownloadUtil {
         if (file == null) {
             return "";
         }
+        String url=null;
         String fileName = file.getOriginalFilename();
         fileName = UploadAndDownloadUtil.renameToUUID(fileName);
         try {
-            UploadAndDownloadUtil.uploadFiles(file.getBytes(), basePath, fileName);
+            Map<String, Object> params = new HashMap<>();
+            params.put("name", fileName);
+            params.put("bucket", fileName);
+            params.put("file", file);
+            params.put("bigFileSecret", file);
+            //创建bucket
+            HttpClient4Util.doPost(urlNameBucket, params);
+            //上传
+            url  = HttpClient4Util.doPost(urlName, params);
         } catch (Exception e) {
             return "";
         }
-        String url = "/public/img/" + fileName;
         return url;
 
     }
