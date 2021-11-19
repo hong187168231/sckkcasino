@@ -163,11 +163,20 @@ public class ProxyReportController {
             return ResponseUtil.custom("参数不合法");
         }
         if (list.size() > CommonConst.NUMBER_0){
+            List<Long> userIds = list.stream().map(ProxyReportVo::getFirstPid).collect(Collectors.toList());
+            List<User> userList = userService.findAll(userIds);
             list.stream().forEach(proxyReportVo ->{
-               proxyReportVo.setAllPerformance(map.get(proxyReportVo.getUserId()).subtract(proxyReportVo.getPerformance()));
-               proxyReportVo.setAllGroupNum(userMap.get(proxyReportVo.getUserId()));
+                proxyReportVo.setAllPerformance(map.get(proxyReportVo.getUserId()).subtract(proxyReportVo.getPerformance()));
+                proxyReportVo.setAllGroupNum(userMap.get(proxyReportVo.getUserId()));
+                userList.stream().forEach(u->{
+                    if (u.getId().equals(proxyReportVo.getFirstPid())){
+                        proxyReportVo.setFirstPidAccount(u.getAccount());
+                    }
+                });
             });
-         }
+            userIds.clear();
+            userList.clear();
+        }
         map.clear();
         userMap.clear();
         return this.getData(list);
