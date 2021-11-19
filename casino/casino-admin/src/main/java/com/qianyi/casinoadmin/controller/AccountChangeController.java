@@ -2,6 +2,7 @@ package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.AccountChangeBackVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.model.AccountChange;
@@ -11,6 +12,8 @@ import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -35,17 +38,22 @@ public class AccountChangeController {
      * 分页查询用户账变
      *
      * @param orderNo 订单号
-     * @param types 账变类型
+     * @param type 账变类型
      * @param account 会员账号
      * @return
      */
     @ApiOperation("分页查询用户账变")
-    @PostMapping(value = "/findAccountChangePage")
-    public ResponseEntity<AccountChangeBackVo> findAccountChangePage(@RequestParam(value = "每页大小(默认10条)", required = false) Integer pageSize,
-                                                                     @RequestParam(value = "当前页(默认第一页)", required = false) Integer pageCode,
-                                                                     @RequestBody (required = false) Integer[] types,
-                                                                     @RequestParam(value = "会员账号", required = false) String account,
-                                                                     @RequestParam(value = "订单号", required = false) String orderNo,
+    @GetMapping("/findAccountChangePage")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+            @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
+            @ApiImplicitParam(name = "type", value = "账变类型", required = false),
+            @ApiImplicitParam(name = "account", value = "会员账号", required = false),
+            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
+    })
+    public ResponseEntity<AccountChangeBackVo> findAccountChangePage(Integer pageSize, Integer pageCode, String type, String account, String orderNo,
                                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         Sort sort = Sort.by("id").descending();
@@ -59,6 +67,14 @@ public class AccountChangeController {
             accountChange.setUserId(user.getId());
         }
         accountChange.setOrderNo(orderNo);
+        String[] types = null;
+        try {
+            if (!LoginUtil.checkNull(type)){
+                types = type.split(CommonConst.COMMA_SPLIT);
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("参数不合法");
+        }
         Page<AccountChange> accountChangePage = accountChangeService.findAccountChangePage(pageable,types, accountChange,startDate,endDate);
         PageResultVO<AccountChangeBackVo> pageResultVO = new PageResultVO(accountChangePage);
         List<AccountChange> content = accountChangePage.getContent();

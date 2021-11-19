@@ -28,6 +28,10 @@ public class CommonConst {
      */
     public static final String POINT_SPLIT = ".";
     /**
+     * 逗号分割符
+     */
+    public static final String COMMA_SPLIT = ",";
+    /**
      * '|'分割符
      */
     public static final String VERTICAL_SPLIT = "|";
