@@ -1,6 +1,7 @@
 package com.qianyi.modulecommon.inteceptor;
 
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -20,7 +21,7 @@ public abstract class AbstractIpBlackCheckInteceptor implements HandlerIntercept
         }
         String ipRemark = ipBlackCheck(request);
         if(!ObjectUtils.isEmpty(ipRemark)){
-            log.error("ip被封，原因:{},请求路径:{},token:{}",ipRemark,request.getRequestURI(),request.getHeader(Constants.AUTHORIZATION));
+            log.error("ip={}被封，原因:{},请求路径:{},token:{}", IpUtil.getIp(request),ipRemark,request.getRequestURI(),request.getHeader(Constants.AUTHORIZATION));
 //            ipRemark = URLEncoder.encode(ipRemark,"UTF-8");
             response.sendRedirect(request.getContextPath()+"/authenticationIpLimit");
             return false;

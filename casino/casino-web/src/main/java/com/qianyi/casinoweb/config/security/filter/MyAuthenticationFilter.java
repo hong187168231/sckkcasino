@@ -6,6 +6,7 @@ import com.qianyi.casinoweb.config.security.util.Constants;
 import com.qianyi.casinoweb.config.security.util.MultiReadHttpServletRequest;
 import com.qianyi.casinoweb.config.security.util.MultiReadHttpServletResponse;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
+import com.qianyi.modulecommon.util.IpUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,10 +92,11 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
         if (wrapper != null) {
             try {
                 String bodyJson = wrapper.getBodyJsonStrByJson(request);
+                String ip = IpUtil.getIp(request);
                 String url = wrapper.getRequestURI().replace("//", "/");
-                log.debug("-------------------------------- 请求url: " + url + " --------------------------------");
+                log.info("ip={},请求url:{} --------------------------------", ip, url);
                 Constants.URL_MAPPING_MAP.put(url, url);
-                log.debug("`{}` 接收到的参数: {}", url, bodyJson);
+                log.info("`{}` 接收到的参数: {}", url, bodyJson);
                 return bodyJson;
             } catch (Exception e) {
                 e.printStackTrace();
