@@ -67,8 +67,8 @@ public class WithdrawConfigController {
         if (fixedAmount != null && percentage != null){
             return ResponseUtil.custom("参数错误");
         }
-        if (percentage != null && (percentage > CommonConst.FLOAT_1 || percentage < CommonConst.FLOAT_001)){
-            return ResponseUtil.custom("百分比金额1%-100%区间");
+        if (percentage != null && (percentage > CommonConst.FLOAT_100 || percentage < CommonConst.FLOAT_0)){
+            return ResponseUtil.custom("百分比金额0%-100%区间");
         }
         if (fixedAmount != null && minMoney != null){
             if (fixedAmount.compareTo(minMoney) > CommonConst.NUMBER_0){
@@ -84,6 +84,7 @@ public class WithdrawConfigController {
         if (LoginUtil.checkNull(percentage)){
             platformConfig.setWithdrawRate(BigDecimal.ZERO);
         }else {
+            percentage = percentage/CommonConst.FLOAT_100;
             platformConfig.setWithdrawRate(BigDecimal.valueOf(percentage));
         }
         if (LoginUtil.checkNull(fixedAmount)){

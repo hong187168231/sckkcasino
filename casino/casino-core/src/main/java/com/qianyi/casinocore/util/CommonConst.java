@@ -79,6 +79,7 @@ public class CommonConst {
     public static final Float FLOAT_0 = 0F;
     public static final Float FLOAT_001 = 0.01F;
     public static final Float FLOAT_1 = 1F;
+    public static final Float FLOAT_100 = 100F;
 
     public static final BigDecimal BIGDECIMAL_100 = new BigDecimal(NUMBER_100);
 
