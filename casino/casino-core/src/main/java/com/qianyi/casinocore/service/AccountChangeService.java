@@ -27,7 +27,7 @@ public class AccountChangeService {
         return accountChangeRepository.save(po);
     }
 
-    public Page<AccountChange> findAccountChangePage(Pageable pageable,Integer[] types, AccountChange accountChange,Date startDate,Date endDate){
+    public Page<AccountChange> findAccountChangePage(Pageable pageable,String[] types, AccountChange accountChange,Date startDate,Date endDate){
         Specification<AccountChange> condition = this.getCondition(accountChange,types,startDate,endDate);
         Page<AccountChange> all = accountChangeRepository.findAll(condition, pageable);
         return all;
@@ -37,7 +37,7 @@ public class AccountChangeService {
      * @param
      * @return
      */
-    private Specification<AccountChange> getCondition(AccountChange AccountChange,Integer[] types,Date startDate,Date endDate) {
+    private Specification<AccountChange> getCondition(AccountChange AccountChange,String[] types,Date startDate,Date endDate) {
         Specification<AccountChange> specification = new Specification<AccountChange>() {
             @Override
             public Predicate toPredicate(Root<AccountChange> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -70,7 +70,7 @@ public class AccountChangeService {
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));
                 if(types != null && types.length > CommonConst.NUMBER_0) {
                     List<Predicate> listOr = new ArrayList<>();///组装or语句
-                    for (Integer type : types) {
+                    for (String type : types) {
                         //爱好多选 用OR链接
                         listOr.add(cb.equal(root.get("type"), type));
                     }

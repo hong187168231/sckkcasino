@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Slf4j
 @RestController
@@ -40,7 +41,7 @@ public class ChargeConfigController {
             return ResponseUtil.success(amountConfigVo);
         }
         amountConfigVo.setFixedAmount(platformConfig.getChargeServiceMoney());
-        amountConfigVo.setPercentage(platformConfig.getChargeRate());
+        amountConfigVo.setPercentage(platformConfig.getChargeRate().multiply(CommonConst.BIGDECIMAL_100));
         amountConfigVo.setMaxMoney(platformConfig.getChargeMaxMoney());
         amountConfigVo.setMinMoney(platformConfig.getChargeMinMoney());
         return ResponseUtil.success(amountConfigVo);
@@ -57,7 +58,7 @@ public class ChargeConfigController {
     @ApiOperation("充值设置修改")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "fixedAmount", value = "固定金额", required = false),
-            @ApiImplicitParam(name = "percentage", value = "百分比金额只能传0到1之间", required = false),
+            @ApiImplicitParam(name = "percentage", value = "百分比金额只能传0到100之间", required = false),
             @ApiImplicitParam(name = "maxMoney", value = "最大金额", required = true),
             @ApiImplicitParam(name = "minMoney", value = "最小金额", required = true),
     })
@@ -66,8 +67,8 @@ public class ChargeConfigController {
         if (fixedAmount != null && percentage != null){
             return ResponseUtil.custom("参数错误");
         }
-        if (percentage != null && (percentage > CommonConst.FLOAT_1 || percentage < CommonConst.FLOAT_001)){
-            return ResponseUtil.custom("百分比金额1%-100%区间");
+        if (percentage != null && (percentage > CommonConst.FLOAT_100 || percentage <= CommonConst.FLOAT_0)){
+            return ResponseUtil.custom("百分比金额0%-100%区间");
         }
         if (fixedAmount != null && minMoney != null){
             if (fixedAmount.compareTo(minMoney) > CommonConst.NUMBER_0){
@@ -83,6 +84,7 @@ public class ChargeConfigController {
         if (LoginUtil.checkNull(percentage)){
             platformConfig.setChargeRate(BigDecimal.ZERO);
         }else {
+            percentage = percentage/CommonConst.FLOAT_100;
             platformConfig.setChargeRate(BigDecimal.valueOf(percentage));
         }
         if (LoginUtil.checkNull(fixedAmount)){
