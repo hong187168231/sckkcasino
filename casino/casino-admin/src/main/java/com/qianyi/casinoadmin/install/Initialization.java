@@ -90,7 +90,7 @@ public class Initialization implements CommandLineRunner {
             }else{
                 PlatformConfig platformConfig= platformConfigService.findFirst();
                 String uploadUrl = platformConfig.getUploadUrl();
-                String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file,uploadUrl);
+                String fileUrl = UploadAndDownloadUtil.fileUpload( file,uploadUrl);
                 lunboPic.setUrl(fileUrl);
             }
         } catch (Exception e) {
@@ -118,7 +118,7 @@ public class Initialization implements CommandLineRunner {
             if (file != null){
                 PlatformConfig platformConfig= platformConfigService.findFirst();
                 String uploadUrl = platformConfig.getUploadUrl();
-                 fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file,uploadUrl);
+                 fileUrl = UploadAndDownloadUtil.fileUpload(file,uploadUrl);
             }
             bankInfo.setBankLogo(fileUrl);
         } catch (Exception e) {

@@ -70,7 +70,7 @@ public class PictureController {
         }
         return this.savePicture(file,no,lunboPic, remark);
     }
-    @NoAuthentication
+
     @ApiOperation("新增修改移动端轮播图")
     @PostMapping(value = "/saveAppPicture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增移动端轮播图")
     public ResponseEntity saveAppPicture(@RequestPart(value = "file", required = false) MultipartFile file,@RequestParam(value = "序号1-5") Integer no,
@@ -95,7 +95,6 @@ public class PictureController {
             }else{
                 PlatformConfig platformConfig= platformConfigService.findFirst();
                 String uploadUrl = platformConfig.getUploadUrl();
-//                String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file,uploadUrl);
                 String fileUrl = UploadAndDownloadUtil.fileUpload(file,uploadUrl);
                 lunboPic.setUrl(fileUrl);
             }

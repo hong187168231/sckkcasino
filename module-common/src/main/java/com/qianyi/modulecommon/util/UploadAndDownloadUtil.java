@@ -29,25 +29,6 @@ public class UploadAndDownloadUtil {
     /**
      * 图片上传 basePath  PreReadUploadConfig.getBasePath
      */
-    public static String fileUpload(String basePath,MultipartFile file,String uploadUrl) {
-        if (file == null) {
-            return "";
-        }
-        String url="";
-        try {
-            Map<String, Object> params = new HashMap<>();
-            //后面默认casino-admin
-            params.put("bucket", "casino-admin");
-            params.put("file", file);
-            //上传
-            url  = HttpClient4Util.doPost(uploadUrl+urlUpload, params);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
-        return url;
-
-    }
     public static  String  fileUpload(MultipartFile file,String uploadUrl){
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String result = "";
@@ -65,7 +46,9 @@ public class UploadAndDownloadUtil {
             HttpEntity responseEntity = response.getEntity();
             if (responseEntity != null) {
                 // 将响应内容转换为字符串
-                result = EntityUtils.toString(responseEntity, Charset.forName("UTF-8"));
+                JSONObject parse = JSONObject.parseObject(EntityUtils.toString(responseEntity, Charset.forName("UTF-8")));
+                Object data = parse.get("data");
+                result = (String) data;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -80,22 +63,7 @@ public class UploadAndDownloadUtil {
         }
         return result;
     }
-//    public static String fileUpload(MultipartFile file,String uploadUrl) {
-//
-//        JSONObject jsonObject = new JSONObject();
-//        jsonObject.put("file", file);
-//        jsonObject.put("bucket", "casino-admin");
-//        Map<String, Object> headers = new HashMap<>();
-//
-//        headers.put("AUTHORIZATION", request.getHeader(AUTHORIZATION)); //请求头
-//
-//        AddCommentPlatParam param1 = param.convert(AddCommentPlatParam.class);
-//
-//        param1.setFiles(getByte(param.getFile())); //base64转换
-//
-//        return HttpClient4Util.doPost("服务器B的地址" + "/addComment", (JSONObject) JSONObject.toJSON(param1), headers);
-//
-//    }
+
     public static void uploadFiles(byte[] file, String filePath, String fileName) throws Exception {
         File targetFile = new File(filePath);
         if (!targetFile.exists()) {

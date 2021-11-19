@@ -108,7 +108,7 @@ public class BankCardsController {
             if (file != null){
                 PlatformConfig platformConfig= platformConfigService.findFirst();
                 String uploadUrl = platformConfig.getUploadUrl();
-                fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file,uploadUrl);
+                fileUrl = UploadAndDownloadUtil.fileUpload(file,uploadUrl);
             }
             bankInfo.setBankLogo(fileUrl);
         } catch (Exception e) {
