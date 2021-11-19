@@ -42,51 +42,15 @@ public class RebateConfigController {
             @ApiImplicitParam(name = "profit", value = "返佣比例", required = true),
     })
     @PostMapping("/updateProxyRebate")
-    public ResponseEntity updateRegisterSwitch(Integer level, Integer money, BigDecimal profit){
+    public ResponseEntity updateRegisterSwitch(RebateConfig rebateConfig){
         if (DateUtil.verifyTime()){
             return ResponseUtil.custom("0点到1点不能修改该配置");
         }
-        if (LoginUtil.checkNull(level,money,profit)){
+        if (LoginUtil.checkNull(rebateConfig)){
             return ResponseUtil.custom("参数必填");
         }
-        if(level < 1 || level > 8 || money < 0 || profit.compareTo(BigDecimal.ZERO) < 0 || profit.compareTo(BigDecimal.valueOf(30l)) > 0){
-            return ResponseUtil.custom("参数不合法");
-        }
-        RebateConfig rebateConfig = rebateConfigService.findFirst();
-        if (LoginUtil.checkNull(rebateConfig)){
-            rebateConfig = new RebateConfig();
-        }
-        if(level == CommonConst.NUMBER_1){
-            rebateConfig.setFirstMoney(money);
-            rebateConfig.setFirstProfit(profit);
-        }
-        if(level == CommonConst.NUMBER_2){
-            rebateConfig.setSecondMoney(money);
-            rebateConfig.setSecondProfit(profit);
-        }
-        if(level == CommonConst.NUMBER_3){
-            rebateConfig.setThirdMoney(money);
-            rebateConfig.setThirdProfit(profit);
-        }
-        if(level == CommonConst.NUMBER_4){
-            rebateConfig.setFourMoney(money);
-            rebateConfig.setFourProfit(profit);
-        }
-        if(level == CommonConst.NUMBER_5){
-            rebateConfig.setFiveMoney(money);
-            rebateConfig.setFiveProfit(profit);
-        }
-        if(level == CommonConst.NUMBER_6){
-            rebateConfig.setSixMoney(money);
-            rebateConfig.setSixProfit(profit);
-        }
-        if(level == CommonConst.NUMBER_7){
-            rebateConfig.setSevenMoney(money);
-            rebateConfig.setSevenProfit(profit);
-        }
-        if(level == CommonConst.NUMBER_8){
-            rebateConfig.setEightMoney(money);
-            rebateConfig.setEightProfit(profit);
+        if (this.check(rebateConfig)){
+            return ResponseUtil.custom("参数必填");
         }
         if (this.verify(rebateConfig)){
             return ResponseUtil.custom("返佣不能大于30块");
@@ -94,6 +58,11 @@ public class RebateConfigController {
         if (this.verifySize(rebateConfig)){
             return ResponseUtil.custom("低级别值不能大于高级别");
         }
+        RebateConfig config = rebateConfigService.findFirst();
+        if (!LoginUtil.checkNull(rebateConfig)){
+            rebateConfig.setId(config.getId());
+        }
+
         rebateConfigService.save(rebateConfig);
         return ResponseUtil.success();
     }
@@ -144,6 +113,33 @@ public class RebateConfigController {
             return true;
         }
         if (rebateConfig.getSevenProfit().compareTo(rebateConfig.getEightProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getSevenMoney() >= rebateConfig.getEightMoney() ){
+            return true;
+        }
+        return false;
+    }
+    private Boolean check(RebateConfig rebateConfig){
+        if (LoginUtil.checkNull(rebateConfig.getFirstMoney()) || LoginUtil.checkNull(rebateConfig.getFirstProfit())){
+            return true;
+        }
+        if (LoginUtil.checkNull(rebateConfig.getSecondMoney()) || LoginUtil.checkNull(rebateConfig.getSecondProfit())){
+            return true;
+        }
+        if (LoginUtil.checkNull(rebateConfig.getThirdMoney()) || LoginUtil.checkNull(rebateConfig.getThirdProfit())){
+            return true;
+        }
+        if (LoginUtil.checkNull(rebateConfig.getFourMoney()) || LoginUtil.checkNull(rebateConfig.getFourProfit())){
+            return true;
+        }
+        if (LoginUtil.checkNull(rebateConfig.getFiveMoney()) || LoginUtil.checkNull(rebateConfig.getFiveProfit())){
+            return true;
+        }
+        if (LoginUtil.checkNull(rebateConfig.getSixMoney()) || LoginUtil.checkNull(rebateConfig.getSixProfit())){
+            return true;
+        }
+        if (LoginUtil.checkNull(rebateConfig.getSevenMoney()) || LoginUtil.checkNull(rebateConfig.getSevenProfit())){
+            return true;
+        }
+        if (LoginUtil.checkNull(rebateConfig.getEightMoney()) || LoginUtil.checkNull(rebateConfig.getEightProfit())){
             return true;
         }
         return false;
