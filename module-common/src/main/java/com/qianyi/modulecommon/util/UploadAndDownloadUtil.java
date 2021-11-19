@@ -11,12 +11,12 @@ import java.util.UUID;
  */
 public class UploadAndDownloadUtil {
 
-    private static String urlName = "http://127.0.0.1:9700/minio/upload";
-    private static String urlNameBucket = "http://127.0.0.1:9700/minio/createBucket";
+    private static String urlUpload= "/minio/upload";
+    private static String urlNameBucket = "/minio/createBucket";
     /**
      * 图片上传 basePath  PreReadUploadConfig.getBasePath
      */
-    public static String fileUpload(String basePath,MultipartFile file) {
+    public static String fileUpload(String basePath,MultipartFile file,String uploadUrl) {
         if (file == null) {
             return "";
         }
@@ -28,11 +28,10 @@ public class UploadAndDownloadUtil {
             params.put("name", fileName);
             params.put("bucket", fileName);
             params.put("file", file);
-            params.put("bigFileSecret", file);
             //创建bucket
-            HttpClient4Util.doPost(urlNameBucket, params);
+            HttpClient4Util.doPost(uploadUrl+urlNameBucket, params);
             //上传
-            url  = HttpClient4Util.doPost(urlName, params);
+            url  = HttpClient4Util.doPost(uploadUrl+urlUpload, params);
         } catch (Exception e) {
             return "";
         }

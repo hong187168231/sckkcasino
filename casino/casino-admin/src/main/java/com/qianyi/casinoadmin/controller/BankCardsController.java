@@ -1,16 +1,10 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.vo.BankcardsVo;
-import com.qianyi.casinocore.model.BankInfo;
-import com.qianyi.casinocore.model.Bankcards;
-import com.qianyi.casinocore.model.BankcardsDel;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.service.BankInfoService;
-import com.qianyi.casinocore.service.BankcardsDelService;
-import com.qianyi.casinocore.service.BankcardsService;
-import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
@@ -48,6 +42,9 @@ public class BankCardsController {
 
     @Autowired
     private BankcardsDelService bankcardsDelService;
+
+    @Autowired
+    private PlatformConfigService platformConfigService;
     /**
      * 查询所有银行列表
      * @return
@@ -109,7 +106,9 @@ public class BankCardsController {
         try {
             String fileUrl = null;
             if (file != null){
-                fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
+                PlatformConfig platformConfig= platformConfigService.findFirst();
+                String uploadUrl = platformConfig.getUploadUrl();
+                fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file,uploadUrl);
             }
             bankInfo.setBankLogo(fileUrl);
         } catch (Exception e) {

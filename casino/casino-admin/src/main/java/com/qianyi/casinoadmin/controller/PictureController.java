@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.model.LunboPic;
@@ -40,6 +41,9 @@ public class PictureController {
     private PictureService pictureService;
     @Autowired
     private SysUserService sysUserService;
+
+    @Autowired
+    private PlatformConfigService platformConfigService;
 
     private static List PCNo = new ArrayList();
     private static List AppNo = new ArrayList();
@@ -88,8 +92,10 @@ public class PictureController {
         try {
             if(file == null){
                 lunboPic.setUrl(null);
-            }else{//
-                String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file);
+            }else{
+                PlatformConfig platformConfig= platformConfigService.findFirst();
+                String uploadUrl = platformConfig.getUploadUrl();
+                String fileUrl = UploadAndDownloadUtil.fileUpload(CommonUtil.getLocalPicPath(), file,uploadUrl);
                 lunboPic.setUrl(fileUrl);
             }
         } catch (Exception e) {

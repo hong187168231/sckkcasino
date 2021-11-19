@@ -107,6 +107,9 @@ public class PlatformConfig {
     @ApiModelProperty("公司推广邀请码")
     private String companyInviteCode;
 
+    @ApiModelProperty("保存文件、图片服务器地址")
+    private String uploadUrl;
+
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){
         if (this.chargeRate == null){
