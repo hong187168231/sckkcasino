@@ -2,7 +2,7 @@ server:
   port: 9700
 
 minio:
-  endpoint: 192.168.1.15
+  endpoint: 47.243.60.31
   port: 9000
   accessKey: jsadmin
   secretKey: jsadmin1

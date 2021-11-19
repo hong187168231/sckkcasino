@@ -12,11 +12,13 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.UUID;
 
 @RestController
@@ -80,7 +82,12 @@ public class MinioController {
             String[] urlStr = url.split("\\?");
 
             inputStream.close();
-            return ResponseUtil.success(urlStr[0]);
+            if (urlStr == null || url.length() == 0 || ObjectUtils.isEmpty(urlStr[0])) {
+                log.error("urlStr为null");
+                return ResponseUtil.success();
+            }
+            URL path = new URL(urlStr[0]);
+            return ResponseUtil.success(path.getPath());
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseUtil.fail();
