@@ -5,7 +5,6 @@ import com.qianyi.casinocore.model.Notice;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.NoticeService;
 import com.qianyi.casinocore.service.SysUserService;
-import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -14,6 +13,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,6 +44,9 @@ public class NoticeController {
     })
     public ResponseEntity<Notice> saveNotice(String title,String enTitle,Boolean isShelves,String introduction,String url,String enIntroduction){
         Notice notice = new Notice();
+        if (ObjectUtils.isEmpty(title) || ObjectUtils.isEmpty(enTitle) || ObjectUtils.isEmpty(introduction) || ObjectUtils.isEmpty(enIntroduction) || ObjectUtils.isEmpty(url)) {
+            return ResponseUtil.custom("必填项不允许为空");
+        }
         notice.setTitle(title);
         notice.setIntroduction(introduction);
         notice.setIsShelves(isShelves);
@@ -91,6 +95,9 @@ public class NoticeController {
             @ApiImplicitParam(name = "enIntroduction", value = "英文简介", required = true),
     })
     public ResponseEntity updateNotice(String title,String enTitle,Boolean isShelves,String introduction,String url,Long id,String enIntroduction){
+        if (ObjectUtils.isEmpty(title) || ObjectUtils.isEmpty(enTitle) || ObjectUtils.isEmpty(introduction) || ObjectUtils.isEmpty(enIntroduction) || ObjectUtils.isEmpty(url)) {
+            return ResponseUtil.custom("必填项不允许为空");
+        }
         Notice notice = noticeService.findNoticeById(id);
         if (notice == null){
             return ResponseUtil.custom(CommonConst.IDNOTNULL);
