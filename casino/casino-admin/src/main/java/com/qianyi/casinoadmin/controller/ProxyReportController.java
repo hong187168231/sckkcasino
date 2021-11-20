@@ -224,7 +224,7 @@ public class ProxyReportController {
             ProxyReportVo proxyReportVo = null;
             try {
                 if (tier == CommonConst.NUMBER_0){
-                    proxyReportVo = this.assemble(id,id,date);
+                    proxyReportVo = this.assemble(null,id,date,CommonConst.NUMBER_0);
                     List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, id);
                     if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
                         firstUsers.forEach(f ->{
@@ -245,7 +245,7 @@ public class ProxyReportController {
                     }
                     proxyReportVo.setAllPerformance(allPerformances.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
                 }else if (tier == CommonConst.NUMBER_1){
-                    proxyReportVo = this.assemble(id,user.getFirstPid(),date);
+                    proxyReportVo = this.assemble(id,user.getFirstPid(),date,CommonConst.NUMBER_1);
                     List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, id);
                     if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
                         firstUsers.forEach(f ->{
@@ -260,7 +260,7 @@ public class ProxyReportController {
                     }
                     proxyReportVo.setAllPerformance(allPerformances.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
                 }else if (tier == CommonConst.NUMBER_2){
-                    proxyReportVo = this.assemble(id,user.getSecondPid(),date);
+                    proxyReportVo = this.assemble(id,user.getSecondPid(),date,CommonConst.NUMBER_2);
                     List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, id);
                     if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
                         firstUsers.forEach(f ->{
@@ -269,7 +269,7 @@ public class ProxyReportController {
                     }
                     proxyReportVo.setAllPerformance(allPerformances.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
                 }else {
-                    proxyReportVo = this.assemble(id,user.getThirdPid(),date);
+                    proxyReportVo = this.assemble(id,user.getThirdPid(),date,CommonConst.NUMBER_3);
                 }
                 list.add(proxyReportVo);
             }catch (ParseException e){
@@ -284,27 +284,28 @@ public class ProxyReportController {
         GameRecord gameRecord = gameRecordService.findRecordRecordSum(userId, startTime+start, endTime+end);
         allPerformances.add((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
     }
-    private ProxyReportVo assemble(Long id,Long userId,String date) throws ParseException {
+    private ProxyReportVo assemble(Long id,Long userId,String date,Integer tag) throws ParseException {
         String startTime = date+start;
         String endTime  = date+end;
         Date startDate = formatter.parse(startTime);
         Date endDate = formatter.parse(endTime);
         ProxyReportVo proxyReportVo = new ProxyReportVo();
         proxyReportVo.setStaticsTimes(date);
-        GameRecord gameRecord = gameRecordService.findRecordRecordSum(id, startTime, endTime);
-        proxyReportVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
-//        proxyReportVo.setAllPerformance(proxyReportVo.getPerformance());
         List<ShareProfitChange> shareProfitChanges = shareProfitChangeService.findAll(id,userId,startDate, endDate);
-        if (shareProfitChanges == null || shareProfitChanges.size() == CommonConst.NUMBER_0){
-            proxyReportVo.setCommission("0");
-        }else {
-            BigDecimal commission = shareProfitChanges.get(CommonConst.NUMBER_0).getProfitRate();
-            commission = commission.setScale(CommonConst.NUMBER_3, RoundingMode.HALF_UP);
-            proxyReportVo.setCommission(commission + "%");
-        }
         BigDecimal contribution = shareProfitChanges.stream().map(ShareProfitChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         contribution = contribution.setScale(CommonConst.NUMBER_4, RoundingMode.HALF_UP);
         proxyReportVo.setContribution(contribution);
+        if (tag != CommonConst.NUMBER_0){
+            GameRecord gameRecord = gameRecordService.findRecordRecordSum(id, startTime, endTime);
+            proxyReportVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
+            if (shareProfitChanges == null || shareProfitChanges.size() == CommonConst.NUMBER_0){
+                proxyReportVo.setCommission("0");
+            }else {
+                BigDecimal commission = shareProfitChanges.get(CommonConst.NUMBER_0).getProfitRate();
+                commission = commission.setScale(CommonConst.NUMBER_3, RoundingMode.HALF_UP);
+                proxyReportVo.setCommission(commission + "%");
+            }
+        }
         return proxyReportVo;
     }
 
