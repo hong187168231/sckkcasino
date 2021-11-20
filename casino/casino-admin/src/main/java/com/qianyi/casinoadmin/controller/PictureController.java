@@ -71,6 +71,7 @@ public class PictureController {
         return this.savePicture(file,no,lunboPic, remark);
     }
 
+
     @ApiOperation("新增修改移动端轮播图")
     @PostMapping(value = "/saveAppPicture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增移动端轮播图")
     public ResponseEntity saveAppPicture(@RequestPart(value = "file", required = false) MultipartFile file,@RequestParam(value = "序号1-5") Integer no,
@@ -114,7 +115,17 @@ public class PictureController {
     public ResponseEntity<LunboPic> findByBannerList(Integer theShowEnd){
         Specification<LunboPic> condition = this.getCondition(theShowEnd);
         Sort sort=Sort.by("id").ascending();
-        return ResponseUtil.success(pictureService.findByLunboPicList(condition,sort));
+        List<LunboPic> byLunboPicList = pictureService.findByLunboPicList(condition, sort);
+        if(byLunboPicList!=null){
+            PlatformConfig platformConfig= platformConfigService.findFirst();
+            String uploadUrl = platformConfig.getReadUploadUrl();
+            byLunboPicList.forEach(byLunboPicInfo ->{
+                if (byLunboPicInfo.getUrl()!=null ){
+                    byLunboPicInfo.setUrl(uploadUrl+byLunboPicInfo.getUrl());
+                }
+            });
+        }
+        return ResponseUtil.success(byLunboPicList);
     }
 
     private Specification<LunboPic> getCondition(Integer theShowEnd) {

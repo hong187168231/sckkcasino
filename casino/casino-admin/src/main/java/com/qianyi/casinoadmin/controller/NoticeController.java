@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.model.Notice;
 import com.qianyi.casinocore.model.SysUser;
@@ -112,7 +113,6 @@ public class NoticeController {
         return ResponseUtil.success();
     }
 
-
     @ApiOperation("查询所有")
     @GetMapping("/findNotice")
     public ResponseEntity findNotice(){
@@ -129,5 +129,23 @@ public class NoticeController {
             });
         }
         return new ResponseEntity(ResponseCode.SUCCESS, noticeList);
+    }
+
+
+    @ApiOperation("删除公告")
+    @PostMapping(value = "/delNotice",name = "删除公告")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "公告Id", required = true)})
+    public ResponseEntity delNotice(String id){
+        if (LoginUtil.checkNull(id)){
+            ResponseUtil.custom("参数不合法");
+        }
+        Long notId = Long.parseLong(id);
+        Notice noticeInfo = noticeService.findNoticeById(notId);
+        if (LoginUtil.checkNull(noticeInfo)){
+            return ResponseUtil.custom("没有这个公告");
+        }
+        noticeService.deleteById(notId);
+        return ResponseUtil.success();
     }
 }

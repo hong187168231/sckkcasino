@@ -110,6 +110,9 @@ public class PlatformConfig {
     @ApiModelProperty("保存文件、图片服务器地址")
     private String uploadUrl;
 
+    @ApiModelProperty("读取文件、图片服务器地址")
+    private String readUploadUrl;
+
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){
         if (this.chargeRate == null){

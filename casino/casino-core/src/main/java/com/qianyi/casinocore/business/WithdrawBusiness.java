@@ -127,10 +127,7 @@ public class WithdrawBusiness {
         }
         BigDecimal withdrawMoney = userMoney.getMoney();
         if (money.compareTo(withdrawMoney) == 1) {
-            if (new BigDecimal(withdrawMoney.intValue()).compareTo(withdrawMoney) == 0) {//整数不显示小数点
-                withdrawMoney = withdrawMoney.setScale(0);
-            }
-            return ResponseUtil.custom("超过可提金额,最高可提额为",withdrawMoney);
+            return ResponseUtil.custom("超过可提金额,最高可提额为",withdrawMoney.stripTrailingZeros().toPlainString());
         }
         //查询提现金额限制
         PlatformConfig platformConfig = platformConfigService.findFirst();
@@ -138,16 +135,10 @@ public class WithdrawBusiness {
             BigDecimal minMoney = platformConfig.getWithdrawMinMoney();
             BigDecimal maxMoney = platformConfig.getWithdrawMaxMoney();
             if (minMoney != null && money.compareTo(minMoney) == -1) {
-                if (new BigDecimal(minMoney.intValue()).compareTo(minMoney)==0){//整数不显示小数点
-                    minMoney=minMoney.setScale(0);
-                }
-                return ResponseUtil.custom("提现金额小于最低限额,单笔最低限额为" , minMoney);
+                return ResponseUtil.custom("提现金额小于最低限额,单笔最低限额为" , minMoney.stripTrailingZeros().toPlainString());
             }
             if (maxMoney != null && money.compareTo(maxMoney) == 1) {
-                if (new BigDecimal(maxMoney.intValue()).compareTo(maxMoney) == 0) {
-                    maxMoney = maxMoney.setScale(0);
-                }
-                return ResponseUtil.custom("提现金额大于最高限额,单笔最高限额为", maxMoney);
+                return ResponseUtil.custom("提现金额大于最高限额,单笔最高限额为", maxMoney.stripTrailingZeros().toPlainString());
             }
         }
         WithdrawOrder withdrawOrder = getWidrawOrder(money,bankId,userId,bankcards);

@@ -18,7 +18,7 @@ public class UserMoney extends BaseEntity{
     private BigDecimal money=BigDecimal.ZERO;
 
     @ApiModelProperty("打码量")
-    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
+    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
     private BigDecimal codeNum=BigDecimal.ZERO;
 
     @ApiModelProperty("洗码金额")

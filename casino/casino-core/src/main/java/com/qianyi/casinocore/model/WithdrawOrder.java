@@ -1,5 +1,7 @@
 package com.qianyi.casinocore.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -23,6 +25,7 @@ public class WithdrawOrder extends BaseEntity {
 
     @ApiModelProperty(value = "金额")
     @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal withdrawMoney;
 
     @ApiModelProperty(value = "实际提现金额")

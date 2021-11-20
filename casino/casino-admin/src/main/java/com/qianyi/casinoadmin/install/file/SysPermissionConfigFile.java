@@ -220,7 +220,7 @@ public class SysPermissionConfigFile {
         thridPermissions.add(washCodeConfigs);
 
         SysPermission savePCPicture = new SysPermission("编辑PC轮播图", "编辑轮播图", "/picture/savePCPicture", pcBanner.getId(), 3, 0);
-        SysPermission savePicture = new SysPermission("编辑移动端轮播图", "编辑轮播图", "/picture/savePCPicture", mobileBanner.getId(), 3, 0);
+        SysPermission savePicture = new SysPermission("编辑移动端轮播图", "编辑轮播图", "/picture/saveAppPicture", mobileBanner.getId(), 3, 0);
         thridPermissions.add(savePCPicture);
         thridPermissions.add(savePicture);
 
@@ -294,10 +294,17 @@ public class SysPermissionConfigFile {
         SysPermission disabeSysmission = null;
         SysPermission findUserSysmission = null; //会员管理
 
+        SysPermission noticeConfig = null; //公告管理
+        SysPermission deletenotice = null; //删除公告
+
         SysPermission platformConfig = null; //平台设置
         SysPermission findPromotionCode = null; //推广链接查询
         SysPermission updatePromotionCode = null; //修改推广链接码
         SysPermission wmBalancePermission = null; //一键回收用户WM余额
+        SysPermission findUploadUrl = null; //图片服务器地址查询
+        SysPermission updateUploadUrl = null; //修改图片服务器地址
+        SysPermission findReadUploadUrl      = null; //修改图片服务器地址
+        SysPermission updateReadUploadUrl = null; //修改图片服务器地址
 
 
         for (SysPermission sysPermission : sysPermissionList) {
@@ -340,7 +347,24 @@ public class SysPermissionConfigFile {
             if(sysPermission.getName().equals("一键回收用户WM余额")){
                 wmBalancePermission = sysPermission;
             }
-
+            if(sysPermission.getName().equals("图片服务器地址查询")){
+                findUploadUrl = sysPermission;
+            }
+            if(sysPermission.getName().equals("修改图片服务器地址")){
+                updateUploadUrl = sysPermission;
+            }
+            if(sysPermission.getName().equals("公告消息配置")){
+                noticeConfig = sysPermission;
+            }
+            if(sysPermission.getName().equals("删除公告")){
+                deletenotice = sysPermission;
+            }
+            if(sysPermission.getName().equals("访问图片地址配置查询")){
+                findReadUploadUrl = sysPermission;
+            }
+            if(sysPermission.getName().equals("修改访问图片服务器地址")){
+                updateReadUploadUrl = sysPermission;
+            }
         }
 
         List<SysPermission> sysPermList = new ArrayList<>();
@@ -372,6 +396,29 @@ public class SysPermissionConfigFile {
             if(updatePromotionCode == null){
                 updatePromotionCode = new SysPermission("修改推广链接码", "修改推广链接码", "/platformConfig/updatePromotionCode", platformConfig.getId(), 3, 0);
                 sysPermList.add(updatePromotionCode);
+            }
+
+            if(findUploadUrl == null){
+                findUploadUrl = new SysPermission("图片服务器地址查询", "图片服务器地址查询", "/platformConfig/findUploadUrl", platformConfig.getId(), 3, 0);
+                sysPermList.add(findUploadUrl);
+            }
+            if(updateUploadUrl == null){
+                updateUploadUrl = new SysPermission("修改图片服务器地址", "修改图片服务器地址", "/platformConfig/updateUploadUrl", platformConfig.getId(), 3, 0);
+                sysPermList.add(updateUploadUrl);
+            }
+            if(findReadUploadUrl == null){
+                findReadUploadUrl = new SysPermission("访问图片地址配置查询", "访问图片地址配置查询", "/platformConfig/findReadUploadUrl", platformConfig.getId(), 3, 0);
+                sysPermList.add(findReadUploadUrl);
+            }
+            if(updateReadUploadUrl == null){
+                updateReadUploadUrl = new SysPermission("修改访问图片服务器地址", "修改访问图片服务器地址", "/platformConfig/updateReadUploadUrl", platformConfig.getId(), 3, 0);
+                sysPermList.add(updateReadUploadUrl);
+            }
+        }
+        if(noticeConfig != null){
+            if(deletenotice == null){
+                updateUploadUrl = new SysPermission("删除公告", "删除公告", "/notice/delNotice", noticeConfig.getId(), 3, 0);
+                sysPermList.add(updateUploadUrl);
             }
         }
 
