@@ -1,10 +1,12 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.model.Notice;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.NoticeService;
 import com.qianyi.casinocore.service.SysUserService;
+import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -112,7 +114,7 @@ public class NoticeController {
         return ResponseUtil.success();
     }
 
-
+    @NoAuthentication
     @ApiOperation("查询所有")
     @GetMapping("/findNotice")
     public ResponseEntity findNotice(){
@@ -129,5 +131,19 @@ public class NoticeController {
             });
         }
         return new ResponseEntity(ResponseCode.SUCCESS, noticeList);
+    }
+
+    @NoAuthentication
+    @ApiOperation("删除公告")
+    @PostMapping(value = "/delNotice",name = "删除公告")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "公告Id", required = true)})
+    public ResponseEntity delNotice(String id){
+        if (LoginUtil.checkNull(id)){
+            ResponseUtil.custom("参数不合法");
+        }
+        Long actId = Long.parseLong(id);
+        noticeService.deleteById(actId);
+        return ResponseUtil.success();
     }
 }
