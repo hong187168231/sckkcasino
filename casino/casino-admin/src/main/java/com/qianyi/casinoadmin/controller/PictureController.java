@@ -120,7 +120,9 @@ public class PictureController {
             PlatformConfig platformConfig= platformConfigService.findFirst();
             String uploadUrl = platformConfig.getUploadUrl();
             byLunboPicList.forEach(byLunboPicInfo ->{
-                byLunboPicInfo.setUrl(uploadUrl+byLunboPicInfo.getUrl());
+                if (byLunboPicInfo.getUrl()!=null ){
+                    byLunboPicInfo.setUrl(uploadUrl+byLunboPicInfo.getUrl());
+                }
             });
         }
         return ResponseUtil.success(byLunboPicList);

@@ -65,7 +65,10 @@ public class BankCardsController {
             PlatformConfig platformConfig= platformConfigService.findFirst();
             String uploadUrl = platformConfig.getUploadUrl();
             bankInfoServiceAll.forEach(bankInfoServiceInfo ->{
-                bankInfoServiceInfo.setBankLogo(uploadUrl+bankInfoServiceInfo.getBankLogo());
+                if (bankInfoServiceInfo.getBankLogo()!=null ){
+                    bankInfoServiceInfo.setBankLogo(uploadUrl+bankInfoServiceInfo.getBankLogo());
+                }
+
             });
         }
         return ResponseUtil.success(bankInfoServiceAll);
