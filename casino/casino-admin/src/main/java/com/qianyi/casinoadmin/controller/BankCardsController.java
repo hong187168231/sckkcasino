@@ -7,6 +7,7 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.vo.BankcardsVo;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;
+import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -58,7 +59,16 @@ public class BankCardsController {
     public ResponseEntity<BankInfo> bankList(Integer disable) {
         BankInfo bankInfo = new BankInfo();
         bankInfo.setDisable(disable);
-        return ResponseUtil.success(bankInfoService.findAll(bankInfo));
+        List<BankInfo> bankInfoServiceAll = bankInfoService.findAll(bankInfo);
+        if(bankInfoServiceAll != null){
+            //绝对路径
+            PlatformConfig platformConfig= platformConfigService.findFirst();
+            String uploadUrl = platformConfig.getUploadUrl();
+            bankInfoServiceAll.forEach(bankInfoServiceInfo ->{
+                bankInfoServiceInfo.setBankLogo(uploadUrl+bankInfoServiceInfo.getBankLogo());
+            });
+        }
+        return ResponseUtil.success(bankInfoServiceAll);
     }
     /**
      * 新增银行
