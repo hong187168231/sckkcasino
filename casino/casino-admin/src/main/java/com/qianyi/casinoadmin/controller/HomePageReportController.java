@@ -115,7 +115,7 @@ public class HomePageReportController {
                 HomePageReportVo homePageReportVo = this.assemble(startDate,endDate);
                 list.add(this.getHomePageReportVo(homePageReportVo));
             }
-            Sort sort=Sort.by("id").descending();
+            Sort sort=Sort.by("id").ascending();
             List<HomePageReport> homePageReports = homePageReportService.findHomePageReports(sort,DateUtil.getSimpleDateFormat1().format(startDate), DateUtil.getSimpleDateFormat1().format(endDate));
             if (LoginUtil.checkNull(homePageReports) || homePageReports.size() == CommonConst.NUMBER_0){
                 return ResponseUtil.success(list);

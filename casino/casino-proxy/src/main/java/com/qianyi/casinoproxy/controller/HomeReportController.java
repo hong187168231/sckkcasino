@@ -129,7 +129,7 @@ public class HomeReportController {
                 ProxyHomePageReportVo proxyHomePageReportVo = this.assemble();
                 list.add(proxyHomePageReportVo);
             }
-            Sort sort=Sort.by("id").descending();
+            Sort sort=Sort.by("id").ascending();
             List<ProxyHomePageReport> proxyHomePageReports = proxyHomePageReportService.findHomePageReports(proxyHomeReport,DateUtil.getSimpleDateFormat1().format(startDate), DateUtil.getSimpleDateFormat1().format(endDate),sort);
             if (CasinoProxyUtil.checkNull(proxyHomePageReports) || proxyHomePageReports.size() == CommonConst.NUMBER_0) {
                 return ResponseUtil.success(list);
