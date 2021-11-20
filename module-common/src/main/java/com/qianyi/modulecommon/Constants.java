@@ -22,6 +22,13 @@ public class Constants {
     public final static Integer remitType_proxy = 3;//代理上分3
     public final static Integer remitType_activity = 4;//活动赠送4
 
+    //打吗账变类型
+    public final static Integer CODENUMCHANGE_BET = 0;//有效投注 0
+    public final static Integer CODENUMCHANGE_CLEAR = 1;//清0点 1
+    public final static Integer CODENUMCHANGE_CHARGE = 2;//充值2
+    public final static Integer CODENUMCHANGE_MASTERCONTROL = 3;//总控上分3
+    public final static Integer CODENUMCHANGE_PROXY = 4;//代理上分4
+
     //充值订单状态
     public final static Integer chargeOrder_wait = 0;//原始状态，未接单
     public final static Integer chargeOrder_success = 1;//确认成功

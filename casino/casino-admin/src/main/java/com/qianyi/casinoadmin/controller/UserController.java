@@ -500,7 +500,7 @@ public class UserController {
         chargeOrder.setLastModifier(lastModifier);
         chargeOrder.setType(user.getType());
 //        chargeOrder.setRealityAmount(money);
-        return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_masterControl,Constants.remitType_general);
+        return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_masterControl,Constants.remitType_general,Constants.CODENUMCHANGE_MASTERCONTROL);
     }
     /**
      * 后台新增提现订单

@@ -41,7 +41,7 @@ public class CodeNumChange extends BaseEntity {
 	@Column(columnDefinition = "Decimal(10,6) default '0.00'")
 	private BigDecimal clearCodeNum;
 
-	@ApiModelProperty(value = "0:消码，1:清0点，2上分")
+	@ApiModelProperty(value = "0:有效投注，1:清0点，2充值 3总控上分 4代理上分")
 	private Integer type;
 
 	public static CodeNumChange setCodeNumChange(Long userId, GameRecord record, BigDecimal amount, BigDecimal amountBefore, BigDecimal amountAfter) {
