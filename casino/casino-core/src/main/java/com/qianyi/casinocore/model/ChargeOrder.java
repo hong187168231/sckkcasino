@@ -1,5 +1,7 @@
 package com.qianyi.casinocore.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -32,6 +34,7 @@ public class ChargeOrder extends BaseEntity{
 
     @ApiModelProperty(value = "汇款金额")
     @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal chargeAmount;
 
 //    @ApiModelProperty(value = "实际充值金额")

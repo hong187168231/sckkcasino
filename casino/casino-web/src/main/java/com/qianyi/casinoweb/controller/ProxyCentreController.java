@@ -222,6 +222,6 @@ public class ProxyCentreController {
         vo.setAmountBefore(userMoney.getMoney());
         vo.setAmountAfter(userMoney.getMoney().add(shareProfit));
         asyncService.executeAsync(vo);
-        return ResponseUtil.success("成功领取金额" , shareProfit);
+        return ResponseUtil.success("成功领取金额" , shareProfit.stripTrailingZeros().toPlainString());
     }
 }
