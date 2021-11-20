@@ -203,7 +203,7 @@ public class ProxyHomePageReportService {
             if (CommonUtil.setParameter(proxy,proxyUser)){
                 return;
             }
-            List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser,startDate,endDate);
+            List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxy,startDate,endDate);
             proxyHomePageReport.setNewThirdProxys(proxyUserList==null ? CommonConst.NUMBER_0 : proxyUserList.size());
         }catch (Exception ex){
             log.error("统计代理{}新增基层代理失败{}",proxyUser.getUserName(),ex);
@@ -216,7 +216,7 @@ public class ProxyHomePageReportService {
             if (CommonUtil.setParameter(proxy,proxyUser)){
                 return;
             }
-            List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser,startDate,endDate);
+            List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxy,startDate,endDate);
             proxyHomePageReport.setNewSecondProxys(proxyUserList==null ? CommonConst.NUMBER_0 : proxyUserList.size());
         }catch (Exception ex){
             log.error("统计代理{}新增区域代理失败{}",proxyUser.getUserName(),ex);
