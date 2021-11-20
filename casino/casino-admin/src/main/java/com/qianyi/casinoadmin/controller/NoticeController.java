@@ -6,7 +6,6 @@ import com.qianyi.casinocore.model.Notice;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.NoticeService;
 import com.qianyi.casinocore.service.SysUserService;
-import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -141,8 +140,12 @@ public class NoticeController {
         if (LoginUtil.checkNull(id)){
             ResponseUtil.custom("参数不合法");
         }
-        Long actId = Long.parseLong(id);
-        noticeService.deleteById(actId);
+        Long notId = Long.parseLong(id);
+        Notice noticeInfo = noticeService.findNoticeById(notId);
+        if (LoginUtil.checkNull(noticeInfo)){
+            return ResponseUtil.custom("没有这个公告");
+        }
+        noticeService.deleteById(notId);
         return ResponseUtil.success();
     }
 }
