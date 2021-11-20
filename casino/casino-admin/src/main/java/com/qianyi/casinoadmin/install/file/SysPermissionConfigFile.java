@@ -220,7 +220,7 @@ public class SysPermissionConfigFile {
         thridPermissions.add(washCodeConfigs);
 
         SysPermission savePCPicture = new SysPermission("编辑PC轮播图", "编辑轮播图", "/picture/savePCPicture", pcBanner.getId(), 3, 0);
-        SysPermission savePicture = new SysPermission("编辑移动端轮播图", "编辑轮播图", "/picture/savePCPicture", mobileBanner.getId(), 3, 0);
+        SysPermission savePicture = new SysPermission("编辑移动端轮播图", "编辑轮播图", "/picture/saveAppPicture", mobileBanner.getId(), 3, 0);
         thridPermissions.add(savePCPicture);
         thridPermissions.add(savePicture);
 
