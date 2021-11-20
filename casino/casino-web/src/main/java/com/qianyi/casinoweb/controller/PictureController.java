@@ -10,8 +10,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,8 +23,6 @@ public class PictureController {
 
     @Autowired
     PictureService pictureService;
-    @Value("${project.minioUrl}")
-    private String minioUrl;
 
     @ApiOperation("轮播图.返回的URL为相对路径。需加上项目域名访问 ")
     @GetMapping("lunbo")
@@ -39,12 +35,6 @@ public class PictureController {
             type = 1;
         }
         List<LunboPic> list = pictureService.findByTheShowEnd(type);
-        for (LunboPic pic : list) {
-            //动态补齐前部分路径
-            if (!ObjectUtils.isEmpty(pic.getUrl())) {
-                pic.setUrl(minioUrl + pic.getUrl());
-            }
-        }
         return ResponseUtil.success(list);
     }
 }
