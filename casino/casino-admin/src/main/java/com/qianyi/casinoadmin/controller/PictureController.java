@@ -118,7 +118,7 @@ public class PictureController {
         List<LunboPic> byLunboPicList = pictureService.findByLunboPicList(condition, sort);
         if(byLunboPicList!=null){
             PlatformConfig platformConfig= platformConfigService.findFirst();
-            String uploadUrl = platformConfig.getUploadUrl();
+            String uploadUrl = platformConfig.getReadUploadUrl();
             byLunboPicList.forEach(byLunboPicInfo ->{
                 if (byLunboPicInfo.getUrl()!=null ){
                     byLunboPicInfo.setUrl(uploadUrl+byLunboPicInfo.getUrl());

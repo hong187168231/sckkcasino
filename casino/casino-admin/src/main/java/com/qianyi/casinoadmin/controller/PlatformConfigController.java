@@ -315,4 +315,41 @@ public class PlatformConfigController {
         return ResponseUtil.success();
     }
 
+
+
+
+    /**
+     * 读取图片服务器地址查询
+     * @return
+     */
+    @ApiOperation("访问图片服务器地址查询")
+    @GetMapping("/findReadUploadUrl")
+    public ResponseEntity findReadUploadUrl(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        return ResponseUtil.success(platformConfig==null?"":platformConfig.getReadUploadUrl());
+    }
+
+    /**
+     * 修改读取图片服务器地址
+     * @param uploadUrl 图片服务器地址
+     * @return
+     */
+    @ApiOperation("修改访问图片服务器地址")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "uploadUrl", value = "图片服务器地址", required = true),
+    })
+    @PostMapping("/updateReadUploadUrl")
+    public ResponseEntity updateReadUploadUrl(String uploadUrl){
+        if (LoginUtil.checkNull(uploadUrl)){
+            return ResponseUtil.custom("参数错误");
+        }
+        PlatformConfig first = platformConfigService.findFirst();
+        if (LoginUtil.checkNull(first)){
+            first = new PlatformConfig();
+        }
+        first.setReadUploadUrl(uploadUrl);
+        platformConfigService.save(first);
+        return ResponseUtil.success();
+    }
+
 }

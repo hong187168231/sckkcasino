@@ -63,7 +63,7 @@ public class BankCardsController {
         if(bankInfoServiceAll != null){
             //绝对路径
             PlatformConfig platformConfig= platformConfigService.findFirst();
-            String uploadUrl = platformConfig.getUploadUrl();
+            String uploadUrl = platformConfig.getReadUploadUrl();
             bankInfoServiceAll.forEach(bankInfoServiceInfo ->{
                 if (bankInfoServiceInfo.getBankLogo()!=null ){
                     bankInfoServiceInfo.setBankLogo(uploadUrl+bankInfoServiceInfo.getBankLogo());
