@@ -3,6 +3,7 @@ package com.qianyi.casinocore.model;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ public class Order extends BaseEntity {
     @ApiModelProperty("订单号")
     private String no;
     @ApiModelProperty("金额")
+    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
     private BigDecimal money;
     //1.未确认。 2.成功   3.失败
     @ApiModelProperty("1.未确认。 2.成功   3.失败")
