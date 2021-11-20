@@ -73,16 +73,10 @@ public class ChargeBusiness {
             BigDecimal minMoney = platformConfig.getChargeMinMoney();
             BigDecimal maxMoney = platformConfig.getChargeMaxMoney();
             if (minMoney != null && decChargeAmount.compareTo(minMoney) == -1) {
-                if (new BigDecimal(minMoney.intValue()).compareTo(minMoney) == 0) {//整数不显示小数点
-                    minMoney = minMoney.setScale(0);
-                }
-                return ResponseUtil.custom("充值金额小于最低限额,单笔最低限额为",minMoney);
+                return ResponseUtil.custom("充值金额小于最低限额,单笔最低限额为",minMoney.stripTrailingZeros().toPlainString());
             }
             if (maxMoney != null && decChargeAmount.compareTo(maxMoney) == 1) {
-                if (new BigDecimal(maxMoney.intValue()).compareTo(maxMoney) == 0) {
-                    maxMoney = maxMoney.setScale(0);
-                }
-                return ResponseUtil.custom("充值金额大于最高限额,单笔最高限额为", maxMoney);
+                return ResponseUtil.custom("充值金额大于最高限额,单笔最高限额为", maxMoney.stripTrailingZeros().toPlainString());
             }
         }
         ChargeOrder chargeOrder = getChargeOrder(decChargeAmount,remitType,remitterName,bankcardId,userId);
