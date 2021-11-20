@@ -1,6 +1,7 @@
 package com.qianyi.modulecommon.util;
 
 import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -23,6 +24,7 @@ import java.util.UUID;
 /**
  * 文件工具类
  */
+@Slf4j
 public class UploadAndDownloadUtil {
 
     private static String urlUpload= "/minio/upload/casino-admin";
@@ -30,6 +32,8 @@ public class UploadAndDownloadUtil {
      * 图片上传 basePath  PreReadUploadConfig.getBasePath
      */
     public static  String  fileUpload(MultipartFile file,String uploadUrl){
+        log.info("doPost图片上传请求路径{}",uploadUrl+urlUpload);
+        log.info("doPost图片上传请求参数{}",file);
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String result = "";
         try {
@@ -44,9 +48,12 @@ public class UploadAndDownloadUtil {
             httpPost.setEntity(entity);
             HttpResponse response = httpClient.execute(httpPost);// 执行提交
             HttpEntity responseEntity = response.getEntity();
+
             if (responseEntity != null) {
                 // 将响应内容转换为字符串
-                JSONObject parse = JSONObject.parseObject(EntityUtils.toString(responseEntity, Charset.forName("UTF-8")));
+                String  returnContent= EntityUtils.toString(responseEntity, Charset.forName("UTF-8"));
+                log.info("doPost请求图片上传返回参数{}",returnContent);
+                JSONObject parse = JSONObject.parseObject(returnContent);
                 Object data = parse.get("data");
                 result = (String) data;
             }
