@@ -303,6 +303,8 @@ public class SysPermissionConfigFile {
         SysPermission wmBalancePermission = null; //一键回收用户WM余额
         SysPermission findUploadUrl = null; //图片服务器地址查询
         SysPermission updateUploadUrl = null; //修改图片服务器地址
+        SysPermission findReadUploadUrl      = null; //修改图片服务器地址
+        SysPermission updateReadUploadUrl = null; //修改图片服务器地址
 
 
         for (SysPermission sysPermission : sysPermissionList) {
@@ -357,6 +359,12 @@ public class SysPermissionConfigFile {
             if(sysPermission.getName().equals("删除公告")){
                 deletenotice = sysPermission;
             }
+            if(sysPermission.getName().equals("访问图片地址配置查询")){
+                findReadUploadUrl = sysPermission;
+            }
+            if(sysPermission.getName().equals("修改访问图片服务器地址")){
+                updateReadUploadUrl = sysPermission;
+            }
         }
 
         List<SysPermission> sysPermList = new ArrayList<>();
@@ -397,6 +405,14 @@ public class SysPermissionConfigFile {
             if(updateUploadUrl == null){
                 updateUploadUrl = new SysPermission("修改图片服务器地址", "修改图片服务器地址", "/platformConfig/updateUploadUrl", platformConfig.getId(), 3, 0);
                 sysPermList.add(updateUploadUrl);
+            }
+            if(findUploadUrl == null){
+                findUploadUrl = new SysPermission("访问图片地址配置查询", "访问图片地址配置查询", "/platformConfig/findReadUploadUrl", platformConfig.getId(), 3, 0);
+                sysPermList.add(findUploadUrl);
+            }
+            if(updateUploadUrl == null){
+                updateReadUploadUrl = new SysPermission("修改访问图片服务器地址", "修改访问图片服务器地址", "/platformConfig/updateReadUploadUrl", platformConfig.getId(), 3, 0);
+                sysPermList.add(updateReadUploadUrl);
             }
         }
         if(noticeConfig != null){
