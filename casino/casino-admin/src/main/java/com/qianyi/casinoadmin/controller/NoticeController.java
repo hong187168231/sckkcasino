@@ -114,7 +114,6 @@ public class NoticeController {
         return ResponseUtil.success();
     }
 
-    @NoAuthentication
     @ApiOperation("查询所有")
     @GetMapping("/findNotice")
     public ResponseEntity findNotice(){
@@ -133,7 +132,7 @@ public class NoticeController {
         return new ResponseEntity(ResponseCode.SUCCESS, noticeList);
     }
 
-    @NoAuthentication
+
     @ApiOperation("删除公告")
     @PostMapping(value = "/delNotice",name = "删除公告")
     @ApiImplicitParams({
