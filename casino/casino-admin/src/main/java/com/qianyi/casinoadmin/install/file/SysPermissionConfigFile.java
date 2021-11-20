@@ -406,11 +406,11 @@ public class SysPermissionConfigFile {
                 updateUploadUrl = new SysPermission("修改图片服务器地址", "修改图片服务器地址", "/platformConfig/updateUploadUrl", platformConfig.getId(), 3, 0);
                 sysPermList.add(updateUploadUrl);
             }
-            if(findUploadUrl == null){
-                findUploadUrl = new SysPermission("访问图片地址配置查询", "访问图片地址配置查询", "/platformConfig/findReadUploadUrl", platformConfig.getId(), 3, 0);
-                sysPermList.add(findUploadUrl);
+            if(findReadUploadUrl == null){
+                findReadUploadUrl = new SysPermission("访问图片地址配置查询", "访问图片地址配置查询", "/platformConfig/findReadUploadUrl", platformConfig.getId(), 3, 0);
+                sysPermList.add(findReadUploadUrl);
             }
-            if(updateUploadUrl == null){
+            if(updateReadUploadUrl == null){
                 updateReadUploadUrl = new SysPermission("修改访问图片服务器地址", "修改访问图片服务器地址", "/platformConfig/updateReadUploadUrl", platformConfig.getId(), 3, 0);
                 sysPermList.add(updateReadUploadUrl);
             }
