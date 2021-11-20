@@ -114,10 +114,10 @@ public class DownloadStationController {
     @NoAuthentication
     public ResponseEntity<String> getFileServerUrl() {
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        if (platformConfig == null || ObjectUtils.isEmpty(platformConfig.getUploadUrl())) {
+        if (platformConfig == null || ObjectUtils.isEmpty(platformConfig.getReadUploadUrl())) {
             return ResponseUtil.custom("文件服务器地址未配置");
         }
-        String domain = platformConfig.getUploadUrl();
+        String domain = platformConfig.getReadUploadUrl();
         return ResponseUtil.success(domain);
     }
 }
