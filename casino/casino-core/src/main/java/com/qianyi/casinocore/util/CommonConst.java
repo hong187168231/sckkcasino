@@ -99,9 +99,25 @@ public class CommonConst {
 
     public static final String JICENG = "{0}%(基)";
 
+    public static final String STRING_0 = "0";
     public static final String STRING_1 = "1";
     public static final String STRING_2 = "2";
     public static final String STRING_3 = "3";
     public static final String STRING_4 = "4";
+
+
+    public static final String REMARKS = "每万返";
+    public static final String COMPANY = "元";
+
+
+    public static final String REBATE_LEVEL_1 = "L1";
+    public static final String REBATE_LEVEL_2 = "L2";
+    public static final String REBATE_LEVEL_3 = "L3";
+    public static final String REBATE_LEVEL_4 = "L4";
+    public static final String REBATE_LEVEL_5 = "L5";
+    public static final String REBATE_LEVEL_6 = "L6";
+    public static final String REBATE_LEVEL_7 = "L7";
+    public static final String REBATE_LEVEL_8 = "L8";
+    public static final String REBATE_LEVEL = "未达到最低返佣级别";
 
 }
