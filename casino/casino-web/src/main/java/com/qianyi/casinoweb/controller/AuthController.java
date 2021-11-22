@@ -625,7 +625,8 @@ public class AuthController {
         }
         ResponseEntity responseEntity = JSONObject.parseObject(response, ResponseEntity.class);
         if (responseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
-            return responseEntity;
+            log.error("merchant:{},country:{},phone:{},msg：{}", merchant, country, responseEntity.getMsg());
+            return ResponseUtil.custom("获取验证码失败,请重新操作");
         }
         //验证码有效期为5分钟
         redisUtil.set(phoneKey, code, 60 * 5);

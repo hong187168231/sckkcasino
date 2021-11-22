@@ -139,7 +139,8 @@ public class WMController {
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
             if (entity.getErrorCode() != 0) {
-                return ResponseUtil.custom(entity.getErrorMessage());
+                log.error("errorCode={},errorMsg={}", entity.getErrorCode(), entity.getErrorMessage());
+                return ResponseUtil.custom("加点失败,请联系客服");
             }
             //钱转入第三方后本地扣减记录账变
             //扣款
@@ -376,7 +377,8 @@ public class WMController {
         //调用加扣点接口扣减wm余额
         PublicWMApi.ResponseEntity entity = wmApi.changeBalance(account, balance.negate(), null, lang);
         if (entity.getErrorCode() != 0) {
-            return ResponseUtil.custom(entity.getErrorMessage());
+            log.error("errorCode={},errorMsg={}", entity.getErrorCode(), entity.getErrorMessage());
+            return ResponseUtil.custom("回收失败,请联系客服");
         }
         //把额度加回本地
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
