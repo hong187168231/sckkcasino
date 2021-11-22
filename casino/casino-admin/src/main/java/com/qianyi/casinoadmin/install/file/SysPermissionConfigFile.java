@@ -383,7 +383,7 @@ public class SysPermissionConfigFile {
                 sysPermList.add(resetGaKey);
             }
             if(memberMeonyLog == null){
-                memberMeonyLog = new SysPermission("查询会员流水报表", "查询会员流水报表", "userRunningWater/find", systemPermission.getId(), 3, 0);
+                memberMeonyLog = new SysPermission("查询会员流水报表", "查询会员流水报表", "/userRunningWater/find", systemPermission.getId(), 3, 0);
                 sysPermList.add(memberMeonyLog);
             }
         }
