@@ -139,6 +139,7 @@ public class HomeReportController {
                 list.add(vo);
             });
             if (CasinoProxyUtil.checkNull(tag) || tag == CommonConst.NUMBER_1){
+                Collections.reverse(list);
                 return ResponseUtil.success(list);
             }else if (tag == CommonConst.NUMBER_2){
                 Map<String, List<ProxyHomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(ProxyHomePageReportVo::getStaticsWeek));

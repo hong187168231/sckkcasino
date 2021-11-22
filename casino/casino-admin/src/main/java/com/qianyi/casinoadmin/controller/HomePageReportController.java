@@ -125,6 +125,7 @@ public class HomePageReportController {
                 list.add(this.getHomePageReportVo(vo));
             });
             if (LoginUtil.checkNull(tag) || tag == CommonConst.NUMBER_1){
+                Collections.reverse(list);
                 return ResponseUtil.success(list);
             }else if (tag == CommonConst.NUMBER_2){
                 Map<String, List<HomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(HomePageReportVo::getStaticsWeek));
