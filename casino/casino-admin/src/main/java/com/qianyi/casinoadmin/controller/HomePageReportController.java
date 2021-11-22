@@ -115,7 +115,7 @@ public class HomePageReportController {
                 HomePageReportVo homePageReportVo = this.assemble(startDate,endDate);
                 list.add(this.getHomePageReportVo(homePageReportVo));
             }
-            Sort sort=Sort.by("id").ascending();
+            Sort sort=Sort.by("id").descending();
             List<HomePageReport> homePageReports = homePageReportService.findHomePageReports(sort,DateUtil.getSimpleDateFormat1().format(startDate), DateUtil.getSimpleDateFormat1().format(endDate));
             if (LoginUtil.checkNull(homePageReports) || homePageReports.size() == CommonConst.NUMBER_0){
                 return ResponseUtil.success(list);
@@ -143,9 +143,11 @@ public class HomePageReportController {
             log.error("首页报表统计失败",ex);
             return ResponseUtil.custom("查询失败");
         }
+        Collections.reverse(list);
         return ResponseUtil.success(list);
 
     }
+    
     private HomePageReportVo getHomePageReportVo(List<HomePageReportVo> list,String time){
         HomePageReportVo vo = new HomePageReportVo();
         BigDecimal chargeAmount = list.stream().map(HomePageReportVo::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);

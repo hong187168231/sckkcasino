@@ -129,7 +129,7 @@ public class HomeReportController {
                 ProxyHomePageReportVo proxyHomePageReportVo = this.assemble();
                 list.add(proxyHomePageReportVo);
             }
-            Sort sort=Sort.by("id").ascending();
+            Sort sort=Sort.by("id").descending();
             List<ProxyHomePageReport> proxyHomePageReports = proxyHomePageReportService.findHomePageReports(proxyHomeReport,DateUtil.getSimpleDateFormat1().format(startDate), DateUtil.getSimpleDateFormat1().format(endDate),sort);
             if (CasinoProxyUtil.checkNull(proxyHomePageReports) || proxyHomePageReports.size() == CommonConst.NUMBER_0) {
                 return ResponseUtil.success(list);
@@ -157,6 +157,7 @@ public class HomeReportController {
             log.error("首页报表查找走势图失败", ex);
             return ResponseUtil.custom("查询失败");
         }
+        Collections.reverse(list);
         return ResponseUtil.success(list);
     }
     private ProxyHomePageReportVo getHomePageReportVo(List<ProxyHomePageReportVo> list,String time){
