@@ -543,6 +543,7 @@ public class UserController {
             @ApiImplicitParam(name = "id", value = "用户id", required = true),
             @ApiImplicitParam(name = "withdrawMoney", value = "提现金额", required = true),
     })
+    @NoAuthorization
     @GetMapping("/checkoutWithdrawMoney")
     public ResponseEntity checkoutWithdrawMoney(Long id,String withdrawMoney) {
         if (LoginUtil.checkNull(id,withdrawMoney)){
