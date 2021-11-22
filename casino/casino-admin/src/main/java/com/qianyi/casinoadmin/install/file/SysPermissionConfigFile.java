@@ -305,6 +305,7 @@ public class SysPermissionConfigFile {
         SysPermission updateUploadUrl = null; //修改图片服务器地址
         SysPermission findReadUploadUrl      = null; //修改图片服务器地址
         SysPermission updateReadUploadUrl = null; //修改图片服务器地址
+        SysPermission memberMeonyLog = null; //会员资金流水
 
 
         for (SysPermission sysPermission : sysPermissionList) {
@@ -365,6 +366,10 @@ public class SysPermissionConfigFile {
             if(sysPermission.getName().equals("修改访问图片服务器地址")){
                 updateReadUploadUrl = sysPermission;
             }
+            if(sysPermission.getName().equals("查询会员流水报表")){
+                memberMeonyLog = sysPermission;
+            }
+
         }
 
         List<SysPermission> sysPermList = new ArrayList<>();
@@ -376,6 +381,10 @@ public class SysPermissionConfigFile {
             if(resetGaKey == null){
                 resetGaKey = new SysPermission("重置谷歌验证码", "重置谷歌验证码", "/login/resetGaKey", systemPermission.getId(), 3, 0);
                 sysPermList.add(resetGaKey);
+            }
+            if(memberMeonyLog == null){
+                memberMeonyLog = new SysPermission("查询会员流水报表", "查询会员流水报表", "/userRunningWater/find", systemPermission.getId(), 3, 0);
+                sysPermList.add(memberMeonyLog);
             }
         }
         if(findUserSysmission != null){

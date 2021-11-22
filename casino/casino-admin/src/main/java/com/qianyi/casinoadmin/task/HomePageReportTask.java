@@ -86,10 +86,10 @@ public class HomePageReportTask {
                 return;
             }
             BigDecimal chargeAmount = chargeOrders.stream().map(ChargeOrder::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-            BigDecimal serviceCharge = chargeOrders.stream().map(ChargeOrder::getServiceCharge).reduce(BigDecimal.ZERO, BigDecimal::add);
+//            BigDecimal serviceCharge = chargeOrders.stream().map(ChargeOrder::getServiceCharge).reduce(BigDecimal.ZERO, BigDecimal::add);
             homePageReport.setChargeAmount(chargeAmount);
             homePageReport.setChargeNums(chargeOrders.size());
-            homePageReport.setServiceCharge(serviceCharge);
+//            homePageReport.setServiceCharge(serviceCharge);
         }catch (Exception ex){
             log.error("统计充值订单失败",ex);
         }
@@ -105,10 +105,10 @@ public class HomePageReportTask {
                 return;
             }
             BigDecimal withdrawMoney = withdrawOrders.stream().map(WithdrawOrder::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
-            BigDecimal serviceCharge = withdrawOrders.stream().map(WithdrawOrder::getServiceCharge).reduce(BigDecimal.ZERO, BigDecimal::add);
+//            BigDecimal serviceCharge = withdrawOrders.stream().map(WithdrawOrder::getServiceCharge).reduce(BigDecimal.ZERO, BigDecimal::add);
             homePageReport.setWithdrawMoney(withdrawMoney);
             homePageReport.setWithdrawNums(withdrawOrders.size());
-            homePageReport.setServiceCharge(serviceCharge.add(homePageReport.getServiceCharge()));
+//            homePageReport.setServiceCharge(serviceCharge.add(homePageReport.getServiceCharge()));
         }catch (Exception ex){
             log.error("统计提现订单失败",ex);
         }
