@@ -205,8 +205,8 @@ public class WithdrawBusiness {
         withdrawOrder.setSecondProxy(user.getSecondProxy());
         withdrawOrder.setThirdProxy(user.getThirdProxy());
         withdrawOrder.setWithdrawMoney(withdrawMoney);
-        withdrawOrder.setPracticalAmount(withdrawMoney);
-        withdrawOrder.setServiceCharge(BigDecimal.ZERO);
+//        withdrawOrder.setPracticalAmount(withdrawMoney);
+//        withdrawOrder.setServiceCharge(BigDecimal.ZERO);
         withdrawOrder.setBankId(bankId);
         withdrawOrder.setUserId(userId);
         withdrawOrder.setNo(orderService.getOrderNo());
@@ -243,20 +243,20 @@ public class WithdrawBusiness {
         Long userId = withdrawOrder.getUserId();
         BigDecimal money = withdrawOrder.getWithdrawMoney();
         if(status == Constants.WITHDRAW_PASS){//通过提现审核的计算手续费
-            PlatformConfig first = platformConfigService.findFirst();
-            if (first != null){
-                //得到手续费
-                BigDecimal serviceCharge = first.getWithdrawServiceCharge(withdrawOrder.getWithdrawMoney());
-                BigDecimal practicalAmount = withdrawOrder.getWithdrawMoney().subtract(serviceCharge);
-                withdrawOrder.setServiceCharge(serviceCharge);
-                withdrawOrder.setPracticalAmount(practicalAmount);
-            }else {
-                withdrawOrder.setServiceCharge(BigDecimal.ZERO);
-                withdrawOrder.setPracticalAmount(money);
-            }
+//            PlatformConfig first = platformConfigService.findFirst();
+//            if (first != null){
+//                //得到手续费
+//                BigDecimal serviceCharge = first.getWithdrawServiceCharge(withdrawOrder.getWithdrawMoney());
+//                BigDecimal practicalAmount = withdrawOrder.getWithdrawMoney().subtract(serviceCharge);
+//                withdrawOrder.setServiceCharge(serviceCharge);
+//                withdrawOrder.setPracticalAmount(practicalAmount);
+//            }else {
+//                withdrawOrder.setServiceCharge(BigDecimal.ZERO);
+//                withdrawOrder.setPracticalAmount(money);
+//            }
             withdrawOrder.setStatus(status);
             withdrawOrderService.saveOrder(withdrawOrder);
-            log.info("通过提现userId {} 订单号 {} withdrawMoney is {}, practicalAmount is {}",withdrawOrder.getUserId(),withdrawOrder.getNo(),money, withdrawOrder.getPracticalAmount());
+            log.info("通过提现userId {} 订单号 {} withdrawMoney is {}, practicalAmount is {}",withdrawOrder.getUserId(),withdrawOrder.getNo(),money, withdrawOrder.getWithdrawMoney());
             return ResponseUtil.success();
         }
         //对用户数据进行行锁
