@@ -283,13 +283,26 @@ public class LoginController {
     @ApiOperation("绑定谷歌验证码标记")
     @NoAuthorization
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "account", value = "已注册的帐号", required = true)
+            @ApiImplicitParam(name = "account", value = "已注册的帐号", required = true),
+            @ApiImplicitParam(name = "code", value = "验证码", required = true),
     })
     @NoAuthentication
-    public ResponseEntity gaBind(String account) {
+    public ResponseEntity gaBind(String account, Integer code) {
+        if (ObjectUtils.isEmpty(account) || ObjectUtils.isEmpty(code)) {
+            return ResponseUtil.parameterNotNull();
+        }
         SysUser user = sysUserService.findByUserName(account);
         if (user == null) {
             return ResponseUtil.fail();
+        }
+
+        String secret = user.getGaKey();
+        if (LoginUtil.checkNull(secret)) {
+            return ResponseUtil.custom("请先绑定谷歌身份验证器");
+        }
+        boolean checkCode = GoogleAuthUtil.check_code(secret, code);
+        if (!checkCode) {
+            return ResponseUtil.googleAuthNoPass();
         }
 
         if(LoginUtil.checkNull(user.getGaBind()) || !user.getGaBind().equals("2")){
