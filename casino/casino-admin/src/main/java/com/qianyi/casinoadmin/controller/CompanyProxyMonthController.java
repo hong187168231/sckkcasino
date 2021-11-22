@@ -2,9 +2,13 @@ package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.CompanyProxyMonth;
+import com.qianyi.casinocore.model.ProxyRebateConfig;
 import com.qianyi.casinocore.model.ProxyUser;
+import com.qianyi.casinocore.model.RebateConfig;
 import com.qianyi.casinocore.service.CompanyProxyMonthService;
+import com.qianyi.casinocore.service.ProxyRebateConfigService;
 import com.qianyi.casinocore.service.ProxyUserService;
+import com.qianyi.casinocore.service.RebateConfigService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.casinocore.vo.CompanyProxyMonthVo;
@@ -38,6 +42,13 @@ public class CompanyProxyMonthController {
 
     @Autowired
     private ProxyUserService proxyUserService;
+
+    @Autowired
+    private ProxyRebateConfigService proxyRebateConfigService;
+
+    @Autowired
+    private RebateConfigService rebateConfigService;
+
     @ApiOperation("查询代理月结表")
     @GetMapping("/find")
     @ApiImplicitParams({
@@ -68,6 +79,12 @@ public class CompanyProxyMonthController {
             List<ProxyUser> proxyUser = proxyUserService.findProxyUser(proxyUserIds);
             if(proxyUser != null){
                 content.stream().forEach(proxyDetail ->{
+                    //全线返佣比列
+                    String profitRate="— —";
+                    if (!proxyDetail.getProfitRate().equals(CommonConst.STRING_0)){
+                        profitRate=CommonConst.REMARKS+ Double.valueOf(proxyDetail.getProfitRate()).intValue()+CommonConst.COMPANY;
+                    }
+                    proxyDetail.setProfitRate(profitRate);
                     CompanyProxyMonthVo vo = new CompanyProxyMonthVo(proxyDetail);
                     proxyUser.stream().forEach(proxy->{
                         if (proxy.getId().equals(proxyDetail.getUserId())){
@@ -75,6 +92,9 @@ public class CompanyProxyMonthController {
                             vo.setNickName(proxy.getNickName());
                         }
                     });
+                    //返佣级别:根据返佣金额查询当前返佣级别
+                    String profitLevel = queryRebateLevel(vo.getProfitLevel(), vo.getProxyUserId());
+                    vo.setProfitLevel(profitLevel);
                     accountChangeVoList.add(vo);
                 });
                 content.clear();
@@ -84,6 +104,54 @@ public class CompanyProxyMonthController {
         }
         return ResponseUtil.success(pageResult);
     }
+
+    /**
+     * 根据返佣金额查询当前返佣级别
+     * @return
+     */
+    public String queryRebateLevel(String profitAmount,Long proxyUserId){
+        ProxyUser proxyUser = proxyUserService.findById(proxyUserId);
+        //查询父级
+        ProxyRebateConfig proxyRebateConfig = proxyRebateConfigService.findById(proxyUser.getFirstProxy());
+        RebateConfig rebateConfig = rebateConfigService.findFirst();
+        String profit= profitAmount;
+        //L1
+        Integer firstMoney=proxyRebateConfig!=null ?proxyRebateConfig.getFirstMoney() :rebateConfig.getFirstMoney();
+        if(profit.equals(String.valueOf(firstMoney))){
+            return CommonConst.REBATE_LEVEL_1;
+        }
+        Integer secondMoney=proxyRebateConfig!=null ?proxyRebateConfig.getSecondMoney() :rebateConfig.getSecondMoney();
+        if(profit.equals(String.valueOf(secondMoney))){
+            return CommonConst.REBATE_LEVEL_2;
+        }
+        Integer thirdMoney=proxyRebateConfig!=null ?proxyRebateConfig.getThirdMoney() :rebateConfig.getThirdMoney();
+        if(profit.equals(String.valueOf(thirdMoney))){
+            return CommonConst.REBATE_LEVEL_3;
+        }
+
+        Integer fourMoney=proxyRebateConfig!=null ?proxyRebateConfig.getFourMoney() :rebateConfig.getFourMoney();
+        if(profit.equals(String.valueOf(fourMoney))){
+            return CommonConst.REBATE_LEVEL_4;
+        }
+        Integer fiveMoney=proxyRebateConfig!=null ?proxyRebateConfig.getFiveMoney() :rebateConfig.getFiveMoney();
+        if(profit.equals(String.valueOf(fiveMoney))){
+            return CommonConst.REBATE_LEVEL_5;
+        }
+        Integer sixMoney=proxyRebateConfig!=null ?proxyRebateConfig.getSixMoney() :rebateConfig.getSixMoney();
+        if(profit.equals(String.valueOf(sixMoney))){
+            return CommonConst.REBATE_LEVEL_6;
+        }
+        Integer sevenMoney=proxyRebateConfig!=null ?proxyRebateConfig.getSevenMoney() :rebateConfig.getSevenMoney();
+        if(profit.equals(String.valueOf(sevenMoney))){
+            return CommonConst.REBATE_LEVEL_7;
+        }
+        Integer eightMoney=proxyRebateConfig!=null ?proxyRebateConfig.getEightMoney() :rebateConfig.getEightMoney();
+        if(profit.equals(String.valueOf(eightMoney))){
+            return CommonConst.REBATE_LEVEL_8;
+        }
+        return CommonConst.REBATE_LEVEL;
+    }
+
     @ApiOperation("统计代理月结表")
     @GetMapping("/findSum")
     @ApiImplicitParams({
