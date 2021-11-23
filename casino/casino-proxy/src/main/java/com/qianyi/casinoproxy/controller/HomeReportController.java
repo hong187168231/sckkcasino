@@ -197,6 +197,8 @@ public class HomeReportController {
         String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
         ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
         proxyHomePageReport.setStaticsTimes(format);
+        proxyHomePageReport.setStaticsWeek(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4)+CommonConst.UNDERLINE_SYMBOL+DateUtil.getWeek(format));
+        proxyHomePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
         Long authId = CasinoProxyUtil.getAuthId();
         ProxyUser byId = proxyUserService.findById(authId);
         String startTime = format + start;
