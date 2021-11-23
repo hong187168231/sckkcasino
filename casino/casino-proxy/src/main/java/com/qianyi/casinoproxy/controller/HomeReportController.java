@@ -86,8 +86,8 @@ public class HomeReportController {
             proxyHomePageReportVo.setWithdrawNums(withdrawNums + proxyHomePageReportVo.getWithdrawNums());
             proxyHomePageReportVo.setActiveUsers(activeUsers + proxyHomePageReportVo.getActiveUsers());
             proxyHomePageReportVo.setNewUsers(newUsers + proxyHomePageReportVo.getNewUsers());
-            proxyHomePageReportVo.setNewUsers(newThirdProxys + proxyHomePageReportVo.getNewThirdProxys());
-            proxyHomePageReportVo.setNewUsers(newSecondProxys + proxyHomePageReportVo.getNewSecondProxys());
+            proxyHomePageReportVo.setNewThirdProxys(newThirdProxys + proxyHomePageReportVo.getNewThirdProxys());
+            proxyHomePageReportVo.setNewSecondProxys(newSecondProxys + proxyHomePageReportVo.getNewSecondProxys());
             CompanyProxyDetail companyProxyDetail = new CompanyProxyDetail();
             companyProxyDetail.setUserId(CasinoProxyUtil.getAuthId());
             this.findCompanyProxyDetails(companyProxyDetail,startTime,endTime,proxyHomePageReportVo);
