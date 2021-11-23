@@ -32,7 +32,7 @@ public class ShareprofitItemService {
 
     public void processItem(ShareProfitBO shareProfitBO, GameRecord record, List<ProxyDayReport> proxyDayReportList, List<ProxyReport> proxyReportList, List<User> userList, List<UserMoney> userMoneyList, List<ShareProfitChange> shareProfitChangeList){
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(shareProfitBO.getUserId());
-        User user = userService.findUserByIdUseLock(shareProfitBO.getUserId());
+        User user = userService.findUserByIdUseLock(record.getUserId());
         if(userMoney==null)return;
         //明细入库
         ShareProfitChange shareProfitChange = processProfitDetail(shareProfitBO,userMoney,record);
@@ -66,7 +66,7 @@ public class ShareprofitItemService {
         shareProfitChange.setType(ShareProfitConstant.SHARE_PROFIT_TYPE);
         shareProfitChange.setFromUserId(record.getUserId());
         shareProfitChange.setProfitRate(shareProfitBO.getCommission());
-        shareProfitChange.setAccount(shareProfitBO.getAccount());
+//        shareProfitChange.setAccount(shareProfitBO.getAccount());
         shareProfitChange.setParentLevel(shareProfitBO.getParentLevel());
         shareProfitChange.setValidbet(shareProfitBO.getBetAmount());
         log.info("shareProfitBO:{}",shareProfitBO);
