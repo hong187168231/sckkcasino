@@ -75,20 +75,14 @@ public class UserService {
         return userRepository.findAll(condition, pageable);
     }
 
-    /**
-     * 根据注册ip用户列表查询
-     *
-     * @param user
-     * @return
-     */
-    public List<User> findUserList(User user) {
-        Specification<User> condition = this.getCondition(user,null,null);
-        return userRepository.findAll(condition);
-    }
-
     public List<User> findUserList(User user,Date startDate,Date endDate) {
         Specification<User> condition = this.getCondition(user,startDate,endDate);
         return userRepository.findAll(condition);
+    }
+
+    public Long findUserCount(User user,Date startDate,Date endDate) {
+        Specification<User> condition = this.getCondition(user,startDate,endDate);
+        return userRepository.count(condition);
     }
     /**
      * 查询条件拼接，灵活添加条件
