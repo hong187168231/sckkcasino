@@ -1,4 +1,4 @@
-package com.qianyi.casinoreport.business;
+package com.qianyi.casinoreport.business.company;
 
 import com.qianyi.casinocore.model.ProxyRebateConfig;
 import com.qianyi.casinocore.model.RebateConfig;
