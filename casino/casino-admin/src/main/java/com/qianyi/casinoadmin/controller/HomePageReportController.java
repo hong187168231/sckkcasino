@@ -6,7 +6,8 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.HomePageReportVo;
 import com.qianyi.casinoadmin.model.HomePageReport;
 import com.qianyi.casinocore.model.CompanyProxyDetail;
-import com.qianyi.casinocore.service.CompanyProxyDetailService;
+import com.qianyi.casinocore.model.CompanyProxyMonth;
+import com.qianyi.casinocore.service.CompanyProxyMonthService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -46,7 +47,7 @@ public class HomePageReportController {
     public final static String end = " 23:59:59";
 
     @Autowired
-    private CompanyProxyDetailService companyProxyDetailService;
+    private CompanyProxyMonthService companyProxyMonthService;
     @ApiOperation("查询首页报表")
     @GetMapping("/find")
     @ApiImplicitParams({
@@ -89,7 +90,7 @@ public class HomePageReportController {
             homePageReportVo.setWithdrawNums(withdrawNums + homePageReportVo.getWithdrawNums());
             homePageReportVo.setActiveUsers(activeUsers + homePageReportVo.getActiveUsers());
             homePageReportVo.setNewUsers(newUsers + homePageReportVo.getNewUsers());
-            this.findCompanyProxyDetails(new CompanyProxyDetail(),startTime,endTime,homePageReportVo);
+            this.findCompanyProxyDetails(new CompanyProxyMonth(),startTime,endTime,homePageReportVo);
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
             return ResponseUtil.custom("查询失败");
@@ -170,13 +171,14 @@ public class HomePageReportController {
         return vo;
     }
 
-    private void findCompanyProxyDetails(CompanyProxyDetail companyProxyDetail, String startTime, String endTime, HomePageReportVo homePageReportVo){
-        List<CompanyProxyDetail> companyProxyDetails = companyProxyDetailService.findCompanyProxyDetails(companyProxyDetail, startTime, endTime);
-        if (LoginUtil.checkNull(companyProxyDetails) || companyProxyDetails.size() == CommonConst.NUMBER_0){
+    private void findCompanyProxyDetails(CompanyProxyMonth companyProxyMonth, String startTime, String endTime, HomePageReportVo homePageReportVo){
+        List<CompanyProxyMonth> companyProxyMonths = companyProxyMonthService.findCompanyProxyMonths(companyProxyMonth, startTime, endTime);
+        if (LoginUtil.checkNull(companyProxyMonths) || companyProxyMonths.size() == CommonConst.NUMBER_0){
             homePageReportVo.setProxyProfit(BigDecimal.ZERO);
             return;
         }
-        BigDecimal profitAmount = companyProxyDetails.stream().map(CompanyProxyDetail::getProfitAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        companyProxyMonths = companyProxyMonths.stream().filter(companyProxy -> !companyProxy.getStaticsTimes().equals(homePageReportVo.getStaticsMonth())).collect(Collectors.toList());
+        BigDecimal profitAmount = companyProxyMonths.stream().map(CompanyProxyMonth::getProfitAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         homePageReportVo.setProxyProfit(profitAmount);
     }
 
