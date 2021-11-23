@@ -500,7 +500,7 @@ public class UserController {
         chargeOrder.setLastModifier(lastModifier);
         chargeOrder.setType(user.getType());
 //        chargeOrder.setRealityAmount(money);
-        return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_masterControl,Constants.remitType_general);
+        return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_masterControl,Constants.remitType_general,Constants.CODENUMCHANGE_MASTERCONTROL);
     }
     /**
      * 后台新增提现订单
@@ -543,6 +543,7 @@ public class UserController {
             @ApiImplicitParam(name = "id", value = "用户id", required = true),
             @ApiImplicitParam(name = "withdrawMoney", value = "提现金额", required = true),
     })
+    @NoAuthorization
     @GetMapping("/checkoutWithdrawMoney")
     public ResponseEntity checkoutWithdrawMoney(Long id,String withdrawMoney) {
         if (LoginUtil.checkNull(id,withdrawMoney)){

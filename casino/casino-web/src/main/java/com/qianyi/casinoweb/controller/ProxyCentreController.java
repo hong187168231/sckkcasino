@@ -157,7 +157,7 @@ public class ProxyCentreController {
         for (User user : users) {
             boolean flag = true;
             for (ShareProfitChange shareProfit : directList) {
-                if (user.getId() == shareProfit.getFromUserId()) {
+                if (user.getId().equals(shareProfit.getFromUserId())) {
                     flag = false;
                     ProxyCentreVo.ShareProfit share = new ProxyCentreVo.ShareProfit();
                     share.setUserId(shareProfit.getFromUserId());

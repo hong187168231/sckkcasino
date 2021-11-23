@@ -135,11 +135,12 @@ public class WMController {
             String orderNo = orderService.getOrderNo();
             PublicWMApi.ResponseEntity entity = wmApi.changeBalance(third.getAccount(), userCenterMoney, orderNo, lang);
             if (entity == null) {
-                log.error("进游戏加扣点失败");
+                log.error("userId:{},进游戏加扣点失败",third.getUserId());
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
             if (entity.getErrorCode() != 0) {
-                return ResponseUtil.custom(entity.getErrorMessage());
+                log.error("userId:{},errorCode={},errorMsg={}",third.getUserId(), entity.getErrorCode(), entity.getErrorMessage());
+                return ResponseUtil.custom("加点失败,请联系客服");
             }
             //钱转入第三方后本地扣减记录账变
             //扣款
@@ -172,7 +173,7 @@ public class WMController {
         //获取进游戏地址
         String url = getOpenGameUrl(request, third, mode, lang,platformConfig);
         if (CommonUtil.checkNull(url)) {
-            log.error("进游戏失败");
+            log.error("userId:{},进游戏失败",third.getUserId());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         return ResponseUtil.success(url);
@@ -273,13 +274,13 @@ public class WMController {
         try {
             BigDecimal balance = wmApi.getBalance(third.getAccount(), lang);
             if (balance == null) {
-                log.error("获取用户WM余额为null");
+                log.error("userId:{},获取用户WM余额为null",authId);
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
             return ResponseUtil.success(balance);
         } catch (Exception e) {
             e.printStackTrace();
-            log.error("获取用户WM余额失败{}", e.getMessage());
+            log.error("userId:{},获取用户WM余额失败{}",authId, e.getMessage());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
     }
@@ -303,14 +304,14 @@ public class WMController {
         try {
             BigDecimal balance = wmApi.getBalance(account, lang);
             if (balance == null) {
-                log.error("获取用户WM余额为null");
+                log.error("account:{},获取用户WM余额为null",account);
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
             log.info("WM余额查询成功:account={},lang={},balance", account, lang, balance);
             return ResponseUtil.success(balance);
         } catch (Exception e) {
             e.printStackTrace();
-            log.error("获取用户WM余额失败{}", e.getMessage());
+            log.error("account:{},获取用户WM余额失败{}",account, e.getMessage());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
     }
@@ -354,7 +355,7 @@ public class WMController {
         //先退出游戏
         Boolean aBoolean = wmApi.logoutGame(account, lang);
         if (!aBoolean) {
-            log.error("退出游戏失败");
+            log.error("userId:{},退出游戏失败",userId);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         //查询用户在wm的余额
@@ -362,11 +363,11 @@ public class WMController {
         try {
             balance = wmApi.getBalance(account, lang);
             if (balance == null) {
-                log.error("获取用户WM余额为null");
+                log.error("userId:{},获取用户WM余额为null",userId);
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
         } catch (Exception e) {
-            log.error("获取用户WM余额失败{}", e.getMessage());
+            log.error("userId:{},获取用户WM余额失败{}",userId, e.getMessage());
             e.printStackTrace();
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
@@ -376,7 +377,8 @@ public class WMController {
         //调用加扣点接口扣减wm余额
         PublicWMApi.ResponseEntity entity = wmApi.changeBalance(account, balance.negate(), null, lang);
         if (entity.getErrorCode() != 0) {
-            return ResponseUtil.custom(entity.getErrorMessage());
+            log.error("userId:{},errorCode={},errorMsg={}",userId, entity.getErrorCode(), entity.getErrorMessage());
+            return ResponseUtil.custom("回收失败,请联系客服");
         }
         //把额度加回本地
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);

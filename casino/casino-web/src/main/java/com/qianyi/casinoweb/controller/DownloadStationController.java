@@ -97,7 +97,6 @@ public class DownloadStationController {
         return ResponseUtil.success(domain);
     }
 
-
     @GetMapping("getSpreadUrl")
     @ApiOperation("推广域名")
     @NoAuthentication
@@ -107,6 +106,18 @@ public class DownloadStationController {
             return ResponseUtil.custom("网站推广域名未配置,请联系客服");
         }
         String domain = platformConfig.getProxyConfiguration();
+        return ResponseUtil.success(domain);
+    }
+
+    @GetMapping("getFileServerUrl")
+    @ApiOperation("获取文件服务器地址")
+    @NoAuthentication
+    public ResponseEntity<String> getFileServerUrl() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig == null || ObjectUtils.isEmpty(platformConfig.getReadUploadUrl())) {
+            return ResponseUtil.custom("文件服务器地址未配置");
+        }
+        String domain = platformConfig.getReadUploadUrl();
         return ResponseUtil.success(domain);
     }
 }

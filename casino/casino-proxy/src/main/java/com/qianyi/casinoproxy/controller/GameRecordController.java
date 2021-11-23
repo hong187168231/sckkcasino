@@ -11,6 +11,7 @@ import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
+import com.qianyi.modulecommon.util.DateUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -20,10 +21,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,9 +60,14 @@ public class GameRecordController {
             @ApiImplicitParam(name = "gname", value = "游戏名称", required = false),
             @ApiImplicitParam(name = "gid", value = "游戏类型", required = false),
             @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+            @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+            @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
     })
     public ResponseEntity<GameRecordVo> findGameRecordPage(Integer pageSize, Integer pageCode, String user, String betId,
-                                                         String gname,Integer gid,String account){
+                                                         String gname,Integer gid,String account,Integer tag,
+                                                           @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+                                                           @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         Sort sort = Sort.by("id").descending();
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         GameRecord game = new GameRecord();
@@ -76,7 +85,18 @@ public class GameRecordController {
             }
             game.setUserId( byAccount.getId());
         }
-        Page<GameRecord> gameRecordPage = gameRecordService.findGameRecordPage(game, pageable);
+        Page<GameRecord> gameRecordPage;
+        if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
+            String startTime = DateUtil.getSimpleDateFormat().format(startDate);
+            String endTime = DateUtil.getSimpleDateFormat().format(endDate);
+            if (CasinoProxyUtil.checkNull(tag) || tag == CommonConst.NUMBER_0){
+                gameRecordPage = gameRecordService.findGameRecordPage(game, pageable,startTime,endTime,null,null);
+            }else {
+                gameRecordPage = gameRecordService.findGameRecordPage(game, pageable,null,null,startTime,endTime);
+            }
+        }else {
+            gameRecordPage = gameRecordService.findGameRecordPage(game, pageable,null,null,null,null);
+        }
         PageResultVO<GameRecordVo> pageResultVO =new PageResultVO(gameRecordPage);
         List<GameRecord> content = gameRecordPage.getContent();
         if(content != null && content.size() > 0){

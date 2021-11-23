@@ -40,11 +40,11 @@ public class ChargeOrder extends BaseEntity{
 //    @ApiModelProperty(value = "实际充值金额")
 //    private BigDecimal realityAmount;
 
-    @ApiModelProperty(value = "实际到账金额")
-    private BigDecimal practicalAmount;
+//    @ApiModelProperty(value = "实际到账金额")
+//    private BigDecimal practicalAmount;
 
-    @ApiModelProperty(value = "手续费")
-    private BigDecimal serviceCharge;
+//    @ApiModelProperty(value = "手续费")
+//    private BigDecimal serviceCharge;
 
     @ApiModelProperty(value = "备注")
     private String remark;

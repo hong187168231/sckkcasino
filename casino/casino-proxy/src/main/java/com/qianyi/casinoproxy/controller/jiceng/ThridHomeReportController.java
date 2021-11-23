@@ -123,6 +123,7 @@ public class ThridHomeReportController {
                 list.add(vo);
             });
             if (CasinoProxyUtil.checkNull(tag) || tag == CommonConst.NUMBER_1){
+                Collections.reverse(list);
                 return ResponseUtil.success(list);
             }else if (tag == CommonConst.NUMBER_2){
                 Map<String, List<ProxyHomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(ProxyHomePageReportVo::getStaticsWeek));
@@ -141,6 +142,7 @@ public class ThridHomeReportController {
             log.error("首页报表查找走势图失败", ex);
             return ResponseUtil.custom("查询失败");
         }
+        Collections.reverse(list);
         return ResponseUtil.success(list);
     }
     private ProxyHomePageReportVo getHomePageReportVo(List<ProxyHomePageReportVo> list,String time){

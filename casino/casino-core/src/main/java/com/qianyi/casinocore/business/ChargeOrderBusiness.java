@@ -70,46 +70,46 @@ public class ChargeOrderBusiness {
             order = chargeOrderService.saveOrder(order);
             return ResponseUtil.success(order);
         }
-        return this.saveOrder(order,status,AccountChangeEnum.TOPUP_CODE);
+        return this.saveOrder(order,status,AccountChangeEnum.TOPUP_CODE,Constants.CODENUMCHANGE_CHARGE);
     }
     /**
      * 新增充值订单，直接充钱
      * @param  chargeOrder 充值订单
      */
     @Transactional
-    public ResponseEntity saveOrderSuccess(User user,ChargeOrder chargeOrder,Integer status,Integer remitType) {
+    public ResponseEntity saveOrderSuccess(User user,ChargeOrder chargeOrder,Integer status,Integer remitType,Integer type) {
         chargeOrder.setFirstProxy(user.getFirstProxy());
         chargeOrder.setSecondProxy(user.getSecondProxy());
         chargeOrder.setThirdProxy(user.getThirdProxy());
         chargeOrder.setRemitType(remitType);
-        return this.saveOrder(chargeOrder,status,AccountChangeEnum.ADD_CODE);
+        return this.saveOrder(chargeOrder,status,AccountChangeEnum.ADD_CODE,type);
     }
 
-    private ResponseEntity saveOrder(ChargeOrder chargeOrder,Integer status,AccountChangeEnum changeEnum){
+    private ResponseEntity saveOrder(ChargeOrder chargeOrder,Integer status,AccountChangeEnum changeEnum,Integer type){
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(chargeOrder.getUserId());
         if(userMoney == null){
             return ResponseUtil.custom("用户钱包不存在");
         }
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        BigDecimal serviceCharge = BigDecimal.ZERO;
-        if (platformConfig != null){
-            //得到手续费
-            serviceCharge = platformConfig.getChargeServiceCharge(chargeOrder.getChargeAmount());
-        }
-        //计算余额
-        BigDecimal subtract = chargeOrder.getChargeAmount().subtract(serviceCharge);
-        if (BigDecimal.ZERO.compareTo(subtract) > 0){
-            subtract = BigDecimal.ZERO;
-            serviceCharge = chargeOrder.getChargeAmount();
-        }
-        chargeOrder.setPracticalAmount(subtract);
-        chargeOrder.setServiceCharge(serviceCharge);
+//        BigDecimal serviceCharge = BigDecimal.ZERO;
+//        if (platformConfig != null){
+//            //得到手续费
+//            serviceCharge = platformConfig.getChargeServiceCharge(chargeOrder.getChargeAmount());
+//        }
+//        //计算余额
+//        BigDecimal subtract = chargeOrder.getChargeAmount().subtract(serviceCharge);
+//        if (BigDecimal.ZERO.compareTo(subtract) > 0){
+//            subtract = BigDecimal.ZERO;
+//            serviceCharge = chargeOrder.getChargeAmount();
+//        }
+//        chargeOrder.setPracticalAmount(subtract);
+//        chargeOrder.setServiceCharge(serviceCharge);
         chargeOrder.setStatus(status);
         chargeOrder = chargeOrderService.saveOrder(chargeOrder);
-        userMoney.setMoney(userMoney.getMoney().add(subtract));
+        userMoney.setMoney(userMoney.getMoney().add(chargeOrder.getChargeAmount()));
         //计算打码量 默认2倍
-        BigDecimal codeTimes = (platformConfig == null || platformConfig.getBetRate() == null) ? new BigDecimal(2) : platformConfig.getBetRate();
-        BigDecimal codeNum = subtract.multiply(codeTimes);
+        BigDecimal codeTimes = (platformConfig == null || platformConfig.getBetRate() == null) ? new BigDecimal(CommonConst.NUMBER_2) : platformConfig.getBetRate();
+        BigDecimal codeNum = chargeOrder.getChargeAmount().multiply(codeTimes);
         userMoney.setCodeNum(userMoney.getCodeNum().add(codeNum));
         Integer isFirst = userMoney.getIsFirst() == null ? 0 : userMoney.getIsFirst();
         if (isFirst == 0){
@@ -120,25 +120,25 @@ public class ChargeOrderBusiness {
         RechargeTurnover turnover = getRechargeTurnover(chargeOrder,userMoney, codeNum, codeTimes);
         rechargeTurnoverService.save(turnover);
         //打吗记录
-        CodeNumChange codeNumChange = getCodeNumCharge(userMoney.getUserId(),chargeOrder.getOrderNo(),codeNum,userMoney.getCodeNum().subtract(codeNum),userMoney.getCodeNum());
+        CodeNumChange codeNumChange = getCodeNumCharge(userMoney.getUserId(),chargeOrder.getOrderNo(),codeNum,userMoney.getCodeNum().subtract(codeNum),userMoney.getCodeNum(),type);
         codeNumChangeService.save(codeNumChange);
         log.info("后台上分userId {} 类型 {}订单号 {} chargeAmount is {}, money is {}",userMoney.getUserId(),
-                changeEnum.getCode(),chargeOrder.getOrderNo(),subtract, userMoney.getMoney());
+                changeEnum.getCode(),chargeOrder.getOrderNo(),chargeOrder.getChargeAmount(), userMoney.getMoney());
         //用户账变记录
-        this.saveAccountChang(changeEnum,userMoney.getUserId(),subtract,userMoney.getMoney(),chargeOrder.getOrderNo());
+        this.saveAccountChang(changeEnum,userMoney.getUserId(),chargeOrder.getChargeAmount(),userMoney.getMoney(),chargeOrder.getOrderNo());
         //发送充值消息
         this.sendMessage(userMoney.getUserId(),isFirst,chargeOrder);
         return ResponseUtil.success();
     }
 
-    private CodeNumChange getCodeNumCharge(Long userId, String orderNo, BigDecimal codeNum, BigDecimal subtract, BigDecimal amountAfter) {
+    private CodeNumChange getCodeNumCharge(Long userId, String orderNo, BigDecimal codeNum, BigDecimal subtract, BigDecimal amountAfter,Integer type) {
         CodeNumChange codeNumChange = new CodeNumChange();
         codeNumChange.setUserId(userId);
         codeNumChange.setBetId(orderNo);
         codeNumChange.setAmount(codeNum);
         codeNumChange.setAmountBefore(subtract);
         codeNumChange.setAmountAfter(amountAfter);
-        codeNumChange.setType(2);
+        codeNumChange.setType(type);
         return codeNumChange;
     }
 
@@ -157,7 +157,7 @@ public class ChargeOrderBusiness {
         rechargeTurnover.setCodeNum(codeNum);
         rechargeTurnover.setCodeNums(user.getCodeNum());
         rechargeTurnover.setCodeTimes(codeTimes.floatValue());
-        rechargeTurnover.setOrderMoney(order.getPracticalAmount());
+        rechargeTurnover.setOrderMoney(order.getChargeAmount());
         rechargeTurnover.setOrderId(order.getId());
         rechargeTurnover.setRemitType(order.getRemitType());
         rechargeTurnover.setUserId(order.getUserId());

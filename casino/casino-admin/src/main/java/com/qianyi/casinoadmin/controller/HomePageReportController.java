@@ -125,6 +125,7 @@ public class HomePageReportController {
                 list.add(this.getHomePageReportVo(vo));
             });
             if (LoginUtil.checkNull(tag) || tag == CommonConst.NUMBER_1){
+                Collections.reverse(list);
                 return ResponseUtil.success(list);
             }else if (tag == CommonConst.NUMBER_2){
                 Map<String, List<HomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(HomePageReportVo::getStaticsWeek));
@@ -143,9 +144,11 @@ public class HomePageReportController {
             log.error("首页报表统计失败",ex);
             return ResponseUtil.custom("查询失败");
         }
+        Collections.reverse(list);
         return ResponseUtil.success(list);
 
     }
+    
     private HomePageReportVo getHomePageReportVo(List<HomePageReportVo> list,String time){
         HomePageReportVo vo = new HomePageReportVo();
         BigDecimal chargeAmount = list.stream().map(HomePageReportVo::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -199,7 +202,7 @@ public class HomePageReportController {
         return homePageReportVo;
     }
     private HomePageReportVo getHomePageReportVo(HomePageReportVo homePageReportVo){
-        homePageReportVo.setGrossMargin1(homePageReportVo.getWinLossAmount().subtract(homePageReportVo.getWashCodeAmount()));
+        homePageReportVo.setGrossMargin1(BigDecimal.ZERO.subtract(homePageReportVo.getWinLossAmount()).subtract(homePageReportVo.getWashCodeAmount()));
         homePageReportVo.setGrossMargin2(homePageReportVo.getGrossMargin1().subtract(homePageReportVo.getShareAmount()).subtract(homePageReportVo.getBonusAmount()).add(homePageReportVo.getServiceCharge()));
         homePageReportVo.setGrossMargin3(homePageReportVo.getGrossMargin2().subtract(homePageReportVo.getProxyProfit()));
         return homePageReportVo;
