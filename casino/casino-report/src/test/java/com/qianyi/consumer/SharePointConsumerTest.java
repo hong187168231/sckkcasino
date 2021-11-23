@@ -27,9 +27,18 @@ public class SharePointConsumerTest {
         ShareProfitMqVo shareProfitMqVo = new ShareProfitMqVo();
         shareProfitMqVo.setUserId(4l);
         shareProfitMqVo.setGameRecordId(1l);
-        shareProfitMqVo.setValidbet(BigDecimal.valueOf(600));
+        shareProfitMqVo.setValidbet(BigDecimal.valueOf(20));
         shareProfitMqVo.setBetTime("2021-10-11 13:24:59");
         rabbitTemplate.convertAndSend(RabbitMqConstants.SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,RabbitMqConstants.SHAREPROFIT_DIRECT,shareProfitMqVo,new CorrelationData(UUID.randomUUID().toString()));
+        log.info("success");
+
+
+        ShareProfitMqVo shareProfitMqVo1 = new ShareProfitMqVo();
+        shareProfitMqVo1.setUserId(5l);
+        shareProfitMqVo1.setGameRecordId(2l);
+        shareProfitMqVo1.setValidbet(BigDecimal.valueOf(20));
+        shareProfitMqVo1.setBetTime("2021-10-11 13:24:59");
+        rabbitTemplate.convertAndSend(RabbitMqConstants.SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,RabbitMqConstants.SHAREPROFIT_DIRECT,shareProfitMqVo1,new CorrelationData(UUID.randomUUID().toString()));
         log.info("success");
 
     }

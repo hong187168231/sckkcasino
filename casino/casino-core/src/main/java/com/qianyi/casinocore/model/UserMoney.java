@@ -30,7 +30,7 @@ public class UserMoney extends BaseEntity{
     private BigDecimal freezeMoney = BigDecimal.ZERO;
 
     @ApiModelProperty("分润余额")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(10,6) default '0.000000'")
     private BigDecimal shareProfit = BigDecimal.ZERO;
 
     @ApiModelProperty("是否首充 0 是 1 不是")

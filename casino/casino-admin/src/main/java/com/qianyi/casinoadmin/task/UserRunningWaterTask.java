@@ -51,8 +51,6 @@ public class UserRunningWaterTask {
                 String s = i < CommonConst.NUMBER_10? " 0"+i:" "+i;
                 String startTime = format + s + start;
                 String endTime = format + s + end;
-                System.out.println(startTime);
-                System.out.println(endTime);
                 Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
                 Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
                 this.gameRecord(startTime,endTime,format);

@@ -9,6 +9,8 @@ import java.math.BigDecimal;
 @Data
 public class ShareProfitBO {
 
+    @ApiModelProperty(value = "源用户ID")
+    private Long fromUserId;
     @ApiModelProperty(value = "用户ID")
     private Long userId;
     @ApiModelProperty(value = "投注金额")

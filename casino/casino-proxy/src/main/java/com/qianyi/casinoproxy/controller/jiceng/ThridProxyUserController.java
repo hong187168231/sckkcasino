@@ -175,8 +175,8 @@ public class ThridProxyUserController {
                     });
                     User user = new User();
                     user.setThirdProxy(u.getId());
-                    List<User> userList = userService.findUserList(user);
-                    proxyUserVo.setUsersNum(userList==null ? CommonConst.NUMBER_0 : userList.size());
+                    Long  userCount  = userService.findUserCount(user,null,null);
+                    proxyUserVo.setUsersNum(Math.toIntExact(userCount));
                     userVoList.add(proxyUserVo);
                 });
             }
@@ -198,19 +198,19 @@ public class ThridProxyUserController {
             return ResponseUtil.custom("没有这个代理");
         }
         User user = new User();
-        List<User> userList;
+        Long  userCount;
         if (byId.getProxyRole() == CommonConst.NUMBER_1){
             user.setFirstProxy(id);
-            userList = userService.findUserList(user);
+            userCount  = userService.findUserCount(user,null,null);
 
         }else if(byId.getProxyRole() == CommonConst.NUMBER_2){
             user.setSecondProxy(id);
-            userList = userService.findUserList(user);
+            userCount  = userService.findUserCount(user,null,null);
         }else {
             user.setThirdProxy(id);
-            userList = userService.findUserList(user);
+            userCount  = userService.findUserCount(user,null,null);
         }
-        return ResponseUtil.success(userList==null ? CommonConst.NUMBER_0 : userList.size());
+        return ResponseUtil.success(userCount);
     }
     @ApiOperation("添加代理")
     @ApiImplicitParams({

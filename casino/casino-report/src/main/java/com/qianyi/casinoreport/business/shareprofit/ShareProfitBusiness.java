@@ -74,6 +74,7 @@ public class ShareProfitBusiness {
 
     private ShareProfitBO getShareProfitBO(User user,Long userId,BigDecimal betAmount,BigDecimal commission,Boolean isFirst,String betTime,boolean direct,Integer parentLevel){
         ShareProfitBO shareProfitBO = new ShareProfitBO();
+        shareProfitBO.setFromUserId(user.getId());
         shareProfitBO.setUserId(userId);
         shareProfitBO.setBetAmount(betAmount);
         shareProfitBO.setProfitAmount(betAmount.multiply(commission.divide(BigDecimal.valueOf(100))));
@@ -82,7 +83,6 @@ public class ShareProfitBusiness {
         shareProfitBO.setDirect(direct);
         shareProfitBO.setCommission(commission);
         shareProfitBO.setParentLevel(parentLevel);
-        shareProfitBO.setAccount(user.getAccount());
         log.info("user:{} \\n shareProfitBO{}",user,shareProfitBO);
         return shareProfitBO;
     }

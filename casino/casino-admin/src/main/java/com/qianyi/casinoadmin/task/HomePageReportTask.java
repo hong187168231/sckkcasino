@@ -90,6 +90,7 @@ public class HomePageReportTask {
             homePageReport.setChargeAmount(chargeAmount);
             homePageReport.setChargeNums(chargeOrders.size());
 //            homePageReport.setServiceCharge(serviceCharge);
+            chargeOrders.clear();
         }catch (Exception ex){
             log.error("统计充值订单失败",ex);
         }
@@ -109,6 +110,7 @@ public class HomePageReportTask {
             homePageReport.setWithdrawMoney(withdrawMoney);
             homePageReport.setWithdrawNums(withdrawOrders.size());
 //            homePageReport.setServiceCharge(serviceCharge.add(homePageReport.getServiceCharge()));
+            withdrawOrders.clear();
         }catch (Exception ex){
             log.error("统计提现订单失败",ex);
         }
@@ -133,6 +135,7 @@ public class HomePageReportTask {
             homePageReport.setWinLossAmount(winLoss);
             gameRecords = gameRecords.stream().filter(CommonUtil.distinctByKey(GameRecord::getUser)).collect(Collectors.toList());
             homePageReport.setActiveUsers(gameRecords.size());
+            gameRecords.clear();
         }catch (Exception ex){
             log.error("统计三方游戏注单失败",ex);
         }
@@ -146,6 +149,7 @@ public class HomePageReportTask {
             }
             BigDecimal contribution = shareProfitChanges.stream().map(ShareProfitChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             homePageReport.setShareAmount(contribution);
+            shareProfitChanges.clear();
         }catch (Exception ex){
             log.error("统计人人代佣金失败",ex);
         }
@@ -153,8 +157,8 @@ public class HomePageReportTask {
     public void getNewUsers(Date startDate,Date endDate,HomePageReport homePageReport){
         try {
             User user = new User();
-            List<User> userList = userService.findUserList(user, startDate, endDate);
-            homePageReport.setNewUsers(userList==null ? CommonConst.NUMBER_0 : userList.size());
+            Long userCount = userService.findUserCount(user, startDate, endDate);
+            homePageReport.setNewUsers(Math.toIntExact(userCount));
         }catch (Exception ex){
             log.error("统计新增用户失败",ex);
         }
@@ -175,6 +179,7 @@ public class HomePageReportTask {
             }
             BigDecimal amount = washCodeChanges.stream().map(WashCodeChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             homePageReport.setWashCodeAmount(amount);
+            washCodeChanges.clear();
         }catch (Exception ex){
             log.error("统计洗码金额失败",ex);
         }
