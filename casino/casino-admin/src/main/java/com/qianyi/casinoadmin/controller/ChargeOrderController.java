@@ -74,7 +74,7 @@ public class ChargeOrderController {
             @ApiImplicitParam(name = "status", value = "状态(0未确认 1已确认)", required = false),
             @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
             @ApiImplicitParam(name = "account", value = "会员账号", required = false),
-            @ApiImplicitParam(name = "type", value = "会员类型:0、公司会员，1、渠道会员", required = false),
+            @ApiImplicitParam(name = "type", value = "会员类型:0、公司会员，1、渠道会员 2、官方会员", required = false),
     })
     @GetMapping("/chargeOrderList")
     public ResponseEntity<ChargeOrderVo> chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String orderNo,
