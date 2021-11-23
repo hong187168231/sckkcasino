@@ -184,7 +184,7 @@ public class PublicWMApi {
 //            BigDecimal decimal = new BigDecimal(Float.toString(balance));
 //            return decimal.setScale(2);
             BigDecimal decimal = new BigDecimal(String.valueOf(entity.getResult()));
-            return decimal.setScale(2);
+            return decimal;
         }
         throw new Exception("未获取到信息");
     }
@@ -212,7 +212,7 @@ public class PublicWMApi {
 //            float balance = (float) entity.getResult();
 //            BigDecimal decimal = new BigDecimal(Float.toString(balance));
             BigDecimal decimal = new BigDecimal(String.valueOf(entity.getResult()));
-            return decimal.setScale(2);
+            return decimal;
         }
         throw new Exception("未获取到信息");
     }
