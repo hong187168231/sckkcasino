@@ -1,39 +1,32 @@
-package com.qianyi.casinoreport.business;
+package com.qianyi.casinoreport.business.company;
 
 import com.qianyi.casinocore.model.CompanyProxyDetail;
+import com.qianyi.casinocore.model.CompanyProxyMonth;
 import com.qianyi.casinocore.model.ProxyCommission;
-import com.qianyi.casinocore.model.ProxyRebateConfig;
-import com.qianyi.casinocore.repository.CompanyProxyDetailRepository;
-import com.qianyi.casinocore.service.CompanyProxyDetailService;
-import com.qianyi.casinocore.service.GameRecordService;
-import com.qianyi.casinocore.service.ProxyCommissionService;
-import com.qianyi.casinocore.service.ProxyRebateConfigService;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
 import com.qianyi.casinoreport.vo.CompanyLevelBO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.config.web.servlet.oauth2.resourceserver.OAuth2ResourceServerSecurityMarker;
-import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
 @Service
-public class CompanyProxyDailyBusiness {
+public class CompanyProxyMonthBusiness {
 
     @Autowired
-    private CompanyProxyDetailService companyProxyDetailService;
+    private CompanyProxyMonthService companyProxyMonthService;
 
     @Autowired
     private ProxyCommissionService proxyCommissionService;
@@ -52,16 +45,16 @@ public class CompanyProxyDailyBusiness {
 
     //传入计算当天的时间  yyyy-MM-dd 格式
     @Transactional
-    public void processDailyReport(String dayTime){
+    public void processMonthReport(String dayTime){
         String startTime = getStartTime(dayTime);
         String endTime = getEndTime(dayTime);
-        companyProxyDetailService.deleteByDayTime(startTime.substring(0,10));
+        companyProxyMonthService.deleteAllMonth(getMonthTime(dayTime));
         log.info("processDailyReport start startTime:{} endTime:{}",startTime,endTime);
         List<CompanyOrderAmountVo> companyOrderAmountVoList = gameRecordService.getStatisticsResult(startTime,endTime);
 
-        List<CompanyProxyDetail> firstList= new ArrayList<>();
-        List<CompanyProxyDetail> secondeList= new ArrayList<>();
-        List<CompanyProxyDetail> thirdList= new ArrayList<>();
+        List<CompanyProxyMonth> firstList= new ArrayList<>();
+        List<CompanyProxyMonth> secondeList= new ArrayList<>();
+        List<CompanyProxyMonth> thirdList= new ArrayList<>();
 
         companyOrderAmountVoList.forEach(item->processOrder(item,firstList,secondeList,thirdList));
 
@@ -72,48 +65,47 @@ public class CompanyProxyDailyBusiness {
 
         log.info("firstList size is {}, secondeList size is {}, thirdList size is {}",firstList.size(),secondeList.size(),thirdList.size());
 
-        List<CompanyProxyDetail> secondeCompanyProxyDetail = processSec(secondeList,thirdList,2);
-        List<CompanyProxyDetail> firstCompanyProxyDetail = processSec(firstList,secondeCompanyProxyDetail,1);
+        List<CompanyProxyMonth> secondeCompanyProxyDetail = processSec(secondeList,thirdList,2);
+        List<CompanyProxyMonth> firstCompanyProxyDetail = processSec(firstList,secondeCompanyProxyDetail,1);
 
-        List<CompanyProxyDetail> resultList = Stream.concat(thirdList.stream(),secondeCompanyProxyDetail.stream()).collect(Collectors.toList());
+        List<CompanyProxyMonth> resultList = Stream.concat(thirdList.stream(),secondeCompanyProxyDetail.stream()).collect(Collectors.toList());
         resultList.addAll(firstCompanyProxyDetail);
 
         log.info("save all proxyDetail data");
         log.info("resultList:{}",resultList);
-        companyProxyDetailService.saveAll(resultList);
+//        companyProxyDetailService.saveAll(resultList);
+        companyProxyMonthService.saveAll(resultList);
         log.info("save all proxyDetail data finish");
 
-        log.info("start process month report");
-        companyProxyMonthBusiness.processCompanyMonth(dayTime);
-        log.info("start process month report finish");
     }
 
-    private List<CompanyProxyDetail> processSec(List<CompanyProxyDetail> firstList,List<CompanyProxyDetail> secList,int level) {
-        List<CompanyProxyDetail> companyProxyDetailList = new ArrayList<>();
-        Map<Long,List<CompanyProxyDetail>> groupSec = firstList.stream().collect(Collectors.groupingBy(CompanyProxyDetail::getUserId));
-        List<CompanyProxyDetail> subThird = new ArrayList<>();
+    private List<CompanyProxyMonth> processSec(List<CompanyProxyMonth> firstList,List<CompanyProxyMonth> secList,int level) {
+        List<CompanyProxyMonth> companyProxyDetailList = new ArrayList<>();
+        Map<Long,List<CompanyProxyMonth>> groupSec = firstList.stream().collect(Collectors.groupingBy(CompanyProxyMonth::getUserId));
+        List<CompanyProxyMonth> subThird = new ArrayList<>();
         for (Long userId : groupSec.keySet()) {
-            List<CompanyProxyDetail> subList = groupSec.get(userId);
+            List<CompanyProxyMonth> subList = groupSec.get(userId);
             if(level==2)
                 subThird = secList.stream().filter(x->x.getSecondProxy()==userId).collect(Collectors.toList());
             else
                 subThird = secList.stream().filter(x->x.getFirstProxy()==userId).collect(Collectors.toList());
 
-            CompanyProxyDetail secondeItem = processfirst(subList,subThird);
+            CompanyProxyMonth secondeItem = processfirst(subList,subThird);
             companyProxyDetailList.add(secondeItem);
         }
 
         return companyProxyDetailList;
     }
 
-    private CompanyProxyDetail processfirst(List<CompanyProxyDetail> firstList,List<CompanyProxyDetail> subList) {
+    private CompanyProxyMonth processfirst(List<CompanyProxyMonth> firstList,List<CompanyProxyMonth> subList) {
         BigDecimal groupBetAmount = firstList.stream().map(x->x.getGroupBetAmount()).reduce(BigDecimal.ZERO,BigDecimal::add);
         BigDecimal profitAmount = firstList.stream().map(x->x.getProfitAmount()).reduce(BigDecimal.ZERO,BigDecimal::add);
-        BigDecimal groupTotalProfit = subList.stream().map(x->x.getProfitAmount()).reduce(BigDecimal.ZERO,BigDecimal::add);
+        BigDecimal groupTotalProfit = subList.stream().map(x->x.getProfitAmount().add(x.getGroupTotalprofit())).reduce(BigDecimal.ZERO,BigDecimal::add);
 
-        CompanyProxyDetail item = firstList.get(0);
 
-        CompanyProxyDetail actItem = (CompanyProxyDetail) item.clone();
+        CompanyProxyMonth item = firstList.get(0);
+
+        CompanyProxyMonth actItem = (CompanyProxyMonth) item.clone();
         actItem.setGroupBetAmount(groupBetAmount);
         actItem.setProfitAmount(profitAmount);
         actItem.setGroupTotalprofit(groupTotalProfit);
@@ -128,7 +120,7 @@ public class CompanyProxyDailyBusiness {
      * @param secondeList
      * @param thirdList
      */
-    public void processOrder(CompanyOrderAmountVo companyOrderAmountVo,List<CompanyProxyDetail> firstList,List<CompanyProxyDetail> secondeList,List<CompanyProxyDetail> thirdList){
+    public void processOrder(CompanyOrderAmountVo companyOrderAmountVo,List<CompanyProxyMonth> firstList,List<CompanyProxyMonth> secondeList,List<CompanyProxyMonth> thirdList){
         CompanyLevelBO companyLevelBO = companyLevelProcessBusiness.getLevelData(new BigDecimal(companyOrderAmountVo.getValidbet()));
         ProxyCommission proxyCommission = proxyCommissionService.findByProxyUserId(companyOrderAmountVo.getThirdProxy());
 
@@ -141,10 +133,10 @@ public class CompanyProxyDailyBusiness {
         thirdList.add(calculateDetail(companyLevelBO,companyOrderAmountVo,companyOrderAmountVo.getThirdProxy(),proxyCommission.getThirdCommission(),3));
     }
 
-    public CompanyProxyDetail calculateDetail(CompanyLevelBO companyLevelBO,CompanyOrderAmountVo companyOrderAmountVo,Long userid,BigDecimal profitRate,Integer proxyType){
+    public CompanyProxyMonth calculateDetail(CompanyLevelBO companyLevelBO,CompanyOrderAmountVo companyOrderAmountVo,Long userid,BigDecimal profitRate,Integer proxyType){
         log.info("companyLevelBO:{}",companyLevelBO);
         BigDecimal totalAmount = companyLevelBO.getProfitAmount().multiply(BigDecimal.valueOf(companyLevelBO.getProfitActTimes()));
-        CompanyProxyDetail companyProxyDetail= CompanyProxyDetail.builder()
+        CompanyProxyMonth companyProxyMonth= CompanyProxyMonth.builder()
                 .benefitRate(profitRate)
                 .firstProxy(companyOrderAmountVo.getFirstProxy())
                 .secondProxy(companyOrderAmountVo.getSecondProxy())
@@ -158,18 +150,42 @@ public class CompanyProxyDailyBusiness {
                 .profitAmount(totalAmount.multiply(profitRate))
                 .groupTotalprofit(BigDecimal.ZERO)
                 .settleStatus(0)
-                .staticsTimes(companyOrderAmountVo.getBetTime().substring(0,10))
-                .betTime(LocalDateTime.parse(companyOrderAmountVo.getBetTime().replace(' ','T')))
+                .staticsTimes(companyOrderAmountVo.getBetTime().substring(0,7))
+//                .betTime(LocalDateTime.parse(companyOrderAmountVo.getBetTime().replace(' ','T')))
                 .build();
-        log.info("companyProxyDetail:{}",companyProxyDetail);
-        return companyProxyDetail;
+        log.info("companyProxyMonth:{}",companyProxyMonth);
+        return companyProxyMonth;
     }
 
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    //传入计算当天的时间  yyyy-MM-dd 格式
+//    @Transactional
+//    public void processCompanyMonth(String dayTime){
+//        String starTime = getStartTime(dayTime);
+//        String endTime = getEndTime(dayTime);
+//
+//        //删除当月的数据
+//        companyProxyMonthService.deleteAllMonth(getMonthTime(dayTime));
+//        //统计当月的数据
+//        List<CompanyProxyMonth> companyProxyMonthList = companyProxyMonthService.queryMonthByDay(starTime,endTime);
+//        //插入当月的数据
+//        companyProxyMonthService.saveAll(companyProxyMonthList);
+//    }
+
+    public String getMonthTime(String dayTime){
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime localtime = LocalDateTime.parse(dayTime+"T00:00:00");
+        String strLocalTime = df.format(localtime.plusDays(-1));
+        return strLocalTime.substring(0,7);
+    }
 
     public String getStartTime(String dayTime){
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime startTime = LocalDateTime.parse(dayTime+"T00:00:00");
-        return df.format(startTime.plusDays(-1));
+        startTime = startTime.plusDays(-1).with(TemporalAdjusters.firstDayOfMonth());
+        return df.format(startTime);
     }
 
     public String getEndTime(String dayTime){
@@ -178,6 +194,4 @@ public class CompanyProxyDailyBusiness {
         endTime=endTime.plusSeconds(-1);
         return df.format(endTime);
     }
-
-
 }

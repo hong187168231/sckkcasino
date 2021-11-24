@@ -220,7 +220,7 @@ public class ProxyHomePageReportService {
                 return;
             }
             Long  proxyUserCount = proxyUserService.findProxyUserCount(proxy,startDate,endDate);
-            proxyHomePageReport.setNewThirdProxys(Math.toIntExact(proxyUserCount));
+            proxyHomePageReport.setNewSecondProxys(Math.toIntExact(proxyUserCount));
         }catch (Exception ex){
             log.error("统计代理{}新增区域代理失败{}",proxyUser.getUserName(),ex);
         }

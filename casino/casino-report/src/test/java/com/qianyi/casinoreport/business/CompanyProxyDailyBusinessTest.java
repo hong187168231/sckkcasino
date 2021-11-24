@@ -1,8 +1,12 @@
 package com.qianyi.casinoreport.business;
 
 import com.alibaba.fastjson.JSON;
+import com.qianyi.casinocore.model.CompanyProxyMonth;
 import com.qianyi.casinocore.repository.GameRecordRepository;
+import com.qianyi.casinocore.service.CompanyProxyMonthService;
 import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
+import com.qianyi.casinoreport.business.company.CompanyProxyDailyBusiness;
+import com.qianyi.casinoreport.business.company.CompanyProxyMonthBusiness;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +28,9 @@ public class CompanyProxyDailyBusinessTest {
     private CompanyProxyDailyBusiness companyProxyDailyBusiness;
 
     @Autowired
+    private CompanyProxyMonthBusiness companyProxyMonthBusiness;
+
+    @Autowired
     private GameRecordRepository gameRecordRepository;
 
     @Autowired
@@ -32,6 +39,11 @@ public class CompanyProxyDailyBusinessTest {
     @Test
     public void report_correct(){
         companyProxyDailyBusiness.processDailyReport("2021-11-06");
+    }
+
+    @Test
+    public void report_month_correct(){
+        companyProxyMonthBusiness.processMonthReport("2021-11-24");
     }
 
     @Test
