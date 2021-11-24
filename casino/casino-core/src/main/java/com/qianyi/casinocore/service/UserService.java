@@ -166,12 +166,12 @@ public class UserService {
         return userRepository.findByStateAndFirstPid(state,firstPid);
     }
 
-    public List<User> findByStateAndSecondPid(Integer state,Long secondPid){
-        return userRepository.findByStateAndSecondPid(state,secondPid);
+    public List<User> findByThirdPid(Long id) {
+        return userRepository.findByThirdPid(id);
     }
 
-    public List<User> findByStateAndThirdPid(Integer state,Long thirdPid){
-        return userRepository.findByStateAndThirdPid(state,thirdPid);
+    public List<User> findBySecondPid(Long id) {
+        return userRepository.findBySecondPid(id);
     }
 
     public List<User> findFirstUser(Long id) {
