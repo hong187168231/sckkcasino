@@ -33,10 +33,9 @@ public class ProxyHomePageReportTask {
     @Scheduled(cron = TaskConst.PROXY_HOME_PAGE_REPORT)
     public void create(){
         log.info("每日代理首页报表统计开始start=============================================》");
-//        Calendar nowTime = Calendar.getInstance();
-//        nowTime.add(Calendar.DATE, -1);
-//        String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
-        String format = "2021-11-02";
+        Calendar nowTime = Calendar.getInstance();
+        nowTime.add(Calendar.DATE, -1);
+        String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
         try {
             String startTime = format + start;
             String endTime = format + end;
