@@ -106,7 +106,7 @@ public class ProxyReportBusiness {
     public ProxyReport getProxyReport(Long userId) {
         ProxyReport proxyReport = proxyReportService.findByUserId(userId);
         if(proxyReport == null)
-            proxyReport = buildProxyReport(userId);
-        return proxyReport;
+            buildProxyReport(userId);
+        return proxyReportService.findByUserIdWithLock(userId);
     }
 }

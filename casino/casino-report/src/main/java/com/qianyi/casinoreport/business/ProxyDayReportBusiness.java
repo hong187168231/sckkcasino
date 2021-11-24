@@ -32,11 +32,7 @@ public class ProxyDayReportBusiness {
     }
 
     private ProxyDayReport getProxyDayReport(ShareProfitBO shareProfitBO) {
-        String dayTime = shareProfitBO.getBetTime();
-        ProxyDayReport proxyDayReport = proxyDayReportService.findByUserIdAndDay(shareProfitBO.getUserId(),dayTime);
-        if(proxyDayReport == null)
-            proxyDayReport = buildProxyDayReport(shareProfitBO.getUserId(),dayTime);
-        return proxyDayReport;
+        return getProxyDayReport(shareProfitBO.getUserId(),shareProfitBO.getBetTime());
     }
 
     private ProxyDayReport buildProxyDayReport(Long userId,String dayTime) {
@@ -59,10 +55,7 @@ public class ProxyDayReportBusiness {
     }
 
     private ProxyDayReport getProxyDayReport(RechargeProxyBO rechargeProxy) {
-        ProxyDayReport proxyDayReport = proxyDayReportService.findByUserIdAndDay(rechargeProxy.getProxyUserId(),rechargeProxy.getDayTime());
-        if(proxyDayReport == null)
-            proxyDayReport = buildProxyDayReport(rechargeProxy.getProxyUserId(),rechargeProxy.getDayTime());
-        return proxyDayReport;
+        return getProxyDayReport(rechargeProxy.getProxyUserId(),rechargeProxy.getDayTime());
     }
 
     /**
@@ -79,7 +72,7 @@ public class ProxyDayReportBusiness {
     private ProxyDayReport getProxyDayReport(Long userId,String dayTime) {
         ProxyDayReport proxyDayReport = proxyDayReportService.findByUserIdAndDay(userId,dayTime);
         if(proxyDayReport == null)
-            proxyDayReport = buildProxyDayReport(userId,dayTime);
-        return proxyDayReport;
+            buildProxyDayReport(userId,dayTime);
+        return proxyDayReportService.findByUserIdAndDayWithLock(userId,dayTime);
     }
 }

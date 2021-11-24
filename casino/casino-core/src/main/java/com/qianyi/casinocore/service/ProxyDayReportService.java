@@ -22,7 +22,11 @@ public class ProxyDayReportService {
     private ProxyDayReportRepository proxyDayReportRepository;
 
     public ProxyDayReport findByUserIdAndDay(Long userId,String day){
-        return proxyDayReportRepository.findProxyDayReportByUserIdAndAndDayTime(userId,day);
+        return proxyDayReportRepository.findProxyDayReportByUserIdAndDayTime(userId,day);
+    }
+
+    public ProxyDayReport findByUserIdAndDayWithLock(Long userId,String day){
+        return proxyDayReportRepository.findByUserIdAndDayTime(userId,day);
     }
 
     public ProxyDayReport save(ProxyDayReport proxyDayReport){
