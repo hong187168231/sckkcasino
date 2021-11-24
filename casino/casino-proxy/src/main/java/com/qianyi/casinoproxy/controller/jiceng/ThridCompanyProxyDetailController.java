@@ -120,9 +120,10 @@ public class ThridCompanyProxyDetailController {
                 companyProxyReportVo = this.assemble(proxyUser);
             } catch (ParseException e) {
                 log.error("代理每日结算细节失败",e);
+                return ResponseUtil.custom("查询失败");
             }
         }
-        Sort sort=Sort.by("id").descending();
+        Sort sort=Sort.by("staticsTimes").descending();
         List<CompanyProxyReportVo> list = new LinkedList<>();
         String startTime = startDate==null? null:DateUtil.getSimpleDateFormat1().format(startDate);
         String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
@@ -134,7 +135,9 @@ public class ThridCompanyProxyDetailController {
             proxyHomePageReports.forEach(proxyHomePageReport -> {
                 list.add(this.assemble(proxyHomePageReport));
             });
+            proxyHomePageReports.clear();
         }
+        Collections.reverse(list);
         return ResponseUtil.success(list);
     }
     private CompanyProxyReportVo assemble(ProxyUser byId) throws ParseException {
@@ -184,6 +187,8 @@ public class ThridCompanyProxyDetailController {
                     }
                 });
             });
+            collect.clear();
+            proxyUsers.clear();
         }
         return list;
     }

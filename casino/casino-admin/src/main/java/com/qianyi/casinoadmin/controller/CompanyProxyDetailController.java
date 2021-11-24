@@ -177,7 +177,7 @@ public class CompanyProxyDetailController {
                 log.error("admin代理每日结算细节失败",e);
             }
         }
-        Sort sort=Sort.by("id").descending();
+        Sort sort=Sort.by("staticsTimes").descending();
         List<CompanyProxyReportVo> list = new LinkedList<>();
         String startTime = startDate==null? null:DateUtil.getSimpleDateFormat1().format(startDate);
         String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
@@ -189,7 +189,9 @@ public class CompanyProxyDetailController {
             proxyHomePageReports.forEach(proxyHomePageReport -> {
                 list.add(this.assemble(proxyHomePageReport));
             });
+            proxyHomePageReports.clear();
         }
+        Collections.reverse(list);
         return ResponseUtil.success(list);
     }
     private CompanyProxyReportVo assemble(ProxyUser byId) throws ParseException {
@@ -251,6 +253,8 @@ public class CompanyProxyDetailController {
                     }
                 });
             });
+            collect.clear();
+            proxyUsers.clear();
         }
         return list;
     }
