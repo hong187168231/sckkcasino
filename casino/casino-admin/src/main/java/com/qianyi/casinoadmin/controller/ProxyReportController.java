@@ -36,9 +36,6 @@ public class ProxyReportController {
     private UserService userService;
 
     @Autowired
-    private ProxyReportService proxyReportService;
-
-    @Autowired
     private ShareProfitChangeService shareProfitChangeService;
 
     @Autowired
@@ -225,7 +222,7 @@ public class ProxyReportController {
             try {
                 if (tier == CommonConst.NUMBER_0){
                     proxyReportVo = this.assemble(null,id,date,CommonConst.NUMBER_0);
-                    List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, id);
+                    List<User> firstUsers = userService.findFirstUser(id);
                     if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
                         firstUsers.forEach(f ->{
                             this.assemble(f.getId(),date,allPerformances);
@@ -246,7 +243,7 @@ public class ProxyReportController {
                     proxyReportVo.setAllPerformance(allPerformances.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
                 }else if (tier == CommonConst.NUMBER_1){
                     proxyReportVo = this.assemble(id,user.getFirstPid(),date,CommonConst.NUMBER_1);
-                    List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, id);
+                    List<User> firstUsers = userService.findFirstUser(id);
                     if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
                         firstUsers.forEach(f ->{
                             this.assemble(f.getId(),date,allPerformances);
@@ -261,7 +258,7 @@ public class ProxyReportController {
                     proxyReportVo.setAllPerformance(allPerformances.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
                 }else if (tier == CommonConst.NUMBER_2){
                     proxyReportVo = this.assemble(id,user.getSecondPid(),date,CommonConst.NUMBER_2);
-                    List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, id);
+                    List<User> firstUsers = userService.findFirstUser(id);
                     if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
                         firstUsers.forEach(f ->{
                             this.assemble(f.getId(),date,allPerformances);
