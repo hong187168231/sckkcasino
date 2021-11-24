@@ -105,7 +105,9 @@ public class GameRecordService {
     }
 
     public GameRecord save(GameRecord gameRecord) {
-        return gameRecordRepository.save(gameRecord);
+        synchronized (gameRecord.getBetId()){
+            return gameRecordRepository.save(gameRecord);
+        }
     }
 
     public GameRecord findGameRecordById(Long gameId){return gameRecordRepository.findById(gameId).orElse(null);}
