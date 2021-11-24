@@ -4,6 +4,7 @@ import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.persistence.Tuple;
@@ -19,4 +20,12 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
             "and third_proxy is not null \n" +
             "group by third_proxy ",nativeQuery = true)
     List<Map<String,Object>> getStatisticsResult(String startTime, String endTime);
+
+    @Modifying
+    @Query("update GameRecord u set u.codeNumStatus=?2 where u.id=?1")
+    void updateCodeNumStatus(Long id, Integer codeNumStatus);
+
+    @Modifying
+    @Query("update GameRecord u set u.washCodeStatus=?2 where u.id=?1")
+    void updateWashCodeStatus(Long id, Integer washCodeStatus);
 }

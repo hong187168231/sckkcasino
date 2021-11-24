@@ -105,9 +105,7 @@ public class GameRecordService {
     }
 
     public GameRecord save(GameRecord gameRecord) {
-        synchronized (gameRecord.getBetId()){
-            return gameRecordRepository.save(gameRecord);
-        }
+        return gameRecordRepository.save(gameRecord);
     }
 
     public GameRecord findGameRecordById(Long gameId){return gameRecordRepository.findById(gameId).orElse(null);}
@@ -267,5 +265,13 @@ public class GameRecordService {
 //                .orderBy(builder.desc(root.get("contactUserNums")));
         GameRecord singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
+    }
+
+    public void updateCodeNumStatus(Long id,Integer codeNumStatus){
+        gameRecordRepository.updateCodeNumStatus(id,codeNumStatus);
+    }
+
+    public void updateWashCodeStatus(Long id,Integer washCodeStatus){
+        gameRecordRepository.updateWashCodeStatus(id,washCodeStatus);
     }
 }
