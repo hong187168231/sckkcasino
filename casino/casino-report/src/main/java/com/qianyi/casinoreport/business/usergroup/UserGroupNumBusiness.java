@@ -51,11 +51,14 @@ public class UserGroupNumBusiness {
     }
 
     private void recordFailVo(User user){
-        ConsumerError consumerError = new ConsumerError();
-        consumerError.setConsumerType(ReportConstant.USER);
-        consumerError.setMainId(user.getId());
-        consumerError.setRepairStatus(0);
-        consumerErrorService.save(consumerError);
+        List<ConsumerError> consumerErrors = consumerErrorService.findUsersByUserId(user.getId(),"user");
+        if(consumerErrors.size()==0){
+            ConsumerError consumerError = new ConsumerError();
+            consumerError.setConsumerType(ReportConstant.USER);
+            consumerError.setMainId(user.getId());
+            consumerError.setRepairStatus(0);
+            consumerErrorService.save(consumerError);
+        }
     }
 
 

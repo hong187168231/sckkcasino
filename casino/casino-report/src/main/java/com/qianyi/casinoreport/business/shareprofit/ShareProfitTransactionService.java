@@ -61,7 +61,6 @@ public class ShareProfitTransactionService {
      * @param record
      */
     public void updateShareProfitStatus(GameRecord record) {
-        record.setShareProfitStatus(Constants.yes);
-        gameRecordService.save(record);
+        gameRecordService.updateProfitStatus(record.getUserId(),Constants.yes);
     }
 }

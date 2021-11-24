@@ -274,4 +274,8 @@ public class GameRecordService {
     public void updateWashCodeStatus(Long id,Integer washCodeStatus){
         gameRecordRepository.updateWashCodeStatus(id,washCodeStatus);
     }
+
+    public void updateProfitStatus(Long id,Integer washCodeStatus){
+        gameRecordRepository.updateProfitStatus(id,washCodeStatus);
+    }
 }

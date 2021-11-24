@@ -39,7 +39,7 @@ public class ProxyDayReportBusiness {
         ProxyDayReport proxyDayReport = new ProxyDayReport();
         proxyDayReport.setUserId(userId);
         proxyDayReport.setDayTime(dayTime);
-        return proxyDayReport;
+        return proxyDayReportService.save(proxyDayReport);
     }
 
     /**
@@ -70,6 +70,7 @@ public class ProxyDayReportBusiness {
     }
 
     private ProxyDayReport getProxyDayReport(Long userId,String dayTime) {
+        log.info("getProxyDayReport user id is {}, dayTIme is {}",userId, dayTime);
         ProxyDayReport proxyDayReport = proxyDayReportService.findByUserIdAndDay(userId,dayTime);
         if(proxyDayReport == null)
             buildProxyDayReport(userId,dayTime);

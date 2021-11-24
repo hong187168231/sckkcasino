@@ -28,4 +28,8 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
     @Modifying
     @Query("update GameRecord u set u.washCodeStatus=?2 where u.id=?1")
     void updateWashCodeStatus(Long id, Integer washCodeStatus);
+
+    @Modifying
+    @Query("update GameRecord u set u.shareProfitStatus=?2 where u.id=?1")
+    void updateProfitStatus(Long id, Integer washCodeStatus);
 }
