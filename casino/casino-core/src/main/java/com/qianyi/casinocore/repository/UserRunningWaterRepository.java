@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 
 public interface UserRunningWaterRepository extends JpaRepository<UserRunningWater, Long>, JpaSpecificationExecutor<UserRunningWater> {
     @Modifying
-    @Query(value = "INSERT INTO user_running_water (user_id,statics_times,amount,commission,create_time) VALUES (?1,?2,?3,?4,sysdate()) ON DUPLICATE KEY UPDATE amount=amount + ?3,commission=commission + ?4 ;",nativeQuery = true)
-    void updateKey(Long userId,String staticsTimes ,BigDecimal amount,BigDecimal commission);
+    @Query(value = "INSERT INTO user_running_water (user_id,statics_times,amount,commission,create_time,first_proxy,second_proxy,third_proxy) " +
+            "VALUES (?1,?2,?3,?4,sysdate(),?5,?6,?7) ON DUPLICATE KEY UPDATE amount=amount + ?3,commission=commission + ?4 ;",nativeQuery = true)
+    void updateKey(Long userId,String staticsTimes ,BigDecimal amount,BigDecimal commission,Long firstProxy,Long secondProxy,Long thirdProxy);
 }

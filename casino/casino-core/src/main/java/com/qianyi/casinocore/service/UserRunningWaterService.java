@@ -25,8 +25,8 @@ public class UserRunningWaterService {
     @Autowired
     private UserRunningWaterRepository userRunningWaterRepository;
 
-    public void updateKey(Long userId, String staticsTimes , BigDecimal amount, BigDecimal commission){
-        userRunningWaterRepository.updateKey(userId,staticsTimes,amount,commission);
+    public void updateKey(Long userId, String staticsTimes , BigDecimal amount, BigDecimal commission,Long firstProxy,Long secondProxy,Long thirdProxy){
+        userRunningWaterRepository.updateKey(userId,staticsTimes,amount,commission,firstProxy,secondProxy,thirdProxy);
     }
 
     public Page<UserRunningWater> findUserPage(Pageable pageable, UserRunningWater userRunningWater, Date startDate, Date endDate){
