@@ -100,7 +100,7 @@ public class HomePageReportController {
     @ApiOperation("查找走势图")
     @GetMapping("/findTrendChart")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "tag", value = "1:每日 2:每周 3:每月", required = false),
+            @ApiImplicitParam(name = "tag", value = "1:每日 2:每月 3:每年", required = false),
             @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
@@ -129,13 +129,13 @@ public class HomePageReportController {
                 Collections.reverse(list);
                 return ResponseUtil.success(list);
             }else if (tag == CommonConst.NUMBER_2){
-                Map<String, List<HomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(HomePageReportVo::getStaticsWeek));
+                Map<String, List<HomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(HomePageReportVo::getStaticsMonth));
                 list.clear();
                 map.forEach((key,value)->{
                     list.add(this.getHomePageReportVo(value,key));
                 });
             }else {
-                Map<String, List<HomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(HomePageReportVo::getStaticsMonth));
+                Map<String, List<HomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(HomePageReportVo::getStaticsYear));
                 list.clear();
                 map.forEach((key,value)->{
                     list.add(this.getHomePageReportVo(value,key));
@@ -191,7 +191,7 @@ public class HomePageReportController {
         Date end = DateUtil.getSimpleDateFormat().parse(endTime);
         HomePageReport homePageReport = new HomePageReport();
         homePageReport.setStaticsTimes(format);
-        homePageReport.setStaticsWeek(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4)+CommonConst.UNDERLINE_SYMBOL+DateUtil.getWeek(format));
+        homePageReport.setStaticsYear(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4));
         homePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
         homePageReportTask.chargeOrder(start,end,homePageReport);
         homePageReportTask.withdrawOrder(start,end,homePageReport);

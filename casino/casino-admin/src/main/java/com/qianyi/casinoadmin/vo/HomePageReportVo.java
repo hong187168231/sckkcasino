@@ -56,8 +56,8 @@ public class HomePageReportVo implements Serializable {
     @ApiModelProperty(value = "统计时间段(日)")
     private String staticsTimes;
 
-    @ApiModelProperty(value = "统计时间段(周)")
-    private String staticsWeek;
+    @ApiModelProperty(value = "统计时间段(年)")
+    private String staticsYear;
 
     @ApiModelProperty(value = "统计时间段(月)")
     private String staticsMonth ;
@@ -92,7 +92,7 @@ public class HomePageReportVo implements Serializable {
         this.serviceCharge = homePageReport.getServiceCharge();
         this.staticsTimes = homePageReport.getStaticsTimes();
         this.time = homePageReport.getStaticsTimes();
-        this.staticsWeek = homePageReport.getStaticsWeek();
+        this.staticsYear = homePageReport.getStaticsYear();
         this.staticsMonth = homePageReport.getStaticsMonth();
         this.activeUsers = homePageReport.getActiveUsers();
         this.newUsers = homePageReport.getNewUsers();

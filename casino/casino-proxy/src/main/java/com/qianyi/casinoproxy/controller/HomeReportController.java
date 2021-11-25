@@ -1,6 +1,5 @@
 package com.qianyi.casinoproxy.controller;
 
-import com.qianyi.casinocore.model.CompanyProxyDetail;
 import com.qianyi.casinocore.model.CompanyProxyMonth;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.service.CompanyProxyMonthService;
@@ -101,7 +100,7 @@ public class HomeReportController {
     @GetMapping("/findTrendChart")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
-            @ApiImplicitParam(name = "tag", value = "1:每日 2:每周 3:每月", required = false),
+            @ApiImplicitParam(name = "tag", value = "1:每日 2:每月 3:每年", required = false),
             @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
@@ -142,7 +141,7 @@ public class HomeReportController {
                 Collections.reverse(list);
                 return ResponseUtil.success(list);
             }else if (tag == CommonConst.NUMBER_2){
-                Map<String, List<ProxyHomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(ProxyHomePageReportVo::getStaticsWeek));
+                Map<String, List<ProxyHomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(ProxyHomePageReportVo::getStaticsYear));
                 list.clear();
                 map.forEach((key,value)->{
                     list.add(this.getHomePageReportVo(value,key));
@@ -198,7 +197,7 @@ public class HomeReportController {
         String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
         ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
         proxyHomePageReport.setStaticsTimes(format);
-        proxyHomePageReport.setStaticsWeek(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4)+CommonConst.UNDERLINE_SYMBOL+DateUtil.getWeek(format));
+        proxyHomePageReport.setStaticsYear(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4));
         proxyHomePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
         Long authId = CasinoProxyUtil.getAuthId();
         ProxyUser byId = proxyUserService.findById(authId);

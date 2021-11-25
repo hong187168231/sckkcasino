@@ -31,8 +31,8 @@ public class ProxyHomePageReportVo  implements Serializable {
     @ApiModelProperty(value = "统计时间段(日)")
     private String staticsTimes;
 
-    @ApiModelProperty(value = "统计时间段(周)")
-    private String staticsWeek;
+    @ApiModelProperty(value = "统计时间段(年)")
+    private String staticsYear;
 
     @ApiModelProperty(value = "统计时间段(月)")
     private String staticsMonth ;
@@ -75,7 +75,7 @@ public class ProxyHomePageReportVo  implements Serializable {
         this.activeUsers = proxyHomePageReport.getActiveUsers();
         this.staticsTimes = proxyHomePageReport.getStaticsTimes();
         this.time = proxyHomePageReport.getStaticsTimes();
-        this.staticsWeek = proxyHomePageReport.getStaticsWeek();
+        this.staticsYear = proxyHomePageReport.getStaticsYear();
         this.staticsMonth = proxyHomePageReport.getStaticsMonth();
         this.chargeAmount = proxyHomePageReport.getChargeAmount();
         this.chargeNums = proxyHomePageReport.getChargeNums();

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,33 +48,65 @@ public class HomePageReportTask {
 
     @Autowired
     private WashCodeChangeService washCodeChangeService;
+
+    public final static List<String> list = new LinkedList<>();
+
+    static {
+        list.add("2021-11-02");
+        list.add("2021-11-03");
+        list.add("2021-11-04");
+        list.add("2021-11-05");
+        list.add("2021-11-06");
+        list.add("2021-11-07");
+        list.add("2021-11-08");
+        list.add("2021-11-09");
+        list.add("2021-11-10");
+        list.add("2021-11-11");
+        list.add("2021-11-12");
+        list.add("2021-11-13");
+        list.add("2021-11-14");
+        list.add("2021-11-15");
+        list.add("2021-11-16");
+        list.add("2021-11-17");
+        list.add("2021-11-18");
+        list.add("2021-11-19");
+        list.add("2021-11-20");
+        list.add("2021-11-21");
+        list.add("2021-11-22");
+        list.add("2021-11-23");
+        list.add("2021-11-24");
+    }
     @Scheduled(cron = TaskConst.HOME_PAGE_REPORT)
     public void create(){
         log.info("每日首页报表统计开始start=============================================》");
         Calendar nowTime = Calendar.getInstance();
         nowTime.add(Calendar.DATE, -1);
         String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
-        try {
-            String startTime = format + start;
-            String endTime = format + end;
-            Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
-            Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
-            HomePageReport homePageReport = new HomePageReport();
-            homePageReport.setStaticsTimes(format);
-            homePageReport.setStaticsWeek(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4)+CommonConst.UNDERLINE_SYMBOL+DateUtil.getWeek(format));
-            homePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
-            this.chargeOrder(startDate,endDate,homePageReport);
-            this.withdrawOrder(startDate,endDate,homePageReport);
-            this.gameRecord(startTime,endTime,homePageReport);
-            this.shareProfitChange(startDate,endDate,homePageReport);
-            this.getNewUsers(startDate,endDate,homePageReport);
-            this.bonusAmount(startDate,endDate,homePageReport);
-            this.washCodeAmount(startDate,endDate,homePageReport);
-            homePageReportService.save(homePageReport);
-            log.info("每日首页报表统计结束end=============================================》");
-        }catch (Exception ex){
-            log.error("首页报表统计失败",ex);
+        for (String str:list){
+            format = str;
+            try {
+                String startTime = format + start;
+                String endTime = format + end;
+                Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
+                Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
+                HomePageReport homePageReport = new HomePageReport();
+                homePageReport.setStaticsTimes(format);
+                homePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
+                homePageReport.setStaticsYear(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4));
+                this.chargeOrder(startDate,endDate,homePageReport);
+                this.withdrawOrder(startDate,endDate,homePageReport);
+                this.gameRecord(startTime,endTime,homePageReport);
+                this.shareProfitChange(startDate,endDate,homePageReport);
+                this.getNewUsers(startDate,endDate,homePageReport);
+                this.bonusAmount(startDate,endDate,homePageReport);
+                this.washCodeAmount(startDate,endDate,homePageReport);
+                homePageReportService.save(homePageReport);
+                log.info("每日首页报表统计结束end=============================================》");
+            }catch (Exception ex){
+                log.error("首页报表统计失败",ex);
+            }
         }
+
     }
     public void chargeOrder(Date startDate,Date endDate,HomePageReport homePageReport){
         try {
