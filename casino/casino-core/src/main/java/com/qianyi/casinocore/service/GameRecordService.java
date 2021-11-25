@@ -278,4 +278,8 @@ public class GameRecordService {
     public void updateProfitStatus(Long id,Integer washCodeStatus){
         gameRecordRepository.updateProfitStatus(id,washCodeStatus);
     }
+
+    public List<GameRecord> findByCreateByAndIdGreaterThanEqualOrderByIdAsc(String createBy,Long id) {
+        return gameRecordRepository.findByCreateByAndIdGreaterThanEqualOrderByIdAsc(createBy,id);
+    }
 }

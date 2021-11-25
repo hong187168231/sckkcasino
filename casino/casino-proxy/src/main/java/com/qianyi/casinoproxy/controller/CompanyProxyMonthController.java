@@ -81,12 +81,7 @@ public class CompanyProxyMonthController {
             List<ProxyUser> proxyUser = proxyUserService.findProxyUser(proxyUserIds);
             if(proxyUser != null){
                 content.stream().forEach(proxyDetail ->{
-                    //全线返佣比列
-                    String profitRate="— —";
-                    if (!proxyDetail.getProfitRate().equals(CommonConst.STRING_0)){
-                        profitRate=CommonConst.REMARKS+ Double.valueOf(proxyDetail.getProfitRate()).intValue()+CommonConst.COMPANY;
-                    }
-                    proxyDetail.setProfitRate(profitRate);
+
                     CompanyProxyMonthVo vo = new CompanyProxyMonthVo(proxyDetail);
                     proxyUser.stream().forEach(proxy->{
                         if (proxy.getId().equals(proxyDetail.getUserId())){
@@ -94,9 +89,20 @@ public class CompanyProxyMonthController {
                             vo.setNickName(proxy.getNickName());
                         }
                     });
-                    //返佣级别:根据返佣金额查询当前返佣级别
-                    String profitLevel = queryRebateLevel(vo.getProfitLevel(), vo.getProxyUserId());
+                    //全线返佣比列
+                    String profitRate="— —";
+                    //全线返佣级别
+                    String profitLevel="— —";
+                    //只有基层代理才需要展示级别、比例
+                    if (vo.getProxyRole().equals(CommonConst.NUMBER_3)){
+                        //返佣级别:根据返佣金额查询当前返佣级别
+                        profitLevel = queryRebateLevel(vo.getProfitLevel(), vo.getProxyUserId());
+                        if (!vo.getProfitRate().equals(CommonConst.STRING_0)){
+                            profitRate=CommonConst.REMARKS+ Double.valueOf(vo.getProfitRate()).intValue()+CommonConst.COMPANY;
+                        }
+                    }
                     vo.setProfitLevel(profitLevel);
+                    vo.setProfitRate(profitRate);
                     accountChangeVoList.add(vo);
                 });
                 content.clear();

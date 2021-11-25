@@ -8,7 +8,7 @@ public final class TaskConst {
     /**
      * 每日凌晨一点
      */
-    public final static String HOME_PAGE_REPORT = "0 0 01 * * ?";
+    public final static String HOME_PAGE_REPORT = "0 40 16 * * ?";
     /**
      * 每日零点五十分
      */
