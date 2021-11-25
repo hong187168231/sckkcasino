@@ -58,6 +58,7 @@ public class ShareProfitBusiness {
     }
 
     private List<ShareProfitBO> shareProfitOperator(PlatformConfig platformConfig, ShareProfitMqVo shareProfitMqVo) {
+        Long startTime = System.currentTimeMillis();
         User user = userService.findById(shareProfitMqVo.getUserId());
         log.info("shareProfitOperator user:{}",user);
         String betTime = shareProfitMqVo.getBetTime().substring(0,10);
@@ -69,6 +70,7 @@ public class ShareProfitBusiness {
         if(ShareProfitUtils.compareIntegerNotNull( user.getThirdPid()))
             shareProfitBOList.add(getShareProfitBO(user,user.getThirdPid(),shareProfitMqVo.getValidbet(),platformConfig.getThirdCommission(),getUserIsFirstBet(user),betTime,false,3));
         log.info("get list object is {}",shareProfitBOList);
+        log.info("shareProfitOperator That took {} milliseconds",System.currentTimeMillis()-startTime);
         return shareProfitBOList;
     }
 

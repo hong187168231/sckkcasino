@@ -39,20 +39,27 @@ public class ShareProfitTransactionService {
 
     @Transactional(rollbackFor = Exception.class)
     public void processShareProfitList(List<ShareProfitBO> shareProfitBOList, GameRecord record) {
+        Long startTime = System.currentTimeMillis();
         List<ProxyDayReport> proxyDayReportList = new ArrayList<>();
         List<ProxyReport> proxyReportList = new ArrayList<>();
         List<UserMoney> userMoneyList = new ArrayList<>();
         List<User> userList = new ArrayList<>();
         List<ShareProfitChange> shareProfitChangeList = new ArrayList<>();
 
+
         shareProfitBOList.forEach(item-> sharepointItemService.processItem(item,record,proxyDayReportList,proxyReportList,userList,userMoneyList,shareProfitChangeList));
+        log.info("shareProfitBOList processItem That took {} milliseconds",System.currentTimeMillis()-startTime);
+        startTime = System.currentTimeMillis();
         proxyDayReportService.saveAll(proxyDayReportList);
         proxyReportService.saveAll(proxyReportList);
         userMoneyList.forEach(item->userMoneyService.changeProfit(item.getUserId(),item.getShareProfit()));
         shareProfitChangeService.saveAll(shareProfitChangeList);
         userService.saveAll(userList);
+        log.info("all store That took {} milliseconds",System.currentTimeMillis()-startTime);
 //        int i = 1/0;
+        startTime = System.currentTimeMillis();
         updateShareProfitStatus(record);
+        log.info("processShareProfitList That took {} milliseconds",System.currentTimeMillis()-startTime);
     }
 
     /**
