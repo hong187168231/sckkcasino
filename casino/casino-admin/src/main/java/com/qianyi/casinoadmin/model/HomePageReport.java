@@ -37,15 +37,15 @@ public class HomePageReport extends BaseEntity {
     private BigDecimal winLossAmount;
 
     @ApiModelProperty(value = "洗码金额")
-    @Column(columnDefinition = "Decimal(12,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
     private BigDecimal washCodeAmount;
 
     @ApiModelProperty(value = "结算人人代佣金")
-    @Column(columnDefinition = "Decimal(12,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
     private BigDecimal  shareAmount;
 
     @ApiModelProperty(value = "发放红利")
-    @Column(columnDefinition = "Decimal(12,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
     private BigDecimal bonusAmount;
 
     @ApiModelProperty(value = "充提手续费")
