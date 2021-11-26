@@ -68,7 +68,6 @@ public class CompanyProxyDetailController {
         sort = sort.and(Sort.by("id").descending());
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         proxyUser.setProxyRole(proxyRole);
-        proxyUser.setIsDelete(CommonConst.NUMBER_1);
         ProxyHomePageReport proxyHomeReport = new  ProxyHomePageReport();
         proxyHomeReport.setProxyRole(proxyRole);
         if (!LoginUtil.checkNull(userName)){
