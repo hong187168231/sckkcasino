@@ -1,12 +1,8 @@
 package com.qianyi.casinoproxy.controller;
 
-import com.qianyi.casinocore.model.CompanyProxyMonth;
-import com.qianyi.casinocore.model.ProxyUser;
-import com.qianyi.casinocore.service.CompanyProxyMonthService;
-import com.qianyi.casinocore.service.ProxyUserService;
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.casinocore.model.ProxyHomePageReport;
-import com.qianyi.casinocore.service.ProxyHomePageReportService;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.casinoproxy.vo.ProxyHomePageReportVo;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -48,6 +44,9 @@ public class HomeReportController {
     @Autowired
     private CompanyProxyMonthService companyProxyMonthService;
 
+    @Autowired
+    private UserRunningWaterService userRunningWaterService;
+
     @ApiOperation("查询基层代理首页报表")
     @GetMapping("/find")
     @ApiImplicitParams({
@@ -73,7 +72,6 @@ public class HomeReportController {
             Integer withdrawNums = proxyHomePageReports.stream().mapToInt(ProxyHomePageReport::getWithdrawNums).sum();
             BigDecimal validbetAmount = proxyHomePageReports.stream().map(ProxyHomePageReport::getValidbetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal winLossAmount = proxyHomePageReports.stream().map(ProxyHomePageReport::getWinLossAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-            Integer activeUsers = proxyHomePageReports.stream().mapToInt(ProxyHomePageReport::getActiveUsers).sum();
             Integer newUsers = proxyHomePageReports.stream().mapToInt(ProxyHomePageReport::getNewUsers).sum();
             Integer newThirdProxys = proxyHomePageReports.stream().mapToInt(ProxyHomePageReport::getNewThirdProxys).sum();
             Integer newSecondProxys = proxyHomePageReports.stream().mapToInt(ProxyHomePageReport::getNewSecondProxys).sum();
@@ -83,10 +81,22 @@ public class HomeReportController {
             proxyHomePageReportVo.setWinLossAmount(proxyHomePageReportVo.getWinLossAmount().add(winLossAmount));
             proxyHomePageReportVo.setChargeNums(chargeNums + proxyHomePageReportVo.getChargeNums());
             proxyHomePageReportVo.setWithdrawNums(withdrawNums + proxyHomePageReportVo.getWithdrawNums());
-            proxyHomePageReportVo.setActiveUsers(activeUsers + proxyHomePageReportVo.getActiveUsers());
             proxyHomePageReportVo.setNewUsers(newUsers + proxyHomePageReportVo.getNewUsers());
             proxyHomePageReportVo.setNewThirdProxys(newThirdProxys + proxyHomePageReportVo.getNewThirdProxys());
             proxyHomePageReportVo.setNewSecondProxys(newSecondProxys + proxyHomePageReportVo.getNewSecondProxys());
+            UserRunningWater userRunningWater = new UserRunningWater();
+            if (CasinoProxyUtil.setParameter(userRunningWater)){
+                return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+            }
+            List<UserRunningWater> userRunningWaterList = userRunningWaterService.findUserRunningWaterList(userRunningWater, startTime, endTime);
+            Set<Long> userIdSet = proxyHomePageReportVo.getUserIdSet();
+            if (CasinoProxyUtil.checkNull(userIdSet)){
+                userIdSet = new HashSet<>();
+            }
+            for (UserRunningWater u : userRunningWaterList){
+                userIdSet.add(u.getUserId());
+            }
+            proxyHomePageReportVo.setActiveUsers(userIdSet.size());
             CompanyProxyMonth companyProxyMonth = new CompanyProxyMonth();
             companyProxyMonth.setUserId(CasinoProxyUtil.getAuthId());
             this.findCompanyProxyDetails(companyProxyMonth,startTime,endTime,proxyHomePageReportVo);
@@ -141,13 +151,13 @@ public class HomeReportController {
                 Collections.reverse(list);
                 return ResponseUtil.success(list);
             }else if (tag == CommonConst.NUMBER_2){
-                Map<String, List<ProxyHomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(ProxyHomePageReportVo::getStaticsYear));
+                Map<String, List<ProxyHomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(ProxyHomePageReportVo::getStaticsMonth));
                 list.clear();
                 map.forEach((key,value)->{
                     list.add(this.getHomePageReportVo(value,key));
                 });
             }else {
-                Map<String, List<ProxyHomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(ProxyHomePageReportVo::getStaticsMonth));
+                Map<String, List<ProxyHomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(ProxyHomePageReportVo::getStaticsYear));
                 list.clear();
                 map.forEach((key,value)->{
                     list.add(this.getHomePageReportVo(value,key));
@@ -207,13 +217,13 @@ public class HomeReportController {
         Date end = DateUtil.getSimpleDateFormat().parse(endTime);
         proxyHomePageReportService.chargeOrder(byId, start, end, proxyHomePageReport);
         proxyHomePageReportService.withdrawOrder(byId, start, end, proxyHomePageReport);
-        proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
+        Set<Long> set = proxyHomePageReportService.gameRecordAndActive(byId, startTime, endTime, proxyHomePageReport);
         proxyHomePageReportService.getNewUsers(byId, start, end, proxyHomePageReport);
         if (byId.getProxyRole() == CommonConst.NUMBER_1){
             proxyHomePageReportService.getNewSecondProxys(byId,start, end,proxyHomePageReport);
         }
         proxyHomePageReportService.getNewThirdProxys(byId,start, end,proxyHomePageReport);
-        ProxyHomePageReportVo proxyHomePageReportVo = new ProxyHomePageReportVo(proxyHomePageReport);
+        ProxyHomePageReportVo proxyHomePageReportVo = new ProxyHomePageReportVo(proxyHomePageReport,set);
         return proxyHomePageReportVo;
     }
 }

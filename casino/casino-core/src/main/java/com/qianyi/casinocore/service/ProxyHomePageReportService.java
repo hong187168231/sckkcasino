@@ -17,9 +17,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -180,13 +178,45 @@ public class ProxyHomePageReportService {
             }
             proxyHomePageReport.setValidbetAmount(validbetAmount);
             proxyHomePageReport.setWinLossAmount(winLoss);
-            gameRecords = gameRecords.stream().filter(com.qianyi.modulecommon.util.CommonUtil.distinctByKey(GameRecord::getUser)).collect(Collectors.toList());
+            gameRecords = gameRecords.stream().filter(com.qianyi.modulecommon.util.CommonUtil.distinctByKey(GameRecord::getUserId)).collect(Collectors.toList());
             proxyHomePageReport.setActiveUsers(gameRecords.size());
             gameRecords.clear();
         }catch (Exception ex){
             log.error("统计代理{}三方游戏注单失败{}",proxyUser.getUserName(),ex);
         }
     }
+    public Set<Long> gameRecordAndActive(ProxyUser proxyUser, String startTime, String endTime, ProxyHomePageReport proxyHomePageReport){
+        try {
+            GameRecord gameRecord = new GameRecord();
+            if (CommonUtil.setParameter(gameRecord,proxyUser)){
+                return null;
+            }
+            List<GameRecord> gameRecords = gameRecordService.findGameRecords(gameRecord, startTime, endTime);
+            if (gameRecord  == null || gameRecords.size() == CommonConst.NUMBER_0){
+                proxyHomePageReport.setValidbetAmount(BigDecimal.ZERO);
+                proxyHomePageReport.setWinLossAmount(BigDecimal.ZERO);
+                return null;
+            }
+            BigDecimal validbetAmount = BigDecimal.ZERO;
+            BigDecimal winLoss = BigDecimal.ZERO;
+            for (GameRecord g : gameRecords){
+                validbetAmount = validbetAmount.add(new BigDecimal(g.getValidbet()));
+                winLoss = winLoss.add(new BigDecimal(g.getWinLoss()));
+            }
+            proxyHomePageReport.setValidbetAmount(validbetAmount);
+            proxyHomePageReport.setWinLossAmount(winLoss);
+            Set<Long> set = new HashSet<>();
+            gameRecords.stream().filter(com.qianyi.modulecommon.util.CommonUtil.distinctByKey(GameRecord::getUser)).forEach(game ->{
+                set.add(game.getId());
+            });
+            gameRecords.clear();
+            return set;
+        }catch (Exception ex){
+            log.error("统计代理{}三方游戏注单失败{}",proxyUser.getUserName(),ex);
+        }
+        return null;
+    }
+
     public void getNewUsers(ProxyUser proxyUser,Date startDate,Date endDate,ProxyHomePageReport proxyHomePageReport){
         try {
             User user = new User();

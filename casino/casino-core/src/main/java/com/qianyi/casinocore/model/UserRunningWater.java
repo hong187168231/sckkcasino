@@ -38,4 +38,11 @@ public class UserRunningWater extends BaseEntity {
 
     @ApiModelProperty("基层代理ID")
     private Long thirdProxy;
+
+    public UserRunningWater(){
+
+    }
+    public UserRunningWater(Long userId){
+        this.userId = userId;
+    }
 }

@@ -1,14 +1,8 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.model.AccountChange;
-import com.qianyi.casinocore.model.LunboPic;
-import com.qianyi.casinocore.model.ProxyUser;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.service.AccountChangeService;
-import com.qianyi.casinocore.service.PictureService;
-import com.qianyi.casinocore.service.ProxyUserService;
-import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +34,7 @@ public class PictureControllerTest {
 
     @Autowired
     private ProxyUserService proxyUserService;
+
 
     @Test
     public void findproxy(){
