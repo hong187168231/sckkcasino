@@ -241,7 +241,7 @@ public class HomePageReportController {
             homePageReport.setWinLossAmount(winLoss);
             Set<Long> set = new HashSet<>();
             gameRecords.stream().filter(CommonUtil.distinctByKey(GameRecord::getUserId)).forEach(game ->{
-                set.add(game.getId());
+                set.add(game.getUserId());
             });
             gameRecords.clear();
             return set;
