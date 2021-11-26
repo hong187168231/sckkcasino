@@ -92,7 +92,7 @@ public class SysPermissionConfigFile {
         SysPermission userCharge = new SysPermission("会员账变", "会员账变", "/accountChange/findAccountChangePage", reportPermission.getId(), 2, 0);
         SysPermission chargeLog = new SysPermission("充值订单流水", "充值订单流水", "/rechargeTurnover/findPage", reportPermission.getId(), 2, 0);
         SysPermission thridGameRecord = new SysPermission("第三方游戏注单", "第三方游戏注单", "/gameRecord/findGameRecordPage", reportPermission.getId(), 2, 0);
-        SysPermission userLog = new SysPermission("用户登录日志", "用户登录日志", "/loginLog/findLoginLogPage", reportPermission.getId(), 2, 0);
+        SysPermission userLog = new SysPermission("用户登录日志", "用户登录日志", "/loginLog/findLoginLogPage", systemPermission.getId(), 2, 0);
         secordPermissions.add(WMbanlance);
         secordPermissions.add(userCharge);
         secordPermissions.add(chargeLog);
