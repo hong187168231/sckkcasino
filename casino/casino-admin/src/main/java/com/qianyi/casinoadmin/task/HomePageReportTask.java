@@ -136,7 +136,7 @@ public class HomePageReportTask {
             }
             homePageReport.setValidbetAmount(validbetAmount);
             homePageReport.setWinLossAmount(winLoss);
-            gameRecords = gameRecords.stream().filter(CommonUtil.distinctByKey(GameRecord::getUser)).collect(Collectors.toList());
+            gameRecords = gameRecords.stream().filter(CommonUtil.distinctByKey(GameRecord::getUserId)).collect(Collectors.toList());
             homePageReport.setActiveUsers(gameRecords.size());
             gameRecords.clear();
         }catch (Exception ex){
