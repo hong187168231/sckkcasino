@@ -110,6 +110,7 @@ public class CompanyProxyMonthController {
             return ResponseUtil.success(pageResultVO);
         }
         Map<Long, List<CompanyProxyMonth>> firstMap = companyProxyMonths.stream().collect(Collectors.groupingBy(CompanyProxyMonth::getUserId));
+        companyProxyMonths.clear();
         if (startDate.equals(endDate)){
             proxyUserPage.getContent().forEach(proxy -> {
                 List<CompanyProxyMonth> proxyHomes = firstMap.get(proxy.getId());
@@ -165,6 +166,7 @@ public class CompanyProxyMonthController {
                 list.add(companyProxyMonthVo);
             });
         }
+        firstMap.clear();
         pageResultVO.setContent(list);
         return ResponseUtil.success(pageResultVO);
     }

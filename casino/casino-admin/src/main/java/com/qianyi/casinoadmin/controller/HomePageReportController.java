@@ -240,7 +240,7 @@ public class HomePageReportController {
             homePageReport.setValidbetAmount(validbetAmount);
             homePageReport.setWinLossAmount(winLoss);
             Set<Long> set = new HashSet<>();
-            gameRecords.stream().filter(CommonUtil.distinctByKey(GameRecord::getUser)).forEach(game ->{
+            gameRecords.stream().filter(CommonUtil.distinctByKey(GameRecord::getUserId)).forEach(game ->{
                 set.add(game.getId());
             });
             gameRecords.clear();
