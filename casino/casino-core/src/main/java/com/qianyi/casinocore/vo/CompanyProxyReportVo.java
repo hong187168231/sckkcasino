@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Set;
 
 @Data
 public class CompanyProxyReportVo implements Serializable {
@@ -36,4 +37,6 @@ public class CompanyProxyReportVo implements Serializable {
     private BigDecimal groupPerformance = BigDecimal.ZERO;
     @ApiModelProperty("统计日期")
     private String staticsTimes;
+
+    private Set<Long> userIdSet;
 }

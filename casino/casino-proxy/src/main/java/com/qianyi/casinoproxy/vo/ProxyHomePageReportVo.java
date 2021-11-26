@@ -8,6 +8,7 @@ import lombok.Data;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Set;
 
 @Data
 public class ProxyHomePageReportVo  implements Serializable {
@@ -31,8 +32,8 @@ public class ProxyHomePageReportVo  implements Serializable {
     @ApiModelProperty(value = "统计时间段(日)")
     private String staticsTimes;
 
-    @ApiModelProperty(value = "统计时间段(周)")
-    private String staticsWeek;
+    @ApiModelProperty(value = "统计时间段(年)")
+    private String staticsYear;
 
     @ApiModelProperty(value = "统计时间段(月)")
     private String staticsMonth ;
@@ -67,6 +68,31 @@ public class ProxyHomePageReportVo  implements Serializable {
     @ApiModelProperty(value = "充投比")
     private BigDecimal oddsRatio;
 
+    private Set<Long> userIdSet;
+
+    public ProxyHomePageReportVo(ProxyHomePageReport proxyHomePageReport,Set<Long> userIdSet){
+        this.proxyUserId = proxyHomePageReport.getProxyUserId();
+        this.newSecondProxys = proxyHomePageReport.getNewSecondProxys();
+        this.newThirdProxys = proxyHomePageReport.getNewThirdProxys();
+        this.newUsers = proxyHomePageReport.getNewUsers();
+        this.userIdSet = userIdSet;
+        this.activeUsers = userIdSet == null ? CommonConst.NUMBER_0 : userIdSet.size();
+        this.staticsTimes = proxyHomePageReport.getStaticsTimes();
+        this.time = proxyHomePageReport.getStaticsTimes();
+        this.staticsYear = proxyHomePageReport.getStaticsYear();
+        this.staticsMonth = proxyHomePageReport.getStaticsMonth();
+        this.chargeAmount = proxyHomePageReport.getChargeAmount();
+        this.chargeNums = proxyHomePageReport.getChargeNums();
+        this.withdrawMoney = proxyHomePageReport.getWithdrawMoney();
+        this.withdrawNums = proxyHomePageReport.getWithdrawNums();
+        this.winLossAmount = proxyHomePageReport.getWinLossAmount();
+        this.validbetAmount = proxyHomePageReport.getValidbetAmount();
+        if (proxyHomePageReport.getValidbetAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || proxyHomePageReport.getChargeAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
+            this.oddsRatio = proxyHomePageReport.getChargeAmount();
+        }else {
+            this.oddsRatio = proxyHomePageReport.getChargeAmount().divide(proxyHomePageReport.getValidbetAmount(),2, RoundingMode.HALF_UP);
+        }
+    }
     public ProxyHomePageReportVo(ProxyHomePageReport proxyHomePageReport){
         this.proxyUserId = proxyHomePageReport.getProxyUserId();
         this.newSecondProxys = proxyHomePageReport.getNewSecondProxys();
@@ -75,7 +101,7 @@ public class ProxyHomePageReportVo  implements Serializable {
         this.activeUsers = proxyHomePageReport.getActiveUsers();
         this.staticsTimes = proxyHomePageReport.getStaticsTimes();
         this.time = proxyHomePageReport.getStaticsTimes();
-        this.staticsWeek = proxyHomePageReport.getStaticsWeek();
+        this.staticsYear = proxyHomePageReport.getStaticsYear();
         this.staticsMonth = proxyHomePageReport.getStaticsMonth();
         this.chargeAmount = proxyHomePageReport.getChargeAmount();
         this.chargeNums = proxyHomePageReport.getChargeNums();

@@ -8,7 +8,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -24,6 +26,9 @@ import java.util.List;
 public class UserRunningWaterService {
     @Autowired
     private UserRunningWaterRepository userRunningWaterRepository;
+
+    @Autowired
+    private EntityManager entityManager;
 
     public void updateKey(Long userId, String staticsTimes , BigDecimal amount, BigDecimal commission,Long firstProxy,Long secondProxy,Long thirdProxy){
         userRunningWaterRepository.updateKey(userId,staticsTimes,amount,commission,firstProxy,secondProxy,thirdProxy);
@@ -52,5 +57,35 @@ public class UserRunningWaterService {
             }
         };
         return specification;
+    }
+    public List<UserRunningWater> findUserRunningWaterList(UserRunningWater userRunningWater, String startTime, String endTime) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<UserRunningWater> query = builder.createQuery(UserRunningWater.class);
+        Root<UserRunningWater> root = query.from(UserRunningWater.class);
+        query.multiselect(
+                root.get("userId").as(Long.class)
+        );
+
+        List<Predicate> predicates = new ArrayList();
+
+        if (userRunningWater.getUserId() != null) {
+            predicates.add(builder.equal(root.get("userId").as(Long.class), userRunningWater.getUserId()));
+        }
+        if (userRunningWater.getFirstProxy() != null) {
+            predicates.add(builder.equal(root.get("firstProxy").as(Long.class), userRunningWater.getFirstProxy()));
+        }
+        if (userRunningWater.getSecondProxy() != null) {
+            predicates.add(builder.equal(root.get("secondProxy").as(Long.class), userRunningWater.getSecondProxy()));
+        }
+        if (userRunningWater.getThirdProxy() != null) {
+            predicates.add(builder.equal(root.get("thirdProxy").as(Long.class), userRunningWater.getThirdProxy()));
+        }
+        if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
+            predicates.add(builder.between(root.get("staticsTimes").as(String.class), startTime, endTime));
+        }
+        query.where(predicates.toArray(new Predicate[predicates.size()])).groupBy(root.get("userId"));
+
+        List<UserRunningWater> list = entityManager.createQuery(query).getResultList();
+        return list;
     }
 }

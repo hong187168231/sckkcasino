@@ -1,12 +1,9 @@
 package com.qianyi.casinoproxy.controller.jiceng;
 
-import com.qianyi.casinocore.model.CompanyProxyMonth;
-import com.qianyi.casinocore.model.ProxyUser;
-import com.qianyi.casinocore.service.CompanyProxyMonthService;
-import com.qianyi.casinocore.service.ProxyUserService;
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.casinocore.model.ProxyHomePageReport;
-import com.qianyi.casinocore.service.ProxyHomePageReportService;
+import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.casinoproxy.vo.ProxyHomePageReportVo;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -48,6 +45,9 @@ public class ThridHomeReportController {
     @Autowired
     private CompanyProxyMonthService companyProxyMonthService;
 
+    @Autowired
+    private UserRunningWaterService userRunningWaterService;
+
     @ApiOperation("查询基层代理首页报表")
     @GetMapping("/find")
     @ApiImplicitParams({
@@ -73,7 +73,7 @@ public class ThridHomeReportController {
             Integer withdrawNums = proxyHomePageReports.stream().mapToInt(ProxyHomePageReport::getWithdrawNums).sum();
             BigDecimal validbetAmount = proxyHomePageReports.stream().map(ProxyHomePageReport::getValidbetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal winLossAmount = proxyHomePageReports.stream().map(ProxyHomePageReport::getWinLossAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-            Integer activeUsers = proxyHomePageReports.stream().mapToInt(ProxyHomePageReport::getActiveUsers).sum();
+//            Integer activeUsers = proxyHomePageReports.stream().mapToInt(ProxyHomePageReport::getActiveUsers).sum();
             Integer newUsers = proxyHomePageReports.stream().mapToInt(ProxyHomePageReport::getNewUsers).sum();
             proxyHomePageReportVo.setChargeAmount(proxyHomePageReportVo.getChargeAmount().add(chargeAmount));
             proxyHomePageReportVo.setWithdrawMoney(proxyHomePageReportVo.getWithdrawMoney().add(withdrawMoney));
@@ -81,8 +81,19 @@ public class ThridHomeReportController {
             proxyHomePageReportVo.setWinLossAmount(proxyHomePageReportVo.getWinLossAmount().add(winLossAmount));
             proxyHomePageReportVo.setChargeNums(chargeNums + proxyHomePageReportVo.getChargeNums());
             proxyHomePageReportVo.setWithdrawNums(withdrawNums + proxyHomePageReportVo.getWithdrawNums());
-            proxyHomePageReportVo.setActiveUsers(activeUsers + proxyHomePageReportVo.getActiveUsers());
+//            proxyHomePageReportVo.setActiveUsers(activeUsers + proxyHomePageReportVo.getActiveUsers());
             proxyHomePageReportVo.setNewUsers(newUsers + proxyHomePageReportVo.getNewUsers());
+            UserRunningWater userRunningWater = new UserRunningWater();
+            userRunningWater.setThirdProxy(CasinoProxyUtil.getAuthId());
+            List<UserRunningWater> userRunningWaterList = userRunningWaterService.findUserRunningWaterList(userRunningWater, startTime, endTime);
+            Set<Long> userIdSet = proxyHomePageReportVo.getUserIdSet();
+            if (CasinoProxyUtil.checkNull(userIdSet)){
+                userIdSet = new HashSet<>();
+            }
+            for (UserRunningWater u : userRunningWaterList){
+                userIdSet.add(u.getUserId());
+            }
+            proxyHomePageReportVo.setActiveUsers(userIdSet.size());
             CompanyProxyMonth companyProxyMonth = new CompanyProxyMonth();
             companyProxyMonth.setUserId(CasinoProxyUtil.getAuthId());
             this.findCompanyProxyDetails(companyProxyMonth,startTime,endTime,proxyHomePageReportVo);
@@ -95,7 +106,7 @@ public class ThridHomeReportController {
     @ApiOperation("查找走势图")
     @GetMapping("/findTrendChart")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "tag", value = "1:每日 2:每周 3:每月", required = false),
+            @ApiImplicitParam(name = "tag", value = "1:每日 2:每月 3:每年", required = false),
             @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
@@ -125,13 +136,13 @@ public class ThridHomeReportController {
                 Collections.reverse(list);
                 return ResponseUtil.success(list);
             }else if (tag == CommonConst.NUMBER_2){
-                Map<String, List<ProxyHomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(ProxyHomePageReportVo::getStaticsWeek));
+                Map<String, List<ProxyHomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(ProxyHomePageReportVo::getStaticsMonth));
                 list.clear();
                 map.forEach((key,value)->{
                     list.add(this.getHomePageReportVo(value,key));
                 });
             }else {
-                Map<String, List<ProxyHomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(ProxyHomePageReportVo::getStaticsMonth));
+                Map<String, List<ProxyHomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(ProxyHomePageReportVo::getStaticsYear));
                 list.clear();
                 map.forEach((key,value)->{
                     list.add(this.getHomePageReportVo(value,key));
@@ -181,7 +192,7 @@ public class ThridHomeReportController {
         String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
         ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
         proxyHomePageReport.setStaticsTimes(format);
-        proxyHomePageReport.setStaticsWeek(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4)+CommonConst.UNDERLINE_SYMBOL+DateUtil.getWeek(format));
+        proxyHomePageReport.setStaticsYear(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4));
         proxyHomePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
         Long authId = CasinoProxyUtil.getAuthId();
         ProxyUser byId = proxyUserService.findById(authId);
@@ -191,9 +202,9 @@ public class ThridHomeReportController {
         Date end = DateUtil.getSimpleDateFormat().parse(endTime);
         proxyHomePageReportService.chargeOrder(byId, start, end, proxyHomePageReport);
         proxyHomePageReportService.withdrawOrder(byId, start, end, proxyHomePageReport);
-        proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
+        Set<Long> set = proxyHomePageReportService.gameRecordAndActive(byId, startTime, endTime, proxyHomePageReport);
         proxyHomePageReportService.getNewUsers(byId, start, end, proxyHomePageReport);
-        ProxyHomePageReportVo proxyHomePageReportVo = new ProxyHomePageReportVo(proxyHomePageReport);
+        ProxyHomePageReportVo proxyHomePageReportVo = new ProxyHomePageReportVo(proxyHomePageReport,set);
         return proxyHomePageReportVo;
     }
 }

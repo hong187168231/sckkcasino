@@ -30,33 +30,7 @@ public class UserRunningWaterTask {
     public final static Integer startHour = 0;
 
     public final static Integer endHour = 23;
-    public final static List<String> list = new LinkedList<>();
 
-    static {
-        list.add("2021-11-02");
-        list.add("2021-11-03");
-        list.add("2021-11-04");
-        list.add("2021-11-05");
-        list.add("2021-11-06");
-        list.add("2021-11-07");
-        list.add("2021-11-08");
-        list.add("2021-11-09");
-        list.add("2021-11-10");
-        list.add("2021-11-11");
-        list.add("2021-11-12");
-        list.add("2021-11-13");
-        list.add("2021-11-14");
-        list.add("2021-11-15");
-        list.add("2021-11-16");
-        list.add("2021-11-17");
-        list.add("2021-11-18");
-        list.add("2021-11-19");
-        list.add("2021-11-20");
-        list.add("2021-11-21");
-        list.add("2021-11-22");
-        list.add("2021-11-23");
-        list.add("2021-11-24");
-    }
     @Autowired
     private UserRunningWaterService userRunningWaterService;
 
@@ -69,30 +43,26 @@ public class UserRunningWaterTask {
     @Autowired
     private UserService userService;
 
-    @Scheduled(cron = TaskConst.HOME_PAGE_REPORT)
+    @Scheduled(cron = TaskConst.USER_RUNNING_WATER)
     public void create(){
         log.info("每日会员流水报表统计开始start=============================================》");
         Calendar nowTime = Calendar.getInstance();
         nowTime.add(Calendar.DATE, -1);
         String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
-        for (String str:list){
-            format = str;
-            try {
-                for (int i = startHour;i <= endHour;i++){
-                    String s = i < CommonConst.NUMBER_10? " 0"+i:" "+i;
-                    String startTime = format + s + start;
-                    String endTime = format + s + end;
-                    Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
-                    Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
-                    this.gameRecord(startTime,endTime,format);
-                    this.shareProfitChange(format,startDate,endDate);
-                }
-                log.info("每日会员流水报表统计结束end=============================================》");
-            }catch (Exception ex){
-                log.error("每日会员流水报表统计失败",ex);
+        try {
+            for (int i = startHour;i <= endHour;i++){
+                String s = i < CommonConst.NUMBER_10? " 0"+i:" "+i;
+                String startTime = format + s + start;
+                String endTime = format + s + end;
+                Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
+                Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
+                this.gameRecord(startTime,endTime,format);
+                this.shareProfitChange(format,startDate,endDate);
             }
+            log.info("每日会员流水报表统计结束end=============================================》");
+        }catch (Exception ex){
+            log.error("每日会员流水报表统计失败",ex);
         }
-
     }
 
     public void gameRecord(String startTime, String endTime, String format){
