@@ -64,7 +64,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
         //获取登陆用户
         Long authId = Long.parseLong(subject.getUserId());
         User user = userService.findById(authId);
-        synchronized (token) {
+        synchronized (token.intern()) {
             //多个请求只有一个去刷新token
             Object redisToken = redisUtil.get(Constants.REDIS_TOKEN + authId);
             JjwtUtil.Token redisJwtToken = null;
