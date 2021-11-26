@@ -35,7 +35,7 @@ spring:
     timeout: 3000
   rabbitmq:
     host: 127.0.0.1 #ip
-    port: 5672      #端口
+    port: 8672      #端口
     username: qd #账号
     password: qd123 #密码
     publisher-returns: true

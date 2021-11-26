@@ -58,6 +58,7 @@ public class ShareProfitBusiness {
     }
 
     private List<ShareProfitBO> shareProfitOperator(PlatformConfig platformConfig, ShareProfitMqVo shareProfitMqVo) {
+        Long startTime = System.currentTimeMillis();
         User user = userService.findById(shareProfitMqVo.getUserId());
         log.info("shareProfitOperator user:{}",user);
         String betTime = shareProfitMqVo.getBetTime().substring(0,10);
@@ -69,11 +70,13 @@ public class ShareProfitBusiness {
         if(ShareProfitUtils.compareIntegerNotNull( user.getThirdPid()))
             shareProfitBOList.add(getShareProfitBO(user,user.getThirdPid(),shareProfitMqVo.getValidbet(),platformConfig.getThirdCommission(),getUserIsFirstBet(user),betTime,false,3));
         log.info("get list object is {}",shareProfitBOList);
+        log.info("shareProfitOperator That took {} milliseconds",System.currentTimeMillis()-startTime);
         return shareProfitBOList;
     }
 
     private ShareProfitBO getShareProfitBO(User user,Long userId,BigDecimal betAmount,BigDecimal commission,Boolean isFirst,String betTime,boolean direct,Integer parentLevel){
         ShareProfitBO shareProfitBO = new ShareProfitBO();
+        shareProfitBO.setFromUserId(user.getId());
         shareProfitBO.setUserId(userId);
         shareProfitBO.setBetAmount(betAmount);
         shareProfitBO.setProfitAmount(betAmount.multiply(commission.divide(BigDecimal.valueOf(100))));
@@ -82,7 +85,6 @@ public class ShareProfitBusiness {
         shareProfitBO.setDirect(direct);
         shareProfitBO.setCommission(commission);
         shareProfitBO.setParentLevel(parentLevel);
-        shareProfitBO.setAccount(user.getAccount());
         log.info("user:{} \\n shareProfitBO{}",user,shareProfitBO);
         return shareProfitBO;
     }

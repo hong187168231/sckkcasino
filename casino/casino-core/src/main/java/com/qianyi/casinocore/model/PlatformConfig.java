@@ -31,7 +31,7 @@ public class PlatformConfig {
     private BigDecimal chargeMinMoney;
 
     @ApiModelProperty("每笔最高充值")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
     private BigDecimal chargeMaxMoney;
 
     @ApiModelProperty("充值服务费")
@@ -47,7 +47,7 @@ public class PlatformConfig {
     private BigDecimal withdrawMinMoney;
 
     @ApiModelProperty("每笔最高提现额")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
     private BigDecimal withdrawMaxMoney;
 
     @ApiModelProperty("提现服务费")

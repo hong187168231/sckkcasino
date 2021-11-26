@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import java.math.BigDecimal;
 
@@ -18,8 +19,10 @@ public class ProxyReport extends BaseEntity{
     private String account;
     //全部
     @ApiModelProperty("分润")
+    @Column(columnDefinition = "Decimal(10,6) default '0.000000'")
     private BigDecimal allProfitAmount=BigDecimal.ZERO;
     @ApiModelProperty("有效投注")
+    @Column(columnDefinition = "Decimal(10,6) default '0.000000'")
     private BigDecimal allBetAmount=BigDecimal.ZERO;
     @ApiModelProperty("团队人数")
     private Integer allGroupNum=0;
@@ -30,8 +33,10 @@ public class ProxyReport extends BaseEntity{
 
     //直属
     @ApiModelProperty("分润")
+    @Column(columnDefinition = "Decimal(10,6) default '0.000000'")
     private BigDecimal directProfitAmount=BigDecimal.ZERO;
     @ApiModelProperty("有效投注")
+    @Column(columnDefinition = "Decimal(10,6) default '0.000000'")
     private BigDecimal directBetAmount=BigDecimal.ZERO;
     @ApiModelProperty("团队人数")
     private Integer directGroupNum=0;
@@ -42,8 +47,10 @@ public class ProxyReport extends BaseEntity{
 
     //非直属
     @ApiModelProperty("分润")
+    @Column(columnDefinition = "Decimal(10,6) default '0.000000'")
     private BigDecimal otherProfitAmount=BigDecimal.ZERO;
     @ApiModelProperty("有效投注")
+    @Column(columnDefinition = "Decimal(10,6) default '0.000000'")
     private BigDecimal otherBetAmount=BigDecimal.ZERO;
     @ApiModelProperty("团队人数")
     private Integer otherGroupNum=0;

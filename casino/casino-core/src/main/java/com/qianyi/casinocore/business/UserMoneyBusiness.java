@@ -68,8 +68,7 @@ public class UserMoneyBusiness {
             //检查最小清零打码量
             checkClearCodeNum(platformConfig, userId, record, userMoney);
         }
-        record.setCodeNumStatus(Constants.yes);
-        gameRecordService.save(record);
+        gameRecordService.updateCodeNumStatus(record.getId(), Constants.yes);
         log.info("打码结束,注单ID={}", record.getBetId());
     }
 
@@ -123,8 +122,7 @@ public class UserMoneyBusiness {
             userMoneyService.findUserByUserIdUseLock(userId);
             userMoneyService.addWashCode(userId, washCodeVal);
         }
-        gameRecord.setWashCodeStatus(Constants.yes);
-        gameRecordService.save(gameRecord);
+        gameRecordService.updateWashCodeStatus(gameRecord.getId(),Constants.yes);
         log.info("洗码完成,注单ID={}", gameRecord.getBetId());
     }
 
@@ -144,6 +142,6 @@ public class UserMoneyBusiness {
         shareProfitMqVo.setGameRecordId(record.getId());
         shareProfitMqVo.setBetTime(record.getBetTime());
         rabbitTemplate.convertAndSend(RabbitMqConstants.SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.SHAREPROFIT_DIRECT, shareProfitMqVo, new CorrelationData(UUID.randomUUID().toString()));
-        log.info("分润消息发送成功={}", shareProfitMqVo);
+        log.info("分润消息发送成功,注单ID={},消息明细={}", record.getBetId(), shareProfitMqVo);
     }
 }

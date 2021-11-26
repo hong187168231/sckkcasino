@@ -3,6 +3,7 @@ package com.qianyi.casinoproxy.controller.jiceng;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.casinocore.vo.CompanyProxyReportVo;
 import com.qianyi.casinocore.model.ProxyHomePageReport;
 import com.qianyi.casinocore.service.ProxyHomePageReportService;
@@ -39,6 +40,9 @@ public class ThridCompanyProxyDetailController {
 
     @Autowired
     private ProxyHomePageReportService proxyHomePageReportService;
+
+    @Autowired
+    private UserRunningWaterService userRunningWaterService;
 
     public final static String start = " 00:00:00";
 
@@ -84,14 +88,14 @@ public class ThridCompanyProxyDetailController {
                     BigDecimal chargeAmount = proxyHomes.stream().map(ProxyHomePageReport::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
                     BigDecimal withdrawMoney = proxyHomes.stream().map(ProxyHomePageReport::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
                     BigDecimal validbetAmount = proxyHomes.stream().map(ProxyHomePageReport::getValidbetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-                    Integer activeUsers = proxyHomes.stream().mapToInt(ProxyHomePageReport::getActiveUsers).sum();
+//                    Integer activeUsers = proxyHomes.stream().mapToInt(ProxyHomePageReport::getActiveUsers).sum();
                     Integer newUsers = proxyHomes.stream().mapToInt(ProxyHomePageReport::getNewUsers).sum();
                     Integer newSecondProxys = proxyHomes.stream().mapToInt(ProxyHomePageReport::getNewSecondProxys).sum();
                     Integer newThirdProxys = proxyHomes.stream().mapToInt(ProxyHomePageReport::getNewThirdProxys).sum();
                     vo.setChargeAmount(vo.getChargeAmount().add(chargeAmount));
                     vo.setWithdrawMoney(vo.getWithdrawMoney().add(withdrawMoney));
                     vo.setGroupPerformance(vo.getGroupPerformance().add(validbetAmount));
-                    vo.setActiveUsers(activeUsers + vo.getActiveUsers());
+                    this.getActiveUsers(vo,startTime,endTime);
                     vo.setGroupNewUsers(newUsers + vo.getGroupNewUsers());
                     vo.setGroupNewProxyUsers(vo.getGroupNewProxyUsers() + newSecondProxys + newThirdProxys);
                 }
@@ -101,6 +105,21 @@ public class ThridCompanyProxyDetailController {
         }
         return ResponseUtil.success(this.getCompanyProxyReportVos(list));
     }
+
+    private void getActiveUsers(CompanyProxyReportVo companyProxyReportVo,String startTime, String endTime){
+        UserRunningWater userRunningWater = new UserRunningWater();
+        userRunningWater.setThirdProxy(companyProxyReportVo.getId());
+        List<UserRunningWater> userRunningWaterList = userRunningWaterService.findUserRunningWaterList(userRunningWater, startTime, endTime);
+        Set<Long> userIdSet = companyProxyReportVo.getUserIdSet();
+        if (CasinoProxyUtil.checkNull(userIdSet)){
+            userIdSet = new HashSet<>();
+        }
+        for (UserRunningWater u : userRunningWaterList){
+            userIdSet.add(u.getUserId());
+        }
+        companyProxyReportVo.setActiveUsers(userIdSet.size());
+    }
+
     @ApiOperation("每日结算细节")
     @GetMapping("/findDailyDetails")
     @ApiImplicitParams({
@@ -120,9 +139,10 @@ public class ThridCompanyProxyDetailController {
                 companyProxyReportVo = this.assemble(proxyUser);
             } catch (ParseException e) {
                 log.error("代理每日结算细节失败",e);
+                return ResponseUtil.custom("查询失败");
             }
         }
-        Sort sort=Sort.by("id").descending();
+        Sort sort=Sort.by("staticsTimes").descending();
         List<CompanyProxyReportVo> list = new LinkedList<>();
         String startTime = startDate==null? null:DateUtil.getSimpleDateFormat1().format(startDate);
         String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
@@ -134,7 +154,9 @@ public class ThridCompanyProxyDetailController {
             proxyHomePageReports.forEach(proxyHomePageReport -> {
                 list.add(this.assemble(proxyHomePageReport));
             });
+            proxyHomePageReports.clear();
         }
+        Collections.reverse(list);
         return ResponseUtil.success(list);
     }
     private CompanyProxyReportVo assemble(ProxyUser byId) throws ParseException {
@@ -148,9 +170,9 @@ public class ThridCompanyProxyDetailController {
         Date end = DateUtil.getSimpleDateFormat().parse(endTime);
         proxyHomePageReportService.chargeOrder(byId, start, end, proxyHomePageReport);
         proxyHomePageReportService.withdrawOrder(byId, start, end, proxyHomePageReport);
-        proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
+        Set<Long> set = proxyHomePageReportService.gameRecordAndActive(byId, startTime, endTime, proxyHomePageReport);
         proxyHomePageReportService.getNewUsers(byId, start, end, proxyHomePageReport);
-        CompanyProxyReportVo companyProxyReportVo = this.assemble(proxyHomePageReport);
+        CompanyProxyReportVo companyProxyReportVo = this.assemble(proxyHomePageReport,set);
         return this.assemble(companyProxyReportVo,byId);
     }
 
@@ -162,6 +184,18 @@ public class ThridCompanyProxyDetailController {
         companyProxyReportVo.setProxyRole(byId.getProxyRole());
         return companyProxyReportVo;
     }
+    private CompanyProxyReportVo assemble(ProxyHomePageReport proxyHomePageReport,Set<Long> userIdSet){
+        CompanyProxyReportVo companyProxyReportVo = new CompanyProxyReportVo();
+        companyProxyReportVo.setChargeAmount(proxyHomePageReport.getChargeAmount());
+        companyProxyReportVo.setWithdrawMoney(proxyHomePageReport.getWithdrawMoney());
+        companyProxyReportVo.setGroupPerformance(proxyHomePageReport.getValidbetAmount());
+        companyProxyReportVo.setGroupNewUsers(proxyHomePageReport.getNewUsers());
+        companyProxyReportVo.setUserIdSet(userIdSet);
+        companyProxyReportVo.setActiveUsers(userIdSet == null ? CommonConst.NUMBER_0 : userIdSet.size());
+        companyProxyReportVo.setStaticsTimes(proxyHomePageReport.getStaticsTimes());
+        return companyProxyReportVo;
+    }
+
     private CompanyProxyReportVo assemble(ProxyHomePageReport proxyHomePageReport){
         CompanyProxyReportVo companyProxyReportVo = new CompanyProxyReportVo();
         companyProxyReportVo.setChargeAmount(proxyHomePageReport.getChargeAmount());
@@ -184,6 +218,8 @@ public class ThridCompanyProxyDetailController {
                     }
                 });
             });
+            collect.clear();
+            proxyUsers.clear();
         }
         return list;
     }

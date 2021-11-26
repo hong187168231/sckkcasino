@@ -42,7 +42,11 @@ public class GenerateInviteCodeRunner implements CommandLineRunner {
     /**
      * 批量生成邀请码
      */
-    public void batchGenerateInviteCode() {
+    public synchronized void batchGenerateInviteCode() {
+        boolean hasKey = redisUtil.hasKey(Constants.REDIS_INVITECODELIST);
+        if (hasKey){
+            return;
+        }
         Set<String> sets = new HashSet<>();
         //防止生成的100个里面有重复的
         for (int i = 0; i < initNum; i++) {

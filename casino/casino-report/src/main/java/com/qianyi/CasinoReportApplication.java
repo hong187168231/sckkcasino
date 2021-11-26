@@ -15,6 +15,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class CasinoReportApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CasinoReportApplication.class);
+        SpringApplication.run(CasinoReportApplication.class, args);
     }
 }

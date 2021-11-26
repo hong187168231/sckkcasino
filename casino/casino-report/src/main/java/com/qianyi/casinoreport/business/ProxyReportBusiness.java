@@ -55,6 +55,7 @@ public class ProxyReportBusiness {
     }
 
     public ProxyReport buildProxyReport(Long userId) {
+        log.info("build proxy report user id is {}",userId);
         User user = userService.findById(userId);
         ProxyReport proxyReport = new ProxyReport();
         proxyReport.setUserId(userId);
@@ -104,9 +105,10 @@ public class ProxyReportBusiness {
     }
 
     public ProxyReport getProxyReport(Long userId) {
+        log.info("user id is {}",userId);
         ProxyReport proxyReport = proxyReportService.findByUserId(userId);
         if(proxyReport == null)
-            proxyReport = buildProxyReport(userId);
-        return proxyReport;
+            buildProxyReport(userId);
+        return proxyReportService.findByUserIdWithLock(userId);
     }
 }

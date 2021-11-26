@@ -8,6 +8,7 @@ import lombok.Data;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Set;
 
 @Data
 public class HomePageReportVo implements Serializable {
@@ -56,8 +57,8 @@ public class HomePageReportVo implements Serializable {
     @ApiModelProperty(value = "统计时间段(日)")
     private String staticsTimes;
 
-    @ApiModelProperty(value = "统计时间段(周)")
-    private String staticsWeek;
+    @ApiModelProperty(value = "统计时间段(年)")
+    private String staticsYear;
 
     @ApiModelProperty(value = "统计时间段(月)")
     private String staticsMonth ;
@@ -76,8 +77,35 @@ public class HomePageReportVo implements Serializable {
 
     @ApiModelProperty(value = "时间段")
     private String time ;
+
+    private Set<Long> userIdSet;
+
     public HomePageReportVo(){
 
+    }
+    public HomePageReportVo(HomePageReport homePageReport,Set<Long> userIdSet){
+        this.chargeAmount = homePageReport.getChargeAmount();
+        this.chargeNums = homePageReport.getChargeNums();
+        this.withdrawMoney = homePageReport.getWithdrawMoney();
+        this.withdrawNums = homePageReport.getWithdrawNums();
+        this.validbetAmount = homePageReport.getValidbetAmount();
+        this.winLossAmount = homePageReport.getWinLossAmount();
+        this.washCodeAmount = homePageReport.getWashCodeAmount();
+        this.shareAmount = homePageReport.getShareAmount();
+        this.bonusAmount = homePageReport.getBonusAmount();
+        this.serviceCharge = homePageReport.getServiceCharge();
+        this.staticsTimes = homePageReport.getStaticsTimes();
+        this.time = homePageReport.getStaticsTimes();
+        this.staticsYear = homePageReport.getStaticsYear();
+        this.staticsMonth = homePageReport.getStaticsMonth();
+        this.newUsers = homePageReport.getNewUsers();
+        this.userIdSet = userIdSet;
+        this.activeUsers = userIdSet == null ? CommonConst.NUMBER_0 : userIdSet.size();
+        if (homePageReport.getValidbetAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || homePageReport.getChargeAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
+            this.oddsRatio = homePageReport.getChargeAmount();
+        }else {
+            this.oddsRatio = homePageReport.getChargeAmount().divide(homePageReport.getValidbetAmount(), 2, RoundingMode.HALF_UP);
+        }
     }
     public HomePageReportVo(HomePageReport homePageReport){
         this.chargeAmount = homePageReport.getChargeAmount();
@@ -92,10 +120,10 @@ public class HomePageReportVo implements Serializable {
         this.serviceCharge = homePageReport.getServiceCharge();
         this.staticsTimes = homePageReport.getStaticsTimes();
         this.time = homePageReport.getStaticsTimes();
-        this.staticsWeek = homePageReport.getStaticsWeek();
+        this.staticsYear = homePageReport.getStaticsYear();
         this.staticsMonth = homePageReport.getStaticsMonth();
-        this.activeUsers = homePageReport.getActiveUsers();
         this.newUsers = homePageReport.getNewUsers();
+        this.activeUsers = homePageReport.getActiveUsers();
         if (homePageReport.getValidbetAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || homePageReport.getChargeAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
             this.oddsRatio = homePageReport.getChargeAmount();
         }else {

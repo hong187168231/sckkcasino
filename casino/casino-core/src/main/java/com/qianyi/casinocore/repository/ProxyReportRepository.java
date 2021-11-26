@@ -9,6 +9,9 @@ import javax.persistence.LockModeType;
 
 public interface ProxyReportRepository extends JpaRepository<ProxyReport,Long>, JpaSpecificationExecutor<ProxyReport> {
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+
     ProxyReport findProxyReportByUserId(Long userId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    ProxyReport findByUserId(Long userId);
 }

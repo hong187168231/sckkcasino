@@ -1,10 +1,13 @@
 package com.qianyi.casinoadmin.task;
 
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.ShareProfitChange;
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinocore.service.ShareProfitChangeService;
 import com.qianyi.casinocore.service.UserRunningWaterService;
+import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.TaskConst;
 import com.qianyi.modulecommon.util.DateUtil;
@@ -14,10 +17,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -39,6 +39,9 @@ public class UserRunningWaterTask {
 
     @Autowired
     private GameRecordService gameRecordService;
+    
+    @Autowired
+    private UserService userService;
 
     @Scheduled(cron = TaskConst.USER_RUNNING_WATER)
     public void create(){
@@ -51,8 +54,6 @@ public class UserRunningWaterTask {
                 String s = i < CommonConst.NUMBER_10? " 0"+i:" "+i;
                 String startTime = format + s + start;
                 String endTime = format + s + end;
-                System.out.println(startTime);
-                System.out.println(endTime);
                 Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
                 Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
                 this.gameRecord(startTime,endTime,format);
@@ -72,14 +73,22 @@ public class UserRunningWaterTask {
                 return;
             }
             Map<Long, List<GameRecord>> userIdMap = gameRecords.stream().collect(Collectors.groupingBy(GameRecord::getUserId));
+            gameRecords.clear();
             userIdMap.forEach((key,value)->{
                 List<GameRecord> valueList = value;
                 BigDecimal validbetAmount = BigDecimal.ZERO;
                 for (GameRecord g : valueList){
                     validbetAmount = validbetAmount.add(new BigDecimal(g.getValidbet()));
                 }
-                userRunningWaterService.updateKey(key,format,validbetAmount,BigDecimal.ZERO);
+                User user = userService.findById(key);
+                if (LoginUtil.checkNull(user) || LoginUtil.checkNull(user.getFirstProxy())){
+                    userRunningWaterService.updateKey(key,format,validbetAmount,BigDecimal.ZERO,CommonConst.LONG_0,CommonConst.LONG_0,CommonConst.LONG_0);
+                }else {
+                    userRunningWaterService.updateKey(key,format,validbetAmount,BigDecimal.ZERO,user.getFirstProxy(),user.getSecondProxy(),user.getThirdProxy());
+                }
+                valueList.clear();
             });
+            userIdMap.clear();
         }catch (Exception ex){
             log.error("用户流水统计三方游戏注单失败{}",ex);
         }
@@ -91,11 +100,19 @@ public class UserRunningWaterTask {
                 return;
             }
             Map<Long, List<ShareProfitChange>> fromUserIdMap = shareProfitChanges.stream().collect(Collectors.groupingBy(ShareProfitChange::getFromUserId));
+            shareProfitChanges.clear();
             fromUserIdMap.forEach((key,value)->{
                 List<ShareProfitChange> valueList = value;
                 BigDecimal contribution = valueList.stream().map(ShareProfitChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-                userRunningWaterService.updateKey(key,format,BigDecimal.ZERO,contribution);
+                User user = userService.findById(key);
+                if (LoginUtil.checkNull(user) || LoginUtil.checkNull(user.getFirstProxy())){
+                    userRunningWaterService.updateKey(key,format,BigDecimal.ZERO,contribution,CommonConst.LONG_0,CommonConst.LONG_0,CommonConst.LONG_0);
+                }else {
+                    userRunningWaterService.updateKey(key,format,BigDecimal.ZERO,contribution,user.getFirstProxy(),user.getSecondProxy(),user.getThirdProxy());
+                }
+                valueList.clear();
             });
+            fromUserIdMap.clear();
         }catch (Exception ex){
             log.error("用户流水统计人人代佣金失败{}",ex);
         }

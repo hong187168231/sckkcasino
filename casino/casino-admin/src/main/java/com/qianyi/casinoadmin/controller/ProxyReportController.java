@@ -36,9 +36,6 @@ public class ProxyReportController {
     private UserService userService;
 
     @Autowired
-    private ProxyReportService proxyReportService;
-
-    @Autowired
     private ShareProfitChangeService shareProfitChangeService;
 
     @Autowired
@@ -74,17 +71,17 @@ public class ProxyReportController {
         Map<Long,BigDecimal> map = new HashMap<>();
         Map<Long,Integer> userMap = new HashMap<>();
         this.assemble(map,userMap,byAccount,byAccount.getId(),startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_0,CommonConst.NUMBER_0);
-        List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, byAccount.getId());
+        List<User> firstUsers = userService.findFirstUser(byAccount.getId());
         if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
             firstUsers.forEach(f ->{
                 this.assemble(map,userMap,f,byAccount.getId(),startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_1,CommonConst.NUMBER_1);
             });
-            List<User> secondPid = userService.findByStateAndSecondPid(Constants.open, byAccount.getId());
+            List<User> secondPid = userService.findBySecondPid(byAccount.getId());
             if (!LoginUtil.checkNull(secondPid) && secondPid.size() > CommonConst.NUMBER_0){
                 secondPid.forEach(s ->{
                     this.assemble(map,userMap,s,byAccount.getId(),startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_2,CommonConst.NUMBER_2);
                 });
-                List<User> thirdPid = userService.findByStateAndThirdPid(Constants.open, byAccount.getId());
+                List<User> thirdPid = userService.findByThirdPid(byAccount.getId());
                 if (!LoginUtil.checkNull(thirdPid) && thirdPid.size() > CommonConst.NUMBER_0){
                     thirdPid.forEach(t ->{
                         this.assemble(map,userMap,t,byAccount.getId(),startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_3,CommonConst.NUMBER_3);
@@ -140,13 +137,13 @@ public class ProxyReportController {
         Map<Long,BigDecimal> map = new HashMap<>();
         Map<Long,Integer> userMap = new HashMap<>();
         this.assemble(map,userMap,user,userId,startTime,endTime,list,startDate,endDate,tier,CommonConst.NUMBER_0);
-        List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, user.getId());
+        List<User> firstUsers = userService.findFirstUser(user.getId());
         if (tier == CommonConst.NUMBER_1){
             if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
                 firstUsers.forEach(f ->{
                     this.assemble(map,userMap,f,user.getFirstPid(),startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_2,CommonConst.NUMBER_1);
                 });
-                List<User> secondPid = userService.findByStateAndSecondPid(Constants.open, user.getId());
+                List<User> secondPid = userService.findBySecondPid(user.getId());
                 if (!LoginUtil.checkNull(secondPid) && secondPid.size() > CommonConst.NUMBER_0){
                     secondPid.forEach(s ->{
                         this.assemble(map,userMap,s,user.getFirstPid(),startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_3,CommonConst.NUMBER_2);
@@ -225,17 +222,17 @@ public class ProxyReportController {
             try {
                 if (tier == CommonConst.NUMBER_0){
                     proxyReportVo = this.assemble(null,id,date,CommonConst.NUMBER_0);
-                    List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, id);
+                    List<User> firstUsers = userService.findFirstUser(id);
                     if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
                         firstUsers.forEach(f ->{
                             this.assemble(f.getId(),date,allPerformances);
                         });
-                        List<User> secondPid = userService.findByStateAndSecondPid(Constants.open,id);
+                        List<User> secondPid = userService.findBySecondPid(id);
                         if (!LoginUtil.checkNull(secondPid) && secondPid.size() > CommonConst.NUMBER_0){
                             secondPid.forEach(s ->{
                                 this.assemble(s.getId(),date,allPerformances);
                             });
-                            List<User> thirdPid = userService.findByStateAndThirdPid(Constants.open,id);
+                            List<User> thirdPid = userService.findByThirdPid(id);
                             if (!LoginUtil.checkNull(thirdPid) && thirdPid.size() > CommonConst.NUMBER_0){
                                 thirdPid.forEach(t ->{
                                     this.assemble(t.getId(),date,allPerformances);
@@ -246,12 +243,12 @@ public class ProxyReportController {
                     proxyReportVo.setAllPerformance(allPerformances.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
                 }else if (tier == CommonConst.NUMBER_1){
                     proxyReportVo = this.assemble(id,user.getFirstPid(),date,CommonConst.NUMBER_1);
-                    List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, id);
+                    List<User> firstUsers = userService.findFirstUser(id);
                     if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
                         firstUsers.forEach(f ->{
                             this.assemble(f.getId(),date,allPerformances);
                         });
-                        List<User> secondPid = userService.findByStateAndSecondPid(Constants.open,id);
+                        List<User> secondPid = userService.findBySecondPid(id);
                         if (!LoginUtil.checkNull(secondPid) && secondPid.size() > CommonConst.NUMBER_0){
                             secondPid.forEach(s ->{
                                 this.assemble(s.getId(),date,allPerformances);
@@ -261,7 +258,7 @@ public class ProxyReportController {
                     proxyReportVo.setAllPerformance(allPerformances.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
                 }else if (tier == CommonConst.NUMBER_2){
                     proxyReportVo = this.assemble(id,user.getSecondPid(),date,CommonConst.NUMBER_2);
-                    List<User> firstUsers = userService.findByStateAndFirstPid(Constants.open, id);
+                    List<User> firstUsers = userService.findFirstUser(id);
                     if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
                         firstUsers.forEach(f ->{
                             this.assemble(f.getId(),date,allPerformances);

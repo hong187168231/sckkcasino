@@ -24,7 +24,7 @@ public class WithdrawOrder extends BaseEntity {
     private String no;
 
     @ApiModelProperty(value = "金额")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal withdrawMoney;
 

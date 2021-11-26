@@ -47,6 +47,7 @@ public class Swagger2Config {
 //                .paths(PathSelectors.any())
                 .paths(PathSelectors.regex("(?!/error).+"))
                 .paths(PathSelectors.regex("(?!/authentication).+"))
+                .paths(PathSelectors.regex("(?!/authorization).+"))
                 .paths(PathSelectors.regex("(?!/risk).+"))
                 .build()
                 .securitySchemes(Collections.singletonList(HttpAuthenticationScheme.

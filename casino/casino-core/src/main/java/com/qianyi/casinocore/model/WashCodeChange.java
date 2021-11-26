@@ -38,7 +38,7 @@ public class WashCodeChange extends BaseEntity {
 	private BigDecimal rate;
 
 	@ApiModelProperty(value = "洗码金额")
-	@Column(columnDefinition = "Decimal(10,6) default '0.00'")
+	@Column(columnDefinition = "Decimal(19,6) default '0.00'")
 	private BigDecimal amount;
 
 	public WashCodeChange(String platform, String gameId, String gameName, BigDecimal amount,BigDecimal validbet) {

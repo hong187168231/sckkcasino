@@ -17,9 +17,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -133,6 +131,7 @@ public class ProxyHomePageReportService {
             BigDecimal chargeAmount = chargeOrders.stream().map(ChargeOrder::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             proxyHomePageReport.setChargeAmount(chargeAmount);
             proxyHomePageReport.setChargeNums(chargeOrders.size());
+            chargeOrders.clear();
         }catch (Exception ex){
             log.error("统计代理{}充值订单失败{}",proxyUser.getUserName(),ex);
         }
@@ -153,6 +152,7 @@ public class ProxyHomePageReportService {
             BigDecimal withdrawMoney = withdrawOrders.stream().map(WithdrawOrder::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
             proxyHomePageReport.setWithdrawMoney(withdrawMoney);
             proxyHomePageReport.setWithdrawNums(withdrawOrders.size());
+            withdrawOrders.clear();
         }catch (Exception ex){
             log.error("统计代理{}提现订单失败{}",proxyUser.getUserName(),ex);
         }
@@ -178,20 +178,53 @@ public class ProxyHomePageReportService {
             }
             proxyHomePageReport.setValidbetAmount(validbetAmount);
             proxyHomePageReport.setWinLossAmount(winLoss);
-            gameRecords = gameRecords.stream().filter(com.qianyi.modulecommon.util.CommonUtil.distinctByKey(GameRecord::getUser)).collect(Collectors.toList());
+            gameRecords = gameRecords.stream().filter(com.qianyi.modulecommon.util.CommonUtil.distinctByKey(GameRecord::getUserId)).collect(Collectors.toList());
             proxyHomePageReport.setActiveUsers(gameRecords.size());
+            gameRecords.clear();
         }catch (Exception ex){
             log.error("统计代理{}三方游戏注单失败{}",proxyUser.getUserName(),ex);
         }
     }
+    public Set<Long> gameRecordAndActive(ProxyUser proxyUser, String startTime, String endTime, ProxyHomePageReport proxyHomePageReport){
+        try {
+            GameRecord gameRecord = new GameRecord();
+            if (CommonUtil.setParameter(gameRecord,proxyUser)){
+                return null;
+            }
+            List<GameRecord> gameRecords = gameRecordService.findGameRecords(gameRecord, startTime, endTime);
+            if (gameRecord  == null || gameRecords.size() == CommonConst.NUMBER_0){
+                proxyHomePageReport.setValidbetAmount(BigDecimal.ZERO);
+                proxyHomePageReport.setWinLossAmount(BigDecimal.ZERO);
+                return null;
+            }
+            BigDecimal validbetAmount = BigDecimal.ZERO;
+            BigDecimal winLoss = BigDecimal.ZERO;
+            for (GameRecord g : gameRecords){
+                validbetAmount = validbetAmount.add(new BigDecimal(g.getValidbet()));
+                winLoss = winLoss.add(new BigDecimal(g.getWinLoss()));
+            }
+            proxyHomePageReport.setValidbetAmount(validbetAmount);
+            proxyHomePageReport.setWinLossAmount(winLoss);
+            Set<Long> set = new HashSet<>();
+            gameRecords.stream().filter(com.qianyi.modulecommon.util.CommonUtil.distinctByKey(GameRecord::getUser)).forEach(game ->{
+                set.add(game.getId());
+            });
+            gameRecords.clear();
+            return set;
+        }catch (Exception ex){
+            log.error("统计代理{}三方游戏注单失败{}",proxyUser.getUserName(),ex);
+        }
+        return null;
+    }
+
     public void getNewUsers(ProxyUser proxyUser,Date startDate,Date endDate,ProxyHomePageReport proxyHomePageReport){
         try {
             User user = new User();
             if (CommonUtil.setParameter(user,proxyUser)){
                 return;
             }
-            List<User> userList = userService.findUserList(user, startDate, endDate);
-            proxyHomePageReport.setNewUsers(userList==null ? CommonConst.NUMBER_0 : userList.size());
+            Long userCount = userService.findUserCount(user, startDate, endDate);
+            proxyHomePageReport.setNewUsers(Math.toIntExact(userCount));
         }catch (Exception ex){
             log.error("统计代理{}新增用户失败{}",proxyUser.getUserName(),ex);
         }
@@ -203,8 +236,8 @@ public class ProxyHomePageReportService {
             if (CommonUtil.setParameter(proxy,proxyUser)){
                 return;
             }
-            List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxy,startDate,endDate);
-            proxyHomePageReport.setNewThirdProxys(proxyUserList==null ? CommonConst.NUMBER_0 : proxyUserList.size());
+            Long  proxyUserCount = proxyUserService.findProxyUserCount(proxy,startDate,endDate);
+            proxyHomePageReport.setNewThirdProxys(Math.toIntExact(proxyUserCount));
         }catch (Exception ex){
             log.error("统计代理{}新增基层代理失败{}",proxyUser.getUserName(),ex);
         }
@@ -216,8 +249,8 @@ public class ProxyHomePageReportService {
             if (CommonUtil.setParameter(proxy,proxyUser)){
                 return;
             }
-            List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxy,startDate,endDate);
-            proxyHomePageReport.setNewSecondProxys(proxyUserList==null ? CommonConst.NUMBER_0 : proxyUserList.size());
+            Long  proxyUserCount = proxyUserService.findProxyUserCount(proxy,startDate,endDate);
+            proxyHomePageReport.setNewSecondProxys(Math.toIntExact(proxyUserCount));
         }catch (Exception ex){
             log.error("统计代理{}新增区域代理失败{}",proxyUser.getUserName(),ex);
         }

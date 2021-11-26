@@ -30,6 +30,10 @@ public class ProxyReportService {
         return proxyReportRepository.findProxyReportByUserId(userId);
     }
 
+    public ProxyReport findByUserIdWithLock(Long userId){
+        return proxyReportRepository.findByUserId(userId);
+    }
+
     public ProxyReport save(ProxyReport proxyReport){
         return proxyReportRepository.save(proxyReport);
     }

@@ -36,8 +36,8 @@ public class GameRecordService {
 
 
 
-    public Page<GameRecord> findGameRecordPage(GameRecord gameRecord, Pageable pageable) {
-        Specification<GameRecord> condition = getCondition(gameRecord,null,null);
+    public Page<GameRecord> findGameRecordPage(GameRecord gameRecord, Pageable pageable,String startBetTime,String endBetTime,String startSetTime,String endSetTime) {
+        Specification<GameRecord> condition = getCondition(gameRecord,startBetTime,endBetTime,startSetTime,endSetTime);
         return gameRecordRepository.findAll(condition, pageable);
     }
 
@@ -156,7 +156,57 @@ public class GameRecordService {
         };
         return specification;
     }
-
+    /**
+     * 查询条件拼接，灵活添加条件
+     * @param
+     * @return
+     */
+    private Specification<GameRecord> getCondition(GameRecord gameRecord,String startBetTime,String endBetTime,String startSetTime,String endSetTime) {
+        Specification<GameRecord> specification = new Specification<GameRecord>() {
+            @Override
+            public Predicate toPredicate(Root<GameRecord> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                Predicate predicate = cb.conjunction();
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (!CommonUtil.checkNull(gameRecord.getUser())) {
+                    list.add(cb.equal(root.get("user").as(String.class), gameRecord.getUser()));
+                }
+                if (!CommonUtil.checkNull(gameRecord.getBetId())) {
+                    list.add(cb.equal(root.get("betId").as(String.class), gameRecord.getBetId()));
+                }
+                if (!CommonUtil.checkNull(gameRecord.getGname())) {
+                    list.add(cb.equal(root.get("gname").as(String.class), gameRecord.getGname()));
+                }
+                if (gameRecord.getGid() != null) {
+                    list.add(cb.equal(root.get("gid").as(Integer.class), gameRecord.getGid()));
+                }
+                if (gameRecord.getUserId() != null) {
+                    list.add(cb.equal(root.get("userId").as(Long.class), gameRecord.getUserId()));
+                }
+                if (gameRecord.getFirstProxy() != null) {
+                    list.add(cb.equal(root.get("firstProxy").as(Long.class), gameRecord.getFirstProxy()));
+                }
+                if (gameRecord.getSecondProxy() != null) {
+                    list.add(cb.equal(root.get("secondProxy").as(Long.class), gameRecord.getSecondProxy()));
+                }
+                if (gameRecord.getThirdProxy() != null) {
+                    list.add(cb.equal(root.get("thirdProxy").as(Long.class), gameRecord.getThirdProxy()));
+                }
+                if (!ObjectUtils.isEmpty(startBetTime) && !ObjectUtils.isEmpty(endBetTime)) {
+                    list.add(
+                            cb.between(root.get("betTime").as(String.class), startBetTime, endBetTime)
+                    );
+                }
+                if (!ObjectUtils.isEmpty(startSetTime) && !ObjectUtils.isEmpty(endSetTime)) {
+                    list.add(
+                            cb.between(root.get("settime").as(String.class), startSetTime, endSetTime)
+                    );
+                }
+                predicate = cb.and(list.toArray(new Predicate[list.size()]));
+                return predicate;
+            }
+        };
+        return specification;
+    }
     public List<CompanyOrderAmountVo> getStatisticsResult(String startTime, String endTime){
         List<Map<String,Object>> orderAmountVoList = gameRecordRepository.getStatisticsResult(startTime,endTime);
         String json = JSON.toJSONString(orderAmountVoList);
@@ -215,5 +265,21 @@ public class GameRecordService {
 //                .orderBy(builder.desc(root.get("contactUserNums")));
         GameRecord singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
+    }
+
+    public void updateCodeNumStatus(Long id,Integer codeNumStatus){
+        gameRecordRepository.updateCodeNumStatus(id,codeNumStatus);
+    }
+
+    public void updateWashCodeStatus(Long id,Integer washCodeStatus){
+        gameRecordRepository.updateWashCodeStatus(id,washCodeStatus);
+    }
+
+    public void updateProfitStatus(Long id,Integer washCodeStatus){
+        gameRecordRepository.updateProfitStatus(id,washCodeStatus);
+    }
+
+    public List<GameRecord> findByCreateByAndIdGreaterThanEqualOrderByIdAsc(String createBy,Long id) {
+        return gameRecordRepository.findByCreateByAndIdGreaterThanEqualOrderByIdAsc(createBy,id);
     }
 }

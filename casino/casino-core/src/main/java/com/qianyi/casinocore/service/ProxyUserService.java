@@ -85,6 +85,12 @@ public class ProxyUserService {
         Specification<ProxyUser> condition = this.getCondition(proxyUser,startDate,endDate);
         return proxyUserRepository.findAll(condition);
     }
+
+    public Long findProxyUserCount(ProxyUser proxyUser,Date startDate, Date endDate) {
+        Specification<ProxyUser> condition = this.getCondition(proxyUser,startDate,endDate);
+        return proxyUserRepository.count(condition);
+    }
+
     public List<ProxyUser> findProxyUser(List<Long> proxyUserIds) {
         Specification<ProxyUser> condition = getCondition(proxyUserIds);
         List<ProxyUser> proxyUserList = proxyUserRepository.findAll(condition);

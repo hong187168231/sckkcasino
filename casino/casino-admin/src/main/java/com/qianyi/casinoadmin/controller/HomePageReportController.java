@@ -6,11 +6,17 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.HomePageReportVo;
 import com.qianyi.casinoadmin.model.HomePageReport;
 import com.qianyi.casinocore.model.CompanyProxyDetail;
-import com.qianyi.casinocore.service.CompanyProxyDetailService;
+import com.qianyi.casinocore.model.CompanyProxyMonth;
+import com.qianyi.casinocore.model.GameRecord;
+import com.qianyi.casinocore.model.UserRunningWater;
+import com.qianyi.casinocore.service.CompanyProxyMonthService;
+import com.qianyi.casinocore.service.GameRecordService;
+import com.qianyi.casinocore.service.UserRunningWaterService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.DateUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -46,7 +52,13 @@ public class HomePageReportController {
     public final static String end = " 23:59:59";
 
     @Autowired
-    private CompanyProxyDetailService companyProxyDetailService;
+    private CompanyProxyMonthService companyProxyMonthService;
+
+    @Autowired
+    private UserRunningWaterService userRunningWaterService;
+
+    @Autowired
+    private GameRecordService gameRecordService;
     @ApiOperation("查询首页报表")
     @GetMapping("/find")
     @ApiImplicitParams({
@@ -58,7 +70,7 @@ public class HomePageReportController {
                                                  @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         HomePageReportVo homePageReportVo = null;
         try {
-            homePageReportVo = this.assemble(startDate,endDate);
+            homePageReportVo = this.assemble();
             String startTime = startDate==null? null:DateUtil.getSimpleDateFormat1().format(startDate);
             String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
             List<HomePageReport> homePageReports = homePageReportService.findHomePageReports(startTime,endTime);
@@ -75,7 +87,6 @@ public class HomePageReportController {
             BigDecimal shareAmount = homePageReports.stream().map(HomePageReport::getShareAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal bonusAmount = homePageReports.stream().map(HomePageReport::getBonusAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal serviceCharge = homePageReports.stream().map(HomePageReport::getServiceCharge).reduce(BigDecimal.ZERO, BigDecimal::add);
-            Integer activeUsers = homePageReports.stream().mapToInt(HomePageReport::getActiveUsers).sum();
             Integer newUsers = homePageReports.stream().mapToInt(HomePageReport::getNewUsers).sum();
             homePageReportVo.setChargeAmount(homePageReportVo.getChargeAmount().add(chargeAmount));
             homePageReportVo.setWithdrawMoney(homePageReportVo.getWithdrawMoney().add(withdrawMoney));
@@ -87,9 +98,18 @@ public class HomePageReportController {
             homePageReportVo.setServiceCharge(homePageReportVo.getServiceCharge().add(serviceCharge));
             homePageReportVo.setChargeNums(chargeNums + homePageReportVo.getChargeNums());
             homePageReportVo.setWithdrawNums(withdrawNums + homePageReportVo.getWithdrawNums());
-            homePageReportVo.setActiveUsers(activeUsers + homePageReportVo.getActiveUsers());
             homePageReportVo.setNewUsers(newUsers + homePageReportVo.getNewUsers());
-            this.findCompanyProxyDetails(new CompanyProxyDetail(),startTime,endTime,homePageReportVo);
+            UserRunningWater userRunningWater = new UserRunningWater();
+            List<UserRunningWater> userRunningWaterList = userRunningWaterService.findUserRunningWaterList(userRunningWater, startTime, endTime);
+            Set<Long> userIdSet = homePageReportVo.getUserIdSet();
+            if (LoginUtil.checkNull(userIdSet)){
+                userIdSet = new HashSet<>();
+            }
+            for (UserRunningWater u : userRunningWaterList){
+                userIdSet.add(u.getUserId());
+            }
+            homePageReportVo.setActiveUsers(userIdSet.size());
+            this.findCompanyProxyDetails(new CompanyProxyMonth(),startTime,endTime,homePageReportVo);
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
             return ResponseUtil.custom("查询失败");
@@ -99,7 +119,7 @@ public class HomePageReportController {
     @ApiOperation("查找走势图")
     @GetMapping("/findTrendChart")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "tag", value = "1:每日 2:每周 3:每月", required = false),
+            @ApiImplicitParam(name = "tag", value = "1:每日 2:每月 3:每年", required = false),
             @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
@@ -112,7 +132,7 @@ public class HomePageReportController {
         List<HomePageReportVo> list = new LinkedList<>();
         try {
             if ((DateUtil.isEffectiveDate(new Date(),startDate,endDate))){
-                HomePageReportVo homePageReportVo = this.assemble(startDate,endDate);
+                HomePageReportVo homePageReportVo = this.assemble();
                 list.add(this.getHomePageReportVo(homePageReportVo));
             }
             Sort sort=Sort.by("id").descending();
@@ -128,13 +148,13 @@ public class HomePageReportController {
                 Collections.reverse(list);
                 return ResponseUtil.success(list);
             }else if (tag == CommonConst.NUMBER_2){
-                Map<String, List<HomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(HomePageReportVo::getStaticsWeek));
+                Map<String, List<HomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(HomePageReportVo::getStaticsMonth));
                 list.clear();
                 map.forEach((key,value)->{
                     list.add(this.getHomePageReportVo(value,key));
                 });
             }else {
-                Map<String, List<HomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(HomePageReportVo::getStaticsMonth));
+                Map<String, List<HomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(HomePageReportVo::getStaticsYear));
                 list.clear();
                 map.forEach((key,value)->{
                     list.add(this.getHomePageReportVo(value,key));
@@ -170,17 +190,18 @@ public class HomePageReportController {
         return vo;
     }
 
-    private void findCompanyProxyDetails(CompanyProxyDetail companyProxyDetail, String startTime, String endTime, HomePageReportVo homePageReportVo){
-        List<CompanyProxyDetail> companyProxyDetails = companyProxyDetailService.findCompanyProxyDetails(companyProxyDetail, startTime, endTime);
-        if (LoginUtil.checkNull(companyProxyDetails) || companyProxyDetails.size() == CommonConst.NUMBER_0){
+    private void findCompanyProxyDetails(CompanyProxyMonth companyProxyMonth, String startTime, String endTime, HomePageReportVo homePageReportVo){
+        List<CompanyProxyMonth> companyProxyMonths = companyProxyMonthService.findCompanyProxyMonths(companyProxyMonth, startTime, endTime);
+        if (LoginUtil.checkNull(companyProxyMonths) || companyProxyMonths.size() == CommonConst.NUMBER_0){
             homePageReportVo.setProxyProfit(BigDecimal.ZERO);
             return;
         }
-        BigDecimal profitAmount = companyProxyDetails.stream().map(CompanyProxyDetail::getProfitAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        companyProxyMonths = companyProxyMonths.stream().filter(companyProxy -> !companyProxy.getStaticsTimes().equals(homePageReportVo.getStaticsMonth())).collect(Collectors.toList());
+        BigDecimal profitAmount = companyProxyMonths.stream().map(CompanyProxyMonth::getProfitAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         homePageReportVo.setProxyProfit(profitAmount);
     }
 
-    private HomePageReportVo assemble(Date startDate,Date endDate) throws ParseException {
+    private HomePageReportVo assemble() throws ParseException {
         Calendar nowTime = Calendar.getInstance();
         String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
         String startTime = format + start;
@@ -189,18 +210,47 @@ public class HomePageReportController {
         Date end = DateUtil.getSimpleDateFormat().parse(endTime);
         HomePageReport homePageReport = new HomePageReport();
         homePageReport.setStaticsTimes(format);
-        homePageReport.setStaticsWeek(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4)+CommonConst.UNDERLINE_SYMBOL+DateUtil.getWeek(format));
+        homePageReport.setStaticsYear(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4));
         homePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
         homePageReportTask.chargeOrder(start,end,homePageReport);
         homePageReportTask.withdrawOrder(start,end,homePageReport);
-        homePageReportTask.gameRecord(startTime,endTime,homePageReport);
+        Set<Long> set = this.gameRecord(startTime,endTime,homePageReport);
         homePageReportTask.shareProfitChange(start,end,homePageReport);
         homePageReportTask.getNewUsers(start,end,homePageReport);
-        homePageReportTask.bonusAmount(startDate,endDate,homePageReport);
-        homePageReportTask.washCodeAmount(startDate,endDate,homePageReport);
-        HomePageReportVo homePageReportVo = new HomePageReportVo(homePageReport);
+        homePageReportTask.bonusAmount(start,end,homePageReport);
+        homePageReportTask.washCodeAmount(start,end,homePageReport);
+        HomePageReportVo homePageReportVo = new HomePageReportVo(homePageReport,set);
         return homePageReportVo;
     }
+    private Set<Long>  gameRecord(String startTime,String endTime,HomePageReport homePageReport){
+        try {
+            GameRecord gameRecord = new GameRecord();
+            List<GameRecord> gameRecords = gameRecordService.findGameRecords(gameRecord, startTime, endTime);
+            if (LoginUtil.checkNull(gameRecord) || gameRecords.size() == CommonConst.NUMBER_0){
+                homePageReport.setValidbetAmount(BigDecimal.ZERO);
+                homePageReport.setWinLossAmount(BigDecimal.ZERO);
+                return null;
+            }
+            BigDecimal validbetAmount = BigDecimal.ZERO;
+            BigDecimal winLoss = BigDecimal.ZERO;
+            for (GameRecord g : gameRecords){
+                validbetAmount = validbetAmount.add(new BigDecimal(g.getValidbet()));
+                winLoss = winLoss.add(new BigDecimal(g.getWinLoss()));
+            }
+            homePageReport.setValidbetAmount(validbetAmount);
+            homePageReport.setWinLossAmount(winLoss);
+            Set<Long> set = new HashSet<>();
+            gameRecords.stream().filter(CommonUtil.distinctByKey(GameRecord::getUser)).forEach(game ->{
+                set.add(game.getId());
+            });
+            gameRecords.clear();
+            return set;
+        }catch (Exception ex){
+            log.error("统计三方游戏注单失败",ex);
+        }
+        return null;
+    }
+
     private HomePageReportVo getHomePageReportVo(HomePageReportVo homePageReportVo){
         homePageReportVo.setGrossMargin1(BigDecimal.ZERO.subtract(homePageReportVo.getWinLossAmount()).subtract(homePageReportVo.getWashCodeAmount()));
         homePageReportVo.setGrossMargin2(homePageReportVo.getGrossMargin1().subtract(homePageReportVo.getShareAmount()).subtract(homePageReportVo.getBonusAmount()).add(homePageReportVo.getServiceCharge()));
