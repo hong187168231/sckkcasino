@@ -29,17 +29,17 @@ public class AccountChange extends BaseEntity {
 	private Integer type;
 
 	@ApiModelProperty(value = "额度变化")
-	@Column(columnDefinition = "Decimal(10,6) default '0.00'")
+	@Column(columnDefinition = "Decimal(19,6) default '0.00'")
 	@JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
 	private BigDecimal amount;
 
 	@ApiModelProperty(value = "额度变化前")
-	@Column(columnDefinition = "Decimal(10,6) default '0.00'")
+	@Column(columnDefinition = "Decimal(19,6) default '0.00'")
 	@JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
 	private BigDecimal amountBefore;
 
 	@ApiModelProperty(value = "额度变化后")
-	@Column(columnDefinition = "Decimal(10,6) default '0.00'")
+	@Column(columnDefinition = "Decimal(19,6) default '0.00'")
 	@JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
 	private BigDecimal amountAfter;
 

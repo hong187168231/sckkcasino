@@ -14,23 +14,23 @@ public class UserMoney extends BaseEntity{
     private Long userId;
 
     @ApiModelProperty("中心余额")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal money=BigDecimal.ZERO;
 
     @ApiModelProperty("打码量")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal codeNum=BigDecimal.ZERO;
 
     @ApiModelProperty("洗码金额")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal washCode = BigDecimal.ZERO;
 
     @ApiModelProperty("冻结余额")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal freezeMoney = BigDecimal.ZERO;
 
     @ApiModelProperty("分润余额")
-    @Column(columnDefinition = "Decimal(10,6) default '0.000000'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.000000'")
     private BigDecimal shareProfit = BigDecimal.ZERO;
 
     @ApiModelProperty("是否首充 0 是 1 不是")

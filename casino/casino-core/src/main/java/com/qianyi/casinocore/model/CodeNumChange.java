@@ -26,19 +26,19 @@ public class CodeNumChange extends BaseEntity {
 	private String betId;
 
 	@ApiModelProperty(value = "打码量")
-	@Column(columnDefinition = "Decimal(10,6) default '0.00'")
+	@Column(columnDefinition = "Decimal(19,6) default '0.00'")
 	private BigDecimal amount;
 
 	@ApiModelProperty(value = "打码量变化前")
-	@Column(columnDefinition = "Decimal(10,6) default '0.00'")
+	@Column(columnDefinition = "Decimal(19,6) default '0.00'")
 	private BigDecimal amountBefore;
 
 	@ApiModelProperty(value = "打码量变化后")
-	@Column(columnDefinition = "Decimal(10,6) default '0.00'")
+	@Column(columnDefinition = "Decimal(19,6) default '0.00'")
 	private BigDecimal amountAfter;
 
 	@ApiModelProperty(value = "清零值")
-	@Column(columnDefinition = "Decimal(10,6) default '0.00'")
+	@Column(columnDefinition = "Decimal(19,6) default '0.00'")
 	private BigDecimal clearCodeNum;
 
 	@ApiModelProperty(value = "0:有效投注，1:清0点，2充值 3总控上分 4代理上分")
