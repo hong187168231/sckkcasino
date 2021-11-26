@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -120,6 +121,11 @@ public class CompanyProxyMonthController {
                 companyProxyMonthVo.setProxyUserId(proxy.getId());
                 companyProxyMonthVo.setProxyRole(proxy.getProxyRole());
                 companyProxyMonthVo.setId(CommonConst.LONG_0);
+                try {
+                    companyProxyMonthVo.setUpdateTime(DateUtil.getSimpleDateFormatMonth().parse(startDate));
+                } catch (ParseException e) {
+                    log.error("代理佣金查询时间转换出错");
+                }
                 if (!LoginUtil.checkNull(proxyHomes) && proxyHomes.size() > CommonConst.NUMBER_0){
                     companyProxyMonthVo.setPlayerNum(proxyHomes.stream().mapToInt(CompanyProxyMonth::getPlayerNum).sum());
                     companyProxyMonthVo.setGroupBetAmount(proxyHomes.stream().map(CompanyProxyMonth::getGroupBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add));
