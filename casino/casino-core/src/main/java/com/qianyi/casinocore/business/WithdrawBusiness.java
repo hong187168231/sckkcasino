@@ -145,15 +145,16 @@ public class WithdrawBusiness {
         withdrawOrderService.saveOrder(withdrawOrder);
         log.info("money is {}, draw money is {}",money,userMoney.getMoney());
         userMoneyService.subMoney(userId,money);
-        userMoney.setMoney(userMoney.getMoney().subtract(money));
         //账变中心记录账变
         AccountChangeVo vo=new AccountChangeVo();
         vo.setUserId(userId);
         vo.setChangeEnum(AccountChangeEnum.WITHDRAW_APPLY);
         vo.setAmount(money.negate());
         vo.setAmountBefore(userMoney.getMoney());
-        vo.setAmountAfter(userMoney.getMoney().subtract(money));
+        BigDecimal moneyAfter = userMoney.getMoney().subtract(money);
+        vo.setAmountAfter(moneyAfter);
         asyncService.executeAsync(vo);
+        userMoney.setMoney(moneyAfter);
         return ResponseUtil.success(userMoney);
     }
 
