@@ -5,9 +5,10 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Comparator;
 
 @Data
-public class ProxyReportVo implements Serializable {
+public class ProxyReportVo implements Serializable, Comparator<ProxyReportVo> {
 
     private static final long serialVersionUID = -6875619842312305179L;
     @ApiModelProperty("id")
@@ -32,4 +33,17 @@ public class ProxyReportVo implements Serializable {
     private String staticsTimes;
     @ApiModelProperty("返佣比例")
     private String commission;
+
+    private Integer sort;
+
+    @Override
+    public int compare(ProxyReportVo s1, ProxyReportVo s2) {
+        if(s1.getSort()>s2.getSort()){	//greater
+            return 1;
+        }else if(s1.getSort()==s2.getSort()){	//equals
+            return 0;
+        }else{	//less
+            return -1;
+        }
+    }
 }
