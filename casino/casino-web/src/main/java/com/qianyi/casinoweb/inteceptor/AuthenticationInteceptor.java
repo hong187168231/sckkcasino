@@ -73,11 +73,6 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
             if (redisToken != null) {
                 redisJwtToken = (JjwtUtil.Token) redisToken;
             }
-            //不是新旧token（防止很久之前的旧token还来继续刷新）不允许刷新直接提示认证失败
-            if (redisJwtToken != null && !token.equals(redisJwtToken.getOldToken()) && !token.equals(redisJwtToken.getNewToken())) {
-                log.error("当前token={}，iss={} 已失效禁止刷新，redis中token信息为={}", token, Constants.CASINO_WEB, redisJwtToken);
-                return null;
-            }
             //判断其他请求是否已经获取到新token
             if (redisJwtToken != null && token.equals(redisJwtToken.getOldToken()) && !ObjectUtils.isEmpty(redisJwtToken.getNewToken())) {
                 return redisJwtToken;
@@ -91,7 +86,12 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
             JjwtUtil.Token jwtTiken = new JjwtUtil.Token();
             jwtTiken.setOldToken(token);
             jwtTiken.setNewToken(refreshToken);
-            redisUtil.set(Constants.REDIS_TOKEN + authId, jwtTiken,Constants.WEB_REFRESH_TTL);
+            //不是最新的token也可以获取到新token，但是多设备校验的时候会拦截
+            if (redisJwtToken != null && (token.equals(redisJwtToken.getOldToken()) || token.equals(redisJwtToken.getNewToken()))) {
+                redisUtil.set(Constants.REDIS_TOKEN + authId, jwtTiken, Constants.WEB_REFRESH_TTL);
+            } else {
+                log.error("当前token={}，iss={} 已失效刷新token无效，redis中token信息为={}", token, Constants.CASINO_WEB, redisJwtToken);
+            }
             return jwtTiken;
         }
     }
