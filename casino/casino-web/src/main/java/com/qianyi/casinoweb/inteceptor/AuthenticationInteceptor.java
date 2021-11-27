@@ -8,6 +8,7 @@ import com.qianyi.modulecommon.inteceptor.AbstractAuthenticationInteceptor;
 import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
 import com.qianyi.modulespringcacheredis.util.RedisUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Component
+@Slf4j
 public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
 
     @Autowired
@@ -73,6 +75,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
             }
             //不是新旧token（防止很久之前的旧token还来继续刷新）不允许刷新直接提示认证失败
             if (redisJwtToken != null && !token.equals(redisJwtToken.getOldToken()) && !token.equals(redisJwtToken.getNewToken())) {
+                log.error("当前token={}，iss={} 已失效禁止刷新，redis中token信息为={}", token, Constants.CASINO_WEB, redisJwtToken);
                 return null;
             }
             //判断其他请求是否已经获取到新token
