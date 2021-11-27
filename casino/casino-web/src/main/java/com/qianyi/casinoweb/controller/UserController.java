@@ -208,7 +208,7 @@ public class UserController {
             flag = false;
         }
         if(flag){
-            return ResponseUtil.custom("信息已录入，不允许修改");
+            return ResponseUtil.custom("该信息不可修改");
         }
         userService.save(user);
         return ResponseUtil.success();
