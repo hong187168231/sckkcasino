@@ -175,6 +175,7 @@ public class ProxyReportController {
                 firstUsers.forEach(f ->{
                     threadPool.execute(() -> assemble(map,userMap,f,user.getSecondPid(),startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_3,CommonConst.NUMBER_1,reentrantLock, condition, atomicInteger));
                 });
+                BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
             }
         }else {
             return ResponseUtil.custom("参数不合法");
