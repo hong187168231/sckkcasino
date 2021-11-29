@@ -183,9 +183,9 @@ public class HomePageReportController {
         BigDecimal grossMargin1 = list.stream().map(HomePageReportVo::getGrossMargin1).reduce(BigDecimal.ZERO, BigDecimal::add);
         vo.setGrossMargin1(grossMargin1);
         BigDecimal grossMargin2 = list.stream().map(HomePageReportVo::getGrossMargin2).reduce(BigDecimal.ZERO, BigDecimal::add);
-        vo.setGrossMargin1(grossMargin2);
+        vo.setGrossMargin2(grossMargin2);
         BigDecimal grossMargin3 = list.stream().map(HomePageReportVo::getGrossMargin3).reduce(BigDecimal.ZERO, BigDecimal::add);
-        vo.setGrossMargin1(grossMargin3);
+        vo.setGrossMargin3(grossMargin3);
         vo.setTime(time);
         return vo;
     }
@@ -240,8 +240,8 @@ public class HomePageReportController {
             homePageReport.setValidbetAmount(validbetAmount);
             homePageReport.setWinLossAmount(winLoss);
             Set<Long> set = new HashSet<>();
-            gameRecords.stream().filter(CommonUtil.distinctByKey(GameRecord::getUser)).forEach(game ->{
-                set.add(game.getId());
+            gameRecords.stream().filter(CommonUtil.distinctByKey(GameRecord::getUserId)).forEach(game ->{
+                set.add(game.getUserId());
             });
             gameRecords.clear();
             return set;

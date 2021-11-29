@@ -2,11 +2,9 @@ package com.qianyi.modulejjwt;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.spi.ObjectThreadContextMap;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.util.ObjectUtils;
@@ -14,7 +12,7 @@ import org.springframework.util.ObjectUtils;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.UUID;
-
+@Slf4j
 public class JjwtUtil {
 
     private final static String secrect = "fda#$&%$3t55v785A45DF$^&#*JGRstTRG";
@@ -67,8 +65,8 @@ public class JjwtUtil {
      * @param token
      * @return
      */
-    public static Subject parse(String token,String iss ) {
-        if (ObjectUtils.isEmpty(token)|| ObjectUtils.isEmpty(iss)) {
+    public static Subject parse(String token, String iss) {
+        if (ObjectUtils.isEmpty(token) || ObjectUtils.isEmpty(iss)) {
             return null;
         }
         try {
@@ -86,6 +84,9 @@ public class JjwtUtil {
             Subject subject = JSON.parseObject(json, Subject.class);
             return subject;
 
+        } catch (ExpiredJwtException e) {
+            log.error("token={},iss={} 已过期，msg={}", token, iss, e.getMessage());
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

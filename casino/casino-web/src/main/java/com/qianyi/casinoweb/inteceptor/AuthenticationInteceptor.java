@@ -8,6 +8,7 @@ import com.qianyi.modulecommon.inteceptor.AbstractAuthenticationInteceptor;
 import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
 import com.qianyi.modulespringcacheredis.util.RedisUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Component
+@Slf4j
 public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
 
     @Autowired
@@ -64,7 +66,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
         //获取登陆用户
         Long authId = Long.parseLong(subject.getUserId());
         User user = userService.findById(authId);
-        synchronized (token) {
+        synchronized (token.intern()) {
             //多个请求只有一个去刷新token
             Object redisToken = redisUtil.get(Constants.REDIS_TOKEN + authId);
             JjwtUtil.Token redisJwtToken = null;
@@ -86,7 +88,9 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
             jwtTiken.setNewToken(refreshToken);
             //不是最新的token也可以获取到新token，但是多设备校验的时候会拦截
             if (redisJwtToken != null && (token.equals(redisJwtToken.getOldToken()) || token.equals(redisJwtToken.getNewToken()))) {
-                redisUtil.set(Constants.REDIS_TOKEN + authId, jwtTiken,Constants.WEB_REFRESH_TTL);
+                redisUtil.set(Constants.REDIS_TOKEN + authId, jwtTiken, Constants.WEB_REFRESH_TTL);
+            } else {
+                log.error("当前token={}，iss={} 已失效刷新token无效，redis中token信息为={}", token, Constants.CASINO_WEB, redisJwtToken);
             }
             return jwtTiken;
         }

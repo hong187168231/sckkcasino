@@ -62,11 +62,40 @@ public class CompanyProxyMonthService {
         return companyProxyMonthRepository.findAll(condition);
     }
 
+    public List<CompanyProxyMonth> findCompanyProxyMonths(List<Long> proxyUserId,CompanyProxyMonth companyProxyMonth,String startTime, String endTime) {
+        Specification<CompanyProxyMonth> condition = this.getCondition(proxyUserId,companyProxyMonth,startTime,endTime);
+        return companyProxyMonthRepository.findAll(condition);
+    }
+
     private Specification<CompanyProxyMonth> getCondition(CompanyProxyMonth companyProxyMonth,String startTime, String endTime) {
         Specification<CompanyProxyMonth> specification = new Specification<CompanyProxyMonth>() {
             @Override
             public Predicate toPredicate(Root<CompanyProxyMonth> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<Predicate>();
+                if (companyProxyMonth.getUserId() != null) {
+                    list.add(cb.equal(root.get("userId").as(Long.class), companyProxyMonth.getUserId()));
+                }
+
+                if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
+                    list.add(cb.between(root.get("staticsTimes").as(String.class), startTime, endTime));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
+    }
+
+    private Specification<CompanyProxyMonth> getCondition(List<Long> proxyUserId,CompanyProxyMonth companyProxyMonth,String startTime, String endTime) {
+        Specification<CompanyProxyMonth> specification = new Specification<CompanyProxyMonth>() {
+            @Override
+            public Predicate toPredicate(Root<CompanyProxyMonth> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                CriteriaBuilder.In<Object> in = cb.in(root.get("userId"));
+                for (Long id : proxyUserId) {
+                    in.value(id);
+                }
+                list.add(cb.and(cb.and(in)));
+
                 if (companyProxyMonth.getUserId() != null) {
                     list.add(cb.equal(root.get("userId").as(Long.class), companyProxyMonth.getUserId()));
                 }

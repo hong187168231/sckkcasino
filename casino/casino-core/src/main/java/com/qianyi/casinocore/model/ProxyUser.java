@@ -11,6 +11,8 @@ import org.springframework.util.ObjectUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -20,6 +22,7 @@ import java.util.Collection;
 @Entity
 @Data
 @ApiModel("代理管理表")
+@Table(indexes = {@Index(columnList = "createTime")})
 public class ProxyUser extends BaseEntity {
 
 

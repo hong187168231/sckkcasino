@@ -14,6 +14,8 @@ public class DateUtil {
 
     private static String patten1 = "yyyy-MM-dd";
 
+    private static String pattenMonth = "yyyy-MM";
+
     public static final String YYYYMM = "yyyyMM";
 
     public static final String YYYYMMDD = "yyyyMMdd";
@@ -34,6 +36,10 @@ public class DateUtil {
 
     public static SimpleDateFormat getSimpleDateFormat1() {
         return getSimpleDateFormat(patten1);
+    }
+
+    public static SimpleDateFormat getSimpleDateFormatMonth() {
+        return getSimpleDateFormat(pattenMonth);
     }
 
     public static String today(String patten) {

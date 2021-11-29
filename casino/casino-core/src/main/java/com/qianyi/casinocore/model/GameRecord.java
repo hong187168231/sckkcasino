@@ -12,7 +12,7 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table(name ="game_record",uniqueConstraints={@UniqueConstraint(columnNames={"betId"})})
+@Table(name ="game_record",indexes = {@Index(columnList = "betTime"),@Index(columnList = "userId")},uniqueConstraints={@UniqueConstraint(columnNames={"betId"})})
 @ApiModel("游戏记录")
 public class GameRecord extends BaseEntity{
 

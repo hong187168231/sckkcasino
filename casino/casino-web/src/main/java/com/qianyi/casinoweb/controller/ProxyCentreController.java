@@ -25,10 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @RestController
 @RequestMapping("proxyCentre")
@@ -48,6 +47,9 @@ public class ProxyCentreController {
     private ProxyReportService proxyReportService;
     @Autowired
     private ShareProfitChangeService shareProfitChangeService;
+    @Autowired
+    @Qualifier("asyncExecutor")
+    private Executor executor;
 
 
     @ApiOperation("查询今日，昨日，本周佣金")
@@ -177,25 +179,40 @@ public class ProxyCentreController {
         }
         //查询第一级附属,查询出来后的数据的上级是当前用户的直属，数据按直属归类
         List<ShareProfitChange> subsidiaryList1 = shareProfitChangeService.getShareProfitList(userId, 2, null);
-        for (ProxyCentreVo.ShareProfit direct : dataList) {
-            for (ShareProfitChange change : subsidiaryList1) {
-                User user = userService.findById(change.getFromUserId());
-                if (user.getFirstPid() != null && user.getFirstPid().equals(direct.getUserId())) {
-                    direct.setOtherProfitAmount(direct.getOtherProfitAmount().add(change.getAmount()));
-                }
-            }
-        }
         //查询第二级附属,查询出来后的数据的上上级是当前用户的直属，数据按直属归类
         List<ShareProfitChange> subsidiaryList2 = shareProfitChangeService.getShareProfitList(userId, 3, null);
+        List<CompletableFuture> completableFutures = new ArrayList<>();
         for (ProxyCentreVo.ShareProfit direct : dataList) {
-            for (ShareProfitChange change : subsidiaryList2) {
-                User user = userService.findById(change.getFromUserId());
-                if (user.getSecondPid() != null && user.getSecondPid().equals(direct.getUserId())) {
-                    direct.setOtherProfitAmount(direct.getOtherProfitAmount().add(change.getAmount()));
-                }
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                setOtherProfitAmount(direct, subsidiaryList1, subsidiaryList2);
+            }, executor);
+            completableFutures.add(future);
+        }
+        //等待所有子线程计算完成
+        CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[completableFutures.size()])).join();
+        return ResponseUtil.success(dataList);
+    }
+
+    /**
+     * 按直属分类归属附属佣金
+     *
+     * @param direct
+     * @param subsidiaryList1
+     * @param subsidiaryList2
+     */
+    public void setOtherProfitAmount(ProxyCentreVo.ShareProfit direct, List<ShareProfitChange> subsidiaryList1, List<ShareProfitChange> subsidiaryList2) {
+        for (ShareProfitChange change : subsidiaryList1) {
+            User user = userService.findById(change.getFromUserId());
+            if (user.getFirstPid() != null && user.getFirstPid().equals(direct.getUserId())) {
+                direct.setOtherProfitAmount(direct.getOtherProfitAmount().add(change.getAmount()));
             }
         }
-        return ResponseUtil.success(dataList);
+        for (ShareProfitChange change : subsidiaryList2) {
+            User user = userService.findById(change.getFromUserId());
+            if (user.getSecondPid() != null && user.getSecondPid().equals(direct.getUserId())) {
+                direct.setOtherProfitAmount(direct.getOtherProfitAmount().add(change.getAmount()));
+            }
+        }
     }
 
     @ApiOperation("用户领取分润金额")

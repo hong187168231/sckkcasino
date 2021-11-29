@@ -206,8 +206,8 @@ public class ProxyHomePageReportService {
             proxyHomePageReport.setValidbetAmount(validbetAmount);
             proxyHomePageReport.setWinLossAmount(winLoss);
             Set<Long> set = new HashSet<>();
-            gameRecords.stream().filter(com.qianyi.modulecommon.util.CommonUtil.distinctByKey(GameRecord::getUser)).forEach(game ->{
-                set.add(game.getId());
+            gameRecords.stream().filter(com.qianyi.modulecommon.util.CommonUtil.distinctByKey(GameRecord::getUserId)).forEach(game ->{
+                set.add(game.getUserId());
             });
             gameRecords.clear();
             return set;
