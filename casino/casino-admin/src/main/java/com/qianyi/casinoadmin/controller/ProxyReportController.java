@@ -93,10 +93,19 @@ public class ProxyReportController {
             BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         }
         if (list.size() > CommonConst.NUMBER_0){
+            List<Long> userIds = list.stream().map(ProxyReportVo::getFirstPid).collect(Collectors.toList());
+            List<User> userList = userService.findAll(userIds);
             Map<Long, ProxyReportVo> proxyReportVoMap = list.stream().collect(Collectors.toMap(ProxyReportVo::getUserId, a -> a, (k1, k2) -> k1));
             list.stream().forEach(proxyReportVo ->{
                 this.compute(proxyReportVo,proxyReportVoMap);
+                userList.stream().forEach(u->{
+                    if (u.getId().equals(proxyReportVo.getFirstPid())){
+                        proxyReportVo.setFirstPidAccount(u.getAccount());
+                    }
+                });
             });
+            userIds.clear();
+            userList.clear();
             return this.getData(list,proxyReportVoMap);
         }
         return ResponseUtil.success();
@@ -155,10 +164,19 @@ public class ProxyReportController {
             return ResponseUtil.custom("参数不合法");
         }
         if (list.size() > CommonConst.NUMBER_0){
+            List<Long> userIds = list.stream().map(ProxyReportVo::getFirstPid).collect(Collectors.toList());
+            List<User> userList = userService.findAll(userIds);
             Map<Long, ProxyReportVo> proxyReportVoMap = list.stream().collect(Collectors.toMap(ProxyReportVo::getUserId, a -> a, (k1, k2) -> k1));
             list.stream().forEach(proxyReportVo ->{
                 this.compute(proxyReportVo,proxyReportVoMap);
+                userList.stream().forEach(u->{
+                    if (u.getId().equals(proxyReportVo.getFirstPid())){
+                        proxyReportVo.setFirstPidAccount(u.getAccount());
+                    }
+                });
             });
+            userIds.clear();
+            userList.clear();
             return this.getData(list,proxyReportVoMap);
         }
         return ResponseUtil.success();
@@ -169,7 +187,6 @@ public class ProxyReportController {
         proxyReportVo.setContribution(list.stream().map(ProxyReportVo::getContribution).reduce(BigDecimal.ZERO, BigDecimal::add));
         if (!LoginUtil.checkNull(proxyReportVoMap)){
             list.stream().forEach(proxyReportVo1 -> {
-                proxyReportVo1.setFirstPidAccount(proxyReportVoMap.get(proxyReportVo1.getUserId()).getFirstPidAccount());
                 proxyReportVo1.setAllPerformance(proxyReportVoMap.get(proxyReportVo1.getUserId()).getAllPerformance());
             });
             proxyReportVoMap.clear();
@@ -364,17 +381,14 @@ public class ProxyReportController {
             map.get(proxyReportVo.getUserId()).setAllPerformance(BigDecimal.ZERO);
             map.get(proxyReportVo.getUserId()).setAllGroupNum(CommonConst.NUMBER_0);
         }else if(proxyReportVo.getLevel() == CommonConst.NUMBER_1){
-            map.get(proxyReportVo.getUserId()).setFirstPidAccount(map.get(proxyReportVo.getFirstPid()).getAccount());
             map.get(proxyReportVo.getFirstPid()).setAllPerformance(map.get(proxyReportVo.getFirstPid()).getAllPerformance().add(proxyReportVo.getPerformance()));
             map.get(proxyReportVo.getFirstPid()).setAllGroupNum(map.get(proxyReportVo.getFirstPid()).getAllGroupNum()+ CommonConst.NUMBER_1);
         }else if(proxyReportVo.getLevel() == CommonConst.NUMBER_2){
-            map.get(proxyReportVo.getUserId()).setFirstPidAccount(map.get(proxyReportVo.getFirstPid()).getAccount());
             map.get(proxyReportVo.getFirstPid()).setAllPerformance(map.get(proxyReportVo.getFirstPid()).getAllPerformance().add(proxyReportVo.getPerformance()));
             map.get(proxyReportVo.getFirstPid()).setAllGroupNum(map.get(proxyReportVo.getFirstPid()).getAllGroupNum()+ CommonConst.NUMBER_1);
             map.get(proxyReportVo.getSecondPid()).setAllPerformance(map.get(proxyReportVo.getSecondPid()).getAllPerformance().add(proxyReportVo.getPerformance()));
             map.get(proxyReportVo.getSecondPid()).setAllGroupNum(map.get(proxyReportVo.getSecondPid()).getAllGroupNum()+ CommonConst.NUMBER_1);
         }else {
-            map.get(proxyReportVo.getUserId()).setFirstPidAccount(map.get(proxyReportVo.getFirstPid()).getAccount());
             map.get(proxyReportVo.getFirstPid()).setAllPerformance(map.get(proxyReportVo.getFirstPid()).getAllPerformance().add(proxyReportVo.getPerformance()));
             map.get(proxyReportVo.getFirstPid()).setAllGroupNum(map.get(proxyReportVo.getFirstPid()).getAllGroupNum()+ CommonConst.NUMBER_1);
             map.get(proxyReportVo.getSecondPid()).setAllPerformance(map.get(proxyReportVo.getSecondPid()).getAllPerformance().add(proxyReportVo.getPerformance()));
