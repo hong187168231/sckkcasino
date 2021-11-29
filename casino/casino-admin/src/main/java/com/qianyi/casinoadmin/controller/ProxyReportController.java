@@ -7,7 +7,6 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.BillThreadPool;
 import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -26,7 +25,6 @@ import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -75,9 +73,7 @@ public class ProxyReportController {
         String startTime = format.format(startDate);
         String endTime = format.format(endDate);
         Vector<ProxyReportVo> list = new Vector<>();
-        Map<Long, BigDecimal> map = new ConcurrentHashMap<>();
-        Map<Long, Integer> userMap = new ConcurrentHashMap<>();
-        this.assemble(map,userMap,byAccount,byAccount.getId(),startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_0,CommonConst.NUMBER_0);
+        this.assemble(byAccount,byAccount.getId(),startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_0,CommonConst.NUMBER_0);
         List<User> firstUsers = userService.findFirstUser(byAccount.getId());
         if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0) {
             List<User> secondPid = userService.findBySecondPid(byAccount.getId());
@@ -86,35 +82,24 @@ public class ProxyReportController {
             Condition condition = reentrantLock.newCondition();
             AtomicInteger atomicInteger = new AtomicInteger(firstUsers.size()+secondPid.size()+thirdPid.size());
             firstUsers.forEach(f -> {
-                threadPool.execute(() -> assemble(map, userMap, f, byAccount.getId(), startTime, endTime, list, startDate, endDate, CommonConst.NUMBER_1, CommonConst.NUMBER_1,reentrantLock, condition, atomicInteger));
+                threadPool.execute(() -> assemble(f, byAccount.getId(), startTime, endTime, list, startDate, endDate, CommonConst.NUMBER_1, CommonConst.NUMBER_1,reentrantLock, condition, atomicInteger));
             });
             secondPid.forEach(s -> {
-                threadPool.execute(() -> assemble(map, userMap, s, byAccount.getId(), startTime, endTime, list, startDate, endDate, CommonConst.NUMBER_2, CommonConst.NUMBER_2,reentrantLock, condition, atomicInteger));
+                threadPool.execute(() -> assemble(s, byAccount.getId(), startTime, endTime, list, startDate, endDate, CommonConst.NUMBER_2, CommonConst.NUMBER_2,reentrantLock, condition, atomicInteger));
             });
             thirdPid.forEach(t -> {
-                threadPool.execute(() -> assemble(map, userMap, t, byAccount.getId(), startTime, endTime, list, startDate, endDate, CommonConst.NUMBER_3, CommonConst.NUMBER_3,reentrantLock, condition, atomicInteger));
+                threadPool.execute(() -> assemble(t, byAccount.getId(), startTime, endTime, list, startDate, endDate, CommonConst.NUMBER_3, CommonConst.NUMBER_3,reentrantLock, condition, atomicInteger));
             });
             BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         }
         if (list.size() > CommonConst.NUMBER_0){
-            log.info("集合长度list{},map{},userMap{}",list.size(),map.size(),userMap.size());
-            List<Long> userIds = list.stream().map(ProxyReportVo::getFirstPid).collect(Collectors.toList());
-            List<User> userList = userService.findAll(userIds);
+            Map<Long, ProxyReportVo> proxyReportVoMap = list.stream().collect(Collectors.toMap(ProxyReportVo::getUserId, a -> a, (k1, k2) -> k1));
             list.stream().forEach(proxyReportVo ->{
-                proxyReportVo.setAllPerformance(map.get(proxyReportVo.getUserId()).subtract(proxyReportVo.getPerformance()));
-                proxyReportVo.setAllGroupNum(userMap.get(proxyReportVo.getUserId()));
-                userList.stream().forEach(user->{
-                    if (user.getId().equals(proxyReportVo.getFirstPid())){
-                        proxyReportVo.setFirstPidAccount(user.getAccount());
-                    }
-                });
+                this.compute(proxyReportVo,proxyReportVoMap);
             });
-            userIds.clear();
-            userList.clear();
+            return this.getData(list,proxyReportVoMap);
         }
-        map.clear();
-        userMap.clear();
-        return this.getData(list);
+        return ResponseUtil.success();
     }
     @ApiOperation("下级明细")
     @GetMapping("/findDetail")
@@ -142,9 +127,7 @@ public class ProxyReportController {
         }
         String startTime = format.format(startDate);
         String endTime = format.format(endDate);
-        Map<Long, BigDecimal> map = new ConcurrentHashMap<>();
-        Map<Long, Integer> userMap = new ConcurrentHashMap<>();
-        this.assemble(map,userMap,user,userId,startTime,endTime,list,startDate,endDate,tier,CommonConst.NUMBER_0);
+        this.assemble(user,userId,startTime,endTime,list,startDate,endDate,tier,CommonConst.NUMBER_0);
         List<User> firstUsers = userService.findFirstUser(user.getId());
         ReentrantLock reentrantLock = new ReentrantLock();
         Condition condition = reentrantLock.newCondition();
@@ -153,10 +136,10 @@ public class ProxyReportController {
                 List<User> secondPid = userService.findBySecondPid(user.getId());
                 AtomicInteger atomicInteger = new AtomicInteger(firstUsers.size()+secondPid.size());
                 firstUsers.forEach(f ->{
-                    threadPool.execute(() -> assemble(map,userMap,f,user.getFirstPid(),startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_2,CommonConst.NUMBER_1,reentrantLock, condition, atomicInteger));
+                    threadPool.execute(() -> assemble(f,user.getFirstPid(),startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_2,CommonConst.NUMBER_1,reentrantLock, condition, atomicInteger));
                 });
                 secondPid.forEach(s ->{
-                    threadPool.execute(() -> assemble(map,userMap,s,user.getFirstPid(),startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_3,CommonConst.NUMBER_2,reentrantLock, condition, atomicInteger));
+                    threadPool.execute(() -> assemble(s,user.getFirstPid(),startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_3,CommonConst.NUMBER_2,reentrantLock, condition, atomicInteger));
                 });
                 BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
             }
@@ -164,7 +147,7 @@ public class ProxyReportController {
             if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
                 AtomicInteger atomicInteger = new AtomicInteger(firstUsers.size());
                 firstUsers.forEach(f ->{
-                    threadPool.execute(() -> assemble(map,userMap,f,user.getSecondPid(),startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_3,CommonConst.NUMBER_1,reentrantLock, condition, atomicInteger));
+                    threadPool.execute(() -> assemble(f,user.getSecondPid(),startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_3,CommonConst.NUMBER_1,reentrantLock, condition, atomicInteger));
                 });
                 BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
             }
@@ -172,28 +155,25 @@ public class ProxyReportController {
             return ResponseUtil.custom("参数不合法");
         }
         if (list.size() > CommonConst.NUMBER_0){
-            List<Long> userIds = list.stream().map(ProxyReportVo::getFirstPid).collect(Collectors.toList());
-            List<User> userList = userService.findAll(userIds);
+            Map<Long, ProxyReportVo> proxyReportVoMap = list.stream().collect(Collectors.toMap(ProxyReportVo::getUserId, a -> a, (k1, k2) -> k1));
             list.stream().forEach(proxyReportVo ->{
-                proxyReportVo.setAllPerformance(map.get(proxyReportVo.getUserId()).subtract(proxyReportVo.getPerformance()));
-                proxyReportVo.setAllGroupNum(userMap.get(proxyReportVo.getUserId()));
-                userList.stream().forEach(u->{
-                    if (u.getId().equals(proxyReportVo.getFirstPid())){
-                        proxyReportVo.setFirstPidAccount(u.getAccount());
-                    }
-                });
+                this.compute(proxyReportVo,proxyReportVoMap);
             });
-            userIds.clear();
-            userList.clear();
+            return this.getData(list,proxyReportVoMap);
         }
-        map.clear();
-        userMap.clear();
-        return this.getData(list);
+        return ResponseUtil.success();
     }
-    private ResponseEntity<ProxyReportVo> getData(List<ProxyReportVo> list){
+    private ResponseEntity<ProxyReportVo> getData(List<ProxyReportVo> list,Map<Long, ProxyReportVo> proxyReportVoMap){
         ProxyReportVo proxyReportVo = new ProxyReportVo();
         proxyReportVo.setPerformance(list.stream().map(ProxyReportVo::getPerformance).reduce(BigDecimal.ZERO, BigDecimal::add));
         proxyReportVo.setContribution(list.stream().map(ProxyReportVo::getContribution).reduce(BigDecimal.ZERO, BigDecimal::add));
+        if (!LoginUtil.checkNull(proxyReportVoMap)){
+            list.stream().forEach(proxyReportVo1 -> {
+                proxyReportVo1.setFirstPidAccount(proxyReportVoMap.get(proxyReportVo1.getUserId()).getFirstPidAccount());
+                proxyReportVo1.setAllPerformance(proxyReportVoMap.get(proxyReportVo1.getUserId()).getAllPerformance());
+            });
+            proxyReportVoMap.clear();
+        }
         JSONObject jsonObject = new JSONObject();
         Collections.sort(list, new ProxyReportVo());
         jsonObject.put("data", list);
@@ -347,13 +327,12 @@ public class ProxyReportController {
         return proxyReportVo;
     }
 
-    private void assemble(Map<Long,BigDecimal> map,Map<Long,Integer> userMap,User user,Long userId,String startTime,String endTime,List<ProxyReportVo> list,
+    private void assemble(User user,Long userId,String startTime,String endTime,List<ProxyReportVo> list,
                           Date startDate,Date endDate,Integer tag,Integer level){
         ProxyReportVo proxyReportVo = new ProxyReportVo();
         proxyReportVo.setTier(tag);
         GameRecord gameRecord = gameRecordService.findRecordRecordSum(user.getId(), startTime+start, endTime+end);
         proxyReportVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
-        this.compute(map,user,level,proxyReportVo.getPerformance(),userMap);
         if (tag == CommonConst.NUMBER_0){
             proxyReportVo.setContribution(BigDecimal.ZERO);
         }else {
@@ -365,46 +344,48 @@ public class ProxyReportController {
         proxyReportVo.setUserId(user.getId());
         proxyReportVo.setAccount(user.getAccount());
         proxyReportVo.setFirstPid(user.getFirstPid());
+        proxyReportVo.setSecondPid(user.getSecondPid());
+        proxyReportVo.setThirdPid(user.getThirdPid());
         proxyReportVo.setSort(tag);
+        proxyReportVo.setLevel(level);
         list.add(proxyReportVo);
     }
-    private void assemble(Map<Long,BigDecimal> map,Map<Long,Integer> userMap,User user,Long userId,String startTime,String endTime,List<ProxyReportVo> list,
+    private void assemble(User user,Long userId,String startTime,String endTime,List<ProxyReportVo> list,
                           Date startDate,Date endDate,Integer tag,Integer level,ReentrantLock reentrantLock, Condition condition, AtomicInteger atomicInteger){
         try {
-            this.assemble(map,userMap,user,userId,startTime,endTime,list,startDate,endDate,tag,level);
+            this.assemble(user,userId,startTime,endTime,list,startDate,endDate,tag,level);
         }finally {
             atomicInteger.decrementAndGet();
             BillThreadPool.toResume(reentrantLock, condition);
         }
     }
-    private void compute(Map<Long,BigDecimal> map,User user,Integer tag,BigDecimal performance,Map<Long,Integer> userMap){
-        if (tag == CommonConst.NUMBER_0){
-            map.put(user.getId(),performance);
-            userMap.put(user.getId(),CommonConst.NUMBER_0);
-        }else if(tag == CommonConst.NUMBER_1){
-            map.put(user.getId(),performance.add(map.get(user.getId()) == null?BigDecimal.ZERO:map.get(user.getId())));
-            map.put(user.getFirstPid(),performance.add(map.get(user.getFirstPid()) == null?BigDecimal.ZERO:map.get(user.getFirstPid())));
-            userMap.put(user.getId(),userMap.get(user.getId())==null?CommonConst.NUMBER_0:userMap.get(user.getId())+ CommonConst.NUMBER_1);
-            userMap.put(user.getFirstPid(),userMap.get(user.getFirstPid()) == null?CommonConst.NUMBER_0:userMap.get(user.getFirstPid()) + CommonConst.NUMBER_1);
-        }else if(tag == CommonConst.NUMBER_2){
-            map.put(user.getId(),performance.add(map.get(user.getId()) == null?BigDecimal.ZERO:map.get(user.getId())));
-            map.put(user.getFirstPid(),performance.add(map.get(user.getFirstPid()) == null?BigDecimal.ZERO:map.get(user.getFirstPid())));
-            map.put(user.getSecondPid(),performance.add(map.get(user.getSecondPid()) == null?BigDecimal.ZERO:map.get(user.getSecondPid())));
-            userMap.put(user.getId(),userMap.get(user.getId())==null?CommonConst.NUMBER_0:userMap.get(user.getId())+ CommonConst.NUMBER_1);
-            userMap.put(user.getFirstPid(),userMap.get(user.getFirstPid())==null?CommonConst.NUMBER_0:userMap.get(user.getFirstPid()) + CommonConst.NUMBER_1);
-            userMap.put(user.getSecondPid(),userMap.get(user.getSecondPid())==null?CommonConst.NUMBER_0:userMap.get(user.getSecondPid()) + CommonConst.NUMBER_1);
+    private void compute(ProxyReportVo proxyReportVo,Map<Long,ProxyReportVo> map){
+        if (proxyReportVo.getLevel() == CommonConst.NUMBER_0){
+            map.get(proxyReportVo.getUserId()).setAllPerformance(BigDecimal.ZERO);
+            map.get(proxyReportVo.getUserId()).setAllGroupNum(CommonConst.NUMBER_0);
+        }else if(proxyReportVo.getLevel() == CommonConst.NUMBER_1){
+            map.get(proxyReportVo.getUserId()).setFirstPidAccount(map.get(proxyReportVo.getFirstPid()).getAccount());
+            map.get(proxyReportVo.getFirstPid()).setAllPerformance(map.get(proxyReportVo.getFirstPid()).getAllPerformance().add(proxyReportVo.getPerformance()));
+            map.get(proxyReportVo.getFirstPid()).setAllGroupNum(map.get(proxyReportVo.getFirstPid()).getAllGroupNum()+ CommonConst.NUMBER_1);
+        }else if(proxyReportVo.getLevel() == CommonConst.NUMBER_2){
+            map.get(proxyReportVo.getUserId()).setFirstPidAccount(map.get(proxyReportVo.getFirstPid()).getAccount());
+            map.get(proxyReportVo.getFirstPid()).setAllPerformance(map.get(proxyReportVo.getFirstPid()).getAllPerformance().add(proxyReportVo.getPerformance()));
+            map.get(proxyReportVo.getFirstPid()).setAllGroupNum(map.get(proxyReportVo.getFirstPid()).getAllGroupNum()+ CommonConst.NUMBER_1);
+            map.get(proxyReportVo.getSecondPid()).setAllPerformance(map.get(proxyReportVo.getSecondPid()).getAllPerformance().add(proxyReportVo.getPerformance()));
+            map.get(proxyReportVo.getSecondPid()).setAllGroupNum(map.get(proxyReportVo.getSecondPid()).getAllGroupNum()+ CommonConst.NUMBER_1);
         }else {
-            map.put(user.getId(),performance);
-            map.put(user.getFirstPid(),performance.add(map.get(user.getFirstPid()) == null?BigDecimal.ZERO:map.get(user.getFirstPid())));
-            map.put(user.getSecondPid(),performance.add(map.get(user.getSecondPid()) == null?BigDecimal.ZERO:map.get(user.getSecondPid())));
-            map.put(user.getThirdPid(),performance.add(map.get(user.getThirdPid()) == null?BigDecimal.ZERO:map.get(user.getThirdPid())));
-            userMap.put(user.getId(),CommonConst.NUMBER_0);
-            userMap.put(user.getFirstPid(),userMap.get(user.getFirstPid())==null?CommonConst.NUMBER_0:userMap.get(user.getFirstPid())+ CommonConst.NUMBER_1);
-            userMap.put(user.getSecondPid(),userMap.get(user.getSecondPid())==null?CommonConst.NUMBER_0:userMap.get(user.getSecondPid()) + CommonConst.NUMBER_1);
-            userMap.put(user.getThirdPid(),userMap.get(user.getThirdPid())==null?CommonConst.NUMBER_0:userMap.get(user.getThirdPid()) + CommonConst.NUMBER_1);
+            map.get(proxyReportVo.getUserId()).setFirstPidAccount(map.get(proxyReportVo.getFirstPid()).getAccount());
+            map.get(proxyReportVo.getFirstPid()).setAllPerformance(map.get(proxyReportVo.getFirstPid()).getAllPerformance().add(proxyReportVo.getPerformance()));
+            map.get(proxyReportVo.getFirstPid()).setAllGroupNum(map.get(proxyReportVo.getFirstPid()).getAllGroupNum()+ CommonConst.NUMBER_1);
+            map.get(proxyReportVo.getSecondPid()).setAllPerformance(map.get(proxyReportVo.getSecondPid()).getAllPerformance().add(proxyReportVo.getPerformance()));
+            map.get(proxyReportVo.getSecondPid()).setAllGroupNum(map.get(proxyReportVo.getSecondPid()).getAllGroupNum()+ CommonConst.NUMBER_1);
+            map.get(proxyReportVo.getThirdPid()).setAllPerformance(map.get(proxyReportVo.getThirdPid()).getAllPerformance().add(proxyReportVo.getPerformance()));
+            map.get(proxyReportVo.getThirdPid()).setAllGroupNum(map.get(proxyReportVo.getThirdPid()).getAllGroupNum()+ CommonConst.NUMBER_1);
         }
 
+
     }
+
     public static Map<Integer,String> findDates(String dateType, Date dBegin, Date dEnd){
         Map<Integer,String> mapDate = new HashMap<>();
         Calendar calBegin = Calendar.getInstance();

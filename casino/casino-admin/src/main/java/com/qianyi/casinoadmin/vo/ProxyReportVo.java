@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.vo;
 
+import com.qianyi.casinocore.util.CommonConst;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -21,8 +22,12 @@ public class ProxyReportVo implements Serializable, Comparator<ProxyReportVo> {
     private String firstPidAccount;
     @ApiModelProperty("直属父级ID")
     private Long firstPid;
+    @ApiModelProperty("第二级ID")
+    private Long secondPid;
+    @ApiModelProperty("第三级ID")
+    private Long thirdPid;
     @ApiModelProperty("团队人数")
-    private Integer allGroupNum;
+    private Integer allGroupNum = CommonConst.NUMBER_0;
     @ApiModelProperty("个人业绩流水")
     private BigDecimal performance = BigDecimal.ZERO;
     @ApiModelProperty("团队业绩流水")
@@ -35,6 +40,8 @@ public class ProxyReportVo implements Serializable, Comparator<ProxyReportVo> {
     private String commission;
 
     private Integer sort;
+
+    private Integer level;
 
     @Override
     public int compare(ProxyReportVo s1, ProxyReportVo s2) {
