@@ -406,7 +406,7 @@ public class ProxyReportController {
             userMap.put(user.getSecondPid(),userMap.get(user.getSecondPid())==null?CommonConst.NUMBER_0:userMap.get(user.getSecondPid()) + CommonConst.NUMBER_1);
         }else {
             map.put(user.getId(),performance.add(map.get(user.getId()) == null?BigDecimal.ZERO:map.get(user.getId())));
-            map.put(user.getFirstPid(),performance.add(map.get(user.getFirstPid())) == null?BigDecimal.ZERO:map.get(user.getFirstPid()));
+            map.put(user.getFirstPid(),performance.add(map.get(user.getFirstPid()) == null?BigDecimal.ZERO:map.get(user.getFirstPid())));
             map.put(user.getSecondPid(),performance.add(map.get(user.getSecondPid()) == null?BigDecimal.ZERO:map.get(user.getSecondPid())));
             map.put(user.getThirdPid(),performance.add(map.get(user.getThirdPid()) == null?BigDecimal.ZERO:map.get(user.getThirdPid())));
             userMap.put(user.getId(),userMap.get(user.getId())==null?CommonConst.NUMBER_0:userMap.get(user.getId()));
