@@ -41,6 +41,11 @@ public class ProxyReportVo implements Serializable, Comparator<ProxyReportVo> {
         if(s1.getSort()>s2.getSort()){	//greater
             return 1;
         }else if(s1.getSort()==s2.getSort()){	//equals
+            if (s1.getUserId() > s2.getUserId()){
+                return 1;
+            }else if (s1.getUserId() < s2.getUserId()){
+                return -1;
+            }
             return 0;
         }else{	//less
             return -1;

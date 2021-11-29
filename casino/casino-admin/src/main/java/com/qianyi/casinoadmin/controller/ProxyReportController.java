@@ -77,10 +77,7 @@ public class ProxyReportController {
         Vector<ProxyReportVo> list = new Vector<>();
         Map<Long, BigDecimal> map = new ConcurrentHashMap<>();
         Map<Long, Integer> userMap = new ConcurrentHashMap<>();
-        long start = System.currentTimeMillis();
         this.assemble(map,userMap,byAccount,byAccount.getId(),startTime,endTime,list,startDate,endDate,CommonConst.NUMBER_0,CommonConst.NUMBER_0);
-        log.info("==1耗时{}",System.currentTimeMillis()-start);
-        start = System.currentTimeMillis();
         List<User> firstUsers = userService.findFirstUser(byAccount.getId());
         if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0) {
             List<User> secondPid = userService.findBySecondPid(byAccount.getId());
@@ -91,18 +88,12 @@ public class ProxyReportController {
             firstUsers.forEach(f -> {
                 threadPool.execute(() -> assemble(map, userMap, f, byAccount.getId(), startTime, endTime, list, startDate, endDate, CommonConst.NUMBER_1, CommonConst.NUMBER_1,reentrantLock, condition, atomicInteger));
             });
-            log.info("==2耗时{}", System.currentTimeMillis() - start);
-            start = System.currentTimeMillis();
-
             secondPid.forEach(s -> {
                 threadPool.execute(() -> assemble(map, userMap, s, byAccount.getId(), startTime, endTime, list, startDate, endDate, CommonConst.NUMBER_2, CommonConst.NUMBER_2,reentrantLock, condition, atomicInteger));
             });
-            log.info("==3耗时{}", System.currentTimeMillis() - start);
-            start = System.currentTimeMillis();
             thirdPid.forEach(t -> {
                 threadPool.execute(() -> assemble(map, userMap, t, byAccount.getId(), startTime, endTime, list, startDate, endDate, CommonConst.NUMBER_3, CommonConst.NUMBER_3,reentrantLock, condition, atomicInteger));
             });
-            log.info("==4耗时{}", System.currentTimeMillis() - start);
             BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         }
         if (list.size() > CommonConst.NUMBER_0){
@@ -379,13 +370,11 @@ public class ProxyReportController {
     }
     private void assemble(Map<Long,BigDecimal> map,Map<Long,Integer> userMap,User user,Long userId,String startTime,String endTime,List<ProxyReportVo> list,
                           Date startDate,Date endDate,Integer tag,Integer level,ReentrantLock reentrantLock, Condition condition, AtomicInteger atomicInteger){
-        synchronized (user.getId().toString().intern()){
-            try {
-                this.assemble(map,userMap,user,userId,startTime,endTime,list,startDate,endDate,tag,level);
-            }finally {
-                atomicInteger.decrementAndGet();
-                BillThreadPool.toResume(reentrantLock, condition);
-            }
+        try {
+            this.assemble(map,userMap,user,userId,startTime,endTime,list,startDate,endDate,tag,level);
+        }finally {
+            atomicInteger.decrementAndGet();
+            BillThreadPool.toResume(reentrantLock, condition);
         }
     }
     private void compute(Map<Long,BigDecimal> map,User user,Integer tag,BigDecimal performance,Map<Long,Integer> userMap){
@@ -395,21 +384,21 @@ public class ProxyReportController {
         }else if(tag == CommonConst.NUMBER_1){
             map.put(user.getId(),performance.add(map.get(user.getId()) == null?BigDecimal.ZERO:map.get(user.getId())));
             map.put(user.getFirstPid(),performance.add(map.get(user.getFirstPid()) == null?BigDecimal.ZERO:map.get(user.getFirstPid())));
-            userMap.put(user.getId(),userMap.get(user.getId())==null?CommonConst.NUMBER_0:userMap.get(user.getId()));
-            userMap.put(user.getFirstPid(),userMap.get(user.getFirstPid())==null?CommonConst.NUMBER_0:userMap.get(user.getFirstPid()) + CommonConst.NUMBER_1);
+            userMap.put(user.getId(),userMap.get(user.getId())==null?CommonConst.NUMBER_0:userMap.get(user.getId())+ CommonConst.NUMBER_1);
+            userMap.put(user.getFirstPid(),userMap.get(user.getFirstPid()) == null?CommonConst.NUMBER_0:userMap.get(user.getFirstPid()) + CommonConst.NUMBER_1);
         }else if(tag == CommonConst.NUMBER_2){
             map.put(user.getId(),performance.add(map.get(user.getId()) == null?BigDecimal.ZERO:map.get(user.getId())));
             map.put(user.getFirstPid(),performance.add(map.get(user.getFirstPid()) == null?BigDecimal.ZERO:map.get(user.getFirstPid())));
             map.put(user.getSecondPid(),performance.add(map.get(user.getSecondPid()) == null?BigDecimal.ZERO:map.get(user.getSecondPid())));
-            userMap.put(user.getId(),userMap.get(user.getId())==null?CommonConst.NUMBER_0:userMap.get(user.getId()));
+            userMap.put(user.getId(),userMap.get(user.getId())==null?CommonConst.NUMBER_0:userMap.get(user.getId())+ CommonConst.NUMBER_1);
             userMap.put(user.getFirstPid(),userMap.get(user.getFirstPid())==null?CommonConst.NUMBER_0:userMap.get(user.getFirstPid()) + CommonConst.NUMBER_1);
             userMap.put(user.getSecondPid(),userMap.get(user.getSecondPid())==null?CommonConst.NUMBER_0:userMap.get(user.getSecondPid()) + CommonConst.NUMBER_1);
         }else {
-            map.put(user.getId(),performance.add(map.get(user.getId()) == null?BigDecimal.ZERO:map.get(user.getId())));
+            map.put(user.getId(),performance);
             map.put(user.getFirstPid(),performance.add(map.get(user.getFirstPid()) == null?BigDecimal.ZERO:map.get(user.getFirstPid())));
             map.put(user.getSecondPid(),performance.add(map.get(user.getSecondPid()) == null?BigDecimal.ZERO:map.get(user.getSecondPid())));
             map.put(user.getThirdPid(),performance.add(map.get(user.getThirdPid()) == null?BigDecimal.ZERO:map.get(user.getThirdPid())));
-            userMap.put(user.getId(),userMap.get(user.getId())==null?CommonConst.NUMBER_0:userMap.get(user.getId()));
+            userMap.put(user.getId(),CommonConst.NUMBER_0);
             userMap.put(user.getFirstPid(),userMap.get(user.getFirstPid())==null?CommonConst.NUMBER_0:userMap.get(user.getFirstPid())+ CommonConst.NUMBER_1);
             userMap.put(user.getSecondPid(),userMap.get(user.getSecondPid())==null?CommonConst.NUMBER_0:userMap.get(user.getSecondPid()) + CommonConst.NUMBER_1);
             userMap.put(user.getThirdPid(),userMap.get(user.getThirdPid())==null?CommonConst.NUMBER_0:userMap.get(user.getThirdPid()) + CommonConst.NUMBER_1);
