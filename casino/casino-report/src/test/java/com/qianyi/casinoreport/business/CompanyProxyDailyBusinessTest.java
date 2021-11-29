@@ -43,7 +43,7 @@ public class CompanyProxyDailyBusinessTest {
 
     @Test
     public void report_month_correct(){
-        companyProxyMonthBusiness.processMonthReport("2021-11-01");
+        companyProxyMonthBusiness.processMonthReport("2021-11-30");
     }
 
     @Test

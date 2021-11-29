@@ -37,24 +37,29 @@ public class ShareProfitBusiness {
     @Autowired
     private ShareProfitTransactionService shareProfitTransactionService;
 
-    public void procerssShareProfit(ShareProfitMqVo shareProfitMqVo){
+    public int procerssShareProfit(ShareProfitMqVo shareProfitMqVo){
         try {
             PlatformConfig platformConfig = platformConfigService.findFirst();
             GameRecord record = gameRecordService.findGameRecordById(shareProfitMqVo.getGameRecordId());
             List<ShareProfitBO> shareProfitBOList = shareProfitOperator(platformConfig, shareProfitMqVo);
             shareProfitTransactionService.processShareProfitList(shareProfitBOList, record);
+            return 0;
         }catch (Exception e){
             log.error("share profit error : {}",e);
             recordFailVo(shareProfitMqVo);
+            return 1;
         }
     }
 
     private void recordFailVo(ShareProfitMqVo shareProfitMqVo){
-        ConsumerError consumerError = new ConsumerError();
-        consumerError.setConsumerType(ReportConstant.SHAREPOINT);
-        consumerError.setMainId(shareProfitMqVo.getGameRecordId());
-        consumerError.setRepairStatus(0);
-        consumerErrorService.save(consumerError);
+        List<ConsumerError> consumerErrors = consumerErrorService.findUsersByUserId(shareProfitMqVo.getGameRecordId(),"sharePoint");
+        if(consumerErrors.size()==0){
+            ConsumerError consumerError = new ConsumerError();
+            consumerError.setConsumerType(ReportConstant.SHAREPOINT);
+            consumerError.setMainId(shareProfitMqVo.getGameRecordId());
+            consumerError.setRepairStatus(0);
+            consumerErrorService.save(consumerError);
+        }
     }
 
     private List<ShareProfitBO> shareProfitOperator(PlatformConfig platformConfig, ShareProfitMqVo shareProfitMqVo) {

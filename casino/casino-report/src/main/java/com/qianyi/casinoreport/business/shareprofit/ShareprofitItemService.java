@@ -7,6 +7,7 @@ import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.vo.ShareProfitBO;
 import com.qianyi.casinoreport.business.ProxyDayReportBusiness;
 import com.qianyi.casinoreport.business.ProxyReportBusiness;
+import com.qianyi.modulecommon.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class ShareprofitItemService {
 
     public void processItem(ShareProfitBO shareProfitBO, GameRecord record, List<ProxyDayReport> proxyDayReportList, List<ProxyReport> proxyReportList, List<User> userList, List<UserMoney> userMoneyList, List<ShareProfitChange> shareProfitChangeList){
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(shareProfitBO.getUserId());
-        User user = userService.findUserByIdUseLock(record.getUserId());
+        User user = userService.findById(record.getUserId());
         if(userMoney==null)return;
         //明细入库
         ShareProfitChange shareProfitChange = processProfitDetail(shareProfitBO,userMoney,record);
@@ -43,7 +44,7 @@ public class ShareprofitItemService {
         //进行总报表处理
         ProxyReport proxyReport = proxyReportBusiness.processReport(shareProfitBO);
         //设置第一次投注用户
-        user.setIsFirstBet(1);
+        user.setIsFirstBet(Constants.yes);
 
         log.info("userMoney:{} \n shareProfitChange:{} \n proxyDayReport:{} \n proxyReport:{}",userMoney, shareProfitChange,proxyDayReport,proxyReport);
 

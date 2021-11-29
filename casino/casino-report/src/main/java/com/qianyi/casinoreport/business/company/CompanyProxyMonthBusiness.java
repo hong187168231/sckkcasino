@@ -90,6 +90,13 @@ public class CompanyProxyMonthBusiness {
             else
                 subThird = secList.stream().filter(x->x.getFirstProxy()==userId).collect(Collectors.toList());
 
+            if(userId == 4 && level== 1){
+                log.info("++++++++++++");
+                log.info("subList is {}",subList);
+                log.info("subThird is {}",subThird);
+                log.info("++++++++++++");
+            }
+
             CompanyProxyMonth secondeItem = processfirst(subList,subThird);
             companyProxyDetailList.add(secondeItem);
         }
@@ -100,7 +107,7 @@ public class CompanyProxyMonthBusiness {
     private CompanyProxyMonth processfirst(List<CompanyProxyMonth> firstList,List<CompanyProxyMonth> subList) {
         BigDecimal groupBetAmount = firstList.stream().map(x->x.getGroupBetAmount()).reduce(BigDecimal.ZERO,BigDecimal::add);
         BigDecimal profitAmount = firstList.stream().map(x->x.getProfitAmount()).reduce(BigDecimal.ZERO,BigDecimal::add);
-        BigDecimal groupTotalProfit = subList.stream().map(x->x.getProfitAmount()).reduce(BigDecimal.ZERO,BigDecimal::add);
+        BigDecimal groupTotalProfit = subList.stream().map(x->x.getGroupTotalprofit()).reduce(BigDecimal.ZERO,BigDecimal::add);
 
 
         CompanyProxyMonth item = firstList.get(0);
@@ -148,7 +155,8 @@ public class CompanyProxyMonthBusiness {
                 .groupBetAmount(new BigDecimal(companyOrderAmountVo.getValidbet()))
                 .playerNum(companyOrderAmountVo.getPlayerNum())
                 .profitAmount(totalAmount.multiply(profitRate))
-                .groupTotalprofit(proxyType==3? totalAmount:BigDecimal.ZERO)
+//                .groupTotalprofit(proxyType==3? totalAmount:BigDecimal.ZERO)
+                .groupTotalprofit(totalAmount)
                 .settleStatus(0)
                 .staticsTimes(companyOrderAmountVo.getBetTime().substring(0,7))
 //                .betTime(LocalDateTime.parse(companyOrderAmountVo.getBetTime().replace(' ','T')))
