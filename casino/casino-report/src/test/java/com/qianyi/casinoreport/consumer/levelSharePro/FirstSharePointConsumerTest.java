@@ -23,7 +23,7 @@ class FirstSharePointConsumerTest {
     private RabbitTemplate rabbitTemplate;
 
     @Test
-    public void should_insert_into_basic_data() {
+    public void should_send_message_to_mq() {
         com.qianyi.casinocore.vo.ShareProfitBO ShareProfitBO = new ShareProfitBO();
         ShareProfitBO.setFromUserId(606533l);
         ShareProfitBO.setUserId(1693l);
