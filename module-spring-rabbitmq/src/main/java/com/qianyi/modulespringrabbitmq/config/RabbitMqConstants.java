@@ -18,4 +18,17 @@ public class RabbitMqConstants {
     public final static String INGCHARGEORDER_DIRECT = "chargeOrderDev";
 
 
+
+
+    public final static String LEVEL_SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE = "level.profit.exchange";
+
+    public final static String ONE_SHAREPROFIT_DIRECTQUEUE = "one.profit.queue";
+    public final static String ONE_SHAREPROFIT_DIRECT = "oneShareProfit";
+
+
+    public final static String TWO_SHAREPROFIT_DIRECTQUEUE = "two.profit.queue";
+    public final static String TWO_SHAREPROFIT_DIRECT = "twoShareProfit";
+
+    public final static String THREE_SHAREPROFIT_DIRECTQUEUE = "three.profit.queue";
+    public final static String THREE_SHAREPROFIT_DIRECT = "threeShareProfit";
 }

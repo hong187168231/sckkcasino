@@ -42,8 +42,8 @@ public class UserMoneyService {
     private String recycleUrl = "/wm/oneKeyRecoverApi?";
 
     public UserMoney findUserByUserIdUseLock(Long userId) {
-//        return userMoneyRepository.findUserByUserIdUseLock(userId);
-        return userMoneyRepository.findUserMoneyByUserId(userId);
+       return userMoneyRepository.findUserByUserIdUseLock(userId);
+       //return userMoneyRepository.findUserMoneyByUserId(userId);
     }
 
     public List<UserMoney> saveAll(List<UserMoney> userMoneyList){

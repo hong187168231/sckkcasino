@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.service;
 
 import com.alibaba.fastjson.JSON;
+import com.qianyi.casinocore.model.ConsumerError;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.repository.GameRecordRepository;
@@ -109,6 +110,12 @@ public class GameRecordService {
     }
 
     public GameRecord findGameRecordById(Long gameId){return gameRecordRepository.findById(gameId).orElse(null);}
+
+    public GameRecord findGameRecordByIdAndShareProfitStatusIsNull(Long gameId) {
+        return gameRecordRepository.findGameRecordByIdAndShareProfitStatusIsNull(gameId);
+    }
+
+
 
     /**
      * 查询条件拼接，灵活添加条件

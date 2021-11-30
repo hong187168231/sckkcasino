@@ -80,4 +80,59 @@ public class DirectRabbitConfig {
     public Binding addUserToTeam(){
         return BindingBuilder.bind(addUserToTeamQueue()).to(addUserToTeamDirectQueueDirectExchange()).with(RabbitMqConstants.ADDUSERTOTEAM_DIRECT);
     }
+
+
+
+    /**
+     * 代理线分润MQ
+     * @return
+     */
+    @Bean
+    public Queue OneShareProfitDirectQueue(){
+        return new Queue(RabbitMqConstants.ONE_SHAREPROFIT_DIRECTQUEUE,true);
+    }
+
+    @Bean
+    public DirectExchange OneShareProfitDirectQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding OneShareProfitDirect(){
+        return BindingBuilder.bind(OneShareProfitDirectQueue()).to(OneShareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.ONE_SHAREPROFIT_DIRECT);
+    }
+
+
+
+    @Bean
+    public Queue twoShareProfitDirectQueue(){
+        return new Queue(RabbitMqConstants.TWO_SHAREPROFIT_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange twoShareProfitDirectQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding twoShareProfitDirect(){
+        return BindingBuilder.bind(twoShareProfitDirectQueue()).to(twoShareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.TWO_SHAREPROFIT_DIRECT);
+    }
+
+
+
+    @Bean
+    public Queue threeShareProfitDirectQueue(){
+        return new Queue(RabbitMqConstants.THREE_SHAREPROFIT_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange threeShareProfitDirectQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding threeShareProfitDirect(){
+        return BindingBuilder.bind(threeShareProfitDirectQueue()).to(threeShareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.THREE_SHAREPROFIT_DIRECT);
+    }
+
+
+
+
+
 }

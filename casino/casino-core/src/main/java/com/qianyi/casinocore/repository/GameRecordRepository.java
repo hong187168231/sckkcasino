@@ -34,4 +34,6 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
     void updateProfitStatus(Long id, Integer washCodeStatus);
 
     List<GameRecord> findByCreateByAndIdGreaterThanEqualOrderByIdAsc(String createBy,Long id);
+
+    GameRecord findGameRecordByIdAndShareProfitStatusIsNull(Long userId) ;
 }
