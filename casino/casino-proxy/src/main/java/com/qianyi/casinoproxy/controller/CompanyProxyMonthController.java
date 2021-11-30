@@ -125,19 +125,26 @@ public class CompanyProxyMonthController {
                     companyProxyMonthVo.setProfitAmount(proxyHomes.stream().map(CompanyProxyMonth::getProfitAmount).reduce(BigDecimal.ZERO, BigDecimal::add));
                     List<Integer> collect = proxyHomes.stream().map(CompanyProxyMonth::getSettleStatus).collect(Collectors.toList());
                     companyProxyMonthVo.setSettleStatus(Collections.min(collect));
-                    //全线返佣比列
-                    String profitRate="— —";
                     CompanyProxyMonth proxyDetail = proxyHomes.get(CommonConst.NUMBER_0);
-                    if (!proxyDetail.getProfitRate().equals(CommonConst.STRING_0)){
-                        profitRate=CommonConst.REMARKS+ Double.valueOf(proxyDetail.getProfitRate()).intValue()+CommonConst.COMPANY;
+                    //全线返佣比列
+                    if (companyProxyMonthVo.getProxyRole() == CommonConst.NUMBER_3){
+                        String profitRate="— —";
+                        if (!proxyDetail.getProfitRate().equals(CommonConst.STRING_0)){
+                            profitRate=CommonConst.REMARKS+ Double.valueOf(proxyDetail.getProfitRate()).intValue()+CommonConst.COMPANY;
+                        }
+                        companyProxyMonthVo.setProfitRate(profitRate);
+                        //返佣级别:根据返佣金额查询当前返佣级别
+                        String profitLevel = queryRebateLevel(proxyDetail.getProfitLevel(), proxyDetail.getUserId());
+                        companyProxyMonthVo.setProfitLevel(profitLevel);
                     }
-                    companyProxyMonthVo.setProfitRate(profitRate);
-                    //返佣级别:根据返佣金额查询当前返佣级别
-                    String profitLevel = queryRebateLevel(proxyDetail.getProfitLevel(), proxyDetail.getUserId());
-                    companyProxyMonthVo.setProfitLevel(profitLevel);
                     companyProxyMonthVo.setBenefitRate(proxyDetail.getBenefitRate());
                     companyProxyMonthVo.setId(proxyDetail.getId());
                     companyProxyMonthVo.setUpdateTime(proxyDetail.getUpdateTime());
+                }else {
+                    if (companyProxyMonthVo.getProxyRole() == CommonConst.NUMBER_3){
+                        companyProxyMonthVo.setProfitRate("— —");
+                        companyProxyMonthVo.setProfitLevel(CommonConst.REBATE_LEVEL);
+                    }
                 }
                 list.add(companyProxyMonthVo);
             });
