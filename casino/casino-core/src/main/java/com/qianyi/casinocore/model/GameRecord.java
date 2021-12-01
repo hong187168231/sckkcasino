@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.qianyi.modulecommon.Constants;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -166,8 +167,8 @@ public class GameRecord extends BaseEntity{
     @ApiModelProperty(value = "打码状态：1：成功")
     private Integer codeNumStatus;
 
-    @ApiModelProperty(value = "分润状态：1：成功")
-    private Integer shareProfitStatus;
+    @ApiModelProperty(value = "分润状态：0:失败，>0：成功")
+    private Integer shareProfitStatus = Constants.no;
 
     @ApiModelProperty("总代ID")
     private Long firstProxy;
