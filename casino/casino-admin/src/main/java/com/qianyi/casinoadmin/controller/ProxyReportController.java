@@ -106,7 +106,8 @@ public class ProxyReportController {
             });
             userIds.clear();
             userList.clear();
-            return this.getData(list,proxyReportVoMap);
+            proxyReportVoMap.clear();
+            return this.getData(list);
         }
         return ResponseUtil.success();
     }
@@ -177,20 +178,15 @@ public class ProxyReportController {
             });
             userIds.clear();
             userList.clear();
-            return this.getData(list,proxyReportVoMap);
+            proxyReportVoMap.clear();
+            return this.getData(list);
         }
         return ResponseUtil.success();
     }
-    private ResponseEntity<ProxyReportVo> getData(List<ProxyReportVo> list,Map<Long, ProxyReportVo> proxyReportVoMap){
+    private ResponseEntity<ProxyReportVo> getData(List<ProxyReportVo> list){
         ProxyReportVo proxyReportVo = new ProxyReportVo();
         proxyReportVo.setPerformance(list.stream().map(ProxyReportVo::getPerformance).reduce(BigDecimal.ZERO, BigDecimal::add));
         proxyReportVo.setContribution(list.stream().map(ProxyReportVo::getContribution).reduce(BigDecimal.ZERO, BigDecimal::add));
-        if (!LoginUtil.checkNull(proxyReportVoMap)){
-            list.stream().forEach(proxyReportVo1 -> {
-                proxyReportVo1.setAllPerformance(proxyReportVoMap.get(proxyReportVo1.getUserId()).getAllPerformance());
-            });
-            proxyReportVoMap.clear();
-        }
         JSONObject jsonObject = new JSONObject();
         Collections.sort(list, new ProxyReportVo());
         jsonObject.put("data", list);
