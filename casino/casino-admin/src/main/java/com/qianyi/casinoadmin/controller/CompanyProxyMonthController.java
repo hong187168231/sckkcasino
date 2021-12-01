@@ -50,6 +50,7 @@ public class CompanyProxyMonthController {
     @Autowired
     private SysUserService sysUserService;
 
+
     @ApiOperation("查询代理月结表")
     @GetMapping("/find")
     @ApiImplicitParams({
@@ -147,7 +148,7 @@ public class CompanyProxyMonthController {
                     }
                     companyProxyMonthVo.setBenefitRate(proxyDetail.getBenefitRate());
                     companyProxyMonthVo.setId(proxyDetail.getId());
-                    companyProxyMonthVo.setUpdateTime(proxyDetail.getUpdateTime());
+                    companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:proxyDetail.getUpdateTime());
                     if (!LoginUtil.checkNull(proxyDetail.getUpdateBy())){
                         SysUser byId = sysUserService.findById(Long.parseLong(proxyDetail.getUpdateBy()));
                         companyProxyMonthVo.setUpdateBy(byId==null?"":byId.getUserName());
