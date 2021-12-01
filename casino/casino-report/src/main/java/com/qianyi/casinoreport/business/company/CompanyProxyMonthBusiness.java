@@ -108,6 +108,7 @@ public class CompanyProxyMonthBusiness {
         BigDecimal groupBetAmount = firstList.stream().map(x->x.getGroupBetAmount()).reduce(BigDecimal.ZERO,BigDecimal::add);
         BigDecimal profitAmount = firstList.stream().map(x->x.getProfitAmount()).reduce(BigDecimal.ZERO,BigDecimal::add);
         BigDecimal groupTotalProfit = subList.stream().map(x->x.getGroupTotalprofit()).reduce(BigDecimal.ZERO,BigDecimal::add);
+        Integer playnums = subList.stream().map(x-> x.getPlayerNum()).reduce(0,Integer::sum);
 
 
         CompanyProxyMonth item = firstList.get(0);
@@ -116,6 +117,7 @@ public class CompanyProxyMonthBusiness {
         actItem.setGroupBetAmount(groupBetAmount);
         actItem.setProfitAmount(profitAmount);
         actItem.setGroupTotalprofit(groupTotalProfit);
+        actItem.setPlayerNum(playnums);
         return actItem;
     }
 

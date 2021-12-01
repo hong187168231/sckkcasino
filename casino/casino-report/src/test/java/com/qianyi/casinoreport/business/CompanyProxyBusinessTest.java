@@ -1,9 +1,11 @@
 package com.qianyi.casinoreport.business;
 
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinoreport.business.company.CompanyLevelProcessBusiness;
 import com.qianyi.casinoreport.business.company.CompanyProxyDailyBusiness;
 import com.qianyi.casinoreport.business.company.CompanyProxyMonthBusiness;
 import com.qianyi.casinoreport.vo.CompanyLevelBO;
+import com.qianyi.modulecommon.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
@@ -91,5 +93,13 @@ public class CompanyProxyBusinessTest {
         String dayTime = "2021-10-28";
         String endTime = companyProxyBusiness.getEndTime(dayTime);
         System.out.println(dayTime+":"+endTime);
+    }
+
+    @Test
+    public void should_compare(){
+        User user = new User();
+        user.setIsFirstBet(0);
+        boolean result = (user.getIsFirstBet()!=null && user.getIsFirstBet() == Constants.yes);
+        System.out.println(result);
     }
 }

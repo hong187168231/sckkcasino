@@ -92,7 +92,7 @@ public class HomePageReportController {
             homePageReportVo.setWithdrawMoney(homePageReportVo.getWithdrawMoney().add(withdrawMoney));
             homePageReportVo.setWashCodeAmount(homePageReportVo.getWashCodeAmount().add(washCodeAmount));
             homePageReportVo.setValidbetAmount(homePageReportVo.getValidbetAmount().add(validbetAmount));
-            homePageReportVo.setWinLossAmount(homePageReportVo.getWinLossAmount().add(winLossAmount));
+            homePageReportVo.setWinLossAmount(homePageReportVo.getWinLossAmount().subtract(winLossAmount));
             homePageReportVo.setShareAmount(homePageReportVo.getShareAmount().add(shareAmount));
             homePageReportVo.setBonusAmount(homePageReportVo.getBonusAmount().add(bonusAmount));
             homePageReportVo.setServiceCharge(homePageReportVo.getServiceCharge().add(serviceCharge));
@@ -238,7 +238,7 @@ public class HomePageReportController {
                 winLoss = winLoss.add(new BigDecimal(g.getWinLoss()));
             }
             homePageReport.setValidbetAmount(validbetAmount);
-            homePageReport.setWinLossAmount(winLoss);
+            homePageReport.setWinLossAmount(BigDecimal.ZERO.subtract(winLoss));
             Set<Long> set = new HashSet<>();
             gameRecords.stream().filter(CommonUtil.distinctByKey(GameRecord::getUserId)).forEach(game ->{
                 set.add(game.getUserId());
@@ -252,7 +252,7 @@ public class HomePageReportController {
     }
 
     private HomePageReportVo getHomePageReportVo(HomePageReportVo homePageReportVo){
-        homePageReportVo.setGrossMargin1(BigDecimal.ZERO.subtract(homePageReportVo.getWinLossAmount()).subtract(homePageReportVo.getWashCodeAmount()));
+        homePageReportVo.setGrossMargin1(homePageReportVo.getWinLossAmount().subtract(homePageReportVo.getWashCodeAmount()));
         homePageReportVo.setGrossMargin2(homePageReportVo.getGrossMargin1().subtract(homePageReportVo.getShareAmount()).subtract(homePageReportVo.getBonusAmount()).add(homePageReportVo.getServiceCharge()));
         homePageReportVo.setGrossMargin3(homePageReportVo.getGrossMargin2().subtract(homePageReportVo.getProxyProfit()));
         return homePageReportVo;
