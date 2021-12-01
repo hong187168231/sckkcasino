@@ -139,14 +139,13 @@ public class CompanyProxyMonthController {
                     }
                     companyProxyMonthVo.setBenefitRate(proxyDetail.getBenefitRate());
                     companyProxyMonthVo.setId(proxyDetail.getId());
-
+                    companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:proxyDetail.getUpdateTime());
                 }else {
                     if (companyProxyMonthVo.getProxyRole() == CommonConst.NUMBER_3){
                         companyProxyMonthVo.setProfitRate("— —");
                         companyProxyMonthVo.setProfitLevel(CommonConst.REBATE_LEVEL);
                     }
                 }
-                companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:companyProxyMonthVo.getUpdateTime());
                 list.add(companyProxyMonthVo);
             });
         }else {
@@ -164,6 +163,7 @@ public class CompanyProxyMonthController {
                     companyProxyMonthVo.setProfitAmount(proxyHomes.stream().map(CompanyProxyMonth::getProfitAmount).reduce(BigDecimal.ZERO, BigDecimal::add));
                     List<Integer> collect = proxyHomes.stream().map(CompanyProxyMonth::getSettleStatus).collect(Collectors.toList());
                     companyProxyMonthVo.setSettleStatus(Collections.min(collect));
+                    companyProxyMonthVo.setUpdateTime(proxyHomes.get(0).getUpdateTime());
                 }
                 companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:companyProxyMonthVo.getUpdateTime());
                 list.add(companyProxyMonthVo);

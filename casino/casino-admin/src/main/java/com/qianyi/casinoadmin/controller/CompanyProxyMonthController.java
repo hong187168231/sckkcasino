@@ -148,6 +148,7 @@ public class CompanyProxyMonthController {
                     }
                     companyProxyMonthVo.setBenefitRate(proxyDetail.getBenefitRate());
                     companyProxyMonthVo.setId(proxyDetail.getId());
+                    companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:proxyDetail.getUpdateTime());
                     if (!LoginUtil.checkNull(proxyDetail.getUpdateBy())){
                         SysUser byId = sysUserService.findById(Long.parseLong(proxyDetail.getUpdateBy()));
                         companyProxyMonthVo.setUpdateBy(byId==null?"":byId.getUserName());
@@ -158,7 +159,6 @@ public class CompanyProxyMonthController {
                         companyProxyMonthVo.setProfitLevel(CommonConst.REBATE_LEVEL);
                     }
                 }
-                companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:companyProxyMonthVo.getUpdateTime());
                 list.add(companyProxyMonthVo);
             });
         }else {
@@ -169,6 +169,7 @@ public class CompanyProxyMonthController {
                 companyProxyMonthVo.setNickName(proxy.getNickName());
                 companyProxyMonthVo.setProxyUserId(proxy.getId());
                 companyProxyMonthVo.setProxyRole(proxy.getProxyRole());
+                companyProxyMonthVo.setUpdateTime(proxy.getUpdateTime());
                 if (!LoginUtil.checkNull(proxyHomes) && proxyHomes.size() > CommonConst.NUMBER_0){
                     companyProxyMonthVo.setPlayerNum(proxyHomes.stream().mapToInt(CompanyProxyMonth::getPlayerNum).sum());
                     companyProxyMonthVo.setGroupBetAmount(proxyHomes.stream().map(CompanyProxyMonth::getGroupBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add));
@@ -176,6 +177,7 @@ public class CompanyProxyMonthController {
                     companyProxyMonthVo.setProfitAmount(proxyHomes.stream().map(CompanyProxyMonth::getProfitAmount).reduce(BigDecimal.ZERO, BigDecimal::add));
                     List<Integer> collect = proxyHomes.stream().map(CompanyProxyMonth::getSettleStatus).collect(Collectors.toList());
                     companyProxyMonthVo.setSettleStatus(Collections.min(collect));
+                     companyProxyMonthVo.setUpdateTime(proxyHomes.get(0).getUpdateTime());
                 }
                 companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:companyProxyMonthVo.getUpdateTime());
                 list.add(companyProxyMonthVo);
