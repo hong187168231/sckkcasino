@@ -42,8 +42,8 @@ public class ShareProfitChangeService {
         Specification<ShareProfitChange> condition = getCondition(fromUserId,userId,startDate,endDate);
         return shareProfitChangeRepository.findAll(condition);
     }
-    public ShareProfitChange findUserIdAndOrderOn(Long userId,String orderOn){
-        return shareProfitChangeRepository.findUserIdAndOrderOn(userId,orderOn);
+    public ShareProfitChange findByUserIdAndOrderNo(Long userId,String orderNo){
+        return shareProfitChangeRepository.findByUserIdAndOrderNo(userId,orderNo);
     }
 
     /**

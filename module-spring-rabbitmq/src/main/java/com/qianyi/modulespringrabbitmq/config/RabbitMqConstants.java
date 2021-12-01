@@ -31,4 +31,24 @@ public class RabbitMqConstants {
 
     public final static String THREE_SHAREPROFIT_DIRECTQUEUE = "three.profit.queue";
     public final static String THREE_SHAREPROFIT_DIRECT = "threeShareProfit";
+
+
+    /**
+     * 各级充值mq
+     */
+
+    public final static String LEVEL_ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE = "level.add.user.to.team.exchange";
+
+    public final static String ONE_ADDUSERTOTEAM_DIRECTQUEUE = "one.add.user.to.team.queue";
+    public final static String ONE_ADDUSERTOTEAM_DIRECT = "oneAddUserDev";
+
+    public final static String TWO_ADDUSERTOTEAM_DIRECTQUEUE = "two.add.user.to.team.queue";
+    public final static String TWO_ADDUSERTOTEAM_DIRECT = "twoAddUserDev";
+
+    public final static String THREE_ADDUSERTOTEAM_DIRECTQUEUE = "three.add.user.to.team.queue";
+    public final static String THREE_ADDUSERTOTEAM_DIRECT = "threeAddUserDev";
+
 }
+
+
+

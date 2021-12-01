@@ -46,4 +46,21 @@ public class LevelProxyDayReportBusiness {
             buildProxyDayReport(userId,dayTime);
         return proxyDayReportService.findByUserIdAndDayWithLock(userId,dayTime);
     }
+
+
+
+    /**
+     * 处理充值
+     * @param rechargeProxy
+     */
+    public void processChargeAmount(RechargeProxyBO rechargeProxy){
+        log.info("process single charge amount {}",rechargeProxy);
+        ProxyDayReport proxyDayReport = getProxyDayReport(rechargeProxy);
+        proxyDayReport.setDeppositeAmount(proxyDayReport.getDeppositeAmount().add(rechargeProxy.getAmount()));
+        proxyDayReportService.save(proxyDayReport);
+    }
+
+    private ProxyDayReport getProxyDayReport(RechargeProxyBO rechargeProxy) {
+        return getProxyDayReport(rechargeProxy.getProxyUserId(),rechargeProxy.getDayTime());
+    }
 }

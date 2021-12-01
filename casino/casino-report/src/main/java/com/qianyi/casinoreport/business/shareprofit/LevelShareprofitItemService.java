@@ -46,7 +46,7 @@ public class LevelShareprofitItemService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void levelProcessItem(ShareProfitBO shareProfitBO){
-        ShareProfitChange ShareProfitChangeInfo = shareProfitChangeService.findUserIdAndOrderOn(shareProfitBO.getUserId(), shareProfitBO.getRecordBetId());
+        ShareProfitChange ShareProfitChangeInfo = shareProfitChangeService.findByUserIdAndOrderNo(shareProfitBO.getUserId(), shareProfitBO.getRecordBetId());
         if (ShareProfitChangeInfo==null){
             UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(shareProfitBO.getUserId());
             User user = userService.findUserByIdUseLock(shareProfitBO.getRecordUserId());
@@ -61,10 +61,9 @@ public class LevelShareprofitItemService {
             //进行总报表处理
             levelproxyReportBusiness.processReport(shareProfitBO);
             //设置第一次投注用户
-            user.setIsFirstBet(1);
-            userService.save(user);
+            userService.updateIsFirstBet(user.getId(), Constants.yes);
             //更新分润状态
-            gameRecordService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
+             gameRecordService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
         }
     }
 
@@ -81,7 +80,7 @@ public class LevelShareprofitItemService {
         shareProfitChange.setProfitRate(shareProfitBO.getCommission());
         shareProfitChange.setParentLevel(shareProfitBO.getParentLevel());
         shareProfitChange.setValidbet(shareProfitBO.getBetAmount());
-        shareProfitChange.setBetTime(shareProfitBO.getBetTime());
+        shareProfitChange.setBetTime(shareProfitBO.getBetDate());
         log.info("shareProfitBO:{}",shareProfitBO);
         shareProfitChangeService.save(shareProfitChange);
     }

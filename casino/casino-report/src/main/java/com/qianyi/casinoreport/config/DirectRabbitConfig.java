@@ -88,17 +88,17 @@ public class DirectRabbitConfig {
      * @return
      */
     @Bean
-    public Queue OneShareProfitDirectQueue(){
+    public Queue oneShareProfitDirectQueue(){
         return new Queue(RabbitMqConstants.ONE_SHAREPROFIT_DIRECTQUEUE,true);
     }
 
     @Bean
-    public DirectExchange OneShareProfitDirectQueueDirectExchange(){
+    public DirectExchange oneShareProfitDirectQueueDirectExchange(){
         return new DirectExchange(RabbitMqConstants.LEVEL_SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
     }
     @Bean
-    public Binding OneShareProfitDirect(){
-        return BindingBuilder.bind(OneShareProfitDirectQueue()).to(OneShareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.ONE_SHAREPROFIT_DIRECT);
+    public Binding oneShareProfitDirect(){
+        return BindingBuilder.bind(oneShareProfitDirectQueue()).to(oneShareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.ONE_SHAREPROFIT_DIRECT);
     }
 
 
@@ -129,6 +129,52 @@ public class DirectRabbitConfig {
     @Bean
     public Binding threeShareProfitDirect(){
         return BindingBuilder.bind(threeShareProfitDirectQueue()).to(threeShareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.THREE_SHAREPROFIT_DIRECT);
+    }
+
+
+
+    /**
+     * 代理线充值消息MQ
+     * @return
+     */
+    @Bean
+    public Queue oneChargeOrderQueue(){
+        return new Queue(RabbitMqConstants.ONE_ADDUSERTOTEAM_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange oneChargeOrderExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding onebindingChargeOrder(){
+        return BindingBuilder.bind(oneChargeOrderQueue()).to(oneChargeOrderExchange()).with(RabbitMqConstants.ONE_ADDUSERTOTEAM_DIRECT);
+    }
+
+    @Bean
+    public Queue twoChargeOrderQueue(){
+        return new Queue(RabbitMqConstants.TWO_ADDUSERTOTEAM_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange twoChargeOrderExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding twobindingChargeOrder(){
+        return BindingBuilder.bind(twoChargeOrderQueue()).to(twoChargeOrderExchange()).with(RabbitMqConstants.TWO_ADDUSERTOTEAM_DIRECT);
+    }
+
+
+    @Bean
+    public Queue threeChargeOrderQueue(){
+        return new Queue(RabbitMqConstants.THREE_ADDUSERTOTEAM_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange threeChargeOrderExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding threebindingChargeOrder(){
+        return BindingBuilder.bind(threeChargeOrderQueue()).to(threeChargeOrderExchange()).with(RabbitMqConstants.THREE_ADDUSERTOTEAM_DIRECT);
     }
 
 

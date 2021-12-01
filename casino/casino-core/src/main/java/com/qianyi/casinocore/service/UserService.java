@@ -63,6 +63,9 @@ public class UserService {
         return userRepository.findUserByUserIdUseLock(userId);
     }
 
+    public void updateIsFirstBet(Long userId,Integer isFirstBet){
+        userRepository.updateIsFirstBet(userId,isFirstBet);
+    }
 
     /**
      * 用户列表查询

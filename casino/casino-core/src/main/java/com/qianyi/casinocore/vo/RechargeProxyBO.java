@@ -16,4 +16,7 @@ public class RechargeProxyBO {
     @ApiModelProperty(value = "是否直属")
     private boolean direct;
     private String dayTime;
+
+    @ApiModelProperty(value = "充值订单ID")
+    private Long chargeOrderId;
 }

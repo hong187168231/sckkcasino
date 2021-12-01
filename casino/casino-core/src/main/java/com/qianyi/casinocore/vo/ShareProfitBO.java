@@ -39,4 +39,7 @@ public class ShareProfitBO {
 
     @ApiModelProperty(value = "游戏账户下注ID")
     private String recordBetId;
+
+    @ApiModelProperty(value = "下注时间 年月日时分秒")
+    private String betDate;
 }

@@ -30,7 +30,7 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
     void updateWashCodeStatus(Long id, Integer washCodeStatus);
 
     @Modifying
-    @Query("update GameRecord u set u.shareProfitStatus=?2 where u.id=?1")
+    @Query("update GameRecord u set u.shareProfitStatus= u.shareProfitStatus+?2 where u.id=?1")
     void updateProfitStatus(Long id, Integer washCodeStatus);
 
     List<GameRecord> findByCreateByAndIdGreaterThanEqualOrderByIdAsc(String createBy,Long id);

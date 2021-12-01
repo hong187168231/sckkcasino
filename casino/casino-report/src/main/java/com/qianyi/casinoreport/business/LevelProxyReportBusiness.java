@@ -74,4 +74,23 @@ public class LevelProxyReportBusiness {
             buildProxyReport(userId);
         return proxyReportService.findByUserIdWithLock(userId);
     }
+
+    /**
+     * 处理充值报表
+     */
+    public void processRechargeReport(RechargeProxyBO rechargeProxy){
+        log.info("process recharge proxy bo {}",rechargeProxy);
+        // 判断是否首充
+        if(rechargeProxy.getIsFirst()==1){
+            log.info("is not first charge");
+        }else {
+            ProxyReport proxyReport = getProxyReport(rechargeProxy.getProxyUserId());
+            proxyReport.setAllChargeNum(proxyReport.getAllChargeNum()+1);
+            if(rechargeProxy.isDirect())
+                proxyReport.setDirectChargeNum(proxyReport.getDirectChargeNum()+1);
+            else
+                proxyReport.setOtherChargeNum(proxyReport.getOtherChargeNum()+1);
+            proxyReportService.save(proxyReport);
+        }
+    }
 }

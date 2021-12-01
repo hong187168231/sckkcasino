@@ -9,5 +9,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface ShareProfitChangeRepository extends JpaRepository<ShareProfitChange,Long>, JpaSpecificationExecutor<ShareProfitChange> {
 
 
-    ShareProfitChange findUserIdAndOrderOn(Long userId,String orderOn);
+    ShareProfitChange findByUserIdAndOrderNo(Long userId,String orderNo);
 }
