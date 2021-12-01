@@ -7,31 +7,26 @@
         <groupId>com.qianyi</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <groupId>com.qianyi</groupId>
-    <artifactId>casino</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>casino</name>
-    <packaging>pom</packaging>
-    <description>casino</description>
 
-    <modules>
-        <module>casino-core</module>
-        <module>casino-web</module>
-        <module>casino-admin</module>
-        <module>casino-proxy</module>
-        <module>live-wm</module>
-        <module>casino-report</module>
-    </modules>
+    <packaging>pom</packaging>
+    <groupId>com.qianyi</groupId>
+    <artifactId>live</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>live</name>
+    <description>live</description>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
+            <artifactId>spring-boot-starter</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
+
 
 </project>
