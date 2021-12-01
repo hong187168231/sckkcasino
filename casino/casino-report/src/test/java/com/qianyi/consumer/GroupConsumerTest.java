@@ -25,10 +25,10 @@ public class GroupConsumerTest {
     @Test
     public void should_send_message_to_mq(){
         User user = new User();
-        user.setId(4l);
-        user.setFirstPid(3l);
-        user.setSecondPid(2l);
-        user.setThirdPid(1l);
+        user.setId(10240l);
+        user.setFirstPid(1467l);
+        user.setSecondPid(1449l);
+        user.setThirdPid(1448l);
         user.setCreateTime(new Date());
         rabbitTemplate.convertAndSend(RabbitMqConstants.ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE,RabbitMqConstants.ADDUSERTOTEAM_DIRECT,user,new CorrelationData(UUID.randomUUID().toString()));
 

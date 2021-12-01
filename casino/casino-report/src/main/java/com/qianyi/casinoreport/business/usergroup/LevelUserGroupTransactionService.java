@@ -1,49 +1,57 @@
 package com.qianyi.casinoreport.business.usergroup;
 
-import com.qianyi.casinocore.model.ProxyDayReport;
-import com.qianyi.casinocore.model.ProxyReport;
-import com.qianyi.casinocore.service.ProxyDayReportService;
-import com.qianyi.casinocore.service.ProxyReportService;
+
 import com.qianyi.casinocore.vo.ProxyUserBO;
-import com.qianyi.casinoreport.business.ProxyDayReportBusiness;
-import com.qianyi.casinoreport.business.ProxyReportBusiness;
+import com.qianyi.casinoreport.business.LevelProxyDayReportBusiness;
+import com.qianyi.casinoreport.business.LevelProxyReportBusiness;
+import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
 public class LevelUserGroupTransactionService {
 
     @Autowired
-    private ProxyDayReportBusiness proxyDayReportBusiness;
+    private LevelProxyDayReportBusiness levelproxyDayReportBusiness;
 
     @Autowired
-    private ProxyReportBusiness proxyReportBusiness;
+    private LevelProxyReportBusiness levelproxyReportBusiness;
+
 
     @Autowired
-    private ProxyDayReportService proxyDayReportService;
+    private RabbitTemplate rabbitTemplate;
 
-    @Autowired
-    private ProxyReportService proxyReportService;
-
-    @Transactional(rollbackFor = Exception.class)
     public void processProxyUserBOList(List<ProxyUserBO> proxyUserBOList) {
-        List<ProxyDayReport> proxyDayReportList = new ArrayList<>();
-        List<ProxyReport> proxyReportList = new ArrayList<>();
-        proxyUserBOList.forEach(item->processItem(item,proxyDayReportList,proxyReportList));
-        log.info("proxyReportList:{}",proxyReportList);
-        proxyDayReportService.saveAll(proxyDayReportList);
-        proxyReportService.saveAll(proxyReportList);
+            if (proxyUserBOList!=null && proxyUserBOList.size()>0){
+                String routingKey=null;
+                for (int i = 0; i < proxyUserBOList.size(); i++) {
+                    if (i==0){
+                        routingKey= RabbitMqConstants.ONE_ADDUSERTOTEAM_DIRECT;
+                    }
+                    if (i==1){
+                        routingKey= RabbitMqConstants.TWO_ADDUSERTOTEAM_DIRECT;
+                    }
+                    if (i==2){
+                        routingKey= RabbitMqConstants.THREE_ADDUSERTOTEAM_DIRECT;
+                    }
+                    rabbitTemplate.convertAndSend(RabbitMqConstants.LEVEL_ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE,
+                            routingKey,proxyUserBOList.get(i), new CorrelationData(UUID.randomUUID().toString()));
+                }
+            }
     }
 
-    private void processItem(ProxyUserBO proxyUserBO,List<ProxyDayReport> proxyDayReportList,List<ProxyReport> proxyReportList){
+    @Transactional(rollbackFor = Exception.class)
+    public void processItem(ProxyUserBO proxyUserBO){
         log.info("process proxy user BO item");
-        proxyReportList.add(proxyReportBusiness.processUser(proxyUserBO));
-        proxyDayReportList.add(proxyDayReportBusiness.processUser(proxyUserBO));
+        levelproxyReportBusiness.processUser(proxyUserBO);
+        levelproxyDayReportBusiness.processUser(proxyUserBO);
     }
 }

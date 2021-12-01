@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Slf4j
-@RabbitListener(queues = RabbitMqConstants.THREE_ADDUSERTOTEAM_DIRECTQUEUE)
+@RabbitListener(queues = RabbitMqConstants.THREE_CHARGEORDER_QUEUE)
 @Component
 public class TwoChargeOrderConsumer {
 
@@ -31,9 +31,9 @@ public class TwoChargeOrderConsumer {
     @RabbitHandler
 
     public void process(RechargeProxyBO rechargeProxyBO, Channel channel, Message message) throws IOException {
-        log.info("THREE-start 充值订单ID:{},代理线充值消息队列：{}",rechargeProxyBO.getChargeOrderId(),rechargeProxyBO);
+        log.info("TWO-start 充值订单ID:{},代理线充值消息队列：{}",rechargeProxyBO.getChargeOrderId(),rechargeProxyBO);
         rechargeRecordBussiness.processItem(rechargeProxyBO);
         channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
-        log.info("THREE-end 充值订单ID:{},代理线充值消息队列：{}",rechargeProxyBO.getChargeOrderId(),rechargeProxyBO);
+        log.info("TWO-end 充值订单ID:{},代理线充值消息队列：{}",rechargeProxyBO.getChargeOrderId(),rechargeProxyBO);
     }
 }

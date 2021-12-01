@@ -89,15 +89,15 @@ public class LevelRechargeRecordBussiness {
             String routingKey=null;
             for (int i = 0; i < rechargeProxyList.size(); i++) {
                 if (i==0){
-                    routingKey= RabbitMqConstants.ONE_ADDUSERTOTEAM_DIRECT;
+                    routingKey= RabbitMqConstants.ONE_INGCHARGEORDER_DIRECT;
                 }
                 if (i==1){
-                    routingKey= RabbitMqConstants.TWO_ADDUSERTOTEAM_DIRECT;
+                    routingKey= RabbitMqConstants.TWO_INGCHARGEORDER_DIRECT;
                 }
                 if (i==2){
-                    routingKey= RabbitMqConstants.THREE_ADDUSERTOTEAM_DIRECT;
+                    routingKey= RabbitMqConstants.THREE_INGCHARGEORDER_DIRECT;
                 }
-                rabbitTemplate.convertAndSend(RabbitMqConstants.LEVEL_ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE,
+                rabbitTemplate.convertAndSend(RabbitMqConstants.LEVEL_CHARGEORDER_DIRECTQUEUE_DIRECTEXCHANGE,
                         routingKey,rechargeProxyList.get(i), new CorrelationData(UUID.randomUUID().toString()));
             }
         }

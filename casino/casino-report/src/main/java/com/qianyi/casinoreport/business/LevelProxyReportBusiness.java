@@ -93,4 +93,24 @@ public class LevelProxyReportBusiness {
             proxyReportService.save(proxyReport);
         }
     }
+
+
+
+
+    /**
+     * 处理团队用户数量
+     * @param proxyUserBO
+     */
+    public void processUser(ProxyUserBO proxyUserBO){
+        log.info("query proxy report from db");
+        ProxyReport proxyReport = getProxyReport(proxyUserBO.getProxyUserId());
+        log.info("set proxy report userId {} group num value {} {} {}", proxyReport.getUserId(),proxyReport.getAllGroupNum(), proxyReport.getDirectGroupNum(), proxyReport.getOtherGroupNum());
+        proxyReport.setAllGroupNum(proxyReport.getAllGroupNum()+1);
+        if(proxyUserBO.isDrect())
+            proxyReport.setDirectGroupNum(proxyReport.getDirectGroupNum()+1);
+        else
+            proxyReport.setOtherGroupNum(proxyReport.getOtherGroupNum()+1);
+        proxyReportService.save(proxyReport);
+    }
+
 }

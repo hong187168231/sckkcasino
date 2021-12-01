@@ -19,7 +19,7 @@ import java.util.List;
 public class LevelUserGroupNumBusiness {
 
     @Autowired
-    private UserGroupTransactionService userGroupTransactionService;
+    private LevelUserGroupTransactionService levelUserGroupTransactionService;
 
     @Autowired
     private ConsumerErrorService consumerErrorService;
@@ -35,7 +35,7 @@ public class LevelUserGroupNumBusiness {
                 return;
             }
             List<ProxyUserBO> proxyUserBOList = getGroupUserNum(user);
-            userGroupTransactionService.processProxyUserBOList(proxyUserBOList);
+            levelUserGroupTransactionService.processProxyUserBOList(proxyUserBOList);
         }catch (Exception e){
             log.error("user consumer error is {}",e);
             recordFailVo(user);

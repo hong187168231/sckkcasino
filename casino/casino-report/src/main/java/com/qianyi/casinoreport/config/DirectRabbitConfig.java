@@ -139,46 +139,98 @@ public class DirectRabbitConfig {
      */
     @Bean
     public Queue oneChargeOrderQueue(){
-        return new Queue(RabbitMqConstants.ONE_ADDUSERTOTEAM_DIRECTQUEUE,true);
+        return new Queue(RabbitMqConstants.ONE_CHARGEORDER_QUEUE,true);
     }
     @Bean
     public DirectExchange oneChargeOrderExchange(){
-        return new DirectExchange(RabbitMqConstants.LEVEL_ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+        return new DirectExchange(RabbitMqConstants.LEVEL_CHARGEORDER_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
     }
     @Bean
-    public Binding onebindingChargeOrder(){
-        return BindingBuilder.bind(oneChargeOrderQueue()).to(oneChargeOrderExchange()).with(RabbitMqConstants.ONE_ADDUSERTOTEAM_DIRECT);
+    public Binding oneBindingChargeOrder(){
+        return BindingBuilder.bind(oneChargeOrderQueue()).to(oneChargeOrderExchange()).with(RabbitMqConstants.ONE_INGCHARGEORDER_DIRECT);
     }
+
+
+
 
     @Bean
     public Queue twoChargeOrderQueue(){
-        return new Queue(RabbitMqConstants.TWO_ADDUSERTOTEAM_DIRECTQUEUE,true);
+        return new Queue(RabbitMqConstants.TWO_CHARGEORDER_QUEUE,true);
     }
     @Bean
     public DirectExchange twoChargeOrderExchange(){
-        return new DirectExchange(RabbitMqConstants.LEVEL_ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+        return new DirectExchange(RabbitMqConstants.LEVEL_CHARGEORDER_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
     }
     @Bean
-    public Binding twobindingChargeOrder(){
-        return BindingBuilder.bind(twoChargeOrderQueue()).to(twoChargeOrderExchange()).with(RabbitMqConstants.TWO_ADDUSERTOTEAM_DIRECT);
+    public Binding twoBindingChargeOrder(){
+        return BindingBuilder.bind(twoChargeOrderQueue()).to(twoChargeOrderExchange()).with(RabbitMqConstants.TWO_INGCHARGEORDER_DIRECT);
     }
+
+
+
 
 
     @Bean
     public Queue threeChargeOrderQueue(){
-        return new Queue(RabbitMqConstants.THREE_ADDUSERTOTEAM_DIRECTQUEUE,true);
+        return new Queue(RabbitMqConstants.THREE_CHARGEORDER_QUEUE,true);
     }
     @Bean
     public DirectExchange threeChargeOrderExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_CHARGEORDER_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding threeBindingChargeOrder(){
+        return BindingBuilder.bind(threeChargeOrderQueue()).to(threeChargeOrderExchange()).with(RabbitMqConstants.THREE_INGCHARGEORDER_DIRECT);
+    }
+
+
+    /**
+     * 各级代理新增成员
+     * @return
+     */
+    @Bean
+    public Queue oneAddUserToTeamQueue(){
+        return new Queue(RabbitMqConstants.ONE_ADDUSERTOTEAM_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange oneAddUserToTeamDirectQueueDirectExchange(){
         return new DirectExchange(RabbitMqConstants.LEVEL_ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
     }
     @Bean
-    public Binding threebindingChargeOrder(){
-        return BindingBuilder.bind(threeChargeOrderQueue()).to(threeChargeOrderExchange()).with(RabbitMqConstants.THREE_ADDUSERTOTEAM_DIRECT);
+    public Binding oneAddUserToTeam(){
+        return BindingBuilder.bind(oneAddUserToTeamQueue()).to(oneAddUserToTeamDirectQueueDirectExchange()).with(RabbitMqConstants.ONE_ADDUSERTOTEAM_DIRECT);
     }
 
 
 
+    @Bean
+    public Queue twoAddUserToTeamQueue(){
+        return new Queue(RabbitMqConstants.TWO_ADDUSERTOTEAM_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange twoAddUserToTeamDirectQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding twoAddUserToTeam(){
+        return BindingBuilder.bind(twoAddUserToTeamQueue()).to(twoAddUserToTeamDirectQueueDirectExchange()).with(RabbitMqConstants.TWO_ADDUSERTOTEAM_DIRECT);
+    }
+
+
+
+
+    @Bean
+    public Queue threeAddUserToTeamQueue(){
+        return new Queue(RabbitMqConstants.THREE_ADDUSERTOTEAM_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange threeAddUserToTeamDirectQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding threeAddUserToTeam(){
+        return BindingBuilder.bind(threeAddUserToTeamQueue()).to(threeAddUserToTeamDirectQueueDirectExchange()).with(RabbitMqConstants.THREE_ADDUSERTOTEAM_DIRECT);
+    }
 
 
 }

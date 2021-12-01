@@ -63,4 +63,17 @@ public class LevelProxyDayReportBusiness {
     private ProxyDayReport getProxyDayReport(RechargeProxyBO rechargeProxy) {
         return getProxyDayReport(rechargeProxy.getProxyUserId(),rechargeProxy.getDayTime());
     }
+
+
+
+    /**
+     * 处理团队用户数量
+     * @param proxyUserBO
+     */
+    public void processUser(ProxyUserBO proxyUserBO){
+        ProxyDayReport proxyDayReport = getProxyDayReport(proxyUserBO.getProxyUserId(),proxyUserBO.getDayTime());
+        proxyDayReport.setNewNum(proxyDayReport.getNewNum()+1);
+        proxyDayReportService.save(proxyDayReport);
+    }
+
 }

@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Slf4j
-@RabbitListener(queues = RabbitMqConstants.ONE_ADDUSERTOTEAM_DIRECTQUEUE)
+@RabbitListener(queues = RabbitMqConstants.ONE_CHARGEORDER_QUEUE)
 @Component
 public class OneChargeOrderConsumer {
 

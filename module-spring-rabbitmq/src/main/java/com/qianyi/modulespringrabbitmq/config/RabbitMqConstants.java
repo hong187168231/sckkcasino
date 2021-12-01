@@ -32,11 +32,9 @@ public class RabbitMqConstants {
     public final static String THREE_SHAREPROFIT_DIRECTQUEUE = "three.profit.queue";
     public final static String THREE_SHAREPROFIT_DIRECT = "threeShareProfit";
 
-
     /**
-     * 各级充值mq
+     * 各级新增人数mq
      */
-
     public final static String LEVEL_ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE = "level.add.user.to.team.exchange";
 
     public final static String ONE_ADDUSERTOTEAM_DIRECTQUEUE = "one.add.user.to.team.queue";
@@ -47,6 +45,24 @@ public class RabbitMqConstants {
 
     public final static String THREE_ADDUSERTOTEAM_DIRECTQUEUE = "three.add.user.to.team.queue";
     public final static String THREE_ADDUSERTOTEAM_DIRECT = "threeAddUserDev";
+
+
+
+    /**
+     * 各级充值mq
+     */
+    public final static String LEVEL_CHARGEORDER_DIRECTQUEUE_DIRECTEXCHANGE = "level.charge.order.exchange";
+
+    public final static String ONE_CHARGEORDER_QUEUE = "one.charge.order.queue";
+    public final static String ONE_INGCHARGEORDER_DIRECT = "one.chargeOrderDev";
+
+    public final static String TWO_CHARGEORDER_QUEUE = "two.charge.order.queue";
+    public final static String TWO_INGCHARGEORDER_DIRECT = "two.chargeOrderDev";
+
+
+    public final static String THREE_CHARGEORDER_QUEUE = "three.charge.order.queue";
+    public final static String THREE_INGCHARGEORDER_DIRECT = "three.chargeOrderDev";
+
 
 }
 
