@@ -42,13 +42,10 @@ public class LevelShareProfitBusiness {
      */
     public void procerssShareProfit(ShareProfitMqVo shareProfitMqVo){
         try {
-            //根据游戏id、分润状态查询游戏记录(避免同一个游戏id执行多次)
-            GameRecord record = gameRecordService.findGameRecordByIdAndShareProfitStatusIsNull(shareProfitMqVo.getGameRecordId());
-            if (record!=null){
-                PlatformConfig platformConfig = platformConfigService.findFirst();
-                List<ShareProfitBO> shareProfitBOList = shareProfitOperator(platformConfig, shareProfitMqVo,record);
-                shareProfitTransactionService.processShareProfitMq(shareProfitBOList);
-            }
+            GameRecord record = gameRecordService.findGameRecordById(shareProfitMqVo.getGameRecordId());
+            PlatformConfig platformConfig = platformConfigService.findFirst();
+            List<ShareProfitBO> shareProfitBOList = shareProfitOperator(platformConfig, shareProfitMqVo,record);
+            shareProfitTransactionService.processShareProfitMq(shareProfitBOList);
         }catch (Exception e){
             log.error("share profit error : {}",e);
             recordFailVo(shareProfitMqVo);

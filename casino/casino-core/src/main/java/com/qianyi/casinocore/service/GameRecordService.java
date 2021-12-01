@@ -111,11 +111,6 @@ public class GameRecordService {
 
     public GameRecord findGameRecordById(Long gameId){return gameRecordRepository.findById(gameId).orElse(null);}
 
-    public GameRecord findGameRecordByIdAndShareProfitStatusIsNull(Long gameId) {
-        return gameRecordRepository.findGameRecordByIdAndShareProfitStatusIsNull(gameId);
-    }
-
-
 
     /**
      * 查询条件拼接，灵活添加条件
