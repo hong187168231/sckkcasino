@@ -148,16 +148,17 @@ public class CompanyProxyMonthController {
                     }
                     companyProxyMonthVo.setBenefitRate(proxyDetail.getBenefitRate());
                     companyProxyMonthVo.setId(proxyDetail.getId());
-                    companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:proxyDetail.getUpdateTime());
                     if (!LoginUtil.checkNull(proxyDetail.getUpdateBy())){
                         SysUser byId = sysUserService.findById(Long.parseLong(proxyDetail.getUpdateBy()));
                         companyProxyMonthVo.setUpdateBy(byId==null?"":byId.getUserName());
                     }
+                    companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:proxyDetail.getUpdateTime());
                 }else {
                     if (companyProxyMonthVo.getProxyRole() == CommonConst.NUMBER_3){
                         companyProxyMonthVo.setProfitRate("— —");
                         companyProxyMonthVo.setProfitLevel(CommonConst.REBATE_LEVEL);
                     }
+                    companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:proxyHomes.get(0).getUpdateTime());
                 }
                 list.add(companyProxyMonthVo);
             });

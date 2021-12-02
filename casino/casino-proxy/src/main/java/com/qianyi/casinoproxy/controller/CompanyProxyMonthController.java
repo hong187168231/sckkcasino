@@ -145,6 +145,7 @@ public class CompanyProxyMonthController {
                         companyProxyMonthVo.setProfitRate("— —");
                         companyProxyMonthVo.setProfitLevel(CommonConst.REBATE_LEVEL);
                     }
+                    companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:proxyHomes.get(0).getUpdateTime());
                 }
                 list.add(companyProxyMonthVo);
             });
