@@ -168,11 +168,6 @@ public class CompanyProxyMonthController {
                     companyProxyMonthVo.setProfitAmount(proxyHomes.stream().map(CompanyProxyMonth::getProfitAmount).reduce(BigDecimal.ZERO, BigDecimal::add));
                     List<Integer> collect = proxyHomes.stream().map(CompanyProxyMonth::getSettleStatus).collect(Collectors.toList());
                     companyProxyMonthVo.setSettleStatus(Collections.min(collect));
-                    companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:proxyHomes.get(0).getUpdateTime());
-                    if (proxyHomes.get(0).getUpdateBy()!=null){
-                        SysUser byIds = sysUserService.findById(Long.parseLong(proxyHomes.get(0).getUpdateBy()));
-                        companyProxyMonthVo.setUpdateBy(byIds==null?"":byIds.getUserName());
-                    }
                 }
 
                 list.add(companyProxyMonthVo);
