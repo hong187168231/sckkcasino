@@ -42,6 +42,10 @@ public class ShareProfitChangeService {
         Specification<ShareProfitChange> condition = getCondition(fromUserId,userId,startDate,endDate);
         return shareProfitChangeRepository.findAll(condition);
     }
+    public ShareProfitChange findByUserIdAndOrderNo(Long userId,String orderNo){
+        return shareProfitChangeRepository.findByUserIdAndOrderNo(userId,orderNo);
+    }
+
     /**
      * 查询条件拼接，灵活添加条件
      *

@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.service;
 
 import com.alibaba.fastjson.JSON;
+import com.qianyi.casinocore.model.ConsumerError;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.repository.GameRecordRepository;
@@ -109,6 +110,7 @@ public class GameRecordService {
     }
 
     public GameRecord findGameRecordById(Long gameId){return gameRecordRepository.findById(gameId).orElse(null);}
+
 
     /**
      * 查询条件拼接，灵活添加条件
@@ -278,7 +280,6 @@ public class GameRecordService {
     public void updateProfitStatus(Long id,Integer washCodeStatus){
         gameRecordRepository.updateProfitStatus(id,washCodeStatus);
     }
-
     public List<GameRecord> findByCreateByAndIdGreaterThanEqualOrderByIdAsc(String createBy,Long id) {
         return gameRecordRepository.findByCreateByAndIdGreaterThanEqualOrderByIdAsc(createBy,id);
     }

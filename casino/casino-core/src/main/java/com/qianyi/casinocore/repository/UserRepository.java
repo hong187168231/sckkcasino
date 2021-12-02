@@ -20,6 +20,10 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Query(value = "select * from User u where u.id = ? for update",nativeQuery = true)
     User findUserByUserIdUseLock(Long userId);
 
+    @Modifying
+    @Query("update User u set u.isFirstBet= ?2 where u.id=?1")
+    void updateIsFirstBet(Long id, Integer washCodeStatus);
+
     List<User> findByRegisterIp(String ip);
 
     User findByInviteCode(String inviteCode);

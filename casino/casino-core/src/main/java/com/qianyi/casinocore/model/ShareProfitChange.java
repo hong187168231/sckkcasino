@@ -50,6 +50,9 @@ public class ShareProfitChange extends BaseEntity {
     @ApiModelProperty("有效投注金额")
     private BigDecimal validbet;
 
+
+    @ApiModelProperty(value = "下注时间")
+    private String betTime;
     public ShareProfitChange() {
     }
 
