@@ -122,11 +122,11 @@ public class CompanyProxyMonthController {
                 companyProxyMonthVo.setProxyUserId(proxy.getId());
                 companyProxyMonthVo.setProxyRole(proxy.getProxyRole());
                 companyProxyMonthVo.setId(CommonConst.LONG_0);
-                try {
+         /*       try {
                     companyProxyMonthVo.setUpdateTime(DateUtil.getSimpleDateFormatMonth().parse(startDate));
                 } catch (ParseException e) {
                     log.error("代理佣金查询时间转换出错");
-                }
+                }*/
                 if (!LoginUtil.checkNull(proxyHomes) && proxyHomes.size() > CommonConst.NUMBER_0){
                     companyProxyMonthVo.setPlayerNum(proxyHomes.stream().mapToInt(CompanyProxyMonth::getPlayerNum).sum());
                     companyProxyMonthVo.setGroupBetAmount(proxyHomes.stream().map(CompanyProxyMonth::getGroupBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add));
@@ -158,7 +158,6 @@ public class CompanyProxyMonthController {
                         companyProxyMonthVo.setProfitRate("— —");
                         companyProxyMonthVo.setProfitLevel(CommonConst.REBATE_LEVEL);
                     }
-                    companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:proxyHomes.get(0).getUpdateTime());
                 }
                 list.add(companyProxyMonthVo);
             });
@@ -179,6 +178,10 @@ public class CompanyProxyMonthController {
                     List<Integer> collect = proxyHomes.stream().map(CompanyProxyMonth::getSettleStatus).collect(Collectors.toList());
                     companyProxyMonthVo.setSettleStatus(Collections.min(collect));
                      companyProxyMonthVo.setUpdateTime(proxyHomes.get(0).getUpdateTime());
+                    if (!LoginUtil.checkNull(proxyHomes.get(0).getUpdateBy())){
+                        SysUser byId = sysUserService.findById(Long.parseLong(proxyHomes.get(0).getUpdateBy()));
+                        companyProxyMonthVo.setUpdateBy(byId==null?"":byId.getUserName());
+                    }
                 }
                 companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:companyProxyMonthVo.getUpdateTime());
                 list.add(companyProxyMonthVo);

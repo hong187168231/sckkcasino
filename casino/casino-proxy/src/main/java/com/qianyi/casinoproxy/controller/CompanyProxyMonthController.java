@@ -1,10 +1,7 @@
 package com.qianyi.casinoproxy.controller;
 
 import com.qianyi.casinocore.model.*;
-import com.qianyi.casinocore.service.CompanyProxyMonthService;
-import com.qianyi.casinocore.service.ProxyRebateConfigService;
-import com.qianyi.casinocore.service.ProxyUserService;
-import com.qianyi.casinocore.service.RebateConfigService;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.casinocore.vo.CompanyProxyMonthVo;
@@ -42,6 +39,10 @@ public class CompanyProxyMonthController {
     private RebateConfigService rebateConfigService;
     @Autowired
     private ProxyUserService proxyUserService;
+
+
+    @Autowired
+    private SysUserService sysUserService;
 
     @ApiOperation("查询代理月结表")
     @GetMapping("/find")
@@ -140,12 +141,15 @@ public class CompanyProxyMonthController {
                     companyProxyMonthVo.setBenefitRate(proxyDetail.getBenefitRate());
                     companyProxyMonthVo.setId(proxyDetail.getId());
                     companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:proxyDetail.getUpdateTime());
+                    if (proxyDetail.getUpdateBy()!=null){
+                        SysUser byIds = sysUserService.findById(Long.parseLong(proxyDetail.getUpdateBy()));
+                        companyProxyMonthVo.setUpdateBy(byIds==null?"":byIds.getUserName());
+                    }
                 }else {
                     if (companyProxyMonthVo.getProxyRole() == CommonConst.NUMBER_3){
                         companyProxyMonthVo.setProfitRate("— —");
                         companyProxyMonthVo.setProfitLevel(CommonConst.REBATE_LEVEL);
                     }
-                    companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:proxyHomes.get(0).getUpdateTime());
                 }
                 list.add(companyProxyMonthVo);
             });
@@ -164,9 +168,13 @@ public class CompanyProxyMonthController {
                     companyProxyMonthVo.setProfitAmount(proxyHomes.stream().map(CompanyProxyMonth::getProfitAmount).reduce(BigDecimal.ZERO, BigDecimal::add));
                     List<Integer> collect = proxyHomes.stream().map(CompanyProxyMonth::getSettleStatus).collect(Collectors.toList());
                     companyProxyMonthVo.setSettleStatus(Collections.min(collect));
-                    companyProxyMonthVo.setUpdateTime(proxyHomes.get(0).getUpdateTime());
+                    companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:proxyHomes.get(0).getUpdateTime());
+                    if (proxyHomes.get(0).getUpdateBy()!=null){
+                        SysUser byIds = sysUserService.findById(Long.parseLong(proxyHomes.get(0).getUpdateBy()));
+                        companyProxyMonthVo.setUpdateBy(byIds==null?"":byIds.getUserName());
+                    }
                 }
-                companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:companyProxyMonthVo.getUpdateTime());
+
                 list.add(companyProxyMonthVo);
             });
         }
