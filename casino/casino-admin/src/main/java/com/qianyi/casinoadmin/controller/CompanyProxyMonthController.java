@@ -177,13 +177,7 @@ public class CompanyProxyMonthController {
                     companyProxyMonthVo.setProfitAmount(proxyHomes.stream().map(CompanyProxyMonth::getProfitAmount).reduce(BigDecimal.ZERO, BigDecimal::add));
                     List<Integer> collect = proxyHomes.stream().map(CompanyProxyMonth::getSettleStatus).collect(Collectors.toList());
                     companyProxyMonthVo.setSettleStatus(Collections.min(collect));
-                     companyProxyMonthVo.setUpdateTime(proxyHomes.get(0).getUpdateTime());
-                    if (!LoginUtil.checkNull(proxyHomes.get(0).getUpdateBy())){
-                        SysUser byId = sysUserService.findById(Long.parseLong(proxyHomes.get(0).getUpdateBy()));
-                        companyProxyMonthVo.setUpdateBy(byId==null?"":byId.getUserName());
-                    }
                 }
-                companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:companyProxyMonthVo.getUpdateTime());
                 list.add(companyProxyMonthVo);
             });
         }

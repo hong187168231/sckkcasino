@@ -90,6 +90,16 @@ public class RoleController {
                 if(sysUser.getId().intValue() == sysUserRoleVo.getSysUserId().intValue()){
                     sysUserVo.setSysRoleId(sysUserRoleVo.getSysRoleId());
                     sysUserVo.setRoleName(sysUserRoleVo.getRoleName());
+                    sysUserVo.setUpdateTime(sysUser.getUpdateTime());
+                    if (!LoginUtil.checkNull(sysUser.getUpdateBy())){
+                        SysUser byId = sysUserService.findById(Long.parseLong(sysUser.getUpdateBy()));
+                        sysUserVo.setUpdateBy(byId==null?"":byId.getUserName());
+                    }
+                    sysUserVo.setCreateTime(sysUser.getCreateTime());
+                    if (!LoginUtil.checkNull(sysUser.getCreateBy())){
+                        SysUser byId = sysUserService.findById(Long.parseLong(sysUser.getCreateBy()));
+                        sysUserVo.setCreateBy(byId==null?"":byId.getUserName());
+                    }
                 }
             }
             sysUserVoList.add(sysUserVo);
@@ -147,6 +157,12 @@ public class RoleController {
         SysUserRole sysUserRole = roleServiceBusiness.getSysUserRole(userId);
         if(sysUserRole == null){
             sysUserRole = new SysUserRole();
+        }
+        Long loginUserId = LoginUtil.getLoginUserId();
+        SysUser sysLogin = sysUserService.findById(loginUserId);
+        if (sysLogin!=null){
+            sysUser.setUpdateBy(sysLogin.getUserName());
+            sysUserService.save(sysUser);
         }
         sysUserRole.setSysRoleId(roleId);
         sysUserRole.setSysUserId(userId);

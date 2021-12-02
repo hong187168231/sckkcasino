@@ -112,6 +112,11 @@ public class GameRecordService {
     public GameRecord findGameRecordById(Long gameId){return gameRecordRepository.findById(gameId).orElse(null);}
 
 
+    public int countByIdLessThanEqualAndUserId(Long gameId,Long UserId){
+        return gameRecordRepository.countByIdLessThanEqualAndUserId(gameId,UserId);
+    }
+
+
     /**
      * 查询条件拼接，灵活添加条件
      * @param

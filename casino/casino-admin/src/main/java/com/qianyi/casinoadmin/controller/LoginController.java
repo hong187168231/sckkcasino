@@ -383,6 +383,8 @@ public class LoginController {
         if(sys != null){
             return ResponseUtil.custom("账户已经存在");
         }
+        Long loginUserId = LoginUtil.getLoginUserId();
+        SysUser sysLogin = sysUserService.findById(loginUserId);
 
         //加密
         String bcryptPassword = LoginUtil.bcrypt(password);
@@ -391,6 +393,7 @@ public class LoginController {
         sysUser.setNickName(nickName);
         sysUser.setPassWord(bcryptPassword);
         sysUser.setUserFlag(Constants.open);
+        sysUser.setCreateBy(sysLogin==null?null:sysLogin.getUserName());
         sysUserService.save(sysUser);
         return ResponseUtil.success();
     }
@@ -490,6 +493,10 @@ public class LoginController {
         if(bcryptPassword.equals(sys.getPassWord())){
             return ResponseUtil.custom("新密码和旧密码相同！");
         }
+        Long loginUserId = LoginUtil.getLoginUserId();
+        SysUser sysLogin = sysUserService.findById(loginUserId);
+
+        sys.setUpdateBy(sysLogin==null?null:sysLogin.getUserName());
         sys.setPassWord(bcryptPassword);
         sysUserService.save(sys);
         return ResponseUtil.success();
@@ -514,8 +521,12 @@ public class LoginController {
         if(sys == null){
             return ResponseUtil.custom("账号不存在！");
         }
+        Long loginUserId = LoginUtil.getLoginUserId();
+        SysUser sysLogin = sysUserService.findById(loginUserId);
+
         sys.setGaBind(Constants.open + "");
         sys.setGaKey(null);
+        sys.setUpdateBy(sysLogin==null?null:sysLogin.getUserName());
         sysUserService.save(sys);
         return ResponseUtil.success();
     }
