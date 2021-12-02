@@ -28,11 +28,11 @@ public class WithdrawOrder extends BaseEntity {
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal withdrawMoney;
 
-//    @ApiModelProperty(value = "实际提现金额")
-//    private BigDecimal practicalAmount;
-//
-//    @ApiModelProperty(value = "手续费")
-//    private BigDecimal serviceCharge;
+    @ApiModelProperty(value = "实际提现金额")
+    private BigDecimal practicalAmount;
+
+    @ApiModelProperty(value = "手续费")
+    private BigDecimal serviceCharge;
 
     @ApiModelProperty(value = "银行卡Id")
     private String bankId;

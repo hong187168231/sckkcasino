@@ -49,7 +49,7 @@ public class HomePageReport extends BaseEntity {
     private BigDecimal bonusAmount;
 
     @ApiModelProperty(value = "充提手续费")
-    @Column(columnDefinition = "Decimal(12,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
     private BigDecimal serviceCharge = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "活跃玩家数")
