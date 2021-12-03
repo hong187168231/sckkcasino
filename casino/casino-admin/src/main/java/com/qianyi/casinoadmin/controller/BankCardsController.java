@@ -80,6 +80,7 @@ public class BankCardsController {
      * @return
      */
     @ApiOperation("新增银行")
+    @NoAuthorization
     @PostMapping(value = "/saveBankInfo",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增银行")
     public ResponseEntity saveBankInfo(@RequestPart(value = "bankLogo银行图标",required=false) MultipartFile file, @RequestParam(value = "银行名称") String bankName,
                                        @RequestParam(value = "备注",required=false)String remark){
