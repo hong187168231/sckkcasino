@@ -336,6 +336,7 @@ public class LoginController {
         subject.setUserId(user.getId() + "");
         subject.setBcryptPassword(user.getPassWord());
         String jwt = JjwtUtil.generic(subject, "casino-admin");
+        setUserTokenToRedis(user.getId(), jwt);
         return ResponseUtil.success(jwt);
     }
 
@@ -353,7 +354,7 @@ public class LoginController {
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();
         }
-
+        setUserTokenToRedis(sysUser.getId(), token);
         return ResponseUtil.success(refreshToken);
     }
 
