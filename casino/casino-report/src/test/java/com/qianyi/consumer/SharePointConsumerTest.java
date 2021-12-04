@@ -28,7 +28,7 @@ public class SharePointConsumerTest {
         shareProfitMqVo.setUserId(10240l);
         shareProfitMqVo.setGameRecordId(88390l);
         shareProfitMqVo.setValidbet(BigDecimal.valueOf(10));
-        shareProfitMqVo.setBetTime("2021-12-02 13:24:59");
+        shareProfitMqVo.setBetTime("2021-12-04 13:24:59");
         rabbitTemplate.convertAndSend(RabbitMqConstants.SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,RabbitMqConstants.SHAREPROFIT_DIRECT,shareProfitMqVo,new CorrelationData(UUID.randomUUID().toString()));
         log.info("success");
     }

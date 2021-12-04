@@ -5,6 +5,7 @@ import lombok.Data;
 import org.hibernate.id.IntegralDataTypeHolder;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 public class ShareProfitBO {
@@ -41,5 +42,6 @@ public class ShareProfitBO {
     private String recordBetId;
 
     @ApiModelProperty(value = "下注时间 年月日时分秒")
-    private String betDate;
+    private Date betDate;
+
 }

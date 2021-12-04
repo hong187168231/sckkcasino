@@ -10,12 +10,15 @@ import com.qianyi.casinocore.vo.ShareProfitMqVo;
 import com.qianyi.casinoreport.util.ReportConstant;
 import com.qianyi.casinoreport.util.ShareProfitUtils;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -93,7 +96,13 @@ public class LevelShareProfitBusiness {
         shareProfitBO.setProfitAmount(betAmount.multiply(commission.divide(BigDecimal.valueOf(100))));
         shareProfitBO.setFirst(isFirst);
         shareProfitBO.setBetTime(betTime);
-        shareProfitBO.setBetDate(betDate);
+        Date startDate = null;
+        try {
+            startDate = DateUtil.getSimpleDateFormat().parse(betDate);
+            shareProfitBO.setBetDate(startDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         shareProfitBO.setDirect(direct);
         shareProfitBO.setCommission(commission);
         shareProfitBO.setParentLevel(parentLevel);
