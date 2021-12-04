@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 @Entity
@@ -50,6 +51,9 @@ public class ShareProfitChange extends BaseEntity {
     @ApiModelProperty("有效投注金额")
     private BigDecimal validbet;
 
+
+    @ApiModelProperty(value = "下注时间")
+    private Date betTime;
     public ShareProfitChange() {
     }
 

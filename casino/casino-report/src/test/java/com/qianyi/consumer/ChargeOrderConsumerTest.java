@@ -26,10 +26,10 @@ public class ChargeOrderConsumerTest {
     public void should_send_message_to_mq(){
         RechargeRecordVo rechargeRecordVo = new RechargeRecordVo();
         rechargeRecordVo.setChargeAmount(BigDecimal.ONE);
-        rechargeRecordVo.setUserId(4l);
-        rechargeRecordVo.setFirstUserId(3l);
-        rechargeRecordVo.setSecondUserId(2l);
-        rechargeRecordVo.setThirdUserId(1l);
+        rechargeRecordVo.setUserId(10240l);
+        rechargeRecordVo.setFirstUserId(1467l);
+        rechargeRecordVo.setSecondUserId(1449l);
+        rechargeRecordVo.setThirdUserId(1448l);
         rechargeRecordVo.setIsFirst(0);
         rechargeRecordVo.setCreateTime(new Date());
         rabbitTemplate.convertAndSend(RabbitMqConstants.CHARGEORDER_DIRECTQUEUE_DIRECTEXCHANGE,RabbitMqConstants.INGCHARGEORDER_DIRECT,rechargeRecordVo,new CorrelationData(UUID.randomUUID().toString()));

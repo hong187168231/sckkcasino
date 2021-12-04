@@ -74,6 +74,7 @@ public class Constants {
 
     public final static String CASINO_WEB = "casino-web";
     public final static String PAY_ADMIN = "pay-admin";
+    public final static String CASINO_ADMIN = "casino-admin";
 
     public final static String TOTAL_WASHCODE = "totalWashCode";//redis洗码总计key
     public final static String PLATFORM = "wm";
@@ -113,5 +114,6 @@ public class Constants {
     public static final String LANGUAGE= "language";
     //web端JWT过期后，24H内可颁发新的token
     public static final Long WEB_REFRESH_TTL = 60 * 60L * 24;//秒
+    public static final Long ADMIN_REFRESH_TTL = 60 * 60L * 24;//秒
 
 }

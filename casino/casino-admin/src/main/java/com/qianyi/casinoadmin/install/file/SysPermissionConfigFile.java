@@ -306,9 +306,17 @@ public class SysPermissionConfigFile {
         SysPermission findReadUploadUrl      = null; //修改图片服务器地址
         SysPermission updateReadUploadUrl = null; //修改图片服务器地址
         SysPermission memberMeonyLog = null; //会员资金流水
+        SysPermission memberList = null; //用户列表
+        SysPermission addSysUser = null; //新增用户
 
 
         for (SysPermission sysPermission : sysPermissionList) {
+            if(sysPermission.getUrl().equals("/login/save")){
+                addSysUser = sysPermission;
+            }
+            if(sysPermission.getUrl().equals("/sysUser/userList")){
+                memberList = sysPermission;
+            }
             if(sysPermission.getUrl().equals("/sysUser/userList")){
                 systemPermission = sysPermission;
             }
@@ -428,6 +436,13 @@ public class SysPermissionConfigFile {
             if(deletenotice == null){
                 updateUploadUrl = new SysPermission("删除公告", "删除公告", "/notice/delNotice", noticeConfig.getId(), 3, 0);
                 sysPermList.add(updateUploadUrl);
+            }
+        }
+
+        if(memberList != null){
+            if(addSysUser == null){
+                addSysUser = new SysPermission("新增用户", "新增用户", "/login/save", memberList.getId(), 3, 0);
+                sysPermList.add(addSysUser);
             }
         }
 

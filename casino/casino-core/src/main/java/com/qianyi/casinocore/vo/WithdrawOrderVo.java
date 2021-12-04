@@ -57,9 +57,9 @@ public class WithdrawOrderVo implements Serializable {
         this.userId = withdrawOrder.getUserId();
         this.bankId = withdrawOrder.getBankId();
         this.no = withdrawOrder.getNo();
-//        this.practicalAmount = withdrawOrder.getPracticalAmount();
+        this.practicalAmount = withdrawOrder.getPracticalAmount();
         this.withdrawMoney = withdrawOrder.getWithdrawMoney();
-//        this.serviceCharge = withdrawOrder.getServiceCharge();
+        this.serviceCharge = withdrawOrder.getServiceCharge();
         this.remitType = withdrawOrder.getRemitType();
         this.status = withdrawOrder.getStatus();
         this.type = withdrawOrder.getType();

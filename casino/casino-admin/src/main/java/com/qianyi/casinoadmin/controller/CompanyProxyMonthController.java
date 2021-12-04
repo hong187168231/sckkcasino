@@ -107,10 +107,10 @@ public class CompanyProxyMonthController {
         List<CompanyProxyMonthVo> list = new LinkedList<>();
         List<Long> proxyUserId = proxyUserPage.getContent().stream().map(ProxyUser::getId).collect(Collectors.toList());
         List<CompanyProxyMonth> companyProxyMonths = companyProxyMonthService.findCompanyProxyMonths(proxyUserId, companyProxyMonth, startDate, endDate);
-        if (LoginUtil.checkNull(companyProxyMonths) || companyProxyMonths.size() == CommonConst.NUMBER_0){
-            pageResultVO.setContent(list);
-            return ResponseUtil.success(pageResultVO);
-        }
+//        if (LoginUtil.checkNull(companyProxyMonths) || companyProxyMonths.size() == CommonConst.NUMBER_0){
+//            pageResultVO.setContent(list);
+//            return ResponseUtil.success(pageResultVO);
+//        }
         Map<Long, List<CompanyProxyMonth>> firstMap = companyProxyMonths.stream().collect(Collectors.groupingBy(CompanyProxyMonth::getUserId));
         companyProxyMonths.clear();
         if (startDate.equals(endDate)){
@@ -122,11 +122,11 @@ public class CompanyProxyMonthController {
                 companyProxyMonthVo.setProxyUserId(proxy.getId());
                 companyProxyMonthVo.setProxyRole(proxy.getProxyRole());
                 companyProxyMonthVo.setId(CommonConst.LONG_0);
-                try {
+         /*       try {
                     companyProxyMonthVo.setUpdateTime(DateUtil.getSimpleDateFormatMonth().parse(startDate));
                 } catch (ParseException e) {
                     log.error("代理佣金查询时间转换出错");
-                }
+                }*/
                 if (!LoginUtil.checkNull(proxyHomes) && proxyHomes.size() > CommonConst.NUMBER_0){
                     companyProxyMonthVo.setPlayerNum(proxyHomes.stream().mapToInt(CompanyProxyMonth::getPlayerNum).sum());
                     companyProxyMonthVo.setGroupBetAmount(proxyHomes.stream().map(CompanyProxyMonth::getGroupBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add));
@@ -137,7 +137,7 @@ public class CompanyProxyMonthController {
                     CompanyProxyMonth proxyDetail = proxyHomes.get(CommonConst.NUMBER_0);
                     //全线返佣比列
                     if (companyProxyMonthVo.getProxyRole() == CommonConst.NUMBER_3){
-                        String profitRate="— —";
+                        String profitRate="--";
                         if (!proxyDetail.getProfitRate().equals(CommonConst.STRING_0)){
                             profitRate=CommonConst.REMARKS+ Double.valueOf(proxyDetail.getProfitRate()).intValue()+CommonConst.COMPANY;
                         }
@@ -148,14 +148,14 @@ public class CompanyProxyMonthController {
                     }
                     companyProxyMonthVo.setBenefitRate(proxyDetail.getBenefitRate());
                     companyProxyMonthVo.setId(proxyDetail.getId());
-                    companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:proxyDetail.getUpdateTime());
                     if (!LoginUtil.checkNull(proxyDetail.getUpdateBy())){
                         SysUser byId = sysUserService.findById(Long.parseLong(proxyDetail.getUpdateBy()));
                         companyProxyMonthVo.setUpdateBy(byId==null?"":byId.getUserName());
                     }
+                    companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:proxyDetail.getUpdateTime());
                 }else {
                     if (companyProxyMonthVo.getProxyRole() == CommonConst.NUMBER_3){
-                        companyProxyMonthVo.setProfitRate("— —");
+                        companyProxyMonthVo.setProfitRate("--");
                         companyProxyMonthVo.setProfitLevel(CommonConst.REBATE_LEVEL);
                     }
                 }
@@ -169,6 +169,7 @@ public class CompanyProxyMonthController {
                 companyProxyMonthVo.setNickName(proxy.getNickName());
                 companyProxyMonthVo.setProxyUserId(proxy.getId());
                 companyProxyMonthVo.setProxyRole(proxy.getProxyRole());
+                companyProxyMonthVo.setUpdateTime(proxy.getUpdateTime());
                 if (!LoginUtil.checkNull(proxyHomes) && proxyHomes.size() > CommonConst.NUMBER_0){
                     companyProxyMonthVo.setPlayerNum(proxyHomes.stream().mapToInt(CompanyProxyMonth::getPlayerNum).sum());
                     companyProxyMonthVo.setGroupBetAmount(proxyHomes.stream().map(CompanyProxyMonth::getGroupBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add));

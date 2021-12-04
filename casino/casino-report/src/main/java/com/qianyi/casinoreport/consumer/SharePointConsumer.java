@@ -1,6 +1,7 @@
 package com.qianyi.casinoreport.consumer;
 
 import com.qianyi.casinocore.vo.ShareProfitMqVo;
+import com.qianyi.casinoreport.business.shareprofit.LevelShareProfitBusiness;
 import com.qianyi.casinoreport.business.shareprofit.ShareProfitBusiness;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import com.rabbitmq.client.Channel;
@@ -21,11 +22,30 @@ public class SharePointConsumer {
     @Autowired
     private ShareProfitBusiness shareProfitBusiness;
 
-    @RabbitHandler
+    @Autowired
+    private LevelShareProfitBusiness levelShareProfitBusiness;
+
+/*    @RabbitHandler
     public void process(ShareProfitMqVo shareProfitMqVo, Channel channel, Message message) throws IOException {
         log.info("消费者接受到的消息是：{}",shareProfitMqVo);
         shareProfitBusiness.procerssShareProfit(shareProfitMqVo);
         channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         log.info("消费者处理完当前消息：{}",shareProfitMqVo);
+    }*/
+
+
+    /**
+     * 拆分各级代理分别发送分润消息
+     * @param shareProfitMqVo
+     * @param channel
+     * @param message
+     * @throws IOException
+     */
+    @RabbitHandler
+    public void process(ShareProfitMqVo shareProfitMqVo, Channel channel, Message message) throws IOException {
+        log.info("游戏id:{},消费者接受到的消息是：{}",shareProfitMqVo.getGameRecordId(),shareProfitMqVo);
+        levelShareProfitBusiness.procerssShareProfit(shareProfitMqVo);
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        log.info("游戏id:{},消费者处理完当前消息：{}",shareProfitMqVo.getGameRecordId(),shareProfitMqVo);
     }
 }
