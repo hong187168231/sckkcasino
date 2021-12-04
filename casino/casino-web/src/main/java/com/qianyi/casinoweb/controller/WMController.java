@@ -277,7 +277,7 @@ public class WMController {
                 log.error("userId:{},获取用户WM余额为null",authId);
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
-            return ResponseUtil.success(balance);
+            return ResponseUtil.success(balance.setScale(2, BigDecimal.ROUND_HALF_UP));
         } catch (Exception e) {
             e.printStackTrace();
             log.error("userId:{},获取用户WM余额失败{}",authId, e.getMessage());
