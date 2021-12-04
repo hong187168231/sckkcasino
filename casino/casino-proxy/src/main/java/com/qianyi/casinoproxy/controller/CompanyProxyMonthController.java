@@ -104,10 +104,6 @@ public class CompanyProxyMonthController {
         List<CompanyProxyMonthVo> list = new LinkedList<>();
         List<Long> proxyUserId = proxyUserPage.getContent().stream().map(ProxyUser::getId).collect(Collectors.toList());
         List<CompanyProxyMonth> companyProxyMonths = companyProxyMonthService.findCompanyProxyMonths(proxyUserId, companyProxyMonth, startDate, endDate);
-        if (CasinoProxyUtil.checkNull(companyProxyMonths) || companyProxyMonths.size() == CommonConst.NUMBER_0){
-            pageResultVO.setContent(list);
-            return ResponseUtil.success(pageResultVO);
-        }
         Map<Long, List<CompanyProxyMonth>> firstMap = companyProxyMonths.stream().collect(Collectors.groupingBy(CompanyProxyMonth::getUserId));
         companyProxyMonths.clear();
         if (startDate.equals(endDate)){
