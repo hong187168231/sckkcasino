@@ -161,7 +161,7 @@ public class LoginController {
         String ip = IpUtil.getIp(LoginUtil.getRequest());
         SysUserLoginLog sysUserLoginLog = new SysUserLoginLog(ip, user.getUserName(), user.getId(), "admin", "");
         sysUserLoginLogService.saveSyncLog(sysUserLoginLog);
-//        setUserTokenToRedis(user.getId(), token);
+        setUserTokenToRedis(user.getId(), token);
         return ResponseUtil.success(token);
     }
 
