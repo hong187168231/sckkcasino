@@ -25,6 +25,8 @@ public class Swagger2Config {
 
     @Value("${project.title:null}")
     String title;
+    @Value("${project.swagger.enable}")
+    private Boolean enable;
 
     @Bean
     public Docket createRestApi() {
@@ -42,6 +44,7 @@ public class Swagger2Config {
 
         return new Docket(DocumentationType.OAS_30)
                 .apiInfo(apiInfo())
+                .enable(enable)
                 .select()
                 // 可以根据url路径设置哪些请求加入文档，忽略哪些请求
 //                .paths(PathSelectors.any())
