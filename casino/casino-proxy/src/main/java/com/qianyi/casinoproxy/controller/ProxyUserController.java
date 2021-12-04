@@ -313,16 +313,19 @@ public class ProxyUserController {
         proxyUser.setIsDelete(CommonConst.NUMBER_1);
         proxyUser.setProxyUsersNum(CommonConst.NUMBER_0);
         ProxyUser saveProxyUser = proxyUserService.save(proxyUser);
-        if (saveProxyUser.getProxyRole() == CommonConst.NUMBER_2 && !CasinoProxyUtil.checkNull(saveProxyUser)){
+        if (CasinoProxyUtil.checkNull(saveProxyUser)){
+            return ResponseUtil.custom("添加代理失败");
+        }else if (saveProxyUser.getProxyRole() == CommonConst.NUMBER_2 ){
             saveProxyUser.setSecondProxy(saveProxyUser.getId());
             proxyUserService.save(saveProxyUser);
             proxyUserService.addProxyUsersNum(saveProxyUser.getFirstProxy());
             this.createrProxyCommission(saveProxyUser,saveProxyUser.getProxyRole());
-        }else if(!CasinoProxyUtil.checkNull(saveProxyUser)){
+        }else{
             this.createrProxyCommission(saveProxyUser,saveProxyUser.getProxyRole());
             proxyUserService.addProxyUsersNum(saveProxyUser.getFirstProxy());
             proxyUserService.addProxyUsersNum(saveProxyUser.getSecondProxy());
         }
+
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("account", userName);
         jsonObject.put("password", password);

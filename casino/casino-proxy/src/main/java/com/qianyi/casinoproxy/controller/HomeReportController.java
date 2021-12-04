@@ -47,7 +47,7 @@ public class HomeReportController {
     @Autowired
     private UserRunningWaterService userRunningWaterService;
 
-    @ApiOperation("查询基层代理首页报表")
+    @ApiOperation("查询代理首页报表")
     @GetMapping("/find")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
