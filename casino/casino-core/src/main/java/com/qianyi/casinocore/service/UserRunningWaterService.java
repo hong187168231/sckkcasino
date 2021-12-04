@@ -6,6 +6,7 @@ import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -37,6 +38,11 @@ public class UserRunningWaterService {
     public Page<UserRunningWater> findUserPage(Pageable pageable, UserRunningWater userRunningWater, Date startDate, Date endDate){
         Specification<UserRunningWater> condition = this.getCondition(userRunningWater,startDate,endDate);
         return userRunningWaterRepository.findAll(condition,pageable);
+    }
+
+    public List<UserRunningWater> findUserRunningWaters(Sort sort,UserRunningWater userRunningWater, Date startDate, Date endDate){
+        Specification<UserRunningWater> condition = this.getCondition(userRunningWater,startDate,endDate);
+        return userRunningWaterRepository.findAll(condition,sort);
     }
 
     private Specification<UserRunningWater> getCondition(UserRunningWater userRunningWater, Date startDate, Date endDate) {
