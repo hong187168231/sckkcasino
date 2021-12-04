@@ -125,7 +125,7 @@ public class CompanyProxyMonthController {
                     CompanyProxyMonth proxyDetail = proxyHomes.get(CommonConst.NUMBER_0);
                     //全线返佣比列
                     if (companyProxyMonthVo.getProxyRole() == CommonConst.NUMBER_3){
-                        String profitRate="— —";
+                        String profitRate="--";
                         if (!proxyDetail.getProfitRate().equals(CommonConst.STRING_0)){
                             profitRate=CommonConst.REMARKS+ Double.valueOf(proxyDetail.getProfitRate()).intValue()+CommonConst.COMPANY;
                         }
@@ -143,7 +143,7 @@ public class CompanyProxyMonthController {
                     }
                 }else {
                     if (companyProxyMonthVo.getProxyRole() == CommonConst.NUMBER_3){
-                        companyProxyMonthVo.setProfitRate("— —");
+                        companyProxyMonthVo.setProfitRate("--");
                         companyProxyMonthVo.setProfitLevel(CommonConst.REBATE_LEVEL);
                     }
                 }
