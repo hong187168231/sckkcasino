@@ -142,6 +142,7 @@ public class HomePageReportController {
             }
             homePageReports.forEach(homePageReport1 -> {
                 HomePageReportVo vo = new HomePageReportVo(homePageReport1);
+                vo.setWinLossAmount(vo.getWinLossAmount().negate());
                 list.add(this.getHomePageReportVo(vo));
             });
             if (LoginUtil.checkNull(tag) || tag == CommonConst.NUMBER_1){
