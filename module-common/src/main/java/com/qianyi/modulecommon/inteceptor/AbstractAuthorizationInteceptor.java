@@ -1,5 +1,6 @@
 package com.qianyi.modulecommon.inteceptor;
 
+import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -21,6 +22,10 @@ public abstract class AbstractAuthorizationInteceptor  implements HandlerInterce
         HandlerMethod handlerMethod = (HandlerMethod) handler;
         Method method = handlerMethod.getMethod();
         NoAuthorization noAuthorization = method.getAnnotation(NoAuthorization.class);
+        NoAuthentication annotation = method.getAnnotation(NoAuthentication.class);
+        if (annotation != null) {
+            return true;
+        }
         //临时调试
         if (noAuthorization == null) {
             if(discharged()){
@@ -34,6 +39,7 @@ public abstract class AbstractAuthorizationInteceptor  implements HandlerInterce
                 response.sendRedirect(request.getContextPath()+"/authenticationNopass");
                 return false;
             }
+            String url=request.getServletPath();
 
             if (!hasPermission(request)) {
                 response.sendRedirect(request.getContextPath()+"/authorizationNopass");
