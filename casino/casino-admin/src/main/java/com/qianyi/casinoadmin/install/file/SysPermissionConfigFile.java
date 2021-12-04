@@ -308,6 +308,8 @@ public class SysPermissionConfigFile {
         SysPermission memberMeonyLog = null; //会员资金流水
         SysPermission memberList = null; //用户列表
         SysPermission addSysUser = null; //新增用户
+        SysPermission expand = null; //官方渠道
+        SysPermission operatePermission = null; //运营中心
 
 
         for (SysPermission sysPermission : sysPermissionList) {
@@ -350,8 +352,14 @@ public class SysPermissionConfigFile {
             if(sysPermission.getName().equals("推广链接查询")){
                 findPromotionCode = sysPermission;
             }
+            if(sysPermission.getName().equals("运营中心")){
+                operatePermission = sysPermission;
+            }
             if(sysPermission.getName().equals("修改推广链接码")){
                 updatePromotionCode = sysPermission;
+            }
+            if(sysPermission.getName().equals("官方渠道")){
+                expand = sysPermission;
             }
             if(sysPermission.getName().equals("一键回收用户WM余额")){
                 wmBalancePermission = sysPermission;
@@ -415,6 +423,7 @@ public class SysPermissionConfigFile {
                 sysPermList.add(updatePromotionCode);
             }
 
+
             if(findUploadUrl == null){
                 findUploadUrl = new SysPermission("图片服务器地址查询", "图片服务器地址查询", "/platformConfig/findUploadUrl", platformConfig.getId(), 3, 0);
                 sysPermList.add(findUploadUrl);
@@ -436,6 +445,12 @@ public class SysPermissionConfigFile {
             if(deletenotice == null){
                 updateUploadUrl = new SysPermission("删除公告", "删除公告", "/notice/delNotice", noticeConfig.getId(), 3, 0);
                 sysPermList.add(updateUploadUrl);
+            }
+        }
+        if(operatePermission != null){
+            if(expand == null){
+                expand = new SysPermission("官方推广", "官方推广", "/expand/getChainedAddress", operatePermission.getId(), 2, 0);
+                sysPermList.add(expand);
             }
         }
 
