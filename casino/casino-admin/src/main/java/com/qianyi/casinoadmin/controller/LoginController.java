@@ -24,6 +24,7 @@ import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.IpUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
+import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import io.swagger.annotations.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,9 @@ public class LoginController {
 
     @Autowired
     private RoleServiceBusiness roleServiceBusiness;
+
+    @Autowired
+    RedisUtil redisUtil;
 
 //    @NoAuthentication
 //    @ApiOperation("帐密登陆.谷歌验证码")
@@ -157,7 +161,7 @@ public class LoginController {
         String ip = IpUtil.getIp(LoginUtil.getRequest());
         SysUserLoginLog sysUserLoginLog = new SysUserLoginLog(ip, user.getUserName(), user.getId(), "admin", "");
         sysUserLoginLogService.saveSyncLog(sysUserLoginLog);
-
+        setUserTokenToRedis(user.getId(), token);
         return ResponseUtil.success(token);
     }
 
@@ -529,5 +533,18 @@ public class LoginController {
         sys.setUpdateBy(sysLogin==null?null:sysLogin.getUserName());
         sysUserService.save(sys);
         return ResponseUtil.success();
+    }
+
+    @GetMapping("serviceHealthCheck")
+    @ApiOperation("服务健康状态监测")
+    @NoAuthentication
+    public ResponseEntity serverHealthCheck() {
+        return ResponseUtil.success();
+    }
+
+    private void setUserTokenToRedis(Long userId, String token) {
+        JjwtUtil.Token jwtToken = new JjwtUtil.Token();
+        jwtToken.setOldToken(token);
+        redisUtil.set(Constants.REDIS_TOKEN + userId + "admin", jwtToken);
     }
 }
