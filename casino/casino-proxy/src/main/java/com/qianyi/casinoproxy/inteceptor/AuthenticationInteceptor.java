@@ -5,8 +5,10 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.inteceptor.AbstractAuthenticationInteceptor;
 import com.qianyi.modulejjwt.JjwtUtil;
+import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -20,8 +22,12 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
 
     @Autowired
     private ProxyUserService proxyUserService;
+
     @Autowired
-    RedisTemplate redisTemplate;
+    private RedisTemplate redisTemplate;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Override
     protected boolean hasBan() {
@@ -47,23 +53,18 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
      */
     @Override
     protected boolean multiDeviceCheck() {
-//        Long authId = CasinoProxyUtil.getAuthId();
-//        String token = CasinoProxyUtil.getToken();
-//        String key = "token:" + authId;
-//        Object redisToken = null;
-//        try {
-//            redisToken = redisTemplate.opsForValue().get(key);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return true;
-//        }
-//        if (ObjectUtils.isEmpty(redisToken)) {
-//            return true;
-//        }
-//        if (token.equals(redisToken)) {
-//            return true;
-//        }
-//        return false;
-        return true;
+        Long authId = CasinoProxyUtil.getAuthId();
+        String token = CasinoProxyUtil.getToken();
+        String key = Constants.REDIS_TOKEN + authId + "proxy";
+        Object redisToken = redisUtil.get(key);
+        if (ObjectUtils.isEmpty(redisToken)) {
+            return true;
+        }
+        JjwtUtil.Token redisToken1 = (JjwtUtil.Token) redisToken;
+        //新旧token有一个匹配得上说明就是最新token
+        if (token.equals(redisToken1.getOldToken())||token.equals(redisToken1.getNewToken())) {
+            return true;
+        }
+        return false;
     }
 }

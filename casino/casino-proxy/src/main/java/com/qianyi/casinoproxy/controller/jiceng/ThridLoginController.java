@@ -8,6 +8,7 @@ import com.qianyi.casinoproxy.model.ProxyUserLoginLog;
 import com.qianyi.casinoproxy.service.ProxyUserLoginLogService;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.moduleauthenticator.GoogleAuthUtil;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.RequestLimit;
@@ -15,6 +16,7 @@ import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.IpUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
+import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,9 @@ public class ThridLoginController {
 
     @Autowired
     private ProxyUserLoginLogService proxyUserLoginLogService;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     @NoAuthentication
     @ApiOperation("帐密登陆.谷歌身份验证器")
@@ -98,7 +103,7 @@ public class ThridLoginController {
         String ip = IpUtil.getIp(CasinoProxyUtil.getRequest());
         ProxyUserLoginLog proxyUserLoginLog = new ProxyUserLoginLog(ip, proxyUser.getUserName(), proxyUser.getId(), "proxy", "");
         proxyUserLoginLogService.saveSyncLog(proxyUserLoginLog);
-
+        this.setUserTokenToRedis(proxyUser.getId(), token);
         return ResponseUtil.success(token);
     }
 
@@ -298,6 +303,7 @@ public class ThridLoginController {
         subject.setUserId(proxyUser.getId() + "");
         subject.setBcryptPassword(proxyUser.getPassWord());
         String jwt = JjwtUtil.generic(subject, "casino-proxy");
+        this.setUserTokenToRedis(proxyUser.getId(), jwt);
         return ResponseUtil.success(jwt);
     }
 
@@ -314,8 +320,13 @@ public class ThridLoginController {
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();
         }
-
+        this.setUserTokenToRedis(proxyUser.getId(), token);
         return ResponseUtil.success(refreshToken);
+    }
+    private void setUserTokenToRedis(Long userId, String token) {
+        JjwtUtil.Token jwtToken = new JjwtUtil.Token();
+        jwtToken.setOldToken(token);
+        redisUtil.set(Constants.REDIS_TOKEN + userId + "proxy", jwtToken);
     }
 
 //    //1分钟3次
