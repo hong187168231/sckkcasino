@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -185,10 +186,12 @@ public class ProxyUserController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userName", value = "账号", required = true),
             @ApiImplicitParam(name = "nickName", value = "用户昵称", required = false),
+            @ApiImplicitParam(name = "id", value = "选中列id", required = false),
+            @ApiImplicitParam(name = "tag", value = "tag 1:总代 2:区域代", required = true),
     })
     @PostMapping("saveProxyUser")
-    public ResponseEntity saveProxyUser(String userName, String nickName){
-        if (LoginUtil.checkNull(userName)){
+    public ResponseEntity saveProxyUser(String userName, String nickName,Long id,Integer tag){
+        if (LoginUtil.checkNull(userName,tag)){
             return ResponseUtil.custom("参数不合法");
         }
         if (!userName.matches(RegexEnum.ACCOUNT.getRegex())){
@@ -201,6 +204,7 @@ public class ProxyUserController {
         if (!LoginUtil.checkNull(byUserName)){
             return ResponseUtil.custom("代理账号重复");
         }
+
         ProxyUser proxyUser = new ProxyUser();
         proxyUser.setUserName(userName);
         proxyUser.setNickName(nickName);
@@ -208,19 +212,62 @@ public class ProxyUserController {
         String password = PasswordUtil.getRandomPwd();
         String bcryptPassword = LoginUtil.bcrypt(password);
         proxyUser.setPassWord(bcryptPassword);
-        proxyUser.setProxyRole(CommonConst.NUMBER_1);
         proxyUser.setUserFlag(CommonConst.NUMBER_1);
         proxyUser.setIsDelete(CommonConst.NUMBER_1);
         proxyUser.setProxyUsersNum(CommonConst.NUMBER_0);
+        if (tag == CommonConst.NUMBER_1){
+            proxyUser.setProxyRole(CommonConst.NUMBER_1);
+        }else{
+            if (LoginUtil.checkNull(id)){
+                return ResponseUtil.custom("参数不合法");
+            }
+            ProxyUser proxy = proxyUserService.findById(id);
+            if (LoginUtil.checkNull(proxy) || proxy.getIsDelete() == CommonConst.NUMBER_2 || proxy.getUserFlag() == CommonConst.NUMBER_2){
+                return ResponseUtil.custom("请选择有效代理");
+            }
+            if (proxy.getProxyRole() != CommonConst.NUMBER_1){
+                return ResponseUtil.custom("只能选择总代");
+            }
+            proxyUser.setProxyRole(CommonConst.NUMBER_2);
+            proxyUser.setFirstProxy(proxy.getId());
+        }
+
         ProxyUser saveProxyUser = proxyUserService.save(proxyUser);
-        if (!LoginUtil.checkNull(saveProxyUser)){
+        if (LoginUtil.checkNull(saveProxyUser)){
+            return ResponseUtil.custom("添加代理失败");
+        }else if (saveProxyUser.getProxyRole() == CommonConst.NUMBER_1){
             saveProxyUser.setFirstProxy(saveProxyUser.getId());
             proxyUserService.save(saveProxyUser);
+        }else{
+            saveProxyUser.setSecondProxy(saveProxyUser.getId());
+            proxyUserService.save(saveProxyUser);
+            proxyUserService.addProxyUsersNum(saveProxyUser.getFirstProxy());
+            this.createrProxyCommission(saveProxyUser,saveProxyUser.getProxyRole());
         }
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("account", userName);
         jsonObject.put("password", password);
         return ResponseUtil.success(jsonObject);
+    }
+    private void createrProxyCommission(ProxyUser saveProxyUser,Integer proxyRole){
+        ProxyCommission proxyCommission = new ProxyCommission();
+        proxyCommission.setProxyUserId(saveProxyUser.getId());
+//        if (proxyRole == CommonConst.NUMBER_3){
+//            ProxyCommission secondCommission = proxyCommissionService.findByProxyUserId(saveProxyUser.getSecondProxy());
+//            proxyCommission.setSecondProxy(saveProxyUser.getSecondProxy());
+//            proxyCommission.setFirstCommission((secondCommission == null || secondCommission.getFirstCommission() == null)? BigDecimal.ZERO:secondCommission.getFirstCommission());
+//        }
+        proxyCommissionService.save(proxyCommission);
+    }
+    @ApiOperation("添加代理获取下拉框数据")
+    @GetMapping("getFirstProxy")
+    public ResponseEntity<ProxyUser> getFirstProxy(){
+        ProxyUser proxyUser = new ProxyUser();
+        proxyUser.setIsDelete(CommonConst.NUMBER_1);
+        proxyUser.setUserFlag(CommonConst.NUMBER_1);
+        proxyUser.setProxyRole(CommonConst.NUMBER_1);
+        List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
+        return ResponseUtil.success(proxyUserList);
     }
     @ApiOperation("重置密码")
     @ApiImplicitParams({

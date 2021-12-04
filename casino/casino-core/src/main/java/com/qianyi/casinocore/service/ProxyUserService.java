@@ -55,7 +55,7 @@ public class ProxyUserService {
     @CacheEvict(key = "#id")
     @Transactional
     public void subProxyUsersNum(Long id) {
-        synchronized (id) {
+        synchronized (id.toString().intern()) {
             proxyUserRepository.subProxyUsersNum(id);
         }
     }
@@ -63,7 +63,7 @@ public class ProxyUserService {
     @CacheEvict(key = "#id")
     @Transactional
     public void addProxyUsersNum(Long id) {
-        synchronized (id) {
+        synchronized (id.toString().intern()) {
             proxyUserRepository.addProxyUsersNum(id);
         }
     }
