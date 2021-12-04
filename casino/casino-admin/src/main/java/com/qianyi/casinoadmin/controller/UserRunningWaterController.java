@@ -89,11 +89,11 @@ public class UserRunningWaterController {
             List<UserRunningWater> list = new LinkedList<>();
             list.add(runningWater);
             List<UserRunningWater> userRunningWaters = userRunningWaterService.findUserRunningWaters(sort,userRunningWater, startDate, endDate);
-            if (!LoginUtil.checkNull(userRunningWaters) && userRunningWaters.size() > CommonConst.NUMBER_0){
-                list.addAll(userRunningWaters);
-            }
+            list.addAll(userRunningWaters);
             PageVo pageVO = new PageVo(pageCode,pageSize);
             PageResultVO<UserRunningWater> pageResultVO = (PageResultVO<UserRunningWater>) CommonUtil.handlePageResult(list, pageVO);
+            list.clear();
+            userRunningWaters.clear();
             return ResponseUtil.success(pageResultVO);
         }
     }
