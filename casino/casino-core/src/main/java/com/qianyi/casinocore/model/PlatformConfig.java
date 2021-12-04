@@ -118,7 +118,10 @@ public class PlatformConfig {
     private String logImageUrl;
 
     @ApiModelProperty("金钱符号icon")
-    private String currencyInageUrl;
+    private String moneySymbol;
+
+    @ApiModelProperty("网站icon")
+    private String websiteIcon;
 
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){

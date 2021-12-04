@@ -120,4 +120,40 @@ public class DownloadStationController {
         String domain = platformConfig.getReadUploadUrl();
         return ResponseUtil.success(domain);
     }
+
+    @GetMapping("getLogImageUrl")
+    @ApiOperation("获取logo")
+    @NoAuthentication
+    public ResponseEntity<String> getLogImageUrl() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig == null) {
+            return ResponseUtil.success();
+        }
+        String logImageUrl = platformConfig.getLogImageUrl();
+        return ResponseUtil.success(logImageUrl);
+    }
+
+    @GetMapping("getCurrencyInageUrl")
+    @ApiOperation("获取金钱符号")
+    @NoAuthentication
+    public ResponseEntity<String> getCurrencyInageUrl() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig == null) {
+            return ResponseUtil.success();
+        }
+        String moneySymbol = platformConfig.getMoneySymbol();
+        return ResponseUtil.success(moneySymbol);
+    }
+
+    @GetMapping("getWebsiteIcon")
+    @ApiOperation("获取网站Icon")
+    @NoAuthentication
+    public ResponseEntity<String> getWebsiteIcon() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig == null) {
+            return ResponseUtil.success();
+        }
+        String websiteIcon = platformConfig.getWebsiteIcon();
+        return ResponseUtil.success(websiteIcon);
+    }
 }
