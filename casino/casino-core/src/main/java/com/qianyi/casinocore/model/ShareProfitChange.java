@@ -12,7 +12,7 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table(indexes = {@Index(columnList = "userId"),@Index(columnList = "fromUserId"),@Index(columnList = "createTime")})
+@Table(indexes = {@Index(columnList = "userId"),@Index(columnList = "fromUserId"),@Index(columnList = "betTime")})
 public class ShareProfitChange extends BaseEntity {
     @ApiModelProperty(value = "用户ID")
     private Long userId;

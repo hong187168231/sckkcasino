@@ -131,14 +131,12 @@ public class CompanyProxyDetailController {
                     BigDecimal chargeAmount = proxyHomes.stream().map(ProxyHomePageReport::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
                     BigDecimal withdrawMoney = proxyHomes.stream().map(ProxyHomePageReport::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
                     BigDecimal validbetAmount = proxyHomes.stream().map(ProxyHomePageReport::getValidbetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-//                    Integer activeUsers = proxyHomes.stream().mapToInt(ProxyHomePageReport::getActiveUsers).sum();
                     Integer newUsers = proxyHomes.stream().mapToInt(ProxyHomePageReport::getNewUsers).sum();
                     Integer newSecondProxys = proxyHomes.stream().mapToInt(ProxyHomePageReport::getNewSecondProxys).sum();
                     Integer newThirdProxys = proxyHomes.stream().mapToInt(ProxyHomePageReport::getNewThirdProxys).sum();
                     vo.setChargeAmount(vo.getChargeAmount().add(chargeAmount));
                     vo.setWithdrawMoney(vo.getWithdrawMoney().add(withdrawMoney));
                     vo.setGroupPerformance(vo.getGroupPerformance().add(validbetAmount));
-//                    vo.setActiveUsers(activeUsers + vo.getActiveUsers());
                     this.getActiveUsers(vo,startTime,endTime);
                     vo.setGroupNewUsers(newUsers + vo.getGroupNewUsers());
                     vo.setGroupNewProxyUsers(vo.getGroupNewProxyUsers() + newSecondProxys + newThirdProxys);
@@ -167,6 +165,7 @@ public class CompanyProxyDetailController {
             userIdSet.add(u.getUserId());
         }
         companyProxyReportVo.setActiveUsers(userIdSet.size());
+        userIdSet.clear();
     }
     @ApiOperation("每日结算细节")
     @GetMapping("/findDailyDetails")

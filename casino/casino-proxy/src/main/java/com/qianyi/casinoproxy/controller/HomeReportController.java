@@ -64,6 +64,7 @@ public class HomeReportController {
             String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
             List<ProxyHomePageReport> proxyHomePageReports = proxyHomePageReportService.findHomePageReports(proxyHomeReport,startTime,endTime);
             if (CasinoProxyUtil.checkNull(proxyHomePageReports) || proxyHomePageReports.size() == CommonConst.NUMBER_0){
+                proxyHomePageReportVo.getUserIdSet().clear();
                 return ResponseUtil.success(proxyHomePageReportVo);
             }
             BigDecimal chargeAmount = proxyHomePageReports.stream().map(ProxyHomePageReport::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -97,6 +98,7 @@ public class HomeReportController {
                 userIdSet.add(u.getUserId());
             }
             proxyHomePageReportVo.setActiveUsers(userIdSet.size());
+            userIdSet.clear();
             CompanyProxyMonth companyProxyMonth = new CompanyProxyMonth();
             companyProxyMonth.setUserId(CasinoProxyUtil.getAuthId());
             this.findCompanyProxyDetails(companyProxyMonth,startTime,endTime,proxyHomePageReportVo);
