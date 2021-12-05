@@ -75,7 +75,6 @@ public class HomePageReportController {
             String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
             List<HomePageReport> homePageReports = homePageReportService.findHomePageReports(startTime,endTime);
             if (LoginUtil.checkNull(homePageReports) || homePageReports.size() == CommonConst.NUMBER_0){
-                homePageReportVo.getUserIdSet().clear();
                 return ResponseUtil.success(this.getHomePageReportVo(homePageReportVo));
             }
             BigDecimal chargeAmount = homePageReports.stream().map(HomePageReport::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -110,7 +109,7 @@ public class HomePageReportController {
                 userIdSet.add(u.getUserId());
             }
             homePageReportVo.setActiveUsers(userIdSet.size());
-            homePageReportVo.getUserIdSet().clear();
+            userIdSet.clear();
             this.findCompanyProxyDetails(new CompanyProxyMonth(),startTime,endTime,homePageReportVo);
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
