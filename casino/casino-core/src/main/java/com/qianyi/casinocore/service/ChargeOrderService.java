@@ -116,10 +116,10 @@ public class ChargeOrderService {
                     list.add(cb.equal(root.get("thirdProxy").as(Long.class), chargeOrder.getThirdProxy()));
                 }
                 if (startDate != null) {
-                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+                    list.add(cb.greaterThanOrEqualTo(root.get("updateTime").as(Date.class), startDate));
                 }
                 if (endDate != null) {
-                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
+                    list.add(cb.lessThanOrEqualTo(root.get("updateTime").as(Date.class),endDate));
                 }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));
 
