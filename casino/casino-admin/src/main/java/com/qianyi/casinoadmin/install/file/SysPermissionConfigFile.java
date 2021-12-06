@@ -18,7 +18,7 @@ public class SysPermissionConfigFile {
 
     public List<SysPermission> getPermissionConfig() {
         List<SysPermission> all = sysPermissionService.findAll();
-//        getTemp();
+        getTemp();
         if(!LoginUtil.checkNull(all)){
             //TODO 调试完需要删除
 //            sysPermissionService.delete();
@@ -199,6 +199,15 @@ public class SysPermissionConfigFile {
         SysPermission updateRegisterSwitch = new SysPermission("注册开关编辑", "注册开关编辑", "/platformConfig/updateRegisterSwitch", platformConfig.getId(), 3, 0);
         SysPermission findRiskConfig = new SysPermission("平台风险配置", "平台风险配置", "/managementRisk/findRiskConfig", platformConfig.getId(), 3, 0);
         SysPermission saveRiskConfig = new SysPermission("平台风险编辑", "平台风险编辑", "/managementRisk/saveRiskConfig", platformConfig.getId(), 3, 0);
+
+        SysPermission findLogoPicture = new SysPermission("logo图查询(PC)", "logo图查询(PC)", "/platformConfig/findLogoPicturePc", platformConfig.getId(), 3, 0);
+        SysPermission saveLogoPicture = new SysPermission("编辑logo图(PC)", "编辑logo图(PC)", "/platformConfig/saveLogoPicturePc", platformConfig.getId(), 3, 0);
+        SysPermission findWebsiteIcon = new SysPermission("网站icon查看", "网站icon查看", "/platformConfig/findWebsiteIcon", platformConfig.getId(), 3, 0);
+        SysPermission findMoneySymbol = new SysPermission("金钱符号查询", "金钱符号查询", "/platformConfig/findMoneySymbol", platformConfig.getId(), 3, 0);
+        SysPermission saveWebsiteIconl = new SysPermission("编辑网站icon", "编辑网站icon", "/platformConfig/saveWebsiteIconl", platformConfig.getId(), 3, 0);
+        SysPermission updateMoneySymbol = new SysPermission("编辑金钱符号", "编辑金钱符号", "/platformConfig/updateMoneySymbol", platformConfig.getId(), 3, 0);
+        SysPermission findWebConfiguration = new SysPermission("logo图查询", "logo图查询", "/platformConfig/findLogoPictureApp", platformConfig.getId(), 3, 0);
+        SysPermission updateWebConfiguration = new SysPermission("编辑logo图", "编辑logo图", "/platformConfig/savePCPictureApp", platformConfig.getId(), 3, 0);
         thridPermissions.add(findWithdrawConfig);
         thridPermissions.add(saveChargeConfig);
         thridPermissions.add(saveWithdrawConfig);
@@ -212,6 +221,15 @@ public class SysPermissionConfigFile {
         thridPermissions.add(updateRegisterSwitch);
         thridPermissions.add(findRiskConfig);
         thridPermissions.add(saveRiskConfig);
+
+        thridPermissions.add(findLogoPicture);
+        thridPermissions.add(saveLogoPicture);
+        thridPermissions.add(findWebsiteIcon);
+        thridPermissions.add(findMoneySymbol);
+        thridPermissions.add(saveWebsiteIconl);
+        thridPermissions.add(updateMoneySymbol);
+        thridPermissions.add(findWebConfiguration);
+        thridPermissions.add(updateWebConfiguration);
 
         SysPermission updateProxy = new SysPermission("保存", "保存", "/proxyRebate/updateProxyRebate", agentPromotion.getId(), 3, 0);
         thridPermissions.add(updateProxy);
@@ -281,6 +299,10 @@ public class SysPermissionConfigFile {
 
         sysPermissionService.saveAllList(thridPermissions);
         return null;
+    }
+
+    private void getTemp() {
+
     }
 
     /**
