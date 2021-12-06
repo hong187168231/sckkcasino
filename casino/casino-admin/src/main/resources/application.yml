@@ -55,6 +55,8 @@ project:
   title: 后台管理
 #  username: admin
 #  password: 123456
+  swagger:
+    enable: true
 
 
 
