@@ -546,6 +546,6 @@ public class LoginController {
     private void setUserTokenToRedis(Long userId, String token) {
         JjwtUtil.Token jwtToken = new JjwtUtil.Token();
         jwtToken.setOldToken(token);
-        redisUtil.set(Constants.REDIS_TOKEN + "admin:" + userId , jwtToken);
+        redisUtil.set(Constants.REDIS_TOKEN_ADMIN + userId , jwtToken);
     }
 }

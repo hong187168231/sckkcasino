@@ -51,7 +51,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
     protected boolean multiDeviceCheck() {
         Long authId = LoginUtil.getLoginUserId();
         String token = LoginUtil.getToken();
-        String key = Constants.REDIS_TOKEN + "admin:"+ authId;
+        String key = Constants.REDIS_TOKEN_ADMIN + "admin:"+ authId;
         Object redisToken = redisUtil.get(key);
         if (ObjectUtils.isEmpty(redisToken)) {
             return true;

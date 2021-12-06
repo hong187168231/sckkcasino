@@ -108,6 +108,8 @@ public class Constants {
     public static final String IP_BLOCK= "IP被封，请联系客服";
     //redis token前缀
     public static final String REDIS_TOKEN= "token::";
+    public static final String REDIS_TOKEN_ADMIN= "token::casino-admin::";
+    public static final String REDIS_TOKEN_PROXY= "token::casino-proxy::";
     //redis token前缀
     public static final String AUTHORIZATION= "authorization";
     //header 中多语言key

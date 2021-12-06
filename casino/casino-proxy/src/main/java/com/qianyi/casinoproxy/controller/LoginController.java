@@ -329,7 +329,7 @@ public class LoginController {
     private void setUserTokenToRedis(Long userId, String token) {
         JjwtUtil.Token jwtToken = new JjwtUtil.Token();
         jwtToken.setOldToken(token);
-        redisUtil.set(Constants.REDIS_TOKEN + "proxy:" + userId , jwtToken);
+        redisUtil.set(Constants.REDIS_TOKEN_PROXY + userId , jwtToken);
     }
 //    //1分钟3次
 //    @RequestLimit(limit = 3,timeout = 60)
