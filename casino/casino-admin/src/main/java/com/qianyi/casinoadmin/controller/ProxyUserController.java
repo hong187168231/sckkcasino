@@ -13,6 +13,7 @@ import com.qianyi.casinocore.util.PasswordUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.ProxyUserVo;
 import com.qianyi.modulecommon.RegexEnum;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -261,6 +262,7 @@ public class ProxyUserController {
     }
     @ApiOperation("添加代理获取下拉框数据")
     @GetMapping("getFirstProxy")
+    @NoAuthorization
     public ResponseEntity<ProxyUser> getFirstProxy(){
         ProxyUser proxyUser = new ProxyUser();
         proxyUser.setIsDelete(CommonConst.NUMBER_1);
