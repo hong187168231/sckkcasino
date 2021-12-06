@@ -354,7 +354,7 @@ public class LoginController {
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();
         }
-        setUserTokenToRedis(sysUser.getId(), token);
+        setUserTokenToRedis(sysUser.getId(), refreshToken);
         return ResponseUtil.success(refreshToken);
     }
 
@@ -546,6 +546,6 @@ public class LoginController {
     private void setUserTokenToRedis(Long userId, String token) {
         JjwtUtil.Token jwtToken = new JjwtUtil.Token();
         jwtToken.setOldToken(token);
-        redisUtil.set(Constants.REDIS_TOKEN + userId + "admin", jwtToken);
+        redisUtil.set(Constants.REDIS_TOKEN + "admin:" + userId , jwtToken);
     }
 }

@@ -326,7 +326,7 @@ public class ThridLoginController {
     private void setUserTokenToRedis(Long userId, String token) {
         JjwtUtil.Token jwtToken = new JjwtUtil.Token();
         jwtToken.setOldToken(token);
-        redisUtil.set(Constants.REDIS_TOKEN + userId + "proxy", jwtToken);
+        redisUtil.set(Constants.REDIS_TOKEN + "proxy:"+ userId , jwtToken);
     }
 
 //    //1分钟3次
