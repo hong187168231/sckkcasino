@@ -448,7 +448,7 @@ public class UserController {
         String bcryptPassword = LoginUtil.bcrypt(password);
         log.info("生成密码{}",bcryptPassword);
         user.setPassword(bcryptPassword);
-        user = userService.updatePassword(user.getId(), user.getPassword());
+        userService.updatePassword(user.getId(), user.getPassword());
 
         log.info("重置密码之后密码{}",user.getPassword());
         JSONObject jsonObject = new JSONObject();

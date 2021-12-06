@@ -26,7 +26,7 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     @Modifying
     @Query("update User u set u.password= ?2 where u.id=?1")
-    User updatePassword(Long id, String password);
+    void updatePassword(Long id, String password);
 
     List<User> findByRegisterIp(String ip);
 
