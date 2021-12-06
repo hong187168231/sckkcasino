@@ -91,7 +91,6 @@ public class RechargeTurnoverController {
                         }
                     });
                     all.stream().forEach(chargeOrder -> {
-                        System.out.println(chargeOrder.getId().toString() +"========"+ recharge.getOrderId());
                         if (chargeOrder.getId().toString().equals(recharge.getOrderId().toString())){
                             rechargeTurnoverVo.setOrderNo(chargeOrder.getOrderNo());
                         }
