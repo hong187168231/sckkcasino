@@ -204,7 +204,7 @@ public class SysPermissionConfigFile {
         SysPermission saveLogoPicture = new SysPermission("编辑logo图(PC)", "编辑logo图(PC)", "/platformConfig/saveLogoPicturePc", platformConfig.getId(), 3, 0);
         SysPermission findWebsiteIcon = new SysPermission("网站icon查看", "网站icon查看", "/platformConfig/findWebsiteIcon", platformConfig.getId(), 3, 0);
         SysPermission findMoneySymbol = new SysPermission("金钱符号查询", "金钱符号查询", "/platformConfig/findMoneySymbol", platformConfig.getId(), 3, 0);
-        SysPermission saveWebsiteIconl = new SysPermission("编辑网站icon", "编辑网站icon", "/platformConfig/saveWebsiteIconl", platformConfig.getId(), 3, 0);
+        SysPermission saveWebsiteIconl = new SysPermission("编辑网站icon", "编辑网站icon", "/platformConfig/saveWebsiteIcon", platformConfig.getId(), 3, 0);
         SysPermission updateMoneySymbol = new SysPermission("编辑金钱符号", "编辑金钱符号", "/platformConfig/updateMoneySymbol", platformConfig.getId(), 3, 0);
         SysPermission findWebConfiguration = new SysPermission("logo图查询", "logo图查询", "/platformConfig/findLogoPictureApp", platformConfig.getId(), 3, 0);
         SysPermission updateWebConfiguration = new SysPermission("编辑logo图", "编辑logo图", "/platformConfig/savePCPictureApp", platformConfig.getId(), 3, 0);
