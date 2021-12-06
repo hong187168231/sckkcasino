@@ -168,6 +168,7 @@ public class CompanyProxyDetailController {
             userIdSet.add(u.getUserId());
         }
         companyProxyReportVo.setActiveUsers(userIdSet.size());
+        userIdSet.clear();
     }
 
     @ApiOperation("每日结算细节")

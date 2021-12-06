@@ -64,10 +64,10 @@ public class ShareProfitChangeService {
                     list.add(cb.equal(root.get("userId").as(Long.class), userId));
                 }
                 if (startDate != null) {
-                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+                    list.add(cb.greaterThanOrEqualTo(root.get("betTime").as(Date.class), startDate));
                 }
                 if (endDate != null) {
-                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
+                    list.add(cb.lessThanOrEqualTo(root.get("betTime").as(Date.class),endDate));
                 }
                 return cb.and(list.toArray(new Predicate[list.size()]));
             }

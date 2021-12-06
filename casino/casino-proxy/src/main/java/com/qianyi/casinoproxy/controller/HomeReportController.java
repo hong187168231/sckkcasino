@@ -97,6 +97,7 @@ public class HomeReportController {
                 userIdSet.add(u.getUserId());
             }
             proxyHomePageReportVo.setActiveUsers(userIdSet.size());
+            userIdSet.clear();
             CompanyProxyMonth companyProxyMonth = new CompanyProxyMonth();
             companyProxyMonth.setUserId(CasinoProxyUtil.getAuthId());
             this.findCompanyProxyDetails(companyProxyMonth,startTime,endTime,proxyHomePageReportVo);

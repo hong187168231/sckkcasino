@@ -109,6 +109,7 @@ public class HomePageReportController {
                 userIdSet.add(u.getUserId());
             }
             homePageReportVo.setActiveUsers(userIdSet.size());
+            userIdSet.clear();
             this.findCompanyProxyDetails(new CompanyProxyMonth(),startTime,endTime,homePageReportVo);
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
