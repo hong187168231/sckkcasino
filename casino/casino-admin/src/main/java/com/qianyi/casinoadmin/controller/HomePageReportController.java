@@ -51,6 +51,10 @@ public class HomePageReportController {
 
     public final static String end = " 23:59:59";
 
+    public final static String startMonth = "-01";
+
+    public final static String endMonth = "-12";
+
     @Autowired
     private CompanyProxyMonthService companyProxyMonthService;
 
@@ -153,13 +157,13 @@ public class HomePageReportController {
                 Map<String, List<HomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(HomePageReportVo::getStaticsMonth));
                 list.clear();
                 map.forEach((key,value)->{
-                    list.add(this.getHomePageReportVo(value,key));
+                    list.add(this.getHomePageReportVo(value,key,CommonConst.NUMBER_2));
                 });
             }else {
                 Map<String, List<HomePageReportVo>> map = list.stream().collect(Collectors.groupingBy(HomePageReportVo::getStaticsYear));
                 list.clear();
                 map.forEach((key,value)->{
-                    list.add(this.getHomePageReportVo(value,key));
+                    list.add(this.getHomePageReportVo(value,key,CommonConst.NUMBER_3));
                 });
             }
         }catch (Exception ex){
@@ -171,7 +175,7 @@ public class HomePageReportController {
 
     }
     
-    private HomePageReportVo getHomePageReportVo(List<HomePageReportVo> list,String time){
+    private HomePageReportVo getHomePageReportVo(List<HomePageReportVo> list,String time,Integer tag){
         HomePageReportVo vo = new HomePageReportVo();
         BigDecimal chargeAmount = list.stream().map(HomePageReportVo::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         vo.setChargeAmount(chargeAmount);
@@ -187,7 +191,14 @@ public class HomePageReportController {
         BigDecimal grossMargin2 = list.stream().map(HomePageReportVo::getGrossMargin2).reduce(BigDecimal.ZERO, BigDecimal::add);
         vo.setGrossMargin2(grossMargin2);
         BigDecimal grossMargin3 = list.stream().map(HomePageReportVo::getGrossMargin3).reduce(BigDecimal.ZERO, BigDecimal::add);
-        vo.setGrossMargin3(grossMargin3);
+        Calendar nowTime = Calendar.getInstance();
+        vo.setStaticsMonth(DateUtil.getSimpleDateFormat1().format(nowTime.getTime()).substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
+        if (tag == CommonConst.NUMBER_2){
+            this.findCompanyProxyDetails(new CompanyProxyMonth(),time,time,vo);
+        }else {
+            this.findCompanyProxyDetails(new CompanyProxyMonth(),time + startMonth,time + endMonth,vo);
+        }
+        vo.setGrossMargin3(grossMargin3.subtract(vo.getProxyProfit()));
         vo.setTime(time);
         return vo;
     }
