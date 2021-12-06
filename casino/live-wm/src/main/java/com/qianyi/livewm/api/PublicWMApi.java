@@ -16,8 +16,8 @@ import java.util.*;
 @Component
 public class PublicWMApi {
 
-    private String url = "https://api.a45.me/api/public/Gateway.php";
-
+    @Value("${project.wmUrl:0}")
+    String url;
     @Value("${project.vendorId:0}")
     String vendorId;
     @Value("${project.signature:0}")
