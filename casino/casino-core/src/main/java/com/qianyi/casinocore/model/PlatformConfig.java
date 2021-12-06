@@ -125,6 +125,10 @@ public class PlatformConfig {
     @ApiModelProperty("(APP)log图片地址")
     private String logImageUrlApp;
 
+    @ApiModelProperty("(APP)登录注册页log图片地址")
+    private String loginRegisterLogImageUrlApp;
+
+
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){
         if (this.chargeRate == null){

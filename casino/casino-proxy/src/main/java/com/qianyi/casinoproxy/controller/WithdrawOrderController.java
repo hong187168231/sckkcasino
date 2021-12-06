@@ -97,11 +97,14 @@ public class WithdrawOrderController {
                     userList.stream().forEach(user->{
                         if (user.getId().equals(withdraw.getUserId())){
                             withdrawOrderVo.setAccount(user.getAccount());
-                            try {
-                                this.setBankcards(bankcardMap.get(Long.valueOf(withdrawOrderVo.getBankId())),withdrawOrderVo);
-                            }catch (Exception ex){
-
+                            if (!CasinoProxyUtil.checkNull(withdrawOrderVo.getBankId())){
+                                try {
+                                    this.setBankcards(bankcardMap.get(Long.valueOf(withdrawOrderVo.getBankId())),withdrawOrderVo);
+                                }catch (Exception ex){
+                                    log.info("bankId类型转换错误{}",withdrawOrderVo.getBankId());
+                                }
                             }
+
                         }
                     });
 //                    proxyUsers.stream().forEach(proxyUser->{

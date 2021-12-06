@@ -145,6 +145,18 @@ public class DownloadStationController {
         return ResponseUtil.success(logImageUrl);
     }
 
+    @GetMapping("getLoginRegisterLogImageUrlApp")
+    @ApiOperation("获取移动端登录注册页面logo")
+    @NoAuthentication
+    public ResponseEntity<String> getLoginRegisterLogImageUrlApp() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig == null) {
+            return ResponseUtil.success();
+        }
+        String loginRegisterLogImageUrlApp = platformConfig.getLoginRegisterLogImageUrlApp();
+        return ResponseUtil.success(loginRegisterLogImageUrlApp);
+    }
+
     @GetMapping("getMoneySymbol")
     @ApiOperation("获取金钱符号")
     @NoAuthentication

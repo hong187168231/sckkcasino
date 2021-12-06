@@ -205,6 +205,7 @@ public class Initialization implements CommandLineRunner {
             platformConfig.setLogImageUrlPc(platformConfigFile.getLogImageUrlPc());
             platformConfig.setMoneySymbol(platformConfigFile.getMoneySymbol());
             platformConfig.setWebsiteIcon(platformConfigFile.getWebsiteIcon());
+            platformConfig.setLoginRegisterLogImageUrlApp(platformConfigFile.getLoginRegisterLogImageUrlApp());
             platformConfigService.save(platformConfig);
         }
     }

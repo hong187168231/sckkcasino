@@ -42,4 +42,5 @@ public class PlatformConfigFile {
     private String websiteIcon;
     private String logImageUrlPc;
     private String logImageUrlApp;
+    private String loginRegisterLogImageUrlApp;
 }
