@@ -15,6 +15,8 @@ public class RechargeTurnoverVo implements Serializable {
     private static final long serialVersionUID = -6875617998456305179L;
     @ApiModelProperty(value = "ID")
     private Long id;
+    @ApiModelProperty(value = "充值订单号")
+    private String orderNo;
     @ApiModelProperty(value = "会员账号")
     private String account;
     @ApiModelProperty("订单id")

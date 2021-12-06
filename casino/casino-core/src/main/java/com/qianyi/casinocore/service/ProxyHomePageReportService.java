@@ -122,7 +122,7 @@ public class ProxyHomePageReportService {
             if (CommonUtil.setParameter(chargeOrder,proxyUser)){
                 return;
             }
-            List<ChargeOrder> chargeOrders = chargeOrderService.findChargeOrders(chargeOrder, startDate, endDate);
+            List<ChargeOrder> chargeOrders = chargeOrderService.findListByUpdate(chargeOrder, startDate, endDate);
             if (chargeOrders == null || chargeOrders.size() == CommonConst.NUMBER_0){
                 proxyHomePageReport.setChargeAmount(BigDecimal.ZERO);
                 proxyHomePageReport.setChargeNums(CommonConst.NUMBER_0);
@@ -143,7 +143,7 @@ public class ProxyHomePageReportService {
             if (CommonUtil.setParameter(withdrawOrder,proxyUser)){
                 return;
             }
-            List<WithdrawOrder> withdrawOrders = withdrawOrderService.findOrderList(withdrawOrder, startDate, endDate);
+            List<WithdrawOrder> withdrawOrders = withdrawOrderService.findListByUpdate(withdrawOrder, startDate, endDate);
             if (withdrawOrders == null || withdrawOrders.size() == CommonConst.NUMBER_0){
                 proxyHomePageReport.setWithdrawMoney(BigDecimal.ZERO);
                 proxyHomePageReport.setWithdrawNums(CommonConst.NUMBER_0);

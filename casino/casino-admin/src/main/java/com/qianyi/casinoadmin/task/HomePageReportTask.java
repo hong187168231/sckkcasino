@@ -82,7 +82,7 @@ public class HomePageReportTask {
         try {
             ChargeOrder chargeOrder = new ChargeOrder();
             chargeOrder.setStatus(CommonConst.NUMBER_1);
-            List<ChargeOrder> chargeOrders = chargeOrderService.findChargeOrders(chargeOrder, startDate, endDate);
+            List<ChargeOrder> chargeOrders = chargeOrderService.findListByUpdate(chargeOrder, startDate, endDate);
             if (LoginUtil.checkNull(chargeOrders) || chargeOrders.size() == CommonConst.NUMBER_0){
                 homePageReport.setChargeAmount(BigDecimal.ZERO);
                 homePageReport.setChargeNums(CommonConst.NUMBER_0);
@@ -102,7 +102,7 @@ public class HomePageReportTask {
         try {
             WithdrawOrder withdrawOrder = new WithdrawOrder();
             withdrawOrder.setStatus(CommonConst.NUMBER_1);
-            List<WithdrawOrder> withdrawOrders = withdrawOrderService.findOrderList(withdrawOrder, startDate, endDate);
+            List<WithdrawOrder> withdrawOrders = withdrawOrderService.findListByUpdate(withdrawOrder, startDate, endDate);
             if (LoginUtil.checkNull(withdrawOrders) || withdrawOrders.size() == CommonConst.NUMBER_0){
                 homePageReport.setWithdrawMoney(BigDecimal.ZERO);
                 homePageReport.setWithdrawNums(CommonConst.NUMBER_0);

@@ -1,7 +1,9 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.model.ChargeOrder;
 import com.qianyi.casinocore.model.SysUser;
+import com.qianyi.casinocore.service.ChargeOrderService;
 import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.PageResultVO;
@@ -42,6 +44,9 @@ public class RechargeTurnoverController {
 
     @Autowired
     private SysUserService sysUserService;
+
+    @Autowired
+    private ChargeOrderService chargeOrderService;
     @ApiOperation("充值订单流水记录")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
@@ -67,8 +72,10 @@ public class RechargeTurnoverController {
             List<RechargeTurnoverVo> rechargeTurnoverVoList = new LinkedList<>();
             List<Long> userIds = content.stream().map(RechargeTurnover::getUserId).collect(Collectors.toList());
             List<String> updateBys = content.stream().map(RechargeTurnover::getUpdateBy).collect(Collectors.toList());
+            List<Long> orderIds = content.stream().map(RechargeTurnover::getOrderId).collect(Collectors.toList());
             List<SysUser> sysUsers = sysUserService.findAll(updateBys);
             List<User> userList = userService.findAll(userIds);
+            List<ChargeOrder> all = chargeOrderService.findAll(orderIds);
             if(userList != null){
                 content.stream().forEach(recharge->{
                     RechargeTurnoverVo rechargeTurnoverVo = new RechargeTurnoverVo(recharge);
@@ -81,6 +88,12 @@ public class RechargeTurnoverController {
                         if (sysUser.getId().toString().equals(recharge.getUpdateBy() == null?"":recharge.getUpdateBy())){
                             rechargeTurnoverVo.setUpdateBy(sysUser.getUserName());
                             rechargeTurnoverVo.setCreateBy(sysUser.getUserName());
+                        }
+                    });
+                    all.stream().forEach(chargeOrder -> {
+                        System.out.println(chargeOrder.getId().toString() +"========"+ recharge.getOrderId());
+                        if (chargeOrder.getId().toString().equals(recharge.getOrderId().toString())){
+                            rechargeTurnoverVo.setOrderNo(chargeOrder.getOrderNo());
                         }
                     });
                     rechargeTurnoverVoList.add(rechargeTurnoverVo);
