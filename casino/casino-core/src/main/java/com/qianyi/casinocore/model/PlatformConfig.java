@@ -119,9 +119,11 @@ public class PlatformConfig {
     @ApiModelProperty("网站icon")
     private String websiteIcon;
 
-    @ApiModelProperty("log图片地址")
-    private String logImageUrl;
+    @ApiModelProperty("(PC)log图片地址")
+    private String logImageUrlPc;
 
+    @ApiModelProperty("(APP)log图片地址")
+    private String logImageUrlApp;
 
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){

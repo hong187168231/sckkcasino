@@ -121,15 +121,27 @@ public class DownloadStationController {
         return ResponseUtil.success(domain);
     }
 
-    @GetMapping("getLogImageUrl")
-    @ApiOperation("获取logo")
+    @GetMapping("getLogImageUrlPc")
+    @ApiOperation("获取PC端logo")
     @NoAuthentication
-    public ResponseEntity<String> getLogImageUrl() {
+    public ResponseEntity<String> getLogImageUrlPc() {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (platformConfig == null) {
             return ResponseUtil.success();
         }
-        String logImageUrl = platformConfig.getLogImageUrl();
+        String logImageUrl = platformConfig.getLogImageUrlPc();
+        return ResponseUtil.success(logImageUrl);
+    }
+
+    @GetMapping("getLogImageUrlApp")
+    @ApiOperation("获取移动端logo")
+    @NoAuthentication
+    public ResponseEntity<String> getLogImageUrlApp() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig == null) {
+            return ResponseUtil.success();
+        }
+        String logImageUrl = platformConfig.getLogImageUrlApp();
         return ResponseUtil.success(logImageUrl);
     }
 

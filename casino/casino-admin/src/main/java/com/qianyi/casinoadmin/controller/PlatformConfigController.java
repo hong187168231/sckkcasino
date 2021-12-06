@@ -353,18 +353,18 @@ public class PlatformConfigController {
 
 
     /**
-     * 编辑logo图
+     * 编辑logo图(PC)
      * @param file
      * @return
      */
-    @ApiOperation("编辑logo图")
-    @PostMapping(value = "/saveLogoPicture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "编辑logo图")
-    public ResponseEntity savePCPicture(@RequestPart(value = "file", required = false) MultipartFile file){
+    @ApiOperation("编辑logo图(PC)")
+    @PostMapping(value = "/saveLogoPicturePc",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "编辑logo图(PC)")
+    public ResponseEntity saveLogoPicturePc(@RequestPart(value = "file", required = false) MultipartFile file){
         PlatformConfig platformConfig= platformConfigService.findFirst();
         try {
             String uploadUrl = platformConfig.getUploadUrl();
             String fileUrl = UploadAndDownloadUtil.fileUpload(file,uploadUrl);
-            platformConfig.setLogImageUrl(fileUrl);
+            platformConfig.setLogImageUrlPc(fileUrl);
         } catch (Exception e) {
             return ResponseUtil.custom(CommonConst.PICTURENOTUP);
         }
@@ -373,14 +373,47 @@ public class PlatformConfigController {
     }
 
     /**
-     * logo图查询
+     * logo图查询(PC)
      * @return
      */
-    @ApiOperation("logo图查询")
-    @GetMapping("/findLogoPicture")
-    public ResponseEntity findLogoPicture(){
+    @ApiOperation("logo图查询(PC)")
+    @GetMapping("/findLogoPicturePc")
+    public ResponseEntity findLogoPicturePc(){
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        return ResponseUtil.success(platformConfig==null?"":platformConfig.getReadUploadUrl()+platformConfig.getLogImageUrl());
+        return ResponseUtil.success(platformConfig==null?"":platformConfig.getReadUploadUrl()+platformConfig.getLogImageUrlPc());
+    }
+
+
+
+    /**
+     * 编辑logo图(APP)
+     * @param file
+     * @return
+     */
+    @ApiOperation("编辑logo图(APP)")
+    @PostMapping(value = "/savePCPictureApp",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "编辑logo图(APP)")
+    public ResponseEntity savePCPictureApp(@RequestPart(value = "file", required = false) MultipartFile file){
+        PlatformConfig platformConfig= platformConfigService.findFirst();
+        try {
+            String uploadUrl = platformConfig.getUploadUrl();
+            String fileUrl = UploadAndDownloadUtil.fileUpload(file,uploadUrl);
+            platformConfig.setLogImageUrlApp(fileUrl);
+        } catch (Exception e) {
+            return ResponseUtil.custom(CommonConst.PICTURENOTUP);
+        }
+        platformConfigService.save(platformConfig);
+        return ResponseUtil.success();
+    }
+
+    /**
+     * logo图查询(APP)
+     * @return
+     */
+    @ApiOperation("logo图查询(APP)")
+    @GetMapping("/findLogoPictureApp")
+    public ResponseEntity findLogoPictureApp(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        return ResponseUtil.success(platformConfig==null?"":platformConfig.getReadUploadUrl()+platformConfig.getLogImageUrlApp());
     }
 
 
