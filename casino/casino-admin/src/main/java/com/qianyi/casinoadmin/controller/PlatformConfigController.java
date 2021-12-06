@@ -389,7 +389,6 @@ public class PlatformConfigController {
      * @param file
      * @return
      */
-    @NoAuthorization
     @ApiOperation("编辑网站icon")
     @PostMapping(value = "/saveWebsiteIcon",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "编辑网站icon")
     public ResponseEntity saveWebsiteIcon(@RequestPart(value = "file", required = false) MultipartFile file){
