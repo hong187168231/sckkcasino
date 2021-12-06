@@ -106,8 +106,8 @@ public class Constants {
     public static final Integer USER_TYPE2= 2;
     //ip被封返回前端提示语
     public static final String IP_BLOCK= "IP被封，请联系客服";
-    //redis token前缀
-    public static final String REDIS_TOKEN= "token::";
+    //redis casino-web模块token前缀
+    public static final String TOKEN_CASINO_WEB = "token::casino-web::";
     public static final String REDIS_TOKEN_ADMIN= "token::casino-admin::";
     public static final String REDIS_TOKEN_PROXY= "token::casino-proxy::";
     //redis token前缀

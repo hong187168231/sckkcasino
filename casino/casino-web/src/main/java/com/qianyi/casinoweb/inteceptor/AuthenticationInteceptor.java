@@ -68,7 +68,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
         User user = userService.findById(authId);
         synchronized (token.intern()) {
             //多个请求只有一个去刷新token
-            Object redisToken = redisUtil.get(Constants.REDIS_TOKEN + authId);
+            Object redisToken = redisUtil.get(Constants.TOKEN_CASINO_WEB + authId);
             JjwtUtil.Token redisJwtToken = null;
             if (redisToken != null) {
                 redisJwtToken = (JjwtUtil.Token) redisToken;
@@ -88,7 +88,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
             jwtTiken.setNewToken(refreshToken);
             //不是最新的token也可以获取到新token，但是多设备校验的时候会拦截
             if (redisJwtToken != null && (token.equals(redisJwtToken.getOldToken()) || token.equals(redisJwtToken.getNewToken()))) {
-                redisUtil.set(Constants.REDIS_TOKEN + authId, jwtTiken, Constants.WEB_REFRESH_TTL);
+                redisUtil.set(Constants.TOKEN_CASINO_WEB + authId, jwtTiken, Constants.WEB_REFRESH_TTL);
             } else {
                 log.error("当前token={}，iss={} 已失效刷新token无效，redis中token信息为={}", token, Constants.CASINO_WEB, redisJwtToken);
             }
@@ -105,7 +105,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
     protected boolean multiDeviceCheck() {
         Long authId = CasinoWebUtil.getAuthId();
         String token = CasinoWebUtil.getToken();
-        String key = Constants.REDIS_TOKEN + authId;
+        String key = Constants.TOKEN_CASINO_WEB + authId;
         Object redisToken = redisUtil.get(key);
         if (ObjectUtils.isEmpty(redisToken)) {
             return true;
