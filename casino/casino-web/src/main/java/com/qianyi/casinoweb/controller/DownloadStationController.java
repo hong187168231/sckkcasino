@@ -133,10 +133,10 @@ public class DownloadStationController {
         return ResponseUtil.success(logImageUrl);
     }
 
-    @GetMapping("getCurrencyInageUrl")
+    @GetMapping("getMoneySymbol")
     @ApiOperation("获取金钱符号")
     @NoAuthentication
-    public ResponseEntity<String> getCurrencyInageUrl() {
+    public ResponseEntity<String> getMoneySymbol() {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (platformConfig == null) {
             return ResponseUtil.success();
