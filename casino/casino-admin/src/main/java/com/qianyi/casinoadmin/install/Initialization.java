@@ -198,6 +198,13 @@ public class Initialization implements CommandLineRunner {
             platformConfig.setProxyConfiguration(platformConfigFile.getProxyConfiguration());
             platformConfig.setSendMessageWarning(platformConfigFile.getSendMessageWarning());
             platformConfig.setDirectlyUnderTheLower(platformConfigFile.getDirectlyUnderTheLower());
+
+            platformConfig.setUploadUrl(platformConfigFile.getUploadUrl());
+            platformConfig.setReadUploadUrl(platformConfigFile.getReadUploadUrl());
+            platformConfig.setLogImageUrlApp(platformConfigFile.getLogImageUrlApp());
+            platformConfig.setLogImageUrlPc(platformConfigFile.getLogImageUrlPc());
+            platformConfig.setMoneySymbol(platformConfigFile.getMoneySymbol());
+            platformConfig.setWebsiteIcon(platformConfigFile.getWebsiteIcon());
             platformConfigService.save(platformConfig);
         }
     }
