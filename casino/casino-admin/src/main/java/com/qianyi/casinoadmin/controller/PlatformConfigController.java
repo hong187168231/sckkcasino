@@ -417,6 +417,41 @@ public class PlatformConfigController {
     }
 
 
+
+    /**
+     * 编辑logo图(APP登录注册页)
+     * @param file
+     * @return
+     */
+    @ApiOperation("编辑logo图(APP登录注册页)")
+    @PostMapping(value = "/saveLoginRegisterLogoPictureApp",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "编辑logo图(APP登录注册页)")
+    public ResponseEntity saveLoginRegisterLogoPictureApp(@RequestPart(value = "file", required = false) MultipartFile file){
+        PlatformConfig platformConfig= platformConfigService.findFirst();
+        try {
+            String uploadUrl = platformConfig.getUploadUrl();
+            String fileUrl = UploadAndDownloadUtil.fileUpload(file,uploadUrl);
+            platformConfig.setLoginRegisterLogImageUrlApp(fileUrl);
+        } catch (Exception e) {
+            return ResponseUtil.custom(CommonConst.PICTURENOTUP);
+        }
+        platformConfigService.save(platformConfig);
+        return ResponseUtil.success();
+    }
+
+    /**
+     * logo图查询(APP登录注册页)
+     * @return
+     */
+    @ApiOperation("logo图查询(APP登录注册页)")
+    @GetMapping("/findLoginRegisterLogoPictureApp")
+    public ResponseEntity findLoginRegisterLogoPictureApp(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        return ResponseUtil.success(platformConfig==null?"":platformConfig.getReadUploadUrl()+platformConfig.getLoginRegisterLogImageUrlApp());
+    }
+
+
+
+
     /**
      * 新增网站icon
      * @param file
