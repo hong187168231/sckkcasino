@@ -55,7 +55,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
     protected boolean multiDeviceCheck() {
         Long authId = CasinoProxyUtil.getAuthId();
         String token = CasinoProxyUtil.getToken();
-        String key = Constants.REDIS_TOKEN + authId + "proxy";
+        String key = Constants.REDIS_TOKEN + "proxy:"+ authId;
         Object redisToken = redisUtil.get(key);
         if (ObjectUtils.isEmpty(redisToken)) {
             return true;
