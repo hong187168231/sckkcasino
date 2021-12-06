@@ -121,17 +121,17 @@ public class DownloadStationController {
         return ResponseUtil.success(domain);
     }
 
-//    @GetMapping("getLogImageUrl")
-//    @ApiOperation("获取logo")
-//    @NoAuthentication
-//    public ResponseEntity<String> getLogImageUrl() {
-//        PlatformConfig platformConfig = platformConfigService.findFirst();
-//        if (platformConfig == null) {
-//            return ResponseUtil.success();
-//        }
-//        String logImageUrl = platformConfig.getLogImageUrl();
-//        return ResponseUtil.success(logImageUrl);
-//    }
+    @GetMapping("getLogImageUrl")
+    @ApiOperation("获取logo")
+    @NoAuthentication
+    public ResponseEntity<String> getLogImageUrl() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig == null) {
+            return ResponseUtil.success();
+        }
+        String logImageUrl = platformConfig.getLogImageUrl();
+        return ResponseUtil.success(logImageUrl);
+    }
 
     @GetMapping("getCurrencyInageUrl")
     @ApiOperation("获取金钱符号")
