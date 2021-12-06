@@ -338,6 +338,7 @@ public class AuthController {
         }
         String bcryptPassword = user.getPassword();
         boolean bcrypt = CasinoWebUtil.checkBcrypt(password, bcryptPassword);
+        log.info("登录账号{},前端传入密码{},数据库密码{},比对结果{}", account, password, bcryptPassword, bcrypt);
         if (!bcrypt) {
             return ResponseUtil.custom("帐号或密码错误");
         }

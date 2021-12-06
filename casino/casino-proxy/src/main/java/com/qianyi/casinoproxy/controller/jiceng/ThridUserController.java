@@ -444,7 +444,7 @@ public class ThridUserController {
         if (CasinoProxyUtil.checkNull(user)){
             return ResponseUtil.custom("账户不存在");
         }
-        log.info("重置密码之前密码{}",user.getWithdrawPassword());
+        log.info("重置提现密码之前密码:{}账号:{}",user.getWithdrawPassword(), user.getAccount());
         //随机生成
         String withdrawPassword = PasswordUtil.getRandomPwd();
         String bcryptPassword = CasinoProxyUtil.bcrypt(withdrawPassword);
@@ -468,7 +468,7 @@ public class ThridUserController {
         if (CasinoProxyUtil.checkNull(user)){
             return ResponseUtil.custom("账户不存在");
         }
-        log.info("重置密码之前密码{}",user.getPassword());
+        log.info("重置密码之前密码:{}账号:{}",user.getPassword(), user.getAccount());
         //随机生成
         String password = PasswordUtil.getRandomPwd();
         String bcryptPassword = CasinoProxyUtil.bcrypt(password);
