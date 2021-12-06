@@ -358,7 +358,7 @@ public class SysPermissionConfigFile {
             if(sysPermission.getName().equals("修改推广链接码")){
                 updatePromotionCode = sysPermission;
             }
-            if(sysPermission.getName().equals("官方渠道")){
+            if(sysPermission.getName().equals("官方推广")){
                 expand = sysPermission;
             }
             if(sysPermission.getName().equals("一键回收用户WM余额")){
