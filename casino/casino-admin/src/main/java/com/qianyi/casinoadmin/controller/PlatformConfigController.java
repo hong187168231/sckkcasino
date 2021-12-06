@@ -5,21 +5,20 @@ import com.qianyi.casinoadmin.vo.*;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -351,5 +350,107 @@ public class PlatformConfigController {
         platformConfigService.save(first);
         return ResponseUtil.success();
     }
+
+
+    /**
+     * 编辑logo图
+     * @param file
+     * @return
+     */
+    @ApiOperation("编辑logo图")
+    @PostMapping(value = "/saveLogoPicture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "编辑logo图")
+    public ResponseEntity savePCPicture(@RequestPart(value = "file", required = false) MultipartFile file){
+        PlatformConfig platformConfig= platformConfigService.findFirst();
+        try {
+            String uploadUrl = platformConfig.getUploadUrl();
+            String fileUrl = UploadAndDownloadUtil.fileUpload(file,uploadUrl);
+            platformConfig.setLogImageUrl(fileUrl);
+        } catch (Exception e) {
+            return ResponseUtil.custom(CommonConst.PICTURENOTUP);
+        }
+        platformConfigService.save(platformConfig);
+        return ResponseUtil.success();
+    }
+
+    /**
+     * logo图查询
+     * @return
+     */
+    @ApiOperation("logo图查询")
+    @GetMapping("/findLogoPicture")
+    public ResponseEntity findLogoPicture(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        return ResponseUtil.success(platformConfig==null?"":platformConfig.getReadUploadUrl()+platformConfig.getLogImageUrl());
+    }
+
+
+    /**
+     * 新增网站icon
+     * @param file
+     * @return
+     */
+    @NoAuthorization
+    @ApiOperation("编辑网站icon")
+    @PostMapping(value = "/saveWebsiteIcon",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "编辑网站icon")
+    public ResponseEntity saveWebsiteIcon(@RequestPart(value = "file", required = false) MultipartFile file){
+        PlatformConfig platformConfig= platformConfigService.findFirst();
+        try {
+            String uploadUrl = platformConfig.getUploadUrl();
+            String fileUrl = UploadAndDownloadUtil.fileUpload(file,uploadUrl);
+            platformConfig.setWebsiteIcon(fileUrl);
+        } catch (Exception e) {
+            return ResponseUtil.custom(CommonConst.PICTURENOTUP);
+        }
+        platformConfigService.save(platformConfig);
+        return ResponseUtil.success();
+    }
+
+
+    /**
+     * 网站icon查询
+     * @return
+     */
+    @ApiOperation("网站icon查看")
+    @GetMapping("/findWebsiteIcon")
+    public ResponseEntity findWebsiteIcon(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        return ResponseUtil.success(platformConfig==null?"":platformConfig.getReadUploadUrl()+platformConfig.getWebsiteIcon());
+    }
+
+
+    /**
+     * 修改金钱符号
+     * @return
+     */
+    @ApiOperation("编辑金钱符号")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "moneySymbol", value = "金钱符号", required = true),
+    })
+    @PostMapping("/updateMoneySymbol")
+    public ResponseEntity updateMoneySymbol(String moneySymbol){
+        if (LoginUtil.checkNull(moneySymbol)){
+            return ResponseUtil.custom("参数错误");
+        }
+        PlatformConfig first = platformConfigService.findFirst();
+        if (LoginUtil.checkNull(first)){
+            first = new PlatformConfig();
+        }
+        first.setMoneySymbol(moneySymbol);
+        platformConfigService.save(first);
+        return ResponseUtil.success();
+    }
+
+
+    /**
+     * 金钱符号查询
+     * @return
+     */
+    @ApiOperation("金钱符号查询")
+    @GetMapping("/findMoneySymbol")
+    public ResponseEntity findMoneySymbol(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        return ResponseUtil.success(platformConfig==null?"":platformConfig.getMoneySymbol());
+    }
+
 
 }
