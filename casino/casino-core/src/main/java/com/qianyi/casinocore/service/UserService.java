@@ -36,6 +36,11 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @CachePut(key="#result.id",condition = "#result != null")
+    public User updatePassword(Long id, String password) {
+        return userRepository.updatePassword(id, password);
+    }
+
     public List<User> saveAll(List<User> userList){
         return userRepository.saveAll(userList);
     }

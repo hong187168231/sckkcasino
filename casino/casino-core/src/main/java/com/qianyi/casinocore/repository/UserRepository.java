@@ -24,6 +24,10 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Query("update User u set u.isFirstBet= ?2 where u.id=?1")
     void updateIsFirstBet(Long id, Integer washCodeStatus);
 
+    @Modifying
+    @Query("update User u set u.password= ?2 where u.id=?1")
+    User updatePassword(Long id, String password);
+
     List<User> findByRegisterIp(String ip);
 
     User findByInviteCode(String inviteCode);

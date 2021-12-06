@@ -442,13 +442,14 @@ public class UserController {
         if (LoginUtil.checkNull(user)){
             return ResponseUtil.custom("账户不存在");
         }
-        log.info("重置密码之前密码{}",user.getPassword());
+        log.info("重置密码之前密码{}, 账号：【{}】",user.getPassword(), user.getAccount());
         //随机生成
         String password = PasswordUtil.getRandomPwd();
         String bcryptPassword = LoginUtil.bcrypt(password);
         log.info("生成密码{}",bcryptPassword);
         user.setPassword(bcryptPassword);
-        user = userService.save(user);
+        user = userService.updatePassword(user.getId(), user.getPassword());
+
         log.info("重置密码之后密码{}",user.getPassword());
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("account", user.getAccount());
