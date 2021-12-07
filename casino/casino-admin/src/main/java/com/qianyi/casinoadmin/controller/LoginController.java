@@ -369,6 +369,7 @@ public class LoginController {
     })
     @PostMapping("save")
     public ResponseEntity save(String userName, String password, String nickName) {
+
         if(LoginUtil.checkNull(nickName,password)){
             return ResponseUtil.parameterNotNull();
         }

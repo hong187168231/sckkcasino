@@ -118,4 +118,7 @@ public class Constants {
     public static final Long WEB_REFRESH_TTL = 60 * 60L * 24;//秒
     public static final Long ADMIN_REFRESH_TTL = 60 * 60L * 24;//秒
 
+    public static final String LANGUAGE_CN= "zh-cn"; //中文
+    public static final String LANGUAGE_EH= "eh"; //泰语
+    public static final String LANGUAGE_EN= "en"; //英语
 }
