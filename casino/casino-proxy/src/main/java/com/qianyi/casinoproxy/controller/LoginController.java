@@ -323,7 +323,7 @@ public class LoginController {
         if (ObjectUtils.isEmpty(refreshToken)) {
             return ResponseUtil.authenticationNopass();
         }
-        this.setUserTokenToRedis(proxyUser.getId(), token);
+        this.setUserTokenToRedis(proxyUser.getId(), refreshToken);
         return ResponseUtil.success(refreshToken);
     }
     private void setUserTokenToRedis(Long userId, String token) {
