@@ -381,6 +381,7 @@ public class WMController {
             log.error("userId:{},errorCode={},errorMsg={}",userId, entity.getErrorCode(), entity.getErrorMessage());
             return ResponseUtil.custom("回收失败,请联系客服");
         }
+        balance = recoverMoney.abs();
         //把额度加回本地
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
         if (userMoney == null) {
@@ -388,12 +389,7 @@ public class WMController {
             userMoney.setUserId(userId);
             userMoneyService.save(userMoney);
         }
-        //wm余额大于0
-        if (balance.compareTo(BigDecimal.ZERO) == 1) {
-            userMoneyService.addMoney(userId, balance);
-        } else if (balance.compareTo(BigDecimal.ZERO) == -1) {//wm余额小于0
-            userMoneyService.subMoney(userId, balance.abs());
-        }
+        userMoneyService.addMoney(userId, balance);
         Order order = new Order();
         order.setMoney(balance);
         order.setUserId(userId);
