@@ -94,11 +94,11 @@ public class CommonConst {
 
     public static final String NETWORK_ANOMALY = "网络异常";
 
-    public static final String SECOND_FORMAT = "{0}%(总)";
+    public static final String SECOND_FORMAT = "{0}%(总代)";
 
-    public static final String THIRD_FORMAT = "{0}%(总) - {1}%(区) - {2}%(基)";
+    public static final String THIRD_FORMAT = "{0}%(总代) - {1}%(区域) - {2}%(基层)";
 
-    public static final String JICENG = "{0}%(基)";
+    public static final String JICENG = "{0}%(基层)";
 
     public static final String STRING_0 = "0";
     public static final String STRING_1 = "1";
