@@ -418,11 +418,11 @@ public class LoginController {
         }else{
             List<SysPermission> sysPermissionList = new ArrayList<>();
             SysUserVo sysUserVo = new SysUserVo();
-            if(sys.getUserName().equals("admin")){
-                BeanUtils.copyProperties(sys, sysUserVo);
-                sysUserVo.setSysRoleId(0l);
-                sysPermissionList = sysPermissionService.findAll();
-            }else{
+//            if(sys.getUserName().equals("admin")){
+//                BeanUtils.copyProperties(sys, sysUserVo);
+//                sysUserVo.setSysRoleId(0l);
+//                sysPermissionList = sysPermissionService.findAll();
+//            }else{
                 SysUserRole sysUserRole = roleServiceBusiness.getSysUserRole(sys.getId());
                 BeanUtils.copyProperties(sys, sysUserVo);
                 if(sysUserRole == null){
@@ -436,7 +436,7 @@ public class LoginController {
                     //得到第一层数据
                     sysPermissionList = sysPermissionService.findAll();
                 }
-            }
+//            }
 
             List<SysPermission> sysPermissions = sysPermissionList.stream().filter(sysPermission -> sysPermission.getIsDetele() == 0).collect(Collectors.toList());
             if(null == sysPermissions || sysPermissions.size() <= 0){

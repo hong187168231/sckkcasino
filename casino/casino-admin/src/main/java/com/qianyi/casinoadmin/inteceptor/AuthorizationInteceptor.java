@@ -39,10 +39,10 @@ public class AuthorizationInteceptor extends AbstractAuthorizationInteceptor {
         if(authId == null){
             return true;
         }
-        SysUser user=sysUserService.findById(authId);
-        if(user.getUserName().equals("admin")){//admin所有权限
-            return true;
-        }
+//        SysUser user=sysUserService.findById(authId);
+//        if(user.getUserName().equals("admin")){//admin所有权限
+//            return true;
+//        }
 
         return false;
     }

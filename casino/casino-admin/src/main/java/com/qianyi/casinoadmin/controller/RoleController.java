@@ -9,6 +9,8 @@ import com.qianyi.casinoadmin.vo.SysUserVo;
 import com.qianyi.casinocore.business.RoleServiceBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.SysPermissionService;
+import com.qianyi.casinocore.service.SysRoleService;
+import com.qianyi.casinocore.service.SysUserRoleService;
 import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -17,6 +19,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.codec.binary.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +42,12 @@ public class RoleController {
 
     @Autowired
     private SysUserService sysUserService;
+
+    @Autowired
+    private SysUserRoleService sysUserRoleService;
+
+    @Autowired
+    private SysRoleService sysRoleService;
 
     @GetMapping("getSysUser")
     @ApiOperation("查询用户数据")
@@ -120,6 +129,8 @@ public class RoleController {
     })
     public ResponseEntity<SysRole> getRoleList(Long roleId, Long userId) {
         List<SysRole> sysRoleList = roleServiceBusiness.findRoleList(roleId, userId);
+        sysRoleList = sysRoleList.stream().filter(sysRole -> StringUtils.equals(sysRole.getRoleName(), "系统超级管理员")).collect(Collectors.toList());
+
         return ResponseUtil.success(sysRoleList);
     }
 
@@ -134,6 +145,13 @@ public class RoleController {
             @ApiImplicitParam(name = "roleId", value = "角色id", required = true)
     })
     public ResponseEntity<SysRole> deleteRoleList(Long roleId) {
+        SysRole sysRole = sysRoleService.findById(roleId);
+        if(sysRole == null){
+            return ResponseUtil.custom("角色不存在");
+        }
+        if(StringUtils.equals(sysRole.getRoleName(), "系统超级管理员")){
+            return ResponseUtil.custom("系统生成角色，不可删除");
+        }
         roleServiceBusiness.deleteRoleList(roleId);
         return ResponseUtil.success();
     }
@@ -187,9 +205,21 @@ public class RoleController {
         List<SysPermission> sysPermissionList = new ArrayList<>();
         if(roleId != null){
             sysPermissionList = roleServiceBusiness.getSysPermissionList(roleId);
-        }else{
-            //得到第一层数据
-            sysPermissionList = sysPermissionService.findAll();
+        }else{//判断当前用户是否是系统超级管理员
+            SysUserRole sysUserRole = sysUserRoleService.findbySysUserId(LoginUtil.getLoginUserId());
+            if(sysUserRole == null){
+                return ResponseUtil.success();
+            }
+            SysRole sysRole = sysRoleService.findById(sysUserRole.getSysRoleId());
+            if(sysRole == null){
+                return ResponseUtil.success();
+            }
+            if(StringUtils.equals(sysRole.getRoleName(), "系统超级管理员")){
+                //得到第一层数据
+                sysPermissionList = sysPermissionService.findAll();
+            }else{
+                sysPermissionList = roleServiceBusiness.getSysPermissionList(sysRole.getId());
+            }
         }
         List<SysPermission> sysPermissions = sysPermissionList.stream().filter(sysPermission -> sysPermission.getIsDetele() == 0).collect(Collectors.toList());
         if(null == sysPermissions || sysPermissions.size() <= 0){
@@ -234,6 +264,10 @@ public class RoleController {
     public ResponseEntity<SysRole> updatePermissionList(String roleName, String remark, Long roleId, @RequestBody List<Long> menuIdList){
         if(LoginUtil.checkNull(roleName)){
             return ResponseUtil.custom("参数错误");
+        }
+        SysRole sysRole = sysRoleService.findById(roleId);
+        if(StringUtils.equals(sysRole.getRoleName(), "系统超级管理员")){
+            return ResponseUtil.custom("系统生成角色，不可修改");
         }
         Boolean result = roleServiceBusiness.save(roleName, remark, roleId, menuIdList);
         if(result){

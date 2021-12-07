@@ -30,7 +30,7 @@ public class InitializationSuperRole{
     @Autowired
     private SysRoleService sysRoleService;
 
-    public void saveSuperRole() throws Exception {
+    public void saveSuperRole() {
         SysRole sysRole = new SysRole();
         sysRole.setRoleName("系统超级管理员");
         List<SysRole> sysRoleList = sysRoleService.findbyRoleName(sysRole);
@@ -42,6 +42,9 @@ public class InitializationSuperRole{
         List<SysPermission> sysPermissionList = sysPermissionService.findAll();
         sysPermissionList.forEach(sysPermission -> {
             if(sysPermission.getUrl().equals("/systemCenter") || sysPermission.getName().equals("系统管理")){
+                permissionIds.add(sysPermission.getId());
+            }
+            if(sysPermission.getUrl().equals("/operateCenter") || sysPermission.getName().equals("运营中心")){
                 permissionIds.add(sysPermission.getId());
             }
         });
@@ -57,6 +60,7 @@ public class InitializationSuperRole{
                 }
             }
         }
+
         Boolean result = roleServiceBusiness.save("系统超级管理员", "系统生成，不可更改", null, permissionIds);
     }
 }

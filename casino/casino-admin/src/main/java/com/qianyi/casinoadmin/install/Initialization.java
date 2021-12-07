@@ -10,6 +10,7 @@ import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,6 +41,17 @@ public class Initialization implements CommandLineRunner {
     private PictureService pictureService;
     @Autowired
     private InitializationSuperRole initializationSuperRole;
+    @Autowired
+    private SysRoleService sysRoleService;
+    @Autowired
+    private SysUserRoleService sysUserRoleService;
+
+    @Value("${project.username:admin}")
+    private String userNames;
+
+    @Value("${project.password:123456}")
+    private String password;
+
 
     @Override
     public void run(String... args) throws Exception {
@@ -51,7 +63,7 @@ public class Initialization implements CommandLineRunner {
        this.runProxyRebateConfig();
        this.runSysPermissionConfig();
        this.addPermissionConfig();
-       initializationSuperRole.saveSuperRole();
+
     }
 
     /**
@@ -131,19 +143,35 @@ public class Initialization implements CommandLineRunner {
         }
     }
 
+    //系统超级管理员角色
     private void runAddSysUser() {
-        SysUser sys = sysUserService.findByUserName("admin");
-        if(sys != null){
+        //创建出系统超级管理员角色
+        initializationSuperRole.saveSuperRole();
+        SysRole sysRole = new SysRole();
+        sysRole.setRoleName("系统超级管理员");
+        List<SysRole> sysRoleList = sysRoleService.findbyRoleName(sysRole);
+        if(sysRoleList.isEmpty() || sysRoleList.size() == 0){
             return;
         }
-        //加密
-        String bcryptPassword = LoginUtil.bcrypt("123456");
-        SysUser sysUser = new SysUser();
-        sysUser.setUserName("admin");
-        sysUser.setNickName("admin");
-        sysUser.setPassWord(bcryptPassword);
-        sysUser.setUserFlag(Constants.open);
-        sysUserService.save(sysUser);
+        SysRole role = sysRoleList.get(0);
+        for (String name : userNames.split(",")) {
+            SysUser sys = sysUserService.findByUserName(name);
+            if(sys != null){
+                return;
+            }
+            //加密
+            String bcryptPassword = LoginUtil.bcrypt(password);
+            SysUser sysUser = new SysUser();
+            sysUser.setUserName(name);
+            sysUser.setNickName(name);
+            sysUser.setPassWord(bcryptPassword);
+            sysUser.setUserFlag(Constants.open);
+            sysUserService.save(sysUser);
+            SysUserRole sysUserRole = new SysUserRole();
+            sysUserRole.setSysUserId(sysUser.getId());
+            sysUserRole.setSysRoleId(role.getId());
+            sysUserRoleService.save(sysUserRole);
+        }
     }
 
     private void runSysPermissionConfig() {
