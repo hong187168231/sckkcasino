@@ -58,12 +58,11 @@ public class Initialization implements CommandLineRunner {
        log.info("初始化数据开始============================================》");
 //       this.saveBanner();
        this.saveBankInfo();
-       this.runAddSysUser();
        this.runPlatformConfig();
        this.runProxyRebateConfig();
        this.runSysPermissionConfig();
        this.addPermissionConfig();
-
+       this.runAddSysUser();
     }
 
     /**
@@ -157,6 +156,10 @@ public class Initialization implements CommandLineRunner {
         for (String name : userNames.split(",")) {
             SysUser sys = sysUserService.findByUserName(name);
             if(sys != null){
+                SysUserRole sysUserRole = new SysUserRole();
+                sysUserRole.setSysUserId(sys.getId());
+                sysUserRole.setSysRoleId(role.getId());
+                sysUserRoleService.save(sysUserRole);
                 return;
             }
             //加密
@@ -168,7 +171,7 @@ public class Initialization implements CommandLineRunner {
             sysUser.setUserFlag(Constants.open);
             sysUserService.save(sysUser);
             SysUserRole sysUserRole = new SysUserRole();
-            sysUserRole.setSysUserId(sysUser.getId());
+            sysUserRole.setSysUserId(sys.getId());
             sysUserRole.setSysRoleId(role.getId());
             sysUserRoleService.save(sysUserRole);
         }
