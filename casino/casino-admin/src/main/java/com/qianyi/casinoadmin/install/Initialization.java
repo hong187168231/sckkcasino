@@ -156,7 +156,10 @@ public class Initialization implements CommandLineRunner {
         for (String name : userNames.split(",")) {
             SysUser sys = sysUserService.findByUserName(name);
             if(sys != null){
-                SysUserRole sysUserRole = new SysUserRole();
+                SysUserRole sysUserRole = sysUserRoleService.findbySysUserId(sys.getId());
+                if(sysUserRole == null){
+                    sysUserRole = new SysUserRole();
+                }
                 sysUserRole.setSysUserId(sys.getId());
                 sysUserRole.setSysRoleId(role.getId());
                 sysUserRoleService.save(sysUserRole);
