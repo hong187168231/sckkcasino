@@ -108,10 +108,10 @@ public class CollectionBankcardController {
         }
         bankNo = bankNo.trim();
         if (bankNo.length() > 20 || bankNo.length() < 9 || !bankNo.matches(Constants.regex)) {
-            return ResponseUtil.custom("长度只能在9~20位的数字！");
+            return ResponseUtil.custom("长度只能在9~20位的数字");
         }
         if (!accountName.matches(RegexEnum.NAME.getRegex())){
-            return ResponseUtil.custom("持卡人姓名格式错误！");
+            return ResponseUtil.custom("持卡人姓名格式错误");
         }
         if (!LoginUtil.checkNull(byBankNo) && byBankNo.size() > CommonConst.NUMBER_0){
             return ResponseUtil.custom("银行卡已存在");
@@ -172,7 +172,7 @@ public class CollectionBankcardController {
         }
         if(!LoginUtil.checkNull(accountName)){
             if (!accountName.matches(RegexEnum.NAME.getRegex())){
-                return ResponseUtil.custom("持卡人请输入中文或字母！");
+                return ResponseUtil.custom("持卡人请输入中文或字母");
             }
             collectionBankcard.setAccountName(accountName);
         }

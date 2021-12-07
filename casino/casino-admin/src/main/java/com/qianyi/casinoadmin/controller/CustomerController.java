@@ -52,7 +52,7 @@ public class CustomerController {
         }
         if (!CommonUtil.checkNull(qq)){
             if (!qq.matches(RegexEnum.NUMBER_OR_LETTER.getRegex())) {
-                return ResponseUtil.custom("qq格式错误！");
+                return ResponseUtil.custom("qq格式错误");
             }
             customer.setQq(qq);
         }
@@ -73,7 +73,7 @@ public class CustomerController {
         }
         if (!CommonUtil.checkNull(wechat)){
             if (!wechat.matches(RegexEnum.WEBCHAT.getRegex())) {
-                return ResponseUtil.custom("微信号格式错误！");
+                return ResponseUtil.custom("微信号格式错误");
             }
             customer.setWechat(wechat);
         }
@@ -82,7 +82,7 @@ public class CustomerController {
         }
         if (!CommonUtil.checkNull(telephone)){
             if (!telephone.matches(RegexEnum.PHONE.getRegex())) {
-                return ResponseUtil.custom("手机号格式错误！");
+                return ResponseUtil.custom("手机号格式错误");
             }
             customer.setTelephone(telephone);
         }

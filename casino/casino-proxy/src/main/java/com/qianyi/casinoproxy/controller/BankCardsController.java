@@ -129,7 +129,7 @@ public class BankCardsController {
             return ResponseUtil.custom(checkParamFroBound);
         }
         if (!realName.matches(RegexEnum.NAME.getRegex())){
-            return ResponseUtil.custom("持卡人请输入中文或字母！");
+            return ResponseUtil.custom("持卡人请输入中文或字母");
         }
         //判断是否存在该用户
         User user = userService.findById(userId);
@@ -166,19 +166,19 @@ public class BankCardsController {
             return "持卡人不能为空";
         }
         if (bankId == null) {
-            return "银行id不能为空！";
+            return "银行id不能为空";
         }
         if (CasinoProxyUtil.checkNull(address)) {
-            return "开户地址不能为空！";
+            return "开户地址不能为空";
         }
         if (CasinoProxyUtil.checkNull(bankAccount)) {
-            return "银行账号不能为空！";
+            return "银行账号不能为空";
         }
         if (bankAccount.length() > 20 || bankAccount.length() < 9) {
-            return "长度只能在9~20位！";
+            return "长度只能在9~20位";
         }
         if (!bankAccount.matches(Constants.regex)) {
-            return "银行账号只能输入数字！";
+            return "银行账号只能输入数字";
         }
         return null;
     }
