@@ -217,10 +217,10 @@ public class ThridLoginController {
             return ResponseUtil.custom("原密码错误");
         }
         if (!newPassword.equals(repetitionPassword)){
-            return ResponseUtil.custom("两次输入的新密码不一致！");
+            return ResponseUtil.custom("两次输入的新密码不一致");
         }
         if (!newPassword.matches(RegexEnum.PASSWORD.getRegex())){
-            return ResponseUtil.custom("密码请输入6~15位数字和字母组合！");
+            return ResponseUtil.custom("密码请输入6~15位数字和字母组合");
         }
         bcryptPassword = CasinoProxyUtil.bcrypt(newPassword);
         byId.setPassWord(bcryptPassword);

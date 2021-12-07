@@ -249,7 +249,7 @@ public class UserController {
             return ResponseUtil.custom("账户不存在");
         }
         if (!phone.matches(RegexEnum.PHONE.getRegex())) {
-            return ResponseUtil.custom("手机号格式错误！");
+            return ResponseUtil.custom("手机号格式错误");
         }
         user.setPhone(phone);
         userService.save(user);

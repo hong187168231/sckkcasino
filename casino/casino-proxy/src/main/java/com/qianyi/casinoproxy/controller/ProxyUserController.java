@@ -279,10 +279,10 @@ public class ProxyUserController {
             return ResponseUtil.custom("参数不合法");
         }
         if (!userName.matches(RegexEnum.ACCOUNT.getRegex())){
-            return ResponseUtil.custom("账号请输入数字或字母！");
+            return ResponseUtil.custom("账号请输入数字或字母");
         }
         if (!CasinoProxyUtil.checkNull(nickName) && !nickName.matches(RegexEnum.NAME.getRegex())){
-            return ResponseUtil.custom("昵称请输入1~20位中文或字母！");
+            return ResponseUtil.custom("昵称请输入1~20位中文或字母");
         }
         ProxyUser byUserName = proxyUserService.findByUserName(userName);
         if (!CasinoProxyUtil.checkNull(byUserName)){
@@ -554,7 +554,7 @@ public class ProxyUserController {
             return ResponseUtil.custom("返佣百分比类型错误");
         }
         if (money.compareTo(new BigDecimal(CommonConst.NUMBER_1)) >= CommonConst.NUMBER_1){
-            return ResponseUtil.custom("超过最高占成比!");
+            return ResponseUtil.custom("超过最高占成比");
         }
         ProxyUser proxyUser = proxyUserService.findById(id);
         if (CasinoProxyUtil.checkNull(proxyUser)){
@@ -573,14 +573,14 @@ public class ProxyUserController {
         if (proxyUser.getProxyRole() == CommonConst.NUMBER_2){
             BigDecimal total = money.add(byProxyUserId.getSecondCommission()).add(byProxyUserId.getThirdCommission());
             if (total.compareTo(new BigDecimal(CommonConst.NUMBER_1)) >= CommonConst.NUMBER_1){
-                return ResponseUtil.custom("超过最高占成比!");
+                return ResponseUtil.custom("超过最高占成比");
             }
             List<ProxyCommission> bySecondProxy = proxyCommissionService.findBySecondProxy(proxyUser.getId());
             if (!CasinoProxyUtil.checkNull(bySecondProxy) && bySecondProxy.size() > CommonConst.NUMBER_0){
                 for (ProxyCommission p:bySecondProxy){
                     BigDecimal add = p.getSecondCommission().add(money);
                     if (add.compareTo(new BigDecimal(CommonConst.NUMBER_1)) >= CommonConst.NUMBER_1){
-                        return ResponseUtil.custom("超过最高占成比!");
+                        return ResponseUtil.custom("超过最高占成比");
                     }
                     p.setFirstCommission(money);
                     p.setSecondCommission(new BigDecimal(CommonConst.NUMBER_1).subtract(add));
@@ -601,7 +601,7 @@ public class ProxyUserController {
             byProxyUserId.setFirstCommission(byProxyUserId1.getFirstCommission());
             money = money.add(byProxyUserId.getFirstCommission());
             if (money.compareTo(new BigDecimal(CommonConst.NUMBER_1)) >= CommonConst.NUMBER_1){
-                return ResponseUtil.custom("超过最高占成比!");
+                return ResponseUtil.custom("超过最高占成比");
             }
             byProxyUserId.setThirdCommission(new BigDecimal(CommonConst.NUMBER_1).subtract(money));
         }else {

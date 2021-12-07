@@ -374,14 +374,14 @@ public class LoginController {
             return ResponseUtil.parameterNotNull();
         }
         if (!userName.matches(RegexEnum.ACCOUNT.getRegex())){
-            return ResponseUtil.custom("账号请输入6~15位数字或字母！");
+            return ResponseUtil.custom("账号请输入6~15位数字或字母");
         }
         if (!password.matches(RegexEnum.PASSWORD.getRegex())){
-            return ResponseUtil.custom("密码6~15位数字和字母的组合！");
+            return ResponseUtil.custom("密码6~15位数字和字母的组合");
         }
         if (!LoginUtil.checkNull(nickName)){
             if (!nickName.matches(RegexEnum.NAME.getRegex())){
-                return ResponseUtil.custom("昵称请输入1~20位中文或字母！");
+                return ResponseUtil.custom("昵称请输入1~20位中文或字母");
             }
         }
 
@@ -492,12 +492,12 @@ public class LoginController {
         }
         SysUser sys = sysUserService.findByUserName(userName);
         if(sys == null){
-            return ResponseUtil.custom("账号不存在！");
+            return ResponseUtil.custom("账号不存在");
         }
         //加密
         String bcryptPassword = LoginUtil.bcrypt(password);
         if(bcryptPassword.equals(sys.getPassWord())){
-            return ResponseUtil.custom("新密码和旧密码相同！");
+            return ResponseUtil.custom("新密码和旧密码相同");
         }
         Long loginUserId = LoginUtil.getLoginUserId();
         SysUser sysLogin = sysUserService.findById(loginUserId);
@@ -521,11 +521,11 @@ public class LoginController {
     @PostMapping("resetGaKey")
     public ResponseEntity resetGaKey(String userName) {
         if(LoginUtil.checkNull(userName)){
-            return ResponseUtil.custom("参数错误！");
+            return ResponseUtil.custom("参数错误");
         }
         SysUser sys = sysUserService.findByUserName(userName);
         if(sys == null){
-            return ResponseUtil.custom("账号不存在！");
+            return ResponseUtil.custom("账号不存在");
         }
         Long loginUserId = LoginUtil.getLoginUserId();
         SysUser sysLogin = sysUserService.findById(loginUserId);

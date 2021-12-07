@@ -69,13 +69,13 @@ public class Bankcards extends BaseEntity{
 //            return "持卡人不能为空";
 //        }
         if (bankId == null) {
-            return "银行id不能为空！";
+            return "银行id不能为空";
         }
         if (!StringUtils.hasLength(address)) {
-            return "开户地址不能为空！";
+            return "开户地址不能为空";
         }
         if (!StringUtils.hasLength(bankAccount)) {
-            return "银行账号不能为空！";
+            return "银行账号不能为空";
         }
         if (!bankAccount.matches(RegexEnum.BANK_ACCOUNT.getRegex())) {
             return "银行账号" + RegexEnum.BANK_ACCOUNT.getDesc();
