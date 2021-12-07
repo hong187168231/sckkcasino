@@ -128,6 +128,15 @@ public class RoleController {
             @ApiImplicitParam(name = "userId", value = "用户id", required = false)
     })
     public ResponseEntity<SysRole> getRoleList(Long roleId, Long userId) {
+        SysUserRole sysUserRole = sysUserRoleService.findbySysUserId(LoginUtil.getLoginUserId());
+        if(sysUserRole == null){
+            return ResponseUtil.success();
+        }
+        SysRole role = sysRoleService.findById(sysUserRole.getSysRoleId());
+        if(role != null && !StringUtils.equals(role.getRoleName(), "系统超级管理员")){
+            roleId = role.getId();
+            userId = LoginUtil.getLoginUserId();
+        }
         List<SysRole> sysRoleList = roleServiceBusiness.findRoleList(roleId, userId);
         sysRoleList = sysRoleList.stream().filter(sysRole -> !StringUtils.equals(sysRole.getRoleName(), "系统超级管理员")).collect(Collectors.toList());
 
