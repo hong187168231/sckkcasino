@@ -129,7 +129,7 @@ public class RoleController {
     })
     public ResponseEntity<SysRole> getRoleList(Long roleId, Long userId) {
         List<SysRole> sysRoleList = roleServiceBusiness.findRoleList(roleId, userId);
-        sysRoleList = sysRoleList.stream().filter(sysRole -> StringUtils.equals(sysRole.getRoleName(), "系统超级管理员")).collect(Collectors.toList());
+        sysRoleList = sysRoleList.stream().filter(sysRole -> !StringUtils.equals(sysRole.getRoleName(), "系统超级管理员")).collect(Collectors.toList());
 
         return ResponseUtil.success(sysRoleList);
     }
