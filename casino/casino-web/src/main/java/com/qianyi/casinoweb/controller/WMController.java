@@ -374,8 +374,9 @@ public class WMController {
         if (BigDecimal.ZERO.compareTo(balance) == 0) {
             return ResponseUtil.success();
         }
-        //调用加扣点接口扣减wm余额
-        PublicWMApi.ResponseEntity entity = wmApi.changeBalance(account, balance.negate(), null, lang);
+        //调用加扣点接口扣减wm余额  存在精度问题，只回收整数部分
+        BigDecimal recoverMoney = balance.negate().setScale(0, BigDecimal.ROUND_DOWN);
+        PublicWMApi.ResponseEntity entity = wmApi.changeBalance(account, recoverMoney, null, lang);
         if (entity.getErrorCode() != 0) {
             log.error("userId:{},errorCode={},errorMsg={}",userId, entity.getErrorCode(), entity.getErrorMessage());
             return ResponseUtil.custom("回收失败,请联系客服");
