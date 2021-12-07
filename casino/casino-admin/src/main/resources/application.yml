@@ -53,7 +53,7 @@ spring:
       max-request-size: 100MB
 project:
   title: 后台管理
-  username: admin,admin2,admin1,admin3
+  username: admin1,admin2,admin3,admin4,admin5
   password: 123456
   swagger:
     enable: true

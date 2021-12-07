@@ -153,7 +153,8 @@ public class Initialization implements CommandLineRunner {
             return;
         }
         SysRole role = sysRoleList.get(0);
-        for (String name : userNames.split(",")) {
+        String[] split = userNames.split(",");
+        for (String name : split) {
             SysUser sys = sysUserService.findByUserName(name);
             if(sys != null){
                 SysUserRole sysUserRole = sysUserRoleService.findbySysUserId(sys.getId());
@@ -163,7 +164,7 @@ public class Initialization implements CommandLineRunner {
                 sysUserRole.setSysUserId(sys.getId());
                 sysUserRole.setSysRoleId(role.getId());
                 sysUserRoleService.save(sysUserRole);
-                return;
+                continue;
             }
             //加密
             String bcryptPassword = LoginUtil.bcrypt(password);
