@@ -371,8 +371,9 @@ public class WMController {
             e.printStackTrace();
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
-        if (BigDecimal.ZERO.compareTo(balance) == 0) {
-            return ResponseUtil.success();
+        if (balance.compareTo(BigDecimal.ONE) == -1) {
+            log.error("userId:{},balance={},金额小于1，不可回收", userId, balance);
+            return ResponseUtil.custom("WM余额小于1,不可回收");
         }
         //调用加扣点接口扣减wm余额  存在精度问题，只回收整数部分
         BigDecimal recoverMoney = balance.negate().setScale(0, BigDecimal.ROUND_DOWN);
