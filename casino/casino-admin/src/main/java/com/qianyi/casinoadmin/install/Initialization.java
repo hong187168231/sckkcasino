@@ -171,7 +171,7 @@ public class Initialization implements CommandLineRunner {
             sysUser.setUserFlag(Constants.open);
             sysUserService.save(sysUser);
             SysUserRole sysUserRole = new SysUserRole();
-            sysUserRole.setSysUserId(sys.getId());
+            sysUserRole.setSysUserId(sysUser.getId());
             sysUserRole.setSysRoleId(role.getId());
             sysUserRoleService.save(sysUserRole);
         }
