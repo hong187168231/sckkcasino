@@ -7,15 +7,23 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.spi.ObjectThreadContextMap;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.UUID;
 @Slf4j
+@Component
 public class JjwtUtil {
 
-    private final static String secrect = "fda#$&%$3t55v785A45DF$^&#*JGRstTRG";
+    private static String secrect;
+
+    @Value("${project.jwtsecrect:fda#$&%$3t55v785A45DF$^&#*JGRstTRG}")
+    private void setSecrect(String secrect) {
+        this.secrect = secrect;
+    }
     private final static long ttl = 5 * 60 * 1000;
 //    private final static long ttl = 24 * 60 * 60 * 1000;
     private final static Long refresh_ttl = 30 * 60L;//秒

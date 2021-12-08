@@ -3,6 +3,7 @@ package com.qianyi.casinoweb.runner;
 import com.qianyi.casinocore.model.WashCodeConfig;
 import com.qianyi.casinocore.service.WashCodeConfigService;
 import com.qianyi.modulecommon.Constants;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ import java.util.List;
  * 第一次启动项目初始化游戏洗码配置
  */
 @Component
+@Slf4j
 public class WashCodeConfigRunner implements CommandLineRunner {
 
     @Autowired
@@ -22,11 +24,15 @@ public class WashCodeConfigRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        log.info("开始初始化洗码配置");
         List<WashCodeConfig> list = washCodeConfigService.findByPlatform(Constants.PLATFORM);
+        log.info("洗码配置查询结果data={}",list.toString());
         if (!CollectionUtils.isEmpty(list)) {
+            log.info("洗码配置已初始化，无需再次初始化");
             return;
         }
         initData();
+        log.info("洗码配置初始化完成");
     }
 
     private void initData() {
@@ -49,9 +55,10 @@ public class WashCodeConfigRunner implements CommandLineRunner {
 
     private WashCodeConfig setData(String gameId, String gameName,String gameEnName) {
         WashCodeConfig codeConfig = new WashCodeConfig();
-        codeConfig.setPlatform("wm");
+        codeConfig.setPlatform(Constants.PLATFORM);
         codeConfig.setGameId(gameId);
         codeConfig.setGameName(gameName);
+        codeConfig.setGameEnName(gameEnName);
         codeConfig.setState(Constants.open);
         return codeConfig;
     }
