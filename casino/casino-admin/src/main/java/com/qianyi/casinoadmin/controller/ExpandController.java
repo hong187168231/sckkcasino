@@ -30,7 +30,7 @@ public class ExpandController {
             return ResponseUtil.custom("推广链接未配置");
         }
         String domain = platformConfig.getProxyConfiguration();
-        String url = domain + "/" + Constants.INVITE_TYPE_COMPANY + "/" + platformConfig.getCompanyInviteCode();
+        String url = domain + "/" + Constants.INVITE_TYPE_COMPANY + "/999";
         return ResponseUtil.success(url);
     }
 }
