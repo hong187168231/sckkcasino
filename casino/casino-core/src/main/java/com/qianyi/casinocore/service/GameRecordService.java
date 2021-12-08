@@ -47,7 +47,7 @@ public class GameRecordService {
         return gameRecordRepository.findAll(condition);
     }
 
-    public  GameRecord  findRecordRecordSum(GameRecord game) {
+    public  GameRecord  findRecordRecordSum(GameRecord game,String startBetTime,String endBetTime,String startSetTime,String endSetTime) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<GameRecord> query = builder.createQuery(GameRecord.class);
         Root<GameRecord> root = query.from(GameRecord.class);
@@ -95,6 +95,16 @@ public class GameRecordService {
         if (game.getThirdProxy() != null) {
             predicates.add(
                     builder.equal(root.get("thirdProxy").as(Long.class), game.getThirdProxy())
+            );
+        }
+        if (!ObjectUtils.isEmpty(startBetTime) && !ObjectUtils.isEmpty(endBetTime)) {
+            predicates.add(
+                    builder.between(root.get("betTime").as(String.class), startBetTime, endBetTime)
+            );
+        }
+        if (!ObjectUtils.isEmpty(startSetTime) && !ObjectUtils.isEmpty(endSetTime)) {
+            predicates.add(
+                    builder.between(root.get("settime").as(String.class), startSetTime, endSetTime)
             );
         }
         query

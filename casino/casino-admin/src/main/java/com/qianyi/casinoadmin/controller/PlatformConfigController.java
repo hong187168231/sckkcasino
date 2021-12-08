@@ -232,27 +232,27 @@ public class PlatformConfigController {
         return ResponseUtil.success(platformConfig==null?"":platformConfig.getCompanyInviteCode());
     }
 
-    @ApiOperation("修改推广链接码")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "promotionCode", value = "推广链接", required = true),
-    })
-    @PostMapping("/updatePromotionCode")
-    public ResponseEntity updatePromotionCode(String promotionCode){
-        if (LoginUtil.checkNull(promotionCode)){
-            return ResponseUtil.custom("参数必填");
-        }
-        String regex = "^[0-9a-zA-Z]{3,20}$";
-        if (!promotionCode.matches(regex)){
-            return ResponseUtil.custom("必须输入长度3-20位的数字或者字母");
-        }
-        PlatformConfig platformConfig = platformConfigService.findFirst();
-        if (LoginUtil.checkNull(platformConfig)){
-            platformConfig = new PlatformConfig();
-        }
-        platformConfig.setCompanyInviteCode(promotionCode);
-        platformConfigService.save(platformConfig);
-        return ResponseUtil.success();
-    }
+//    @ApiOperation("修改推广链接码")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "promotionCode", value = "推广链接", required = true),
+//    })
+//    @PostMapping("/updatePromotionCode")
+//    public ResponseEntity updatePromotionCode(String promotionCode){
+//        if (LoginUtil.checkNull(promotionCode)){
+//            return ResponseUtil.custom("参数必填");
+//        }
+//        String regex = "^[0-9a-zA-Z]{3,20}$";
+//        if (!promotionCode.matches(regex)){
+//            return ResponseUtil.custom("必须输入长度3-20位的数字或者字母");
+//        }
+//        PlatformConfig platformConfig = platformConfigService.findFirst();
+//        if (LoginUtil.checkNull(platformConfig)){
+//            platformConfig = new PlatformConfig();
+//        }
+//        platformConfig.setCompanyInviteCode(promotionCode);
+//        platformConfigService.save(platformConfig);
+//        return ResponseUtil.success();
+//    }
 
     @ApiOperation("查询web项目域名配置")
     @GetMapping("/findWebConfiguration")
