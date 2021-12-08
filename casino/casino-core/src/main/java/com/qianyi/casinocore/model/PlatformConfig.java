@@ -27,7 +27,7 @@ public class PlatformConfig {
     private BigDecimal betRate;
 
     @ApiModelProperty("每笔最低充值")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
     private BigDecimal chargeMinMoney;
 
     @ApiModelProperty("每笔最高充值")
@@ -35,7 +35,7 @@ public class PlatformConfig {
     private BigDecimal chargeMaxMoney;
 
     @ApiModelProperty("充值服务费")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
     private BigDecimal chargeServiceMoney;
 
     @ApiModelProperty("充值手续费百分比")
@@ -43,7 +43,7 @@ public class PlatformConfig {
     private BigDecimal chargeRate;
 
     @ApiModelProperty("每笔最低提现额")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
     private BigDecimal withdrawMinMoney;
 
     @ApiModelProperty("每笔最高提现额")
@@ -62,11 +62,11 @@ public class PlatformConfig {
     private Integer ipMaxNum;
 
     @ApiModelProperty("WM余额")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
     private BigDecimal wmMoney;
 
     @ApiModelProperty("WM余额警戒线")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
     private BigDecimal wmMoneyWarning;
 
     @ApiModelProperty("一级玩家返佣")

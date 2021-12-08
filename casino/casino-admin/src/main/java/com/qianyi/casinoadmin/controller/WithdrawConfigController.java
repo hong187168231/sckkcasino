@@ -67,6 +67,15 @@ public class WithdrawConfigController {
         if (fixedAmount != null && percentage != null){
             return ResponseUtil.custom("参数错误");
         }
+        if (LoginUtil.checkNull(maxMoney,minMoney)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        if (maxMoney.compareTo(new BigDecimal(CommonConst.NUMBER_99999999)) >= CommonConst.NUMBER_1){
+            return ResponseUtil.custom("金额不能大于99999999");
+        }
+        if (minMoney.compareTo(maxMoney) >= CommonConst.NUMBER_0){
+            return ResponseUtil.custom("最小金额不能大于或者等于最大金额");
+        }
         if (percentage != null && (percentage > CommonConst.FLOAT_100 || percentage <= CommonConst.FLOAT_0)){
             return ResponseUtil.custom("百分比金额0%-100%区间");
         }

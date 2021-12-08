@@ -482,6 +482,9 @@ public class UserController {
         if(money.compareTo(BigDecimal.ZERO)<1){
             return ResponseUtil.custom("金额类型错误");
         }
+        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_99999999)) >= CommonConst.NUMBER_1){
+            return ResponseUtil.custom("金额不能大于99999999");
+        }
         if (money.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
             return ResponseUtil.custom("测试环境加钱不能超过100RMB");
         }
@@ -529,6 +532,9 @@ public class UserController {
         BigDecimal money = CommonUtil.checkMoney(withdrawMoney);
         if(money.compareTo(BigDecimal.ZERO)<1){
             return ResponseUtil.custom("金额类型错误");
+        }
+        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_99999999)) >= CommonConst.NUMBER_1){
+            return ResponseUtil.custom("金额不能大于99999999");
         }
         User user = userService.findById(id);
         if (LoginUtil.checkNull(user)){
