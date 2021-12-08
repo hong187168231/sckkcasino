@@ -278,7 +278,7 @@ public class RoleController {
         if(StringUtils.equals(sysRole.getRoleName(), "系统超级管理员")){
             return ResponseUtil.custom("系统生成角色，不可修改");
         }
-        Boolean result = roleServiceBusiness.save(roleName, remark, roleId, menuIdList);
+        Boolean result = roleServiceBusiness.save(roleName, remark, roleId, menuIdList, true);
         if(result){
             return ResponseUtil.success();
         }

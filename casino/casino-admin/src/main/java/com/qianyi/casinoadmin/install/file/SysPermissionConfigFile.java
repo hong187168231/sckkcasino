@@ -332,6 +332,10 @@ public class SysPermissionConfigFile {
         SysPermission addSysUser = null; //新增用户
         SysPermission expand = null; //官方渠道
         SysPermission operatePermission = null; //运营中心
+        SysPermission findLogoPictureApp = null; //logo图查询(APP登录注册页)
+        SysPermission updateLogoPictureApp = null; //编辑logo图(APP登录注册页)
+        SysPermission updateWebConfiguration = null; //修改Web网站域名配置
+        SysPermission findLoginRegisterLogoPictureApp = null; //查询Web网站域名配置
 
 
         for (SysPermission sysPermission : sysPermissionList) {
@@ -407,7 +411,18 @@ public class SysPermissionConfigFile {
             if(sysPermission.getName().equals("查询会员流水报表")){
                 memberMeonyLog = sysPermission;
             }
-
+            if(sysPermission.getName().equals("logo图查询APP")){
+                findLogoPictureApp = sysPermission;
+            }
+            if(sysPermission.getName().equals("编辑logo图APP")){
+                updateLogoPictureApp = sysPermission;
+            }
+            if(sysPermission.getName().equals("修改Web网站域名")){
+                updateWebConfiguration = sysPermission;
+            }
+            if(sysPermission.getName().equals("查询Web网站域名")){
+                findLoginRegisterLogoPictureApp = sysPermission;
+            }
         }
 
         List<SysPermission> sysPermList = new ArrayList<>();
@@ -443,6 +458,23 @@ public class SysPermissionConfigFile {
             if(updatePromotionCode == null){
                 updatePromotionCode = new SysPermission("修改推广链接码", "修改推广链接码", "/platformConfig/updatePromotionCode", platformConfig.getId(), 3, 0);
                 sysPermList.add(updatePromotionCode);
+            }
+            if(findLogoPictureApp == null){
+                findLogoPictureApp = new SysPermission("logo图查询APP", "logo图查询APP", "/platformConfig/findLoginRegisterLogoPictureApp", platformConfig.getId(), 3, 0);
+                sysPermList.add(findLogoPictureApp);
+            }
+            if(updateLogoPictureApp == null){
+                updateLogoPictureApp = new SysPermission("编辑logo图APP", "编辑logo图APP", "/platformConfig/saveLoginRegisterLogoPictureApp", platformConfig.getId(), 3, 0);
+                sysPermList.add(updateLogoPictureApp);
+            }
+
+            if(updateWebConfiguration == null){
+                updateWebConfiguration = new SysPermission("修改Web网站域名", "修改Web网站域名", "/platformConfig/updateWebConfiguration", platformConfig.getId(), 3, 0);
+                sysPermList.add(updateWebConfiguration);
+            }
+            if(findLoginRegisterLogoPictureApp == null){
+                findLoginRegisterLogoPictureApp = new SysPermission("查询Web网站域名", "查询Web网站域名", "/platformConfig/findWebConfiguration", platformConfig.getId(), 3, 0);
+                sysPermList.add(findLoginRegisterLogoPictureApp);
             }
 
 

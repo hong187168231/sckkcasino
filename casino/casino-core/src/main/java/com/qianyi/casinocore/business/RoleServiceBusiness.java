@@ -28,7 +28,8 @@ public class RoleServiceBusiness {
     private SysUserRoleService sysUserRoleService;
 
     @Transactional
-    public Boolean save(String roleName, String remark, Long roleId, List<Long> menuIdList) {
+    public Boolean save(String roleName, String remark, Long roleId, List<Long> menuIdList, boolean flag) {
+        List<Long> permissionList = new ArrayList<>();
         if(roleId != null){
             SysRole sysRole = sysRoleService.findById(roleId);
             if(sysRole == null){
@@ -40,12 +41,14 @@ public class RoleServiceBusiness {
             sysRole.setRemark(remark);
             SysRole role = sysRoleService.save(sysRole);
             List<SysPermissionRole> byRoleId = sysPermissionRoleService.findByRoleId(roleId);
-            if(byRoleId != null && byRoleId.size() > 0){
-                List<Long> longList = byRoleId.stream().map(SysPermissionRole::getId).collect(Collectors.toList());
-                sysPermissionRoleService.deleteAllIds(longList);
+            permissionList = byRoleId.stream().map(SysPermissionRole::getPermissionId).collect(Collectors.toList());
+            if(flag){
+                if(byRoleId != null && byRoleId.size() > 0){
+                    List<Long> longList = byRoleId.stream().map(SysPermissionRole::getId).collect(Collectors.toList());
+                    sysPermissionRoleService.deleteAllIds(longList);
 
+                }
             }
-
         }else{
             SysRole sysRole = new SysRole();
             String name = "ROLE_" + roleName;
@@ -60,12 +63,24 @@ public class RoleServiceBusiness {
         }
         List<SysPermissionRole> sysPermissionRoleList = new ArrayList<>();
         for (Long id : menuIdList) {
-            SysPermissionRole sysPermissionRole = new SysPermissionRole();
-            sysPermissionRole.setRoleId(roleId);
-            sysPermissionRole.setPermissionId(id);
-            sysPermissionRoleList.add(sysPermissionRole);
+            if(flag){
+                SysPermissionRole sysPermissionRole = new SysPermissionRole();
+                sysPermissionRole.setRoleId(roleId);
+                sysPermissionRole.setPermissionId(id);
+                sysPermissionRoleList.add(sysPermissionRole);
+            }else{
+                if(!permissionList.contains(id)){
+                    SysPermissionRole sysPermissionRole = new SysPermissionRole();
+                    sysPermissionRole.setRoleId(roleId);
+                    sysPermissionRole.setPermissionId(id);
+                    sysPermissionRoleList.add(sysPermissionRole);
+                }
+            }
+
         }
-        sysPermissionRoleService.saveAll(sysPermissionRoleList);
+        if(sysPermissionRoleList.size() > 0){
+            sysPermissionRoleService.saveAll(sysPermissionRoleList);
+        }
         return true;
     }
 

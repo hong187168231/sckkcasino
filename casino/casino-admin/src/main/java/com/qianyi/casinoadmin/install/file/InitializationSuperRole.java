@@ -34,9 +34,9 @@ public class InitializationSuperRole{
         SysRole sysRole = new SysRole();
         sysRole.setRoleName("系统超级管理员");
         List<SysRole> sysRoleList = sysRoleService.findbyRoleName(sysRole);
-        if(sysRoleList != null && sysRoleList.size() > 0){
-            return;
-        }
+//        if(sysRoleList != null && sysRoleList.size() > 0){
+//            return;
+//        }
         List<Long> permissionIds = new ArrayList<>();
         //超级管理员只有系统权限
         List<SysPermission> sysPermissionList = sysPermissionService.findAll();
@@ -60,7 +60,10 @@ public class InitializationSuperRole{
                 }
             }
         }
-
-        Boolean result = roleServiceBusiness.save("系统超级管理员", "系统生成，不可更改", null, permissionIds);
+        Long roleId = null;
+        if(!sysRoleList.isEmpty() && sysRoleList.size() > 0){
+            roleId = sysRoleList.get(0).getId();
+        }
+        Boolean result = roleServiceBusiness.save("系统超级管理员", "系统生成，不可更改", roleId, permissionIds, false);
     }
 }
