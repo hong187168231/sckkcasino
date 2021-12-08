@@ -67,8 +67,8 @@ public class GameRecordController {
             @ApiImplicitParam(name = "gid", value = "游戏类型", required = false),
             @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
             @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
-            @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
+            @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
     })
     public ResponseEntity<GameRecordVo> findGameRecordPage(Integer pageSize, Integer pageCode, String user, String betId,
                                                          String gname,Integer gid,String account,Integer tag,
@@ -135,18 +135,42 @@ public class GameRecordController {
     @ApiOperation("统计三方游戏注单")
     @GetMapping("/findRecordRecordSum")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "user", value = "会员账号", required = false),
+            @ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+            @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
             @ApiImplicitParam(name = "betId", value = "注单号", required = false),
             @ApiImplicitParam(name = "gname", value = "游戏名称", required = false),
             @ApiImplicitParam(name = "gid", value = "游戏类型", required = false),
+            @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+            @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
     })
     @NoAuthorization
-    public ResponseEntity findRecordRecordSum(String user,String betId,String gname,Integer gid){
+    public ResponseEntity findRecordRecordSum(String user,String betId,String gname,Integer gid,String account,Integer tag,
+                                              @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+                                              @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         GameRecord game = new GameRecord();
+        if (!LoginUtil.checkNull(account)){
+            User byAccount = userService.findByAccount(account);
+            if (LoginUtil.checkNull(byAccount)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            game.setUserId(byAccount.getId());
+        }
         game.setUser(user);
         game.setBetId(betId);
         game.setGname(gname);
         game.setGid(gid);
-        return ResponseUtil.success(gameRecordService.findRecordRecordSum(game));
+        if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
+            String startTime = DateUtil.getSimpleDateFormat().format(startDate);
+            String endTime = DateUtil.getSimpleDateFormat().format(endDate);
+            if (LoginUtil.checkNull(tag) || tag == CommonConst.NUMBER_0){
+                return ResponseUtil.success(gameRecordService.findRecordRecordSum(game,startTime,endTime,null,null));
+            }else {
+                return ResponseUtil.success(gameRecordService.findRecordRecordSum(game,null,null,startTime,endTime));
+            }
+        }else {
+            return ResponseUtil.success(gameRecordService.findRecordRecordSum(game,null,null,null,null));
+        }
+
     }
 }
