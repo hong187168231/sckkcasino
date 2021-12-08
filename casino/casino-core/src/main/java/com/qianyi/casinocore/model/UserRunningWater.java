@@ -20,11 +20,11 @@ public class UserRunningWater extends BaseEntity {
     private Long userId;
 
     @ApiModelProperty(value = "当日流水金额")
-    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal amount;
 
     @ApiModelProperty(value = "当日贡献佣金")
-    @Column(columnDefinition = "Decimal(12,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
     private BigDecimal commission;
 
     @ApiModelProperty(value = "统计时间段")
