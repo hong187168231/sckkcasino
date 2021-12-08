@@ -46,11 +46,13 @@ public class LevelShareprofitItemService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void levelProcessItem(ShareProfitBO shareProfitBO){
+        Long startTime = System.currentTimeMillis();
         ShareProfitChange ShareProfitChangeInfo = shareProfitChangeService.findByUserIdAndOrderNo(shareProfitBO.getUserId(), shareProfitBO.getRecordBetId());
         if (ShareProfitChangeInfo==null){
             UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(shareProfitBO.getUserId());
             User user = userService.findUserByIdUseLock(shareProfitBO.getRecordUserId());
             if(userMoney==null)return;
+            log.info("shareProfitBOList processItem That took {} milliseconds",System.currentTimeMillis()-startTime);
             //明细入库
             levelProcessProfitDetail(shareProfitBO,userMoney);
             //进行分润
@@ -62,8 +64,10 @@ public class LevelShareprofitItemService {
             levelproxyReportBusiness.processReport(shareProfitBO);
             //设置第一次投注用户
             userService.updateIsFirstBet(user.getId(), Constants.yes);
+            log.info("all store That took {} milliseconds",System.currentTimeMillis()-startTime);
             //更新分润状态
              gameRecordService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
+            log.info("processShareProfitList That took {} milliseconds",System.currentTimeMillis()-startTime);
         }
     }
 
