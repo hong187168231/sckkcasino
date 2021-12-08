@@ -52,6 +52,9 @@ public class Initialization implements CommandLineRunner {
     @Value("${project.password:123456}")
     private String password;
 
+    @Autowired
+    NewPermissions newPermissions;
+
 
     @Override
     public void run(String... args) throws Exception {
@@ -70,6 +73,7 @@ public class Initialization implements CommandLineRunner {
      */
     private void addPermissionConfig() {
         sysPermissionConfigFile.addPermissionConfig();
+        newPermissions.addNewPermission();//新增加权限在此方法里面写
     }
 
     private void saveBanner(){
