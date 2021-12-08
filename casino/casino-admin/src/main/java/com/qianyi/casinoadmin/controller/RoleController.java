@@ -70,11 +70,13 @@ public class RoleController {
         }else{
             sysUsers = sysUserService.findAll();
         }
+
         List<Long> userIds = sysUsers.stream().map(SysUser::getId).distinct().collect(Collectors.toList());
         List<SysUserRole> sysUserRoleList = roleServiceBusiness.findSysRoleUserList(userIds);
         if(LoginUtil.checkNull(sysUserRoleList)){
             return ResponseUtil.success(sysUsers);
         }
+
         List<Long> roleIds = sysUserRoleList.stream().map(SysUserRole::getSysRoleId).distinct().collect(Collectors.toList());
         List<SysRole> sysRoleList = roleServiceBusiness.findRoleIdsList(roleIds);
 
@@ -113,7 +115,8 @@ public class RoleController {
             }
             sysUserVoList.add(sysUserVo);
         }
-        return ResponseUtil.success(sysUserVoList);
+        List<SysUserVo> sysUserVo = sysUserVoList.stream().filter(s -> StringUtils.equals("系统超级管理员", s.getRoleName())).collect(Collectors.toList());
+        return ResponseUtil.success(sysUserVo);
     }
 
     /**
