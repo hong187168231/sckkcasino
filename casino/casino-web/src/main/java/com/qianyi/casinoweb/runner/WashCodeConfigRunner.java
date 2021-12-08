@@ -49,7 +49,7 @@ public class WashCodeConfigRunner implements CommandLineRunner {
 
     private WashCodeConfig setData(String gameId, String gameName,String gameEnName) {
         WashCodeConfig codeConfig = new WashCodeConfig();
-        codeConfig.setPlatform("wm");
+        codeConfig.setPlatform(Constants.PLATFORM);
         codeConfig.setGameId(gameId);
         codeConfig.setGameName(gameName);
         codeConfig.setGameEnName(gameEnName);
