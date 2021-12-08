@@ -7,6 +7,7 @@ import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
@@ -19,6 +20,7 @@ import java.util.concurrent.Executor;
  * 批量初始化100个邀请码
  */
 @Component
+@Order(3)
 public class GenerateInviteCodeRunner implements CommandLineRunner {
 
     @Autowired
