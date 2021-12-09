@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.BetRatioConfigVo;
 import com.qianyi.casinocore.CoreConstants;
 import com.qianyi.casinocore.model.BetRatioConfig;
@@ -7,8 +8,10 @@ import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.model.SysConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.SysConfigService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
+import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -56,6 +59,15 @@ public class BetRatioConfigController {
     })
     @GetMapping("/update")
     public ResponseEntity<BetRatioConfigVo> update(BigDecimal codeTimes, BigDecimal minMoney){
+        if (LoginUtil.checkNull(codeTimes,minMoney)){
+            return ResponseUtil.custom("参数错误");
+        }
+        if (minMoney.compareTo(new BigDecimal(CommonConst.NUMBER_99999999)) >= CommonConst.NUMBER_1){
+            return ResponseUtil.custom("金额不能大于99999999");
+        }
+        if (codeTimes.compareTo(new BigDecimal(CommonConst.NUMBER_99999999)) >= CommonConst.NUMBER_1){
+            return ResponseUtil.custom("金额不能大于99999999");
+        }
         List<PlatformConfig> platformConfigList = platformConfigService.findAll();
         if(platformConfigList != null && platformConfigList.size() >= 1){
             platformConfigList.get(0).setClearCodeNum(minMoney);
