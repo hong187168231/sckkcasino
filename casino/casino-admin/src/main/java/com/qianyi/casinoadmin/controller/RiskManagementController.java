@@ -4,6 +4,7 @@ package com.qianyi.casinoadmin.controller;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -57,6 +58,9 @@ public class RiskManagementController {
             platformConfig.setIpMaxNum(ipMaxNum);
         }
         if (!LoginUtil.checkNull(wmMoneyWarning)){
+            if (wmMoneyWarning.compareTo(new BigDecimal(CommonConst.NUMBER_99999999)) >= CommonConst.NUMBER_1){
+                return ResponseUtil.custom("金额不能大于99999999");
+            }
             platformConfig.setWmMoneyWarning(wmMoneyWarning);
         }
         platformConfigService.save(platformConfig);

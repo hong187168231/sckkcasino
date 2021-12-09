@@ -51,24 +51,24 @@ public class ProxyHomePageReport extends BaseEntity {
     private String staticsMonth ;
 
     @ApiModelProperty(value = "汇款金额")
-    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal chargeAmount;
 
     @ApiModelProperty(value = "汇款笔数")
     private Integer chargeNums;
 
     @ApiModelProperty(value = "提款金额")
-    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal withdrawMoney;
 
     @ApiModelProperty(value = "提款笔数")
     private Integer withdrawNums;
 
     @ApiModelProperty(value = "有效下注金额")
-    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal validbetAmount;
 
     @ApiModelProperty(value = "输赢金额")
-    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal winLossAmount;
 }

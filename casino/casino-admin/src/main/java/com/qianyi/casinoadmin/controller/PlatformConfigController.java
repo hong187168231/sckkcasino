@@ -194,6 +194,9 @@ public class PlatformConfigController {
 
         if (!LoginUtil.checkNull(sendMessageWarning)){
             platformConfig.setSendMessageWarning(sendMessageWarning);
+            if (sendMessageWarning.compareTo(new BigDecimal(CommonConst.NUMBER_99999999)) >= CommonConst.NUMBER_1){
+                return ResponseUtil.custom("金额不能大于99999999");
+            }
         }
         platformConfigService.save(platformConfig);
         return ResponseUtil.success();
