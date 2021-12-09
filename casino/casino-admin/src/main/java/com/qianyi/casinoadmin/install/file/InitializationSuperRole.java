@@ -44,9 +44,9 @@ public class InitializationSuperRole{
             if(sysPermission.getUrl().equals("/systemCenter") || sysPermission.getName().equals("系统管理")){
                 permissionIds.add(sysPermission.getId());
             }
-//            if(sysPermission.getUrl().equals("/operateCenter") || sysPermission.getName().equals("运营中心")){
-//                permissionIds.add(sysPermission.getId());
-//            }
+            if(sysPermission.getUrl().equals("/operateCenter") || sysPermission.getName().equals("运营中心")){
+               permissionIds.add(sysPermission.getId());
+            }
         });
         if(permissionIds != null && permissionIds.size() > 0){
             List<SysPermission> allConditionPid = sysPermissionService.findAllConditionPid(permissionIds);
