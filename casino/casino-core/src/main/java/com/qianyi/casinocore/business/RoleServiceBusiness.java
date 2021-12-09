@@ -40,7 +40,7 @@ public class RoleServiceBusiness {
             sysRole.setRemark(remark);
             SysRole role = sysRoleService.save(sysRole);
             List<SysPermissionRole> byRoleId = sysPermissionRoleService.findByRoleId(roleId);
-            if(menuIdList.size() != byRoleId.size() && roleName.equals("系统超级管理员") && (menuIdList.size() != 0 && byRoleId.size() != 0)){
+            if(menuIdList.size() <= byRoleId.size() && roleName.equals("系统超级管理员") && (menuIdList.size() != 0 && byRoleId.size() != 0)){
                 List<Long> ids = byRoleId.stream().map(SysPermissionRole::getId).collect(Collectors.toList());
                 sysPermissionRoleService.deleteAllIds(byRoleId);
                 this.save(roleName, remark, roleId, menuIdList, flag);
