@@ -8,8 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,11 +40,15 @@ public class RoleServiceBusiness {
             sysRole.setRemark(remark);
             SysRole role = sysRoleService.save(sysRole);
             List<SysPermissionRole> byRoleId = sysPermissionRoleService.findByRoleId(roleId);
+            if(menuIdList.size() != byRoleId.size() && roleName.equals("系统超级管理员") && (menuIdList.size() != 0 && byRoleId.size() != 0)){
+                List<Long> ids = byRoleId.stream().map(SysPermissionRole::getId).collect(Collectors.toList());
+                sysPermissionRoleService.deleteAllIds(byRoleId);
+                this.save(roleName, remark, roleId, menuIdList, flag);
+            }
             permissionList = byRoleId.stream().map(SysPermissionRole::getPermissionId).collect(Collectors.toList());
             if(flag){
                 if(byRoleId != null && byRoleId.size() > 0){
-                    List<Long> longList = byRoleId.stream().map(SysPermissionRole::getId).collect(Collectors.toList());
-                    sysPermissionRoleService.deleteAllIds(longList);
+                    sysPermissionRoleService.deleteAllIds(byRoleId);
 
                 }
             }
@@ -79,9 +82,21 @@ public class RoleServiceBusiness {
 
         }
         if(sysPermissionRoleList.size() > 0){
-            sysPermissionRoleService.saveAll(sysPermissionRoleList);
+            ArrayList<SysPermissionRole> sysPermissionRoles = removeSysPermission(sysPermissionRoleList);
+            sysPermissionRoleService.saveAll(sysPermissionRoles);
         }
         return true;
+    }
+
+    private static ArrayList<SysPermissionRole> removeSysPermission( List<SysPermissionRole> sysPermissionRoleList){
+        Set<SysPermissionRole> set = new TreeSet<SysPermissionRole>(new Comparator<SysPermissionRole>() {
+            @Override
+            public int compare(SysPermissionRole o1, SysPermissionRole o2) {
+                return o1.getPermissionId().compareTo(o2.getPermissionId());
+            }
+        });
+        set.addAll(sysPermissionRoleList);
+        return new ArrayList<>(set);
     }
 
     public List<SysPermission> getSysPermissionList(Long roleId) {
@@ -157,7 +172,7 @@ public class RoleServiceBusiness {
         List<SysPermissionRole> byRoleId = sysPermissionRoleService.findByRoleId(roleId);
         if(byRoleId != null && byRoleId.size() > 0){
             List<Long> longList = byRoleId.stream().map(SysPermissionRole::getId).collect(Collectors.toList());
-            sysPermissionRoleService.deleteAllIds(longList);
+            sysPermissionRoleService.deleteAllIds(byRoleId);
 
         }
     }

@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Transactional
 public class SysPermissionRoleService {
 
     @Autowired
@@ -35,8 +34,11 @@ public class SysPermissionRoleService {
         sysPermissionRoleRepository.deleteByRoleId(id);
     }
 
-    public void deleteAllIds(List<Long> longList) {
-        sysPermissionRoleRepository.deleteAllByIdInBatch(longList);
+    public void deleteAllIds(List<SysPermissionRole> byRoleId) {
+        for (SysPermissionRole sysPermissionRole : byRoleId) {
+            sysPermissionRoleRepository.delete(sysPermissionRole);
+        }
+
 
     }
 }
