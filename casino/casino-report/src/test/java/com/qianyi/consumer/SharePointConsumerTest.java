@@ -25,10 +25,10 @@ public class SharePointConsumerTest {
     @Test
     public void should_send_message_to_mq(){
         ShareProfitMqVo shareProfitMqVo = new ShareProfitMqVo();
-        shareProfitMqVo.setUserId(10240l);
-        shareProfitMqVo.setGameRecordId(88390l);
-        shareProfitMqVo.setValidbet(BigDecimal.valueOf(10));
-        shareProfitMqVo.setBetTime("2021-12-04 13:24:59");
+        shareProfitMqVo.setUserId(10465l);
+        shareProfitMqVo.setGameRecordId(90641l);
+        shareProfitMqVo.setValidbet(BigDecimal.valueOf(50));
+        shareProfitMqVo.setBetTime("2021-12-09 13:24:59");
         rabbitTemplate.convertAndSend(RabbitMqConstants.SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,RabbitMqConstants.SHAREPROFIT_DIRECT,shareProfitMqVo,new CorrelationData(UUID.randomUUID().toString()));
         log.info("success");
     }

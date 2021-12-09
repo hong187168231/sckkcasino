@@ -32,6 +32,28 @@ public class RabbitMqConstants {
     public final static String THREE_SHAREPROFIT_DIRECTQUEUE = "three.profit.queue";
     public final static String THREE_SHAREPROFIT_DIRECT = "threeShareProfit";
 
+
+    public final static String FOUR_SHAREPROFIT_DIRECTQUEUE = "four.profit.queue";
+    public final static String FOUR_SHAREPROFIT_DIRECT = "fourShareProfit";
+
+    public final static String FIVE_SHAREPROFIT_DIRECTQUEUE = "five.profit.queue";
+    public final static String FIVE_SHAREPROFIT_DIRECT = "fiveShareProfit";
+
+
+    public final static String SIX_SHAREPROFIT_DIRECTQUEUE = "six.profit.queue";
+    public final static String SIX_SHAREPROFIT_DIRECT = "sixShareProfit";
+
+    public final static String SEVEN_SHAREPROFIT_DIRECTQUEUE = "seven.profit.queue";
+    public final static String SEVEN_SHAREPROFIT_DIRECT = "sevenShareProfit";
+
+    public final static String EIGHT_SHAREPROFIT_DIRECTQUEUE = "eight.profit.queue";
+    public final static String EIGHT_SHAREPROFIT_DIRECT = "eightShareProfit";
+
+
+    public final static String NINE_SHAREPROFIT_DIRECTQUEUE = "nine.profit.queue";
+    public final static String NINE_SHAREPROFIT_DIRECT = "nineShareProfit";
+
+
     /**
      * 各级新增人数mq
      */

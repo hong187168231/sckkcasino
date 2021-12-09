@@ -130,6 +130,101 @@ public class DirectRabbitConfig {
     public Binding threeShareProfitDirect(){
         return BindingBuilder.bind(threeShareProfitDirectQueue()).to(threeShareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.THREE_SHAREPROFIT_DIRECT);
     }
+    /**
+     * 四
+     */
+    @Bean
+    public Queue fourShareProfitDirectQueue(){
+        return new Queue(RabbitMqConstants.FOUR_SHAREPROFIT_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange fourShareProfitDirectQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding fourShareProfitDirect(){
+        return BindingBuilder.bind(fourShareProfitDirectQueue()).to(fourShareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.FOUR_SHAREPROFIT_DIRECT);
+    }
+
+    /**
+     * 五
+     */
+    @Bean
+    public Queue fiveShareProfitDirectQueue(){
+        return new Queue(RabbitMqConstants.FIVE_SHAREPROFIT_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange fiveShareProfitDirectQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding fiveShareProfitDirect(){
+        return BindingBuilder.bind(fiveShareProfitDirectQueue()).to(fiveShareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.FIVE_SHAREPROFIT_DIRECT);
+    }
+
+    /**
+     * 六
+     */
+    @Bean
+    public Queue sixShareProfitDirectQueue(){
+        return new Queue(RabbitMqConstants.SIX_SHAREPROFIT_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange sixShareProfitDirectQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding sixShareProfitDirect(){
+        return BindingBuilder.bind(sixShareProfitDirectQueue()).to(sixShareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.SIX_SHAREPROFIT_DIRECT);
+    }
+    /**
+     * 七
+     */
+    @Bean
+    public Queue sevenShareProfitDirectQueue(){
+        return new Queue(RabbitMqConstants.SEVEN_SHAREPROFIT_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange sevenShareProfitDirectQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding sevenShareProfitDirect(){
+        return BindingBuilder.bind(sevenShareProfitDirectQueue()).to(sevenShareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.SEVEN_SHAREPROFIT_DIRECT);
+    }
+
+    /**
+     * 八
+     */
+    @Bean
+    public Queue eightShareProfitDirectQueue(){
+        return new Queue(RabbitMqConstants.EIGHT_SHAREPROFIT_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange eightShareProfitDirectQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding eightShareProfitDirect(){
+        return BindingBuilder.bind(eightShareProfitDirectQueue()).to(eightShareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.EIGHT_SHAREPROFIT_DIRECT);
+    }
+
+
+    /**
+     * 九
+     */
+    @Bean
+    public Queue nineShareProfitDirectQueue(){
+        return new Queue(RabbitMqConstants.NINE_SHAREPROFIT_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange nineShareProfitDirectQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding nineShareProfitDirect(){
+        return BindingBuilder.bind(nineShareProfitDirectQueue()).to(nineShareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.NINE_SHAREPROFIT_DIRECT);
+    }
 
 
 

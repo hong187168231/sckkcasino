@@ -68,6 +68,8 @@ public class LevelShareprofitItemService {
             //更新分润状态
              gameRecordService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
             log.info("processShareProfitList That took {} milliseconds",System.currentTimeMillis()-startTime);
+        }else {
+            log.info("当前用户id:{}已分润成功请勿重复处理,对应游戏id:{}",shareProfitBO.getUserId(),shareProfitBO.getRecordId());
         }
     }
 
