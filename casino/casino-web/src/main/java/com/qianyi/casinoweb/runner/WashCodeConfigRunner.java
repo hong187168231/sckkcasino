@@ -28,7 +28,7 @@ public class WashCodeConfigRunner implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("开始初始化洗码配置");
         List<WashCodeConfig> list = washCodeConfigService.findByPlatform(Constants.PLATFORM);
-        log.info("洗码配置查询结果data={}",list.toString());
+        log.info("洗码配置查询结果data={}",list);
         if (!CollectionUtils.isEmpty(list)) {
             log.info("洗码配置已初始化，无需再次初始化");
             return;
