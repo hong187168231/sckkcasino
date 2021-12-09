@@ -27,7 +27,7 @@ public class LevelShareProfitTransactionService {
             String routingKey=null;
             for (int i = 0; i < shareProfitBOList.size(); i++) {
                 long  remainder= shareProfitBOList.get(i).getUserId() % 9;
-                if (remainder==1){
+                if (remainder==1 || remainder==0){
                     routingKey= RabbitMqConstants.ONE_SHAREPROFIT_DIRECT;
                 }
                 if (remainder==2){
