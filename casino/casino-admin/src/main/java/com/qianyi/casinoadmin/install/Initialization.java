@@ -242,11 +242,7 @@ public class Initialization implements CommandLineRunner {
 
             platformConfig.setUploadUrl(platformConfigFile.getUploadUrl());
             platformConfig.setReadUploadUrl(platformConfigFile.getReadUploadUrl());
-            platformConfig.setLogImageUrlApp(platformConfigFile.getLogImageUrlApp());
-            platformConfig.setLogImageUrlPc(platformConfigFile.getLogImageUrlPc());
             platformConfig.setMoneySymbol(platformConfigFile.getMoneySymbol());
-            platformConfig.setWebsiteIcon(platformConfigFile.getWebsiteIcon());
-            platformConfig.setLoginRegisterLogImageUrlApp(platformConfigFile.getLoginRegisterLogImageUrlApp());
             platformConfigService.save(platformConfig);
         }
     }
