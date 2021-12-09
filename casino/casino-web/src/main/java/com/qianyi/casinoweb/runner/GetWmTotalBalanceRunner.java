@@ -31,9 +31,9 @@ public class GetWmTotalBalanceRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        log.info("第一次启动项目初始化wm余额");
+        log.info("启动项目初始化wm余额");
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        log.info("platformConfig查询结果data={}",platformConfig.toString());
+        log.info("platformConfig查询结果data={}",platformConfig);
         if (platformConfig == null || platformConfig.getWmMoney() == null) {
             log.info("开始初始化wm余额");
             getWmTotalBalanceJob.tasks();
