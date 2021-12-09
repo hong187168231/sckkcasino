@@ -39,8 +39,4 @@ public class PlatformConfigFile {
     private String uploadUrl;
     private String readUploadUrl;
     private String moneySymbol;
-    private String websiteIcon;
-    private String logImageUrlPc;
-    private String logImageUrlApp;
-    private String loginRegisterLogImageUrlApp;
 }
