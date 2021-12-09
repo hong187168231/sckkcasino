@@ -115,7 +115,7 @@ public class RoleController {
             }
             sysUserVoList.add(sysUserVo);
         }
-        List<SysUserVo> sysUserVo = sysUserVoList.stream().filter(s -> !StringUtils.equals("系统超级管理员", s.getRoleName())).collect(Collectors.toList());
+        List<SysUserVo> sysUserVo = sysUserVoList.stream().filter(s -> !"系统超级管理员".equals(s.getRoleName())).collect(Collectors.toList());
         return ResponseUtil.success(sysUserVo);
     }
 
@@ -141,7 +141,7 @@ public class RoleController {
 //            userId = LoginUtil.getLoginUserId();
 //        }
         List<SysRole> sysRoleList = roleServiceBusiness.findRoleList(roleId, userId);
-        sysRoleList = sysRoleList.stream().filter(sysRole -> !StringUtils.equals(sysRole.getRoleName(), "系统超级管理员")).collect(Collectors.toList());
+        sysRoleList = sysRoleList.stream().filter(sysRole -> !"系统超级管理员".equals(sysRole.getRoleName())).collect(Collectors.toList());
 
         return ResponseUtil.success(sysRoleList);
     }
@@ -161,7 +161,7 @@ public class RoleController {
         if(sysRole == null){
             return ResponseUtil.custom("角色不存在");
         }
-        if(StringUtils.equals(sysRole.getRoleName(), "系统超级管理员")){
+        if("系统超级管理员".equals(sysRole.getRoleName())){
             return ResponseUtil.custom("系统生成角色，不可删除");
         }
         roleServiceBusiness.deleteRoleList(roleId);
@@ -226,7 +226,7 @@ public class RoleController {
             if(sysRole == null){
                 return ResponseUtil.success();
             }
-            if(StringUtils.equals(sysRole.getRoleName(), "系统超级管理员")){
+            if("系统超级管理员".equals(sysRole.getRoleName())){
                 //得到第一层数据
                 sysPermissionList = sysPermissionService.findAll();
             }else{
@@ -277,14 +277,17 @@ public class RoleController {
         if(LoginUtil.checkNull(roleName)){
             return ResponseUtil.custom("参数错误");
         }
-        SysRole sysRole = sysRoleService.findById(roleId);
-        if(StringUtils.equals(roleName, "系统超级管理员")){
+
+        if(roleName.equals("系统超级管理员")){
             return ResponseUtil.custom("系统生成角色，不可添加");
         }
-        if(StringUtils.equals(sysRole.getRoleName(), "系统超级管理员")){
-            return ResponseUtil.custom("系统生成角色，不可修改");
-        }
 
+        if(roleId != null){
+            SysRole sysRole = sysRoleService.findById(roleId);
+            if("系统超级管理员".equals(sysRole.getRoleName())){
+                return ResponseUtil.custom("系统生成角色，不可修改");
+            }
+        }
         Boolean result = roleServiceBusiness.save(roleName, remark, roleId, menuIdList, true);
         if(result){
             return ResponseUtil.success();
