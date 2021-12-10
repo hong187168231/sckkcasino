@@ -27,7 +27,7 @@ public class LevelShareProfitTransactionService {
             String routingKey=null;
             for (int i = 0; i < shareProfitBOList.size(); i++) {
                 long  remainder= shareProfitBOList.get(i).getUserId() % 9;
-                if (remainder==1 || remainder==0){
+                if (remainder==1){
                     routingKey= RabbitMqConstants.ONE_SHAREPROFIT_DIRECT;
                 }
                 if (remainder==2){
@@ -51,7 +51,7 @@ public class LevelShareProfitTransactionService {
                 if (remainder==8){
                     routingKey= RabbitMqConstants.EIGHT_SHAREPROFIT_DIRECT;
                 }
-                if (remainder==9){
+                if (remainder==9 || remainder==0){
                     routingKey= RabbitMqConstants.NINE_SHAREPROFIT_DIRECT;
                 }
                 rabbitTemplate.convertAndSend(RabbitMqConstants.LEVEL_SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,
