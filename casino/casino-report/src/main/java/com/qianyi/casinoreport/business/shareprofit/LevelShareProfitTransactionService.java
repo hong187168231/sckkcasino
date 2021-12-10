@@ -26,7 +26,7 @@ public class LevelShareProfitTransactionService {
         if (shareProfitBOList!=null && shareProfitBOList.size()>0){
             String routingKey=null;
             for (int i = 0; i < shareProfitBOList.size(); i++) {
-                long  remainder= shareProfitBOList.get(i).getUserId() % 9;
+                long  remainder= shareProfitBOList.get(i).getUserId() % 6;
                 if (remainder==1){
                     routingKey= RabbitMqConstants.ONE_SHAREPROFIT_DIRECT;
                 }
@@ -42,17 +42,8 @@ public class LevelShareProfitTransactionService {
                 if (remainder==5){
                     routingKey= RabbitMqConstants.FIVE_SHAREPROFIT_DIRECT;
                 }
-                if (remainder==6){
+                if (remainder==6|| remainder==0){
                     routingKey= RabbitMqConstants.SIX_SHAREPROFIT_DIRECT;
-                }
-                if (remainder==7){
-                    routingKey= RabbitMqConstants.SEVEN_SHAREPROFIT_DIRECT;
-                }
-                if (remainder==8){
-                    routingKey= RabbitMqConstants.EIGHT_SHAREPROFIT_DIRECT;
-                }
-                if (remainder==9 || remainder==0){
-                    routingKey= RabbitMqConstants.NINE_SHAREPROFIT_DIRECT;
                 }
                 rabbitTemplate.convertAndSend(RabbitMqConstants.LEVEL_SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,
                         routingKey,shareProfitBOList.get(i), new CorrelationData(UUID.randomUUID().toString()));
