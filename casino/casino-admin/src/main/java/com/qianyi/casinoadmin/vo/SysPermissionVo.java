@@ -18,6 +18,12 @@ public class SysPermissionVo implements Serializable {
     @ApiModelProperty(value = "权限名称")
     private String name;
 
+    @ApiModelProperty(value = "英语")
+    private String englishName;
+
+    @ApiModelProperty(value = "柬埔寨语")
+    private String cambodianName ;
+
     //权限描述
     @ApiModelProperty(value = "权限描述")
     private String descritpion;

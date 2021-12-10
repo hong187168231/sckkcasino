@@ -6,7 +6,6 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.Constants;
-import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +46,6 @@ public class Initialization implements CommandLineRunner {
     private SysRoleService sysRoleService;
     @Autowired
     private SysUserRoleService sysUserRoleService;
-
     @Value("${project.username:admin}")
     private String userNames;
 
@@ -56,6 +54,7 @@ public class Initialization implements CommandLineRunner {
 
     @Autowired
     NewPermissions newPermissions;
+
 
 
     @Override
@@ -69,7 +68,6 @@ public class Initialization implements CommandLineRunner {
        this.addPermissionConfig();
        this.runAddSysUser();
     }
-
     /**
      * 添加新的权限脚本
      */

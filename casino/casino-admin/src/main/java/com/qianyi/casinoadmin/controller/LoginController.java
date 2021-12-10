@@ -466,8 +466,6 @@ public class LoginController {
                     }
                 });
             });
-
-            List<SysPermissionVo> sysPermissionVoList = new ArrayList<>();
             sysUserVo.setSysPermissionVoList(sysPermissionOne);
             return ResponseUtil.success(sysUserVo);
         }
