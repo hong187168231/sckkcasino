@@ -243,6 +243,13 @@ public class Initialization implements CommandLineRunner {
             platformConfig.setReadUploadUrl(platformConfigFile.getReadUploadUrl());
             platformConfig.setMoneySymbol(platformConfigFile.getMoneySymbol());
             platformConfigService.save(platformConfig);
+        }else {
+            PlatformConfig platformConfig = all.get(CommonConst.NUMBER_0);
+            String companyInviteCode = platformConfig.getCompanyInviteCode();
+            if (companyInviteCode == null || !companyInviteCode.equals("999")){
+                platformConfig.setCompanyInviteCode("999");
+                platformConfigService.save(platformConfig);
+            }
         }
     }
 }
