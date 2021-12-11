@@ -64,6 +64,9 @@ public class BankCardsController {
             //绝对路径
             PlatformConfig platformConfig= platformConfigService.findFirst();
             String uploadUrl = platformConfig.getReadUploadUrl();
+            if(uploadUrl==null) {
+                return ResponseUtil.custom("请先配置图片服务器访问地址");
+            }
             bankInfoServiceAll.forEach(bankInfoServiceInfo ->{
                 if (bankInfoServiceInfo.getBankLogo()!=null ){
                     bankInfoServiceInfo.setBankLogo(uploadUrl+bankInfoServiceInfo.getBankLogo());

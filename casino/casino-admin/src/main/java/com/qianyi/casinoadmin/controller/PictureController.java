@@ -123,6 +123,9 @@ public class PictureController {
         if(byLunboPicList!=null){
             PlatformConfig platformConfig= platformConfigService.findFirst();
             String uploadUrl = platformConfig.getReadUploadUrl();
+            if(uploadUrl==null) {
+                return ResponseUtil.custom("请先配置图片服务器访问地址");
+            }
             byLunboPicList.forEach(byLunboPicInfo ->{
                 if (byLunboPicInfo.getUrl()!=null && uploadUrl!=null){
                     byLunboPicInfo.setUrl(uploadUrl+byLunboPicInfo.getUrl());
