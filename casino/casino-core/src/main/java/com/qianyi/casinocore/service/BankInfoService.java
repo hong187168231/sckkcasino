@@ -47,6 +47,10 @@ public class BankInfoService {
         bankInfoRepository.deleteById(id);
     }
 
+    public void deleteBankInfoAll(){
+        bankInfoRepository.deleteAllInBatch();
+    }
+
     @Cacheable(key = "#id")
     public BankInfo findById(Long id) {
         Optional<BankInfo> info = bankInfoRepository.findById(id);

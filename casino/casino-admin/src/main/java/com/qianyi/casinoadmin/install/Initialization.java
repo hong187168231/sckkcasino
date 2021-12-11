@@ -61,8 +61,8 @@ public class Initialization implements CommandLineRunner {
     public void run(String... args) throws Exception {
        log.info("初始化数据开始============================================》");
 //       this.saveBanner();
-       this.saveBankInfo();
        this.runPlatformConfig();
+       this.saveBankInfo();
        this.runProxyRebateConfig();
        this.runSysPermissionConfig();
        this.addPermissionConfig();
@@ -105,15 +105,17 @@ public class Initialization implements CommandLineRunner {
             }else{
                 PlatformConfig platformConfig= platformConfigService.findFirst();
                 String uploadUrl = platformConfig.getUploadUrl();
-                String fileUrl = UploadAndDownloadUtil.fileUpload( file,uploadUrl);
-                lunboPic.setUrl(fileUrl);
+                if(uploadUrl!=null) {
+                    String fileUrl = UploadAndDownloadUtil.fileUpload(file, uploadUrl);
+                    lunboPic.setUrl(fileUrl);
+                }
             }
         } catch (Exception e) {
             log.error("初始化轮播图出错");
         }
         pictureService.save(lunboPic);
     }
-    private void saveBankInfo(){
+    public void saveBankInfo(){
         List<BankInfo> all = bankInfoService.findAll();
         if (!LoginUtil.checkNull(all) && all.size() > CommonConst.NUMBER_0)
             return;
@@ -133,7 +135,9 @@ public class Initialization implements CommandLineRunner {
             if (file != null){
                 PlatformConfig platformConfig= platformConfigService.findFirst();
                 String uploadUrl = platformConfig.getUploadUrl();
-                 fileUrl = UploadAndDownloadUtil.fileUpload(file,uploadUrl);
+                if(uploadUrl!=null){
+                    fileUrl = UploadAndDownloadUtil.fileUpload(file,uploadUrl);
+                }
             }
             bankInfo.setBankLogo(fileUrl);
         } catch (Exception e) {
