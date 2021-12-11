@@ -8,6 +8,7 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.SysPermissionVo;
 import com.qianyi.casinoadmin.vo.SysUserVo;
 import com.qianyi.casinocore.business.RoleServiceBusiness;
+import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.SysPermission;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinoadmin.model.SysUserLoginLog;
@@ -491,6 +492,10 @@ public class LoginController {
         SysUser sys = sysUserService.findByUserName(userName);
         if(sys == null){
             return ResponseUtil.custom("账号不存在");
+        }
+        boolean length = ProxyUser.checkLength(password);
+        if (!length) {
+            return ResponseUtil.custom("密码长度3-15位");
         }
         //加密
         String bcryptPassword = LoginUtil.bcrypt(password);
