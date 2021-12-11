@@ -90,6 +90,6 @@ public class LevelShareprofitItemService {
     }
 
     private BigDecimal getAfterAmount(ShareProfitBO shareProfitBO, UserMoney userMoney){
-        return userMoney.getShareProfit().add(shareProfitBO.getProfitAmount());
+        return userMoney.getShareProfit().add(shareProfitBO.getProfitAmount()).setScale(6,BigDecimal.ROUND_HALF_UP);
     }
 }
