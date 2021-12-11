@@ -1,13 +1,12 @@
-package com.qianyi.casinoadmin.controller;
+package com.qianyi.casinoproxy.controller;
 
-import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.vo.UserThirdVo;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserThird;
-import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.service.UserThirdService;
+import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.vo.UserThirdVo;
+import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -36,8 +35,8 @@ public class UserThirdController {
             @ApiImplicitParam(name = "userAccount", value = "用户账号", required = true),
             @ApiImplicitParam(name = "tag", value = "tag 0 用我方账号查第三方账号 ,1 第三方账号查我方账号", required = true),
     })
-    public ResponseEntity<UserThirdVo> findUserThird(String userAccount,Integer tag){
-        if (LoginUtil.checkNull(tag,userAccount)){
+    public ResponseEntity<UserThirdVo> findUserThird(String userAccount, Integer tag){
+        if (CasinoProxyUtil.checkNull(tag,userAccount)){
             return ResponseUtil.custom("参数不合法");
         }
         if (tag != CommonConst.NUMBER_0 && tag != CommonConst.NUMBER_1){
@@ -46,34 +45,37 @@ public class UserThirdController {
         User user;
         UserThird userThird;
         if (tag == CommonConst.NUMBER_0){
-             user = userService.findByAccount(userAccount);
-            if (LoginUtil.checkNull(user)){
+            User u = new User();
+            u.setAccount(userAccount);
+            if (CasinoProxyUtil.setParameter(u)){
+                return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+            }
+             user = userService.findOne(u);
+            if (CasinoProxyUtil.checkNull(user)){
                 return ResponseUtil.success();
             }
              userThird = userThirdService.findByUserId(user.getId());
-            if (LoginUtil.checkNull(userThird)){
+            if (CasinoProxyUtil.checkNull(userThird)){
                 return ResponseUtil.success();
             }
         }else{
              userThird = userThirdService.findByAccount(userAccount);
-            if (LoginUtil.checkNull(userThird)){
+            if (CasinoProxyUtil.checkNull(userThird)){
                 return ResponseUtil.success();
             }
-             user = userService.findById(userThird.getUserId());
-            if (LoginUtil.checkNull(user)){
+            User u = new User();
+            u.setId(userThird.getUserId());
+            if (CasinoProxyUtil.setParameter(u)){
+                return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+            }
+             user = userService.findOne(u);
+            if (CasinoProxyUtil.checkNull(user)){
                 return ResponseUtil.success();
             }
         }
         UserThirdVo userThirdVo = new UserThirdVo();
         userThirdVo.setAccount(user.getAccount());
         userThirdVo.setThirdAccount(userThird.getAccount());
-//        UserMoney userMoney = userMoneyService.findByUserId(user.getId());
-//        if (LoginUtil.checkNull(userMoney)){
-//            return ResponseUtil.custom("找不到该会员钱包");
-//        }
-//        userThirdVo.setMoney(userMoney.getMoney());
-//        userThirdVo.setCodeNum(userMoney.getCodeNum());
-//        userThirdVo.setWmMoney(userMoneyService.getWMonetUser(user,userThird));
         return ResponseUtil.success(userThirdVo);
     }
 
