@@ -36,8 +36,13 @@ public class FirstSharePointConsumer {
 
     public void process(ShareProfitBO shareProfitBO, Channel channel, Message message) throws IOException {
         log.info("ONE-start 游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
-        sharepointItemService.levelProcessItem(shareProfitBO);
-        channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        try {
+            sharepointItemService.levelProcessItem(shareProfitBO);
+        } catch (Exception e) {
+            log.error("代理线分润消息队列执行异常:"+ e);
+        }finally {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        }
         log.info("ONE-end 游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
     }
 }
