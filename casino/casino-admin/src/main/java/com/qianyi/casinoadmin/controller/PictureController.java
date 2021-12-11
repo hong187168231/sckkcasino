@@ -96,8 +96,12 @@ public class PictureController {
             }else{
                 PlatformConfig platformConfig= platformConfigService.findFirst();
                 String uploadUrl = platformConfig.getUploadUrl();
-                String fileUrl = UploadAndDownloadUtil.fileUpload(file,uploadUrl);
-                lunboPic.setUrl(fileUrl);
+                if(uploadUrl==null) {
+                    return ResponseUtil.custom("请先配置图片服务器上传地址");
+                }
+                    String fileUrl = UploadAndDownloadUtil.fileUpload(file, uploadUrl);
+                    lunboPic.setUrl(fileUrl);
+
             }
         } catch (Exception e) {
             return ResponseUtil.custom(CommonConst.PICTURENOTUP);
@@ -120,8 +124,10 @@ public class PictureController {
             PlatformConfig platformConfig= platformConfigService.findFirst();
             String uploadUrl = platformConfig.getReadUploadUrl();
             byLunboPicList.forEach(byLunboPicInfo ->{
-                if (byLunboPicInfo.getUrl()!=null ){
+                if (byLunboPicInfo.getUrl()!=null && uploadUrl!=null){
                     byLunboPicInfo.setUrl(uploadUrl+byLunboPicInfo.getUrl());
+                }else {
+                    byLunboPicInfo.setUrl(null);
                 }
             });
         }
