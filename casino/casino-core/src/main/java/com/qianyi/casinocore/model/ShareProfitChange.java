@@ -27,15 +27,15 @@ public class ShareProfitChange extends BaseEntity {
     private Integer type;
 
     @ApiModelProperty(value = "额度变化")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal amount;
 
     @ApiModelProperty(value = "额度变化前")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal amountBefore;
 
     @ApiModelProperty(value = "额度变化后")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal amountAfter;
 
     @ApiModelProperty("返佣比例")
