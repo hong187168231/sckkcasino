@@ -12,7 +12,6 @@ import com.qianyi.casinocore.util.PasswordUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.ProxyUserVo;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
-import com.qianyi.casinoproxy.util.LoginUtil;
 import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -81,8 +80,8 @@ public class ProxyUserController {
             @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
     })
     public ResponseEntity<ProxyUserVo> findProxyUser(Integer pageSize, Integer pageCode,Integer proxyRole,Integer userFlag,Integer tag,String userName,
-                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
-                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
+                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         ProxyUser proxyUser = new ProxyUser();
         Sort sort=Sort.by("proxyRole").ascending();
         sort = sort.and(Sort.by("id").descending());
@@ -300,7 +299,7 @@ public class ProxyUserController {
         }else {
             proxyUser.setFirstProxy(byId.getFirstProxy());
             proxyUser.setSecondProxy(byId.getId());
-            proxyUser.setProxyCode(LoginUtil.getProxyCode());
+            proxyUser.setProxyCode(com.qianyi.casinocore.util.CommonUtil.getProxyCode());
         }
         proxyUser.setUserName(userName);
         proxyUser.setNickName(nickName);

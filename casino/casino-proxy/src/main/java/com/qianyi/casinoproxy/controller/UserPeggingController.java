@@ -9,7 +9,6 @@ import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.BankcardsVo;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
-import com.qianyi.casinoproxy.util.LoginUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;

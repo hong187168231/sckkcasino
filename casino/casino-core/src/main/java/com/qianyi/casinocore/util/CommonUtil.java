@@ -3,12 +3,14 @@ package com.qianyi.casinocore.util;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.PageVo;
+import com.qianyi.modulecommon.Constants;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 @Slf4j
 public class CommonUtil {
@@ -18,6 +20,30 @@ public class CommonUtil {
     private static final String FIRSTPROXY = "firstProxy";
     private static final String SECONDPROXY = "secondProxy";
     private static final String THIRDPROXY = "thirdProxy";
+
+    public static String getProxyCode(){
+
+        Random rd = new Random();
+        int rn= rd.nextInt(1) + Constants.MIN_PASSWORD_NUM;
+        String n = "";
+        int getNum;
+        int getNum1;
+        do {
+            getNum = Math.abs(rd.nextInt()) % 10 + 48;// 产生数字0-9的随机数
+            getNum1 = Math.abs(rd.nextInt()) % 26 + 97;//产生字母a-z的随机数
+            char num1 = (char) getNum;
+            char num2 = (char) getNum1;
+            String dn = Character.toString(num1);
+            String dn1 = Character.toString(num2);
+            if(Math.random()>0.5){
+                n += dn;
+            }else{
+                n += dn1;
+            }
+        } while (n.length() < rn);
+
+        return n;
+    }
 
     public static PageResultVO<?> handlePageResult(List<?> list, PageVo pageVO) {
         // 分页组装
