@@ -14,10 +14,10 @@ public class CustomerConfigure extends BaseEntity {
     @ApiModelProperty(value = "客服平台标识(1:qq,2:skype,3:telegram,4:whatsApp,5:手机号码,6:onlineUrl)")
     private Integer customerMark;
 
-    @ApiModelProperty(value = "客服平台")
+    @ApiModelProperty(value = "客服平台(qq,skype,telegram...)")
     private String customer;
 
-    @ApiModelProperty(value = "客服账号")
+    @ApiModelProperty(value = "客服账号(qq账号,skype账号...)")
     private String customerAccount;
 
     @ApiModelProperty(value = "状态(1:启用,0:停用)")
