@@ -39,13 +39,13 @@ public class NoticeController {
             @ApiImplicitParam(name = "title", value = "内容", required = true),
             @ApiImplicitParam(name = "enTitle", value = "英文内容", required = true),
             @ApiImplicitParam(name = "isShelves", value = "是否上架 true false", required = true),
-            @ApiImplicitParam(name = "url", value = "详情访问页", required = true),
+            @ApiImplicitParam(name = "url", value = "详情访问页", required = false),
             @ApiImplicitParam(name = "introduction", value = "简介", required = true),
             @ApiImplicitParam(name = "enIntroduction", value = "英文简介", required = true),
     })
     public ResponseEntity<Notice> saveNotice(String title,String enTitle,Boolean isShelves,String introduction,String url,String enIntroduction){
         Notice notice = new Notice();
-        if (ObjectUtils.isEmpty(title) || ObjectUtils.isEmpty(enTitle) || ObjectUtils.isEmpty(introduction) || ObjectUtils.isEmpty(enIntroduction) || ObjectUtils.isEmpty(url)) {
+        if (ObjectUtils.isEmpty(title) || ObjectUtils.isEmpty(enTitle) || ObjectUtils.isEmpty(introduction) || ObjectUtils.isEmpty(enIntroduction)) {
             return ResponseUtil.custom("必填项不允许为空");
         }
         notice.setTitle(title);
@@ -91,12 +91,12 @@ public class NoticeController {
             @ApiImplicitParam(name = "title", value = "内容", required = true),
             @ApiImplicitParam(name = "enTitle", value = "英文内容", required = true),
             @ApiImplicitParam(name = "isShelves", value = "是否上架 true false", required = true),
-            @ApiImplicitParam(name = "url", value = "详情访问页", required = true),
+            @ApiImplicitParam(name = "url", value = "详情访问页", required = false),
             @ApiImplicitParam(name = "introduction", value = "简介", required = true),
             @ApiImplicitParam(name = "enIntroduction", value = "英文简介", required = true),
     })
     public ResponseEntity updateNotice(String title,String enTitle,Boolean isShelves,String introduction,String url,Long id,String enIntroduction){
-        if (ObjectUtils.isEmpty(title) || ObjectUtils.isEmpty(enTitle) || ObjectUtils.isEmpty(introduction) || ObjectUtils.isEmpty(enIntroduction) || ObjectUtils.isEmpty(url)) {
+        if (ObjectUtils.isEmpty(title) || ObjectUtils.isEmpty(enTitle) || ObjectUtils.isEmpty(introduction) || ObjectUtils.isEmpty(enIntroduction)) {
             return ResponseUtil.custom("必填项不允许为空");
         }
         Notice notice = noticeService.findNoticeById(id);
