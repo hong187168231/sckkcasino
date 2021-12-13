@@ -11,7 +11,7 @@ import javax.persistence.Entity;
 @ApiModel("客服中心配置")
 public class CustomerConfigure extends BaseEntity {
 
-    @ApiModelProperty(value = "客服平台标识(1:qq,2:skype,3:telegram,4:whatsApp)")
+    @ApiModelProperty(value = "客服平台标识(1:qq,2:skype,3:telegram,4:whatsApp,5:手机号码,6:onlineUrl)")
     private Integer customerMark;
 
     @ApiModelProperty(value = "客服平台")
