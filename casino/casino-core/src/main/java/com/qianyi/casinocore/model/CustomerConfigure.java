@@ -1,0 +1,30 @@
+package com.qianyi.casinocore.model;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import javax.persistence.Entity;
+
+@Entity
+@Data
+@ApiModel("客服中心配置")
+public class CustomerConfigure extends BaseEntity {
+
+    @ApiModelProperty(value = "客服平台")
+    private String customer;
+
+    @ApiModelProperty(value = "客服账号")
+    private String customerAccount;
+
+    @ApiModelProperty(value = "状态(0:启用,1:停用)")
+    private Integer state;
+
+    @ApiModelProperty(value = "移动端图标")
+    private String appIconUrl;
+
+    @ApiModelProperty(value = "pc端图标")
+    private String pcIconUrl;
+
+
+}
