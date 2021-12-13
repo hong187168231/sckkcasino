@@ -57,7 +57,7 @@ public class UserMoneyService {
     }
 
     @CacheEvict(key = "#userId")
-    @Transactional
+/*    @Transactional*/
     public void changeProfit(Long userId,BigDecimal shareProfit){
         userMoneyRepository.changeProfit(userId,shareProfit);
     }

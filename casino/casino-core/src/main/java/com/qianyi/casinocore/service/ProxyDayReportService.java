@@ -44,7 +44,7 @@ public class ProxyDayReportService {
         return proxyDayReportRepository.findAll(condition);
     }
     //@CacheEvict(key = "#userId")
-    @Transactional
+/*    @Transactional*/
     public void updateProxyDayReport(Long userId,BigDecimal profitAmount, BigDecimal betAmount,String dayTime){
         proxyDayReportRepository.updateProxyDayReport(profitAmount,betAmount,userId,dayTime);
     }

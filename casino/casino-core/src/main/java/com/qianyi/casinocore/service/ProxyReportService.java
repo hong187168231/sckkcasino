@@ -50,21 +50,21 @@ public class ProxyReportService {
     }
 
    // @CacheEvict(key = "#userId")
-    @Transactional
+/*    @Transactional*/
     public void updateProxyReport(Long userId,BigDecimal allBetAmount, BigDecimal allProfitAmount, Integer allBetNum){
         proxyReportRepository.updateProxyReport(allBetAmount,allProfitAmount, allBetNum, userId);
     }
 
 
     //@CacheEvict(key = "#userId")
-    @Transactional
+/*    @Transactional*/
     public void updateDirectProxyReport(Long userId,BigDecimal allBetAmount, BigDecimal allProfitAmount, Integer allBetNum){
         proxyReportRepository.updateDirectProxyReport(allBetAmount,allProfitAmount, allBetNum, userId);
     }
 
 
    // @CacheEvict(key = "#userId")
-    @Transactional
+//    @Transactional
     public void updateNoDirectProxyReport(Long userId,BigDecimal allBetAmount, BigDecimal allProfitAmount, Integer allBetNum){
         proxyReportRepository.updateNoDirectProxyReport(allBetAmount,allProfitAmount, allBetNum, userId);
     }
