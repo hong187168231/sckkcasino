@@ -2,6 +2,7 @@ package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.CustomerConfigure;
 import com.qianyi.casinocore.repository.CustomerConfigureRepository;
+import com.qianyi.modulecommon.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -36,5 +37,10 @@ public class CustomerConfigureService {
 
     public CustomerConfigure getById(Long id){
         return customerConfigureRepository.getById(id);
+    }
+
+    @Cacheable(cacheNames = "customerConfigure")
+    public List<CustomerConfigure> findByState(Integer state){
+        return customerConfigureRepository.findByState(state);
     }
 }

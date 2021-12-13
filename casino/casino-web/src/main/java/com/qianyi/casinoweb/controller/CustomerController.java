@@ -1,15 +1,14 @@
 package com.qianyi.casinoweb.controller;
 
-import com.qianyi.casinocore.model.Customer;
-import com.qianyi.casinocore.service.CustomerService;
+import com.qianyi.casinocore.model.CustomerConfigure;
+import com.qianyi.casinocore.service.CustomerConfigureService;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
-import com.qianyi.modulecommon.util.CommonUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,16 +21,13 @@ import java.util.List;
 public class CustomerController {
 
     @Autowired
-    CustomerService customerService;
+    private CustomerConfigureService customerConfigureService;
 
     @GetMapping("contact")
     @ApiOperation("客服联系方式")
     @NoAuthentication
-    public ResponseEntity<Customer> contact() {
-        Customer customer = customerService.findFirst();
-        if (customer != null) {
-            return ResponseUtil.success(customer);
-        }
-        return ResponseUtil.success(new Customer());
+    public ResponseEntity<List<CustomerConfigure>> contact() {
+        List<CustomerConfigure> list = customerConfigureService.findByState(Constants.open);
+        return ResponseUtil.success(list);
     }
 }
