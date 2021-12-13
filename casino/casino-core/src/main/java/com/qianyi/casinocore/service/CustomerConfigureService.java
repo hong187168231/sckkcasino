@@ -2,7 +2,6 @@ package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.CustomerConfigure;
 import com.qianyi.casinocore.repository.CustomerConfigureRepository;
-import com.qianyi.modulecommon.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -19,15 +18,6 @@ public class CustomerConfigureService {
 
     public List<CustomerConfigure> findAll() {
         return customerConfigureRepository.findAll();
-    }
-
-    @Cacheable(cacheNames = "customerConfigure")
-    public CustomerConfigure findFirst() {
-        List<CustomerConfigure> all = customerConfigureRepository.findAll();
-        if (all == null || all.size() == 0) {
-            return null;
-        }
-        return all.get(0);
     }
 
     @CacheEvict(cacheNames = "customerConfigure", allEntries = true)
