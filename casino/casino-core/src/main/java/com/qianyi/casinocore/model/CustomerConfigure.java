@@ -20,7 +20,7 @@ public class CustomerConfigure extends BaseEntity {
     @ApiModelProperty(value = "客服账号")
     private String customerAccount;
 
-    @ApiModelProperty(value = "状态(0:启用,1:停用)")
+    @ApiModelProperty(value = "状态(1:启用,0:停用)")
     private Integer state;
 
     @ApiModelProperty(value = "移动端图标")
