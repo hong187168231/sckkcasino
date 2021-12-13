@@ -3,9 +3,11 @@ package com.qianyi.casinoadmin.install;
 import com.qianyi.casinoadmin.install.file.*;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.repository.CustomerConfigureRepository;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,9 @@ public class Initialization implements CommandLineRunner {
     private PictureInitialize pictureInitialize;
     @Autowired
     private BankInfoService bankInfoService;
+
+    @Autowired
+    private CustomerConfigureService customerConfigureService;
     @Autowired
     private PictureService pictureService;
     @Autowired
@@ -67,6 +72,8 @@ public class Initialization implements CommandLineRunner {
        this.runSysPermissionConfig();
        this.addPermissionConfig();
        this.runAddSysUser();
+       //客户中心配置初始化
+        this.saveCustomerConfigureInfo();
     }
     /**
      * 添加新的权限脚本
@@ -149,6 +156,56 @@ public class Initialization implements CommandLineRunner {
             log.error("重复银行名称");
         }
     }
+
+    //客服中心配置
+    public void saveCustomerConfigureInfo(){
+        List<CustomerConfigure> all = customerConfigureService.findAll();
+        if (!LoginUtil.checkNull(all) && all.size() > CommonConst.NUMBER_0)
+            return;
+        //先判断是否有配置图片服务器
+        PlatformConfig platformConfig= platformConfigService.findFirst();
+        String uploadUrl = platformConfig.getUploadUrl();
+        if(uploadUrl!=null){
+            List<CustomerConfigure> customer = pictureInitialize.customer;
+            customer.forEach(customerInfo ->{
+                saveCustomerInfo(customerInfo,uploadUrl);
+            });
+        }
+    }
+
+    private void saveCustomerInfo(CustomerConfigure customerInfo,String uploadUrl){
+        CustomerConfigure customerConfigureInfo = new CustomerConfigure();
+        customerConfigureInfo.setState(customerInfo.getState());
+        customerConfigureInfo.setCustomer(customerInfo.getCustomer());
+        customerConfigureInfo.setCustomerMark(customerInfo.getCustomerMark());
+        customerConfigureInfo.setCustomerAccount(customerInfo.getCustomerAccount());
+        if (!CommonUtil.checkNull(customerInfo.getAppIconUrl())){
+            MultipartFile appIconUrl = pictureInitialize.single(customerInfo.getAppIconUrl());
+            try {
+                String appFileUrl = UploadAndDownloadUtil.fileUpload(appIconUrl,uploadUrl);
+                customerConfigureInfo.setAppIconUrl(appFileUrl);
+            } catch (Exception e) {
+                customerConfigureInfo.setAppIconUrl("");
+                customerConfigureInfo.setPcIconUrl("");
+            }
+        }
+        if (!CommonUtil.checkNull(customerInfo.getPcIconUrl())){
+            MultipartFile pcIconUrl = pictureInitialize.single(customerInfo.getPcIconUrl());
+            try {
+                String pcFileUrl = UploadAndDownloadUtil.fileUpload(pcIconUrl,uploadUrl);
+                customerConfigureInfo.setPcIconUrl(pcFileUrl);
+            } catch (Exception e) {
+                customerConfigureInfo.setAppIconUrl("");
+                customerConfigureInfo.setPcIconUrl("");
+            }
+        }
+        try {
+            customerConfigureService.save(customerConfigureInfo);
+        }catch (Exception e){
+            log.error("初始化客服图标异常");
+        }
+    }
+
 
     //系统超级管理员角色
     private void runAddSysUser() {

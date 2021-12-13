@@ -324,6 +324,8 @@ public class PlatformConfigController {
         //初始化银行卡图片
         bankInfoService.deleteBankInfoAll();
         initialization.saveBankInfo();
+        //初始化客服中心图标
+        initialization.saveCustomerConfigureInfo();
         return ResponseUtil.success();
     }
 

@@ -2,17 +2,28 @@ package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.Customer;
+import com.qianyi.casinocore.model.CustomerConfigure;
+import com.qianyi.casinocore.model.PlatformConfig;
+import com.qianyi.casinocore.service.CustomerConfigureService;
 import com.qianyi.casinocore.service.CustomerService;
+import com.qianyi.casinocore.service.PlatformConfigService;
+import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
+import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/customer")
@@ -20,6 +31,13 @@ import org.springframework.web.bind.annotation.*;
 public class CustomerController {
     @Autowired
     private CustomerService customerService;
+
+
+    @Autowired
+    private CustomerConfigureService customerConfigureService;
+
+    @Autowired
+    private PlatformConfigService platformConfigService;
 
     /**
      * 新增和修改客服联系方式
@@ -94,5 +112,96 @@ public class CustomerController {
     public ResponseEntity<Customer> findCustomer(){
         Customer customer = customerService.findFirst();
         return ResponseUtil.success(customer);
+    }
+
+
+    /**
+     * 查询客服中心配置列表
+     * @return
+     */
+    @ApiOperation("查询客服中心配置列表")
+    @GetMapping("/findCustomerList")
+    public ResponseEntity<CustomerConfigure> findCustomerList() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        String readUploadUrl = platformConfig.getReadUploadUrl();
+        List<CustomerConfigure> customer = customerConfigureService.findAll();
+        if(readUploadUrl==null) {
+            return ResponseUtil.custom("请先配置图片服务器访问地址");
+        }
+        customer.forEach(info -> {
+            info.setAppIconUrl(readUploadUrl + info.getAppIconUrl());
+            info.setPcIconUrl(readUploadUrl + info.getPcIconUrl());
+        });
+        return ResponseUtil.success(customer);
+    }
+
+
+    /**
+     * 编辑客服中心配置
+     * @param id
+     * @param customerAccount 客服账号
+     * @param state 状态(1:启用,0:停用)
+     * @param appIconFile app图标
+     * @param pcIconFile pc图标
+     * @return
+     */
+    @ApiOperation("编辑客服中心配置")
+    @PostMapping(value = "/updateKeyCustomerConfigure",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "编辑客服中心配置")
+    public ResponseEntity updateKeyCustomerConfigure(  @RequestParam(value = "id", required = true)Long id,
+                                                       @RequestParam(value = "客服账号", required = false)String customerAccount,
+                                                       @RequestParam(value = "状态(1:启用,0:停用)", required = false)Integer state,
+                                            @RequestPart(value = "app图标", required = false) MultipartFile appIconFile,
+                                            @RequestPart(value = "pc图标", required = false) MultipartFile pcIconFile){
+        CustomerConfigure customerConfigure = customerConfigureService.getById(id);
+        String uploadUrl=null;
+        if (pcIconFile!=null||appIconFile!=null) {
+            PlatformConfig platformConfig= platformConfigService.findFirst();
+            uploadUrl = platformConfig.getUploadUrl();
+            if(uploadUrl==null) {
+                return ResponseUtil.custom("请先配置图片服务器上传地址");
+            }
+        }
+        if (appIconFile!=null){
+            savePicture(appIconFile,customerConfigure, Constants.yes,uploadUrl);
+        }
+        if (pcIconFile!=null) {
+            savePicture(pcIconFile, customerConfigure, Constants.no,uploadUrl);
+        }
+        if (customerAccount!=null) {
+            customerConfigure.setCustomerAccount(customerAccount);
+        }
+
+        if (state!=null) {
+            if (state==Constants.open){
+                //判断是否有3个开启状态
+                int quantity = customerConfigureService.countCustomerConfigure(Constants.open);
+                if (quantity==3){
+                    return ResponseUtil.custom("客服平台最多启用3个");
+                }
+                if(customerConfigure.getCustomerAccount()==null || customerAccount==null){
+                    return ResponseUtil.custom("启用前请配置好相关信息");
+                }
+            }
+            customerConfigure.setState(state);
+        }
+
+        customerConfigureService.save(customerConfigure);
+        return ResponseUtil.success();
+    }
+
+
+    public ResponseEntity savePicture(MultipartFile file,CustomerConfigure customerConfigure,Integer mark, String uploadUrl ){
+        try {
+            String fileUrl = UploadAndDownloadUtil.fileUpload(file, uploadUrl);
+            if(mark== Constants.yes){
+                customerConfigure.setAppIconUrl(fileUrl);
+            }
+            if(mark== Constants.no){
+                customerConfigure.setPcIconUrl(fileUrl);
+            }
+        } catch (Exception e) {
+            return ResponseUtil.custom(CommonConst.PICTURENOTUP);
+        }
+        return ResponseUtil.success();
     }
 }
