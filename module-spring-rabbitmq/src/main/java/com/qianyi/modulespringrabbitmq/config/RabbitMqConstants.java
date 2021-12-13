@@ -43,6 +43,18 @@ public class RabbitMqConstants {
     public final static String SIX_SHAREPROFIT_DIRECTQUEUE = "six.profit.queue";
     public final static String SIX_SHAREPROFIT_DIRECT = "sixShareProfit";
 
+    /**
+     * 报表处理mq
+     */
+    public final static String REPORTDAY_PROFIT_DIRECTEXCHANGE = "report.day.profit.exchange";
+    public final static String REPORTDAY_PROFIT_QUEUE = "report.day.profit.queue";
+    public final static String REPORTDAY_PROFIT_DIRECT = "reportDayShareProfit";
+
+
+    public final static String REPORT_PROFIT_DIRECTEXCHANGE = "report.profit.exchange";
+    public final static String REPORT_PROFIT_QUEUE = "report.profit.queue";
+    public final static String REPORT_PROFIT_DIRECT = "reportShareProfit";
+
 
     /**
      * 各级新增人数mq

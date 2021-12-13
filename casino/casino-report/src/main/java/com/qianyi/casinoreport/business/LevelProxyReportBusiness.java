@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -37,24 +39,24 @@ public class LevelProxyReportBusiness {
     }
 
     public void allProxy(ProxyReport proxyReport,ShareProfitBO shareProfitBO){
-        proxyReport.setAllBetAmount(proxyReport.getAllBetAmount().add(shareProfitBO.getBetAmount()));
+/*        proxyReport.setAllBetAmount(proxyReport.getAllBetAmount().add(shareProfitBO.getBetAmount()));
         proxyReport.setAllProfitAmount(proxyReport.getAllProfitAmount().add(shareProfitBO.getProfitAmount()));
-        proxyReport.setAllBetNum(proxyReport.getAllBetNum()+ (shareProfitBO.isFirst()?1:0));
-        proxyReportService.save(proxyReport);
+        proxyReport.setAllBetNum(proxyReport.getAllBetNum()+ (shareProfitBO.isFirst()?1:0));*/
+        proxyReportService.updateProxyReport(shareProfitBO.getUserId(),shareProfitBO.getBetAmount(),shareProfitBO.getProfitAmount(),shareProfitBO.isFirst()?1:0);
     }
 
     public void directProxy(ProxyReport proxyReport,ShareProfitBO shareProfitBO){
-        proxyReport.setDirectBetAmount(proxyReport.getDirectBetAmount().add(shareProfitBO.getBetAmount()));
+      /*  proxyReport.setDirectBetAmount(proxyReport.getDirectBetAmount().add(shareProfitBO.getBetAmount()));
         proxyReport.setDirectProfitAmount(proxyReport.getDirectProfitAmount().add(shareProfitBO.getProfitAmount()));
-        proxyReport.setDirectBetNum(proxyReport.getDirectBetNum()+ (shareProfitBO.isFirst()?1:0));
-        proxyReportService.save(proxyReport);
+        proxyReport.setDirectBetNum(proxyReport.getDirectBetNum()+ (shareProfitBO.isFirst()?1:0));*/
+        proxyReportService.updateDirectProxyReport(shareProfitBO.getUserId(),shareProfitBO.getBetAmount(),shareProfitBO.getProfitAmount(),shareProfitBO.isFirst()?1:0);
     }
 
     public void noDirectProxy(ProxyReport proxyReport,ShareProfitBO shareProfitBO){
-        proxyReport.setOtherBetAmount(proxyReport.getOtherBetAmount().add(shareProfitBO.getBetAmount()));
+/*        proxyReport.setOtherBetAmount(proxyReport.getOtherBetAmount().add(shareProfitBO.getBetAmount()));
         proxyReport.setOtherProfitAmount(proxyReport.getOtherProfitAmount().add(shareProfitBO.getProfitAmount()));
-        proxyReport.setOtherBetNum(proxyReport.getOtherBetNum()+ (shareProfitBO.isFirst()?1:0));
-        proxyReportService.save(proxyReport);
+        proxyReport.setOtherBetNum(proxyReport.getOtherBetNum()+ (shareProfitBO.isFirst()?1:0));*/
+        proxyReportService.updateNoDirectProxyReport(shareProfitBO.getUserId(),shareProfitBO.getBetAmount(),shareProfitBO.getProfitAmount(),shareProfitBO.isFirst()?1:0);
     }
 
     public ProxyReport buildProxyReport(Long userId) {
@@ -72,7 +74,7 @@ public class LevelProxyReportBusiness {
         ProxyReport proxyReport = proxyReportService.findByUserId(userId);
         if(proxyReport == null)
             buildProxyReport(userId);
-        return proxyReportService.findByUserIdWithLock(userId);
+        return proxyReportService.findByUserId(userId);
     }
 
     /**
