@@ -32,6 +32,10 @@ public class NewPermissions {
             //设置平台配置
             setSystemConfig(collect);
         }
+        if(collect.containsKey("/operateCenter")){
+            //设置运营客服中心配置
+            setCustomerConfigure(collect);
+        }
         sysPermissionService.saveAllList(sysPermissions);
     }
 
@@ -46,6 +50,25 @@ public class NewPermissions {
         return new ArrayList<>(set);
     }
 
+    /**
+     * 运营中心 - 客服中心配置
+     * @param collect
+     */
+    private void setCustomerConfigure(Map<String, SysPermission> collect) {
+        SysPermission save =null;
+        if(!collect.containsKey("/customer/findCustomerList")){
+            Long pid = collect.get("/operateCenter").getId();
+            SysPermission sysConfigPermission = new SysPermission("客服中心配置", "客服中心配置", "/customer/findCustomerList", pid, 2, 0);
+            save = sysPermissionService.save(sysConfigPermission);
+        }
+        if(save.getUrl().equals("/customer/findCustomerList")){
+            Long pid = save.getId();
+            if(!collect.containsKey("/customer/updateKeyCustomerConfigure")){
+                SysPermission sysPermission = new SysPermission("保存", "保存", "/customer/updateKeyCustomerConfigure", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+        }
+    }
     private void setSystemConfig(Map<String, SysPermission> collect) {
         if(!collect.containsKey("/systemMessage/systemConfig")){
             Long pid = collect.get("/systemCenter").getId();
