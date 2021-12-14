@@ -125,19 +125,19 @@ public class NewPermissions {
                 sysPermission.setPid(sysConfigPermission.getId());
                 sysPermissionService.save(sysPermission);
             }
-
-        }
-
-        if(collect.containsKey("/systemMessage/systemConfig")){
-            Long pid = collect.get("/systemMessage/systemConfig").getId();
-            if(!collect.containsKey("/platformConfig/findCustomerCode")){
-                SysPermission sysPermission = new SysPermission("查询客服脚本的代号", "查询客服脚本的代号", "/platformConfig/findCustomerCode", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+            if(collect.containsKey("/platformConfig/findCustomerCode")){
+                SysPermission sysPermission = collect.get("/platformConfig/findCustomerCode");
+                sysPermission.setPid(sysConfigPermission.getId());
+//                SysPermission sysPermission = new SysPermission("查询客服脚本的代号", "查询客服脚本的代号", "/platformConfig/findCustomerCode", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
-            if(!collect.containsKey("/platformConfig/updateCustomerCode")){
-                SysPermission sysPermission = new SysPermission("修改客服脚本的代号", "修改客服脚本的代号", "/platformConfig/updateCustomerCode", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+            if(collect.containsKey("/platformConfig/updateCustomerCode")){
+                SysPermission sysPermission = collect.get("/platformConfig/updateCustomerCode");
+                sysPermission.setPid(sysConfigPermission.getId());
+//                SysPermission sysPermission = new SysPermission("修改客服脚本的代号", "修改客服脚本的代号", "/platformConfig/updateCustomerCode", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
+
         }
     }
 }
