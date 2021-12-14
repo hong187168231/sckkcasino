@@ -1,9 +1,7 @@
-package com.qianyi.casinoreport.consumer.levelSharePro;
+package com.qianyi.casinoreport.consumer.levelSharePro.report;
 
 import com.qianyi.casinocore.vo.ShareProfitBO;
-import com.qianyi.casinoreport.business.LevelProxyDayReportBusiness;
 import com.qianyi.casinoreport.business.LevelProxyReportBusiness;
-import com.qianyi.casinoreport.business.shareprofit.LevelShareprofitItemService;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
@@ -16,31 +14,31 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Slf4j
-@RabbitListener(queues = RabbitMqConstants.REPORTDAY_PROFIT_QUEUE)
+@RabbitListener(queues = RabbitMqConstants.FOUR_REPORT_PROFIT_QUEUE)
 @Component
-public class ProxyDayReportConsumer {
+public class FourProxyReportConsumer {
 
     @Autowired
-    private LevelProxyDayReportBusiness levelProxyDayReportBusiness;
-
+    private LevelProxyReportBusiness levelproxyReportBusiness;
     /**
-     *  代理线日报表分润消息队列
+     *  代理线总报表分润队列
      * @param shareProfitBO
      * @param channel
      * @param message
      * @throws IOException
      */
     @RabbitHandler
+
     public void process(ShareProfitBO shareProfitBO, Channel channel, Message message) throws IOException {
-        log.info("start日报表-游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
+        log.info("FOUR-start 总报表-游戏id:{},代理线报表分润队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
         try {
-            //进行日报表处理
-            levelProxyDayReportBusiness.processReport(shareProfitBO);
+            //进行总报表处理
+            levelproxyReportBusiness.processReport(shareProfitBO);
         } catch (Exception e) {
-            log.error("游戏id:{},日报表-代理线分润消息队列执行异常:{}",shareProfitBO.getRecordId(),e);
+            log.error("FOUR 总报表-分润总报表处理执行异常:"+ e);
         }finally {
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         }
-        log.info("end日报表-游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
+        log.info("FOUR-end 总报表-游戏id:{},代理线报表分润队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
     }
 }
