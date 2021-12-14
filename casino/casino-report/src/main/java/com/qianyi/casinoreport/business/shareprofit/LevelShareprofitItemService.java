@@ -52,7 +52,7 @@ public class LevelShareprofitItemService {
         ShareProfitChange ShareProfitChangeInfo = shareProfitChangeService.findByUserIdAndOrderNo(shareProfitBO.getUserId(), shareProfitBO.getRecordBetId());
         if (ShareProfitChangeInfo==null){
             UserMoney userMoney = userMoneyService.findUserByUserIdUse(shareProfitBO.getUserId());
-            User user = userService.findUserByIdUseLock(shareProfitBO.getRecordUserId());
+            User user = userService.findUserByUserIdUse(shareProfitBO.getRecordUserId());
             if(userMoney==null)return;
             log.info("shareProfitBOList processItem That took {} milliseconds",System.currentTimeMillis()-startTime);
             //明细入库

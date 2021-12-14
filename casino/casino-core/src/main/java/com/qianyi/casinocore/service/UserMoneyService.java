@@ -47,7 +47,7 @@ public class UserMoneyService {
     }
 
     public UserMoney findUserByUserIdUse(Long userId) {
-        return userMoneyRepository.findUserByUserIdUseLock(userId);
+        return userMoneyRepository.findByUserId(userId);
         // return userMoneyRepository.findUserMoneyByUserId(userId);
     }
 
