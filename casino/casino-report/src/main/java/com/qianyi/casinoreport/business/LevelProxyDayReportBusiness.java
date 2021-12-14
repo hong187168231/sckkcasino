@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional(rollbackFor = Exception.class)
 public class LevelProxyDayReportBusiness {
     @Autowired
     private ProxyDayReportService proxyDayReportService;
