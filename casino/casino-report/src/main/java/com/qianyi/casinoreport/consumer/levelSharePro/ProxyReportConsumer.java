@@ -36,7 +36,7 @@ public class ProxyReportConsumer {
             //进行总报表处理
             levelproxyReportBusiness.processReport(shareProfitBO);
         } catch (Exception e) {
-            log.error("总报表-分润总报表处理执行异常:"+ e);
+            log.error("游戏id:{},总报表-分润总报表处理执行异常:{}",shareProfitBO.getRecordId(),e);
         }finally {
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         }

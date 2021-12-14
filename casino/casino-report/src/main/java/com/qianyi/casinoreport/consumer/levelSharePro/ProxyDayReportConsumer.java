@@ -37,7 +37,7 @@ public class ProxyDayReportConsumer {
             //进行日报表处理
             levelProxyDayReportBusiness.processReport(shareProfitBO);
         } catch (Exception e) {
-            log.error("日报表-代理线分润消息队列执行异常:"+ e);
+            log.error("游戏id:{},日报表-代理线分润消息队列执行异常:{}",shareProfitBO.getRecordId(),e);
         }finally {
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         }
