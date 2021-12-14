@@ -55,13 +55,13 @@ public class NewPermissions {
      * @param collect
      */
     private void setCustomerConfigure(Map<String, SysPermission> collect) {
-        SysPermission save =null;
+        SysPermission save =new SysPermission();
         if(!collect.containsKey("/customer/findCustomerList")){
             Long pid = collect.get("/operateCenter").getId();
             SysPermission sysConfigPermission = new SysPermission("客服中心配置", "客服中心配置", "/customer/findCustomerList", pid, 2, 0);
             save = sysPermissionService.save(sysConfigPermission);
         }
-        if(save.getUrl().equals("/customer/findCustomerList")){
+        if(save.getUrl()!=null && save.getUrl().equals("/customer/findCustomerList")){
             Long pid = save.getId();
             if(!collect.containsKey("/customer/updateKeyCustomerConfigure")){
                 SysPermission sysPermission = new SysPermission("保存", "保存", "/customer/updateKeyCustomerConfigure", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
