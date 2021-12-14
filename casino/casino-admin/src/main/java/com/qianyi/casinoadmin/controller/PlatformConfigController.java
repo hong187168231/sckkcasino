@@ -319,6 +319,9 @@ public class PlatformConfigController {
         if (LoginUtil.checkNull(first)){
             first = new PlatformConfig();
         }
+        if(first.getUploadUrl().equals(uploadUrl)){
+            return ResponseUtil.custom("当前地址相同,请勿重复修改");
+        }
         first.setUploadUrl(uploadUrl);
         platformConfigService.save(first);
         //初始化银行卡图片
@@ -360,6 +363,9 @@ public class PlatformConfigController {
         PlatformConfig first = platformConfigService.findFirst();
         if (LoginUtil.checkNull(first)){
             first = new PlatformConfig();
+        }
+        if(first.getReadUploadUrl().equals(uploadUrl)){
+            return ResponseUtil.custom("当前地址相同,请勿重复修改");
         }
         first.setReadUploadUrl(uploadUrl);
         platformConfigService.save(first);
