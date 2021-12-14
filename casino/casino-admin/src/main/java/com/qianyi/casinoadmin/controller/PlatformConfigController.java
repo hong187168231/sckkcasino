@@ -242,6 +242,30 @@ public class PlatformConfigController {
         return ResponseUtil.success(platformConfig==null?"":platformConfig.getCompanyInviteCode());
     }
 
+    @ApiOperation("查询客服脚本的代号")
+    @GetMapping("/findCustomerCode")
+    public ResponseEntity findCustomerCode(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        return ResponseUtil.success(platformConfig==null?"":platformConfig.getCustomerCode());
+    }
+
+    @ApiOperation("修改客服脚本的代号")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "promotionCode", value = "推广链接", required = true),
+    })
+    @PostMapping("/updateCustomerCode")
+    public ResponseEntity updateCustomerCode(String customerCode){
+        if (LoginUtil.checkNull(customerCode)){
+            return ResponseUtil.custom("参数必填");
+        }
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (LoginUtil.checkNull(platformConfig)){
+            platformConfig = new PlatformConfig();
+        }
+        platformConfig.setCustomerCode(customerCode);
+        platformConfigService.save(platformConfig);
+        return ResponseUtil.success();
+    }
 //    @ApiOperation("修改推广链接码")
 //    @ApiImplicitParams({
 //            @ApiImplicitParam(name = "promotionCode", value = "推广链接", required = true),

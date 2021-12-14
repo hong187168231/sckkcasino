@@ -309,8 +309,11 @@ public class Initialization implements CommandLineRunner {
             String companyInviteCode = platformConfig.getCompanyInviteCode();
             if (companyInviteCode == null || !companyInviteCode.equals("999")){
                 platformConfig.setCompanyInviteCode("999");
-                platformConfigService.save(platformConfig);
             }
+            if (LoginUtil.checkNull(platformConfig.getCustomerCode())){
+                platformConfig.setCustomerCode("21141305");
+            }
+            platformConfigService.save(platformConfig);
         }
     }
 }

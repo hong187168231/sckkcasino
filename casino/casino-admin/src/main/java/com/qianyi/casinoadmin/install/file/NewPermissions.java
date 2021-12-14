@@ -101,6 +101,16 @@ public class NewPermissions {
                 sysPermission.setPid(sysConfigPermission.getId());
                 sysPermissionService.save(sysPermission);
             }
+            if(collect.containsKey("/platformConfig/findCustomerCode")){
+                SysPermission sysPermission = collect.get("/platformConfig/findCustomerCode");
+                sysPermission.setPid(sysConfigPermission.getId());
+                sysPermissionService.save(sysPermission);
+            }
+            if(collect.containsKey("/platformConfig/updateCustomerCode")){
+                SysPermission sysPermission = collect.get("/platformConfig/updateCustomerCode");
+                sysPermission.setPid(sysConfigPermission.getId());
+                sysPermissionService.save(sysPermission);
+            }
         }
     }
 }
