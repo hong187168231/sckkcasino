@@ -77,8 +77,8 @@ public class PictureInitialize {
         phone.setCustomerMark(5);
         phone.setCustomer("手机号码");
         phone.setState(Constants.open);
-       // phone.setAppIconUrl("/customer/pc_zaixiankefu.png");
-       // phone.setPcIconUrl("/customer/pc_zaixiankefu.png");
+        phone.setAppIconUrl("/customer/pc_shoujihaoma.png");
+        phone.setPcIconUrl("/customer/pc_shoujihaoma.png");
         customer.add(phone);
 
 
