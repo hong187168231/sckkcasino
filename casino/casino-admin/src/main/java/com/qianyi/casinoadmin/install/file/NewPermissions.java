@@ -61,8 +61,11 @@ public class NewPermissions {
     private void setAgentCenter(Map<String, SysPermission> collect) {
         if(collect.containsKey("/proxyUser/findProxyUser")){
             Long pid = collect.get("/proxyUser/findProxyUser").getId();
-            SysPermission sysPermission = new SysPermission("转移会员", "转移会员", "/proxyUser/transferUser", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
-            sysPermissionService.save(sysPermission);
+            if (!collect.containsKey("/proxyUser/transferUser")){
+                SysPermission sysPermission = new SysPermission("转移会员", "转移会员", "/proxyUser/transferUser", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+
         }
     }
 
