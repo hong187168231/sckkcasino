@@ -3,9 +3,11 @@ package com.qianyi.casinoadmin.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.ProxyCommission;
+import com.qianyi.casinocore.model.ProxyHomePageReport;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.ProxyCommissionService;
+import com.qianyi.casinocore.service.ProxyHomePageReportService;
 import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.util.CommonConst;
@@ -52,6 +54,9 @@ public class ProxyUserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ProxyHomePageReportService proxyHomePageReportService;
     /**
      * 分页查询代理
      *
@@ -441,5 +446,96 @@ public class ProxyUserController {
         byId.setIsDelete(CommonConst.NUMBER_2);
         proxyUserService.save(byId);
         return ResponseUtil.success();
+    }
+
+
+    @ApiOperation("转移会员")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "被转移者id(选中列id)", required = true),
+            @ApiImplicitParam(name = "acceptId", value = "接受者id", required = true),
+    })
+    @GetMapping("transferUser")
+    @Transactional
+    public ResponseEntity transferUser(Long id,Long acceptId){
+        if (LoginUtil.checkNull(id,acceptId)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        ProxyUser byId = proxyUserService.findById(id);
+        ProxyUser accept = proxyUserService.findById(acceptId);
+        if (LoginUtil.checkNull(byId,accept)){
+            return ResponseUtil.custom("没有这个代理");
+        }
+        if ( byId.getProxyRole() != CommonConst.NUMBER_3 || accept.getProxyRole() != CommonConst.NUMBER_3){
+            return ResponseUtil.custom("只有基层代理可以转移会员");
+        }
+        if (check(id,accept)){
+            return ResponseUtil.success();
+        }
+        ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
+        proxyHomePageReport.setProxyUserId(id);
+        List<ProxyHomePageReport> homePageReports = proxyHomePageReportService.findHomePageReports(proxyHomePageReport, null, null);
+        homePageReports = homePageReports.stream().filter(homePageReport ->homePageReport.getNewUsers() != CommonConst.NUMBER_0).collect(Collectors.toList());
+        if (homePageReports.size() == CommonConst.NUMBER_0){
+            return ResponseUtil.success();
+        }
+        //转移基层
+        this.transferAdd(homePageReports,acceptId,CommonConst.NUMBER_3,accept);
+        //转移区域
+        if (byId.getSecondProxy() != accept.getSecondProxy()){
+            this.transferAdd(homePageReports,accept.getSecondProxy(),CommonConst.NUMBER_2,accept);
+            this.transferSub(homePageReports,byId.getSecondProxy());
+        }
+        //转移总代
+        if (byId.getFirstProxy() != accept.getFirstProxy()){
+            this.transferAdd(homePageReports,accept.getFirstProxy(),CommonConst.NUMBER_1,accept);
+            this.transferSub(homePageReports,byId.getFirstProxy());
+        }
+        homePageReports.forEach(proxyHomePageReport1 -> {
+            proxyHomePageReport1.setNewUsers(CommonConst.NUMBER_0);
+            proxyHomePageReportService.save(proxyHomePageReport1);
+        });
+        homePageReports.clear();
+        return ResponseUtil.success();
+    }
+
+    private void transferAdd(List<ProxyHomePageReport> homePageReports,Long acceptId,Integer proxyRole,ProxyUser accept){
+        homePageReports.forEach(proxyHomePageReport1 -> {
+            ProxyHomePageReport proxyHome = proxyHomePageReportService.findByProxyUserIdAndStaticsTimes(acceptId, proxyHomePageReport1.getStaticsTimes());
+            if (LoginUtil.checkNull(proxyHome)){
+                proxyHome = new ProxyHomePageReport(acceptId,proxyHomePageReport1.getStaticsTimes(),proxyHomePageReport1.getStaticsMonth(),proxyHomePageReport1.getStaticsYear(),accept.getFirstProxy(),proxyRole);
+                if (proxyRole != CommonConst.NUMBER_1){
+                    proxyHome.setSecondProxy(accept.getSecondProxy());
+                }
+            }
+            proxyHome.setNewUsers(proxyHome.getNewUsers() + proxyHomePageReport1.getNewUsers());
+            proxyHomePageReportService.save(proxyHome);
+        });
+    }
+
+    private void transferSub(List<ProxyHomePageReport> homePageReports,Long proxyId){
+        homePageReports.forEach(proxyHomePageReport1 -> {
+            ProxyHomePageReport proxyHome = proxyHomePageReportService.findByProxyUserIdAndStaticsTimes(proxyId, proxyHomePageReport1.getStaticsTimes());
+            if (!LoginUtil.checkNull(proxyHome)){
+                proxyHome.setNewUsers(proxyHome.getNewUsers() - proxyHomePageReport1.getNewUsers());
+                proxyHomePageReportService.save(proxyHome);
+            }
+        });
+    }
+
+    private synchronized Boolean check(Long id,ProxyUser accept){
+        User user = new User();
+        user.setThirdProxy(id);
+        List<User> userList = userService.findUserList(user, null, null);
+        if (LoginUtil.checkNull(userList) || userList.size() == CommonConst.NUMBER_0){
+            return true;
+        }
+        userList.forEach(user1 -> {
+            user1.setThirdProxy(accept.getId());
+            user1.setSecondProxy(accept.getSecondProxy());
+            user1.setFirstProxy(accept.getFirstProxy());
+            userService.save(user1);
+        });
+        userList.clear();
+        return false;
     }
 }

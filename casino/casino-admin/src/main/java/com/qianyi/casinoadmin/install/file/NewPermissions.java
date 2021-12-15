@@ -37,6 +37,10 @@ public class NewPermissions {
             //设置运营客服中心配置
             setCustomerConfigure(collect);
         }
+        if(collect.containsKey("/agentCenter")){
+            //设置代理中心
+            setAgentCenter(collect);
+        }
         sysPermissionService.saveAllList(sysPermissions);
     }
 
@@ -49,6 +53,17 @@ public class NewPermissions {
         });
         set.addAll(sysPermissionList);
         return new ArrayList<>(set);
+    }
+    /**
+     * 设置代理中心
+     * @param collect
+     */
+    private void setAgentCenter(Map<String, SysPermission> collect) {
+        if(collect.containsKey("/proxyUser/findProxyUser")){
+            Long pid = collect.get("/proxyUser/findProxyUser").getId();
+            SysPermission sysPermission = new SysPermission("转移会员", "转移会员", "/proxyUser/transferUser", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+            sysPermissionService.save(sysPermission);
+        }
     }
 
     /**

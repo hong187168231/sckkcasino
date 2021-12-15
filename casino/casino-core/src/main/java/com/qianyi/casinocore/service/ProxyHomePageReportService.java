@@ -45,6 +45,10 @@ public class ProxyHomePageReportService {
         return proxyHomePageReportRepository.save(proxyHomePageReport);
     }
 
+    public ProxyHomePageReport findByProxyUserIdAndStaticsTimes(Long proxyUserId,String staticsTimes){
+        return proxyHomePageReportRepository.findByProxyUserIdAndStaticsTimes(proxyUserId,staticsTimes);
+    }
+
     public List<ProxyHomePageReport> findHomePageReports(ProxyHomePageReport proxyHomePageReport,String startTime, String endTime) {
         Specification<ProxyHomePageReport> condition = this.getCondition(proxyHomePageReport,startTime,endTime);
         return proxyHomePageReportRepository.findAll(condition);
