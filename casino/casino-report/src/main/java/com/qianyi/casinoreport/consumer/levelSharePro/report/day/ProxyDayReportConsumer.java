@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Slf4j
-@RabbitListener(queues = RabbitMqConstants.ONE_REPORTDAY_PROFIT_QUEUE)
+//@RabbitListener(queues = RabbitMqConstants.ONE_REPORTDAY_PROFIT_QUEUE)
 @Component
 public class ProxyDayReportConsumer {
 
@@ -32,7 +32,7 @@ public class ProxyDayReportConsumer {
      */
     @RabbitHandler
     public void process(ShareProfitBO shareProfitBO, Channel channel, Message message) throws IOException {
-        log.info("ONE-start 游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
+        log.info("ONE-start 日报表-游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
         try {
             //进行日报表处理
             levelProxyDayReportBusiness.processReport(shareProfitBO);
@@ -41,6 +41,6 @@ public class ProxyDayReportConsumer {
         }finally {
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         }
-        log.info("ONE-end日报表-游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
+        log.info("ONE-end 日报表-游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
     }
 }
