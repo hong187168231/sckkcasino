@@ -42,6 +42,10 @@ public class LevelShareprofitItemService {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
+    @Autowired
+    private LevelProxyDayReportBusiness levelProxyDayReportBusiness;
+    @Autowired
+    private LevelProxyReportBusiness levelproxyReportBusiness;
 
     /**
      *  处理各级代理分润入库
@@ -62,6 +66,11 @@ public class LevelShareprofitItemService {
             //userMoney.setShareProfit(userMoney.getShareProfit().add(shareProfitBO.getProfitAmount()));
             userMoneyService.changeProfit(userMoney.getUserId(),shareProfitBO.getProfitAmount());
 
+            //进行日报表处理
+            levelProxyDayReportBusiness.processReport(shareProfitBO);
+            //进行总报表处理
+            levelproxyReportBusiness.processReport(shareProfitBO);
+
             if(user.getIsFirstBet()==Constants.no){
                 //设置第一次投注用户
                 userService.updateIsFirstBet(user.getId(), Constants.yes);
@@ -70,8 +79,9 @@ public class LevelShareprofitItemService {
             //更新分润状态
              gameRecordService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
             log.info("processShareProfitList That took {} milliseconds",System.currentTimeMillis()-startTime);
-            //报表处理mq
-            reportMq(shareProfitBO);
+/*            //报表处理mq
+            reportMq(shareProfitBO);*/
+
         }
     }
 
