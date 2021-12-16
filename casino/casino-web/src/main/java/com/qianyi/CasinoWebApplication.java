@@ -15,8 +15,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class CasinoWebApplication {
 
     public static void main(String[] args) {
-        log.info("dev环境部署成功");
         SpringApplication.run(CasinoWebApplication.class, args);
+        log.info("dev环境部署成功");
     }
 
 }
