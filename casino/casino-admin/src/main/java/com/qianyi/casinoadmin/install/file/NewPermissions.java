@@ -41,6 +41,10 @@ public class NewPermissions {
             //设置代理中心
             setAgentCenter(collect);
         }
+        if(collect.containsKey("/orderCenter")){
+            //设置订单中心
+            setOrderCenter(collect);
+        }
         sysPermissionService.saveAllList(sysPermissions);
     }
 
@@ -53,6 +57,29 @@ public class NewPermissions {
         });
         set.addAll(sysPermissionList);
         return new ArrayList<>(set);
+    }
+
+    /**
+     * 设置订单中心
+     * @param collect
+     */
+    private void setOrderCenter(Map<String, SysPermission> collect) {
+        if (collect.containsKey("/chargeOrder/chargeOrderList")) {
+            Long pid = collect.get("/chargeOrder/chargeOrderList").getId();
+            if (!collect.containsKey("/chargeOrder/updateChargeOrdersRemark")) {
+                SysPermission sysPermission = new SysPermission("修改充值备注", "修改充值备注", "/chargeOrder/updateChargeOrdersRemark", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+
+        }
+        if (collect.containsKey("/withdraw/withdrawList")) {
+            Long pid = collect.get("/withdraw/withdrawList").getId();
+            if (!collect.containsKey("/withdraw/updateWithdrawOrderRemark")) {
+                SysPermission sysPermission = new SysPermission("修改提现备注", "修改提现备注", "/withdraw/updateWithdrawOrderRemark", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+
+        }
     }
     /**
      * 设置代理中心
