@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.qianyi.modulecommon.Constants;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -154,5 +155,18 @@ public class PlatformConfig {
             this.withdrawServiceMoney = BigDecimal.ZERO;
         }
         return money.multiply(this.withdrawRate).add(this.withdrawServiceMoney);
+    }
+
+    /**
+     * 检查人人代开关
+     * @param config
+     * @return
+     */
+    public static boolean checkPeopleProxySwitch(PlatformConfig config) {
+        if (config == null) {
+            return true;
+        }
+        boolean proxySwitch = config.getPeopleProxySwitch() == Constants.close ? false : true;
+        return proxySwitch;
     }
 }

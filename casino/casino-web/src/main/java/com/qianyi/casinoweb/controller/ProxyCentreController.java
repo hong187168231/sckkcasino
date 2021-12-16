@@ -48,6 +48,8 @@ public class ProxyCentreController {
     @Autowired
     private ShareProfitChangeService shareProfitChangeService;
     @Autowired
+    private PlatformConfigService platformConfigService;
+    @Autowired
     @Qualifier("asyncExecutor")
     private Executor executor;
 
@@ -55,6 +57,11 @@ public class ProxyCentreController {
     @ApiOperation("查询今日，昨日，本周佣金")
     @GetMapping("/getCommission")
     public ResponseEntity<ProxyCentreVo> getCommission() {
+        //人人代开关检查
+        ResponseEntity response = checkPeopleProxySwitch();
+        if (response != null) {
+            return response;
+        }
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         ProxyCentreVo vo = new ProxyCentreVo();
@@ -89,6 +96,11 @@ public class ProxyCentreController {
     @ApiOperation("我的团队")
     @GetMapping("/myTeam")
     public ResponseEntity<ProxyCentreVo.MyTeam> myTeam() {
+        //人人代开关检查
+        ResponseEntity response = checkPeopleProxySwitch();
+        if (response != null) {
+            return response;
+        }
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -115,6 +127,11 @@ public class ProxyCentreController {
     @ApiOperation("代理报表")
     @GetMapping("/proxyReport")
     public ResponseEntity<ProxyReport> proxyReport() {
+        //人人代开关检查
+        ResponseEntity response = checkPeopleProxySwitch();
+        if (response != null) {
+            return response;
+        }
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         ProxyReport proxyReport = proxyReportService.findByUserId(userId);
@@ -129,6 +146,11 @@ public class ProxyCentreController {
     @ApiImplicitParams({@ApiImplicitParam(name = "account", value = "会员账号", required = false),
     })
     public ResponseEntity<List<ProxyCentreVo.ShareProfit>> findAchievementList(String account) {
+        //人人代开关检查
+        ResponseEntity response = checkPeopleProxySwitch();
+        if (response != null) {
+            return response;
+        }
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         List<ProxyCentreVo.ShareProfit> dataList = new ArrayList<>();
@@ -219,6 +241,11 @@ public class ProxyCentreController {
     @GetMapping("/receiveShareProfit")
     @Transactional
     public ResponseEntity<String> receiveWashCode() {
+        //人人代开关检查
+        ResponseEntity response = checkPeopleProxySwitch();
+        if (response != null) {
+            return response;
+        }
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
@@ -240,5 +267,18 @@ public class ProxyCentreController {
         vo.setAmountAfter(userMoney.getMoney().add(shareProfit));
         asyncService.executeAsync(vo);
         return ResponseUtil.success("成功领取金额" , shareProfit.stripTrailingZeros().toPlainString());
+    }
+
+    /**
+     * 人人代开关检查
+     * @return
+     */
+    public ResponseEntity checkPeopleProxySwitch() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        boolean proxySwitch = PlatformConfig.checkPeopleProxySwitch(platformConfig);
+        if (!proxySwitch) {
+            return ResponseUtil.custom("不支持此功能");
+        }
+        return null;
     }
 }
