@@ -22,7 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-@Api(tags = "测试")
+@Api(tags = "测试1")
 @RestController
 @RequestMapping("test")
 @Slf4j
