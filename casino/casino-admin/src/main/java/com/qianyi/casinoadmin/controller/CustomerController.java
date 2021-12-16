@@ -147,7 +147,6 @@ public class CustomerController {
      * @param pcIconFile pc图标
      * @return
      */
-    @NoAuthorization
     @ApiOperation("编辑客服中心配置")
     @PostMapping(value = "/updateKeyCustomerConfigure",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "编辑客服中心配置")
     public ResponseEntity updateKeyCustomerConfigure(  @RequestParam(value = "id", required = true)Long id,
@@ -165,7 +164,7 @@ public class CustomerController {
                     if (quantity==3){
                         return ResponseUtil.custom("客服平台最多启用3个(手机号,onlineUrl号不包含在内)");
                     }
-                    if(customerConfigure.getCustomerAccount()==null){
+                    if(LoginUtil.checkNull(customerConfigure.getCustomerAccount())){
                         return ResponseUtil.custom("启用前请配置好相关信息");
                     }
                 }
@@ -186,7 +185,7 @@ public class CustomerController {
             if (pcIconFile!=null) {
                 savePicture(pcIconFile, customerConfigure, Constants.no,uploadUrl);
             }
-            if (!LoginUtil.checkNull(customerAccount)){
+            if (customerAccount!=null){
                 customerConfigure.setCustomerAccount(customerAccount);
             }
         }
