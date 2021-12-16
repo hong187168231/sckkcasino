@@ -189,6 +189,7 @@ public class CustomerController {
                 if(customerConfigure.getState()==Constants.open){
                     customerConfigure.setState(Constants.close);
                 }
+                customerConfigure.setCustomerAccount(customerAccount);
             }else {
                 customerConfigure.setCustomerAccount(customerAccount);
             }
