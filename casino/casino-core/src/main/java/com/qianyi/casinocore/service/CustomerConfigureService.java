@@ -53,4 +53,9 @@ public class CustomerConfigureService {
     public int countCustomerConfigure(Integer state){
         return customerConfigureRepository.countCustomerConfigure(state);
     }
+
+    public void deleteCustomerConfigureAll(){
+        customerConfigureRepository.deleteAllInBatch();
+    }
+
 }
