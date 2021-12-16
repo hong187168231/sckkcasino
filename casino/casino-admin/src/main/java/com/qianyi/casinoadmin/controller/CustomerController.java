@@ -120,6 +120,7 @@ public class CustomerController {
      * 查询客服中心配置列表
      * @return
      */
+    @NoAuthorization
     @ApiOperation("查询客服中心配置列表")
     @GetMapping("/findCustomerList")
     public ResponseEntity<CustomerConfigure> findCustomerList() {
@@ -146,12 +147,13 @@ public class CustomerController {
      * @param pcIconFile pc图标
      * @return
      */
+    @NoAuthorization
     @ApiOperation("编辑客服中心配置")
     @PostMapping(value = "/updateKeyCustomerConfigure",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "编辑客服中心配置")
     public ResponseEntity updateKeyCustomerConfigure(  @RequestParam(value = "id", required = true)Long id,
                                                        @RequestParam(value = "客服账号", required = false)String customerAccount,
                                                        @RequestParam(value = "状态(1:启用,0:停用)", required = false)Integer state,
-                                                       @RequestParam(value = "修改操作(1:状态修改,0:保存)", required = false)Integer type,
+                                                       @RequestParam(value = "修改状态(1:状态修改,0:保存)", required = false)Integer type,
                                             @RequestPart(value = "app图标", required = false) MultipartFile appIconFile,
                                             @RequestPart(value = "pc图标", required = false) MultipartFile pcIconFile){
         CustomerConfigure customerConfigure = customerConfigureService.getById(id);
