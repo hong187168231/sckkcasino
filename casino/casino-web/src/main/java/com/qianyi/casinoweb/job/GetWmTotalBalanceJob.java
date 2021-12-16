@@ -3,6 +3,7 @@ package com.qianyi.casinoweb.job;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.livewm.api.PublicWMApi;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
  * 整点查询平台在WM的总余额，更新到本地
  */
 @Component
+@Slf4j
 public class GetWmTotalBalanceJob {
 
     @Autowired
@@ -23,6 +25,7 @@ public class GetWmTotalBalanceJob {
     @Scheduled(cron = "0 0 * * * ?")
     public void tasks() {
         try {
+            log.info("开始查询平台在WM的总余额");
             BigDecimal agentBalance = wmApi.getAgentBalance(0);
             if (agentBalance == null) {
                 return;
@@ -36,7 +39,9 @@ public class GetWmTotalBalanceJob {
             }
             platformConfig.setWmMoney(agentBalance);
             platformConfigService.save(platformConfig);
+            log.info("平台在WM的总余额更新完成");
         } catch (Exception e) {
+            log.error("查询平台在WM的总余额异常");
             e.printStackTrace();
         }
     }
