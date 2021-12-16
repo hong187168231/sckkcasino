@@ -130,10 +130,6 @@ public class CustomerController {
             return ResponseUtil.custom("请先配置图片服务器访问地址");
         }
         customer.forEach(info -> {
-            if (LoginUtil.checkNull(info.getCustomerAccount()) && info.getState()==Constants.open){
-                info.setState(Constants.close);
-                customerConfigureService.save(info);
-            }
             info.setAppIconUrl(readUploadUrl + info.getAppIconUrl());
             info.setPcIconUrl(readUploadUrl + info.getPcIconUrl());
         });
@@ -168,7 +164,7 @@ public class CustomerController {
                         return ResponseUtil.custom("客服平台最多启用3个(手机号,onlineUrl号不包含在内)");
                     }
                     if(LoginUtil.checkNull(customerConfigure.getCustomerAccount())){
-                        return ResponseUtil.custom("启用前请配置好相关信息");
+                        return ResponseUtil.custom("请先保存配置信息");
                     }
                 }
                 customerConfigure.setState(state);
@@ -188,7 +184,12 @@ public class CustomerController {
             if (pcIconFile!=null) {
                 savePicture(pcIconFile, customerConfigure, Constants.no,uploadUrl);
             }
-            if (customerAccount!=null){
+            if (LoginUtil.checkNull(customerAccount)){
+                //判断状态是否为启用
+                if(customerConfigure.getState()==Constants.open){
+                    customerConfigure.setState(Constants.close);
+                }
+            }else {
                 customerConfigure.setCustomerAccount(customerAccount);
             }
         }
