@@ -299,7 +299,7 @@ public class Initialization implements CommandLineRunner {
             platformConfig.setSendMessageWarning(platformConfigFile.getSendMessageWarning());
             platformConfig.setDirectlyUnderTheLower(platformConfigFile.getDirectlyUnderTheLower());
             platformConfig.setCompanyInviteCode(platformConfigFile.getCompanyInviteCode());
-
+            platformConfig.setCustomerCode(platformConfig.getCustomerCode());
             platformConfig.setUploadUrl(platformConfigFile.getUploadUrl());
             platformConfig.setReadUploadUrl(platformConfigFile.getReadUploadUrl());
             platformConfig.setMoneySymbol(platformConfigFile.getMoneySymbol());
