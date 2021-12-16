@@ -5,6 +5,7 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.*;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.BankInfoService;
+import com.qianyi.casinocore.service.CustomerConfigureService;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
@@ -39,6 +40,8 @@ public class PlatformConfigController {
 
     @Autowired
     private BankInfoService bankInfoService;
+    @Autowired
+    private CustomerConfigureService customerConfigureService;
 
     @ApiOperation("玩家推广返佣配置查询")
     @GetMapping("/findCommission")
@@ -352,6 +355,7 @@ public class PlatformConfigController {
         bankInfoService.deleteBankInfoAll();
         initialization.saveBankInfo();
         //初始化客服中心图标
+        customerConfigureService.deleteCustomerConfigureAll();
         initialization.saveCustomerConfigureInfo();
         return ResponseUtil.success();
     }
