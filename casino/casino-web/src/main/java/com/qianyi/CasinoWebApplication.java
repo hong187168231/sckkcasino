@@ -1,5 +1,6 @@
 package com.qianyi;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -10,9 +11,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableJpaAuditing
 @EnableScheduling
+@Slf4j
 public class CasinoWebApplication {
 
     public static void main(String[] args) {
+        log.info("master环境部署成功");
         SpringApplication.run(CasinoWebApplication.class, args);
     }
 
