@@ -84,7 +84,9 @@ public class GameRecordJob {
                 saveAll(gameRecords);
             }
             updateEndTime(endTime, gameRecord);
+            log.info("{}到{}的wm游戏记录拉取完成",startTime,endTime);
         } catch (Exception e) {
+            log.error("游戏记录拉取异常");
             e.printStackTrace();
         }
     }
