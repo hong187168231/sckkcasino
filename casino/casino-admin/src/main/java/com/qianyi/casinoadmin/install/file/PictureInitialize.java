@@ -76,6 +76,7 @@ public class PictureInitialize {
         CustomerConfigure phone=new CustomerConfigure();
         phone.setCustomerMark(5);
         phone.setCustomer("手机号码");
+        phone.setCustomerAccount("88888888");
         phone.setState(Constants.open);
         phone.setAppIconUrl("/customer/app_kefu_shoujihaoma@2x.png");
         phone.setPcIconUrl("/customer/pc_shoujihaoma.png");
@@ -85,7 +86,7 @@ public class PictureInitialize {
         CustomerConfigure onlineUrl=new CustomerConfigure();
         onlineUrl.setCustomerMark(6);
         onlineUrl.setCustomerAccount("http://www.okeexx.cn/#/test");
-        onlineUrl.setCustomer("onlineUrl号");
+        onlineUrl.setCustomer("在线客服");
         onlineUrl.setState(Constants.open);
         onlineUrl.setAppIconUrl("/customer/app_zaixiankefu@2x.png");
         onlineUrl.setPcIconUrl("/customer/pc_zaixiankefu.png");
