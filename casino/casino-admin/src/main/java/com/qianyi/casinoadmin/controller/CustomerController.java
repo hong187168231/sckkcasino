@@ -10,6 +10,7 @@ import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -150,41 +151,43 @@ public class CustomerController {
     public ResponseEntity updateKeyCustomerConfigure(  @RequestParam(value = "id", required = true)Long id,
                                                        @RequestParam(value = "客服账号", required = false)String customerAccount,
                                                        @RequestParam(value = "状态(1:启用,0:停用)", required = false)Integer state,
+                                                       @RequestParam(value = "修改操作(1:状态修改,0:保存)", required = false)Integer type,
                                             @RequestPart(value = "app图标", required = false) MultipartFile appIconFile,
                                             @RequestPart(value = "pc图标", required = false) MultipartFile pcIconFile){
         CustomerConfigure customerConfigure = customerConfigureService.getById(id);
-        String uploadUrl=null;
-        if (pcIconFile!=null||appIconFile!=null) {
-            PlatformConfig platformConfig= platformConfigService.findFirst();
-            uploadUrl = platformConfig.getUploadUrl();
-            if(uploadUrl==null) {
-                return ResponseUtil.custom("请先配置图片服务器上传地址");
-            }
-        }
-        if (appIconFile!=null){
-            savePicture(appIconFile,customerConfigure, Constants.yes,uploadUrl);
-        }
-        if (pcIconFile!=null) {
-            savePicture(pcIconFile, customerConfigure, Constants.no,uploadUrl);
-        }
-        if (customerAccount!=null) {
-            customerConfigure.setCustomerAccount(customerAccount);
-        }
-
-        if (state!=null) {
-            if (state==Constants.open){
-                //判断是否有3个开启状态
-                int quantity = customerConfigureService.countCustomerConfigure(Constants.open);
-                if (quantity==3){
-                    return ResponseUtil.custom("客服平台最多启用3个");
+        if (type==Constants.yes){
+            if (state!=null) {
+                if (state==Constants.open){
+                    //判断是否有3个开启状态
+                    int quantity = customerConfigureService.countCustomerConfigure(Constants.open);
+                    if (quantity==3){
+                        return ResponseUtil.custom("客服平台最多启用3个");
+                    }
+                    if(customerConfigure.getCustomerAccount()==null){
+                        return ResponseUtil.custom("启用前请配置好相关信息");
+                    }
                 }
-                if(customerConfigure.getCustomerAccount()==null || customerAccount==null){
-                    return ResponseUtil.custom("启用前请配置好相关信息");
+                customerConfigure.setState(state);
+            }
+        }else {
+            String uploadUrl=null;
+            if (pcIconFile!=null||appIconFile!=null) {
+                PlatformConfig platformConfig= platformConfigService.findFirst();
+                uploadUrl = platformConfig.getUploadUrl();
+                if(uploadUrl==null) {
+                    return ResponseUtil.custom("请先配置图片服务器上传地址");
                 }
             }
-            customerConfigure.setState(state);
+            if (appIconFile!=null){
+                savePicture(appIconFile,customerConfigure, Constants.yes,uploadUrl);
+            }
+            if (pcIconFile!=null) {
+                savePicture(pcIconFile, customerConfigure, Constants.no,uploadUrl);
+            }
+            if (customerAccount!=null) {
+                customerConfigure.setCustomerAccount(customerAccount);
+            }
         }
-
         customerConfigureService.save(customerConfigure);
         return ResponseUtil.success();
     }
