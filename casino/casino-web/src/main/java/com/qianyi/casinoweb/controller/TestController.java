@@ -22,7 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-@Api(tags = "测试1")
+@Api(tags = "测试")
 @RestController
 @RequestMapping("test")
 @Slf4j
@@ -36,7 +36,7 @@ public class TestController {
     private RedisUtil redisUtil;
 
     @GetMapping("sendMq")
-    @ApiOperation("批量发送分润MQ")
+    @ApiOperation("批量发送分润MQ测试")
     @NoAuthentication
     @ApiImplicitParam(name = "id", value = "起始ID", required = true)
     public ResponseEntity sendMq(Long id) {
