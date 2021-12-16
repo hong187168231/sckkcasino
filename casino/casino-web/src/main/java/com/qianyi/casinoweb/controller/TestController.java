@@ -55,7 +55,7 @@ public class TestController {
     }
 
     @GetMapping("test")
-    @ApiOperation("master部署测试")
+    @ApiOperation("master部署测试1")
     @NoAuthentication
     public ResponseEntity test() {
         return ResponseUtil.success("master部署正常");
