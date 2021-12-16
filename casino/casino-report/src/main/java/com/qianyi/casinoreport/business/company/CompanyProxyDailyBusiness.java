@@ -44,8 +44,10 @@ public class CompanyProxyDailyBusiness {
     public void processDailyReport(String dayTime){
         String startTime = getStartTime(dayTime);
         String endTime = getEndTime(dayTime);
+        //删除天
         companyProxyDetailService.deleteByDayTime(startTime.substring(0,10));
         log.info("processDailyReport start startTime:{} endTime:{}",startTime,endTime);
+        //查询当天游戏记录(third_proxy is not null)
         List<CompanyOrderAmountVo> companyOrderAmountVoList = gameRecordService.getStatisticsResult(startTime,endTime);
 
         List<CompanyProxyDetail> firstList= new ArrayList<>();
@@ -61,6 +63,7 @@ public class CompanyProxyDailyBusiness {
 
         log.info("firstList size is {}, secondeList size is {}, thirdList size is {}",firstList.size(),secondeList.size(),thirdList.size());
 
+        // 处理总返佣：总返佣group_totalprofit = 下级profit_amount总计
         List<CompanyProxyDetail> secondeCompanyProxyDetail = processSec(secondeList,thirdList,2);
         List<CompanyProxyDetail> firstCompanyProxyDetail = processSec(firstList,secondeCompanyProxyDetail,1);
 
@@ -118,7 +121,9 @@ public class CompanyProxyDailyBusiness {
      * @param thirdList
      */
     public void processOrder(CompanyOrderAmountVo companyOrderAmountVo,List<CompanyProxyDetail> firstList,List<CompanyProxyDetail> secondeList,List<CompanyProxyDetail> thirdList){
+        //返佣比例
         CompanyLevelBO companyLevelBO = companyLevelProcessBusiness.getLevelData(new BigDecimal(companyOrderAmountVo.getValidbet()));
+        //根据基层代查询代理佣金配置表
         ProxyCommission proxyCommission = proxyCommissionService.findByProxyUserId(companyOrderAmountVo.getThirdProxy());
 
         log.info("companyLevelBO:{}",companyLevelBO);
@@ -132,6 +137,7 @@ public class CompanyProxyDailyBusiness {
 
     public CompanyProxyDetail calculateDetail(CompanyLevelBO companyLevelBO,CompanyOrderAmountVo companyOrderAmountVo,Long userid,BigDecimal profitRate,Integer proxyType){
         log.info("companyLevelBO:{}",companyLevelBO);
+        //个人佣金结算:返佣金额(如:达到1w返佣10元) * 实际倍数(下注金额/10000) * 代理佣金配置值
         BigDecimal totalAmount = companyLevelBO.getProfitAmount().multiply(BigDecimal.valueOf(companyLevelBO.getProfitActTimes()));
         CompanyProxyDetail companyProxyDetail= CompanyProxyDetail.builder()
                 .benefitRate(profitRate)
