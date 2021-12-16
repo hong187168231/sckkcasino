@@ -14,6 +14,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,6 +33,12 @@ public class WithdrawOrderService {
     public WithdrawOrder findUserByIdUseLock(Long userId){
         return withdrawOrderRepository.findUserByWithdrawIdOrderLock(userId);
     }
+
+    @Transactional
+    public void updateWithdrawOrderRemark(String remark,Long id){
+        withdrawOrderRepository.updateWithdrawOrderRemark(remark,id);
+    }
+
 
     public WithdrawOrder findById(Long id) {
         Optional<WithdrawOrder> optional = withdrawOrderRepository.findById(id);
