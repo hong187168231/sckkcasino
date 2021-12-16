@@ -130,12 +130,12 @@ public class CustomerController {
             return ResponseUtil.custom("请先配置图片服务器访问地址");
         }
         customer.forEach(info -> {
-            info.setAppIconUrl(readUploadUrl + info.getAppIconUrl());
-            info.setPcIconUrl(readUploadUrl + info.getPcIconUrl());
             if (LoginUtil.checkNull(info.getCustomerAccount()) && info.getState()==Constants.open){
                 info.setState(Constants.close);
                 customerConfigureService.save(info);
             }
+            info.setAppIconUrl(readUploadUrl + info.getAppIconUrl());
+            info.setPcIconUrl(readUploadUrl + info.getPcIconUrl());
         });
         return ResponseUtil.success(customer);
     }
