@@ -58,6 +58,11 @@ public class ChargeOrderService {
         chargeOrderRepository.updateChargeOrders(status,time);
     }
 
+    @Transactional
+    public void updateChargeOrdersRemark(String remark,Long id){
+        chargeOrderRepository.updateChargeOrdersRemark(remark,id);
+    }
+
     public Integer countByUserIdAndStatus(Long userId,int status) {
         return chargeOrderRepository.countByUserIdAndStatus(userId,status);
     }
