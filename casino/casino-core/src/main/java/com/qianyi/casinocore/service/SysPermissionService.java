@@ -106,4 +106,13 @@ public class SysPermissionService {
     public void deleteAllIds(List<Long> permissionList) {
         sysPermissionRepository.deleteAllById(permissionList);
     }
+
+    public SysPermission findByUrl(String url) {
+        return sysPermissionRepository.findByUrl(url);
+    }
+
+    public void deleteById(Long id ) {
+        sysPermissionRepository.deleteById(id);
+    }
+
 }

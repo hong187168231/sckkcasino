@@ -76,6 +76,15 @@ public class NewPermissions {
     private void setCustomerConfigure(Map<String, SysPermission> collect) {
         SysPermission save =new SysPermission();
         if(!collect.containsKey("/customer/findCustomerList")){
+            //先删除之前的菜单
+            SysPermission byUrl = sysPermissionService.findByUrl("/customer/findCustomer");
+            SysPermission updateByUrl = sysPermissionService.findByUrl("/customer/updateKeyCustomer");
+            if (byUrl!=null){
+                sysPermissionService.deleteById(byUrl.getId());
+            }
+            if (byUrl!=null){
+                sysPermissionService.deleteById(updateByUrl.getId());
+            }
             Long pid = collect.get("/operateCenter").getId();
             SysPermission sysConfigPermission = new SysPermission("客服中心配置", "客服中心配置", "/customer/findCustomerList", pid, 2, 0);
             save = sysPermissionService.save(sysConfigPermission);
