@@ -459,6 +459,9 @@ public class ProxyUserController {
         if (LoginUtil.checkNull(id,acceptId)){
             return ResponseUtil.custom("参数不合法");
         }
+        if (id.toString().equals(acceptId.toString())){
+            return ResponseUtil.custom("参数不合法");
+        }
         ProxyUser byId = proxyUserService.findById(id);
         ProxyUser accept = proxyUserService.findById(acceptId);
         if (LoginUtil.checkNull(byId,accept)){
