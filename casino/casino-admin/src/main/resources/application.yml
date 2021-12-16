@@ -9,9 +9,9 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
   datasource:
-    url: jdbc:mysql://localhost:3306/casino?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://47.243.200.162:3606/casino?useUnicode=true&characterEncoding=utf-8
     username: root
-    password: root
+    password: Mysql_123
     #    url: jdbc:mysql://154.204.57.237:3306/pay?useUnicode=true&characterEncoding=utf-8
     #    username: root
     #    password: aAbB1!2@
@@ -29,9 +29,9 @@ spring:
   redis:
     database: 0
     #    host: 154.204.57.237
-    host: 127.0.0.1
-    port: 6379
-    password:
+    host: 47.243.60.31
+    port: 8000
+    password: Redis_123P
     timeout: 3000
   rabbitmq:
     host: 154.204.57.237 #ip
@@ -53,8 +53,10 @@ spring:
       max-request-size: 100MB
 project:
   title: 后台管理
-#  username: admin
-#  password: 123456
+  username: admin1,admin2,admin3,admin4,admin5
+  password: 123456
+  swagger:
+    enable: true
 
 
 
