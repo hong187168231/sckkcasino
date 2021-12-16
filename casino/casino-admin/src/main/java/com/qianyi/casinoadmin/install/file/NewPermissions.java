@@ -82,7 +82,7 @@ public class NewPermissions {
             if (byUrl!=null){
                 sysPermissionService.deleteById(byUrl.getId());
             }
-            if (byUrl!=null){
+            if (updateByUrl!=null){
                 sysPermissionService.deleteById(updateByUrl.getId());
             }
             Long pid = collect.get("/operateCenter").getId();

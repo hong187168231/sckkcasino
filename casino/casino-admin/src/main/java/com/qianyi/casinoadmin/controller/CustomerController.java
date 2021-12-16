@@ -120,7 +120,6 @@ public class CustomerController {
      * 查询客服中心配置列表
      * @return
      */
-    @NoAuthorization
     @ApiOperation("查询客服中心配置列表")
     @GetMapping("/findCustomerList")
     public ResponseEntity<CustomerConfigure> findCustomerList() {
@@ -133,6 +132,10 @@ public class CustomerController {
         customer.forEach(info -> {
             info.setAppIconUrl(readUploadUrl + info.getAppIconUrl());
             info.setPcIconUrl(readUploadUrl + info.getPcIconUrl());
+            if (LoginUtil.checkNull(info.getCustomerAccount()) && info.getState()==Constants.open){
+                info.setState(Constants.close);
+                customerConfigureService.save(info);
+            }
         });
         return ResponseUtil.success(customer);
     }
