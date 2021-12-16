@@ -134,6 +134,9 @@ public class PlatformConfig {
     @ApiModelProperty("人人代开关 0:关闭，1:开启")
     private Integer peopleProxySwitch;*/
 
+    @ApiModelProperty("人人代开关 0:关闭，1:开启")
+    private Integer peopleProxySwitch;
+
 
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){
