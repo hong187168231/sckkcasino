@@ -5,7 +5,7 @@
         <layout class="ch.qos.logback.classic.PatternLayout">
             <pattern>
                 <!-- 彩色日志格式，magenta：洋红，boldMagenta：粗红，yan：青色，·⊱══> -->
-                %boldMagenta([%d{yyyy-MM-dd HH:mm:ss.SSS}]) %cyan([traceId:%X{traceId}]) %boldMagenta([%thread] %-5level) %blue(%logger{15} [%line]) %magenta(·⊱══>) %cyan(%msg%n)
+                %boldMagenta([%d{yyyy-MM-dd HH:mm:ss.SSS}]) %cyan([traceId:%X{traceId}]) %boldMagenta([%thread] %-5level) %blue(%logger{200} [%line]) %magenta(·⊱══>) %cyan(%msg%n)
                 <!--%date{yyyy-MM-dd HH:mm:ss.SSS} [traceId:%X{traceId}] [%thread] %-5level %logger{200} [%line] - %msg%n-->
             </pattern>
         </layout>
