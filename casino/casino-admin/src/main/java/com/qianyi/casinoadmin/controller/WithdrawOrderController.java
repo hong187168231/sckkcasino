@@ -156,7 +156,7 @@ public class WithdrawOrderController {
      *
      * @return
      */
-    @NoAuthorization
+
     @ApiOperation("修改提现备注")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "订单id", required = true),

@@ -37,6 +37,14 @@ public class NewPermissions {
             //设置运营客服中心配置
             setCustomerConfigure(collect);
         }
+        if(collect.containsKey("/agentCenter")){
+            //设置代理中心
+            setAgentCenter(collect);
+        }
+        if(collect.containsKey("/orderCenter")){
+            //设置订单中心
+            setOrderCenter(collect);
+        }
         sysPermissionService.saveAllList(sysPermissions);
     }
 
@@ -51,6 +59,42 @@ public class NewPermissions {
         return new ArrayList<>(set);
     }
 
+    /**
+     * 设置订单中心
+     * @param collect
+     */
+    private void setOrderCenter(Map<String, SysPermission> collect) {
+        if (collect.containsKey("/chargeOrder/chargeOrderList")) {
+            Long pid = collect.get("/chargeOrder/chargeOrderList").getId();
+            if (!collect.containsKey("/chargeOrder/updateChargeOrdersRemark")) {
+                SysPermission sysPermission = new SysPermission("修改充值备注", "修改充值备注", "/chargeOrder/updateChargeOrdersRemark", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+
+        }
+        if (collect.containsKey("/withdraw/withdrawList")) {
+            Long pid = collect.get("/withdraw/withdrawList").getId();
+            if (!collect.containsKey("/withdraw/updateWithdrawOrderRemark")) {
+                SysPermission sysPermission = new SysPermission("修改提现备注", "修改提现备注", "/withdraw/updateWithdrawOrderRemark", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+
+        }
+    }
+    /**
+     * 设置代理中心
+     * @param collect
+     */
+    private void setAgentCenter(Map<String, SysPermission> collect) {
+        if(collect.containsKey("/proxyUser/findProxyUser")){
+            Long pid = collect.get("/proxyUser/findProxyUser").getId();
+            if (!collect.containsKey("/proxyUser/transferUser")){
+                SysPermission sysPermission = new SysPermission("转移会员", "转移会员", "/proxyUser/transferUser", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+
+        }
+    }
     /**
      * 运营中心 - 客服中心配置
      * @param collect
@@ -75,6 +119,27 @@ public class NewPermissions {
             Long pid = save.getId();
             if(!collect.containsKey("/customer/updateKeyCustomerConfigure")){
                 SysPermission sysPermission = new SysPermission("保存", "保存", "/customer/updateKeyCustomerConfigure", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+        }
+
+        //人人贷开关
+        if(collect.containsKey("/chargeConfig/findChargeConfig")){
+            Long pid = collect.get("/chargeConfig/findChargeConfig").getId();
+            if (!collect.containsKey("/platformConfig/findPeopleProxySwitch")){
+                SysPermission sysPermission = new SysPermission("查询人人代开关", "查询人人代开关", "/platformConfig/findPeopleProxySwitch", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/chargeConfig/updatePeopleProxySwitch")){
+                SysPermission sysPermission = new SysPermission("编辑人人代开关", "编辑人人代开关", "/platformConfig/updatePeopleProxySwitch", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/platformConfig/findBankcardRealNameSwitch")){
+                SysPermission sysPermission = new SysPermission("查询银行卡账号校验开关", "查询银行卡账号校验开关", "/platformConfig/findBankcardRealNameSwitch", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/platformConfig/updateBankcardRealNameSwitch")){
+                SysPermission sysPermission = new SysPermission("编辑银行卡账号校验开关", "编辑银行卡账号校验开关", "/platformConfig/updateBankcardRealNameSwitch", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
         }

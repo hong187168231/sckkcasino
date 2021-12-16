@@ -178,7 +178,6 @@ public class ChargeOrderController {
      *
      * @return
      */
-    @NoAuthorization
     @ApiOperation("修改充值备注")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "订单id", required = true),
