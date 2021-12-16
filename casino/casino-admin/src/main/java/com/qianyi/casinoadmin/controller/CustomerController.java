@@ -186,7 +186,7 @@ public class CustomerController {
             if (pcIconFile!=null) {
                 savePicture(pcIconFile, customerConfigure, Constants.no,uploadUrl);
             }
-            if (customerAccount!=null) {
+            if (!LoginUtil.checkNull(customerAccount)){
                 customerConfigure.setCustomerAccount(customerAccount);
             }
         }
