@@ -251,7 +251,7 @@ public class PlatformConfigController {
 
     @ApiOperation("修改客服脚本的代号")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "promotionCode", value = "推广链接", required = true),
+            @ApiImplicitParam(name = "customerCode", value = "客服脚本的代号", required = true),
     })
     @PostMapping("/updateCustomerCode")
     public ResponseEntity updateCustomerCode(String customerCode){
