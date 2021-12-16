@@ -163,7 +163,7 @@ public class CustomerController {
                     //判断是否有3个开启状态
                     int quantity = customerConfigureService.countCustomerConfigure(Constants.open);
                     if (quantity==3){
-                        return ResponseUtil.custom("客服平台最多启用3个");
+                        return ResponseUtil.custom("客服平台最多启用3个(手机号,onlineUrl号不包含在内)");
                     }
                     if(customerConfigure.getCustomerAccount()==null){
                         return ResponseUtil.custom("启用前请配置好相关信息");
