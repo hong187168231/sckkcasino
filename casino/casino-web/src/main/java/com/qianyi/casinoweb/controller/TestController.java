@@ -53,4 +53,11 @@ public class TestController {
         redisUtil.set("sendMq::endTime::" + id, endTime);
         return ResponseUtil.success();
     }
+
+    @GetMapping("test")
+    @ApiOperation("master部署测试")
+    @NoAuthentication
+    public ResponseEntity test() {
+        return ResponseUtil.success("master部署正常");
+    }
 }
