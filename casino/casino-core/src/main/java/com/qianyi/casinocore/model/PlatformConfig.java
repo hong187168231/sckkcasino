@@ -128,6 +128,9 @@ public class PlatformConfig {
     @ApiModelProperty("(APP)登录注册页log图片地址")
     private String loginRegisterLogImageUrlApp;
 
+    @ApiModelProperty("客服脚本的代号")
+    private String customerCode;
+
 
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){

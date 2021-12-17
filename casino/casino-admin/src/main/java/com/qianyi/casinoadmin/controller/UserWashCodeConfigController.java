@@ -80,6 +80,7 @@ public class UserWashCodeConfigController {
                     UserWashCodeConfig userWashCodeConfig = new UserWashCodeConfig();
                     userWashCodeConfig.setUserId(userId);
                     BeanUtils.copyProperties(washCodeConfig, userWashCodeConfig, UserWashCodeConfig.class);
+                    userWashCodeConfig.setId(null);
                     codeConfigs.add(userWashCodeConfig);
                 }
             }else{
