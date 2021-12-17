@@ -167,9 +167,9 @@ public class PlatformConfig {
      */
     public static boolean checkPeopleProxySwitch(PlatformConfig config) {
         if (config == null) {
-            return true;
+            return false;
         }
-        boolean proxySwitch = config.getPeopleProxySwitch() == Constants.close ? false : true;
+        boolean proxySwitch = config.getPeopleProxySwitch() == Constants.open ? true : false;
         return proxySwitch;
     }
 }
