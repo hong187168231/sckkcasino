@@ -84,13 +84,9 @@ public class BankCardsController {
         }
         Bankcards bankcards = boundCard(firstBankcard,bankId,bankAccount,address,realName,userId);
         //银行卡绑定 同名只能绑定一个账号
-        PlatformConfig platformConfig = platformConfigService.findFirst();
-        boolean bankcardRealNameSwitch = PlatformConfig.checkBankcardRealNameSwitch(platformConfig);
-        if (bankcardRealNameSwitch) {
-            Bankcards checkRealName = bankcardsService.findByRealName(bankcards.getRealName());
-            if (checkRealName != null && !checkRealName.getUserId().equals(bankcards.getUserId())) {
-                return ResponseUtil.custom("同一个持卡人只能绑定一个账号");
-            }
+        boolean bankcardRealNameSwitch = checkBankcardRealNameSwitch(bankcards.getRealName(), userId);
+        if (!bankcardRealNameSwitch) {
+            return ResponseUtil.custom("同一个持卡人只能绑定一个账号");
         }
         bankcards= bankcardsService.boundCard(bankcards);
         return ResponseUtil.success(bankcards);
@@ -216,5 +212,30 @@ public class BankCardsController {
 
     private Integer isFirstCard(Bankcards bankcards){
         return bankcards==null?1:0;
+    }
+
+    /**
+     * 银行卡绑定 同名只能绑定一个账号   默认开
+     * @param realName
+     * @param userId
+     * @return
+     */
+    private boolean checkBankcardRealNameSwitch(String realName, Long userId) {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        boolean bankcardRealNameSwitch = PlatformConfig.checkBankcardRealNameSwitch(platformConfig);
+        if (!bankcardRealNameSwitch) {
+            return true;
+        }
+        List<Bankcards> checkRealNameList = bankcardsService.findByRealName(realName);
+        if (CollectionUtils.isEmpty(checkRealNameList)) {
+            return true;
+        }
+        //可能存在一个名字属于多个账号，只要有一个账号匹配的上就可以
+        for (Bankcards checkRealName : checkRealNameList) {
+            if (checkRealName.getUserId().equals(userId)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
