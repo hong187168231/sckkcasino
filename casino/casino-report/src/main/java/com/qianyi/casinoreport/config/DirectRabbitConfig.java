@@ -180,6 +180,37 @@ public class DirectRabbitConfig {
 
 
     /**
+     * 分润报表处理mq
+     */
+    @Bean
+    public Queue reportDayProfitQueue(){
+        return new Queue(RabbitMqConstants.REPORTDAY_PROFIT_QUEUE,true);
+    }
+    @Bean
+    public DirectExchange reportDayProfitQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.REPORTDAY_PROFIT_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding reportDayProfitDirect(){
+        return BindingBuilder.bind(reportDayProfitQueue()).to(reportDayProfitQueueDirectExchange()).with(RabbitMqConstants.REPORTDAY_PROFIT_DIRECT);
+    }
+
+    @Bean
+    public Queue reportProfitQueue(){
+        return new Queue(RabbitMqConstants.REPORT_PROFIT_QUEUE,true);
+    }
+    @Bean
+    public DirectExchange reportProfitQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.REPORT_PROFIT_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding reportProfitDirect(){
+        return BindingBuilder.bind(reportProfitQueue()).to(reportProfitQueueDirectExchange()).with(RabbitMqConstants.REPORT_PROFIT_DIRECT);
+    }
+
+
+
+    /**
      * 代理线充值消息MQ
      * @return
      */

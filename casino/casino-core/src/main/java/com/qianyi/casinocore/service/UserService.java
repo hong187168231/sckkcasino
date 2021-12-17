@@ -31,6 +31,15 @@ public class UserService {
         return userRepository.findByAccount(account);
     }
 
+    public User findOne(User user) {
+        Specification<User> condition = this.getCondition(user,null,null);
+        Optional<User> optional = userRepository.findOne(condition);
+        if (optional.isPresent()) {
+            return optional.get();
+        }
+        return null;
+    }
+
     @CachePut(key="#result.id",condition = "#result != null")
     public User save(User user) {
         return userRepository.save(user);

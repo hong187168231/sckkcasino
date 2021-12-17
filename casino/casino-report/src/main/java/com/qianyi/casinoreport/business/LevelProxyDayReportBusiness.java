@@ -23,9 +23,9 @@ public class LevelProxyDayReportBusiness {
      */
     public void processReport(ShareProfitBO shareProfitBO){
         ProxyDayReport proxyDayReport = getProxyDayReport(shareProfitBO);
-        proxyDayReport.setProfitAmount(proxyDayReport.getProfitAmount().add(shareProfitBO.getProfitAmount()));
-        proxyDayReport.setBetAmount(proxyDayReport.getBetAmount().add(shareProfitBO.getBetAmount()));
-        proxyDayReportService.save(proxyDayReport);
+/*        proxyDayReport.setProfitAmount(proxyDayReport.getProfitAmount().add(shareProfitBO.getProfitAmount()));
+        proxyDayReport.setBetAmount(proxyDayReport.getBetAmount().add(shareProfitBO.getBetAmount()));*/
+        proxyDayReportService.updateProxyDayReport(shareProfitBO.getUserId(),shareProfitBO.getProfitAmount(),shareProfitBO.getBetAmount(),shareProfitBO.getBetTime());
     }
 
     private ProxyDayReport getProxyDayReport(ShareProfitBO shareProfitBO) {
@@ -44,7 +44,7 @@ public class LevelProxyDayReportBusiness {
         ProxyDayReport proxyDayReport = proxyDayReportService.findByUserIdAndDay(userId,dayTime);
         if(proxyDayReport == null)
             buildProxyDayReport(userId,dayTime);
-        return proxyDayReportService.findByUserIdAndDayWithLock(userId,dayTime);
+        return proxyDayReportService.findByUserIdAndDay(userId,dayTime);
     }
 
 

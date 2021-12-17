@@ -1,8 +1,10 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.install.Initialization;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.*;
 import com.qianyi.casinocore.model.PlatformConfig;
+import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
@@ -32,6 +34,11 @@ public class PlatformConfigController {
 
     @Autowired
     private PlatformConfigService platformConfigService;
+    @Autowired
+    private Initialization initialization;
+
+    @Autowired
+    private BankInfoService bankInfoService;
 
     @ApiOperation("玩家推广返佣配置查询")
     @GetMapping("/findCommission")
@@ -314,6 +321,9 @@ public class PlatformConfigController {
         }
         first.setUploadUrl(uploadUrl);
         platformConfigService.save(first);
+        //初始化银行卡图片
+        bankInfoService.deleteBankInfoAll();
+        initialization.saveBankInfo();
         return ResponseUtil.success();
     }
 
@@ -366,6 +376,9 @@ public class PlatformConfigController {
         PlatformConfig platformConfig= platformConfigService.findFirst();
         try {
             String uploadUrl = platformConfig.getUploadUrl();
+            if(uploadUrl==null) {
+                return ResponseUtil.custom("请先配置图片服务器上传地址");
+            }
             String fileUrl = UploadAndDownloadUtil.fileUpload(file,uploadUrl);
             platformConfig.setLogImageUrlPc(fileUrl);
         } catch (Exception e) {
@@ -383,7 +396,10 @@ public class PlatformConfigController {
     @GetMapping("/findLogoPicturePc")
     public ResponseEntity findLogoPicturePc(){
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        return ResponseUtil.success(platformConfig==null?"":platformConfig.getReadUploadUrl()+platformConfig.getLogImageUrlPc());
+        if(platformConfig.getReadUploadUrl()==null) {
+            return ResponseUtil.custom("请先配置图片服务器访问地址");
+        }
+        return ResponseUtil.success(platformConfig.getLogImageUrlPc()==null?null:platformConfig.getReadUploadUrl()+platformConfig.getLogImageUrlPc());
     }
 
 
@@ -399,6 +415,9 @@ public class PlatformConfigController {
         PlatformConfig platformConfig= platformConfigService.findFirst();
         try {
             String uploadUrl = platformConfig.getUploadUrl();
+            if(uploadUrl==null) {
+                return ResponseUtil.custom("请先配置图片服务器上传地址");
+            }
             String fileUrl = UploadAndDownloadUtil.fileUpload(file,uploadUrl);
             platformConfig.setLogImageUrlApp(fileUrl);
         } catch (Exception e) {
@@ -416,7 +435,10 @@ public class PlatformConfigController {
     @GetMapping("/findLogoPictureApp")
     public ResponseEntity findLogoPictureApp(){
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        return ResponseUtil.success(platformConfig==null?"":platformConfig.getReadUploadUrl()+platformConfig.getLogImageUrlApp());
+        if(platformConfig.getReadUploadUrl()==null) {
+            return ResponseUtil.custom("请先配置图片服务器访问地址");
+        }
+        return ResponseUtil.success(platformConfig.getLogImageUrlApp()==null?null:platformConfig.getReadUploadUrl()+platformConfig.getLogImageUrlApp());
     }
 
 
@@ -432,6 +454,9 @@ public class PlatformConfigController {
         PlatformConfig platformConfig= platformConfigService.findFirst();
         try {
             String uploadUrl = platformConfig.getUploadUrl();
+            if(uploadUrl==null) {
+                return ResponseUtil.custom("请先配置图片服务器上传地址");
+            }
             String fileUrl = UploadAndDownloadUtil.fileUpload(file,uploadUrl);
             platformConfig.setLoginRegisterLogImageUrlApp(fileUrl);
         } catch (Exception e) {
@@ -449,7 +474,10 @@ public class PlatformConfigController {
     @GetMapping("/findLoginRegisterLogoPictureApp")
     public ResponseEntity findLoginRegisterLogoPictureApp(){
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        return ResponseUtil.success(platformConfig==null?"":platformConfig.getReadUploadUrl()+platformConfig.getLoginRegisterLogImageUrlApp());
+        if(platformConfig.getReadUploadUrl()==null) {
+            return ResponseUtil.custom("请先配置图片服务器访问地址");
+        }
+        return ResponseUtil.success(platformConfig.getLoginRegisterLogImageUrlApp()==null?null:platformConfig.getReadUploadUrl()+platformConfig.getLoginRegisterLogImageUrlApp());
     }
 
 
@@ -466,6 +494,9 @@ public class PlatformConfigController {
         PlatformConfig platformConfig= platformConfigService.findFirst();
         try {
             String uploadUrl = platformConfig.getUploadUrl();
+            if(uploadUrl==null) {
+                return ResponseUtil.custom("请先配置图片服务器上传地址");
+            }
             String fileUrl = UploadAndDownloadUtil.fileUpload(file,uploadUrl);
             platformConfig.setWebsiteIcon(fileUrl);
         } catch (Exception e) {
@@ -484,7 +515,10 @@ public class PlatformConfigController {
     @GetMapping("/findWebsiteIcon")
     public ResponseEntity findWebsiteIcon(){
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        return ResponseUtil.success(platformConfig==null?"":platformConfig.getReadUploadUrl()+platformConfig.getWebsiteIcon());
+        if(platformConfig.getReadUploadUrl()==null) {
+            return ResponseUtil.custom("请先配置图片服务器访问地址");
+        }
+        return ResponseUtil.success(platformConfig.getWebsiteIcon()==null?null:platformConfig.getReadUploadUrl()+platformConfig.getWebsiteIcon());
     }
 
 
@@ -519,7 +553,7 @@ public class PlatformConfigController {
     @GetMapping("/findMoneySymbol")
     public ResponseEntity findMoneySymbol(){
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        return ResponseUtil.success(platformConfig==null?"":platformConfig.getMoneySymbol());
+        return ResponseUtil.success(platformConfig==null?null:platformConfig.getMoneySymbol());
     }
 
 

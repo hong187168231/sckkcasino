@@ -12,8 +12,6 @@ import com.qianyi.casinocore.util.PasswordUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.ProxyUserVo;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
-import com.qianyi.casinoproxy.util.LoginUtil;
-import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -212,63 +210,63 @@ public class ThridProxyUserController {
         }
         return ResponseUtil.success(userCount);
     }
-    @ApiOperation("添加代理")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userName", value = "账号", required = true),
-            @ApiImplicitParam(name = "nickName", value = "用户昵称", required = true),
-    })
-    @PostMapping("saveProxyUser")
-    @Transactional
-    public ResponseEntity saveProxyUser(String userName, String nickName){
-        if (CasinoProxyUtil.checkNull(userName,nickName)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        if (!userName.matches(RegexEnum.ACCOUNT.getRegex())){
-            return ResponseUtil.custom("账号请输入数字或字母");
-        }
-        if (!nickName.matches(RegexEnum.NAME.getRegex())){
-            return ResponseUtil.custom("昵称请输入1~20位中文或字母");
-        }
-        ProxyUser byUserName = proxyUserService.findByUserName(userName);
-        if (!CasinoProxyUtil.checkNull(byUserName)){
-            return ResponseUtil.custom("代理账号重复");
-        }
-        Long authId = CasinoProxyUtil.getAuthId();
-        ProxyUser byId = proxyUserService.findById(authId);
-        if (byId.getProxyRole() == CommonConst.NUMBER_3){
-            return ResponseUtil.custom("基层代理不能创建代理");
-        }
-        Integer proxyRole = byId.getProxyRole() + CommonConst.NUMBER_1;
-        ProxyUser proxyUser = new ProxyUser();
-        if (byId.getProxyRole() == CommonConst.NUMBER_1){
-            proxyUser.setFirstProxy(byId.getId());
-        }else {
-            proxyUser.setFirstProxy(byId.getFirstProxy());
-            proxyUser.setSecondProxy(byId.getId());
-            proxyUser.setProxyCode(LoginUtil.getProxyCode());
-        }
-        proxyUser.setUserName(userName);
-        proxyUser.setNickName(nickName);
-        //随机生成
-        String password = PasswordUtil.getRandomPwd();
-        String bcryptPassword = CasinoProxyUtil.bcrypt(password);
-        proxyUser.setPassWord(bcryptPassword);
-        proxyUser.setProxyRole(proxyRole);
-        proxyUser.setUserFlag(CommonConst.NUMBER_1);
-        proxyUser.setIsDelete(CommonConst.NUMBER_1);
-        ProxyUser saveProxyUser = proxyUserService.save(proxyUser);
-        if (saveProxyUser.getProxyRole() == CommonConst.NUMBER_2 && !CasinoProxyUtil.checkNull(saveProxyUser)){
-            saveProxyUser.setSecondProxy(saveProxyUser.getId());
-            proxyUserService.save(saveProxyUser);
-            this.createrProxyCommission(saveProxyUser,saveProxyUser.getProxyRole());
-        }else if(!CasinoProxyUtil.checkNull(saveProxyUser)){
-            this.createrProxyCommission(saveProxyUser,saveProxyUser.getProxyRole());
-        }
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("account", userName);
-        jsonObject.put("password", password);
-        return ResponseUtil.success(jsonObject);
-    }
+//    @ApiOperation("添加代理")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "userName", value = "账号", required = true),
+//            @ApiImplicitParam(name = "nickName", value = "用户昵称", required = true),
+//    })
+//    @PostMapping("saveProxyUser")
+//    @Transactional
+//    public ResponseEntity saveProxyUser(String userName, String nickName){
+//        if (CasinoProxyUtil.checkNull(userName,nickName)){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        if (!userName.matches(RegexEnum.ACCOUNT.getRegex())){
+//            return ResponseUtil.custom("账号请输入数字或字母");
+//        }
+//        if (!nickName.matches(RegexEnum.NAME.getRegex())){
+//            return ResponseUtil.custom("昵称请输入1~20位中文或字母");
+//        }
+//        ProxyUser byUserName = proxyUserService.findByUserName(userName);
+//        if (!CasinoProxyUtil.checkNull(byUserName)){
+//            return ResponseUtil.custom("代理账号重复");
+//        }
+//        Long authId = CasinoProxyUtil.getAuthId();
+//        ProxyUser byId = proxyUserService.findById(authId);
+//        if (byId.getProxyRole() == CommonConst.NUMBER_3){
+//            return ResponseUtil.custom("基层代理不能创建代理");
+//        }
+//        Integer proxyRole = byId.getProxyRole() + CommonConst.NUMBER_1;
+//        ProxyUser proxyUser = new ProxyUser();
+//        if (byId.getProxyRole() == CommonConst.NUMBER_1){
+//            proxyUser.setFirstProxy(byId.getId());
+//        }else {
+//            proxyUser.setFirstProxy(byId.getFirstProxy());
+//            proxyUser.setSecondProxy(byId.getId());
+//            proxyUser.setProxyCode(LoginUtil.getProxyCode());
+//        }
+//        proxyUser.setUserName(userName);
+//        proxyUser.setNickName(nickName);
+//        //随机生成
+//        String password = PasswordUtil.getRandomPwd();
+//        String bcryptPassword = CasinoProxyUtil.bcrypt(password);
+//        proxyUser.setPassWord(bcryptPassword);
+//        proxyUser.setProxyRole(proxyRole);
+//        proxyUser.setUserFlag(CommonConst.NUMBER_1);
+//        proxyUser.setIsDelete(CommonConst.NUMBER_1);
+//        ProxyUser saveProxyUser = proxyUserService.save(proxyUser);
+//        if (saveProxyUser.getProxyRole() == CommonConst.NUMBER_2 && !CasinoProxyUtil.checkNull(saveProxyUser)){
+//            saveProxyUser.setSecondProxy(saveProxyUser.getId());
+//            proxyUserService.save(saveProxyUser);
+//            this.createrProxyCommission(saveProxyUser,saveProxyUser.getProxyRole());
+//        }else if(!CasinoProxyUtil.checkNull(saveProxyUser)){
+//            this.createrProxyCommission(saveProxyUser,saveProxyUser.getProxyRole());
+//        }
+//        JSONObject jsonObject = new JSONObject();
+//        jsonObject.put("account", userName);
+//        jsonObject.put("password", password);
+//        return ResponseUtil.success(jsonObject);
+//    }
 
     private void createrProxyCommission(ProxyUser saveProxyUser,Integer proxyRole){
         ProxyCommission proxyCommission = new ProxyCommission();

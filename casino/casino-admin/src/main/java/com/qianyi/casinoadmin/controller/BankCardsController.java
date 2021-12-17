@@ -64,6 +64,9 @@ public class BankCardsController {
             //绝对路径
             PlatformConfig platformConfig= platformConfigService.findFirst();
             String uploadUrl = platformConfig.getReadUploadUrl();
+            if(uploadUrl==null) {
+                return ResponseUtil.custom("请先配置图片服务器访问地址");
+            }
             bankInfoServiceAll.forEach(bankInfoServiceInfo ->{
                 if (bankInfoServiceInfo.getBankLogo()!=null ){
                     bankInfoServiceInfo.setBankLogo(uploadUrl+bankInfoServiceInfo.getBankLogo());
@@ -122,7 +125,10 @@ public class BankCardsController {
             if (file != null){
                 PlatformConfig platformConfig= platformConfigService.findFirst();
                 String uploadUrl = platformConfig.getUploadUrl();
-                fileUrl = UploadAndDownloadUtil.fileUpload(file,uploadUrl);
+                if(uploadUrl==null) {
+                    return ResponseUtil.custom("请先配置图片服务器上传地址");
+                }
+               fileUrl = UploadAndDownloadUtil.fileUpload(file, uploadUrl);
             }
             bankInfo.setBankLogo(fileUrl);
         } catch (Exception e) {

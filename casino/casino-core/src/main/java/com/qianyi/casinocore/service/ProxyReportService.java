@@ -6,6 +6,7 @@ import com.qianyi.casinocore.model.WithdrawOrder;
 import com.qianyi.casinocore.repository.ProxyReportRepository;
 import com.qianyi.modulecommon.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -15,6 +16,7 @@ import org.springframework.util.ObjectUtils;
 
 import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +48,28 @@ public class ProxyReportService {
         Specification<ProxyReport> condition = this.getCondition(users,account);
         return proxyReportRepository.findAll(condition, pageable);
     }
+
+   // @CacheEvict(key = "#userId")
+/*    @Transactional*/
+    public void updateProxyReport(Long userId,BigDecimal allBetAmount, BigDecimal allProfitAmount, Integer allBetNum){
+        proxyReportRepository.updateProxyReport(allBetAmount,allProfitAmount, allBetNum, userId);
+    }
+
+
+    //@CacheEvict(key = "#userId")
+/*    @Transactional*/
+    public void updateDirectProxyReport(Long userId,BigDecimal allBetAmount, BigDecimal allProfitAmount, Integer allBetNum){
+        proxyReportRepository.updateDirectProxyReport(allBetAmount,allProfitAmount, allBetNum, userId);
+    }
+
+
+   // @CacheEvict(key = "#userId")
+//    @Transactional
+    public void updateNoDirectProxyReport(Long userId,BigDecimal allBetAmount, BigDecimal allProfitAmount, Integer allBetNum){
+        proxyReportRepository.updateNoDirectProxyReport(allBetAmount,allProfitAmount, allBetNum, userId);
+    }
+
+
 
     private Specification<ProxyReport> getCondition(List<User> users, String account) {
         Specification<ProxyReport> specification = new Specification<ProxyReport>() {

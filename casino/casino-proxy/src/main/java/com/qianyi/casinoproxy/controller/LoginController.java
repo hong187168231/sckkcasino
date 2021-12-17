@@ -7,7 +7,6 @@ import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoproxy.model.ProxyUserLoginLog;
 import com.qianyi.casinoproxy.service.ProxyUserLoginLogService;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
-import com.qianyi.casinoproxy.util.LoginUtil;
 import com.qianyi.moduleauthenticator.GoogleAuthUtil;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;

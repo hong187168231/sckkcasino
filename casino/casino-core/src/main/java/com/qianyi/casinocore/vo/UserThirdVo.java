@@ -1,4 +1,4 @@
-package com.qianyi.casinoadmin.vo;
+package com.qianyi.casinocore.vo;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

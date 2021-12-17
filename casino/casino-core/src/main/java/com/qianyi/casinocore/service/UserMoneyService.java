@@ -42,15 +42,22 @@ public class UserMoneyService {
     private String recycleUrl = "/wm/oneKeyRecoverApi?";
 
     public UserMoney findUserByUserIdUseLock(Long userId) {
-      // return userMoneyRepository.findUserByUserIdUseLock(userId);
+       //return userMoneyRepository.findUserByUserIdUseLock(userId);
        return userMoneyRepository.findUserMoneyByUserId(userId);
     }
+
+    public UserMoney findUserByUserIdUse(Long userId) {
+        return userMoneyRepository.findUserByUserIdUseLock(userId);
+        // return userMoneyRepository.findUserMoneyByUserId(userId);
+    }
+
+
     public List<UserMoney> saveAll(List<UserMoney> userMoneyList){
         return userMoneyRepository.saveAll(userMoneyList);
     }
 
     @CacheEvict(key = "#userId")
-    @Transactional
+/*    @Transactional*/
     public void changeProfit(Long userId,BigDecimal shareProfit){
         userMoneyRepository.changeProfit(userId,shareProfit);
     }

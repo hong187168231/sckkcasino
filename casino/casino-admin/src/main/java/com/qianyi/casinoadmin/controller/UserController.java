@@ -377,20 +377,6 @@ public class UserController {
         return ResponseUtil.success();
     }
 
-//    @ApiOperation("删除用户")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "id", value = "用户id", required = true),
-//    })
-//    @PostMapping("deteleUser")
-//    public ResponseEntity deteleUser(Long id){
-//        User user = userService.findById(id);
-//        if(user == null){
-//            return ResponseUtil.custom("账户不存在");
-//        }
-//        userService.deleteById(id);
-//        return ResponseUtil.success();
-//    }
-
     @ApiOperation("修改用户状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "用户id", required = true),
