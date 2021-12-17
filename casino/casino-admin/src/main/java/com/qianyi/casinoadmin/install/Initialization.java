@@ -242,7 +242,7 @@ public class Initialization implements CommandLineRunner {
             platformConfig.setSendMessageWarning(platformConfigFile.getSendMessageWarning());
             platformConfig.setDirectlyUnderTheLower(platformConfigFile.getDirectlyUnderTheLower());
             platformConfig.setCompanyInviteCode(platformConfigFile.getCompanyInviteCode());
-
+            platformConfig.setCustomerCode(platformConfigFile.getCustomerCode());
             platformConfig.setUploadUrl(platformConfigFile.getUploadUrl());
             platformConfig.setReadUploadUrl(platformConfigFile.getReadUploadUrl());
             platformConfig.setMoneySymbol(platformConfigFile.getMoneySymbol());
@@ -252,8 +252,11 @@ public class Initialization implements CommandLineRunner {
             String companyInviteCode = platformConfig.getCompanyInviteCode();
             if (companyInviteCode == null || !companyInviteCode.equals("999")){
                 platformConfig.setCompanyInviteCode("999");
-                platformConfigService.save(platformConfig);
             }
+            if (LoginUtil.checkNull(platformConfig.getCustomerCode())){
+                platformConfig.setCustomerCode("21141305");
+            }
+            platformConfigService.save(platformConfig);
         }
     }
 }

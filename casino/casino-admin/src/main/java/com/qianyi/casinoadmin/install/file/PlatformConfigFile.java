@@ -35,7 +35,7 @@ public class PlatformConfigFile {
     private BigDecimal sendMessageWarning;
     private Integer directlyUnderTheLower;
     private String companyInviteCode;
-
+    private String customerCode;
     private String uploadUrl;
     private String readUploadUrl;
     private String moneySymbol;
