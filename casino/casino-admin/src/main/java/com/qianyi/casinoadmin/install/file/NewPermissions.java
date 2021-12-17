@@ -123,6 +123,19 @@ public class NewPermissions {
                 sysPermissionService.save(sysPermission);
             }
         }
+
+        //人人贷开关
+        if(collect.containsKey("/chargeConfig/findChargeConfig")){
+            Long pid = collect.get("/chargeConfig/findChargeConfig").getId();
+            if (!collect.containsKey("/chargeConfig/findPeopleProxySwitch")){
+                SysPermission sysPermission = new SysPermission("查询人人代开关", "查询人人代开关", "/chargeConfig/findPeopleProxySwitch", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/chargeConfig/updatePeopleProxySwitch")){
+                SysPermission sysPermission = new SysPermission("编辑人人代开关", "编辑人人代开关", "/chargeConfig/updatePeopleProxySwitch", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+        }
     }
     private void setSystemConfig(Map<String, SysPermission> collect) {
         if(!collect.containsKey("/systemMessage/systemConfig")){
