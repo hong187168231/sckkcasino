@@ -36,7 +36,7 @@ public class TestController {
     private RedisUtil redisUtil;
 
     @GetMapping("sendMq")
-    @ApiOperation("批量发送分润MQ测试")
+    @ApiOperation("批量发送分润MQ")
     @NoAuthentication
     @ApiImplicitParam(name = "id", value = "起始ID", required = true)
     public ResponseEntity sendMq(Long id) {
