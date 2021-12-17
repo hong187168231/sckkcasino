@@ -19,6 +19,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -280,8 +281,36 @@ public class BankCardsController {
         }
 
         Bankcards bankcards = boundCard(userId, bankId,bankAccount,address,realName);
+        boolean bankcardRealNameSwitch = checkBankcardRealNameSwitch(bankcards.getRealName(), userId);
+        if (!bankcardRealNameSwitch) {
+            return ResponseUtil.custom("同一个持卡人只能绑定一个账号");
+        }
         boolean isSuccess= bankcardsService.boundCard(bankcards)==null?true:false;
         return ResponseUtil.success(isSuccess);
+    }
+    /**
+     * 银行卡绑定 同名只能绑定一个账号   默认开
+     * @param realName
+     * @param userId
+     * @return
+     */
+    private boolean checkBankcardRealNameSwitch(String realName, Long userId) {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        boolean bankcardRealNameSwitch = PlatformConfig.checkBankcardRealNameSwitch(platformConfig);
+        if (!bankcardRealNameSwitch) {
+            return true;
+        }
+        List<Bankcards> checkRealNameList = bankcardsService.findByRealName(realName);
+        if (CollectionUtils.isEmpty(checkRealNameList)) {
+            return true;
+        }
+        //可能存在一个名字属于多个账号，只要有一个账号匹配的上就可以
+        for (Bankcards checkRealName : checkRealNameList) {
+            if (checkRealName.getUserId().equals(userId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String checkParamFroBound(String accountName,String bankId, String bankAccount,

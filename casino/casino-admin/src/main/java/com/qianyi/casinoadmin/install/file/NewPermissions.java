@@ -131,8 +131,16 @@ public class NewPermissions {
                 SysPermission sysPermission = new SysPermission("查询人人代开关", "查询人人代开关", "/platformConfig/findPeopleProxySwitch", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
-            if (!collect.containsKey("/chargeConfig/updatePeopleProxySwitch")){
+            if (!collect.containsKey("/platformConfig/updatePeopleProxySwitch")){
                 SysPermission sysPermission = new SysPermission("编辑人人代开关", "编辑人人代开关", "/platformConfig/updatePeopleProxySwitch", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/platformConfig/findBankcardRealNameSwitch")){
+                SysPermission sysPermission = new SysPermission("查询银行卡账号校验开关", "查询银行卡账号校验开关", "/platformConfig/findBankcardRealNameSwitch", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/platformConfig/updateBankcardRealNameSwitch")){
+                SysPermission sysPermission = new SysPermission("编辑银行卡账号校验开关", "编辑银行卡账号校验开关", "/platformConfig/updateBankcardRealNameSwitch", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
         }

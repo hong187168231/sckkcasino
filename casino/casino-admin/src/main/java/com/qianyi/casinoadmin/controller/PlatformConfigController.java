@@ -635,4 +635,37 @@ public class PlatformConfigController {
         return ResponseUtil.success();
     }
 
+    /**
+     * 查银行卡绑定同名只能绑定一个账号校验开关 0:关闭，1:开启
+     * @return
+     */
+    @ApiOperation("查询银行卡账号校验开关")
+    @GetMapping("/findBankcardRealNameSwitch")
+    public ResponseEntity findBankcardRealNameSwitch(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        return ResponseUtil.success(platformConfig==null? Constants.close:platformConfig.getBankcardRealNameSwitch());
+    }
+
+
+    /**
+     * 编辑银行卡账号校验开关
+     * @return
+     */
+    @ApiOperation("编辑银行卡账号校验开关")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "bankcardRealNameSwitch", value = "银行卡绑定同名只能绑定一个账号校验开关", required = true),
+    })
+    @PostMapping("/updateBankcardRealNameSwitch")
+    public ResponseEntity updateBankcardRealNameSwitch(Integer bankcardRealNameSwitch){
+        if (LoginUtil.checkNull(bankcardRealNameSwitch)){
+            return ResponseUtil.custom("参数错误");
+        }
+        PlatformConfig first = platformConfigService.findFirst();
+        if (LoginUtil.checkNull(first)){
+            first = new PlatformConfig();
+        }
+        first.setBankcardRealNameSwitch(bankcardRealNameSwitch);
+        platformConfigService.save(first);
+        return ResponseUtil.success();
+    }
 }

@@ -313,6 +313,12 @@ public class Initialization implements CommandLineRunner {
             if (LoginUtil.checkNull(platformConfig.getCustomerCode())){
                 platformConfig.setCustomerCode("21141305");
             }
+            if (LoginUtil.checkNull(platformConfig.getBankcardRealNameSwitch())){
+                platformConfig.setBankcardRealNameSwitch(platformConfigFile.getBankcardRealNameSwitch());
+            }
+            if (LoginUtil.checkNull(platformConfig.getPeopleProxySwitch())){
+                platformConfig.setPeopleProxySwitch(platformConfigFile.getPeopleProxySwitch());
+            }
             platformConfigService.save(platformConfig);
         }
     }
