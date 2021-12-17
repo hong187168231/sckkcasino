@@ -145,7 +145,7 @@ public class BankcardsService {
         return bankcardsRepository.findByUserIdAndBankAccount(userId,bankAccount);
     }
 
-    public Bankcards findByRealName(String realName) {
+    public List<Bankcards> findByRealName(String realName) {
         return bankcardsRepository.findByRealName(realName);
     }
 }
