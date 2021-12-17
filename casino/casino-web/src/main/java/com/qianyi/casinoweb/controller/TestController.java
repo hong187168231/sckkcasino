@@ -38,7 +38,7 @@ public class TestController {
     @GetMapping("sendMq")
     @ApiOperation("批量发送分润MQ")
     @NoAuthentication
-    @ApiImplicitParam(name = "id", value = "起始ID ", required = true)
+    @ApiImplicitParam(name = "id", value = "起始ID", required = true)
     public ResponseEntity sendMq(Long id) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String startTime = format.format(new Date());
