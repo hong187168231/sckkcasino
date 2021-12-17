@@ -45,7 +45,8 @@ public class PlatformConfigController {
     @Autowired
     private CustomerConfigureService customerConfigureService;
 
-
+    @Autowired
+    private MessageUtil messageUtil;
 
     @ApiOperation("玩家推广返佣配置查询")
     @GetMapping("/findCommission")
@@ -54,7 +55,7 @@ public class PlatformConfigController {
         UserCommissionVo userCommissionVo = null;
         for (PlatformConfig platformConfig : platformConfigList) {
             userCommissionVo = UserCommissionVo.builder()
-                    .name(new MessageUtil().get("玩家推广返佣配置"))
+                    .name(messageUtil.get("玩家推广返佣配置"))
                     .id(platformConfig.getId())
                     .firstCommission(platformConfig.getFirstCommission())
                     .secondCommission(platformConfig.getSecondCommission())
@@ -112,7 +113,7 @@ public class PlatformConfigController {
         DomainNameVo domainNameVo = new DomainNameVo();
         if (!LoginUtil.checkNull(first)){
             domainNameVo.setId(first.getId());
-            domainNameVo.setName("域名配置");
+            domainNameVo.setName(messageUtil.get("域名配置"));
             domainNameVo.setDomainNameConfiguration(first.getDomainNameConfiguration());
             domainNameVo.setProxyConfiguration(first.getProxyConfiguration());
         }
@@ -148,7 +149,7 @@ public class PlatformConfigController {
         RegisterSwitchVo registerSwitchVo = new RegisterSwitchVo();
         if (!LoginUtil.checkNull(first)){
             registerSwitchVo.setId(first.getId());
-            registerSwitchVo.setName("注册开关");
+            registerSwitchVo.setName(messageUtil.get("注册开关"));
             registerSwitchVo.setRegisterSwitch(first.getRegisterSwitch());
         }
         return new ResponseEntity(ResponseCode.SUCCESS, registerSwitchVo);
