@@ -135,6 +135,9 @@ public class PlatformConfig {
     @ApiModelProperty("人人代开关 0:关闭，1:开启")
     private Integer peopleProxySwitch;
 
+    @ApiModelProperty("银行卡绑定同名只能绑定一个账号校验开关 0:关闭，1:开启")
+    private Integer bankcardRealNameSwitch;
+
 
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){
@@ -168,5 +171,18 @@ public class PlatformConfig {
         }
         boolean proxySwitch = config.getPeopleProxySwitch() == Constants.open ? true : false;
         return proxySwitch;
+    }
+
+    /**
+     * 银行卡绑定同名只能绑定一个账号校验开关 默认开
+     * @param config
+     * @return
+     */
+    public static boolean checkBankcardRealNameSwitch(PlatformConfig config) {
+        if (config == null) {
+            return true;
+        }
+        boolean bankcardRealNameSwitch = config.getBankcardRealNameSwitch() == Constants.close ? false : true;
+        return bankcardRealNameSwitch;
     }
 }
