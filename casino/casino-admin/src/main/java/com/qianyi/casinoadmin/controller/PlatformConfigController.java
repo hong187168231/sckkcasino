@@ -8,6 +8,7 @@ import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.CustomerConfigureService;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -598,5 +599,42 @@ public class PlatformConfigController {
         return ResponseUtil.success(platformConfig==null?null:platformConfig.getMoneySymbol());
     }
 
+
+
+
+
+    /**
+     * 查询人人代开关 0:关闭，1:开启
+     * @return
+     */
+    @ApiOperation("查询人人代开关")
+    @GetMapping("/findPeopleProxySwitch")
+    public ResponseEntity findPeopleProxySwitch(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        return ResponseUtil.success(platformConfig==null? Constants.close:platformConfig.getPeopleProxySwitch());
+    }
+
+
+    /**
+     * 修改人人代开关
+     * @return
+     */
+    @ApiOperation("编辑人人代开关")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "proxySwitch", value = "编辑人人代开关", required = true),
+    })
+    @PostMapping("/updatePeopleProxySwitch")
+    public ResponseEntity updatePeopleProxySwitch(Integer proxySwitch){
+        if (LoginUtil.checkNull(proxySwitch)){
+            return ResponseUtil.custom("参数错误");
+        }
+        PlatformConfig first = platformConfigService.findFirst();
+        if (LoginUtil.checkNull(first)){
+            first = new PlatformConfig();
+        }
+        first.setPeopleProxySwitch(proxySwitch);
+        platformConfigService.save(first);
+        return ResponseUtil.success();
+    }
 
 }
