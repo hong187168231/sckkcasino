@@ -50,7 +50,7 @@ public class LevelShareProfitBusiness {
             List<ShareProfitBO> shareProfitBOList = shareProfitOperator(platformConfig, shareProfitMqVo,record);
             shareProfitTransactionService.processShareProfitMq(shareProfitBOList);
         }catch (Exception e){
-            log.error("share profit error : {}",e);
+            log.error("share profit error:"+ e);
             recordFailVo(shareProfitMqVo);
         }
     }

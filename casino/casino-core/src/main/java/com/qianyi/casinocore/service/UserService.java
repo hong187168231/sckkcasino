@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Transactional
+//@Transactional
 @CacheConfig(cacheNames = {"user"})
 public class UserService {
 
