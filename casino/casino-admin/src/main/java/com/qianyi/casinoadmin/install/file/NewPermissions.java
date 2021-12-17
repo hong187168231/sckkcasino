@@ -3,6 +3,7 @@ package com.qianyi.casinoadmin.install.file;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.SysPermission;
 import com.qianyi.casinocore.service.SysPermissionService;
+import com.qianyi.casinocore.util.CommonConst;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Slf4j
-@RabbitListener(queues = RabbitMqConstants.REPORTDAY_PROFIT_QUEUE)
+//@RabbitListener(queues = RabbitMqConstants.REPORTDAY_PROFIT_QUEUE)
 @Component
 public class ProxyDayReportConsumer {
 
