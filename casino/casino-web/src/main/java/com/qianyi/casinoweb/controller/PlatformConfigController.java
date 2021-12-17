@@ -22,7 +22,6 @@ public class PlatformConfigController {
     @Autowired
     private PlatformConfigService platformConfigService;
 
-
     @GetMapping("getCustomerCode")
     @ApiOperation("获取客服脚本编码")
     @NoAuthentication
@@ -33,6 +32,15 @@ public class PlatformConfigController {
         }
         String customerCode = platformConfig.getCustomerCode();
         return ResponseUtil.success(customerCode);
+    }
+
+    @GetMapping("checkPeopleProxySwitch")
+    @ApiOperation("检查人人代开关")
+    @NoAuthentication
+    public ResponseEntity<Boolean> checkPeopleProxySwitch() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        boolean proxySwitch = PlatformConfig.checkPeopleProxySwitch(platformConfig);
+        return ResponseUtil.success(proxySwitch);
     }
 
 }
