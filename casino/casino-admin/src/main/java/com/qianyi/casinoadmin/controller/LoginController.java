@@ -552,4 +552,40 @@ public class LoginController {
         jwtToken.setOldToken(token);
         redisUtil.set(Constants.REDIS_TOKEN_ADMIN + userId , jwtToken);
     }
+
+
+
+    /**
+     * 修改当前用户密码
+     *
+     * @param password
+     * @return
+     */
+    @NoAuthorization
+    @ApiOperation("修改当前用户密码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "password", value = "密码", required = true),
+    })
+    @PostMapping("resetCurrentPassword")
+    public ResponseEntity resetCurrentPassword(String password) {
+        if(LoginUtil.checkNull(password)){
+            return ResponseUtil.custom("参数错误");
+        }
+        boolean length = ProxyUser.checkLength(password);
+        if (!length) {
+            return ResponseUtil.custom("密码长度3-15位");
+        }
+        Long loginUserId = LoginUtil.getLoginUserId();
+        SysUser sys = sysUserService.findById(loginUserId);
+        //加密
+        String bcryptPassword = LoginUtil.bcrypt(password);
+        if(bcryptPassword.equals(sys.getPassWord())){
+            return ResponseUtil.custom("新密码和旧密码相同");
+        }
+        sys.setUpdateBy(sys==null?null:sys.getUserName());
+        sys.setPassWord(bcryptPassword);
+        sysUserService.save(sys);
+        return ResponseUtil.success();
+    }
+
 }
