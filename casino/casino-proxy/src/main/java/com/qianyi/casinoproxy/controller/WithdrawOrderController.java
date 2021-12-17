@@ -7,6 +7,7 @@ import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.WithdrawOrderVo;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -144,5 +145,32 @@ public class WithdrawOrderController {
         ProxyUser byId = proxyUserService.findById(authId);
         String lastModifier = (byId == null || byId.getUserName() == null)? "" : byId.getUserName();
         return withdrawBusiness.updateWithdrawAndUser(id,status,lastModifier,remark);
+    }
+
+
+
+
+    /**
+     * 修改提现备注
+     *
+     * @return
+     */
+
+    @ApiOperation("修改提现备注")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "订单id", required = true),
+            @ApiImplicitParam(name = "remark", value = "备注", required = false)
+    })
+    @PostMapping("/updateWithdrawOrderRemark")
+    public ResponseEntity updateWithdrawOrderRemark(Long id,String remark){
+        if (CasinoProxyUtil.checkNull(id)){
+            ResponseUtil.custom("参数不合法");
+        }
+        WithdrawOrder withdrawOrder = withdrawOrderService.findUserByIdUseLock(id);
+        if(withdrawOrder == null){
+            return ResponseUtil.custom("订单不存在");
+        }
+        withdrawOrderService.updateWithdrawOrderRemark(remark,withdrawOrder.getId());
+        return ResponseUtil.success();
     }
 }

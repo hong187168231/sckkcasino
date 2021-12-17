@@ -7,6 +7,7 @@ import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.ChargeOrderVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -159,4 +160,28 @@ public class ChargeOrderController {
         return chargeOrderBusiness.checkOrderSuccess(id,status,remark,lastModifier);
     }
 
+
+
+    /**
+     * 修改充值备注
+     *
+     * @return
+     */
+    @ApiOperation("修改充值备注")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "订单id", required = true),
+            @ApiImplicitParam(name = "remark", value = "备注", required = false)
+    })
+    @PostMapping("/updateChargeOrdersRemark")
+    public ResponseEntity updateChargeOrdersRemark(Long id,String remark){
+        if (CasinoProxyUtil.checkNull(id)){
+            ResponseUtil.custom("参数不合法");
+        }
+        ChargeOrder order = chargeOrderService.findChargeOrderByIdUseLock(id);
+        if(order == null){
+            return ResponseUtil.custom("订单不存在或已被处理");
+        }
+        chargeOrderService.updateChargeOrdersRemark(remark,order.getId());
+        return ResponseUtil.success();
+    }
 }

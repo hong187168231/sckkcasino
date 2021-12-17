@@ -28,7 +28,7 @@ spring:
       connection-test-query: select 1
   redis:
     database: 0
-#    host: 154.204.57.237
+    #    host: 154.204.57.237
     host: 47.243.60.31
     port: 8000
     password: Redis_123P

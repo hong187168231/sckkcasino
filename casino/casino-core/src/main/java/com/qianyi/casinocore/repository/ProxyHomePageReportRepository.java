@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface ProxyHomePageReportRepository extends JpaRepository<ProxyHomePageReport, Long>, JpaSpecificationExecutor<ProxyHomePageReport> {
+    ProxyHomePageReport findByProxyUserIdAndStaticsTimes(Long proxyUserId,String staticsTimes);
 }

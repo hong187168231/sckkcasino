@@ -13,6 +13,8 @@ import com.qianyi.casinocore.service.ChargeOrderService;
 import com.qianyi.casinocore.service.CollectionBankcardService;
 import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -169,5 +171,28 @@ public class ChargeOrderController {
         SysUser sysUser = sysUserService.findById(userId);
         String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
         return chargeOrderBusiness.checkOrderSuccess(id,status,remark,lastModifier);
+    }
+
+    /**
+     * 修改充值备注
+     *
+     * @return
+     */
+    @ApiOperation("修改充值备注")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "订单id", required = true),
+            @ApiImplicitParam(name = "remark", value = "备注", required = false)
+    })
+    @PostMapping("/updateChargeOrdersRemark")
+    public ResponseEntity updateChargeOrdersRemark(Long id,String remark){
+        if (LoginUtil.checkNull(id)){
+            ResponseUtil.custom("参数不合法");
+        }
+        ChargeOrder order = chargeOrderService.findChargeOrderByIdUseLock(id);
+        if(order == null){
+            return ResponseUtil.custom("订单不存在或已被处理");
+        }
+        chargeOrderService.updateChargeOrdersRemark(remark,order.getId());
+        return ResponseUtil.success();
     }
 }

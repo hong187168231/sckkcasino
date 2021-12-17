@@ -56,6 +56,9 @@ public class GameRecordJob {
             if ("test".equals(active)) {
                 Thread.sleep(30 * 1000);
             }
+            if ("dev".equals(active)) {
+                Thread.sleep(60 * 1000);
+            }
             GameRecordEndTime gameRecord = gameRecordEndTimeService.findFirstByEndTimeDesc();
             String time = gameRecord == null ? null : gameRecord.getEndTime();
             //获取查询游戏记录的时间范围
@@ -81,7 +84,9 @@ public class GameRecordJob {
                 saveAll(gameRecords);
             }
             updateEndTime(endTime, gameRecord);
+            log.info("{}到{}的wm游戏记录拉取完成",startTime,endTime);
         } catch (Exception e) {
+            log.error("游戏记录拉取异常");
             e.printStackTrace();
         }
     }

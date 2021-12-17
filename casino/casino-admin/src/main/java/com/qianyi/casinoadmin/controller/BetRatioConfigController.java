@@ -12,6 +12,7 @@ import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.MessageUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -35,12 +36,15 @@ public class BetRatioConfigController {
     @Autowired
     private PlatformConfigService platformConfigService;
 
+    @Autowired
+    private MessageUtil messageUtil;
+
     @ApiOperation("打码设置查询")
     @GetMapping("/findAll")
     public ResponseEntity<BetRatioConfigVo> findAll(){
         List<PlatformConfig> platformConfigList = platformConfigService.findAll();
         BetRatioConfigVo betRatioConfigVo = new BetRatioConfigVo();
-        betRatioConfigVo.setName("打码倍率设置");
+        betRatioConfigVo.setName(messageUtil.get("打码倍率设置"));
         for (PlatformConfig platformConfig : platformConfigList) {
             if(platformConfig.getBetRate() != null){
                 betRatioConfigVo.setCodeTimes(platformConfig.getBetRate());

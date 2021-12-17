@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Transactional
+//@Transactional
 @CacheConfig(cacheNames = {"user"})
 public class UserService {
 
@@ -77,6 +77,9 @@ public class UserService {
         return userRepository.findUserByUserIdUseLock(userId);
     }
 
+    public User findUserByUserIdUse(Long userId) {
+        return userRepository.findUserByUserIdUse(userId);
+    }
     public void updateIsFirstBet(Long userId,Integer isFirstBet){
         userRepository.updateIsFirstBet(userId,isFirstBet);
     }

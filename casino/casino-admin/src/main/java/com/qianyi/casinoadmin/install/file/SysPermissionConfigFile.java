@@ -332,7 +332,8 @@ public class SysPermissionConfigFile {
         SysPermission updateLogoPictureApp = null; //编辑logo图(APP登录注册页)
         SysPermission updateWebConfiguration = null; //修改Web网站域名配置
         SysPermission findLoginRegisterLogoPictureApp = null; //查询Web网站域名配置
-
+        SysPermission updateCustomerCode = null; //修改客服脚本的代号
+        SysPermission findCustomerCode = null; //查询客服脚本的代号
 
         for (SysPermission sysPermission : sysPermissionList) {
             if(sysPermission.getUrl().equals("/login/save")){
@@ -419,6 +420,12 @@ public class SysPermissionConfigFile {
             if(sysPermission.getName().equals("查询Web网站域名")){
                 findLoginRegisterLogoPictureApp = sysPermission;
             }
+            if(sysPermission.getName().equals("查询客服脚本的代号")){
+                findCustomerCode = sysPermission;
+            }
+            if(sysPermission.getName().equals("修改客服脚本的代号")){
+                updateCustomerCode = sysPermission;
+            }
         }
 
         List<SysPermission> sysPermList = new ArrayList<>();
@@ -472,7 +479,14 @@ public class SysPermissionConfigFile {
                 findLoginRegisterLogoPictureApp = new SysPermission("查询Web网站域名", "查询Web网站域名", "/platformConfig/findWebConfiguration", platformConfig.getId(), 3, 0);
                 sysPermList.add(findLoginRegisterLogoPictureApp);
             }
-
+            if(findCustomerCode == null){
+                findCustomerCode = new SysPermission("查询客服脚本的代号", "查询客服脚本的代号", "/platformConfig/findCustomerCode", platformConfig.getId(), 3, 0);
+                sysPermList.add(findCustomerCode);
+            }
+            if(updateCustomerCode == null){
+                updateCustomerCode = new SysPermission("修改客服脚本的代号", "修改客服脚本的代号", "/platformConfig/updateCustomerCode", platformConfig.getId(), 3, 0);
+                sysPermList.add(updateCustomerCode);
+            }
 
             if(findUploadUrl == null){
                 findUploadUrl = new SysPermission("图片服务器地址查询", "图片服务器地址查询", "/platformConfig/findUploadUrl", platformConfig.getId(), 3, 0);

@@ -178,26 +178,151 @@ public class DirectRabbitConfig {
         return BindingBuilder.bind(sixShareProfitDirectQueue()).to(sixShareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.SIX_SHAREPROFIT_DIRECT);
     }
 
+    /**
+     * 七
+     */
+    @Bean
+    public Queue sevenShareProfitDirectQueue(){
+        return new Queue(RabbitMqConstants.SEVEN_SHAREPROFIT_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange sevenShareProfitDirectQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding sevenShareProfitDirect(){
+        return BindingBuilder.bind(sevenShareProfitDirectQueue()).to(sevenShareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.SEVEN_SHAREPROFIT_DIRECT);
+    }
+
+    /**
+     * 八
+     */
+    @Bean
+    public Queue eightShareProfitDirectQueue(){
+        return new Queue(RabbitMqConstants.EIGHT_SHAREPROFIT_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange eightShareProfitDirectQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding eightShareProfitDirect(){
+        return BindingBuilder.bind(eightShareProfitDirectQueue()).to(eightShareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.EIGHT_SHAREPROFIT_DIRECT);
+    }
+
+
+    /**
+     * 九
+     */
+    @Bean
+    public Queue nineShareProfitDirectQueue(){
+        return new Queue(RabbitMqConstants.NINE_SHAREPROFIT_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange nineShareProfitDirectQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.LEVEL_SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding nineShareProfitDirect(){
+        return BindingBuilder.bind(nineShareProfitDirectQueue()).to(nineShareProfitDirectQueueDirectExchange()).with(RabbitMqConstants.NINE_SHAREPROFIT_DIRECT);
+    }
+
+
 
     /**
      * 分润报表处理mq
      */
     @Bean
-    public Queue reportDayProfitQueue(){
-        return new Queue(RabbitMqConstants.REPORTDAY_PROFIT_QUEUE,true);
+    public Queue oneReportDayProfitQueue(){
+        return new Queue(RabbitMqConstants.ONE_REPORTDAY_PROFIT_QUEUE,true);
     }
     @Bean
-    public DirectExchange reportDayProfitQueueDirectExchange(){
+    public DirectExchange oneReportDayProfitQueueDirectExchange(){
         return new DirectExchange(RabbitMqConstants.REPORTDAY_PROFIT_DIRECTEXCHANGE,true,false);
     }
     @Bean
-    public Binding reportDayProfitDirect(){
-        return BindingBuilder.bind(reportDayProfitQueue()).to(reportDayProfitQueueDirectExchange()).with(RabbitMqConstants.REPORTDAY_PROFIT_DIRECT);
+    public Binding oneReportDayProfitDirect(){
+        return BindingBuilder.bind(oneReportDayProfitQueue()).to(oneReportDayProfitQueueDirectExchange()).with(RabbitMqConstants.ONE_REPORTDAY_PROFIT_DIRECT);
     }
 
     @Bean
+    public Queue twoReportDayProfitQueue(){
+        return new Queue(RabbitMqConstants.TWO_REPORTDAY_PROFIT_QUEUE,true);
+    }
+    @Bean
+    public DirectExchange twoReportDayProfitQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.REPORTDAY_PROFIT_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding twoReportDayProfitDirect(){
+        return BindingBuilder.bind(twoReportDayProfitQueue()).to(twoReportDayProfitQueueDirectExchange()).with(RabbitMqConstants.TWO_REPORTDAY_PROFIT_DIRECT);
+    }
+
+
+    @Bean
+    public Queue threeReportDayProfitQueue(){
+        return new Queue(RabbitMqConstants.THREE_REPORTDAY_PROFIT_QUEUE,true);
+    }
+    @Bean
+    public DirectExchange threeReportDayProfitQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.REPORTDAY_PROFIT_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding threeReportDayProfitDirect(){
+        return BindingBuilder.bind(threeReportDayProfitQueue()).to(threeReportDayProfitQueueDirectExchange()).with(RabbitMqConstants.THREE_REPORTDAY_PROFIT_DIRECT);
+    }
+
+
+
+    @Bean
+    public Queue fourReportDayProfitQueue(){
+        return new Queue(RabbitMqConstants.FOUR_REPORTDAY_PROFIT_QUEUE,true);
+    }
+    @Bean
+    public DirectExchange fourReportDayProfitQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.REPORTDAY_PROFIT_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding fourReportDayProfitDirect(){
+        return BindingBuilder.bind(fourReportDayProfitQueue()).to(fourReportDayProfitQueueDirectExchange()).with(RabbitMqConstants.FOUR_REPORTDAY_PROFIT_DIRECT);
+    }
+
+
+    @Bean
+    public Queue fiveReportDayProfitQueue(){
+        return new Queue(RabbitMqConstants.FIVE_REPORTDAY_PROFIT_QUEUE,true);
+    }
+    @Bean
+    public DirectExchange fiveReportDayProfitQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.REPORTDAY_PROFIT_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding fiveReportDayProfitDirect(){
+        return BindingBuilder.bind(fiveReportDayProfitQueue()).to(fiveReportDayProfitQueueDirectExchange()).with(RabbitMqConstants.FIVE_REPORTDAY_PROFIT_DIRECT);
+    }
+
+
+    @Bean
+    public Queue sixReportDayProfitQueue(){
+        return new Queue(RabbitMqConstants.SIX_REPORTDAY_PROFIT_QUEUE,true);
+    }
+    @Bean
+    public DirectExchange sixReportDayProfitQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.REPORTDAY_PROFIT_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding sixReportDayProfitDirect(){
+        return BindingBuilder.bind(sixReportDayProfitQueue()).to(sixReportDayProfitQueueDirectExchange()).with(RabbitMqConstants.SIX_REPORTDAY_PROFIT_DIRECT);
+    }
+
+
+    /**
+     * 总报表
+     * @return
+     */
+    @Bean
     public Queue reportProfitQueue(){
-        return new Queue(RabbitMqConstants.REPORT_PROFIT_QUEUE,true);
+        return new Queue(RabbitMqConstants.ONE_REPORT_PROFIT_QUEUE,true);
     }
     @Bean
     public DirectExchange reportProfitQueueDirectExchange(){
@@ -205,9 +330,78 @@ public class DirectRabbitConfig {
     }
     @Bean
     public Binding reportProfitDirect(){
-        return BindingBuilder.bind(reportProfitQueue()).to(reportProfitQueueDirectExchange()).with(RabbitMqConstants.REPORT_PROFIT_DIRECT);
+        return BindingBuilder.bind(reportProfitQueue()).to(reportProfitQueueDirectExchange()).with(RabbitMqConstants.ONE_REPORT_PROFIT_DIRECT);
     }
 
+    @Bean
+    public Queue towReportProfitQueue(){
+        return new Queue(RabbitMqConstants.TWO_REPORT_PROFIT_QUEUE,true);
+    }
+    @Bean
+    public DirectExchange towReportProfitQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.REPORT_PROFIT_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding towReportProfitDirect(){
+        return BindingBuilder.bind(towReportProfitQueue()).to(towReportProfitQueueDirectExchange()).with(RabbitMqConstants.TWO_REPORT_PROFIT_DIRECT);
+    }
+
+
+    @Bean
+    public Queue threeReportProfitQueue(){
+        return new Queue(RabbitMqConstants.THREE_REPORT_PROFIT_QUEUE,true);
+    }
+    @Bean
+    public DirectExchange threeReportProfitQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.REPORT_PROFIT_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding threeReportProfitDirect(){
+        return BindingBuilder.bind(threeReportProfitQueue()).to(threeReportProfitQueueDirectExchange()).with(RabbitMqConstants.THREE_REPORT_PROFIT_DIRECT);
+    }
+
+
+    @Bean
+    public Queue fourReportProfitQueue(){
+        return new Queue(RabbitMqConstants.FOUR_REPORT_PROFIT_QUEUE,true);
+    }
+    @Bean
+    public DirectExchange fourReportProfitQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.REPORT_PROFIT_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding fourReportProfitDirect(){
+        return BindingBuilder.bind(fourReportProfitQueue()).to(fourReportProfitQueueDirectExchange()).with(RabbitMqConstants.FOUR_REPORT_PROFIT_DIRECT);
+    }
+
+
+
+    @Bean
+    public Queue fiveReportProfitQueue(){
+        return new Queue(RabbitMqConstants.FIVE_REPORT_PROFIT_QUEUE,true);
+    }
+    @Bean
+    public DirectExchange fiveReportProfitQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.REPORT_PROFIT_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding fiveReportProfitDirect(){
+        return BindingBuilder.bind(fiveReportProfitQueue()).to(fiveReportProfitQueueDirectExchange()).with(RabbitMqConstants.FIVE_REPORT_PROFIT_DIRECT);
+    }
+
+
+    @Bean
+    public Queue sixReportProfitQueue(){
+        return new Queue(RabbitMqConstants.SIX_REPORT_PROFIT_QUEUE,true);
+    }
+    @Bean
+    public DirectExchange sixReportProfitQueueDirectExchange(){
+        return new DirectExchange(RabbitMqConstants.REPORT_PROFIT_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding sixReportProfitDirect(){
+        return BindingBuilder.bind(sixReportProfitQueue()).to(sixReportProfitQueueDirectExchange()).with(RabbitMqConstants.SIX_REPORT_PROFIT_DIRECT);
+    }
 
 
     /**

@@ -99,11 +99,20 @@ public class SysPermissionService {
         return null;
     }
 
-    public void save(SysPermission sysPermission) {
-        sysPermissionRepository.save(sysPermission);
+    public SysPermission save(SysPermission sysPermission) {
+        return sysPermissionRepository.save(sysPermission);
     }
 
     public void deleteAllIds(List<Long> permissionList) {
         sysPermissionRepository.deleteAllById(permissionList);
     }
+
+    public SysPermission findByUrl(String url) {
+        return sysPermissionRepository.findByUrl(url);
+    }
+
+    public void deleteById(Long id ) {
+        sysPermissionRepository.deleteById(id);
+    }
+
 }

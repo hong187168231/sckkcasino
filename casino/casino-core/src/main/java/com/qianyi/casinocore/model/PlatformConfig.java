@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.qianyi.modulecommon.Constants;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -128,6 +129,15 @@ public class PlatformConfig {
     @ApiModelProperty("(APP)登录注册页log图片地址")
     private String loginRegisterLogImageUrlApp;
 
+    @ApiModelProperty("客服脚本的代号")
+    private String customerCode;
+
+    @ApiModelProperty("人人代开关 0:关闭，1:开启")
+    private Integer peopleProxySwitch;
+
+    @ApiModelProperty("银行卡绑定同名只能绑定一个账号校验开关 0:关闭，1:开启")
+    private Integer bankcardRealNameSwitch;
+
 
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){
@@ -148,5 +158,31 @@ public class PlatformConfig {
             this.withdrawServiceMoney = BigDecimal.ZERO;
         }
         return money.multiply(this.withdrawRate).add(this.withdrawServiceMoney);
+    }
+
+    /**
+     * 检查人人代开关
+     * @param config
+     * @return
+     */
+    public static boolean checkPeopleProxySwitch(PlatformConfig config) {
+        if (config == null) {
+            return false;
+        }
+        boolean proxySwitch = config.getPeopleProxySwitch() == Constants.open ? true : false;
+        return proxySwitch;
+    }
+
+    /**
+     * 银行卡绑定同名只能绑定一个账号校验开关 默认开
+     * @param config
+     * @return
+     */
+    public static boolean checkBankcardRealNameSwitch(PlatformConfig config) {
+        if (config == null) {
+            return true;
+        }
+        boolean bankcardRealNameSwitch = config.getBankcardRealNameSwitch() == Constants.close ? false : true;
+        return bankcardRealNameSwitch;
     }
 }

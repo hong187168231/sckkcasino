@@ -5,12 +5,15 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.*;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.BankInfoService;
+import com.qianyi.casinocore.service.CustomerConfigureService;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.MessageUtil;
 import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -39,6 +42,11 @@ public class PlatformConfigController {
 
     @Autowired
     private BankInfoService bankInfoService;
+    @Autowired
+    private CustomerConfigureService customerConfigureService;
+
+    @Autowired
+    private MessageUtil messageUtil;
 
     @ApiOperation("玩家推广返佣配置查询")
     @GetMapping("/findCommission")
@@ -47,7 +55,7 @@ public class PlatformConfigController {
         UserCommissionVo userCommissionVo = null;
         for (PlatformConfig platformConfig : platformConfigList) {
             userCommissionVo = UserCommissionVo.builder()
-                    .name("玩家推广返佣配置")
+                    .name(messageUtil.get("玩家推广返佣配置"))
                     .id(platformConfig.getId())
                     .firstCommission(platformConfig.getFirstCommission())
                     .secondCommission(platformConfig.getSecondCommission())
@@ -105,7 +113,7 @@ public class PlatformConfigController {
         DomainNameVo domainNameVo = new DomainNameVo();
         if (!LoginUtil.checkNull(first)){
             domainNameVo.setId(first.getId());
-            domainNameVo.setName("域名配置");
+            domainNameVo.setName(messageUtil.get("域名配置"));
             domainNameVo.setDomainNameConfiguration(first.getDomainNameConfiguration());
             domainNameVo.setProxyConfiguration(first.getProxyConfiguration());
         }
@@ -141,7 +149,7 @@ public class PlatformConfigController {
         RegisterSwitchVo registerSwitchVo = new RegisterSwitchVo();
         if (!LoginUtil.checkNull(first)){
             registerSwitchVo.setId(first.getId());
-            registerSwitchVo.setName("注册开关");
+            registerSwitchVo.setName(messageUtil.get("注册开关"));
             registerSwitchVo.setRegisterSwitch(first.getRegisterSwitch());
         }
         return new ResponseEntity(ResponseCode.SUCCESS, registerSwitchVo);
@@ -242,6 +250,30 @@ public class PlatformConfigController {
         return ResponseUtil.success(platformConfig==null?"":platformConfig.getCompanyInviteCode());
     }
 
+    @ApiOperation("查询客服脚本的代号")
+    @GetMapping("/findCustomerCode")
+    public ResponseEntity findCustomerCode(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        return ResponseUtil.success(platformConfig==null?"":platformConfig.getCustomerCode());
+    }
+
+    @ApiOperation("修改客服脚本的代号")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "customerCode", value = "客服脚本的代号", required = true),
+    })
+    @PostMapping("/updateCustomerCode")
+    public ResponseEntity updateCustomerCode(String customerCode){
+        if (LoginUtil.checkNull(customerCode)){
+            return ResponseUtil.custom("参数必填");
+        }
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (LoginUtil.checkNull(platformConfig)){
+            platformConfig = new PlatformConfig();
+        }
+        platformConfig.setCustomerCode(customerCode);
+        platformConfigService.save(platformConfig);
+        return ResponseUtil.success();
+    }
 //    @ApiOperation("修改推广链接码")
 //    @ApiImplicitParams({
 //            @ApiImplicitParam(name = "promotionCode", value = "推广链接", required = true),
@@ -319,11 +351,17 @@ public class PlatformConfigController {
         if (LoginUtil.checkNull(first)){
             first = new PlatformConfig();
         }
+        if(first.getUploadUrl().equals(uploadUrl)){
+            return ResponseUtil.custom("当前地址相同,请勿重复修改");
+        }
         first.setUploadUrl(uploadUrl);
         platformConfigService.save(first);
         //初始化银行卡图片
         bankInfoService.deleteBankInfoAll();
         initialization.saveBankInfo();
+        //初始化客服中心图标
+        customerConfigureService.deleteCustomerConfigureAll();
+        initialization.saveCustomerConfigureInfo();
         return ResponseUtil.success();
     }
 
@@ -358,6 +396,9 @@ public class PlatformConfigController {
         PlatformConfig first = platformConfigService.findFirst();
         if (LoginUtil.checkNull(first)){
             first = new PlatformConfig();
+        }
+        if(first.getReadUploadUrl().equals(uploadUrl)){
+            return ResponseUtil.custom("当前地址相同,请勿重复修改");
         }
         first.setReadUploadUrl(uploadUrl);
         platformConfigService.save(first);
@@ -557,4 +598,74 @@ public class PlatformConfigController {
     }
 
 
+
+
+
+    /**
+     * 查询人人代开关 0:关闭，1:开启
+     * @return
+     */
+    @ApiOperation("查询人人代开关")
+    @GetMapping("/findPeopleProxySwitch")
+    public ResponseEntity findPeopleProxySwitch(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        return ResponseUtil.success(platformConfig==null? Constants.close:platformConfig.getPeopleProxySwitch());
+    }
+
+
+    /**
+     * 修改人人代开关
+     * @return
+     */
+    @ApiOperation("编辑人人代开关")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "proxySwitch", value = "编辑人人代开关", required = true),
+    })
+    @PostMapping("/updatePeopleProxySwitch")
+    public ResponseEntity updatePeopleProxySwitch(Integer proxySwitch){
+        if (LoginUtil.checkNull(proxySwitch)){
+            return ResponseUtil.custom("参数错误");
+        }
+        PlatformConfig first = platformConfigService.findFirst();
+        if (LoginUtil.checkNull(first)){
+            first = new PlatformConfig();
+        }
+        first.setPeopleProxySwitch(proxySwitch);
+        platformConfigService.save(first);
+        return ResponseUtil.success();
+    }
+
+    /**
+     * 查银行卡绑定同名只能绑定一个账号校验开关 0:关闭，1:开启
+     * @return
+     */
+    @ApiOperation("查询银行卡账号校验开关")
+    @GetMapping("/findBankcardRealNameSwitch")
+    public ResponseEntity findBankcardRealNameSwitch(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        return ResponseUtil.success(platformConfig==null? Constants.close:platformConfig.getBankcardRealNameSwitch());
+    }
+
+
+    /**
+     * 编辑银行卡账号校验开关
+     * @return
+     */
+    @ApiOperation("编辑银行卡账号校验开关")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "bankcardRealNameSwitch", value = "银行卡绑定同名只能绑定一个账号校验开关", required = true),
+    })
+    @PostMapping("/updateBankcardRealNameSwitch")
+    public ResponseEntity updateBankcardRealNameSwitch(Integer bankcardRealNameSwitch){
+        if (LoginUtil.checkNull(bankcardRealNameSwitch)){
+            return ResponseUtil.custom("参数错误");
+        }
+        PlatformConfig first = platformConfigService.findFirst();
+        if (LoginUtil.checkNull(first)){
+            first = new PlatformConfig();
+        }
+        first.setBankcardRealNameSwitch(bankcardRealNameSwitch);
+        platformConfigService.save(first);
+        return ResponseUtil.success();
+    }
 }

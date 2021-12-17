@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -41,6 +42,10 @@ public class LevelShareprofitItemService {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
+    @Autowired
+    private LevelProxyDayReportBusiness levelProxyDayReportBusiness;
+    @Autowired
+    private LevelProxyReportBusiness levelproxyReportBusiness;
 
     /**
      *  处理各级代理分润入库
@@ -52,7 +57,7 @@ public class LevelShareprofitItemService {
         ShareProfitChange ShareProfitChangeInfo = shareProfitChangeService.findByUserIdAndOrderNo(shareProfitBO.getUserId(), shareProfitBO.getRecordBetId());
         if (ShareProfitChangeInfo==null){
             UserMoney userMoney = userMoneyService.findUserByUserIdUse(shareProfitBO.getUserId());
-            User user = userService.findUserByIdUseLock(shareProfitBO.getRecordUserId());
+            User user = userService.findUserByUserIdUse(shareProfitBO.getRecordUserId());
             if(userMoney==null)return;
             log.info("shareProfitBOList processItem That took {} milliseconds",System.currentTimeMillis()-startTime);
             //明细入库
@@ -60,6 +65,11 @@ public class LevelShareprofitItemService {
             //进行分润
             //userMoney.setShareProfit(userMoney.getShareProfit().add(shareProfitBO.getProfitAmount()));
             userMoneyService.changeProfit(userMoney.getUserId(),shareProfitBO.getProfitAmount());
+
+            //进行日报表处理
+            levelProxyDayReportBusiness.processReport(shareProfitBO);
+            //进行总报表处理
+            levelproxyReportBusiness.processReport(shareProfitBO);
 
             if(user.getIsFirstBet()==Constants.no){
                 //设置第一次投注用户
@@ -69,15 +79,55 @@ public class LevelShareprofitItemService {
             //更新分润状态
              gameRecordService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
             log.info("processShareProfitList That took {} milliseconds",System.currentTimeMillis()-startTime);
+/*            //报表处理mq
+            reportMq(shareProfitBO);*/
 
+        }
+    }
+
+
+    /**
+     * 分发各级代理分润报表处理mq
+     * @param shareProfitBO
+     */
+    public void reportMq(ShareProfitBO shareProfitBO) {
+        if (shareProfitBO != null) {
+            String routingKey = null;
+            String routingKeyDay = null;
+            long remainder = shareProfitBO.getUserId() % 6;
+            if (remainder == 1) {
+                routingKeyDay = RabbitMqConstants.ONE_REPORTDAY_PROFIT_DIRECT;
+                routingKey = RabbitMqConstants.ONE_REPORT_PROFIT_DIRECT;
+            }
+            if (remainder == 2) {
+                routingKeyDay = RabbitMqConstants.TWO_REPORTDAY_PROFIT_DIRECT;
+                routingKey = RabbitMqConstants.TWO_REPORT_PROFIT_DIRECT;
+            }
+            if (remainder == 3) {
+                routingKeyDay = RabbitMqConstants.THREE_REPORTDAY_PROFIT_DIRECT;
+                routingKey = RabbitMqConstants.THREE_REPORT_PROFIT_DIRECT;
+            }
+            if (remainder == 4) {
+                routingKeyDay = RabbitMqConstants.FOUR_REPORTDAY_PROFIT_DIRECT;
+                routingKey = RabbitMqConstants.FOUR_REPORT_PROFIT_DIRECT;
+            }
+            if (remainder == 5 ) {
+                routingKeyDay = RabbitMqConstants.FIVE_REPORTDAY_PROFIT_DIRECT;
+                routingKey = RabbitMqConstants.FIVE_REPORT_PROFIT_DIRECT;
+            }
+            if (remainder == 6 || remainder == 0) {
+                routingKeyDay = RabbitMqConstants.SIX_REPORTDAY_PROFIT_DIRECT;
+                routingKey = RabbitMqConstants.SIX_REPORT_PROFIT_DIRECT;
+            }
             //进行日报表处理
             rabbitTemplate.convertAndSend(RabbitMqConstants.REPORTDAY_PROFIT_DIRECTEXCHANGE,
-                    RabbitMqConstants.REPORTDAY_PROFIT_DIRECT,shareProfitBO, new CorrelationData(UUID.randomUUID().toString()));
+                    routingKeyDay, shareProfitBO, new CorrelationData(UUID.randomUUID().toString()));
 
             //进行总报表处理
             rabbitTemplate.convertAndSend(RabbitMqConstants.REPORT_PROFIT_DIRECTEXCHANGE,
-                    RabbitMqConstants.REPORT_PROFIT_DIRECT,shareProfitBO, new CorrelationData(UUID.randomUUID().toString()));
+                    routingKey, shareProfitBO, new CorrelationData(UUID.randomUUID().toString()));
         }
+
     }
 
 

@@ -2,6 +2,7 @@ package com.qianyi.casinoadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.business.ProxyHomePageReportBusiness;
 import com.qianyi.casinocore.model.ProxyCommission;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.User;
@@ -52,6 +53,9 @@ public class ProxyUserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ProxyHomePageReportBusiness proxyHomePageReportBusiness;
     /**
      * 分页查询代理
      *
@@ -441,5 +445,35 @@ public class ProxyUserController {
         byId.setIsDelete(CommonConst.NUMBER_2);
         proxyUserService.save(byId);
         return ResponseUtil.success();
+    }
+
+
+    @ApiOperation("转移会员")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "被转移者id(选中列id)", required = true),
+            @ApiImplicitParam(name = "acceptId", value = "接受者id", required = true),
+    })
+    @GetMapping("transferUser")
+    @Transactional
+    public ResponseEntity transferUser(Long id,Long acceptId){
+        if (LoginUtil.checkNull(id,acceptId)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        if (id.toString().equals(acceptId.toString())){
+            return ResponseUtil.custom("参数不合法");
+        }
+        ProxyUser byId = proxyUserService.findById(id);
+        ProxyUser accept = proxyUserService.findById(acceptId);
+        if (LoginUtil.checkNull(byId,accept)){
+            return ResponseUtil.custom("没有这个代理");
+        }
+        if ( byId.getProxyRole() != CommonConst.NUMBER_3 || accept.getProxyRole() != CommonConst.NUMBER_3){
+            return ResponseUtil.custom("只有基层代理可以转移会员");
+        }
+        try {
+            return proxyHomePageReportBusiness.transferUser(id,acceptId,accept,byId);
+        }catch (Exception ex){
+            return ResponseUtil.custom("转移失败请联系管理员");
+        }
     }
 }

@@ -1,8 +1,7 @@
-package com.qianyi.casinoreport.consumer.levelSharePro;
+package com.qianyi.casinoreport.consumer.levelSharePro.report.day;
 
 import com.qianyi.casinocore.vo.ShareProfitBO;
-import com.qianyi.casinoreport.business.LevelProxyReportBusiness;
-import com.qianyi.casinoreport.business.shareprofit.LevelShareprofitItemService;
+import com.qianyi.casinoreport.business.LevelProxyDayReportBusiness;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
@@ -15,31 +14,31 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Slf4j
-@RabbitListener(queues = RabbitMqConstants.REPORT_PROFIT_QUEUE)
+//@RabbitListener(queues = RabbitMqConstants.TWO_REPORTDAY_PROFIT_QUEUE)
 @Component
-public class ProxyReportConsumer {
+public class TwoProxyDayReportConsumer {
 
     @Autowired
-    private LevelProxyReportBusiness levelproxyReportBusiness;
+    private LevelProxyDayReportBusiness levelProxyDayReportBusiness;
+
     /**
-     *  代理线总报表分润队列
+     *  代理线日报表分润消息队列
      * @param shareProfitBO
      * @param channel
      * @param message
      * @throws IOException
      */
     @RabbitHandler
-
     public void process(ShareProfitBO shareProfitBO, Channel channel, Message message) throws IOException {
-        log.info("start总报表-游戏id:{},代理线报表分润队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
+        log.info("TWO-start 日报表-游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
         try {
-            //进行总报表处理
-            levelproxyReportBusiness.processReport(shareProfitBO);
+            //进行日报表处理
+            levelProxyDayReportBusiness.processReport(shareProfitBO);
         } catch (Exception e) {
-            log.error("总报表-分润总报表处理执行异常:"+ e);
+            log.error("TWO 日报表-代理线分润消息队列执行异常:"+ e);
         }finally {
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         }
-        log.info("end总报表-游戏id:{},代理线报表分润队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
+        log.info("TWO-end 日报表-游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
     }
 }

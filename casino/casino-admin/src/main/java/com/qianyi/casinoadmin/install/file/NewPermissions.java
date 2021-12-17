@@ -3,6 +3,7 @@ package com.qianyi.casinoadmin.install.file;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.SysPermission;
 import com.qianyi.casinocore.service.SysPermissionService;
+import com.qianyi.casinocore.util.CommonConst;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
@@ -32,6 +33,18 @@ public class NewPermissions {
             //设置平台配置
             setSystemConfig(collect);
         }
+        if(collect.containsKey("/operateCenter")){
+            //设置运营客服中心配置
+            setCustomerConfigure(collect);
+        }
+        if(collect.containsKey("/agentCenter")){
+            //设置代理中心
+            setAgentCenter(collect);
+        }
+        if(collect.containsKey("/orderCenter")){
+            //设置订单中心
+            setOrderCenter(collect);
+        }
         sysPermissionService.saveAllList(sysPermissions);
     }
 
@@ -46,6 +59,92 @@ public class NewPermissions {
         return new ArrayList<>(set);
     }
 
+    /**
+     * 设置订单中心
+     * @param collect
+     */
+    private void setOrderCenter(Map<String, SysPermission> collect) {
+        if (collect.containsKey("/chargeOrder/chargeOrderList")) {
+            Long pid = collect.get("/chargeOrder/chargeOrderList").getId();
+            if (!collect.containsKey("/chargeOrder/updateChargeOrdersRemark")) {
+                SysPermission sysPermission = new SysPermission("修改充值备注", "修改充值备注", "/chargeOrder/updateChargeOrdersRemark", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+
+        }
+        if (collect.containsKey("/withdraw/withdrawList")) {
+            Long pid = collect.get("/withdraw/withdrawList").getId();
+            if (!collect.containsKey("/withdraw/updateWithdrawOrderRemark")) {
+                SysPermission sysPermission = new SysPermission("修改提现备注", "修改提现备注", "/withdraw/updateWithdrawOrderRemark", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+
+        }
+    }
+    /**
+     * 设置代理中心
+     * @param collect
+     */
+    private void setAgentCenter(Map<String, SysPermission> collect) {
+        if(collect.containsKey("/proxyUser/findProxyUser")){
+            Long pid = collect.get("/proxyUser/findProxyUser").getId();
+            if (!collect.containsKey("/proxyUser/transferUser")){
+                SysPermission sysPermission = new SysPermission("转移会员", "转移会员", "/proxyUser/transferUser", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+
+        }
+    }
+
+    /**
+     * 运营中心 - 客服中心配置
+     * @param collect
+     */
+    private void setCustomerConfigure(Map<String, SysPermission> collect) {
+        SysPermission save =new SysPermission();
+        if(!collect.containsKey("/customer/findCustomerList")){
+            //先删除之前的菜单
+            SysPermission byUrl = sysPermissionService.findByUrl("/customer/findCustomer");
+            SysPermission updateByUrl = sysPermissionService.findByUrl("/customer/updateKeyCustomer");
+            if (byUrl!=null){
+                sysPermissionService.deleteById(byUrl.getId());
+            }
+            if (updateByUrl!=null){
+                sysPermissionService.deleteById(updateByUrl.getId());
+            }
+            Long pid = collect.get("/operateCenter").getId();
+            SysPermission sysConfigPermission = new SysPermission("客服中心配置", "客服中心配置", "/customer/findCustomerList", pid, 2, 0);
+            save = sysPermissionService.save(sysConfigPermission);
+        }
+        if(save.getUrl()!=null && save.getUrl().equals("/customer/findCustomerList")){
+            Long pid = save.getId();
+            if(!collect.containsKey("/customer/updateKeyCustomerConfigure")){
+                SysPermission sysPermission = new SysPermission("保存", "保存", "/customer/updateKeyCustomerConfigure", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+        }
+
+        //人人贷开关
+        if(collect.containsKey("/chargeConfig/findChargeConfig")){
+            Long pid = collect.get("/chargeConfig/findChargeConfig").getId();
+            if (!collect.containsKey("/platformConfig/findPeopleProxySwitch")){
+                SysPermission sysPermission = new SysPermission("查询人人代开关", "查询人人代开关", "/platformConfig/findPeopleProxySwitch", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/platformConfig/updatePeopleProxySwitch")){
+                SysPermission sysPermission = new SysPermission("编辑人人代开关", "编辑人人代开关", "/platformConfig/updatePeopleProxySwitch", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/platformConfig/findBankcardRealNameSwitch")){
+                SysPermission sysPermission = new SysPermission("查询银行卡账号校验开关", "查询银行卡账号校验开关", "/platformConfig/findBankcardRealNameSwitch", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/platformConfig/updateBankcardRealNameSwitch")){
+                SysPermission sysPermission = new SysPermission("编辑银行卡账号校验开关", "编辑银行卡账号校验开关", "/platformConfig/updateBankcardRealNameSwitch", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+        }
+    }
     private void setSystemConfig(Map<String, SysPermission> collect) {
         if(!collect.containsKey("/systemMessage/systemConfig")){
             Long pid = collect.get("/systemCenter").getId();
@@ -101,6 +200,32 @@ public class NewPermissions {
                 sysPermission.setPid(sysConfigPermission.getId());
                 sysPermissionService.save(sysPermission);
             }
+            if(collect.containsKey("/platformConfig/findCustomerCode")){
+                SysPermission sysPermission = collect.get("/platformConfig/findCustomerCode");
+                sysPermission.setPid(sysConfigPermission.getId());
+                sysPermissionService.save(sysPermission);
+            }
+            if(collect.containsKey("/platformConfig/updateCustomerCode")){
+                SysPermission sysPermission = collect.get("/platformConfig/updateCustomerCode");
+                sysPermission.setPid(sysConfigPermission.getId());
+                sysPermissionService.save(sysPermission);
+            }
         }
+        if(collect.containsKey("/systemMessage/systemConfig")){
+            Long pid = collect.get("/systemMessage/systemConfig").getId();
+            if(collect.containsKey("/platformConfig/findCustomerCode") && !collect.get("/platformConfig/findCustomerCode").getPid().toString().equals(pid.toString()) ){
+                SysPermission sysPermission = collect.get("/platformConfig/findCustomerCode");
+                sysPermission.setPid(pid);
+//                SysPermission sysPermission = new SysPermission("查询客服脚本的代号", "查询客服脚本的代号", "/platformConfig/findCustomerCode", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if(collect.containsKey("/platformConfig/updateCustomerCode") && !collect.get("/platformConfig/updateCustomerCode").getPid().toString().equals(pid.toString())){
+                SysPermission sysPermission = collect.get("/platformConfig/updateCustomerCode");
+                sysPermission.setPid(pid);
+//                SysPermission sysPermission = new SysPermission("修改客服脚本的代号", "修改客服脚本的代号", "/platformConfig/updateCustomerCode", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+        }
+
     }
 }

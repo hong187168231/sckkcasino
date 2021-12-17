@@ -2,9 +2,11 @@ package com.qianyi.casinoweb.controller;
 
 import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.Bankcards;
+import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.BankcardsService;
+import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -35,6 +37,8 @@ public class BankCardsController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private PlatformConfigService platformConfigService;
 
     @GetMapping("/banklist")
     @ApiOperation("银行列表")
@@ -79,6 +83,11 @@ public class BankCardsController {
             return ResponseUtil.custom("该卡号银行卡已添加,请勿重复添加");
         }
         Bankcards bankcards = boundCard(firstBankcard,bankId,bankAccount,address,realName,userId);
+        //银行卡绑定 同名只能绑定一个账号
+        boolean bankcardRealNameSwitch = checkBankcardRealNameSwitch(bankcards.getRealName(), userId);
+        if (!bankcardRealNameSwitch) {
+            return ResponseUtil.custom("同一个持卡人只能绑定一个账号");
+        }
         bankcards= bankcardsService.boundCard(bankcards);
         return ResponseUtil.success(bankcards);
     }
@@ -203,5 +212,30 @@ public class BankCardsController {
 
     private Integer isFirstCard(Bankcards bankcards){
         return bankcards==null?1:0;
+    }
+
+    /**
+     * 银行卡绑定 同名只能绑定一个账号   默认开
+     * @param realName
+     * @param userId
+     * @return
+     */
+    private boolean checkBankcardRealNameSwitch(String realName, Long userId) {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        boolean bankcardRealNameSwitch = PlatformConfig.checkBankcardRealNameSwitch(platformConfig);
+        if (!bankcardRealNameSwitch) {
+            return true;
+        }
+        List<Bankcards> checkRealNameList = bankcardsService.findByRealName(realName);
+        if (CollectionUtils.isEmpty(checkRealNameList)) {
+            return true;
+        }
+        //可能存在一个名字属于多个账号，只要有一个账号匹配的上就可以
+        for (Bankcards checkRealName : checkRealNameList) {
+            if (checkRealName.getUserId().equals(userId)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

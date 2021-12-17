@@ -1,9 +1,7 @@
-package com.qianyi.casinoreport.consumer.levelSharePro;
+package com.qianyi.casinoreport.consumer.levelSharePro.report.day;
 
 import com.qianyi.casinocore.vo.ShareProfitBO;
 import com.qianyi.casinoreport.business.LevelProxyDayReportBusiness;
-import com.qianyi.casinoreport.business.LevelProxyReportBusiness;
-import com.qianyi.casinoreport.business.shareprofit.LevelShareprofitItemService;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +14,9 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Slf4j
-@RabbitListener(queues = RabbitMqConstants.REPORTDAY_PROFIT_QUEUE)
+//@RabbitListener(queues = RabbitMqConstants.SIX_REPORTDAY_PROFIT_QUEUE)
 @Component
-public class ProxyDayReportConsumer {
+public class SixProxyDayReportConsumer {
 
     @Autowired
     private LevelProxyDayReportBusiness levelProxyDayReportBusiness;
@@ -32,15 +30,15 @@ public class ProxyDayReportConsumer {
      */
     @RabbitHandler
     public void process(ShareProfitBO shareProfitBO, Channel channel, Message message) throws IOException {
-        log.info("start日报表-游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
+        log.info("SIX-start 日报表-游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
         try {
             //进行日报表处理
             levelProxyDayReportBusiness.processReport(shareProfitBO);
         } catch (Exception e) {
-            log.error("日报表-代理线分润消息队列执行异常:"+ e);
+            log.error("SIX 日报表-代理线分润消息队列执行异常:"+ e);
         }finally {
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         }
-        log.info("end日报表-游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
+        log.info("SIX-end 日报表-游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
     }
 }

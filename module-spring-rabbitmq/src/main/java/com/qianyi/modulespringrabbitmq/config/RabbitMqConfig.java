@@ -34,7 +34,7 @@ public class RabbitMqConfig {
         SimpleRabbitListenerContainerFactory containerFactory = new SimpleRabbitListenerContainerFactory();
         containerFactory.setConnectionFactory(rabbitConnectionFactory);
         containerFactory.setConcurrentConsumers(1);
-        containerFactory.setMaxConcurrentConsumers(20);
+        containerFactory.setMaxConcurrentConsumers(1);
         containerFactory.setPrefetchCount(1);
         containerFactory.setAcknowledgeMode(AcknowledgeMode.MANUAL);
         containerFactory.setMessageConverter(new Jackson2JsonMessageConverter());

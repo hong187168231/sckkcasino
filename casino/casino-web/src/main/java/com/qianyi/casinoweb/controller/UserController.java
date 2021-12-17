@@ -245,6 +245,11 @@ public class UserController {
             @ApiImplicitParam(name = "phone", value = "手机号", required = false),
     })
     public ResponseEntity directOpenAccount(String account, String password, String confirmPassword, String country, String phone, HttpServletRequest request) {
+        //人人代开关检查
+        ResponseEntity response = checkPeopleProxySwitch();
+        if (response != null) {
+            return response;
+        }
         boolean checkNull = CommonUtil.checkNull(account, password, confirmPassword);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
@@ -337,6 +342,19 @@ public class UserController {
         log.info("开始推送团队新增成员消息", user);
         rabbitTemplate.convertAndSend(RabbitMqConstants.ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.ADDUSERTOTEAM_DIRECT, user, new CorrelationData(UUID.randomUUID().toString()));
         log.info("团队新增成员消息发送成功={}", user);
+    }
+
+    /**
+     * 人人代开关检查
+     * @return
+     */
+    public ResponseEntity checkPeopleProxySwitch() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        boolean proxySwitch = PlatformConfig.checkPeopleProxySwitch(platformConfig);
+        if (!proxySwitch) {
+            return ResponseUtil.custom("不支持此功能");
+        }
+        return null;
     }
 
     public static void main(String[] args) {
