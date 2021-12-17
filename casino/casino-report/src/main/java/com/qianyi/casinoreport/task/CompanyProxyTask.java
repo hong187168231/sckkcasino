@@ -31,7 +31,7 @@ public class CompanyProxyTask {
     }
 
     //每天凌晨05分进行启动
-    @Scheduled(cron = "0/30 * * * * ?")
+    @Scheduled(cron = "0 5 0 * * ?")
     public void processMonthTask(){
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String dayTime = df.format(LocalDateTime.now());
