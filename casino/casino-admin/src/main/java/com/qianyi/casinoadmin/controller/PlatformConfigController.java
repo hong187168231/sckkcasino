@@ -113,7 +113,7 @@ public class PlatformConfigController {
         DomainNameVo domainNameVo = new DomainNameVo();
         if (!LoginUtil.checkNull(first)){
             domainNameVo.setId(first.getId());
-            domainNameVo.setName("域名配置");
+            domainNameVo.setName(messageUtil.get("域名配置"));
             domainNameVo.setDomainNameConfiguration(first.getDomainNameConfiguration());
             domainNameVo.setProxyConfiguration(first.getProxyConfiguration());
         }
