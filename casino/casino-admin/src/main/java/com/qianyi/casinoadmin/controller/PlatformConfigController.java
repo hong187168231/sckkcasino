@@ -45,7 +45,8 @@ public class PlatformConfigController {
     @Autowired
     private CustomerConfigureService customerConfigureService;
 
-
+    @Autowired
+    private MessageUtil messageUtil;
 
     @ApiOperation("玩家推广返佣配置查询")
     @GetMapping("/findCommission")
@@ -54,7 +55,7 @@ public class PlatformConfigController {
         UserCommissionVo userCommissionVo = null;
         for (PlatformConfig platformConfig : platformConfigList) {
             userCommissionVo = UserCommissionVo.builder()
-                    .name(new MessageUtil().get("玩家推广返佣配置"))
+                    .name(messageUtil.get("玩家推广返佣配置"))
                     .id(platformConfig.getId())
                     .firstCommission(platformConfig.getFirstCommission())
                     .secondCommission(platformConfig.getSecondCommission())

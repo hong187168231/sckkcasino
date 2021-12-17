@@ -36,13 +36,15 @@ public class BetRatioConfigController {
     @Autowired
     private PlatformConfigService platformConfigService;
 
+    @Autowired
+    private MessageUtil messageUtil;
 
     @ApiOperation("打码设置查询")
     @GetMapping("/findAll")
     public ResponseEntity<BetRatioConfigVo> findAll(){
         List<PlatformConfig> platformConfigList = platformConfigService.findAll();
         BetRatioConfigVo betRatioConfigVo = new BetRatioConfigVo();
-        betRatioConfigVo.setName(new MessageUtil().get("打码倍率设置"));
+        betRatioConfigVo.setName(messageUtil.get("打码倍率设置"));
         for (PlatformConfig platformConfig : platformConfigList) {
             if(platformConfig.getBetRate() != null){
                 betRatioConfigVo.setCodeTimes(platformConfig.getBetRate());
