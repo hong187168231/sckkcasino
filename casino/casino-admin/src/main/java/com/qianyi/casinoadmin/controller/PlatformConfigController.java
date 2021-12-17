@@ -13,6 +13,7 @@ import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.MessageUtil;
 import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -44,6 +45,9 @@ public class PlatformConfigController {
     @Autowired
     private CustomerConfigureService customerConfigureService;
 
+    private static MessageUtil messageUtil;
+
+
     @ApiOperation("玩家推广返佣配置查询")
     @GetMapping("/findCommission")
     public ResponseEntity<UserCommissionVo> findAll(){
@@ -51,7 +55,7 @@ public class PlatformConfigController {
         UserCommissionVo userCommissionVo = null;
         for (PlatformConfig platformConfig : platformConfigList) {
             userCommissionVo = UserCommissionVo.builder()
-                    .name("玩家推广返佣配置")
+                    .name(messageUtil.get("玩家推广返佣配置"))
                     .id(platformConfig.getId())
                     .firstCommission(platformConfig.getFirstCommission())
                     .secondCommission(platformConfig.getSecondCommission())
