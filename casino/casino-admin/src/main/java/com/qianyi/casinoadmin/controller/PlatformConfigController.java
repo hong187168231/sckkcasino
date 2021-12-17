@@ -149,7 +149,7 @@ public class PlatformConfigController {
         RegisterSwitchVo registerSwitchVo = new RegisterSwitchVo();
         if (!LoginUtil.checkNull(first)){
             registerSwitchVo.setId(first.getId());
-            registerSwitchVo.setName("注册开关");
+            registerSwitchVo.setName(messageUtil.get("注册开关"));
             registerSwitchVo.setRegisterSwitch(first.getRegisterSwitch());
         }
         return new ResponseEntity(ResponseCode.SUCCESS, registerSwitchVo);
