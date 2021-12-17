@@ -8,6 +8,7 @@ import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.SysUserService;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -86,6 +88,8 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String logRequestBody(MultiReadHttpServletRequest request) {
+        //日志打印traceId，同一次请求的traceId相同，方便定位日志
+        ThreadContext.put("traceId", UUID.randomUUID().toString().replaceAll("-",""));
         MultiReadHttpServletRequest wrapper = request;
         if (wrapper != null) {
             try {
