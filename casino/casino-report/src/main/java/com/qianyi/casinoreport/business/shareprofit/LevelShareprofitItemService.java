@@ -2,10 +2,7 @@ package com.qianyi.casinoreport.business.shareprofit;
 
 import com.qianyi.casinocore.constant.ShareProfitConstant;
 import com.qianyi.casinocore.model.*;
-import com.qianyi.casinocore.service.GameRecordService;
-import com.qianyi.casinocore.service.ShareProfitChangeService;
-import com.qianyi.casinocore.service.UserMoneyService;
-import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.ShareProfitBO;
 import com.qianyi.casinoreport.business.LevelProxyReportBusiness;
 import com.qianyi.casinoreport.business.ProxyReportBusiness;
@@ -34,6 +31,10 @@ public class LevelShareprofitItemService {
     private UserService userService;
 
     @Autowired
+    private UserReportService userReportService;
+
+
+    @Autowired
     private ShareProfitChangeService shareProfitChangeService;
 
     @Autowired
@@ -57,7 +58,7 @@ public class LevelShareprofitItemService {
         ShareProfitChange ShareProfitChangeInfo = shareProfitChangeService.findByUserIdAndOrderNo(shareProfitBO.getUserId(), shareProfitBO.getRecordBetId());
         if (ShareProfitChangeInfo==null){
             UserMoney userMoney = userMoneyService.findUserByUserIdUse(shareProfitBO.getUserId());
-            User user = userService.findUserByUserIdUse(shareProfitBO.getRecordUserId());
+            User user = userReportService.findUserByUserIdUse(shareProfitBO.getRecordUserId());
             if(userMoney==null)return;
             log.info("shareProfitBOList processItem That took {} milliseconds",System.currentTimeMillis()-startTime);
             //明细入库
