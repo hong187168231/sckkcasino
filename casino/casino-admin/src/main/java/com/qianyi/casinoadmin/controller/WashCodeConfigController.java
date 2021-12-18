@@ -54,7 +54,7 @@ public class WashCodeConfigController {
     public ResponseEntity<WashCodeConfig> updateWashCodeConfigs(@RequestBody List<WashCodeConfig> washCodeConfigList){
         if(washCodeConfigList != null && washCodeConfigList.size() > 0){
             for (WashCodeConfig washCodeConfig : washCodeConfigList) {
-                if(washCodeConfig.getRate().compareTo(BigDecimal.valueOf(60L)) > 0){
+                if(washCodeConfig.getRate().compareTo(BigDecimal.valueOf(0.9)) > 0){
                     return ResponseUtil.custom("洗码倍率超过限制");
                 }
             }

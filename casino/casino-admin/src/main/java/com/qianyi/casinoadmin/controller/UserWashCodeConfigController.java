@@ -67,7 +67,7 @@ public class UserWashCodeConfigController {
 
         if(userWashCodeConfigs != null && userWashCodeConfigs.size() > 0){
             for (UserWashCodeConfig userWashCodeConfig : userWashCodeConfigs) {
-                if(userWashCodeConfig.getRate().compareTo(BigDecimal.valueOf(60L)) > 0){
+                if(userWashCodeConfig.getRate().compareTo(BigDecimal.valueOf(0.9)) > 0){
                     return ResponseUtil.custom("洗码倍率超过限制");
                 }
             }
