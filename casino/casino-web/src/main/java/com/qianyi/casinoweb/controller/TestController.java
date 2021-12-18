@@ -1,5 +1,6 @@
 package com.qianyi.casinoweb.controller;
 
+import com.qianyi.casinocore.business.TelegramBotBusiness;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinoweb.job.GameRecordAsyncOper;
@@ -11,6 +12,7 @@ import com.qianyi.modulejjwt.JjwtUtil;
 import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,8 @@ public class TestController {
     private GameRecordService gameRecordService;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private TelegramBotBusiness telegramBotBusiness;
 
     @GetMapping("sendMq")
     @ApiOperation("批量发送分润MQ")
@@ -51,6 +55,18 @@ public class TestController {
         }
         String endTime = format.format(new Date());
         redisUtil.set("sendMq::endTime::" + id, endTime);
+        return ResponseUtil.success();
+    }
+
+    @GetMapping("sendMsgToTelegramBot")
+    @ApiOperation("发送消息到TG机器人")
+    @NoAuthentication
+    @ApiImplicitParams({
+    @ApiImplicitParam(name = "token", value = "机器人token", required = true),
+    @ApiImplicitParam(name = "msg", value = "消息", required = true)
+    })
+    public ResponseEntity sendMsgToTelegramBot(String token, String msg) {
+        telegramBotBusiness.sendMsgToTelegramBot(token, msg);
         return ResponseUtil.success();
     }
 }
