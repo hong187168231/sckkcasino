@@ -261,6 +261,10 @@ public class BankCardsController {
         if(user == null){
             return ResponseUtil.custom("不存在该会员");
         }
+        boolean bankcardRealNameSwitch = checkBankcardRealNameSwitch(realName, userId);
+        if (!bankcardRealNameSwitch) {
+            return ResponseUtil.custom("同一个持卡人只能绑定一个账号");
+        }
         //判断用户输入的姓名是否一致
         if (LoginUtil.checkNull(user.getRealName())){
             user.setRealName(realName);
@@ -281,10 +285,6 @@ public class BankCardsController {
         }
 
         Bankcards bankcards = boundCard(userId, bankId,bankAccount,address,realName);
-        boolean bankcardRealNameSwitch = checkBankcardRealNameSwitch(bankcards.getRealName(), userId);
-        if (!bankcardRealNameSwitch) {
-            return ResponseUtil.custom("同一个持卡人只能绑定一个账号");
-        }
         boolean isSuccess= bankcardsService.boundCard(bankcards)==null?true:false;
         return ResponseUtil.success(isSuccess);
     }
