@@ -36,8 +36,6 @@ public class TestController {
     private GameRecordService gameRecordService;
     @Autowired
     private RedisUtil redisUtil;
-    @Autowired
-    private TelegramBotBusiness telegramBotBusiness;
 
     @GetMapping("sendMq")
     @ApiOperation("批量发送分润MQ")
@@ -61,12 +59,9 @@ public class TestController {
     @GetMapping("sendMsgToTelegramBot")
     @ApiOperation("发送消息到TG机器人")
     @NoAuthentication
-    @ApiImplicitParams({
-    @ApiImplicitParam(name = "token", value = "机器人token", required = true),
     @ApiImplicitParam(name = "msg", value = "消息", required = true)
-    })
-    public ResponseEntity sendMsgToTelegramBot(String token, String msg) {
-        telegramBotBusiness.sendMsgToTelegramBot(token, msg);
+    public ResponseEntity sendMsgToTelegramBot(String msg) {
+        gameRecordAsyncOper.sendMsgToTelegramBot(msg);
         return ResponseUtil.success();
     }
 }
