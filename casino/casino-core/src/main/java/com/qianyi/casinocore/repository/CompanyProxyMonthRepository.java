@@ -141,4 +141,15 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             "\tgroup by user_id \n" +
             ") pr on main_t.user_id=pr.user_id",nativeQuery = true)
     Map<String,Object> queryAllTotal(String startTime,String endTime);
+
+    @Query(value = "select \n" +
+            "count(1)\n" +
+            "from (\n" +
+            "\tselect user_id ,\n" +
+            "\tcount(1) num\n" +
+            "\tfrom game_record gr\n" +
+            "\twhere create_time > ?1 and create_time < ?2\n" +
+            "\tgroup by user_id\n" +
+            ") main_t",nativeQuery = true)
+    int queryAllTotalElement(String startTime,String endTime);
 }
