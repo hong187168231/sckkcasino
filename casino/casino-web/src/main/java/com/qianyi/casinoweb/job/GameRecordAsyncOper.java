@@ -1,5 +1,6 @@
 package com.qianyi.casinoweb.job;
 
+import com.qianyi.casinocore.business.TelegramBotBusiness;
 import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.PlatformConfig;
@@ -15,6 +16,8 @@ public class GameRecordAsyncOper {
 
     @Autowired
     private UserMoneyBusiness userMoneyBusiness;
+    @Autowired
+    private TelegramBotBusiness telegramBotBusiness;
 
     /**
      * 异步洗码
@@ -46,5 +49,15 @@ public class GameRecordAsyncOper {
     @Async("asyncExecutor")
     public void shareProfit(GameRecord record) {
         userMoneyBusiness.shareProfit(record);
+    }
+
+    /**
+     * 异步给TG机器人发送消息
+     *
+     * @param msg
+     */
+    @Async("asyncExecutor")
+    public void sendMsgToTelegramBot(String msg) {
+        telegramBotBusiness.sendMsgToTelegramBot(msg);
     }
 }

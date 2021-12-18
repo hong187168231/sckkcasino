@@ -21,6 +21,8 @@ public class GetWmTotalBalanceJob {
     private PublicWMApi wmApi;
     @Autowired
     private PlatformConfigService platformConfigService;
+    @Autowired
+    private GameRecordAsyncOper gameRecordAsyncOper;
 
     @Scheduled(cron = "0 0 * * * ?")
     public void tasks() {
@@ -28,6 +30,8 @@ public class GetWmTotalBalanceJob {
             log.info("开始查询平台在WM的总余额");
             BigDecimal agentBalance = wmApi.getAgentBalance(0);
             if (agentBalance == null) {
+                log.error("查询平台在WM的总余额远程请求异常");
+                gameRecordAsyncOper.sendMsgToTelegramBot("查询平台在WM的总余额异常,原因:远程请求异常");
                 return;
             }
             PlatformConfig platformConfig = platformConfigService.findFirst();
@@ -42,6 +46,7 @@ public class GetWmTotalBalanceJob {
             log.info("平台在WM的总余额更新完成");
         } catch (Exception e) {
             log.error("查询平台在WM的总余额异常");
+            gameRecordAsyncOper.sendMsgToTelegramBot("查询平台在WM的总余额异常,原因:" + e.getMessage());
             e.printStackTrace();
         }
     }
