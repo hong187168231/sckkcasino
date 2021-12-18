@@ -619,7 +619,7 @@ public class PlatformConfigController {
      */
     @ApiOperation("编辑人人代开关")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "proxySwitch", value = "编辑人人代开关", required = true),
+            @ApiImplicitParam(name = "proxySwitch", value = "编辑人人代开关(0:关闭，1:开启)", required = true),
     })
     @PostMapping("/updatePeopleProxySwitch")
     public ResponseEntity updatePeopleProxySwitch(Integer proxySwitch){
