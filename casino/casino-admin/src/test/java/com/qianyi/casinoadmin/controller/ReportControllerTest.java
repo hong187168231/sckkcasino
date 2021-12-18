@@ -30,6 +30,12 @@ public class ReportControllerTest {
     }
 
     @Test
+    public void should_query_total_element_data(){
+        int result = companyProxyMonthRepository.queryAllTotalElement("2021-11-01 00:00:00","2021-11-30 00:00:00");
+        log.info("total : {}",result);
+    }
+
+    @Test
     public void should_query_single_person_data(){
         List<Map<String,Object>> result = companyProxyMonthRepository.queryPersonReport(3,"2021-11-01 00:00:00","2021-11-30 00:00:00");
         result.forEach(item ->{
