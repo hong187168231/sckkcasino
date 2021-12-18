@@ -44,7 +44,8 @@ public class PlatformConfigController {
     @Autowired
     private CustomerConfigureService customerConfigureService;
 
-    private static MessageUtil messageUtil;
+    @Autowired
+    private MessageUtil messageUtil;
 
 
     @ApiOperation("玩家推广返佣配置查询")
@@ -112,7 +113,7 @@ public class PlatformConfigController {
         DomainNameVo domainNameVo = new DomainNameVo();
         if (!LoginUtil.checkNull(first)){
             domainNameVo.setId(first.getId());
-            domainNameVo.setName("域名配置");
+            domainNameVo.setName(messageUtil.get("域名配置"));
             domainNameVo.setDomainNameConfiguration(first.getDomainNameConfiguration());
             domainNameVo.setProxyConfiguration(first.getProxyConfiguration());
         }
@@ -148,7 +149,7 @@ public class PlatformConfigController {
         RegisterSwitchVo registerSwitchVo = new RegisterSwitchVo();
         if (!LoginUtil.checkNull(first)){
             registerSwitchVo.setId(first.getId());
-            registerSwitchVo.setName("注册开关");
+            registerSwitchVo.setName(messageUtil.get("注册开关"));
             registerSwitchVo.setRegisterSwitch(first.getRegisterSwitch());
         }
         return new ResponseEntity(ResponseCode.SUCCESS, registerSwitchVo);

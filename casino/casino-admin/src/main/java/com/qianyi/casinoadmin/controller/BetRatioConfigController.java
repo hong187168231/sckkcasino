@@ -36,7 +36,8 @@ public class BetRatioConfigController {
     @Autowired
     private PlatformConfigService platformConfigService;
 
-    private static MessageUtil messageUtil;
+    @Autowired
+    private MessageUtil messageUtil;
 
     @ApiOperation("打码设置查询")
     @GetMapping("/findAll")
