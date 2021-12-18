@@ -35,28 +35,25 @@ public class LevelProxyReportBusiness {
         else
             noDirectProxy(proxyReport,shareProfitBO);
 
-       //proxyReportService.save(proxyReport);
+       proxyReportService.save(proxyReport);
     }
 
     public void allProxy(ProxyReport proxyReport,ShareProfitBO shareProfitBO){
-/*        proxyReport.setAllBetAmount(proxyReport.getAllBetAmount().add(shareProfitBO.getBetAmount()));
+        proxyReport.setAllBetAmount(proxyReport.getAllBetAmount().add(shareProfitBO.getBetAmount()));
         proxyReport.setAllProfitAmount(proxyReport.getAllProfitAmount().add(shareProfitBO.getProfitAmount()));
-        proxyReport.setAllBetNum(proxyReport.getAllBetNum()+ (shareProfitBO.isFirst()?1:0));*/
-        proxyReportService.updateProxyReport(shareProfitBO.getUserId(),shareProfitBO.getBetAmount(),shareProfitBO.getProfitAmount(),shareProfitBO.isFirst()?1:0);
+        proxyReport.setAllBetNum(proxyReport.getAllBetNum()+ (shareProfitBO.isFirst()?1:0));
     }
 
     public void directProxy(ProxyReport proxyReport,ShareProfitBO shareProfitBO){
-      /*  proxyReport.setDirectBetAmount(proxyReport.getDirectBetAmount().add(shareProfitBO.getBetAmount()));
+        proxyReport.setDirectBetAmount(proxyReport.getDirectBetAmount().add(shareProfitBO.getBetAmount()));
         proxyReport.setDirectProfitAmount(proxyReport.getDirectProfitAmount().add(shareProfitBO.getProfitAmount()));
-        proxyReport.setDirectBetNum(proxyReport.getDirectBetNum()+ (shareProfitBO.isFirst()?1:0));*/
-        proxyReportService.updateDirectProxyReport(shareProfitBO.getUserId(),shareProfitBO.getBetAmount(),shareProfitBO.getProfitAmount(),shareProfitBO.isFirst()?1:0);
+        proxyReport.setDirectBetNum(proxyReport.getDirectBetNum()+ (shareProfitBO.isFirst()?1:0));
     }
 
     public void noDirectProxy(ProxyReport proxyReport,ShareProfitBO shareProfitBO){
-/*        proxyReport.setOtherBetAmount(proxyReport.getOtherBetAmount().add(shareProfitBO.getBetAmount()));
+        proxyReport.setOtherBetAmount(proxyReport.getOtherBetAmount().add(shareProfitBO.getBetAmount()));
         proxyReport.setOtherProfitAmount(proxyReport.getOtherProfitAmount().add(shareProfitBO.getProfitAmount()));
-        proxyReport.setOtherBetNum(proxyReport.getOtherBetNum()+ (shareProfitBO.isFirst()?1:0));*/
-        proxyReportService.updateNoDirectProxyReport(shareProfitBO.getUserId(),shareProfitBO.getBetAmount(),shareProfitBO.getProfitAmount(),shareProfitBO.isFirst()?1:0);
+        proxyReport.setOtherBetNum(proxyReport.getOtherBetNum()+ (shareProfitBO.isFirst()?1:0));
     }
 
     public ProxyReport buildProxyReport(Long userId) {

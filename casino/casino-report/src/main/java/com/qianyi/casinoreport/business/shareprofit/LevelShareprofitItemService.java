@@ -80,57 +80,8 @@ public class LevelShareprofitItemService {
             //更新分润状态
              gameRecordService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
             log.info("processShareProfitList That took {} milliseconds",System.currentTimeMillis()-startTime);
-/*            //报表处理mq
-            reportMq(shareProfitBO);*/
-
         }
     }
-
-
-    /**
-     * 分发各级代理分润报表处理mq
-     * @param shareProfitBO
-     */
-    public void reportMq(ShareProfitBO shareProfitBO) {
-        if (shareProfitBO != null) {
-            String routingKey = null;
-            String routingKeyDay = null;
-            long remainder = shareProfitBO.getUserId() % 6;
-            if (remainder == 1) {
-                routingKeyDay = RabbitMqConstants.ONE_REPORTDAY_PROFIT_DIRECT;
-                routingKey = RabbitMqConstants.ONE_REPORT_PROFIT_DIRECT;
-            }
-            if (remainder == 2) {
-                routingKeyDay = RabbitMqConstants.TWO_REPORTDAY_PROFIT_DIRECT;
-                routingKey = RabbitMqConstants.TWO_REPORT_PROFIT_DIRECT;
-            }
-            if (remainder == 3) {
-                routingKeyDay = RabbitMqConstants.THREE_REPORTDAY_PROFIT_DIRECT;
-                routingKey = RabbitMqConstants.THREE_REPORT_PROFIT_DIRECT;
-            }
-            if (remainder == 4) {
-                routingKeyDay = RabbitMqConstants.FOUR_REPORTDAY_PROFIT_DIRECT;
-                routingKey = RabbitMqConstants.FOUR_REPORT_PROFIT_DIRECT;
-            }
-            if (remainder == 5 ) {
-                routingKeyDay = RabbitMqConstants.FIVE_REPORTDAY_PROFIT_DIRECT;
-                routingKey = RabbitMqConstants.FIVE_REPORT_PROFIT_DIRECT;
-            }
-            if (remainder == 6 || remainder == 0) {
-                routingKeyDay = RabbitMqConstants.SIX_REPORTDAY_PROFIT_DIRECT;
-                routingKey = RabbitMqConstants.SIX_REPORT_PROFIT_DIRECT;
-            }
-            //进行日报表处理
-            rabbitTemplate.convertAndSend(RabbitMqConstants.REPORTDAY_PROFIT_DIRECTEXCHANGE,
-                    routingKeyDay, shareProfitBO, new CorrelationData(UUID.randomUUID().toString()));
-
-            //进行总报表处理
-            rabbitTemplate.convertAndSend(RabbitMqConstants.REPORT_PROFIT_DIRECTEXCHANGE,
-                    routingKey, shareProfitBO, new CorrelationData(UUID.randomUUID().toString()));
-        }
-
-    }
-
 
     private void levelProcessProfitDetail(ShareProfitBO shareProfitBO,UserMoney userMoney) {
         ShareProfitChange shareProfitChange = new ShareProfitChange();
