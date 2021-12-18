@@ -48,7 +48,7 @@ public class TelegramBotBusiness {
             }
             log.error("token={},chatId={},msg={}消息发送失败3", token, chatId, msg);
         } catch (Exception e) {
-            log.error("TelegramBot消息发送失败，msg={}", e.getMessage());
+            log.error("TelegramBot消息发送失败，token={},chatId={},msg={},错误信息={}", token, chatId, msg,e.getMessage());
             e.printStackTrace();
         }
         return null;
