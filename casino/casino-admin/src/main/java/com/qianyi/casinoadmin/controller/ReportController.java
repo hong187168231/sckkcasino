@@ -54,16 +54,17 @@ public class ReportController {
         if(StringUtils.hasLength(userName)){
             User user = userService.findByAccount(userName);
             List<Map<String,Object>> reportResult = reportService.queryPersonReport(user.getId(),startTime,endTime);
-            return ResponseUtil.success(combinePage(reportResult,pageSize,pageCode));
+            return ResponseUtil.success(combinePage(reportResult,1,pageSize,pageCode));
         }
 
         int page = (pageCode-1)*pageSize;
         List<Map<String,Object>> reportResult = reportService.queryAllPersonReport(startTime,endTime,page,pageSize);
-        return ResponseUtil.success(combinePage(reportResult,pageSize,pageSize));
+        int totalElement = reportService.queryTotalElement(startTime,endTime);
+        return ResponseUtil.success(combinePage(reportResult,totalElement,pageSize,pageSize));
     }
 
-    private PageResultVO<Map<String,Object>> combinePage(List<Map<String,Object>> reportResult,int page,int num){
-        PageResultVO<Map<String,Object>> pageResult = new PageResultVO<Map<String,Object>>(page,num,Long.parseLong(reportResult.size()+""),reportResult);
+    private PageResultVO<Map<String,Object>> combinePage(List<Map<String,Object>> reportResult,int totalElement,int page,int num){
+        PageResultVO<Map<String,Object>> pageResult = new PageResultVO<Map<String,Object>>(page,num,Long.parseLong(totalElement+""),reportResult);
         return pageResult;
     }
 

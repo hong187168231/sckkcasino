@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-//@Transactional(rollbackFor = Exception.class)
+@Transactional(rollbackFor = Exception.class)
 public class LevelProxyDayReportBusiness {
     @Autowired
     private ProxyDayReportService proxyDayReportService;
@@ -23,9 +23,9 @@ public class LevelProxyDayReportBusiness {
      */
     public void processReport(ShareProfitBO shareProfitBO){
         ProxyDayReport proxyDayReport = getProxyDayReport(shareProfitBO);
-/*        proxyDayReport.setProfitAmount(proxyDayReport.getProfitAmount().add(shareProfitBO.getProfitAmount()));
-        proxyDayReport.setBetAmount(proxyDayReport.getBetAmount().add(shareProfitBO.getBetAmount()));*/
-        proxyDayReportService.updateProxyDayReport(shareProfitBO.getUserId(),shareProfitBO.getProfitAmount(),shareProfitBO.getBetAmount(),shareProfitBO.getBetTime());
+        proxyDayReport.setProfitAmount(proxyDayReport.getProfitAmount().add(shareProfitBO.getProfitAmount()));
+        proxyDayReport.setBetAmount(proxyDayReport.getBetAmount().add(shareProfitBO.getBetAmount()));
+        proxyDayReportService.save(proxyDayReport);
     }
 
     private ProxyDayReport getProxyDayReport(ShareProfitBO shareProfitBO) {

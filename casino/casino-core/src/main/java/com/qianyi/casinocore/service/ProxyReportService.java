@@ -49,27 +49,6 @@ public class ProxyReportService {
         return proxyReportRepository.findAll(condition, pageable);
     }
 
-   // @CacheEvict(key = "#userId")
-/*    @Transactional*/
-    public void updateProxyReport(Long userId,BigDecimal allBetAmount, BigDecimal allProfitAmount, Integer allBetNum){
-        proxyReportRepository.updateProxyReport(allBetAmount,allProfitAmount, allBetNum, userId);
-    }
-
-
-    //@CacheEvict(key = "#userId")
-/*    @Transactional*/
-    public void updateDirectProxyReport(Long userId,BigDecimal allBetAmount, BigDecimal allProfitAmount, Integer allBetNum){
-        proxyReportRepository.updateDirectProxyReport(allBetAmount,allProfitAmount, allBetNum, userId);
-    }
-
-
-   // @CacheEvict(key = "#userId")
-//    @Transactional
-    public void updateNoDirectProxyReport(Long userId,BigDecimal allBetAmount, BigDecimal allProfitAmount, Integer allBetNum){
-        proxyReportRepository.updateNoDirectProxyReport(allBetAmount,allProfitAmount, allBetNum, userId);
-    }
-
-
 
     private Specification<ProxyReport> getCondition(List<User> users, String account) {
         Specification<ProxyReport> specification = new Specification<ProxyReport>() {
