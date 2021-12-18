@@ -47,7 +47,7 @@ spring:
     template:
       mandatory: true
   profiles:
-    active: test
+    active: dev
 project:   #不同环境需配置相应的值
   title: 千亿科技
   wmUrl: https://api.a45.me/api/public/Gateway.php   #wm游戏远程地址
