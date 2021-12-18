@@ -299,10 +299,12 @@ public class Initialization implements CommandLineRunner {
             platformConfig.setSendMessageWarning(platformConfigFile.getSendMessageWarning());
             platformConfig.setDirectlyUnderTheLower(platformConfigFile.getDirectlyUnderTheLower());
             platformConfig.setCompanyInviteCode(platformConfigFile.getCompanyInviteCode());
-            platformConfig.setCustomerCode(platformConfig.getCustomerCode());
+            platformConfig.setCustomerCode(platformConfigFile.getCustomerCode());
             platformConfig.setUploadUrl(platformConfigFile.getUploadUrl());
             platformConfig.setReadUploadUrl(platformConfigFile.getReadUploadUrl());
             platformConfig.setMoneySymbol(platformConfigFile.getMoneySymbol());
+            platformConfig.setPeopleProxySwitch(platformConfigFile.getPeopleProxySwitch());
+            platformConfig.setBankcardRealNameSwitch(platformConfigFile.getBankcardRealNameSwitch());
             platformConfigService.save(platformConfig);
         }else {
             PlatformConfig platformConfig = all.get(CommonConst.NUMBER_0);
