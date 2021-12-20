@@ -149,7 +149,7 @@ public class CompanyProxyMonthBusiness {
 
     public CompanyProxyMonth calculateDetail(CompanyLevelBO companyLevelBO,CompanyOrderAmountVo companyOrderAmountVo,Long userid,BigDecimal profitRate,Integer proxyType){
         log.info("companyLevelBO:{}",companyLevelBO);
-        //个人佣金结算:返佣金额(如:达到1w返佣10元) * 实际倍数(下注金额/10000)
+        //个人佣金结算:返佣金额(如:达到1w返佣10元) * 实际倍数(下注金额/配置得返佣金额线)
         BigDecimal totalAmount = companyLevelBO.getProfitAmount().multiply(BigDecimal.valueOf(companyLevelBO.getProfitActTimes()));
         CompanyProxyMonth companyProxyMonth= CompanyProxyMonth.builder()
                 .benefitRate(profitRate)
@@ -160,6 +160,7 @@ public class CompanyProxyMonthBusiness {
                 .userId(userid)
                 .profitLevel(companyLevelBO.getProfitLevel()+"")
                 .profitRate(companyLevelBO.getProfitAmount().toString())
+                .profitAmountLine(companyLevelBO.getProfitAmountLine().toString())
                 .groupBetAmount(new BigDecimal(companyOrderAmountVo.getValidbet()))
                 .playerNum(companyOrderAmountVo.getPlayerNum())
                 // 返佣金额(如:达到1w返佣10元) * 实际倍数(下注金额/10000) * 代理佣金配置值
