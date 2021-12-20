@@ -38,7 +38,7 @@ public class ReportController {
     @Autowired
     private UserService userService;
 
-    @NoAuthorization
+//    @NoAuthorization
     @ApiOperation("查询个人报表")
     @GetMapping("/queryPersonReport")
     @ApiImplicitParams({
@@ -73,7 +73,7 @@ public class ReportController {
         return pageResult;
     }
 
-    @NoAuthorization
+//    @NoAuthorization
     @ApiOperation("查询个人报表总计")
     @GetMapping("/queryTotal")
     @ApiImplicitParams({

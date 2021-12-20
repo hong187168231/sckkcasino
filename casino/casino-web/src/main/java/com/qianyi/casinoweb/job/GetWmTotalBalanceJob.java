@@ -5,6 +5,7 @@ import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.livewm.api.PublicWMApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,8 @@ public class GetWmTotalBalanceJob {
     private PlatformConfigService platformConfigService;
     @Autowired
     private GameRecordAsyncOper gameRecordAsyncOper;
+    @Value("${spring.profiles.active}")
+    private String active;
 
     @Scheduled(cron = "0 0 * * * ?")
     public void tasks() {
@@ -31,7 +34,7 @@ public class GetWmTotalBalanceJob {
             BigDecimal agentBalance = wmApi.getAgentBalance(0);
             if (agentBalance == null) {
                 log.error("查询平台在WM的总余额远程请求异常");
-                gameRecordAsyncOper.sendMsgToTelegramBot("查询平台在WM的总余额异常,原因:远程请求异常");
+                gameRecordAsyncOper.sendMsgToTelegramBot(active+"环境,查询平台在WM的总余额异常,原因:远程请求异常");
                 return;
             }
             PlatformConfig platformConfig = platformConfigService.findFirst();
@@ -46,7 +49,7 @@ public class GetWmTotalBalanceJob {
             log.info("平台在WM的总余额更新完成");
         } catch (Exception e) {
             log.error("查询平台在WM的总余额异常");
-            gameRecordAsyncOper.sendMsgToTelegramBot("查询平台在WM的总余额异常,原因:" + e.getMessage());
+            gameRecordAsyncOper.sendMsgToTelegramBot(active+"环境,查询平台在WM的总余额异常,原因:" + e.getMessage());
             e.printStackTrace();
         }
     }
