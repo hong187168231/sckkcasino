@@ -71,7 +71,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             "ifnull(withdraw_t.service_charge,0) service_charge,\n" +
             "ifnull(pr.amount,0) all_profit_amount,\n" +
             "-(main_t.win_loss+ifnull(wash_t.wash_amount,0)) avg_benefit,\n" +
-            "-(main_t.win_loss+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0) total_amount"+
+            "-(main_t.win_loss+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0) total_amount \n"+
             "from (\n" +
             "\tselect user_id ,\n" +
             "\tcount(1) num,\n" +
@@ -112,8 +112,8 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             "sum(ifnull(withdraw_t.service_charge,0)) service_charge,\n" +
             "sum(ifnull(pr.amount,0)) all_profit_amount,\n" +
             "sum(-(main_t.win_loss+ifnull(wash_t.wash_amount,0))) avg_benefit,\n" +
-            "sum(-(main_t.win_loss+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0)) total_amount\n" +
-            "from (\n" +
+            "sum(-(main_t.win_loss+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0)) total_amount \n" +
+            " from (\n" +
             "\tselect user_id ,\n" +
             "\tcount(1) num,\n" +
             "\tsum(bet) bet_amount,\n" +
