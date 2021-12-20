@@ -17,6 +17,8 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URL;
 import java.util.*;
 @Slf4j
 public class HttpClient4Util {
@@ -24,6 +26,29 @@ public class HttpClient4Util {
         log.info("get请求参数{}",url);
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout(1000).setConnectionRequestTimeout(500)
+                .setSocketTimeout(1000).build();
+        httpGet.setConfig(requestConfig);
+        CloseableHttpResponse response = null;
+        try {
+            response = httpclient.execute(httpGet);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        HttpEntity entity = response.getEntity();//得到请求回来的数据
+        String s = EntityUtils.toString(entity, "UTF-8");
+        log.info("get请求返回参数{}",s);
+        return s;
+    }
+    public static String specialGet(String urlStr) throws Exception {
+        log.info("get请求参数{}",urlStr);
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+
+        URL url = new URL(urlStr);
+        URI uri = new URI("https",url.getUserInfo(),url.getHost(),url.getPort(),url.getPath(),url.getQuery(),null);
+
+        HttpGet httpGet = new HttpGet(uri);
         RequestConfig requestConfig = RequestConfig.custom()
                 .setConnectTimeout(1000).setConnectionRequestTimeout(500)
                 .setSocketTimeout(1000).build();

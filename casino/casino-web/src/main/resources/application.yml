@@ -59,3 +59,6 @@ project:
   jwtsecrect: fda#$&%$3t55v785A45DF$^&#*JGRstTRG
   swagger:
     enable: true
+  telegramBot:  #定时器执行异常推送消息
+    token: 5075415436:AAHw20_vMAaajpIlGjCtdoF-ONH2Pnqwdhs
+    chatId: -734299530
