@@ -74,7 +74,7 @@ public class NewPermissions {
                 SysPermission sysPermission = new SysPermission("历史盈亏报表", "历史盈亏报表", "/report/queryPersonReport", pid, CommonConst.NUMBER_2, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
                 if(sysPermission.getId() != null){
-                    SysPermission sysPermission1 = new SysPermission("盈亏报表总计", "盈亏报表总计", "/report/queryTotal", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                    SysPermission sysPermission1 = new SysPermission("盈亏报表总计", "盈亏报表总计", "/report/queryTotal", sysPermission.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                     sysPermissionService.save(sysPermission1);
                 }
             }
