@@ -36,6 +36,9 @@ public class ProxyHomePageReportTask {
         Calendar nowTime = Calendar.getInstance();
         nowTime.add(Calendar.DATE, -1);
         String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
+        List<ProxyHomePageReport> byStaticsTimes = proxyHomePageReportService.findByStaticsTimes(format);
+        if (!CasinoProxyUtil.checkNull(byStaticsTimes) && byStaticsTimes.size() > CommonConst.NUMBER_0)
+            return;
         try {
             String startTime = format + start;
             String endTime = format + end;
