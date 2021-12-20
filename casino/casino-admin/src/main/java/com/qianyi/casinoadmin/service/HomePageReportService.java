@@ -31,6 +31,10 @@ public class HomePageReportService {
         return homePageReportRepository.findAll(condition);
     }
 
+    public List<HomePageReport> findByStaticsTimes(String staticsTimes){
+        return homePageReportRepository.findByStaticsTimes(staticsTimes);
+    }
+
     public List<HomePageReport> findHomePageReports(Sort sort,String startTime, String endTime) {
         Specification<HomePageReport> condition = this.getCondition(startTime,endTime);
         return homePageReportRepository.findAll(condition,sort);

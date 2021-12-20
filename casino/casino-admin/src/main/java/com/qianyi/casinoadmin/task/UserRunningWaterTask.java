@@ -4,6 +4,7 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.ShareProfitChange;
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.model.UserRunningWater;
 import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinocore.service.ShareProfitChangeService;
 import com.qianyi.casinocore.service.UserRunningWaterService;
@@ -49,20 +50,26 @@ public class UserRunningWaterTask {
         Calendar nowTime = Calendar.getInstance();
         nowTime.add(Calendar.DATE, -1);
         String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
-        try {
-            for (int i = startHour;i <= endHour;i++){
-                String s = i < CommonConst.NUMBER_10? " 0"+i:" "+i;
-                String startTime = format + s + start;
-                String endTime = format + s + end;
-                Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
-                Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
-                this.gameRecord(startTime,endTime,format);
-                this.shareProfitChange(format,startDate,endDate);
+        synchronized (format.intern()){
+            List<UserRunningWater> byStaticsTimes = userRunningWaterService.findByStaticsTimes(format);
+            if (!LoginUtil.checkNull(byStaticsTimes) && byStaticsTimes.size() > CommonConst.NUMBER_0)
+                return;
+            try {
+                for (int i = startHour;i <= endHour;i++){
+                    String s = i < CommonConst.NUMBER_10? " 0"+i:" "+i;
+                    String startTime = format + s + start;
+                    String endTime = format + s + end;
+                    Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
+                    Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
+                    this.gameRecord(startTime,endTime,format);
+                    this.shareProfitChange(format,startDate,endDate);
+                }
+                log.info("每日会员流水报表统计结束end=============================================》");
+            }catch (Exception ex){
+                log.error("每日会员流水报表统计失败",ex);
             }
-            log.info("每日会员流水报表统计结束end=============================================》");
-        }catch (Exception ex){
-            log.error("每日会员流水报表统计失败",ex);
         }
+
     }
 
     public void gameRecord(String startTime, String endTime, String format){
