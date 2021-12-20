@@ -38,6 +38,9 @@ public class CompanyProxyMonth extends BaseEntity implements Cloneable{
     private String profitLevel;
     @ApiModelProperty(value = "返佣比例")
     private String profitRate;
+    @ApiModelProperty(value = "返佣金额线")
+    private String profitAmountLine;
+
     @ApiModelProperty(value = "团队总返佣")
     @Column(columnDefinition = "Decimal(10,6) default '0.000000'")
     private BigDecimal groupTotalprofit;
