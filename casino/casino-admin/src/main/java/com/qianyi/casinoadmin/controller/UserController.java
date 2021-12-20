@@ -17,6 +17,7 @@ import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
+import com.qianyi.modulecommon.util.MessageUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -77,6 +78,9 @@ public class UserController {
 
     @Autowired
     GenerateInviteCodeRunner generateInviteCodeRunner;
+
+    @Autowired
+    private MessageUtil messageUtil;
 
     @ApiOperation("查询代理下级的用户数据")
     @ApiImplicitParams({
@@ -676,7 +680,7 @@ public class UserController {
         if (LoginUtil.checkNull(user)){
             return ResponseUtil.success("");
         }
-        String agency = user.getAccount()+"(当前)";
+        String agency = user.getAccount()+"("+messageUtil.get("当前")+")";
         User first = userService.findById(user.getFirstPid() == null ? 0L:user.getFirstPid());
         if (LoginUtil.checkNull(first)){
             return ResponseUtil.success(agency);
