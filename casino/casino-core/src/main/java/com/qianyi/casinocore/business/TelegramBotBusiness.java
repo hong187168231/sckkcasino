@@ -16,6 +16,8 @@ public class TelegramBotBusiness {
     private String token;
     @Value("${project.telegramBot.chatId:null}")
     private String chatId;
+    @Value("${project.telegramBot.enable:false}")
+    private Boolean enable;
 
     /**
      * https://blog.csdn.net/dodod2012/article/details/102685519
@@ -24,6 +26,9 @@ public class TelegramBotBusiness {
      * @param msg
      */
     public String sendMsgToTelegramBot(String msg) {
+        if(!enable){
+            log.info("机器人发送消息开关已关闭");
+        }
         log.info("开始给TG机器人发送消息,token={},chatId={},msg={}", token, chatId, msg);
         if (ObjectUtils.isEmpty(token) || ObjectUtils.isEmpty(chatId) || ObjectUtils.isEmpty(msg)) {
             log.info("token或chatId或者msg为空，token={},chatId={},msg={}", token, chatId, msg);
