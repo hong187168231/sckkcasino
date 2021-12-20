@@ -62,4 +62,3 @@ project:
   telegramBot:  #定时器执行异常推送消息
     token: 5075415436:AAHw20_vMAaajpIlGjCtdoF-ONH2Pnqwdhs
     chatId: -734299530
-    enable: true
