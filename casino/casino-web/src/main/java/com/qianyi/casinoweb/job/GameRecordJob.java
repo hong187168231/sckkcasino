@@ -74,7 +74,7 @@ public class GameRecordJob {
             //远程请求异常
             if (ObjectUtils.isEmpty(result)) {
                 log.error("{}游戏记录拉取异常",timeMsg);
-                gameRecordAsyncOper.sendMsgToTelegramBot(timeMsg+"游戏记录拉取异常,原因:远程请求异常");
+                gameRecordAsyncOper.sendMsgToTelegramBot(timeMsg + active + "环境,游戏记录拉取异常,原因:远程请求异常");
                 return;
             }
             //查询结果无记录
@@ -90,7 +90,7 @@ public class GameRecordJob {
             updateEndTime(endTime, gameRecord);
             log.info("{}wm游戏记录拉取完成",timeMsg);
         } catch (Exception e) {
-            gameRecordAsyncOper.sendMsgToTelegramBot(timeMsg + "游戏记录拉取异常,原因:" + e.getMessage());
+            gameRecordAsyncOper.sendMsgToTelegramBot(timeMsg + active + "游戏记录拉取异常,原因:" + e.getMessage());
             log.error("{}游戏记录拉取异常",timeMsg);
             e.printStackTrace();
         }

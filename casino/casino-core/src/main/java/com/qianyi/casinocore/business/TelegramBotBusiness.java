@@ -31,7 +31,7 @@ public class TelegramBotBusiness {
         }
         try {
             String sendMsgUrl = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chatId + "&text=" + msg;
-            String sendMsgUrlResult = HttpClient4Util.get(sendMsgUrl);
+            String sendMsgUrlResult = HttpClient4Util.specialGet(sendMsgUrl);
             log.info("token={},chatId={},msg={},result={}消息发送结果", token, chatId, msg, sendMsgUrlResult);
             if (ObjectUtils.isEmpty(sendMsgUrlResult)) {
                 log.error("token={},chatId={},msg={}消息发送失败1", token, chatId, msg);
