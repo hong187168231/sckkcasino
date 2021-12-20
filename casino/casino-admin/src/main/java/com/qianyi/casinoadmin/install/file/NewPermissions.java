@@ -45,6 +45,10 @@ public class NewPermissions {
             //设置订单中心
             setOrderCenter(collect);
         }
+        if(collect.containsKey("/reportCenter")){
+            //报表管理
+            setReportCenter(collect);
+        }
         sysPermissionService.saveAllList(sysPermissions);
     }
 
@@ -58,6 +62,26 @@ public class NewPermissions {
         set.addAll(sysPermissionList);
         return new ArrayList<>(set);
     }
+
+    /**
+     * 报表管理
+     * @param collect
+     */
+    private void setReportCenter(Map<String, SysPermission> collect) {
+        if (collect.containsKey("/reportCenter")) {
+            Long pid = collect.get("/reportCenter").getId();
+            if (!collect.containsKey("/report/queryPersonReport")) {
+                SysPermission sysPermission = new SysPermission("历史盈亏报表", "历史盈亏报表", "/report/queryPersonReport", pid, CommonConst.NUMBER_2, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+                if(sysPermission.getId() != null){
+                    SysPermission sysPermission1 = new SysPermission("盈亏报表总计", "盈亏报表总计", "/report/queryTotal", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                    sysPermissionService.save(sysPermission1);
+                }
+            }
+
+        }
+    }
+
 
     /**
      * 设置订单中心
