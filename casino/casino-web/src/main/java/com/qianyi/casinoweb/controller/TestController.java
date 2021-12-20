@@ -56,6 +56,16 @@ public class TestController {
         return ResponseUtil.success();
     }
 
+    @GetMapping("sendMqByBetId")
+    @ApiOperation("根据注单ID发送消息")
+    @NoAuthentication
+    @ApiImplicitParam(name = "betId", value = "注单ID", required = true)
+    public ResponseEntity sendMqByBetId(String betId) {
+        GameRecord gameRecord = gameRecordService.findByBetId(betId);
+        gameRecordAsyncOper.shareProfit(gameRecord);
+        return ResponseUtil.success();
+    }
+
     @GetMapping("sendMsgToTelegramBot")
     @ApiOperation("发送消息到TG机器人")
     @NoAuthentication

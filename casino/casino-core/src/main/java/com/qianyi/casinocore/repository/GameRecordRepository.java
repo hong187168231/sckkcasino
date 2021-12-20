@@ -37,4 +37,6 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
 
     @Query(value = "select count(1) as amount  from game_record rg where rg.id<=?1 and rg.user_id=?2",nativeQuery = true)
     int  countByIdLessThanEqualAndUserId(Long gameId,Long userId);
+
+    GameRecord findByBetId(String betId);
 }

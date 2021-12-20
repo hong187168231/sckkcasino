@@ -298,4 +298,8 @@ public class GameRecordService {
     public List<GameRecord> findByCreateByAndIdGreaterThanEqualOrderByIdAsc(String createBy,Long id) {
         return gameRecordRepository.findByCreateByAndIdGreaterThanEqualOrderByIdAsc(createBy,id);
     }
+
+    public GameRecord findByBetId(String betId) {
+        return gameRecordRepository.findByBetId(betId);
+    }
 }
