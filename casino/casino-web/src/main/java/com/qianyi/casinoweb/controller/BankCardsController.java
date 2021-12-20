@@ -16,6 +16,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -65,6 +66,7 @@ public class BankCardsController {
             @ApiImplicitParam(name = "bankAccount", value = "银行账号", required = true),
             @ApiImplicitParam(name = "address", value = "开户地址", required = true),
             @ApiImplicitParam(name = "realName", value = "持卡人姓名")})
+    @Transactional
     public ResponseEntity<Bankcards> bound(String bankId, String bankAccount, String address, String realName){
         String checkParamFroBound = Bankcards.checkParamFroBound(bankId, bankAccount, address);
         if (StringUtils.hasLength(checkParamFroBound)) {
@@ -82,13 +84,19 @@ public class BankCardsController {
         if (checkBankcards != null) {
             return ResponseUtil.custom("该卡号银行卡已添加,请勿重复添加");
         }
-        Bankcards bankcards = boundCard(firstBankcard,bankId,bankAccount,address,realName,userId);
+        User user = userService.findById(userId);
+        String userRealName = user.getRealName();
+        Bankcards bankcards = boundCard(firstBankcard,bankId,bankAccount,address,realName,user);
         //银行卡绑定 同名只能绑定一个账号
         boolean bankcardRealNameSwitch = checkBankcardRealNameSwitch(bankcards.getRealName(), userId);
         if (!bankcardRealNameSwitch) {
             return ResponseUtil.custom("同一个持卡人只能绑定一个账号");
         }
         bankcards= bankcardsService.boundCard(bankcards);
+        //把真实姓名保存到user
+        if (!ObjectUtils.isEmpty(user.getRealName()) && !user.getRealName().equals(userRealName)) {
+            userService.save(user);
+        }
         return ResponseUtil.success(bankcards);
     }
 
@@ -181,10 +189,10 @@ public class BankCardsController {
         return count>=6;
     }
 
-    private Bankcards boundCard(Bankcards firstBankcard,String bankId, String bankAccount, String address, String realName,Long userId){
+    private Bankcards boundCard(Bankcards firstBankcard,String bankId, String bankAccount, String address, String realName,User user){
         Date now = new Date();
         Bankcards bankcards = new Bankcards();
-        bankcards.setUserId(userId);
+        bankcards.setUserId(user.getId());
         bankcards.setBankId(bankId);
         bankcards.setBankAccount(bankAccount);
         bankcards.setAddress(address);
@@ -192,18 +200,16 @@ public class BankCardsController {
         bankcards.setCreateTime(now);
 //        bankcards.setDisable(0);
         bankcards.setDefaultCard(isFirstCard(firstBankcard));
-        setRealNameAndProxy(bankcards,realName,userId);
+        setRealNameAndProxy(bankcards,realName,user);
         return bankcards;
     }
 
-    private void setRealNameAndProxy(Bankcards bankcards,String realName,Long userId){
-        User user = userService.findById(userId);
+    private void setRealNameAndProxy(Bankcards bankcards,String realName,User user){
         bankcards.setFirstProxy(user.getFirstProxy());
         bankcards.setSecondProxy(user.getSecondProxy());
         bankcards.setThirdProxy(user.getThirdProxy());
         if(ObjectUtils.isEmpty(user.getRealName())){
             user.setRealName(realName);
-            userService.save(user);
             bankcards.setRealName(realName);
         }else{
             bankcards.setRealName(user.getRealName());

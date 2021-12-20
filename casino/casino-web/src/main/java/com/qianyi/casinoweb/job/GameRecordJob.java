@@ -51,6 +51,8 @@ public class GameRecordJob {
     //每隔5分钟执行一次
     @Scheduled(cron = "0 0/5 * * * ?")
     public void pullGameRecord() {
+        log.info("定时器开始拉取游戏记录");
+        String timeMsg = null;
         try {
             //多环境不能同时发起请求，test环境延迟30s执行，正式环境优先,报表查询需间隔30秒，未搜寻到数据需间隔10秒。
             if ("test".equals(active)) {
@@ -65,17 +67,19 @@ public class GameRecordJob {
             StartTimeAndEndTime startTimeAndEndTime = getStartTimeAndEndTime(time);
             String startTime = startTimeAndEndTime.getStartTime();
             String endTime = startTimeAndEndTime.getEndTime();
-            log.info("开始拉取{}到{}的wm游戏记录",startTime,endTime);
+            timeMsg = startTime + "到" + endTime;
+            log.info("开始拉取{}的wm游戏记录",timeMsg);
             //查询时间范围内的所有游戏记录，（以结算时间为条件）
             String result = wmApi.getDateTimeReport(null, startTime, endTime, 0, 1, 2, null, null);
             //远程请求异常
             if (ObjectUtils.isEmpty(result)) {
-                log.error("游戏记录拉取异常");
+                log.error("{}游戏记录拉取异常",timeMsg);
+                gameRecordAsyncOper.sendMsgToTelegramBot(timeMsg+"游戏记录拉取异常,原因:远程请求异常");
                 return;
             }
             //查询结果无记录
             if ("notData".equals(result)) {
-                log.info("当前时间范围无记录");
+                log.info("{}时间范围无记录",timeMsg);
                 updateEndTime(endTime, gameRecord);
                 return;
             }
@@ -84,9 +88,10 @@ public class GameRecordJob {
                 saveAll(gameRecords);
             }
             updateEndTime(endTime, gameRecord);
-            log.info("{}到{}的wm游戏记录拉取完成",startTime,endTime);
+            log.info("{}wm游戏记录拉取完成",timeMsg);
         } catch (Exception e) {
-            log.error("游戏记录拉取异常");
+            gameRecordAsyncOper.sendMsgToTelegramBot(timeMsg + "游戏记录拉取异常,原因:" + e.getMessage());
+            log.error("{}游戏记录拉取异常",timeMsg);
             e.printStackTrace();
         }
     }
