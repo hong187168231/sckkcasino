@@ -17,4 +17,6 @@ public interface UserRunningWaterRepository extends JpaRepository<UserRunningWat
     void updateKey(Long userId,String staticsTimes ,BigDecimal amount,BigDecimal commission,Long firstProxy,Long secondProxy,Long thirdProxy);
 
     List<UserRunningWater> findGroupByUserId(Specification<UserRunningWater> condition);
+
+    List<UserRunningWater> findByStaticsTimes(String staticsTimes);
 }

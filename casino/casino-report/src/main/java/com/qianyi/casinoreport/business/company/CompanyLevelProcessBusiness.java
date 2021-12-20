@@ -31,23 +31,33 @@ public class CompanyLevelProcessBusiness {
     public CompanyLevelBO getProfitLevel(BigDecimal amount,  Map<Integer,Integer> profitLevelList,Map<Integer,BigDecimal> profitLevelMap) {
         //取代理推广返佣配置里的比例
         BigDecimal result = amount;
-        Integer level = getLevel(result.intValue(),profitLevelList);
+        Map<String,Integer> level = getLevel(result.intValue(),profitLevelList);
         log.info("level:{},amount:{}",level,amount);
 
-        BigDecimal profitAmount = profitLevelMap.containsKey(level)?profitLevelMap.get(level):BigDecimal.valueOf(0);
+        BigDecimal profitAmount = profitLevelMap.containsKey(level.get("level"))?profitLevelMap.get(level.get("level")):BigDecimal.valueOf(0);
 
-        return CompanyLevelBO.builder().profitLevel(level).profitAmount(profitAmount).profitActTimes(result.intValue()).build();
+        BigDecimal profitAmountLine = BigDecimal.valueOf(level.get("key"));
+
+        return CompanyLevelBO.builder().profitLevel(level.get("level")).profitAmount(profitAmount).profitActTimes(level.get("profitActTimes") ).profitAmountLine(profitAmountLine).build();
     }
 
-    private Integer getLevel(int compareInt, Map<Integer,Integer> profitLevelList){
+    private  Map<String,Integer> getLevel(int compareInt, Map<Integer,Integer> profitLevelList){
+        Map<String,Integer> ms=new HashMap<>();
         Integer level = 0;
+        Integer profitActTimes = 0;
+        Integer key = 0;
         for (Integer item : profitLevelList.keySet()) {
             if(compareInt>item){
                 level=profitLevelList.get(item).intValue();
+                profitActTimes=compareInt/item;
+                key=item;
             }else if (compareInt<item)
                 break;
         }
-        return level;
+        ms.put("level",level);
+        ms.put("key",key);
+        ms.put("profitActTimes",profitActTimes);
+        return ms;
     }
 
     private Map<Integer, BigDecimal> getProfitLevelMap(RebateConfig RebateConfig) {

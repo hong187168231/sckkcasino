@@ -4,6 +4,7 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.ShareProfitChange;
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.model.UserRunningWater;
 import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinocore.service.ShareProfitChangeService;
 import com.qianyi.casinocore.service.UserRunningWaterService;
@@ -49,6 +50,9 @@ public class UserRunningWaterTask {
         Calendar nowTime = Calendar.getInstance();
         nowTime.add(Calendar.DATE, -1);
         String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
+        List<UserRunningWater> byStaticsTimes = userRunningWaterService.findByStaticsTimes(format);
+        if (!LoginUtil.checkNull(byStaticsTimes) && byStaticsTimes.size() > CommonConst.NUMBER_0)
+            return;
         try {
             for (int i = startHour;i <= endHour;i++){
                 String s = i < CommonConst.NUMBER_10? " 0"+i:" "+i;

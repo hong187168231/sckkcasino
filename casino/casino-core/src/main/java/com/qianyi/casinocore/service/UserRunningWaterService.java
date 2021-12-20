@@ -35,6 +35,10 @@ public class UserRunningWaterService {
         userRunningWaterRepository.updateKey(userId,staticsTimes,amount,commission,firstProxy,secondProxy,thirdProxy);
     }
 
+    public List<UserRunningWater> findByStaticsTimes(String staticsTimes){
+        return userRunningWaterRepository.findByStaticsTimes(staticsTimes);
+    }
+
     public Page<UserRunningWater> findUserPage(Pageable pageable, UserRunningWater userRunningWater, Date startDate, Date endDate){
         Specification<UserRunningWater> condition = this.getCondition(userRunningWater,startDate,endDate);
         return userRunningWaterRepository.findAll(condition,pageable);

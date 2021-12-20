@@ -137,7 +137,7 @@ public class CompanyProxyDailyBusiness {
 
     public CompanyProxyDetail calculateDetail(CompanyLevelBO companyLevelBO,CompanyOrderAmountVo companyOrderAmountVo,Long userid,BigDecimal profitRate,Integer proxyType){
         log.info("companyLevelBO:{}",companyLevelBO);
-        //个人佣金结算:返佣金额(如:达到1w返佣10元) * 实际倍数(下注金额/10000) * 代理佣金配置值
+        //个人佣金结算:返佣金额(如:达到1w返佣10元) * 实际倍数(下注金额/配置得返佣金额线) * 代理佣金配置值
         BigDecimal totalAmount = companyLevelBO.getProfitAmount().multiply(BigDecimal.valueOf(companyLevelBO.getProfitActTimes()));
         CompanyProxyDetail companyProxyDetail= CompanyProxyDetail.builder()
                 .benefitRate(profitRate)
@@ -148,6 +148,7 @@ public class CompanyProxyDailyBusiness {
                 .userId(userid)
                 .profitLevel(companyLevelBO.getProfitLevel()+"")
                 .profitRate(companyLevelBO.getProfitAmount().toString())
+                .profitAmountLine(companyLevelBO.getProfitAmountLine().toString())
                 .groupBetAmount(new BigDecimal(companyOrderAmountVo.getValidbet()))
                 .playerNum(companyOrderAmountVo.getPlayerNum())
                 .profitAmount(totalAmount.multiply(profitRate))
