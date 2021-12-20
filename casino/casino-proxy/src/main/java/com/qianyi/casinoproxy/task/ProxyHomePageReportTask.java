@@ -36,24 +36,29 @@ public class ProxyHomePageReportTask {
         Calendar nowTime = Calendar.getInstance();
         nowTime.add(Calendar.DATE, -1);
         String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
-        try {
-            String startTime = format + start;
-            String endTime = format + end;
-            Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
-            Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
-            ProxyUser proxyUser = new ProxyUser();
-            proxyUser.setIsDelete(CommonConst.NUMBER_1);
-            proxyUser.setUserFlag(CommonConst.NUMBER_1);
-            List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
-            if (CasinoProxyUtil.checkNull(proxyUserList) || proxyUserList.size() == CommonConst.NUMBER_0){
+        synchronized (format.intern()){
+            List<ProxyHomePageReport> byStaticsTimes = proxyHomePageReportService.findByStaticsTimes(format);
+            if (!CasinoProxyUtil.checkNull(byStaticsTimes) && byStaticsTimes.size() > CommonConst.NUMBER_0)
                 return;
+            try {
+                String startTime = format + start;
+                String endTime = format + end;
+                Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
+                Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
+                ProxyUser proxyUser = new ProxyUser();
+                proxyUser.setIsDelete(CommonConst.NUMBER_1);
+                proxyUser.setUserFlag(CommonConst.NUMBER_1);
+                List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
+                if (CasinoProxyUtil.checkNull(proxyUserList) || proxyUserList.size() == CommonConst.NUMBER_0){
+                    return;
+                }
+                proxyUserList.forEach(proxy -> {
+                    new Thread(()->this.create(proxy,startTime,endTime,startDate,endDate,format)).start();
+                });
+                log.info("每日代理首页报表统计结束end=============================================》");
+            }catch (Exception ex){
+                log.error("代理首页报表统计失败",ex);
             }
-            proxyUserList.forEach(proxy -> {
-                new Thread(()->this.create(proxy,startTime,endTime,startDate,endDate,format)).start();
-            });
-            log.info("每日代理首页报表统计结束end=============================================》");
-        }catch (Exception ex){
-            log.error("代理首页报表统计失败",ex);
         }
     }
     public void create(ProxyUser proxyUser,String startTime,String endTime,Date startDate,Date endDate,String format){
