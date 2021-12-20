@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -53,8 +54,12 @@ public class ReportController {
 //        String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
         if(StringUtils.hasLength(userName)){
             User user = userService.findByAccount(userName);
-            List<Map<String,Object>> reportResult = reportService.queryPersonReport(user.getId(),startTime,endTime);
-            return ResponseUtil.success(combinePage(reportResult,1,pageSize,pageCode));
+            if(user != null){
+                List<Map<String,Object>> reportResult = reportService.queryPersonReport(user.getId(),startTime,endTime);
+                return ResponseUtil.success(combinePage(reportResult,1,pageSize,pageCode));
+            }
+            List<Map<String,Object>> emptyResult = new ArrayList<Map<String,Object>>();
+            return ResponseUtil.success(combinePage(emptyResult,0,pageSize,pageCode));
         }
 
         int page = (pageCode-1)*pageSize;
