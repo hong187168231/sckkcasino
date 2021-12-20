@@ -55,31 +55,32 @@ public class HomePageReportTask {
         Calendar nowTime = Calendar.getInstance();
         nowTime.add(Calendar.DATE, -1);
         String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
-        List<HomePageReport> byStaticsTimes = homePageReportService.findByStaticsTimes(format);
-        if (!LoginUtil.checkNull(byStaticsTimes) && byStaticsTimes.size() > CommonConst.NUMBER_0)
-            return;
-        try {
-            String startTime = format + start;
-            String endTime = format + end;
-            Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
-            Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
-            HomePageReport homePageReport = new HomePageReport();
-            homePageReport.setStaticsTimes(format);
-            homePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
-            homePageReport.setStaticsYear(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4));
-            this.chargeOrder(startDate,endDate,homePageReport);
-            this.withdrawOrder(startDate,endDate,homePageReport);
-            this.gameRecord(startTime,endTime,homePageReport);
-            this.shareProfitChange(startDate,endDate,homePageReport);
-            this.getNewUsers(startDate,endDate,homePageReport);
-            this.bonusAmount(startDate,endDate,homePageReport);
-            this.washCodeAmount(startDate,endDate,homePageReport);
-            homePageReportService.save(homePageReport);
-            log.info("每日首页报表统计结束end=============================================》");
-        }catch (Exception ex){
-            log.error("首页报表统计失败",ex);
+        synchronized (format.intern()){
+            List<HomePageReport> byStaticsTimes = homePageReportService.findByStaticsTimes(format);
+            if (!LoginUtil.checkNull(byStaticsTimes) && byStaticsTimes.size() > CommonConst.NUMBER_0)
+                return;
+            try {
+                String startTime = format + start;
+                String endTime = format + end;
+                Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
+                Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
+                HomePageReport homePageReport = new HomePageReport();
+                homePageReport.setStaticsTimes(format);
+                homePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
+                homePageReport.setStaticsYear(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4));
+                this.chargeOrder(startDate,endDate,homePageReport);
+                this.withdrawOrder(startDate,endDate,homePageReport);
+                this.gameRecord(startTime,endTime,homePageReport);
+                this.shareProfitChange(startDate,endDate,homePageReport);
+                this.getNewUsers(startDate,endDate,homePageReport);
+                this.bonusAmount(startDate,endDate,homePageReport);
+                this.washCodeAmount(startDate,endDate,homePageReport);
+                homePageReportService.save(homePageReport);
+                log.info("每日首页报表统计结束end=============================================》");
+            }catch (Exception ex){
+                log.error("首页报表统计失败",ex);
+            }
         }
-
     }
     public void chargeOrder(Date startDate,Date endDate,HomePageReport homePageReport){
         try {
