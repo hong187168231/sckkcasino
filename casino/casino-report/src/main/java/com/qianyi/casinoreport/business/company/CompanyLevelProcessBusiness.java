@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -46,7 +43,7 @@ public class CompanyLevelProcessBusiness {
         Integer level = 0;
         for (Integer item : profitLevelList.keySet()) {
             if(compareInt>item){
-                level=item.intValue();
+                level=profitLevelList.get(item).intValue();
             }else if (compareInt<item)
                 break;
         }
@@ -67,7 +64,7 @@ public class CompanyLevelProcessBusiness {
     }
 
     private  Map<Integer,Integer> getProfitLevelList(RebateConfig RebateConfig){
-        Map<Integer,Integer> profitLevelList =  new HashMap<>();
+        Map<Integer,Integer> profitLevelList =   new TreeMap<Integer, Integer>();
 /*        profitLevelList.add(RebateConfig.getFirstMoney());
         profitLevelList.add(RebateConfig.getSecondMoney());
         profitLevelList.add(RebateConfig.getThirdMoney());
