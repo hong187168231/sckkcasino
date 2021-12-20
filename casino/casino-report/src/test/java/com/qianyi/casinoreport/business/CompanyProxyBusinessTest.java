@@ -12,10 +12,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 public class CompanyProxyBusinessTest {
@@ -23,12 +20,10 @@ public class CompanyProxyBusinessTest {
     @Test
     public void should_get_correct_int_val(){
         CompanyLevelProcessBusiness companyProxyBusiness = new CompanyLevelProcessBusiness();
-        List<Integer> valList = new ArrayList<>();
-        valList.add(1);
-        valList.add(5);
-        valList.add(10);
-        valList.add(20);
-        valList.add(30);
+        Map<Integer,Integer> valList =   new TreeMap<Integer, Integer>();
+        valList.put(10,100);
+        valList.put(20,200);
+        valList.put(30,300);
         Map<Integer,BigDecimal> bigDecimalMap = new HashMap<>();
         bigDecimalMap.put(1,BigDecimal.valueOf(1));
         bigDecimalMap.put(5,BigDecimal.valueOf(2));
