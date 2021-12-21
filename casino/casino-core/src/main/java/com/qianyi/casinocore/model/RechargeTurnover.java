@@ -19,11 +19,13 @@ public class RechargeTurnover extends BaseEntity{
     @ApiModelProperty("客户id")
     private Long userId;
     @ApiModelProperty("订单金额")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.000000'")
     private BigDecimal orderMoney;
     @ApiModelProperty("打码量")
+    @Column(columnDefinition = "Decimal(19,6) default '0.000000'")
     private BigDecimal codeNum;
     @ApiModelProperty("实时打码总量")
+    @Column(columnDefinition = "Decimal(19,6) default '0.000000'")
     private BigDecimal codeNums;
     @ApiModelProperty("打码倍率")
     private Float codeTimes;
