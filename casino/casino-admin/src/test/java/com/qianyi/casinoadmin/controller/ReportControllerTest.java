@@ -45,8 +45,10 @@ public class ReportControllerTest {
 
     @Test
     public void should_query_all_total_data(){
-        Map<String,Object> result = companyProxyMonthRepository.queryAllTotal("2021-11-01 00:00:00","2021-11-30 00:00:00");
-
+        Map<String,Object> result = companyProxyMonthRepository.queryAllTotal("2021-12-19 00:00:00","2021-12-21 23:59:59");
+        result.keySet().forEach(item ->{
+            log.info("{}:{}",item,result.get(item).toString());
+        });
         log.info("{}",result);
     }
 }
