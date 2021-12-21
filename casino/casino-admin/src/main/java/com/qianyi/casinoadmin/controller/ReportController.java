@@ -83,8 +83,8 @@ public class ReportController {
     })
     public ResponseEntity<Map<String,Object>> queryTotal(String userName,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
-        String startTime = startDate==null? null: DateUtil.getSimpleDateFormat1().format(startDate);
-        String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
+        String startTime = startDate==null? null: DateUtil.getSimpleDateFormat().format(startDate);
+        String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat().format(endDate);
         log.info("endtime:{}",endTime);
         Map<String,Object> result = reportService.queryAllTotal(startTime,endTime);
         return ResponseUtil.success(result);
