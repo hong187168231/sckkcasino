@@ -602,11 +602,11 @@ public class PlatformConfigController {
 
 
 
-
-    /**
+/*
+    *//**
      * 查询人人代开关 0:关闭，1:开启
      * @return
-     */
+     *//*
     @ApiOperation("查询人人代开关")
     @GetMapping("/findPeopleProxySwitch")
     public ResponseEntity findPeopleProxySwitch(){
@@ -615,10 +615,10 @@ public class PlatformConfigController {
     }
 
 
-    /**
+    *//**
      * 修改人人代开关
      * @return
-     */
+     *//*
     @ApiOperation("编辑人人代开关")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "proxySwitch", value = "编辑人人代开关(0:关闭，1:开启)", required = true),
@@ -635,6 +635,6 @@ public class PlatformConfigController {
         first.setPeopleProxySwitch(proxySwitch);
         platformConfigService.save(first);
         return ResponseUtil.success();
-    }
+    }*/
 
 }
