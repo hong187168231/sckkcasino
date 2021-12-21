@@ -56,16 +56,16 @@ public class ReportController {
             User user = userService.findByAccount(userName);
             if(user != null){
                 List<Map<String,Object>> reportResult = reportService.queryPersonReport(user.getId(),startTime,endTime);
-                return ResponseUtil.success(combinePage(reportResult,1,pageSize,pageCode));
+                return ResponseUtil.success(combinePage(reportResult,1,pageCode,pageSize));
             }
             List<Map<String,Object>> emptyResult = new ArrayList<Map<String,Object>>();
-            return ResponseUtil.success(combinePage(emptyResult,0,pageSize,pageCode));
+            return ResponseUtil.success(combinePage(emptyResult,0,pageCode,pageSize));
         }
 
         int page = (pageCode-1)*pageSize;
         List<Map<String,Object>> reportResult = reportService.queryAllPersonReport(startTime,endTime,page,pageSize);
         int totalElement = reportService.queryTotalElement(startTime,endTime);
-        return ResponseUtil.success(combinePage(reportResult,totalElement,pageSize,pageSize));
+        return ResponseUtil.success(combinePage(reportResult,totalElement,pageCode,pageSize));
     }
 
     private PageResultVO<Map<String,Object>> combinePage(List<Map<String,Object>> reportResult,int totalElement,int page,int num){
@@ -83,8 +83,9 @@ public class ReportController {
     })
     public ResponseEntity<Map<String,Object>> queryTotal(String userName,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
-        String startTime = startDate==null? null: DateUtil.getSimpleDateFormat1().format(startDate);
-        String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
+        String startTime = startDate==null? null: DateUtil.getSimpleDateFormat().format(startDate);
+        String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat().format(endDate);
+        log.info("endtime:{}",endTime);
         Map<String,Object> result = reportService.queryAllTotal(startTime,endTime);
         return ResponseUtil.success(result);
     }
