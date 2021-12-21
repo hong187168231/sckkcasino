@@ -196,8 +196,8 @@ public class ProxyUserController {
         if (LoginUtil.checkNull(userName,tag)){
             return ResponseUtil.custom("参数不合法");
         }
-        if (!userName.matches(RegexEnum.ACCOUNT.getRegex())){
-            return ResponseUtil.custom("账号请输入6~15位数字或字母");
+        if (!userName.matches(RegexEnum.PROXYACCOUNT.getRegex())){
+            return ResponseUtil.custom("代理账号必须是2-15位的字母或数字");
         }
         if (!LoginUtil.checkNull(nickName) && !nickName.matches(RegexEnum.NAME.getRegex())){
             return ResponseUtil.custom("昵称请输入1~20位中文或字母");

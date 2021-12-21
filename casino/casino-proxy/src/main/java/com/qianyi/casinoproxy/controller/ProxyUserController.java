@@ -305,8 +305,8 @@ public class ProxyUserController {
         if (CasinoProxyUtil.checkNull(userName)){
             return ResponseUtil.custom("参数不合法");
         }
-        if (!userName.matches(RegexEnum.ACCOUNT.getRegex())){
-            return ResponseUtil.custom("账号请输入数字或字母");
+        if (!userName.matches(RegexEnum.PROXYACCOUNT.getRegex())){
+            return ResponseUtil.custom("代理账号必须是2-15位的字母或数字");
         }
         if (!CasinoProxyUtil.checkNull(nickName) && !nickName.matches(RegexEnum.NAME.getRegex())){
             return ResponseUtil.custom("昵称请输入1~20位中文或字母");
