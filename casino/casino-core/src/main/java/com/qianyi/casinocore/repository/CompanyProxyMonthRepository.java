@@ -26,130 +26,134 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
     List<Map<String,Object>> queryMonthData(String startTime, String endTime);
 
     @Query(value = "select \n" +
-            "u.account ,\n" +
-            "main_t.*,\n" +
-            "ifnull(wash_t.wash_amount,0) wash_amount,\n" +
-            "ifnull(withdraw_t.service_charge,0) service_charge,\n" +
-            "ifnull(pr.amount,0) all_profit_amount,\n" +
-            "-(main_t.win_loss+ifnull(wash_t.wash_amount,0)) avg_benefit,\n" +
-            "-(main_t.win_loss+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0) total_amount\n" +
-            "from (\n" +
-            "\tselect user_id ,\n" +
-            "\tcount(1) num,\n" +
-            "\tsum(bet) bet_amount,\n" +
-            "\tsum(validbet) validbet ,\n" +
-            "\tsum(win_loss) win_loss \n" +
-            "\tfrom game_record gr\n" +
-            "\twhere create_time > ?1 and create_time < ?2 \n" +
-            "\tgroup by user_id\n" +
-            ") main_t\n" +
-            "left join (\n" +
-            "\tselect user_id , sum(amount) wash_amount \n" +
-            "\tfrom wash_code_change wcc \n" +
-            "\twhere create_time > ?1 and create_time < ?2 \n" +
-            "\tgroup by user_id\n" +
-            ") wash_t on main_t.user_id = wash_t.user_id \n" +
-            "left join (\n" +
-            "\tselect user_id , sum(ifnull(service_charge,0)) service_charge \n" +
-            "\tfrom withdraw_order wo \n" +
-            "\twhere create_time > ?1 and create_time < ?2 \n" +
-            "\tgroup by user_id\n" +
-            ") withdraw_t on main_t.user_id = withdraw_t.user_id\n" +
-            "left join (\n" +
-            "\tselect user_id , sum(amount) amount from share_profit_change spc \n" +
-            "\twhere  create_time > ?1 and create_time < ?2 \n" +
-            "\tgroup by user_id \n" +
-            ") pr on main_t.user_id=pr.user_id \n" +
-            "left join `user` u on main_t.user_id = u.id \n" +
+            "u.account , \n" +
+            " u.id,\n" +
+            " ifnull(main_t.num,0) num,\n" +
+            " ifnull(main_t.bet_amount,0) bet_amount ,\n" +
+            " ifnull(main_t.validbet,0) validbet ,\n" +
+            " ifnull(main_t.win_loss,0) win_loss ,\n" +
+            " ifnull(wash_t.wash_amount,0) wash_amount, \n" +
+            " ifnull(withdraw_t.service_charge,0) service_charge, \n" +
+            " ifnull(pr.amount,0) all_profit_amount, \n" +
+            " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)) avg_benefit, \n" +
+            " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0) total_amount\n" +
+            "from user u\n" +
+            "left join ( \n" +
+            "  select user_id , \n" +
+            "  count(1) num, \n" +
+            "  sum(bet) bet_amount, \n" +
+            "  sum(validbet) validbet , \n" +
+            "  sum(win_loss) win_loss  \n" +
+            "  from game_record gr \n" +
+            "  where create_time >= ?1 and create_time <= ?2\n" +
+            "  group by user_id \n" +
+            " ) main_t on u.id = main_t.user_id\n" +
+            " left join ( \n" +
+            "  select user_id , sum(amount) wash_amount  \n" +
+            "  from wash_code_change wcc  \n" +
+            "  where create_time >= ?1 and create_time <= ?2\n" +
+            "  group by user_id \n" +
+            " ) wash_t on u.id = wash_t.user_id\n" +
+            " left join ( \n" +
+            "  select user_id , sum(ifnull(service_charge,0)) service_charge  \n" +
+            "  from withdraw_order wo  \n" +
+            "  where create_time >= ?1 and create_time <= ?2\n" +
+            "  group by user_id \n" +
+            " ) withdraw_t on u.id = withdraw_t.user_id\n" +
+            " left join ( \n" +
+            "  select user_id , sum(amount) amount from share_profit_change spc  \n" +
+            "  where create_time >= ?1 and create_time <= ?2\n" +
+            "  group by user_id  \n" +
+            " ) pr on u.id=pr.user_id \n" +
+            " where 1=1\n" +
             "limit ?3,?4",nativeQuery = true)
     List<Map<String,Object>> queryAllPersonReport(String startTime,String endTime,int page,int count);
 
     @Query(value = "select \n" +
-            "u.account ,\n" +
-            "main_t.*,\n" +
-            "ifnull(wash_t.wash_amount,0) wash_amount,\n" +
-            "ifnull(withdraw_t.service_charge,0) service_charge,\n" +
-            "ifnull(pr.amount,0) all_profit_amount,\n" +
-            "-(main_t.win_loss+ifnull(wash_t.wash_amount,0)) avg_benefit,\n" +
-            "-(main_t.win_loss+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0) total_amount \n"+
-            "from (\n" +
-            "\tselect user_id ,\n" +
-            "\tcount(1) num,\n" +
-            "\tsum(bet) bet_amount,\n" +
-            "\tsum(validbet) validbet ,\n" +
-            "\tsum(win_loss) win_loss \n" +
-            "\tfrom game_record gr\n" +
-            "\twhere user_id = ?1 and create_time > ?2 and create_time < ?3\n" +
-            "\tgroup by user_id\n" +
-            ") main_t\n" +
-            "left join (\n" +
-            "\tselect user_id , sum(amount) wash_amount \n" +
-            "\tfrom wash_code_change wcc \n" +
-            "\twhere user_id = ?1 and create_time > ?2 and create_time < ?3\n" +
-            "\tgroup by user_id\n" +
-            ") wash_t on main_t.user_id = wash_t.user_id \n" +
-            "left join (\n" +
-            "\tselect user_id , sum(ifnull(service_charge,0)) service_charge \n" +
-            "\tfrom withdraw_order wo \n" +
-            "\twhere user_id = ?1 and create_time > ?2 and create_time < ?3\n" +
-            "\tgroup by user_id\n" +
-            ") withdraw_t on main_t.user_id = withdraw_t.user_id\n" +
-            "left join (\n" +
-            "\tselect user_id , sum(amount) amount from share_profit_change spc \n" +
-            "\twhere user_id =?1 and create_time > ?2 and create_time < ?3\n" +
-            "\tgroup by user_id \n" +
-            ") pr on main_t.user_id=pr.user_id \n" +
-            "left join `user` u on main_t.user_id = u.id \n"
+            "u.account , \n" +
+            " u.id,\n" +
+            " ifnull(main_t.num,0) num,\n" +
+            " ifnull(main_t.bet_amount,0) bet_amount ,\n" +
+            " ifnull(main_t.validbet,0) validbet ,\n" +
+            " ifnull(main_t.win_loss,0) win_loss ,\n" +
+            " ifnull(wash_t.wash_amount,0) wash_amount, \n" +
+            " ifnull(withdraw_t.service_charge,0) service_charge, \n" +
+            " ifnull(pr.amount,0) all_profit_amount, \n" +
+            " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)) avg_benefit, \n" +
+            " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0) total_amount\n" +
+            "from user u\n" +
+            "left join ( \n" +
+            "  select user_id , \n" +
+            "  count(1) num, \n" +
+            "  sum(bet) bet_amount, \n" +
+            "  sum(validbet) validbet , \n" +
+            "  sum(win_loss) win_loss  \n" +
+            "  from game_record gr \n" +
+            "  where create_time >= ?2 and create_time <= ?3\n" +
+            "  group by user_id \n" +
+            " ) main_t on u.id = main_t.user_id\n" +
+            " left join ( \n" +
+            "  select user_id , sum(amount) wash_amount  \n" +
+            "  from wash_code_change wcc  \n" +
+            "  where create_time >= ?2 and create_time <= ?3\n" +
+            "  group by user_id \n" +
+            " ) wash_t on u.id = wash_t.user_id\n" +
+            " left join ( \n" +
+            "  select user_id , sum(ifnull(service_charge,0)) service_charge  \n" +
+            "  from withdraw_order wo  \n" +
+            "  where create_time >= ?2 and create_time <= ?3\n" +
+            "  group by user_id \n" +
+            " ) withdraw_t on u.id = withdraw_t.user_id\n" +
+            " left join ( \n" +
+            "  select user_id , sum(amount) amount from share_profit_change spc  \n" +
+            "  where create_time >= ?2 and create_time <= ?3\n" +
+            "  group by user_id  \n" +
+            " ) pr on u.id=pr.user_id \n" +
+            " where 1=1 and u.id =?1"
             ,nativeQuery = true)
     List<Map<String,Object>> queryPersonReport(long user_id ,String startTime,String endTime);
 
     @Query(value = "select \n" +
-            "sum(main_t.num) num,\n" +
-            "sum(main_t.bet_amount) bet_amount,\n" +
-            "sum(main_t.validbet) validbet ,\n" +
-            "sum(main_t.win_loss) win_loss ,\n" +
-            "sum(ifnull(wash_t.wash_amount,0)) wash_amount,\n" +
-            "sum(ifnull(withdraw_t.service_charge,0)) service_charge,\n" +
-            "sum(ifnull(pr.amount,0)) all_profit_amount,\n" +
-            "sum(-(main_t.win_loss+ifnull(wash_t.wash_amount,0))) avg_benefit,\n" +
-            "sum(-(main_t.win_loss+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0)) total_amount \n" +
-            " from (\n" +
-            "\tselect user_id ,\n" +
-            "\tcount(1) num,\n" +
-            "\tsum(bet) bet_amount,\n" +
-            "\tsum(validbet) validbet ,\n" +
-            "\tsum(win_loss) win_loss \n" +
-            "\tfrom game_record gr\n" +
-            "\twhere create_time > ?1 and create_time < ?2\n" +
-            "\tgroup by user_id\n" +
-            ") main_t\n" +
-            "left join (\n" +
-            "\tselect user_id , sum(amount) wash_amount \n" +
-            "\tfrom wash_code_change wcc \n" +
-            "\twhere create_time > ?1 and create_time < ?2\n" +
-            "\tgroup by user_id\n" +
-            ") wash_t on main_t.user_id = wash_t.user_id \n" +
-            "left join (\n" +
-            "\tselect user_id , sum(ifnull(service_charge,0)) service_charge \n" +
-            "\tfrom withdraw_order wo \n" +
-            "\twhere create_time > ?1 and create_time < ?2\n" +
-            "\tgroup by user_id\n" +
-            ") withdraw_t on main_t.user_id = withdraw_t.user_id\n" +
-            "left join (\n" +
-            "\tselect user_id , sum(amount) amount from share_profit_change spc \n" +
-            "\twhere  create_time > ?1 and create_time < ?2\n" +
-            "\tgroup by user_id \n" +
-            ") pr on main_t.user_id=pr.user_id",nativeQuery = true)
+            " sum(ifnull(main_t.num,0)) num,\n" +
+            " sum(ifnull(main_t.bet_amount,0)) bet_amount ,\n" +
+            " sum(ifnull(main_t.validbet,0)) validbet ,\n" +
+            " sum(ifnull(main_t.win_loss,0)) win_loss ,\n" +
+            " sum(ifnull(wash_t.wash_amount,0)) wash_amount, \n" +
+            " sum(ifnull(withdraw_t.service_charge,0)) service_charge, \n" +
+            " sum(ifnull(pr.amount,0)) all_profit_amount, \n" +
+            " sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))) avg_benefit, \n" +
+            " sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0)) total_amount\n" +
+            "from user u\n" +
+            "left join ( \n" +
+            "  select user_id , \n" +
+            "  count(1) num, \n" +
+            "  sum(bet) bet_amount, \n" +
+            "  sum(validbet) validbet , \n" +
+            "  sum(win_loss) win_loss  \n" +
+            "  from game_record gr \n" +
+            "  where create_time >= ?1 and create_time <= ?2\n" +
+            "  group by user_id \n" +
+            " ) main_t on u.id = main_t.user_id\n" +
+            " left join ( \n" +
+            "  select user_id , sum(amount) wash_amount  \n" +
+            "  from wash_code_change wcc  \n" +
+            "  where create_time >= ?1 and create_time <= ?2\n" +
+            "  group by user_id \n" +
+            " ) wash_t on u.id = wash_t.user_id\n" +
+            " left join ( \n" +
+            "  select user_id , sum(ifnull(service_charge,0)) service_charge  \n" +
+            "  from withdraw_order wo  \n" +
+            "  where create_time >= ?1 and create_time <= ?2\n" +
+            "  group by user_id \n" +
+            " ) withdraw_t on u.id = withdraw_t.user_id\n" +
+            " left join ( \n" +
+            "  select user_id , sum(amount) amount from share_profit_change spc  \n" +
+            "  where create_time >= ?1 and create_time <= ?2\n" +
+            "  group by user_id  \n" +
+            " ) pr on u.id=pr.user_id \n" +
+            " where 1=1",nativeQuery = true)
     Map<String,Object> queryAllTotal(String startTime,String endTime);
 
-    @Query(value = "select \n" +
-            "count(1)\n" +
-            "from (\n" +
-            "\tselect user_id ,\n" +
-            "\tcount(1) num\n" +
-            "\tfrom game_record gr\n" +
-            "\twhere create_time > ?1 and create_time < ?2\n" +
-            "\tgroup by user_id\n" +
-            ") main_t",nativeQuery = true)
+    @Query(value = "select count(1) from user",nativeQuery = true)
     int queryAllTotalElement(String startTime,String endTime);
 }
