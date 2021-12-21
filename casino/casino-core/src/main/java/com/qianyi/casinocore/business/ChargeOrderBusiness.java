@@ -10,6 +10,8 @@ import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.CommonUtil;
+import com.qianyi.modulecommon.util.DateUtil;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
@@ -50,6 +52,9 @@ public class ChargeOrderBusiness {
 
     @Autowired
     private CodeNumChangeService codeNumChangeService;
+
+    @Autowired
+    private AccountChangeService accountChangeService;
 
     /**
      * 成功订单确认
@@ -125,7 +130,7 @@ public class ChargeOrderBusiness {
         log.info("后台上分userId {} 类型 {}订单号 {} chargeAmount is {}, money is {}",userMoney.getUserId(),
                 changeEnum.getCode(),chargeOrder.getOrderNo(),chargeOrder.getChargeAmount(), userMoney.getMoney());
         //用户账变记录
-        this.saveAccountChang(changeEnum,userMoney.getUserId(),chargeOrder.getChargeAmount(),userMoney.getMoney(),chargeOrder.getOrderNo());
+        this.saveAccountChang(changeEnum,userMoney.getUserId(),chargeOrder,userMoney.getMoney());
         //发送充值消息
         this.sendMessage(userMoney.getUserId(),isFirst,chargeOrder);
         return ResponseUtil.success();
@@ -142,16 +147,28 @@ public class ChargeOrderBusiness {
         return codeNumChange;
     }
 
-    private void saveAccountChang(AccountChangeEnum changeEnum, Long userId, BigDecimal amount, BigDecimal amountAfter, String orderNo){
-        AccountChangeVo vo=new AccountChangeVo();
-        vo.setUserId(userId);
-        vo.setOrderNo(orderNo);
-        vo.setChangeEnum(changeEnum);
-        vo.setAmount(amount);
-        vo.setAmountBefore(amountAfter.subtract(amount));
-        vo.setAmountAfter(amountAfter);
-        asyncService.executeAsync(vo);
+    private void saveAccountChang(AccountChangeEnum changeEnum, Long userId, ChargeOrder chargeOrder, BigDecimal amountAfter){
+        AccountChange change=new AccountChange();
+        change.setUserId(userId);
+        change.setOrderNo(getOrderNo(changeEnum));
+        change.setType(changeEnum.getType());
+        change.setAmount(chargeOrder.getChargeAmount());
+        change.setAmountBefore(amountAfter.subtract(chargeOrder.getChargeAmount()));
+        change.setAmountAfter(amountAfter);
+        change.setFirstProxy(chargeOrder.getFirstProxy());
+        change.setSecondProxy(chargeOrder.getSecondProxy());
+        change.setThirdProxy(chargeOrder.getThirdProxy());
+        accountChangeService.save(change);
     }
+
+    public String getOrderNo(AccountChangeEnum changeEnum) {
+        String orderNo = changeEnum.getCode();
+        String today = DateUtil.today("yyyyMMddHHmmssSSS");
+        String randNum = CommonUtil.random(3);
+        orderNo = orderNo + today + randNum;
+        return orderNo;
+    }
+
     private RechargeTurnover getRechargeTurnover(ChargeOrder order,UserMoney user, BigDecimal codeNum, BigDecimal codeTimes) {
         RechargeTurnover rechargeTurnover = new RechargeTurnover();
         rechargeTurnover.setCodeNum(codeNum);

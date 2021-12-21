@@ -9,6 +9,8 @@ import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.CommonUtil;
+import com.qianyi.modulecommon.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,6 +42,9 @@ public class WithdrawBusiness {
 
     @Autowired
     private PlatformConfigService platformConfigService;
+
+    @Autowired
+    private AccountChangeService accountChangeService;
 
     @Autowired
     @Qualifier("accountChangeJob")
@@ -223,7 +228,7 @@ public class WithdrawBusiness {
         userMoneyService.save(userMoney);
         log.info("后台直接下分userId {} 订单号 {} withdrawMoney is {}, money is {}",userMoney.getUserId(),withdrawOrder.getNo(),withdrawMoney, money);
         //记录用户账变
-        this.saveAccountChang(AccountChangeEnum.SUB_CODE,userMoney.getUserId(),withdrawMoney,amountBefore,money,withdrawOrder.getNo());
+        this.saveAccountChang(AccountChangeEnum.SUB_CODE,userMoney.getUserId(),withdrawOrder,amountBefore,userMoney.getMoney());
         return ResponseUtil.success(userMoney);
     }
 
@@ -271,20 +276,30 @@ public class WithdrawBusiness {
         userMoney.setMoney(userMoney.getMoney().add(money));
         userMoneyService.save(userMoney);
         //记录用户账变
-        this.saveAccountChang(AccountChangeEnum.WITHDRAWDEFEATED_CODE,userMoney.getUserId(),money,amountBefore,userMoney.getMoney(),withdrawOrder.getNo());
+        this.saveAccountChang(AccountChangeEnum.WITHDRAWDEFEATED_CODE,userMoney.getUserId(),withdrawOrder,amountBefore,userMoney.getMoney());
         log.info("拒绝提现userId {} 订单号 {} withdrawMoney is {}, money is {}",userMoney.getUserId(),withdrawOrder.getNo(),money, userMoney.getMoney());
         return ResponseUtil.success();
     }
-    private void saveAccountChang(AccountChangeEnum changeEnum, Long userId, BigDecimal amount, BigDecimal amountBefore,
-                                  BigDecimal amountAfter,String orderNo){
-        AccountChangeVo vo=new AccountChangeVo();
-        vo.setUserId(userId);
-        vo.setOrderNo(orderNo);
-        vo.setChangeEnum(changeEnum);
-        vo.setAmount(amount);
-        vo.setAmountBefore(amountBefore);
-        vo.setAmountAfter(amountAfter);
-        asyncService.executeAsync(vo);
+    private void saveAccountChang(AccountChangeEnum changeEnum, Long userId, WithdrawOrder withdrawOrder,BigDecimal amountBefore,
+                                  BigDecimal amountAfter){
+        AccountChange change=new AccountChange();
+        change.setUserId(userId);
+        change.setOrderNo(getOrderNo(changeEnum));
+        change.setType(changeEnum.getType());
+        change.setAmount(withdrawOrder.getWithdrawMoney());
+        change.setAmountBefore(amountBefore);
+        change.setAmountAfter(amountAfter);
+        change.setFirstProxy(withdrawOrder.getFirstProxy());
+        change.setSecondProxy(withdrawOrder.getSecondProxy());
+        change.setThirdProxy(withdrawOrder.getThirdProxy());
+        accountChangeService.save(change);
+    }
+    public String getOrderNo(AccountChangeEnum changeEnum) {
+        String orderNo = changeEnum.getCode();
+        String today = DateUtil.today("yyyyMMddHHmmssSSS");
+        String randNum = CommonUtil.random(3);
+        orderNo = orderNo + today + randNum;
+        return orderNo;
     }
     @Transactional
     public void save(User user) {
