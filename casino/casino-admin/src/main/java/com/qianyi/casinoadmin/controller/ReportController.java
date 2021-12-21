@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.vo.HistoryTotal;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.ReportService;
 import com.qianyi.casinocore.service.UserService;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -87,6 +90,22 @@ public class ReportController {
         String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat().format(endDate);
         log.info("endtime:{}",endTime);
         Map<String,Object> result = reportService.queryAllTotal(startTime,endTime);
-        return ResponseUtil.success(result);
+        HistoryTotal itemObject = getHistoryItem(result);
+
+        return ResponseUtil.success(itemObject);
+    }
+
+    private HistoryTotal getHistoryItem(Map<String,Object> result){
+        HistoryTotal historyTotal = new HistoryTotal();
+        historyTotal.setAll_profit_amount(new BigDecimal(result.get("all_profit_amount").toString()).setScale(2, RoundingMode.HALF_UP));
+        historyTotal.setService_charge(new BigDecimal(result.get("service_charge").toString()).setScale(2, RoundingMode.HALF_UP));
+        historyTotal.setTotal_amount(new BigDecimal(result.get("total_amount").toString()).setScale(2, RoundingMode.HALF_UP));
+        historyTotal.setNum(Integer.parseInt(result.get("num").toString()));
+        historyTotal.setBet_amount(new BigDecimal(result.get("bet_amount").toString()).setScale(2, RoundingMode.HALF_UP));
+        historyTotal.setWin_loss(new BigDecimal(result.get("win_loss").toString()).setScale(2, RoundingMode.HALF_UP));
+        historyTotal.setValidbet(new BigDecimal(result.get("validbet").toString()).setScale(2, RoundingMode.HALF_UP));
+        historyTotal.setWash_amount(new BigDecimal(result.get("wash_amount").toString()).setScale(2, RoundingMode.HALF_UP));
+        historyTotal.setAvg_benefit(new BigDecimal(result.get("avg_benefit").toString()).setScale(2, RoundingMode.HALF_UP));
+        return historyTotal;
     }
 }
