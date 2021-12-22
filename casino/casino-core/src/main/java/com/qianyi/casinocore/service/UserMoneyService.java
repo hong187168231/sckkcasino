@@ -216,7 +216,7 @@ public class UserMoneyService {
         };
         return specification;
     }
-    public BigDecimal getWMonetUser(User user, UserThird third) {
+    public JSONObject getWMonetUser(User user, UserThird third) {
         Integer lang = user.getLanguage();
         if (lang == null) {
             lang = 0;
@@ -230,13 +230,14 @@ public class UserMoneyService {
             String s = HttpClient4Util.get(WMurl + param);
             log.info("{}查询web接口返回{}",user.getAccount(),s);
             JSONObject parse = JSONObject.parseObject(s);
-            Object data = parse.get("data");
-            return new BigDecimal(data.toString());
+            return parse;
+//            Object data = parse.get("data");
+//            return new BigDecimal(data.toString());
         } catch (Exception e) {
-            return BigDecimal.ZERO;
+            return null;
         }
     }
-    public Integer oneKeyRecover(User user){
+    public JSONObject oneKeyRecover(User user){
         try {
             String param = "userId={0}";
             param = MessageFormat.format(param,user.getId());
@@ -246,10 +247,9 @@ public class UserMoneyService {
             String s = HttpClient4Util.get(WMurl + param);
             log.info("{}回收余额web接口返回{}",user.getAccount(),s);
             JSONObject parse = JSONObject.parseObject(s);
-            Integer code = (Integer) parse.get("code");
-            return code;
+            return parse;
         } catch (Exception e) {
-            return CommonConst.NUMBER_1;
+            return null;
         }
     }
 }

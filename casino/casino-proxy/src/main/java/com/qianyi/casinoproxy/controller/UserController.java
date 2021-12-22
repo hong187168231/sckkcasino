@@ -214,14 +214,26 @@ public class UserController {
     public ResponseEntity getWMMoney(Long id){
         User user = userService.findById(id);
         if (CasinoProxyUtil.checkNull(user)){
-            ResponseUtil.success(BigDecimal.ZERO);
+            return ResponseUtil.custom("客户不存在");
         }
         UserThird userThird = userThirdService.findByUserId(user.getId());
         if (CasinoProxyUtil.checkNull(userThird)){
-            ResponseUtil.success(BigDecimal.ZERO);
+            return ResponseUtil.custom("三方账号不存在");
         }
-        BigDecimal wMonetUser = userMoneyService.getWMonetUser(user, userThird);
-        return ResponseUtil.success(wMonetUser);
+        JSONObject jsonObject = userMoneyService.getWMonetUser(user, userThird);
+        if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("data"),jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("查询失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询失败");
+        }
     }
     /**
      * 修改用户
