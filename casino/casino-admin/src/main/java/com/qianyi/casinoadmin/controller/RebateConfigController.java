@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.model.ProxyRebateConfig;
 import com.qianyi.casinocore.model.RebateConfig;
 import com.qianyi.casinocore.service.RebateConfigService;
 import com.qianyi.casinocore.util.CommonConst;
@@ -56,6 +57,9 @@ public class RebateConfigController {
             return ResponseUtil.custom("返佣不能大于30块");
         }
         if (this.verifySize(rebateConfig)){
+            return ResponseUtil.custom("低级别值不能大于高级别");
+        }
+        if (this.verifyAmountLineSize(rebateConfig)){
             return ResponseUtil.custom("低级别值不能大于高级别");
         }
         RebateConfig config = rebateConfigService.findFirst();
@@ -140,6 +144,32 @@ public class RebateConfigController {
             return true;
         }
         if (LoginUtil.checkNull(rebateConfig.getEightMoney()) || LoginUtil.checkNull(rebateConfig.getEightProfit())){
+            return true;
+        }
+        return false;
+    }
+
+
+    private Boolean verifyAmountLineSize(RebateConfig rebateConfig){
+        if (rebateConfig.getFirstAmountLine().compareTo(rebateConfig.getSecondAmountLine())>=CommonConst.NUMBER_0){
+            return true;
+        }
+        if (rebateConfig.getSecondAmountLine().compareTo(rebateConfig.getThirdAmountLine())>=CommonConst.NUMBER_0){
+            return true;
+        }
+        if ( rebateConfig.getThirdAmountLine().compareTo(rebateConfig.getFourAmountLine())>=CommonConst.NUMBER_0){
+            return true;
+        }
+        if (rebateConfig.getFourAmountLine().compareTo(rebateConfig.getFiveAmountLine())>=CommonConst.NUMBER_0 ){
+            return true;
+        }
+        if (rebateConfig.getFiveAmountLine().compareTo(rebateConfig.getSixAmountLine())>=CommonConst.NUMBER_0){
+            return true;
+        }
+        if (rebateConfig.getSixAmountLine().compareTo(rebateConfig.getSevenAmountLine())>=CommonConst.NUMBER_0){
+            return true;
+        }
+        if ( rebateConfig.getSevenAmountLine().compareTo(rebateConfig.getEightAmountLine())>=CommonConst.NUMBER_0){
             return true;
         }
         return false;
