@@ -17,6 +17,7 @@ import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.DateUtil;
+import com.qianyi.modulecommon.util.MessageUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -53,9 +54,15 @@ public class ThridProxyUserController {
     @Autowired
     private UserService userService;
 
-    private static final String METHOD_SECOND_FORMAT = "可设置占成比:0%-{0}%";
+    @Autowired
+    private MessageUtil messageUtil;
+
+    private static final String METHOD_SECOND_FORMAT = "可设置占成比";
+
+    private static final String METHOD_PERCENTAGE = ":0%-{0}%";
 
     private static final String METHOD_FIRST_FORMAT = "总代(自己){0}";
+
 
     /**
      * 分页查询代理
@@ -166,7 +173,7 @@ public class ThridProxyUserController {
                     });
                     proxyCommissions.stream().forEach(proxyCommission->{
                         if (u.getProxyRole() == CommonConst.NUMBER_3 && u.getId().equals(proxyCommission.getProxyUserId())){
-                            String commissionRatio = MessageFormat.format(CommonConst.JICENG,
+                            String commissionRatio = MessageFormat.format(messageUtil.get(CommonConst.JICENG),
                                     proxyCommission.getThirdCommission() == null?"0":proxyCommission.getThirdCommission().multiply(CommonConst.BIGDECIMAL_100));
                             proxyUserVo.setCommissionRatio(commissionRatio);
                         }
@@ -294,17 +301,17 @@ public class ThridProxyUserController {
 //        jsonObject.put("password", password);
 //        return ResponseUtil.success(jsonObject);
 //    }
-
-    private void createrProxyCommission(ProxyUser saveProxyUser,Integer proxyRole){
-        ProxyCommission proxyCommission = new ProxyCommission();
-        proxyCommission.setProxyUserId(saveProxyUser.getId());
-        if (proxyRole == CommonConst.NUMBER_3){
-            ProxyCommission secondCommission = proxyCommissionService.findByProxyUserId(saveProxyUser.getSecondProxy());
-            proxyCommission.setSecondProxy(saveProxyUser.getSecondProxy());
-            proxyCommission.setFirstCommission((secondCommission == null || secondCommission.getFirstCommission() == null)?BigDecimal.ZERO:secondCommission.getFirstCommission());
-        }
-        proxyCommissionService.save(proxyCommission);
-    }
+//
+//    private void createrProxyCommission(ProxyUser saveProxyUser,Integer proxyRole){
+//        ProxyCommission proxyCommission = new ProxyCommission();
+//        proxyCommission.setProxyUserId(saveProxyUser.getId());
+//        if (proxyRole == CommonConst.NUMBER_3){
+//            ProxyCommission secondCommission = proxyCommissionService.findByProxyUserId(saveProxyUser.getSecondProxy());
+//            proxyCommission.setSecondProxy(saveProxyUser.getSecondProxy());
+//            proxyCommission.setFirstCommission((secondCommission == null || secondCommission.getFirstCommission() == null)?BigDecimal.ZERO:secondCommission.getFirstCommission());
+//        }
+//        proxyCommissionService.save(proxyCommission);
+//    }
     @ApiOperation("重置密码")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id", required = true),
@@ -475,7 +482,7 @@ public class ThridProxyUserController {
             return ResponseUtil.custom("没有权限");
         }
         if (proxyUser.getProxyRole() == CommonConst.NUMBER_2){
-            commission = MessageFormat.format(METHOD_FIRST_FORMAT,"");
+            commission = MessageFormat.format(messageUtil.get(METHOD_FIRST_FORMAT),"");
             return ResponseUtil.success(commission);
         }
         ProxyCommission byProxyUserId = proxyCommissionService.findByProxyUserId(proxyUser.getId());
@@ -484,7 +491,7 @@ public class ThridProxyUserController {
                 return ResponseUtil.success("总代未设置");
             }else{
                 BigDecimal multiply = byProxyUserId.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100);
-                commission = MessageFormat.format(METHOD_SECOND_FORMAT,CommonConst.BIGDECIMAL_100.subtract(multiply));
+                commission = MessageFormat.format(messageUtil.get(METHOD_SECOND_FORMAT)+METHOD_PERCENTAGE,CommonConst.BIGDECIMAL_100.subtract(multiply));
                 return ResponseUtil.success(commission);
             }
         }

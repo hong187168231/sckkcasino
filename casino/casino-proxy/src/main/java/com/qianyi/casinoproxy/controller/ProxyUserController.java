@@ -18,6 +18,7 @@ import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.DateUtil;
+import com.qianyi.modulecommon.util.MessageUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -56,7 +57,12 @@ public class ProxyUserController {
     @Autowired
     private UserService userService;
 
-    private static final String METHOD_SECOND_FORMAT = "可设置占成比:0%-{0}%";
+    @Autowired
+    private MessageUtil messageUtil;
+
+    private static final String METHOD_SECOND_FORMAT = "可设置占成比";
+
+    private static final String METHOD_PERCENTAGE = ":0%-{0}%";
 
     private static final String METHOD_FIRST_FORMAT = "总代(自己){0}";
 
@@ -83,6 +89,9 @@ public class ProxyUserController {
     public ResponseEntity<ProxyUserVo> findProxyUser(Integer pageSize, Integer pageCode,Integer proxyRole,Integer userFlag,Integer tag,String userName,
                                         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
                                         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        if (CasinoProxyUtil.checkNull(tag)){
+            return ResponseUtil.custom("参数不合法");
+        }
         ProxyUser proxyUser = new ProxyUser();
         Sort sort=Sort.by("proxyRole").ascending();
         sort = sort.and(Sort.by("id").descending());
@@ -176,13 +185,13 @@ public class ProxyUserController {
                     });
                     proxyCommissions.stream().forEach(proxyCommission->{
                         if (u.getProxyRole() == CommonConst.NUMBER_3 && u.getId().equals(proxyCommission.getProxyUserId())){
-                            String commissionRatio = MessageFormat.format(CommonConst.THIRD_FORMAT,proxyCommission.getFirstCommission() == null?"0":proxyCommission.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100),
+                            String commissionRatio = MessageFormat.format(messageUtil.get(CommonConst.THIRD_FORMAT),proxyCommission.getFirstCommission() == null?"0":proxyCommission.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100),
                                     proxyCommission.getSecondCommission() == null?"0":proxyCommission.getSecondCommission().multiply(CommonConst.BIGDECIMAL_100),
                                     proxyCommission.getThirdCommission() == null?"0":proxyCommission.getThirdCommission().multiply(CommonConst.BIGDECIMAL_100));
                             proxyUserVo.setCommissionRatio(commissionRatio);
                         }
                         if (u.getProxyRole() == CommonConst.NUMBER_2 && u.getId().equals(proxyCommission.getProxyUserId())){
-                            String commissionRatio = MessageFormat.format(CommonConst.SECOND_FORMAT,proxyCommission.getFirstCommission() == null?"0":proxyCommission.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100));
+                            String commissionRatio = MessageFormat.format(messageUtil.get(CommonConst.SECOND_FORMAT),proxyCommission.getFirstCommission() == null?"0":proxyCommission.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100));
                             proxyUserVo.setCommissionRatio(commissionRatio);
                         }
                     });
@@ -544,7 +553,7 @@ public class ProxyUserController {
             return ResponseUtil.custom("没有权限");
         }
         if (proxyUser.getProxyRole() == CommonConst.NUMBER_2){
-            commission = MessageFormat.format(METHOD_FIRST_FORMAT,"");
+            commission = MessageFormat.format(messageUtil.get(METHOD_FIRST_FORMAT),"");
             return ResponseUtil.success(commission);
         }
         ProxyCommission byProxyUserId = proxyCommissionService.findByProxyUserId(proxyUser.getId());
@@ -553,7 +562,7 @@ public class ProxyUserController {
                 return ResponseUtil.success("总代未设置");
             }else{
                 BigDecimal multiply = byProxyUserId.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100);
-                commission = MessageFormat.format(METHOD_SECOND_FORMAT,CommonConst.BIGDECIMAL_100.subtract(multiply));
+                commission = MessageFormat.format(messageUtil.get(METHOD_SECOND_FORMAT)+METHOD_PERCENTAGE,CommonConst.BIGDECIMAL_100.subtract(multiply));
                 return ResponseUtil.success(commission);
             }
         }
