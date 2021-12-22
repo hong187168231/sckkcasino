@@ -267,7 +267,10 @@ public class CompanyProxyMonthController {
     }
     private synchronized ResponseEntity updateStatus(Long id){
         CompanyProxyMonth byId = companyProxyMonthService.findById(id);
-        if (LoginUtil.checkNull(byId) || byId.getSettleStatus() != CommonConst.NUMBER_0){
+        if (LoginUtil.checkNull(byId)){
+            return ResponseUtil.custom("无佣金可结算");
+        }
+        if (byId.getSettleStatus() != CommonConst.NUMBER_0){
             return ResponseUtil.custom("该数据已经被处理");
         }
         Calendar nowTime = Calendar.getInstance();
