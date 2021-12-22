@@ -74,4 +74,13 @@ public class TestController {
         gameRecordAsyncOper.sendMsgToTelegramBot(msg);
         return ResponseUtil.success();
     }
+
+    @GetMapping("requestTest")
+    @ApiOperation("请求次数测试")
+    @NoAuthentication
+    @ApiImplicitParam(name = "msg", value = "消息", required = true)
+    public ResponseEntity requestTest(String msg) {
+        log.info("请求成功,消息={}",msg);
+        return ResponseUtil.success();
+    }
 }
