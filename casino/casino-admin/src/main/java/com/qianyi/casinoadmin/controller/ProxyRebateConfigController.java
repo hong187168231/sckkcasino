@@ -197,32 +197,25 @@ public class ProxyRebateConfigController {
 
 
     private Boolean verifyAmountLineSize(ProxyRebateConfig rebateConfig){
-        if (rebateConfig.getFirstProfit().compareTo(rebateConfig.getSecondProfit()) >= CommonConst.NUMBER_0 ||
-                rebateConfig.getFirstAmountLine().compareTo(rebateConfig.getSecondAmountLine())>=CommonConst.NUMBER_0){
+        if (rebateConfig.getFirstAmountLine().compareTo(rebateConfig.getSecondAmountLine())>=CommonConst.NUMBER_0){
             return true;
         }
-        if (rebateConfig.getSecondProfit().compareTo(rebateConfig.getThirdProfit()) >= CommonConst.NUMBER_0 ||
-                rebateConfig.getSecondAmountLine().compareTo(rebateConfig.getThirdAmountLine())>=CommonConst.NUMBER_0){
+        if (rebateConfig.getSecondAmountLine().compareTo(rebateConfig.getThirdAmountLine())>=CommonConst.NUMBER_0){
             return true;
         }
-        if (rebateConfig.getThirdProfit().compareTo(rebateConfig.getFourProfit()) >= CommonConst.NUMBER_0 ||
-                rebateConfig.getThirdAmountLine().compareTo(rebateConfig.getFourAmountLine())>=CommonConst.NUMBER_0){
+        if ( rebateConfig.getThirdAmountLine().compareTo(rebateConfig.getFourAmountLine())>=CommonConst.NUMBER_0){
             return true;
         }
-        if (rebateConfig.getFourProfit().compareTo(rebateConfig.getFiveProfit()) >= CommonConst.NUMBER_0 ||
-                rebateConfig.getFourAmountLine().compareTo(rebateConfig.getFiveAmountLine())>=CommonConst.NUMBER_0 ){
+        if (rebateConfig.getFourAmountLine().compareTo(rebateConfig.getFiveAmountLine())>=CommonConst.NUMBER_0 ){
             return true;
         }
-        if (rebateConfig.getFiveProfit().compareTo(rebateConfig.getSixProfit()) >= CommonConst.NUMBER_0 ||
-                rebateConfig.getFiveAmountLine().compareTo(rebateConfig.getSixAmountLine())>=CommonConst.NUMBER_0){
+        if (rebateConfig.getFiveAmountLine().compareTo(rebateConfig.getSixAmountLine())>=CommonConst.NUMBER_0){
             return true;
         }
-        if (rebateConfig.getSixProfit().compareTo(rebateConfig.getSevenProfit()) >= CommonConst.NUMBER_0 ||
-                rebateConfig.getSixAmountLine().compareTo(rebateConfig.getSevenAmountLine())>=CommonConst.NUMBER_0){
+        if (rebateConfig.getSixAmountLine().compareTo(rebateConfig.getSevenAmountLine())>=CommonConst.NUMBER_0){
             return true;
         }
-        if (rebateConfig.getSevenProfit().compareTo(rebateConfig.getEightProfit()) >= CommonConst.NUMBER_0 ||
-                rebateConfig.getSevenAmountLine().compareTo(rebateConfig.getEightAmountLine())>=CommonConst.NUMBER_0){
+        if ( rebateConfig.getSevenAmountLine().compareTo(rebateConfig.getEightAmountLine())>=CommonConst.NUMBER_0){
             return true;
         }
         return false;

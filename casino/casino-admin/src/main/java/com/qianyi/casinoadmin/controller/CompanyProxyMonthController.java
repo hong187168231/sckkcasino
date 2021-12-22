@@ -12,6 +12,7 @@ import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.DateUtil;
+import com.qianyi.modulecommon.util.MessageUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -49,6 +50,11 @@ public class CompanyProxyMonthController {
 
     @Autowired
     private SysUserService sysUserService;
+
+
+
+    @Autowired
+    private MessageUtil messageUtil;
 
 
     @ApiOperation("查询代理月结表")
@@ -139,7 +145,7 @@ public class CompanyProxyMonthController {
                     if (companyProxyMonthVo.getProxyRole() == CommonConst.NUMBER_3){
                         String profitRate="--";
                         if (!proxyDetail.getProfitRate().equals(CommonConst.STRING_0)){
-                            profitRate="每"+proxyDetail.getProfitAmountLine()+"返"+ Double.valueOf(proxyDetail.getProfitRate()).intValue()+CommonConst.COMPANY;
+                            profitRate=messageUtil.get("每")+proxyDetail.getProfitAmountLine()+messageUtil.get("返")+ Double.valueOf(proxyDetail.getProfitRate()).intValue()+CommonConst.COMPANY;
                         }
                         companyProxyMonthVo.setProfitRate(profitRate);
                         //返佣级别:根据返佣金额查询当前返佣级别
@@ -267,7 +273,10 @@ public class CompanyProxyMonthController {
     }
     private synchronized ResponseEntity updateStatus(Long id){
         CompanyProxyMonth byId = companyProxyMonthService.findById(id);
-        if (LoginUtil.checkNull(byId) || byId.getSettleStatus() != CommonConst.NUMBER_0){
+        if (LoginUtil.checkNull(byId)){
+            return ResponseUtil.custom("无佣金可结算");
+        }
+        if (byId.getSettleStatus() != CommonConst.NUMBER_0){
             return ResponseUtil.custom("该数据已经被处理");
         }
         Calendar nowTime = Calendar.getInstance();
