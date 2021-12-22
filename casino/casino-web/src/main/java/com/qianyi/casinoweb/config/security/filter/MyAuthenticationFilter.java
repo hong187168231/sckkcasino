@@ -107,7 +107,7 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
                     log.info("来自PC端的请求，ip={},请求url:{}", ip, url);
                 }
                 Constants.URL_MAPPING_MAP.put(url, url);
-                log.info("`{}` 接收到的参数: {}", url, bodyJson);
+//                log.info("`{}` 接收到的参数: {}", url, bodyJson);
                 return bodyJson;
             } catch (Exception e) {
                 e.printStackTrace();
