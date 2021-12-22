@@ -18,6 +18,7 @@ import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.MessageUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -56,6 +57,9 @@ public class ProxyUserController {
 
     @Autowired
     private ProxyHomePageReportBusiness proxyHomePageReportBusiness;
+
+    @Autowired
+    private MessageUtil messageUtil;
     /**
      * 分页查询代理
      *
@@ -134,13 +138,13 @@ public class ProxyUserController {
                     });
                     proxyCommissions.stream().forEach(proxyCommission->{
                         if (u.getProxyRole() == CommonConst.NUMBER_3 && u.getId().equals(proxyCommission.getProxyUserId())){
-                            String commissionRatio = MessageFormat.format(CommonConst.THIRD_FORMAT,proxyCommission.getFirstCommission() == null?"0":proxyCommission.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100),
+                            String commissionRatio = MessageFormat.format(messageUtil.get(CommonConst.THIRD_FORMAT),proxyCommission.getFirstCommission() == null?"0":proxyCommission.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100),
                                     proxyCommission.getSecondCommission() == null?"0":proxyCommission.getSecondCommission().multiply(CommonConst.BIGDECIMAL_100),
                                     proxyCommission.getThirdCommission() == null?"0":proxyCommission.getThirdCommission().multiply(CommonConst.BIGDECIMAL_100));
                             proxyUserVo.setCommissionRatio(commissionRatio);
                         }
                         if (u.getProxyRole() == CommonConst.NUMBER_2 && u.getId().equals(proxyCommission.getProxyUserId())){
-                            String commissionRatio = MessageFormat.format(CommonConst.SECOND_FORMAT,proxyCommission.getFirstCommission() == null?"0":proxyCommission.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100));
+                            String commissionRatio = MessageFormat.format(messageUtil.get(CommonConst.SECOND_FORMAT),proxyCommission.getFirstCommission() == null?"0":proxyCommission.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100));
                             proxyUserVo.setCommissionRatio(commissionRatio);
                         }
                     });
@@ -200,8 +204,8 @@ public class ProxyUserController {
         if (LoginUtil.checkNull(userName,tag)){
             return ResponseUtil.custom("参数不合法");
         }
-        if (!userName.matches(RegexEnum.ACCOUNT.getRegex())){
-            return ResponseUtil.custom("账号请输入6~15位数字或字母");
+        if (!userName.matches(RegexEnum.PROXYACCOUNT.getRegex())){
+            return ResponseUtil.custom("代理账号必须是2-15位的字母或数字");
         }
         if (!LoginUtil.checkNull(nickName) && !nickName.matches(RegexEnum.NAME.getRegex())){
             return ResponseUtil.custom("昵称请输入1~20位中文或字母");

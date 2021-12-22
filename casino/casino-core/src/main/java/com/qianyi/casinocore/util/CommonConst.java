@@ -23,6 +23,21 @@ public class CommonConst {
      * 连字符号("_")
      */
     public static final String UNDERLINE_SYMBOL = "_";
+
+    /**
+     * 空格连字符号(" - ")
+     */
+    public static final String BLANK_HYPHEN = " - ";
+
+    /**
+     * 左夸号("(")
+     */
+    public static final String LEFT_KUA = "(";
+
+    /**
+     * 右夸号(")")
+     */
+    public static final String RIGHT_KUA = ")";
     /**
      * 点分割符
      */
@@ -97,7 +112,7 @@ public class CommonConst {
 
     public static final String SECOND_FORMAT = "{0}%(总代)";
 
-    public static final String THIRD_FORMAT = "{0}%(总代) - {1}%(区域) - {2}%(基层)";
+    public static final String THIRD_FORMAT = "{0}%(总代)-{1}%(区域)-{2}%(基层)";
 
     public static final String JICENG = "{0}%(基层)";
 
