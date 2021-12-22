@@ -6,6 +6,7 @@ import com.qianyi.casinoweb.config.security.util.Constants;
 import com.qianyi.casinoweb.config.security.util.MultiReadHttpServletRequest;
 import com.qianyi.casinoweb.config.security.util.MultiReadHttpServletResponse;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
+import com.qianyi.casinoweb.util.DeviceUtil;
 import com.qianyi.modulecommon.util.IpUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
@@ -98,7 +99,13 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
                 String bodyJson = wrapper.getBodyJsonStrByJson(request);
                 String ip = IpUtil.getIp(request);
                 String url = wrapper.getRequestURI().replace("//", "/");
-                log.info("ip={},请求url:{}", ip, url);
+                String ua = request.getHeader("User-Agent");
+                boolean checkMobileOrPc = DeviceUtil.checkAgentIsMobile(ua);
+                if(checkMobileOrPc){
+                    log.info("来自移动端的请求，ip={},请求url:{}", ip, url);
+                }else{
+                    log.info("来自PC端的请求，ip={},请求url:{}", ip, url);
+                }
                 Constants.URL_MAPPING_MAP.put(url, url);
                 log.info("`{}` 接收到的参数: {}", url, bodyJson);
                 return bodyJson;
