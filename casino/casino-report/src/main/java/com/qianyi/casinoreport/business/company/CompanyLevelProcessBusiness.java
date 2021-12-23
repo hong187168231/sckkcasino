@@ -34,13 +34,18 @@ public class CompanyLevelProcessBusiness {
         Map<String,Integer> level = getLevel(result.intValue(),profitLevelList);
         log.info("level:{},amount:{}",level,amount);
 
-        BigDecimal profitAmount = profitLevelMap.containsKey(level.get("level"))?profitLevelMap.get(level.get("level")):BigDecimal.valueOf(0);
+        BigDecimal profitAmount =BigDecimal.ZERO;
 
+        //金额线
         BigDecimal profitAmountLine = BigDecimal.valueOf(level.get("key"));
+        // 判断金额是否大于等于金额线
+        if(amount.compareTo(profitAmountLine)>=0){
+            //返佣金额
+            profitAmount = profitLevelMap.containsKey(level.get("level"))?profitLevelMap.get(level.get("level")):BigDecimal.valueOf(0);
+        }
 
         return CompanyLevelBO.builder().profitLevel(level.get("level")).profitAmount(profitAmount).profitActTimes(level.get("profitActTimes") ).profitAmountLine(profitAmountLine).build();
     }
-
     private  Map<String,Integer> getLevel(int compareInt, Map<Integer,Integer> profitLevelList){
         Map<String,Integer> ms=new HashMap<>();
         Integer level = 0;
@@ -48,14 +53,17 @@ public class CompanyLevelProcessBusiness {
         Integer key = 0;
         for (Integer item : profitLevelList.keySet()) {
             if(compareInt>item){
-                level=profitLevelList.get(item).intValue();
-                profitActTimes=compareInt/item;
-                key=item;
+                level=item;
+                profitActTimes=compareInt/profitLevelList.get(item).intValue();;
+                key=profitLevelList.get(item).intValue();
             }else if (compareInt<item)
                 break;
         }
+        //等级
         ms.put("level",level);
+        //金额线
         ms.put("key",key);
+        //倍数
         ms.put("profitActTimes",profitActTimes);
         return ms;
     }
@@ -84,14 +92,14 @@ public class CompanyLevelProcessBusiness {
         profitLevelList.add(RebateConfig.getSevenMoney());
         profitLevelList.add(RebateConfig.getEightMoney());*/
 
-        profitLevelList.put(RebateConfig.getFirstAmountLine().intValue(),RebateConfig.getFirstMoney());
-        profitLevelList.put(RebateConfig.getSecondAmountLine().intValue(),RebateConfig.getSecondMoney());
-        profitLevelList.put(RebateConfig.getThirdAmountLine().intValue(),RebateConfig.getThirdMoney());
-        profitLevelList.put(RebateConfig.getFourAmountLine().intValue(),RebateConfig.getFourMoney());
-        profitLevelList.put(RebateConfig.getFiveAmountLine().intValue(),RebateConfig.getFiveMoney());
-        profitLevelList.put(RebateConfig.getSixAmountLine().intValue(),RebateConfig.getSixMoney());
-        profitLevelList.put(RebateConfig.getSevenAmountLine().intValue(),RebateConfig.getSevenMoney());
-        profitLevelList.put(RebateConfig.getEightAmountLine().intValue(),RebateConfig.getEightMoney());
+        profitLevelList.put(RebateConfig.getFirstMoney(),RebateConfig.getFirstAmountLine().intValue());
+        profitLevelList.put(RebateConfig.getSecondMoney(),RebateConfig.getSecondAmountLine().intValue());
+        profitLevelList.put(RebateConfig.getThirdMoney(),RebateConfig.getThirdAmountLine().intValue());
+        profitLevelList.put(RebateConfig.getFourMoney(),RebateConfig.getFourAmountLine().intValue());
+        profitLevelList.put(RebateConfig.getFiveMoney(),RebateConfig.getFiveAmountLine().intValue());
+        profitLevelList.put(RebateConfig.getSixMoney(),RebateConfig.getSixAmountLine().intValue());
+        profitLevelList.put(RebateConfig.getSevenMoney(),RebateConfig.getSevenAmountLine().intValue());
+        profitLevelList.put(RebateConfig.getEightMoney(),RebateConfig.getEightAmountLine().intValue());
         return profitLevelList;
     }
 }
