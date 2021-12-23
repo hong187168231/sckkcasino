@@ -214,48 +214,30 @@ public class UserController {
     public ResponseEntity getWMMoney(Long id){
         User user = userService.findById(id);
         if (CasinoProxyUtil.checkNull(user)){
-            ResponseUtil.success(BigDecimal.ZERO);
+            return ResponseUtil.custom("客户不存在");
         }
         UserThird userThird = userThirdService.findByUserId(user.getId());
         if (CasinoProxyUtil.checkNull(userThird)){
-            ResponseUtil.success(BigDecimal.ZERO);
+            return ResponseUtil.custom("该账户尚未登录过第三方平台");
         }
-        BigDecimal wMonetUser = userMoneyService.getWMonetUser(user, userThird);
-        return ResponseUtil.success(wMonetUser);
+        JSONObject jsonObject = userMoneyService.getWMonetUser(user, userThird);
+        if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("查询失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (CasinoProxyUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询失败");
+        }
     }
-    /**
-     * 修改用户
-     * 只有修改电话功能，那电话不能为空
-     *
-     * @param id
-     * @param state
-     * @param phone
-     * @return
-     */
-    @ApiOperation("修改用户电话")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
-            @ApiImplicitParam(name = "phone", value = "电话号码", required = true),
-
-    })
-    @PostMapping("updateUser")
-    public ResponseEntity updateUser(Long id, Integer state, String phone){
-        if(CasinoProxyUtil.checkNull(id,phone)){
-            return ResponseUtil.custom("参数错误");
-        }
-        //查询用户信息
-        User user = userService.findById(id);
-        if(user == null){
-            return ResponseUtil.custom("账户不存在");
-        }
-        if (!phone.matches(RegexEnum.PHONE.getRegex())) {
-            return ResponseUtil.custom("手机号格式错误");
-        }
-        user.setPhone(phone);
-        userService.save(user);
-        return ResponseUtil.success();
-    }
-
 //    @ApiOperation("删除用户")
 //    @ApiImplicitParams({
 //            @ApiImplicitParam(name = "id", value = "用户id", required = true),
