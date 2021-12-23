@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.qianyi.modulecommon.Constants;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -13,6 +14,7 @@ import java.util.Date;
 @Data
 @Entity
 @ApiModel("平台配置表")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PlatformConfig {
 
     @Id

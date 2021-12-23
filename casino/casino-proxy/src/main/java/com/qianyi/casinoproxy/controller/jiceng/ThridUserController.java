@@ -246,14 +246,29 @@ public class ThridUserController {
     public ResponseEntity getWMMoney(Long id){
         User user = userService.findById(id);
         if (CasinoProxyUtil.checkNull(user)){
-            ResponseUtil.success(BigDecimal.ZERO);
+            return ResponseUtil.custom("客户不存在");
         }
         UserThird userThird = userThirdService.findByUserId(user.getId());
         if (CasinoProxyUtil.checkNull(userThird)){
-            ResponseUtil.success(BigDecimal.ZERO);
+            return ResponseUtil.custom("该账户尚未登录过第三方平台");
         }
-        BigDecimal wMonetUser = userMoneyService.getWMonetUser(user, userThird);
-        return ResponseUtil.success(wMonetUser);
+        JSONObject jsonObject = userMoneyService.getWMonetUser(user, userThird);
+        if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("查询失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (CasinoProxyUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询失败");
+        }
     }
 
 //    public void setWMMoney(List<User> userList) {
@@ -477,46 +492,45 @@ public class ThridUserController {
      * @param remark 汇款备注
      * @return
      */
-    @ApiOperation("后台新增充值订单 上分")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "会员id", required = true),
-            @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = false),
-            @ApiImplicitParam(name = "chargeAmount", value = "汇款金额", required = true),
-            @ApiImplicitParam(name = "remark", value = "汇款备注", required = false),
-    })
-    @PostMapping("/saveChargeOrder")
-    public ResponseEntity saveChargeOrder(Long id,String remitter,String remark, String chargeAmount){
-        if (CasinoProxyUtil.checkNull(id,chargeAmount)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        BigDecimal money = CommonUtil.checkMoney(chargeAmount);
-        if(money.compareTo(BigDecimal.ZERO)<CommonConst.NUMBER_1){
-            return ResponseUtil.custom("金额类型错误");
-        }
-        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_99999999)) >= CommonConst.NUMBER_1){
-            return ResponseUtil.custom("金额不能大于99999999");
-        }
+//    @ApiOperation("后台新增充值订单 上分")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "id", value = "会员id", required = true),
+//            @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = false),
+//            @ApiImplicitParam(name = "chargeAmount", value = "汇款金额", required = true),
+//            @ApiImplicitParam(name = "remark", value = "汇款备注", required = false),
+//    })
+//    @PostMapping("/saveChargeOrder")
+//    public ResponseEntity saveChargeOrder(Long id,String remitter,String remark, String chargeAmount){
+//        if (CasinoProxyUtil.checkNull(id,chargeAmount)){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        BigDecimal money = CommonUtil.checkMoney(chargeAmount);
+//        if(money.compareTo(BigDecimal.ZERO)<CommonConst.NUMBER_1){
+//            return ResponseUtil.custom("金额类型错误");
+//        }
+//        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_99999999)) >= CommonConst.NUMBER_1){
+//            return ResponseUtil.custom("金额不能大于99999999");
+//        }
 //        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
 //            return ResponseUtil.custom("测试环境加钱不能超过100RMB");
 //        }
-        User user = userService.findById(id);
-        if (CasinoProxyUtil.checkNull(user)){
-            return ResponseUtil.custom("账户不存在");
-        }
-        Long authId = CasinoProxyUtil.getAuthId();
-        ProxyUser byId = proxyUserService.findById(authId);
-        String lastModifier = (byId == null || byId.getUserName() == null)? "" : byId.getUserName();
-        ChargeOrder chargeOrder = new ChargeOrder();
-        chargeOrder.setUserId(id);
-        chargeOrder.setRemitter(remitter);
-        chargeOrder.setRemark(remark);
-        chargeOrder.setOrderNo(orderService.getOrderNo());
-        chargeOrder.setChargeAmount(money);
-        chargeOrder.setLastModifier(lastModifier);
-        chargeOrder.setType(user.getType());
-//        chargeOrder.setRealityAmount(money);
-        return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_proxy,Constants.remitType_proxy,Constants.CODENUMCHANGE_PROXY);
-    }
+//        User user = userService.findById(id);
+//        if (CasinoProxyUtil.checkNull(user)){
+//            return ResponseUtil.custom("账户不存在");
+//        }
+//        Long authId = CasinoProxyUtil.getAuthId();
+//        ProxyUser byId = proxyUserService.findById(authId);
+//        String lastModifier = (byId == null || byId.getUserName() == null)? "" : byId.getUserName();
+//        ChargeOrder chargeOrder = new ChargeOrder();
+//        chargeOrder.setUserId(id);
+//        chargeOrder.setRemitter(remitter);
+//        chargeOrder.setRemark(remark);
+//        chargeOrder.setOrderNo(orderService.getOrderNo());
+//        chargeOrder.setChargeAmount(money);
+//        chargeOrder.setLastModifier(lastModifier);
+//        chargeOrder.setType(user.getType());
+//        return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_proxy,Constants.remitType_proxy,Constants.CODENUMCHANGE_PROXY);
+//    }
     /**
      * 后台新增提现订单
      *
@@ -525,34 +539,34 @@ public class ThridUserController {
      * @param bankId 银行id
      * @return
      */
-    @ApiOperation("后台新增提现订单 下分")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
-            @ApiImplicitParam(name = "withdrawMoney", value = "提现金额", required = true),
-            @ApiImplicitParam(name = "bankId", value = "银行id", required = false),
-            @ApiImplicitParam(name = "remark", value = "备注", required = false),
-    })
-    @PostMapping("/saveWithdrawOrder")
-    public ResponseEntity saveWithdrawOrder(Long id,String withdrawMoney,String bankId,String remark){
-        if (CasinoProxyUtil.checkNull(id,withdrawMoney)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        BigDecimal money = CommonUtil.checkMoney(withdrawMoney);
-        if(money.compareTo(BigDecimal.ZERO)<CommonConst.NUMBER_1){
-            return ResponseUtil.custom("金额类型错误");
-        }
-        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_99999999)) >= CommonConst.NUMBER_1){
-            return ResponseUtil.custom("金额不能大于99999999");
-        }
-        User user = userService.findById(id);
-        if (CasinoProxyUtil.checkNull(user)){
-            return ResponseUtil.custom("找不到这个会员");
-        }
-        Long authId = CasinoProxyUtil.getAuthId();
-        ProxyUser byId = proxyUserService.findById(authId);
-        String lastModifier = (byId == null || byId.getUserName() == null)? "" : byId.getUserName();
-        return withdrawBusiness.updateWithdrawAndUser(user,id,money,bankId,Constants.withdrawOrder_proxy,lastModifier,remark);
-    }
+//    @ApiOperation("后台新增提现订单 下分")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+//            @ApiImplicitParam(name = "withdrawMoney", value = "提现金额", required = true),
+//            @ApiImplicitParam(name = "bankId", value = "银行id", required = false),
+//            @ApiImplicitParam(name = "remark", value = "备注", required = false),
+//    })
+//    @PostMapping("/saveWithdrawOrder")
+//    public ResponseEntity saveWithdrawOrder(Long id,String withdrawMoney,String bankId,String remark){
+//        if (CasinoProxyUtil.checkNull(id,withdrawMoney)){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        BigDecimal money = CommonUtil.checkMoney(withdrawMoney);
+//        if(money.compareTo(BigDecimal.ZERO)<CommonConst.NUMBER_1){
+//            return ResponseUtil.custom("金额类型错误");
+//        }
+//        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_99999999)) >= CommonConst.NUMBER_1){
+//            return ResponseUtil.custom("金额不能大于99999999");
+//        }
+//        User user = userService.findById(id);
+//        if (CasinoProxyUtil.checkNull(user)){
+//            return ResponseUtil.custom("找不到这个会员");
+//        }
+//        Long authId = CasinoProxyUtil.getAuthId();
+//        ProxyUser byId = proxyUserService.findById(authId);
+//        String lastModifier = (byId == null || byId.getUserName() == null)? "" : byId.getUserName();
+//        return withdrawBusiness.updateWithdrawAndUser(user,id,money,bankId,Constants.withdrawOrder_proxy,lastModifier,remark);
+//    }
     @ApiOperation("后台下分检验可提款金额")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "用户id", required = true),
