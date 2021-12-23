@@ -7,11 +7,14 @@ import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.Table;
 import java.math.BigDecimal;
 
 @Entity
 @Data
 @ApiModel("首页报表")
+@Table(indexes = {@Index(columnList = "staticsTimes",unique=true)})
 public class HomePageReport extends BaseEntity {
 
     @ApiModelProperty(value = "汇款金额")
