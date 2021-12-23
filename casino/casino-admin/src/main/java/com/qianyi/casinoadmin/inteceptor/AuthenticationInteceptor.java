@@ -98,7 +98,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
             if (redisJwtToken != null && (token.equals(redisJwtToken.getOldToken()) || token.equals(redisJwtToken.getNewToken()))) {
                 redisUtil.set(Constants.REDIS_TOKEN_ADMIN + authId, jwtTiken, Constants.ADMIN_REFRESH_TTL);
             } else {
-                log.error("当前token={}，iss={} 已失效刷新token无效，redis中token信息为={}", token, Constants.CASINO_WEB, redisJwtToken);
+                log.error("当前token={}，iss={} 已失效刷新token无效，redis中token信息为={}", token, Constants.CASINO_ADMIN, redisJwtToken);
             }
             return jwtTiken;
         }
