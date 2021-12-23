@@ -22,7 +22,7 @@ public class CompanyProxyTask {
 
     //每天凌晨05分进行启动
     //@Scheduled(cron = "0 5 0 * * ?")
-    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "0 0/20 * * * ?")
     public void processTask(){
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String dayTime = df.format(LocalDateTime.now());
@@ -33,7 +33,7 @@ public class CompanyProxyTask {
 
     //每天凌晨05分进行启动
     //@Scheduled(cron = "0 5 0 * * ?")
-    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "0 0/20 * * * ?")
     public void processMonthTask(){
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String dayTime = df.format(LocalDateTime.now());
