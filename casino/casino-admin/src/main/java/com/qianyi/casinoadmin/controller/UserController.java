@@ -217,11 +217,11 @@ public class UserController {
     public ResponseEntity getWMMoney(Long id){
         User user = userService.findById(id);
         if (LoginUtil.checkNull(user)){
-            return ResponseUtil.custom("客户不存在");
+            return ResponseUtil.success(CommonConst.NUMBER_0);
         }
         UserThird userThird = userThirdService.findByUserId(user.getId());
         if (LoginUtil.checkNull(userThird)){
-            return ResponseUtil.custom("三方账号不存在");
+            return ResponseUtil.success(CommonConst.NUMBER_0);
         }
         JSONObject jsonObject = userMoneyService.getWMonetUser(user, userThird);
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
