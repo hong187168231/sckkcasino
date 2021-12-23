@@ -44,49 +44,50 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.debug("请求头类型： " + request.getContentType());
         if ((request.getContentType() == null && request.getContentLength() > 0) || (request.getContentType() != null && !request.getContentType().contains(Constants.REQUEST_HEADERS_CONTENT_TYPE))) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        log.debug("进行request，respone的转换");
-        MultiReadHttpServletRequest wrappedRequest = new MultiReadHttpServletRequest(request);
-        MultiReadHttpServletResponse wrappedResponse = new MultiReadHttpServletResponse(response);
-        StopWatch stopWatch = new StopWatch();
-        try {
-            stopWatch.start();
-            // 记录请求的消息体
-            logRequestBody(wrappedRequest);
+//            filterChain.doFilter(request, response);
+//            return;
+        }else{
+            log.debug("进行request，respone的转换");
+            MultiReadHttpServletRequest wrappedRequest = new MultiReadHttpServletRequest(request);
+            MultiReadHttpServletResponse wrappedResponse = new MultiReadHttpServletResponse(response);
+            StopWatch stopWatch = new StopWatch();
+            try {
+                stopWatch.start();
+                // 记录请求的消息体
+                logRequestBody(wrappedRequest);
 
-            // 前后端分离情况下，前端登录后将token储存在cookie中，每次访问接口时通过token去拿用户权限
-            String jwtToken = wrappedRequest.getHeader(Constants.REQUEST_HEADER);
+                // 前后端分离情况下，前端登录后将token储存在cookie中，每次访问接口时通过token去拿用户权限
+                String jwtToken = wrappedRequest.getHeader(Constants.REQUEST_HEADER);
 //            log.info("后台检查令牌:{}", jwtToken);
-            if (jwtToken != null) {
-                Long userId = CasinoWebUtil.getAuthId();
+                if (jwtToken != null) {
+                    Long userId = CasinoWebUtil.getAuthId();
 //                log.info("userid is {}",userId);
-                if(userId !=null){
-                    User user = (User) userDetailsService.getUserDetaisByUserId(userId);
+                    if(userId !=null){
+                        User user = (User) userDetailsService.getUserDetaisByUserId(userId);
 
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-                    // 全局注入角色权限信息和登录用户基本信息
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                        // 全局注入角色权限信息和登录用户基本信息
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
                 }
+//                filterChain.doFilter(wrappedRequest, wrappedResponse);
+            } catch (ExpiredJwtException e) {
+                // jwt令牌过期
+                log.error("{}",e);
+                SecurityContextHolder.clearContext();
+                this.authenticationEntryPoint.commence(wrappedRequest, response, null);
+            } catch (AuthenticationException e) {
+                log.error("{}",e);
+                SecurityContextHolder.clearContext();
+                this.authenticationEntryPoint.commence(wrappedRequest, response, e);
+            } finally {
+                stopWatch.stop();
+                long usedTimes = stopWatch.getTotalTimeMillis();
+                // 记录响应的消息体
+                logResponseBody(wrappedRequest, wrappedResponse, usedTimes);
             }
-            filterChain.doFilter(wrappedRequest, wrappedResponse);
-        } catch (ExpiredJwtException e) {
-            // jwt令牌过期
-            log.error("{}",e);
-            SecurityContextHolder.clearContext();
-            this.authenticationEntryPoint.commence(wrappedRequest, response, null);
-        } catch (AuthenticationException e) {
-            log.error("{}",e);
-            SecurityContextHolder.clearContext();
-            this.authenticationEntryPoint.commence(wrappedRequest, response, e);
-        } finally {
-            stopWatch.stop();
-            long usedTimes = stopWatch.getTotalTimeMillis();
-            // 记录响应的消息体
-            logResponseBody(wrappedRequest, wrappedResponse, usedTimes);
         }
-
+        filterChain.doFilter(request, response);
     }
 
     private String logRequestBody(MultiReadHttpServletRequest request) {
