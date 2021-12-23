@@ -68,7 +68,7 @@ public class ProxyReportController {
         }
         User byAccount = userService.findByAccount(userName);
         if (LoginUtil.checkNull(byAccount)){
-            return ResponseUtil.custom("用户不存在");
+            return ResponseUtil.custom("找不到该会员");
         }
         String startTime = format.format(startDate);
         String endTime = format.format(endDate);
