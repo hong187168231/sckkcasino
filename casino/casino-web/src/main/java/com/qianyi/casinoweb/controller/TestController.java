@@ -80,7 +80,20 @@ public class TestController {
     @NoAuthentication
     @ApiImplicitParam(name = "msg", value = "消息", required = true)
     public ResponseEntity requestTest(String msg) {
-        log.info("请求成功,消息={}",msg);
+        log.info("请求成功,消息={}", msg);
         return ResponseUtil.success();
+    }
+
+    @GetMapping("getVerificationCodeByPhone")
+    @ApiOperation("根据手机号查询验证码，测试用")
+    @NoAuthentication
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "country", value = "区号，柬埔寨：855", required = true),
+            @ApiImplicitParam(name = "phone", value = "手机号", required = true)
+    })
+    public ResponseEntity getVerificationCodeByPhone(String country, String phone) {
+        String phoneKey = Constants.REDIS_SMSCODE + country + phone;
+        Object val = redisUtil.get(phoneKey);
+        return ResponseUtil.success(val);
     }
 }
