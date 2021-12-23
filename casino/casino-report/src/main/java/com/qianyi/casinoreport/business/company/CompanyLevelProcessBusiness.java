@@ -34,15 +34,11 @@ public class CompanyLevelProcessBusiness {
         Map<String,Integer> level = getLevel(result.intValue(),profitLevelList);
         log.info("level:{},amount:{}",level,amount);
 
-        BigDecimal profitAmount =BigDecimal.ZERO;
-
         //金额线
         BigDecimal profitAmountLine = BigDecimal.valueOf(level.get("key"));
-        // 判断金额是否大于等于金额线
-        if(amount.compareTo(profitAmountLine)>=0){
-            //返佣金额
-            profitAmount = profitLevelMap.containsKey(level.get("level"))?profitLevelMap.get(level.get("level")):BigDecimal.valueOf(0);
-        }
+
+        //返佣金额
+        BigDecimal  profitAmount = profitLevelMap.containsKey(level.get("level"))?profitLevelMap.get(level.get("level")):BigDecimal.valueOf(0);
 
         return CompanyLevelBO.builder().profitLevel(level.get("level")).profitAmount(profitAmount).profitActTimes(level.get("profitActTimes") ).profitAmountLine(profitAmountLine).build();
     }
