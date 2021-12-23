@@ -50,7 +50,9 @@ public class CompanyLevelProcessBusiness {
         for (Integer item : profitLevelList.keySet()) {
             if(compareInt>item){
                 level=item;
-                profitActTimes=compareInt/profitLevelList.get(item).intValue();;
+                if (profitLevelList.get(item).intValue()>0){
+                    profitActTimes=compareInt/profitLevelList.get(item).intValue();
+                }
                 key=profitLevelList.get(item).intValue();
             }else if (compareInt<item)
                 break;
@@ -88,14 +90,14 @@ public class CompanyLevelProcessBusiness {
         profitLevelList.add(RebateConfig.getSevenMoney());
         profitLevelList.add(RebateConfig.getEightMoney());*/
 
-        profitLevelList.put(RebateConfig.getFirstMoney(),RebateConfig.getFirstAmountLine().intValue());
-        profitLevelList.put(RebateConfig.getSecondMoney(),RebateConfig.getSecondAmountLine().intValue());
-        profitLevelList.put(RebateConfig.getThirdMoney(),RebateConfig.getThirdAmountLine().intValue());
-        profitLevelList.put(RebateConfig.getFourMoney(),RebateConfig.getFourAmountLine().intValue());
-        profitLevelList.put(RebateConfig.getFiveMoney(),RebateConfig.getFiveAmountLine().intValue());
-        profitLevelList.put(RebateConfig.getSixMoney(),RebateConfig.getSixAmountLine().intValue());
-        profitLevelList.put(RebateConfig.getSevenMoney(),RebateConfig.getSevenAmountLine().intValue());
-        profitLevelList.put(RebateConfig.getEightMoney(),RebateConfig.getEightAmountLine().intValue());
+        profitLevelList.put(RebateConfig.getFirstMoney(),RebateConfig.getFirstAmountLine()==null ? 0:RebateConfig.getFirstAmountLine().intValue());
+        profitLevelList.put(RebateConfig.getSecondMoney(),RebateConfig.getSecondAmountLine()==null ? 0:RebateConfig.getSecondAmountLine().intValue());
+        profitLevelList.put(RebateConfig.getThirdMoney(),RebateConfig.getThirdAmountLine()==null ? 0:RebateConfig.getThirdAmountLine().intValue());
+        profitLevelList.put(RebateConfig.getFourMoney(),RebateConfig.getFourAmountLine()==null ? 0:RebateConfig.getFourAmountLine().intValue());
+        profitLevelList.put(RebateConfig.getFiveMoney(),RebateConfig.getFiveAmountLine()==null ? 0:RebateConfig.getFiveAmountLine().intValue());
+        profitLevelList.put(RebateConfig.getSixMoney(),RebateConfig.getSixAmountLine()==null ? 0:RebateConfig.getSixAmountLine().intValue());
+        profitLevelList.put(RebateConfig.getSevenMoney(),RebateConfig.getSevenAmountLine()==null ? 0:RebateConfig.getSevenAmountLine().intValue());
+        profitLevelList.put(RebateConfig.getEightMoney(),RebateConfig.getEightAmountLine()==null ? 0:RebateConfig.getEightAmountLine().intValue());
         return profitLevelList;
     }
 }
