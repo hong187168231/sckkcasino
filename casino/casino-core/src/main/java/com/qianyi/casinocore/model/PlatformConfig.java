@@ -133,9 +133,6 @@ public class PlatformConfig {
 
     @ApiModelProperty("客服脚本的代号")
     private String customerCode;
-/*
-    @ApiModelProperty("人人代开关 0:关闭，1:开启")
-    private Integer peopleProxySwitch;*/
 
     @ApiModelProperty("人人代开关 0:关闭，1:开启")
     private Integer peopleProxySwitch;

@@ -97,7 +97,7 @@ public class CommonConst {
 
     public static final String SECOND_FORMAT = "{0}%(总代)";
 
-    public static final String THIRD_FORMAT = "{0}%(总代) - {1}%(区域) - {2}%(基层)";
+    public static final String THIRD_FORMAT = "{0}%(总代)-{1}%(区域)-{2}%(基层)";
 
     public static final String JICENG = "{0}%(基层)";
 

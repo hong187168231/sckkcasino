@@ -10,6 +10,7 @@ import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.MessageUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -38,6 +39,9 @@ public class OrderController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private MessageUtil messageUtil;
     /**
      * 查询操作
      * 注意：jpa 是从第0页开始的
@@ -76,6 +80,7 @@ public class OrderController {
             if(userList != null){
                 content.stream().forEach(change ->{
                     OrderVo orderVo = new OrderVo(change);
+                    orderVo.setRemark(messageUtil.get(orderVo.getRemark()));
                     userList.stream().forEach(user->{
                         if (user.getId().equals(change.getUserId())){
                             orderVo.setAccount(user.getAccount());
