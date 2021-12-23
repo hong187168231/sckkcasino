@@ -92,7 +92,7 @@ public class UserRunningWaterController {
             list.addAll(userRunningWaters);
             PageVo pageVO = new PageVo(pageCode,pageSize);
             PageResultVO<UserRunningWater> pageResultVO = (PageResultVO<UserRunningWater>) CommonUtil.handlePageResult(list, pageVO);
-            list.clear();
+//            list.clear();
             userRunningWaters.clear();
             return ResponseUtil.success(pageResultVO);
         }
