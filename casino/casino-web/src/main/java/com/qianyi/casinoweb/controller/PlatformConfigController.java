@@ -40,6 +40,15 @@ public class PlatformConfigController {
         return ResponseUtil.success(customerCode);
     }
 
+    @GetMapping("checkPeopleProxySwitch")
+    @ApiOperation("检查人人代开关")
+    @NoAuthentication
+    public ResponseEntity<Boolean> checkPeopleProxySwitch() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        boolean proxySwitch = PlatformConfig.checkPeopleProxySwitch(platformConfig);
+        return ResponseUtil.success(proxySwitch);
+    }
+
     @GetMapping("getPeopleProportion")
     @ApiOperation("获取人人代三级分佣比例")
     @NoAuthentication
