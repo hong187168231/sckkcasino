@@ -47,7 +47,7 @@ public class ProxyHomePageReportTask {
                 Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
                 ProxyUser proxyUser = new ProxyUser();
                 proxyUser.setIsDelete(CommonConst.NUMBER_1);
-                proxyUser.setUserFlag(CommonConst.NUMBER_1);
+//                proxyUser.setUserFlag(CommonConst.NUMBER_1);
                 List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
                 if (CasinoProxyUtil.checkNull(proxyUserList) || proxyUserList.size() == CommonConst.NUMBER_0){
                     return;

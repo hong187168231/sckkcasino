@@ -217,14 +217,29 @@ public class UserController {
     public ResponseEntity getWMMoney(Long id){
         User user = userService.findById(id);
         if (LoginUtil.checkNull(user)){
-            ResponseUtil.success(BigDecimal.ZERO);
+            return ResponseUtil.success(CommonConst.NUMBER_0);
         }
         UserThird userThird = userThirdService.findByUserId(user.getId());
         if (LoginUtil.checkNull(userThird)){
-            ResponseUtil.success(BigDecimal.ZERO);
+            return ResponseUtil.custom("该账户尚未登录过第三方平台");
         }
-        BigDecimal wMonetUser = userMoneyService.getWMonetUser(user, userThird);
-        return ResponseUtil.success(wMonetUser);
+        JSONObject jsonObject = userMoneyService.getWMonetUser(user, userThird);
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("查询失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (LoginUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询失败");
+        }
     }
 
     @ApiOperation("一键回收用户WM余额")
@@ -237,10 +252,18 @@ public class UserController {
         if (LoginUtil.checkNull(user)){
             return ResponseUtil.custom("客户不存在");
         }
-        Integer code = userMoneyService.oneKeyRecover(user);
-        if (code == CommonConst.NUMBER_0){
-            return ResponseUtil.success();
-        }else {
+        JSONObject jsonObject = userMoneyService.oneKeyRecover(user);
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("回收WM余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                return ResponseUtil.success();
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
             return ResponseUtil.custom("回收WM余额失败");
         }
     }
@@ -475,9 +498,9 @@ public class UserController {
         if (money.compareTo(new BigDecimal(CommonConst.NUMBER_99999999)) >= CommonConst.NUMBER_1){
             return ResponseUtil.custom("金额不能大于99999999");
         }
-//        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
-//            return ResponseUtil.custom("测试环境加钱不能超过100RMB");
-//        }
+        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
+            return ResponseUtil.custom("测试环境加钱不能超过100RMB");
+        }
         User user = userService.findById(id);
         if (LoginUtil.checkNull(user)){
             return ResponseUtil.custom("账户不存在");

@@ -255,20 +255,28 @@ public class Initialization implements CommandLineRunner {
         if (LoginUtil.checkNull(all) || all.size() == CommonConst.NUMBER_0){
             RebateConfig first = new RebateConfig();
             first.setFirstMoney(proxyRebateConfigFile.getFirstMoney());
+            first.setFirstAmountLine(proxyRebateConfigFile.getFirstMoneyLine());
             first.setFirstProfit(proxyRebateConfigFile.getFirstProfit());
             first.setSecondMoney(proxyRebateConfigFile.getSecondMoney());
+            first.setSecondAmountLine(proxyRebateConfigFile.getSecondMoneyLine());
             first.setSecondProfit(proxyRebateConfigFile.getSecondProfit());
             first.setThirdMoney(proxyRebateConfigFile.getThirdMoney());
+            first.setThirdAmountLine(proxyRebateConfigFile.getThirdMoneyLine());
             first.setThirdProfit(proxyRebateConfigFile.getThirdProfit());
             first.setFourMoney(proxyRebateConfigFile.getFourMoney());
+            first.setFourAmountLine(proxyRebateConfigFile.getFourMoneyLine());
             first.setFourProfit(proxyRebateConfigFile.getFourProfit());
             first.setFiveMoney(proxyRebateConfigFile.getFiveMoney());
+            first.setFiveAmountLine(proxyRebateConfigFile.getFiveMoneyLine());
             first.setFiveProfit(proxyRebateConfigFile.getFiveProfit());
             first.setSixMoney(proxyRebateConfigFile.getSixMoney());
+            first.setSixAmountLine(proxyRebateConfigFile.getSixMoneyLine());
             first.setSixProfit(proxyRebateConfigFile.getSixProfit());
             first.setSevenMoney(proxyRebateConfigFile.getSevenMoney());
+            first.setSevenAmountLine(proxyRebateConfigFile.getSevenMoneyLine());
             first.setSevenProfit(proxyRebateConfigFile.getSevenProfit());
             first.setEightMoney(proxyRebateConfigFile.getEightMoney());
+            first.setEightAmountLine(proxyRebateConfigFile.getEightMoneyLine());
             first.setEightProfit(proxyRebateConfigFile.getEightProfit());
             rebateConfigService.save(first);
         }
