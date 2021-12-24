@@ -165,6 +165,9 @@ public class CollectionBankcardController {
                     && !byBankNo.get(CommonConst.NUMBER_0).getBankNo().equals(collectionBankcard.getBankNo())){
                 return ResponseUtil.custom("银行卡已存在");
             }
+            if (bankNo.length() > 20 || bankNo.length() < 9 || !bankNo.matches(Constants.regex)) {
+                return ResponseUtil.custom("长度只能在9~20位的数字");
+            }
             collectionBankcard.setBankNo(bankNo);
         }
         if(!LoginUtil.checkNull(bankId)){

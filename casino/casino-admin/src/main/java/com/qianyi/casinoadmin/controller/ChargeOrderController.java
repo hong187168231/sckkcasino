@@ -28,15 +28,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -77,10 +75,14 @@ public class ChargeOrderController {
             @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
             @ApiImplicitParam(name = "account", value = "会员账号", required = false),
             @ApiImplicitParam(name = "type", value = "会员类型:0、公司会员，1、渠道会员 2、官方会员", required = false),
+            @ApiImplicitParam(name = "startDate", value = "起始时间", required = false),
+            @ApiImplicitParam(name = "endDate", value = "结束时间", required = false),
     })
     @GetMapping("/chargeOrderList")
     public ResponseEntity<ChargeOrderVo> chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String orderNo,
-                                                         String account,Integer type){
+                                                         String account,Integer type,
+                                                         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+                                                         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         ChargeOrder order = new ChargeOrder();
@@ -96,7 +98,7 @@ public class ChargeOrderController {
         order.setStatus(status);
         order.setOrderNo(orderNo);
         order.setType(type);
-        Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(order, pageable);
+        Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(order, pageable,startDate,endDate);
         PageResultVO<ChargeOrderVo> pageResultVO =new PageResultVO(chargeOrderPage);
         List<ChargeOrder> content = chargeOrderPage.getContent();
         if(content != null && content.size() > 0){
