@@ -5,6 +5,7 @@ import com.qianyi.casinocore.model.RebateConfig;
 import com.qianyi.casinocore.service.ProxyRebateConfigService;
 import com.qianyi.casinocore.service.RebateConfigService;
 import com.qianyi.casinoreport.vo.CompanyLevelBO;
+import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,13 +21,60 @@ public class CompanyLevelProcessBusiness {
     @Autowired
     private RebateConfigService rebateConfigService;
 
-    public CompanyLevelBO getLevelData(BigDecimal amount){
-        RebateConfig rebateConfig = rebateConfigService.findFirst();
+    @Autowired
+    private ProxyRebateConfigService proxyRebateConfigService;
+
+    public CompanyLevelBO getLevelData(BigDecimal amount,Long firstProxy){
+        RebateConfig rebateConfig=null;
+        ProxyRebateConfig proxyRebateConfig = proxyRebateConfigService.findById(firstProxy);
+        if (proxyRebateConfig!=null){
+            rebateConfig=queryProxyRebateConfig(proxyRebateConfig);
+        }else {
+            rebateConfig=rebateConfigService.findFirst();
+        }
         log.info("rebateConfig:{}",rebateConfig);
         Map<Integer,Integer> profitLevelList = getProfitLevelList(rebateConfig);
         Map<Integer,BigDecimal> profitLevelMap = getProfitLevelMap(rebateConfig);
         return getProfitLevel(amount,profitLevelList,profitLevelMap);
     }
+
+    public RebateConfig queryProxyRebateConfig(ProxyRebateConfig proxyRebateConfig){
+        RebateConfig rebateConfig=new RebateConfig();
+        rebateConfig.setFirstMoney(proxyRebateConfig.getFirstMoney());
+        rebateConfig.setFirstAmountLine(proxyRebateConfig.getFirstAmountLine());
+        rebateConfig.setFirstProfit(proxyRebateConfig.getFirstProfit());
+
+        rebateConfig.setSecondMoney(proxyRebateConfig.getSecondMoney());
+        rebateConfig.setSecondAmountLine(proxyRebateConfig.getSecondAmountLine());
+        rebateConfig.setSecondProfit(proxyRebateConfig.getSecondProfit());
+
+        rebateConfig.setThirdMoney(proxyRebateConfig.getThirdMoney());
+        rebateConfig.setThirdAmountLine(proxyRebateConfig.getThirdAmountLine());
+        rebateConfig.setThirdProfit(proxyRebateConfig.getThirdProfit());
+
+        rebateConfig.setFourMoney(proxyRebateConfig.getFourMoney());
+        rebateConfig.setFourAmountLine(proxyRebateConfig.getFourAmountLine());
+        rebateConfig.setFourProfit(proxyRebateConfig.getFourProfit());
+
+        rebateConfig.setFiveMoney(proxyRebateConfig.getFiveMoney());
+        rebateConfig.setFiveAmountLine(proxyRebateConfig.getFiveAmountLine());
+        rebateConfig.setFiveProfit(proxyRebateConfig.getFiveProfit());
+
+        rebateConfig.setSixMoney(proxyRebateConfig.getSixMoney());
+        rebateConfig.setSixAmountLine(proxyRebateConfig.getSixAmountLine());
+        rebateConfig.setSixProfit(proxyRebateConfig.getSixProfit());
+
+        rebateConfig.setSevenMoney(proxyRebateConfig.getSevenMoney());
+        rebateConfig.setSevenAmountLine(proxyRebateConfig.getSevenAmountLine());
+        rebateConfig.setSevenProfit(proxyRebateConfig.getSevenProfit());
+
+        rebateConfig.setEightMoney(proxyRebateConfig.getEightMoney());
+        rebateConfig.setEightAmountLine(proxyRebateConfig.getEightAmountLine());
+        rebateConfig.setEightProfit(proxyRebateConfig.getEightProfit());
+
+        return rebateConfig;
+    }
+
 
     public CompanyLevelBO getProfitLevel(BigDecimal amount,  Map<Integer,Integer> profitLevelList,Map<Integer,BigDecimal> profitLevelMap) {
         //取代理推广返佣配置里的比例

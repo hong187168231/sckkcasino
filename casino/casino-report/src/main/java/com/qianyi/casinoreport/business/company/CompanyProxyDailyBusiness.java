@@ -122,7 +122,7 @@ public class CompanyProxyDailyBusiness {
      */
     public void processOrder(CompanyOrderAmountVo companyOrderAmountVo,List<CompanyProxyDetail> firstList,List<CompanyProxyDetail> secondeList,List<CompanyProxyDetail> thirdList){
         //返佣比例
-        CompanyLevelBO companyLevelBO = companyLevelProcessBusiness.getLevelData(new BigDecimal(companyOrderAmountVo.getValidbet()));
+        CompanyLevelBO companyLevelBO = companyLevelProcessBusiness.getLevelData(new BigDecimal(companyOrderAmountVo.getValidbet()),companyOrderAmountVo.getFirstProxy());
         //根据基层代查询代理佣金配置表
         ProxyCommission proxyCommission = proxyCommissionService.findByProxyUserId(companyOrderAmountVo.getThirdProxy());
 
