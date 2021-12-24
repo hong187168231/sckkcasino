@@ -46,8 +46,11 @@ public class MenuTranslationInit  implements CommandLineRunner {
             return;
         }
         sysPermissions.stream().forEach(sysPermission -> {
-            sysPermission.setEnglishName(englishNames.get(sysPermission.getName()));
-            sysPermissionService.save(sysPermission);
+            if ((LoginUtil.checkNull(sysPermission.getEnglishName()) && !LoginUtil.checkNull(sysPermission.getName())) ||
+                    (!LoginUtil.checkNull(sysPermission.getName()) && !englishNames.get(sysPermission.getName()).equals(sysPermission.getEnglishName()))){
+                sysPermission.setEnglishName(englishNames.get(sysPermission.getName()));
+                sysPermissionService.save(sysPermission);
+            }
         });
     }
     private void initializeCambodian(List<SysPermission> sysPermissions){
@@ -56,8 +59,11 @@ public class MenuTranslationInit  implements CommandLineRunner {
             return;
         }
         sysPermissions.stream().forEach(sysPermission -> {
-            sysPermission.setCambodianName(cambodianNames.get(sysPermission.getName()));
-            sysPermissionService.save(sysPermission);
+            if ((LoginUtil.checkNull(sysPermission.getCambodianName()) && !LoginUtil.checkNull(sysPermission.getName())) ||
+                    (!LoginUtil.checkNull(sysPermission.getName()) && !cambodianNames.get(sysPermission.getName()).equals(sysPermission.getCambodianName()))){
+                sysPermission.setCambodianName(cambodianNames.get(sysPermission.getName()));
+                sysPermissionService.save(sysPermission);
+            }
         });
     }
 }

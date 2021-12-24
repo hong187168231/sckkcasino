@@ -605,20 +605,28 @@ public class ProxyUserController {
             byProxyUserId.setProxyUserId(proxyUser.getId());
         }
         if (proxyUser.getProxyRole() == CommonConst.NUMBER_2){
-            BigDecimal total = money.add(byProxyUserId.getSecondCommission()).add(byProxyUserId.getThirdCommission());
-            if (total.compareTo(new BigDecimal(CommonConst.NUMBER_1)) >= CommonConst.NUMBER_1){
-                return ResponseUtil.custom("超过最高占成比");
-            }
             List<ProxyCommission> bySecondProxy = proxyCommissionService.findBySecondProxy(proxyUser.getId());
             if (!CasinoProxyUtil.checkNull(bySecondProxy) && bySecondProxy.size() > CommonConst.NUMBER_0){
-                for (ProxyCommission p:bySecondProxy){
-                    BigDecimal add = p.getSecondCommission().add(money);
-                    if (add.compareTo(new BigDecimal(CommonConst.NUMBER_1)) >= CommonConst.NUMBER_1){
-                        return ResponseUtil.custom("超过最高占成比");
+                //减少总代分成，直接加区域代理分成
+                if(money.compareTo(byProxyUserId.getFirstCommission()) == -1){
+                    for (ProxyCommission p:bySecondProxy){
+                        BigDecimal subtract = byProxyUserId.getFirstCommission().subtract(money);
+                        p.setFirstCommission(money);
+                        p.setSecondCommission(p.getSecondCommission().add(subtract));
                     }
-                    p.setFirstCommission(money);
-                    p.setSecondCommission(new BigDecimal(CommonConst.NUMBER_1).subtract(add));
-                    p.setThirdCommission(BigDecimal.ZERO);
+                    //增加总代分成，直接减区域代理分成，不够在减基层代理
+                }else if (money.compareTo(byProxyUserId.getFirstCommission()) == CommonConst.NUMBER_1){
+                    for (ProxyCommission p:bySecondProxy){
+                        BigDecimal subtract = money.subtract(byProxyUserId.getFirstCommission());
+                        p.setFirstCommission(money);
+                        if (p.getSecondCommission().compareTo(subtract) >= CommonConst.NUMBER_0){
+                            p.setSecondCommission(p.getSecondCommission().subtract(subtract));
+                        }else {
+                            BigDecimal difference = subtract.subtract(p.getSecondCommission());
+                            p.setSecondCommission(BigDecimal.ZERO);
+                            p.setThirdCommission(p.getThirdCommission().subtract(difference));
+                        }
+                    }
                 }
                 bySecondProxy.stream().forEach(proxyCommission ->{
                     proxyCommissionService.save(proxyCommission);
