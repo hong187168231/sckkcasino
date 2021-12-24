@@ -25,11 +25,11 @@ public class LoginUtil {
         if(checkNull(token)){
             return null;
         }
-        JjwtUtil.Subject parse = JjwtUtil.parse(token, "casino-admin");
-        if(parse == null){
+        JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
+        if(subject == null){
             return null;
         }
-        String userIds = parse.getUserId();
+        String userIds = subject.getUserId();
         Long userId = null;
         if (!LoginUtil.checkNull(userIds)) {
             userId = Long.parseLong(userIds);
