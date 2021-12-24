@@ -48,8 +48,8 @@ public class WithdrawOrderService {
         return null;
     }
 
-    public Page<WithdrawOrder> findUserPage(Pageable pageable, WithdrawOrder withdrawOrder) {
-        Specification<WithdrawOrder> condition = this.getCondition(withdrawOrder,null,null);
+    public Page<WithdrawOrder> findUserPage(Pageable pageable, WithdrawOrder withdrawOrder,Date startDate,Date endDate) {
+        Specification<WithdrawOrder> condition = this.getCondition(withdrawOrder,startDate,endDate);
         return withdrawOrderRepository.findAll(condition, pageable);
     }
 

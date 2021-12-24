@@ -27,8 +27,8 @@ public class ChargeOrderService {
         return chargeOrderRepository.save(entity);
     }
 
-    public Page<ChargeOrder> findChargeOrderPage(ChargeOrder chargeOrder, Pageable pageable){
-        Specification<ChargeOrder> condition = getCondition(chargeOrder,null,null);
+    public Page<ChargeOrder> findChargeOrderPage(ChargeOrder chargeOrder, Pageable pageable,Date startDate,Date endDate){
+        Specification<ChargeOrder> condition = getCondition(chargeOrder,startDate,endDate);
         return chargeOrderRepository.findAll(condition,pageable);
     }
 
