@@ -19,8 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +64,9 @@ public class WithdrawOrderController {
     })
     @GetMapping("/withdrawList")
     public ResponseEntity<WithdrawOrderVo> withdrawList(Integer pageSize,Integer pageCode, Integer status, String account,
-                                                        String no, String bankId,Integer type){
+                                                        String no, String bankId,Integer type,
+                                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+                                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         WithdrawOrder withdrawOrder = new WithdrawOrder();
         if (!LoginUtil.checkNull(account)){
             User user = userService.findByAccount(account);
@@ -77,7 +81,7 @@ public class WithdrawOrderController {
         withdrawOrder.setType(type);
         Sort sort=Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
-        Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, withdrawOrder);
+        Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, withdrawOrder,startDate,endDate);
         PageResultVO<WithdrawOrderVo> pageResultVO = new PageResultVO(withdrawOrderPage);
         List<WithdrawOrder> content = withdrawOrderPage.getContent();
         if(content != null && content.size() > 0){
