@@ -17,6 +17,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StopWatch;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -46,6 +47,11 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
         log.debug("请求头类型： " + request.getContentType());
         if ((request.getContentType() == null && request.getContentLength() > 0) || (request.getContentType() != null && !request.getContentType().contains(Constants.REQUEST_HEADERS_CONTENT_TYPE))) {
             filterChain.doFilter(request, response);
+            return;
+        }
+        String requestURI = request.getRequestURI();
+        //解决swagger死循环的问题，/null/swagger-resources/configuration/ui
+        if (!ObjectUtils.isEmpty(requestURI) && requestURI.contains("/swagger-ui/null")) {
             return;
         }
         log.debug("进行request，respone的转换");
