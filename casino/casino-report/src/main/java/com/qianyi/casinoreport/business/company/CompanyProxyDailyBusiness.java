@@ -39,6 +39,8 @@ public class CompanyProxyDailyBusiness {
     @Autowired
     private CompanyLevelProcessBusiness companyLevelProcessBusiness;
 
+    private CompanyProxyMonthBusiness companyProxyMonthBusiness;
+
     //传入计算当天的时间  yyyy-MM-dd 格式
     @Transactional
     public void processDailyReport(String dayTime){
@@ -147,6 +149,7 @@ public class CompanyProxyDailyBusiness {
                 .proxyRole(proxyType)
                 .userId(userid)
                 .profitLevel(companyLevelBO.getProfitLevel()+"")
+                .profitLevelNumber(companyProxyMonthBusiness.queryRebateLevel(companyLevelBO.getProfitLevel()+"",userid))
                 .profitRate(companyLevelBO.getProfitAmount().toString())
                 .profitAmountLine(companyLevelBO.getProfitAmountLine().toString())
                 .groupBetAmount(new BigDecimal(companyOrderAmountVo.getValidbet()))

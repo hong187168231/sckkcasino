@@ -1,9 +1,8 @@
 package com.qianyi.casinoreport.business.company;
 
-import com.qianyi.casinocore.model.CompanyProxyDetail;
-import com.qianyi.casinocore.model.CompanyProxyMonth;
-import com.qianyi.casinocore.model.ProxyCommission;
+import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
 import com.qianyi.casinoreport.vo.CompanyLevelBO;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +40,11 @@ public class CompanyProxyMonthBusiness {
     private CompanyLevelProcessBusiness companyLevelProcessBusiness;
 
     @Autowired
-    private CompanyProxyMonthBusiness companyProxyMonthBusiness;
+    private RebateConfigService rebateConfigService;
+
+    @Autowired
+    private ProxyUserService proxyUserService;
+
 
     //传入计算当天的时间  yyyy-MM-dd 格式
     @Transactional
@@ -159,6 +162,7 @@ public class CompanyProxyMonthBusiness {
                 .proxyRole(proxyType)
                 .userId(userid)
                 .profitLevel(companyLevelBO.getProfitLevel()+"")
+                .profitLevelNumber(queryRebateLevel(companyLevelBO.getProfitLevel()+"",userid))
                 .profitRate(companyLevelBO.getProfitAmount().toString())
                 .profitAmountLine(companyLevelBO.getProfitAmountLine().toString())
                 .groupBetAmount(new BigDecimal(companyOrderAmountVo.getValidbet()))
@@ -173,6 +177,53 @@ public class CompanyProxyMonthBusiness {
                 .build();
         log.info("companyProxyMonth:{}",companyProxyMonth);
         return companyProxyMonth;
+    }
+
+    /**
+     * 根据返佣金额查询当前返佣级别
+     * @return
+     */
+    public String queryRebateLevel(String profitAmount,Long proxyUserId){
+        ProxyUser proxyUser = proxyUserService.findById(proxyUserId);
+        //查询父级
+        ProxyRebateConfig proxyRebateConfig = proxyRebateConfigService.findById(proxyUser.getFirstProxy());
+        RebateConfig rebateConfig = rebateConfigService.findFirst();
+        String profit= profitAmount;
+        //L1
+        Integer firstMoney=proxyRebateConfig!=null ?proxyRebateConfig.getFirstMoney() :rebateConfig.getFirstMoney();
+        if(profit.equals(String.valueOf(firstMoney))){
+            return CommonConst.REBATE_LEVEL_1;
+        }
+        Integer secondMoney=proxyRebateConfig!=null ?proxyRebateConfig.getSecondMoney() :rebateConfig.getSecondMoney();
+        if(profit.equals(String.valueOf(secondMoney))){
+            return CommonConst.REBATE_LEVEL_2;
+        }
+        Integer thirdMoney=proxyRebateConfig!=null ?proxyRebateConfig.getThirdMoney() :rebateConfig.getThirdMoney();
+        if(profit.equals(String.valueOf(thirdMoney))){
+            return CommonConst.REBATE_LEVEL_3;
+        }
+
+        Integer fourMoney=proxyRebateConfig!=null ?proxyRebateConfig.getFourMoney() :rebateConfig.getFourMoney();
+        if(profit.equals(String.valueOf(fourMoney))){
+            return CommonConst.REBATE_LEVEL_4;
+        }
+        Integer fiveMoney=proxyRebateConfig!=null ?proxyRebateConfig.getFiveMoney() :rebateConfig.getFiveMoney();
+        if(profit.equals(String.valueOf(fiveMoney))){
+            return CommonConst.REBATE_LEVEL_5;
+        }
+        Integer sixMoney=proxyRebateConfig!=null ?proxyRebateConfig.getSixMoney() :rebateConfig.getSixMoney();
+        if(profit.equals(String.valueOf(sixMoney))){
+            return CommonConst.REBATE_LEVEL_6;
+        }
+        Integer sevenMoney=proxyRebateConfig!=null ?proxyRebateConfig.getSevenMoney() :rebateConfig.getSevenMoney();
+        if(profit.equals(String.valueOf(sevenMoney))){
+            return CommonConst.REBATE_LEVEL_7;
+        }
+        Integer eightMoney=proxyRebateConfig!=null ?proxyRebateConfig.getEightMoney() :rebateConfig.getEightMoney();
+        if(profit.equals(String.valueOf(eightMoney))){
+            return CommonConst.REBATE_LEVEL_8;
+        }
+        return CommonConst.REBATE_LEVEL;
     }
 
 

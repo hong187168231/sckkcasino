@@ -36,6 +36,8 @@ public class CompanyProxyMonth extends BaseEntity implements Cloneable{
     private BigDecimal groupBetAmount;
     @ApiModelProperty(value = "返佣级别")
     private String profitLevel;
+    @ApiModelProperty(value = "返佣等级数")
+    private String profitLevelNumber ;
     @ApiModelProperty(value = "返佣比例")
     private String profitRate;
     @ApiModelProperty(value = "返佣金额线")
