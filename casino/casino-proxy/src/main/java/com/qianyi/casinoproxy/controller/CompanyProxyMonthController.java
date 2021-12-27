@@ -148,7 +148,7 @@ public class CompanyProxyMonthController {
                 }else {
                     if (companyProxyMonthVo.getProxyRole() == CommonConst.NUMBER_3){
                         companyProxyMonthVo.setProfitRate("--");
-                        companyProxyMonthVo.setProfitLevel(CommonConst.REBATE_LEVEL);
+                        companyProxyMonthVo.setProfitLevel(messageUtil.get(CommonConst.REBATE_LEVEL));
                     }
                 }
                 list.add(companyProxyMonthVo);
