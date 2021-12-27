@@ -4,10 +4,9 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.casinocore.util.CommonUtil;
+import com.qianyi.casinocore.vo.CompanyLevelVo;
 import com.qianyi.casinocore.vo.CompanyProxyMonthVo;
 import com.qianyi.casinocore.vo.PageResultVO;
-import com.qianyi.casinocore.vo.PageVo;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,6 +53,8 @@ public class CompanyProxyMonthController {
 
     @Autowired
     private MessageUtil messageUtil;
+    @Autowired
+    private CompanyLevelProcess companyLevelProcess;
 
 
     @ApiOperation("查询代理月结表")
@@ -141,17 +141,6 @@ public class CompanyProxyMonthController {
                     List<Integer> collect = proxyHomes.stream().map(CompanyProxyMonth::getSettleStatus).collect(Collectors.toList());
                     companyProxyMonthVo.setSettleStatus(Collections.min(collect));
                     CompanyProxyMonth proxyDetail = proxyHomes.get(CommonConst.NUMBER_0);
-                    //全线返佣比列
-                    if (companyProxyMonthVo.getProxyRole() == CommonConst.NUMBER_3){
-                        String profitRate="--";
-                        if (!proxyDetail.getProfitRate().equals(CommonConst.STRING_0)){
-                            profitRate=messageUtil.get("每")+proxyDetail.getProfitAmountLine()==null?messageUtil.get("万"):proxyDetail.getProfitAmountLine()+messageUtil.get("返")+ Double.valueOf(proxyDetail.getProfitRate()).intValue()+CommonConst.COMPANY;
-                        }
-                        companyProxyMonthVo.setProfitRate(profitRate);
-                        //返佣级别:根据返佣金额查询当前返佣级别
-                        String profitLevel =  proxyDetail.getProfitLevelNumber();
-                        companyProxyMonthVo.setProfitLevel(profitLevel);
-                    }
                     companyProxyMonthVo.setBenefitRate(proxyDetail.getBenefitRate());
                     companyProxyMonthVo.setId(proxyDetail.getId());
                     if (!LoginUtil.checkNull(proxyDetail.getUpdateBy())){
@@ -188,8 +177,29 @@ public class CompanyProxyMonthController {
             });
         }
         firstMap.clear();
+        list.forEach(info->{
+            //全线返佣比列
+            if (info.getProxyRole() == CommonConst.NUMBER_3){
+                CompanyLevelVo companyLevelVo = queryProfitLevel(info.getGroupBetAmount(), info.getProxyUserId(), startDate);
+                String profitRate="--";
+                String profitLevel="--";
+                if (companyLevelVo!=null && info.getGroupBetAmount().compareTo(BigDecimal.ZERO)>0){
+                    profitRate=messageUtil.get("每")+" "+companyLevelVo.getProfitAmountLine()+" "+messageUtil.get("返")+" "+companyLevelVo.getProfitAmount().intValue()+" "+CommonConst.COMPANY;
+                    profitLevel=companyLevelVo.getProfitLevel();
+                }
+                info.setProfitRate(profitRate);
+                //返佣级别:根据返佣金额查询当前返佣级别
+                info.setProfitLevel(profitLevel);
+            }
+        });
         pageResultVO.setContent(list);
         return ResponseUtil.success(pageResultVO);
+    }
+
+
+    public CompanyLevelVo queryProfitLevel(BigDecimal amount,Long userId,String startDate){
+        ProxyUser proxyUser = proxyUserService.findById(userId);
+        return companyLevelProcess.getLevelData(amount, proxyUser.getFirstProxy(), startDate);
     }
 
 //    @ApiOperation("统计代理月结表")
