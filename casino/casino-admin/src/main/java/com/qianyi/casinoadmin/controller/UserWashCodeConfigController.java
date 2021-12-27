@@ -68,7 +68,7 @@ public class UserWashCodeConfigController {
 
         if(userWashCodeConfigs != null && userWashCodeConfigs.size() > 0){
             for (UserWashCodeConfig userWashCodeConfig : userWashCodeConfigs) {
-                if (userWashCodeConfig.getRate().compareTo(BigDecimal.ZERO)< CommonConst.NUMBER_1){
+                if (userWashCodeConfig.getRate().compareTo(BigDecimal.ZERO) < CommonConst.NUMBER_0){
                     return ResponseUtil.custom("参数不合法");
                 }
                 if(userWashCodeConfig.getRate().compareTo(BigDecimal.valueOf(0.9)) > 0){
