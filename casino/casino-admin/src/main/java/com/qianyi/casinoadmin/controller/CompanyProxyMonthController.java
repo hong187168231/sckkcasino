@@ -145,7 +145,7 @@ public class CompanyProxyMonthController {
                     if (companyProxyMonthVo.getProxyRole() == CommonConst.NUMBER_3){
                         String profitRate="--";
                         if (!proxyDetail.getProfitRate().equals(CommonConst.STRING_0)){
-                            profitRate=messageUtil.get("每")+proxyDetail.getProfitAmountLine()==null?messageUtil.get("万"):proxyDetail.getProfitAmountLine()+messageUtil.get("返")+ Double.valueOf(proxyDetail.getProfitRate()).intValue()+CommonConst.COMPANY;
+                            profitRate=messageUtil.get("每")+" "+proxyDetail.getProfitAmountLine()==null?messageUtil.get("万"):proxyDetail.getProfitAmountLine()+" "+messageUtil.get("返")+" "+ Double.valueOf(proxyDetail.getProfitRate()).intValue()+messageUtil.get(CommonConst.COMPANY);
                         }
                         companyProxyMonthVo.setProfitRate(profitRate);
                         //返佣级别:根据返佣金额查询当前返佣级别
