@@ -4,6 +4,7 @@ import com.qianyi.casinocore.model.UserWashCodeConfig;
 import com.qianyi.casinocore.model.WashCodeConfig;
 import com.qianyi.casinocore.service.UserWashCodeConfigService;
 import com.qianyi.casinocore.service.WashCodeConfigService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -16,6 +17,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +67,14 @@ public class UserWashCodeConfigController {
         //第一次编辑，保存所有洗码数据
 
         if(userWashCodeConfigs != null && userWashCodeConfigs.size() > 0){
+            for (UserWashCodeConfig u : userWashCodeConfigs){
+                if (u.getRate().compareTo(BigDecimal.ZERO) < CommonConst.NUMBER_0){
+                    return ResponseUtil.custom("参数不合法");
+                }
+                if(u.getRate().compareTo(BigDecimal.valueOf(0.9)) > 0){
+                    return ResponseUtil.custom("洗码倍率超过限制");
+                }
+            }
             List<UserWashCodeConfig> codeConfigs = new ArrayList<>();
             Long userId = userWashCodeConfigs.get(0).getUserId();
             List<UserWashCodeConfig> userWashCodeConfigList = userWashCodeConfigService.findByUserId(userId);

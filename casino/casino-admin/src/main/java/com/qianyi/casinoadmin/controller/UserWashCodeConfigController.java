@@ -5,6 +5,7 @@ import com.qianyi.casinocore.model.UserWashCodeConfig;
 import com.qianyi.casinocore.model.WashCodeConfig;
 import com.qianyi.casinocore.service.UserWashCodeConfigService;
 import com.qianyi.casinocore.service.WashCodeConfigService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -67,6 +68,9 @@ public class UserWashCodeConfigController {
 
         if(userWashCodeConfigs != null && userWashCodeConfigs.size() > 0){
             for (UserWashCodeConfig userWashCodeConfig : userWashCodeConfigs) {
+                if (userWashCodeConfig.getRate().compareTo(BigDecimal.ZERO) < CommonConst.NUMBER_0){
+                    return ResponseUtil.custom("参数不合法");
+                }
                 if(userWashCodeConfig.getRate().compareTo(BigDecimal.valueOf(0.9)) > 0){
                     return ResponseUtil.custom("洗码倍率超过限制");
                 }
