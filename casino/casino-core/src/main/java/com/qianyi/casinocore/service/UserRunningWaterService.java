@@ -39,6 +39,21 @@ public class UserRunningWaterService {
         return userRunningWaterRepository.findByStaticsTimes(staticsTimes);
     }
 
+    @Transactional
+    public void updateFirstProxy(Long userId, Long firstProxy){
+        userRunningWaterRepository.updateFirstProxy(userId,firstProxy);
+    }
+
+    @Transactional
+    public void updateSecondProxy(Long userId, Long firstProxy){
+        userRunningWaterRepository.updateSecondProxy(userId,firstProxy);
+    }
+
+    @Transactional
+    public void updatetThirdProxy(Long userId, Long firstProxy){
+        userRunningWaterRepository.updatetThirdProxy(userId,firstProxy);
+    }
+
     public Page<UserRunningWater> findUserPage(Pageable pageable, UserRunningWater userRunningWater, Date startDate, Date endDate){
         Specification<UserRunningWater> condition = this.getCondition(userRunningWater,startDate,endDate);
         return userRunningWaterRepository.findAll(condition,pageable);

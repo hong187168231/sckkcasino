@@ -116,7 +116,10 @@ public class NewPermissions {
                 SysPermission sysPermission = new SysPermission("转移会员", "转移会员", "/proxyUser/transferUser", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
-
+            if (!collect.containsKey("/proxyUser/transferProxy")){
+                SysPermission sysPermission = new SysPermission("转移代理", "转移代理", "/proxyUser/transferProxy", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
         }
     }
 

@@ -25,6 +25,18 @@ public interface ProxyUserRepository extends JpaRepository<ProxyUser,Long>, JpaS
     @Query("update ProxyUser p set p.proxyUsersNum=p.proxyUsersNum-1 where p.id=?1")
     void subProxyUsersNum(Long proxyUserId);
 
+    @Modifying
+    @Query("update ProxyUser p set p.proxyUsersNum=0 where p.id=?1")
+    void makeZero(Long proxyUserId);
+
+    @Modifying
+    @Query("update ProxyUser p set p.proxyUsersNum=p.proxyUsersNum+?2 where p.id=?1")
+    void addProxyUsersNum(Long proxyUserId,Integer num);
+
+    @Modifying
+    @Query("update ProxyUser p set p.proxyUsersNum=p.proxyUsersNum-?2 where p.id=?1")
+    void subProxyUsersNum(Long proxyUserId,Integer num);
+
     ProxyUser findAllById(Long id);
 
     ProxyUser findByProxyCode(String inviteCode);

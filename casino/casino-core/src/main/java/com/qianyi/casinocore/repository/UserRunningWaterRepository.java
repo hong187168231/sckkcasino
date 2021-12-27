@@ -19,4 +19,16 @@ public interface UserRunningWaterRepository extends JpaRepository<UserRunningWat
     List<UserRunningWater> findGroupByUserId(Specification<UserRunningWater> condition);
 
     List<UserRunningWater> findByStaticsTimes(String staticsTimes);
+
+    @Modifying
+    @Query("update UserRunningWater u set u.firstProxy= ?2 where u.userId=?1")
+    void updateFirstProxy(Long userId, Long firstProxy);
+
+    @Modifying
+    @Query("update UserRunningWater u set u.secondProxy= ?2 where u.userId=?1")
+    void updateSecondProxy(Long userId, Long secondProxy);
+
+    @Modifying
+    @Query("update UserRunningWater u set u.thirdProxy= ?2 where u.userId=?1")
+    void updatetThirdProxy(Long userId, Long secondProxy);
 }
