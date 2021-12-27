@@ -14,6 +14,7 @@ import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
+import com.qianyi.modulecommon.util.MessageUtil;
 import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -40,6 +41,8 @@ public class CustomerController {
     @Autowired
     private PlatformConfigService platformConfigService;
 
+    @Autowired
+    private MessageUtil messageUtil;
     /**
      * 新增和修改客服联系方式
      * @param qq 客服qq号
@@ -132,6 +135,7 @@ public class CustomerController {
         customer.forEach(info -> {
             info.setAppIconUrl(readUploadUrl + info.getAppIconUrl());
             info.setPcIconUrl(readUploadUrl + info.getPcIconUrl());
+            info.setCustomer(messageUtil.get(info.getCustomer()));
         });
         return ResponseUtil.success(customer);
     }
