@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -76,8 +77,8 @@ public class CompanyProxyMonthBusiness {
         log.info("firstList size is {}, secondeList size is {}, thirdList size is {}",firstList.size(),secondeList.size(),thirdList.size());
 
         // 处理总返佣：总返佣group_totalprofit = 下级profit_amount总计
-        List<CompanyProxyMonth> secondeCompanyProxyDetail = processSec(secondeList,thirdList,2);
-        List<CompanyProxyMonth> firstCompanyProxyDetail = processSec(firstList,secondeCompanyProxyDetail,1);
+        List<CompanyProxyMonth> secondeCompanyProxyDetail = processSecTemp(secondeList,thirdList,2);
+        List<CompanyProxyMonth> firstCompanyProxyDetail = processSecTemp(firstList,secondeCompanyProxyDetail,1);
 
         List<CompanyProxyMonth> resultList = Stream.concat(thirdList.stream(),secondeCompanyProxyDetail.stream()).collect(Collectors.toList());
         resultList.addAll(firstCompanyProxyDetail);
@@ -89,6 +90,32 @@ public class CompanyProxyMonthBusiness {
         log.info("save all proxyDetail data finish");
 
     }
+
+
+
+    private List<CompanyProxyMonth> processSecTemp(List<CompanyProxyMonth> firstList,List<CompanyProxyMonth> secList,int level) {
+        Map<Long,List<CompanyProxyMonth>> firstProxy=new HashMap<>();
+        if (level==2){
+            firstProxy = secList.stream().collect(Collectors.groupingBy(CompanyProxyMonth::getSecondProxy));
+        }else {
+            firstProxy = secList.stream().collect(Collectors.groupingBy(CompanyProxyMonth::getFirstProxy));
+        }
+        Map<Long, List<CompanyProxyMonth>> finalFirstProxy = firstProxy;
+        firstList.forEach(info ->{
+            List<CompanyProxyMonth> subList = finalFirstProxy.get(info.getUserId());
+            if (subList!=null){
+                List<CompanyProxyMonth> collect=new ArrayList<>();
+                List<CompanyProxyMonth> collect1 = subList.stream().filter(x ->x.getFirstProxy() == info.getFirstProxy() &&  x.getThirdProxy() == info.getThirdProxy()).collect(Collectors.toList());
+                List<CompanyProxyMonth> collect2 = subList.stream().filter(x -> x.getSecondProxy() == info.getSecondProxy() && x.getThirdProxy() == info.getThirdProxy()).collect(Collectors.toList());
+                collect = level==2 ? collect1 : collect2;
+                if (collect!=null){
+                    info.setGroupTotalprofit(collect.stream().map(x->x.getGroupTotalprofit()).reduce(BigDecimal.ZERO,BigDecimal::add));
+                }
+            }
+        });
+        return firstList;
+    }
+
 
     private List<CompanyProxyMonth> processSec(List<CompanyProxyMonth> firstList,List<CompanyProxyMonth> secList,int level) {
         List<CompanyProxyMonth> companyProxyDetailList = new ArrayList<>();
