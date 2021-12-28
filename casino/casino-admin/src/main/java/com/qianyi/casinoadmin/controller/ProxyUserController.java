@@ -202,6 +202,7 @@ public class ProxyUserController {
             @ApiImplicitParam(name = "tag", value = "tag 1:总代 2:区域代 3:基层", required = true),
     })
     @PostMapping("saveProxyUser")
+    @Transactional
     public ResponseEntity saveProxyUser(String userName, String nickName,Long id,Integer tag){
         if (LoginUtil.checkNull(userName,tag)){
             return ResponseUtil.custom("参数不合法");
@@ -575,6 +576,10 @@ public class ProxyUserController {
         if (byId.getProxyRole() != accept.getProxyRole()){
             return ResponseUtil.custom("只有同级才可以互转");
         }
-        return proxyHomePageReportBusiness.transferProxy(byId,accept);
+        try {
+            return proxyHomePageReportBusiness.transferProxy(byId,accept);
+        }catch (Exception ex){
+            return ResponseUtil.custom("转移失败请联系管理员");
+        }
     }
 }
