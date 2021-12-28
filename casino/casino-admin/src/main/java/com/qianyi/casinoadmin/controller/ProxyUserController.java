@@ -444,9 +444,12 @@ public class ProxyUserController {
         if (LoginUtil.checkNull(id)){
             return ResponseUtil.custom("参数不合法");
         }
-        ProxyUser byId = proxyUserService.findById(id);
+        ProxyUser byId = proxyUserService.findProxyUserById(id);
         if (LoginUtil.checkNull(byId)){
             return ResponseUtil.custom("没有这个代理");
+        }
+        if (byId.getIsDelete() == CommonConst.NUMBER_2){
+            return ResponseUtil.custom("该代理已经删除");
         }
         if (byId.getProxyRole() == CommonConst.NUMBER_1){
             ProxyUser proxyUser = new ProxyUser();
