@@ -4,6 +4,7 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
+import com.qianyi.casinocore.vo.CompanyProxyMonthVo;
 import com.qianyi.casinoreport.vo.CompanyLevelBO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +81,19 @@ public class CompanyProxyMonthBusiness {
 
         log.info("save all proxyDetail data");
         log.info("resultList:{}",resultList);
+        //计算分佣等级
+        Map<Long, List<CompanyProxyMonth>> firstMap = resultList.stream().collect(Collectors.groupingBy(CompanyProxyMonth::getUserId));
+        resultList.forEach(info->{
+            List<CompanyProxyMonth> proxyHomes = firstMap.get(info.getUserId());
+            if (proxyHomes!=null){
+                BigDecimal reduce = proxyHomes.stream().map(CompanyProxyMonth::getGroupBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+                CompanyLevelBO levelData = companyLevelProcessBusiness.getLevelData(reduce, info.getFirstProxy());
+                info.setProfitAmountLine(levelData.getProfitAmountLine().toString());
+                info.setProfitRate(levelData.getProfitAmount().toString());
+                info.setProfitLevel(levelData.getProfitLevel().toString());
+                info.setProfitLevelNumber(queryRebateLevel(levelData.getProfitLevel()+"",info.getFirstProxy()));
+            }
+        });
 //        companyProxyDetailService.saveAll(resultList);
         companyProxyMonthService.saveAll(resultList);
         log.info("save all proxyDetail data finish");
@@ -188,10 +202,10 @@ public class CompanyProxyMonthBusiness {
                 .thirdProxy(companyOrderAmountVo.getThirdProxy())
                 .proxyRole(proxyType)
                 .userId(userid)
-                .profitLevel(companyLevelBO.getProfitLevel()+"")
+               /* .profitLevel(companyLevelBO.getProfitLevel()+"")
                 .profitLevelNumber(queryRebateLevel(companyLevelBO.getProfitLevel()+"",userid))
                 .profitRate(companyLevelBO.getProfitAmount().toString())
-                .profitAmountLine(companyLevelBO.getProfitAmountLine().toString())
+                .profitAmountLine(companyLevelBO.getProfitAmountLine().toString())*/
                 .groupBetAmount(new BigDecimal(companyOrderAmountVo.getValidbet()))
                 .playerNum(companyOrderAmountVo.getPlayerNum())
                 // 返佣金额(如:达到1w返佣10元) * 实际倍数(下注金额/10000) * 代理佣金配置值
@@ -211,9 +225,9 @@ public class CompanyProxyMonthBusiness {
      * @return
      */
     public String queryRebateLevel(String profitAmount,Long proxyUserId){
-        ProxyUser proxyUser = proxyUserService.findById(proxyUserId);
+        //ProxyUser proxyUser = proxyUserService.findById(proxyUserId);
         //查询父级
-        ProxyRebateConfig proxyRebateConfig = proxyRebateConfigService.findById(proxyUser.getFirstProxy());
+        ProxyRebateConfig proxyRebateConfig = proxyRebateConfigService.findById(proxyUserId);
         RebateConfig rebateConfig = rebateConfigService.findFirst();
         String profit= profitAmount;
         //L1

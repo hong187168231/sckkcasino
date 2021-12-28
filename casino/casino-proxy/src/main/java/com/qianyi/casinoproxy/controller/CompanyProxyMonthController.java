@@ -131,6 +131,17 @@ public class CompanyProxyMonthController {
                     List<Integer> collect = proxyHomes.stream().map(CompanyProxyMonth::getSettleStatus).collect(Collectors.toList());
                     companyProxyMonthVo.setSettleStatus(Collections.min(collect));
                     CompanyProxyMonth proxyDetail = proxyHomes.get(CommonConst.NUMBER_0);
+                    //全线返佣比列
+                    if (companyProxyMonthVo.getProxyRole() == CommonConst.NUMBER_3){
+                        String profitRate="--";
+                        if (!proxyDetail.getProfitRate().equals(CommonConst.STRING_0)){
+                            profitRate=messageUtil.get("每")+" "+proxyDetail.getProfitAmountLine()==null?messageUtil.get("万"):proxyDetail.getProfitAmountLine()+" "+messageUtil.get("返")+" "+ Double.valueOf(proxyDetail.getProfitRate()).intValue()+messageUtil.get(CommonConst.COMPANY);
+                        }
+                        companyProxyMonthVo.setProfitRate(profitRate);
+                        //返佣级别:根据返佣金额查询当前返佣级别
+                        String profitLevel = proxyDetail.getProfitLevelNumber();
+                        companyProxyMonthVo.setProfitLevel(profitLevel);
+                    }
                     companyProxyMonthVo.setBenefitRate(proxyDetail.getBenefitRate());
                     companyProxyMonthVo.setId(proxyDetail.getId());
                     companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:proxyDetail.getUpdateTime());
@@ -167,21 +178,6 @@ public class CompanyProxyMonthController {
             });
         }
         firstMap.clear();
-        list.forEach(info->{
-            //全线返佣比列
-            if (info.getProxyRole() == CommonConst.NUMBER_3){
-                CompanyLevelVo companyLevelVo = queryProfitLevel(info.getGroupBetAmount(), info.getProxyUserId(), startDate);
-                String profitRate="--";
-                String profitLevel="--";
-                if (companyLevelVo!=null && info.getGroupBetAmount().compareTo(BigDecimal.ZERO)>0){
-                    profitRate=messageUtil.get("每")+" "+companyLevelVo.getProfitAmountLine()+" "+messageUtil.get("返")+" "+companyLevelVo.getProfitAmount().intValue()+" "+CommonConst.COMPANY;
-                    profitLevel=companyLevelVo.getProfitLevel();
-                }
-                info.setProfitRate(profitRate);
-                //返佣级别:根据返佣金额查询当前返佣级别
-                info.setProfitLevel(profitLevel);
-            }
-        });
         pageResultVO.setContent(list);
         return ResponseUtil.success(pageResultVO);
     }
