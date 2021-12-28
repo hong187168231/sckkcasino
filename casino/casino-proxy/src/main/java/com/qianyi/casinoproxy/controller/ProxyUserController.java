@@ -527,21 +527,26 @@ public class ProxyUserController {
         if (byId.getProxyRole() == CommonConst.NUMBER_3 ||(byId.getProxyRole() == CommonConst.NUMBER_2 && proxyUser.getProxyRole() == CommonConst.NUMBER_2)){
             return ResponseUtil.custom("没有权限");
         }
+        ProxyCommission byProxyUserId = proxyCommissionService.findByProxyUserId(proxyUser.getId());
+        JSONObject jsonObject = new JSONObject();
         if (proxyUser.getProxyRole() == CommonConst.NUMBER_2){
             commission = MessageFormat.format(messageUtil.get(METHOD_FIRST_FORMAT),"");
-            return ResponseUtil.success(commission);
-        }
-        ProxyCommission byProxyUserId = proxyCommissionService.findByProxyUserId(proxyUser.getId());
-        if (proxyUser.getProxyRole() == CommonConst.NUMBER_3){
+            jsonObject.put("commission",commission);
+            jsonObject.put("data",(byProxyUserId==null&&byProxyUserId.getFirstCommission()==null)?CommonConst.NUMBER_0:byProxyUserId.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100));
+            return ResponseUtil.success(jsonObject);
+        }else {
             if (CasinoProxyUtil.checkNull(byProxyUserId) || CasinoProxyUtil.checkNull(byProxyUserId.getFirstCommission())){
-                return ResponseUtil.success("总代未设置");
+                jsonObject.put("commission","总代未设置");
+                jsonObject.put("data",CommonConst.NUMBER_0);
+                return ResponseUtil.success(jsonObject);
             }else{
                 BigDecimal multiply = byProxyUserId.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100);
                 commission = MessageFormat.format(messageUtil.get(METHOD_SECOND_FORMAT)+METHOD_PERCENTAGE,CommonConst.BIGDECIMAL_100.subtract(multiply));
-                return ResponseUtil.success(commission);
+                jsonObject.put("commission",commission);
+                jsonObject.put("data",(byProxyUserId==null&&byProxyUserId.getSecondCommission()==null)?CommonConst.NUMBER_0:byProxyUserId.getSecondCommission().multiply(CommonConst.BIGDECIMAL_100));
+                return ResponseUtil.success(jsonObject);
             }
         }
-        return ResponseUtil.success(commission);
     }
 
     @ApiOperation("单个修改代理分成比")
