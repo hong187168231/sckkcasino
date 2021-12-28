@@ -76,13 +76,15 @@ public class ProxyUserController {
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "proxyRole", value = "代理级别1：总代理 2：区域代理 3：基层代理", required = false),
-            @ApiImplicitParam(name = "userFlag", value = "1：正常 2：锁定, 3：删除", required = false),
+            @ApiImplicitParam(name = "userFlag", value = "1：正常 2：锁定", required = false),
+            @ApiImplicitParam(name = "isDelete", value = "1：正常 2：删除", required = false),
             @ApiImplicitParam(name = "userName", value = "账号", required = false),
             @ApiImplicitParam(name = "tag", value = "1：含下级 0：不包含", required = true),
             @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
             @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
     })
     public ResponseEntity<ProxyUserVo> findProxyUser(Integer pageSize, Integer pageCode,Integer proxyRole,Integer userFlag,Integer tag,String userName,
+                                        Integer isDelete,
                                         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
                                         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         ProxyUser proxyUser = new ProxyUser();
@@ -91,7 +93,7 @@ public class ProxyUserController {
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         proxyUser.setProxyRole(proxyRole);
         proxyUser.setUserFlag(userFlag);
-        proxyUser.setIsDelete(CommonConst.NUMBER_1);
+        proxyUser.setIsDelete(isDelete);
         if (!LoginUtil.checkNull(userName)){
             ProxyUser byUserName = proxyUserService.findByUserName(userName);
             if (LoginUtil.checkNull(byUserName)){
