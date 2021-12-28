@@ -49,8 +49,6 @@ public class CompanyProxyMonthController {
     @Autowired
     private MessageUtil messageUtil;
 
-    @Autowired
-    private CompanyLevelProcess companyLevelProcess;
 
     @ApiOperation("查询代理月结表")
     @GetMapping("/find")
@@ -180,11 +178,6 @@ public class CompanyProxyMonthController {
         firstMap.clear();
         pageResultVO.setContent(list);
         return ResponseUtil.success(pageResultVO);
-    }
-
-    public CompanyLevelVo queryProfitLevel(BigDecimal amount,Long userId,String startDate){
-        ProxyUser proxyUser = proxyUserService.findById(userId);
-        return companyLevelProcess.getLevelData(amount, proxyUser.getFirstProxy(), startDate);
     }
 
 //    @ApiOperation("统计代理月结表")

@@ -1,10 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.model.ProxyRebateConfig;
 import com.qianyi.casinocore.model.RebateConfig;
-import com.qianyi.casinocore.model.RebateConfigLog;
-import com.qianyi.casinocore.service.RebateConfigLogService;
 import com.qianyi.casinocore.service.RebateConfigService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.Constants;
@@ -23,11 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 @RestController
 @RequestMapping("/proxyRebate")
@@ -37,8 +32,6 @@ public class RebateConfigController {
     @Autowired
     private RebateConfigService rebateConfigService;
 
-    @Autowired
-    private RebateConfigLogService rebateConfigLogService;
 
     @ApiOperation("查询全局代理返佣等级配置")
     @GetMapping("/findAll")
@@ -77,68 +70,8 @@ public class RebateConfigController {
         if (!LoginUtil.checkNull(rebateConfig)){
             rebateConfig.setId(config.getId());
         }
-
         rebateConfigService.save(rebateConfig);
-        //添加返佣日志,每次修改都记录一次
-        addRebateConfigLog(rebateConfig);
         return ResponseUtil.success();
-    }
-
-    /**
-     * 添加全局返佣日志
-     * @param rebateConfig
-     */
-    public void addRebateConfigLog(RebateConfig rebateConfig){
-        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM");
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM");
-        String dayTime = df.format(LocalDateTime.now());
-        dayTime = dayTime.substring(0,7);
-        RebateConfigLog byTypeAndStaticsTimes = rebateConfigLogService.findByTypeAndStaticsTimes(Constants.yes, dayTime);
-        if (byTypeAndStaticsTimes!=null){
-            rebateConfigLogService.delete(byTypeAndStaticsTimes.getId());
-        }
-        rebateConfigLogService.save(queryRebateConfigLog(rebateConfig,dayTime));
-    }
-
-
-
-    public RebateConfigLog queryRebateConfigLog(RebateConfig proxyRebateConfig,String dayTime){
-        RebateConfigLog rebateConfig=new RebateConfigLog();
-        rebateConfig.setType(Constants.yes);
-        rebateConfig.setStaticsTimes(dayTime);
-        rebateConfig.setFirstMoney(proxyRebateConfig.getFirstMoney());
-        rebateConfig.setFirstAmountLine(proxyRebateConfig.getFirstAmountLine());
-        rebateConfig.setFirstProfit(proxyRebateConfig.getFirstProfit());
-
-        rebateConfig.setSecondMoney(proxyRebateConfig.getSecondMoney());
-        rebateConfig.setSecondAmountLine(proxyRebateConfig.getSecondAmountLine());
-        rebateConfig.setSecondProfit(proxyRebateConfig.getSecondProfit());
-
-        rebateConfig.setThirdMoney(proxyRebateConfig.getThirdMoney());
-        rebateConfig.setThirdAmountLine(proxyRebateConfig.getThirdAmountLine());
-        rebateConfig.setThirdProfit(proxyRebateConfig.getThirdProfit());
-
-        rebateConfig.setFourMoney(proxyRebateConfig.getFourMoney());
-        rebateConfig.setFourAmountLine(proxyRebateConfig.getFourAmountLine());
-        rebateConfig.setFourProfit(proxyRebateConfig.getFourProfit());
-
-        rebateConfig.setFiveMoney(proxyRebateConfig.getFiveMoney());
-        rebateConfig.setFiveAmountLine(proxyRebateConfig.getFiveAmountLine());
-        rebateConfig.setFiveProfit(proxyRebateConfig.getFiveProfit());
-
-        rebateConfig.setSixMoney(proxyRebateConfig.getSixMoney());
-        rebateConfig.setSixAmountLine(proxyRebateConfig.getSixAmountLine());
-        rebateConfig.setSixProfit(proxyRebateConfig.getSixProfit());
-
-        rebateConfig.setSevenMoney(proxyRebateConfig.getSevenMoney());
-        rebateConfig.setSevenAmountLine(proxyRebateConfig.getSevenAmountLine());
-        rebateConfig.setSevenProfit(proxyRebateConfig.getSevenProfit());
-
-        rebateConfig.setEightMoney(proxyRebateConfig.getEightMoney());
-        rebateConfig.setEightAmountLine(proxyRebateConfig.getEightAmountLine());
-        rebateConfig.setEightProfit(proxyRebateConfig.getEightProfit());
-
-        return rebateConfig;
     }
 
     private Boolean verify(RebateConfig rebateConfig){

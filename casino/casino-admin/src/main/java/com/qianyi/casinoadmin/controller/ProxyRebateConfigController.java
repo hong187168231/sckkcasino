@@ -5,15 +5,12 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.ProxyRebateConfig;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.RebateConfig;
-import com.qianyi.casinocore.model.RebateConfigLog;
 import com.qianyi.casinocore.service.ProxyRebateConfigService;
 import com.qianyi.casinocore.service.ProxyUserService;
-import com.qianyi.casinocore.service.RebateConfigLogService;
 import com.qianyi.casinocore.service.RebateConfigService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
-import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.DateUtil;
@@ -45,8 +42,6 @@ public class ProxyRebateConfigController {
     @Autowired
     private ProxyUserService proxyUserService;
 
-    @Autowired
-    private RebateConfigLogService rebateConfigLogService;
 
 
     @ApiOperation("查询代理返佣等级配置")
@@ -99,7 +94,6 @@ public class ProxyRebateConfigController {
         ProxyRebateConfig byId = proxyRebateConfigService.findById(proxyUser.getId());
         if (tag == CommonConst.NUMBER_0){
             if (!LoginUtil.checkNull(byId)){
-                addRebateConfigLog(proxyRebateConfig,proxyUserId,tag);
                 proxyRebateConfigService.delete(byId.getProxyUserId(),byId);
             }
             return ResponseUtil.success();
@@ -123,73 +117,11 @@ public class ProxyRebateConfigController {
                 proxyRebateConfig.setId(byId.getId());
             }
             proxyRebateConfigService.save(proxyRebateConfig);
-            addRebateConfigLog(proxyRebateConfig,proxyUserId,tag);
             return ResponseUtil.success();
         }
 
         return ResponseUtil.custom("参数不合法");
     }
-
-
-    /**
-     * 添加个人返佣日志
-     * @param rebateConfig
-     */
-    public void addRebateConfigLog(ProxyRebateConfig rebateConfig,Long proxyUserId,Integer tag){
-        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM");
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM");
-        String dayTime = df.format(LocalDateTime.now());
-        dayTime = dayTime.substring(0,7);
-        RebateConfigLog byTypeAndStaticsTimes = rebateConfigLogService.findByTypeAndStaticsTimesAndProxyUserId(Constants.no, dayTime,proxyUserId);
-        if (byTypeAndStaticsTimes!=null){
-            rebateConfigLogService.delete(byTypeAndStaticsTimes.getId());
-        }
-        //只有启用个人佣金配置才进行保存
-        if (tag == CommonConst.NUMBER_1){
-            rebateConfigLogService.save(queryRebateConfigLog(rebateConfig,dayTime,proxyUserId));
-        }
-    }
-
-    public RebateConfigLog queryRebateConfigLog(ProxyRebateConfig proxyRebateConfig,String dayTime,Long proxyUserId){
-        RebateConfigLog rebateConfig=new RebateConfigLog();
-        rebateConfig.setType(Constants.no);
-        rebateConfig.setStaticsTimes(dayTime);
-        rebateConfig.setProxyUserId(proxyUserId);
-        rebateConfig.setFirstMoney(proxyRebateConfig.getFirstMoney());
-        rebateConfig.setFirstAmountLine(proxyRebateConfig.getFirstAmountLine());
-        rebateConfig.setFirstProfit(proxyRebateConfig.getFirstProfit());
-
-        rebateConfig.setSecondMoney(proxyRebateConfig.getSecondMoney());
-        rebateConfig.setSecondAmountLine(proxyRebateConfig.getSecondAmountLine());
-        rebateConfig.setSecondProfit(proxyRebateConfig.getSecondProfit());
-
-        rebateConfig.setThirdMoney(proxyRebateConfig.getThirdMoney());
-        rebateConfig.setThirdAmountLine(proxyRebateConfig.getThirdAmountLine());
-        rebateConfig.setThirdProfit(proxyRebateConfig.getThirdProfit());
-
-        rebateConfig.setFourMoney(proxyRebateConfig.getFourMoney());
-        rebateConfig.setFourAmountLine(proxyRebateConfig.getFourAmountLine());
-        rebateConfig.setFourProfit(proxyRebateConfig.getFourProfit());
-
-        rebateConfig.setFiveMoney(proxyRebateConfig.getFiveMoney());
-        rebateConfig.setFiveAmountLine(proxyRebateConfig.getFiveAmountLine());
-        rebateConfig.setFiveProfit(proxyRebateConfig.getFiveProfit());
-
-        rebateConfig.setSixMoney(proxyRebateConfig.getSixMoney());
-        rebateConfig.setSixAmountLine(proxyRebateConfig.getSixAmountLine());
-        rebateConfig.setSixProfit(proxyRebateConfig.getSixProfit());
-
-        rebateConfig.setSevenMoney(proxyRebateConfig.getSevenMoney());
-        rebateConfig.setSevenAmountLine(proxyRebateConfig.getSevenAmountLine());
-        rebateConfig.setSevenProfit(proxyRebateConfig.getSevenProfit());
-
-        rebateConfig.setEightMoney(proxyRebateConfig.getEightMoney());
-        rebateConfig.setEightAmountLine(proxyRebateConfig.getEightAmountLine());
-        rebateConfig.setEightProfit(proxyRebateConfig.getEightProfit());
-
-        return rebateConfig;
-    }
-
 
     private Boolean check(ProxyRebateConfig proxyRebateConfig){
         if (LoginUtil.checkNull(proxyRebateConfig.getFirstMoney()) || LoginUtil.checkNull(proxyRebateConfig.getFirstProfit())){
