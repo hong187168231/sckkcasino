@@ -493,7 +493,7 @@ public class ProxyUserController {
             return ResponseUtil.custom("不能跨区域代理转移");
         }
         try {
-            return proxyHomePageReportBusiness.transferUser(id,acceptId,accept,byId);
+            return proxyHomePageReportBusiness.transferUser(id,acceptId,accept);
         }catch (Exception ex){
             return ResponseUtil.custom("转移失败请联系管理员");
         }

@@ -27,6 +27,10 @@ public class ProxyUserService {
     @Autowired
     private ProxyUserRepository proxyUserRepository;
 
+    public ProxyUser findProxyUserById(Long id){
+        return proxyUserRepository.findProxyUserById(id);
+    }
+
     public List<ProxyUser> findAll() {
         return proxyUserRepository.findAll();
     }

@@ -33,7 +33,9 @@ public class ProxyHomePageReportBusiness {
     @Autowired
     private UserRunningWaterService userRunningWaterService;
     @Transactional
-    public ResponseEntity transferUser(Long id,Long acceptId,ProxyUser accept,ProxyUser byId){
+    public ResponseEntity transferUser(Long id,Long acceptId,ProxyUser accept){
+        //加锁
+        ProxyUser proxyUserById = proxyUserService.findProxyUserById(id);
         if (check(id,accept)){
             return ResponseUtil.success();
         }
@@ -88,7 +90,7 @@ public class ProxyHomePageReportBusiness {
         });
     }
 
-    private synchronized Boolean check(Long id,ProxyUser accept){
+    private  Boolean check(Long id,ProxyUser accept){
         User user = new User();
         user.setThirdProxy(id);
         List<User> userList = userService.findUserList(user, null, null);
@@ -106,7 +108,7 @@ public class ProxyHomePageReportBusiness {
         return false;
     }
 
-    private synchronized List<ProxyUser> checkFirstProxy(ProxyUser proxyUser,List<ProxyUser> proxyUserList,ProxyUser accept){
+    private  List<ProxyUser> checkFirstProxy(ProxyUser proxyUser,List<ProxyUser> proxyUserList,ProxyUser accept){
         List<ProxyUser> proxyUsers = proxyUserService.findProxyUserList(proxyUser);
         proxyUsers = proxyUsers.stream().filter(proxy -> proxy.getProxyRole() != CommonConst.NUMBER_1).collect(Collectors.toList());
         if(proxyUsers == null || proxyUsers.size() == CommonConst.NUMBER_0){
@@ -163,6 +165,8 @@ public class ProxyHomePageReportBusiness {
 
     @Transactional
     public ResponseEntity transferProxy(ProxyUser byId,ProxyUser accept){
+        //加锁
+        ProxyUser proxyUserById = proxyUserService.findProxyUserById(byId.getId());
         ProxyUser proxyUser = new ProxyUser();
         List<ProxyUser> proxyUserList = new ArrayList<>();
         if (byId.getProxyRole() == CommonConst.NUMBER_1){

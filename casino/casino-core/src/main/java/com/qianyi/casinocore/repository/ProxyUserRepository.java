@@ -1,11 +1,9 @@
 package com.qianyi.casinocore.repository;
 
 import com.qianyi.casinocore.model.ProxyUser;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 
+import javax.persistence.LockModeType;
 import javax.transaction.Transactional;
 
 public interface ProxyUserRepository extends JpaRepository<ProxyUser,Long>, JpaSpecificationExecutor<ProxyUser> {
@@ -40,4 +38,7 @@ public interface ProxyUserRepository extends JpaRepository<ProxyUser,Long>, JpaS
     ProxyUser findAllById(Long id);
 
     ProxyUser findByProxyCode(String inviteCode);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    ProxyUser  findProxyUserById(Long id);
 }
