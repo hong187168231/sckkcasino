@@ -25,6 +25,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +47,7 @@ import java.util.stream.Collectors;
 
 @Api(tags = "代理中心")
 @RestController
+@Slf4j
 @RequestMapping("proxyUser")
 public class ProxyUserController {
     @Autowired
@@ -499,6 +501,7 @@ public class ProxyUserController {
         if (!byId.getSecondProxy().equals(accept.getSecondProxy())){
             return ResponseUtil.custom("不能跨区域代理转移");
         }
+        log.info("admin开始转移会员被转移者{} 接受者{}",byId.getUserName(),accept.getUserName());
         try {
             return proxyHomePageReportBusiness.transferUser(id,acceptId,accept);
         }catch (Exception ex){
@@ -529,7 +532,7 @@ public class ProxyUserController {
         proxyUser.setSecondProxy(byId.getSecondProxy());
         proxyUser.setProxyRole(CommonConst.NUMBER_3);
         List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
-        proxyUserList = proxyUserList.stream().filter(proxy -> proxy.getId() != id).collect(Collectors.toList());
+        proxyUserList = proxyUserList.stream().filter(proxy -> !proxy.getId().equals(id)).collect(Collectors.toList());
         return ResponseUtil.success(proxyUserList);
     }
 
@@ -560,7 +563,7 @@ public class ProxyUserController {
             proxyUser.setFirstProxy(byId.getFirstProxy());
         }
         List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
-        proxyUserList = proxyUserList.stream().filter(proxy -> proxy.getId() != id).collect(Collectors.toList());
+        proxyUserList = proxyUserList.stream().filter(proxy -> !proxy.getId().equals(id)).collect(Collectors.toList());
         return ResponseUtil.success(proxyUserList);
     }
 
@@ -582,6 +585,7 @@ public class ProxyUserController {
         if (byId.getProxyRole() != accept.getProxyRole()){
             return ResponseUtil.custom("只有同级才可以互转");
         }
+        log.info("admin开始转移代理被转移者{} 接受者{}",byId.getUserName(),accept.getUserName());
         try {
             return proxyHomePageReportBusiness.transferProxy(byId,accept);
         }catch (Exception ex){

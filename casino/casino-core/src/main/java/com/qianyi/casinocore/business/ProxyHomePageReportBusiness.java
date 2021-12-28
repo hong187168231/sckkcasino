@@ -10,6 +10,7 @@ import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ProxyHomePageReportBusiness {
 
     @Autowired
@@ -46,6 +48,7 @@ public class ProxyHomePageReportBusiness {
         if (homePageReports.size() == CommonConst.NUMBER_0){
             return ResponseUtil.success();
         }
+        log.info("转移会员有效报表{}被转移者id{}",homePageReports.size(),id);
         //转移基层
         this.transferAdd(homePageReports,acceptId,CommonConst.NUMBER_3,accept);
         //转移区域
@@ -63,6 +66,7 @@ public class ProxyHomePageReportBusiness {
             proxyHomePageReportService.save(proxyHomePageReport1);
         });
         homePageReports.clear();
+        log.info("转移会员被转移者{} 接受者{}结束",byId.getUserName(),accept.getUserName());
         return ResponseUtil.success();
     }
 
@@ -95,8 +99,10 @@ public class ProxyHomePageReportBusiness {
         user.setThirdProxy(id);
         List<User> userList = userService.findUserList(user, null, null);
         if (userList == null || userList.size() == CommonConst.NUMBER_0){
+            log.info("转移会员被转移者id{}无会员",id);
             return true;
         }
+        log.info("转移会员被转移者id{}会员数量{}",id,userList.size());
         userList.forEach(user1 -> {
             user1.setThirdProxy(accept.getId());
 //            user1.setSecondProxy(accept.getSecondProxy());
@@ -112,8 +118,10 @@ public class ProxyHomePageReportBusiness {
         List<ProxyUser> proxyUsers = proxyUserService.findProxyUserList(proxyUser);
         proxyUsers = proxyUsers.stream().filter(proxy -> proxy.getProxyRole() != CommonConst.NUMBER_1).collect(Collectors.toList());
         if(proxyUsers == null || proxyUsers.size() == CommonConst.NUMBER_0){
-            return null;
+            log.info("转移代理被转移者id{}无下级",proxyUser.getFirstProxy());
+            return proxyUserList;
         }
+        log.info("转移代理被转移者id{} 下级数量{}",proxyUser.getFirstProxy(),proxyUsers.size());
         proxyUsers.forEach(proxyUser1 -> {
             proxyUser1.setFirstProxy(accept.getId());
             proxyUserService.save(proxyUser1);
@@ -125,8 +133,11 @@ public class ProxyHomePageReportBusiness {
     private  List<ProxyUser> checkSecondProxy(ProxyUser proxyUser,List<ProxyUser> proxyUserList,ProxyUser accept){
         List<ProxyUser> proxyUsers = proxyUserService.findProxyUserList(proxyUser);
         if(proxyUsers == null || proxyUsers.size() == CommonConst.NUMBER_0){
+            log.info("转移代理被转移者id{}无下级",proxyUser.getSecondProxy());
             return proxyUserList;
         }
+
+        log.info("转移代理被转移者id{} 下级数量{}",proxyUser.getSecondProxy(),proxyUsers.size());
         proxyUsers.forEach(proxyUser1 -> {
             proxyUser1.setSecondProxy(accept.getId());
             proxyUserService.save(proxyUser1);
@@ -191,6 +202,7 @@ public class ProxyHomePageReportBusiness {
         user.setFirstProxy(byId.getId());
         List<User> userList = userService.findUserList(user, null, null);
         if (userList != null || userList.size() >= CommonConst.NUMBER_1){
+            log.info("转移代理被转移者id{} 会员数量{}",proxyUser.getFirstProxy(),userList.size());
             userList.forEach(user1 -> {
                 user1.setFirstProxy(accept.getId());
                 userService.save(user1);
@@ -208,6 +220,7 @@ public class ProxyHomePageReportBusiness {
         if (homePageReports.size() == CommonConst.NUMBER_0){
             return ResponseUtil.success();
         }
+        log.info("转移代理被转移者id{} 有效报表数据{}",proxyUser.getFirstProxy(),homePageReports.size());
         this.transferProxyAdd(homePageReports,accept.getId(),accept.getProxyRole(),accept);
         homePageReports.forEach(proxyHomePageReport1 -> {
             proxyHomePageReport1.setNewUsers(CommonConst.NUMBER_0);
@@ -218,6 +231,7 @@ public class ProxyHomePageReportBusiness {
         proxyUserService.makeZero(byId.getId());
         proxyUserService.addProxyUsersNum(accept.getId(),proxyUserList.size());
         homePageReports.clear();
+        log.info("转移总代数据结束");
         return ResponseUtil.success();
     }
 
@@ -237,6 +251,7 @@ public class ProxyHomePageReportBusiness {
         user.setSecondProxy(byId.getId());
         List<User> userList = userService.findUserList(user, null, null);
         if (userList != null || userList.size() >= CommonConst.NUMBER_1){
+            log.info("转移代理被转移者id{} 会员数量{}",proxyUser.getSecondProxy(),userList.size());
             userList.forEach(user1 -> {
                 user1.setSecondProxy(accept.getId());
                 userService.save(user1);
@@ -254,6 +269,7 @@ public class ProxyHomePageReportBusiness {
         if (homePageReports.size() == CommonConst.NUMBER_0){
             return ResponseUtil.success();
         }
+        log.info("转移代理被转移者id{} 有效报表数据{}",proxyUser.getSecondProxy(),homePageReports.size());
         this.transferProxyAdd(homePageReports,accept.getId(),accept.getProxyRole(),accept);
         homePageReports.forEach(proxyHomePageReport1 -> {
             proxyHomePageReport1.setNewUsers(CommonConst.NUMBER_0);
@@ -268,6 +284,7 @@ public class ProxyHomePageReportBusiness {
 //            proxyUserService.addProxyUsersNum(accept.getFirstProxy(),proxyUserList.size());
 //            proxyUserService.subProxyUsersNum(byId.getFirstProxy(),proxyUserList.size());
         homePageReports.clear();
+        log.info("转移区域代数据结束");
         return ResponseUtil.success();
     }
 }
