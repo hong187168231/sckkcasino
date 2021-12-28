@@ -122,10 +122,10 @@ public class ProxyHomePageReportBusiness {
         return proxyUserList;
     }
 
-    private synchronized List<ProxyUser> checkSecondProxy(ProxyUser proxyUser,List<ProxyUser> proxyUserList,ProxyUser accept){
+    private  List<ProxyUser> checkSecondProxy(ProxyUser proxyUser,List<ProxyUser> proxyUserList,ProxyUser accept){
         List<ProxyUser> proxyUsers = proxyUserService.findProxyUserList(proxyUser);
         if(proxyUsers == null || proxyUsers.size() == CommonConst.NUMBER_0){
-            return null;
+            return proxyUserList;
         }
         proxyUsers.forEach(proxyUser1 -> {
             proxyUser1.setSecondProxy(accept.getId());
