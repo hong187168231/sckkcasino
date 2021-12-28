@@ -423,7 +423,7 @@ public class ProxyUserController {
         proxyUser.setProxyRole(CommonConst.NUMBER_1);
         proxyUser.setIsDelete(CommonConst.NUMBER_1);
         List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
-        proxyUserList = proxyUserList == null?new ArrayList<>(): proxyUserList.stream().filter(PUser -> PUser.getId() != id).collect(Collectors.toList());
+        proxyUserList = proxyUserList == null?new ArrayList<>(): proxyUserList.stream().filter(PUser -> !PUser.getId().equals(id)).collect(Collectors.toList());
         return ResponseUtil.success(proxyUserList);
     }
     @ApiOperation("删除")
@@ -490,7 +490,7 @@ public class ProxyUserController {
         if ( byId.getProxyRole() != CommonConst.NUMBER_3 || accept.getProxyRole() != CommonConst.NUMBER_3){
             return ResponseUtil.custom("只有基层代理可以转移会员");
         }
-        if (byId.getSecondProxy() != accept.getSecondProxy()){
+        if (!byId.getSecondProxy().equals(accept.getSecondProxy())){
             return ResponseUtil.custom("不能跨区域代理转移");
         }
         try {

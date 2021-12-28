@@ -359,57 +359,57 @@ public class ThridProxyUserController {
         proxyUserService.save(byId);
         return ResponseUtil.success();
     }
-    @ApiOperation("升级")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "id", required = true),
-    })
-    @GetMapping("upgrade")
-    public ResponseEntity upgrade(Long id){
-        if (CasinoProxyUtil.checkNull(id)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        ProxyUser byId = proxyUserService.findById(id);
-        if (CasinoProxyUtil.checkNull(byId)){
-            return ResponseUtil.custom("没有这个代理");
-        }
-        if (byId.getProxyRole() != CommonConst.NUMBER_3){
-            return ResponseUtil.custom("只有基层代理可以升级");
-        }
-        byId.setProxyRole(CommonConst.NUMBER_2);
-        byId.setSecondProxy(byId.getId());
-        proxyUserService.save(byId);
-        return ResponseUtil.success();
-    }
-    @ApiOperation("转移下级")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "passivityId", value = "被转移的id", required = true),
-            @ApiImplicitParam(name = "id", value = "接受id", required = true),
-    })
-    @GetMapping("transfer")
-    public ResponseEntity transfer(Long passivityId,Long id){
-        if (CasinoProxyUtil.checkNull(id,passivityId)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        if (passivityId == id){
-            return ResponseUtil.custom("参数不合法");
-        }
-        ProxyUser passivity = proxyUserService.findById(passivityId);
-        ProxyUser byId = proxyUserService.findById(id);
-        if (CasinoProxyUtil.checkNull(passivity,byId)){
-            return ResponseUtil.custom("没有这个代理");
-        }
-        if (passivity.getProxyRole() != CommonConst.NUMBER_2 || byId.getProxyRole() != CommonConst.NUMBER_2 ){
-            return ResponseUtil.custom("只有区域代理可以转移下级");
-        }
-        ProxyUser proxyUser = new ProxyUser();
-        proxyUser.setSecondProxy(passivity.getId());
-        List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
-        proxyUserList.stream().filter(PUser -> PUser.getId() != passivityId).forEach(proxy -> {
-            proxy.setSecondProxy(byId.getId());
-            proxyUserService.save(proxy);
-        });
-        return ResponseUtil.success();
-    }
+//    @ApiOperation("升级")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "id", value = "id", required = true),
+//    })
+//    @GetMapping("upgrade")
+//    public ResponseEntity upgrade(Long id){
+//        if (CasinoProxyUtil.checkNull(id)){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        ProxyUser byId = proxyUserService.findById(id);
+//        if (CasinoProxyUtil.checkNull(byId)){
+//            return ResponseUtil.custom("没有这个代理");
+//        }
+//        if (byId.getProxyRole() != CommonConst.NUMBER_3){
+//            return ResponseUtil.custom("只有基层代理可以升级");
+//        }
+//        byId.setProxyRole(CommonConst.NUMBER_2);
+//        byId.setSecondProxy(byId.getId());
+//        proxyUserService.save(byId);
+//        return ResponseUtil.success();
+//    }
+//    @ApiOperation("转移下级")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "passivityId", value = "被转移的id", required = true),
+//            @ApiImplicitParam(name = "id", value = "接受id", required = true),
+//    })
+//    @GetMapping("transfer")
+//    public ResponseEntity transfer(Long passivityId,Long id){
+//        if (CasinoProxyUtil.checkNull(id,passivityId)){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        if (passivityId == id){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        ProxyUser passivity = proxyUserService.findById(passivityId);
+//        ProxyUser byId = proxyUserService.findById(id);
+//        if (CasinoProxyUtil.checkNull(passivity,byId)){
+//            return ResponseUtil.custom("没有这个代理");
+//        }
+//        if (passivity.getProxyRole() != CommonConst.NUMBER_2 || byId.getProxyRole() != CommonConst.NUMBER_2 ){
+//            return ResponseUtil.custom("只有区域代理可以转移下级");
+//        }
+//        ProxyUser proxyUser = new ProxyUser();
+//        proxyUser.setSecondProxy(passivity.getId());
+//        List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
+//        proxyUserList.stream().filter(PUser -> PUser.getId() != passivityId).forEach(proxy -> {
+//            proxy.setSecondProxy(byId.getId());
+//            proxyUserService.save(proxy);
+//        });
+//        return ResponseUtil.success();
+//    }
     @ApiOperation("获取下拉框数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "当前列id", required = true),

@@ -35,7 +35,7 @@ public class ProxyHomePageReportBusiness {
     @Transactional
     public ResponseEntity transferUser(Long id,Long acceptId,ProxyUser accept){
         //加锁
-        ProxyUser proxyUserById = proxyUserService.findProxyUserById(id);
+        ProxyUser byId = proxyUserService.findProxyUserById(id);
         if (check(id,accept)){
             return ResponseUtil.success();
         }
@@ -49,12 +49,12 @@ public class ProxyHomePageReportBusiness {
         //转移基层
         this.transferAdd(homePageReports,acceptId,CommonConst.NUMBER_3,accept);
         //转移区域
-//        if (byId.getSecondProxy() != accept.getSecondProxy()){
+//        if (!byId.getSecondProxy().equals(accept.getSecondProxy())){
 //            this.transferAdd(homePageReports,accept.getSecondProxy(),CommonConst.NUMBER_2,accept);
 //            this.transferSub(homePageReports,byId.getSecondProxy());
 //        }
-        //转移总代
-//        if (byId.getFirstProxy() != accept.getFirstProxy()){
+//        //转移总代
+//        if (!byId.getFirstProxy().equals(accept.getFirstProxy())){
 //            this.transferAdd(homePageReports,accept.getFirstProxy(),CommonConst.NUMBER_1,accept);
 //            this.transferSub(homePageReports,byId.getFirstProxy());
 //        }
@@ -222,7 +222,7 @@ public class ProxyHomePageReportBusiness {
     }
 
     private ResponseEntity transferSecondProxy(ProxyUser byId,ProxyUser accept,ProxyUser proxyUser,List<ProxyUser> proxyUserList){
-        if (byId.getFirstProxy() != accept.getFirstProxy()){
+        if (!byId.getFirstProxy().equals(accept.getFirstProxy())){
             return ResponseUtil.custom("不能跨总代理转移");
         }
         proxyUser.setSecondProxy(byId.getId());
