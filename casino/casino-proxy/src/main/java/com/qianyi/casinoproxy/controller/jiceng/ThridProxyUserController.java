@@ -101,69 +101,16 @@ public class ThridProxyUserController {
             proxyUser.setIsDelete(isDelete);
         }
         Long authId = CasinoProxyUtil.getAuthId();
-        ProxyUser byId = proxyUserService.findById(authId);
         proxyUser.setId(authId);
-        if (tag == CommonConst.NUMBER_1 && CasinoProxyUtil.checkNull(userName)){
-            if (byId.getProxyRole() == CommonConst.NUMBER_1){
-                proxyUser.setFirstProxy(authId);
-                proxyUser.setId(null);
-            }else if(byId.getProxyRole() == CommonConst.NUMBER_2){
-                proxyUser.setSecondProxy(authId);
-                proxyUser.setId(null);
-            }
-        }else if(tag == CommonConst.NUMBER_1 && !CasinoProxyUtil.checkNull(userName)){
-            ProxyUser byUserName = proxyUserService.findByUserName(userName);
-            if (CasinoProxyUtil.checkNull(byUserName)){
-                return ResponseUtil.success(new PageResultVO());
-            }
-            if (byUserName.getProxyRole() == byId.getProxyRole()){//级别相同
-                if (byUserName.getId() == authId){//自己查自己
-                    if (byUserName.getProxyRole() == CommonConst.NUMBER_1){//自己总代查自己
-                        proxyUser.setFirstProxy(authId);
-                        proxyUser.setId(null);
-                    }else if(byId.getProxyRole() == CommonConst.NUMBER_2){//自己区域查自己
-                        proxyUser.setSecondProxy(authId);
-                        proxyUser.setId(null);
-                    }
-                }else {
-                    return ResponseUtil.success(new PageResultVO());
-                }
-            }else if(byUserName.getProxyRole() > byId.getProxyRole()){
-                if (byUserName.getProxyRole() == CommonConst.NUMBER_2 && byUserName.getFirstProxy() == authId){//1级搜2级
-                    proxyUser.setSecondProxy(byUserName.getId());
-                    proxyUser.setId(null);
-                }else if (byUserName.getProxyRole() == CommonConst.NUMBER_3 && (byUserName.getSecondProxy() == authId||byUserName.getFirstProxy() == authId)){//2级搜3级 1级搜3级
-                    proxyUser.setUserName(userName);
-                    proxyUser.setId(null);
-                }else {//没有权限
-                    return ResponseUtil.success(new PageResultVO());
-                }
-            }else {
-                return ResponseUtil.success(new PageResultVO());
-            }
-        }else if(tag == CommonConst.NUMBER_0 && !CasinoProxyUtil.checkNull(userName)){
-            ProxyUser byUserName = proxyUserService.findByUserName(userName);
-            if (CasinoProxyUtil.checkNull(byUserName)){
-                return ResponseUtil.success(new PageResultVO());
-            }
-            if ((byUserName.getSecondProxy() == authId||byUserName.getFirstProxy() == authId) || byUserName.getId() == authId){
-                proxyUser.setUserName(userName);
-                proxyUser.setId(null);
-            }else {
-                return ResponseUtil.success(new PageResultVO());
-            }
-        }else {
-            return ResponseUtil.success(new PageResultVO());
-        }
         Page<ProxyUser> proxyUserPage = proxyUserService.findProxyUserPage(pageable, proxyUser, startDate, endDate);
         PageResultVO<ProxyUserVo> pageResultVO = new PageResultVO(proxyUserPage);
         List<ProxyUser> proxyUserList = proxyUserPage.getContent();
         if(proxyUserList != null && proxyUserList.size() > 0){
             List<ProxyUserVo> userVoList = new LinkedList();
-            List<Long> firstProxyIds = proxyUserList.stream().filter(item -> item.getProxyRole() != CommonConst.NUMBER_1).map(ProxyUser::getFirstProxy).collect(Collectors.toList());
-            List<Long> secondProxyIds = proxyUserList.stream().filter(item -> item.getProxyRole() == CommonConst.NUMBER_3).map(ProxyUser::getSecondProxy).collect(Collectors.toList());
-            firstProxyIds.addAll(secondProxyIds);
-            List<ProxyUser> proxyUsers = proxyUserService.findProxyUser(firstProxyIds);
+            List<Long> ids = new ArrayList<>();
+            ids.add(proxyUserList.get(CommonConst.NUMBER_0).getSecondProxy());
+            ids.add(proxyUserList.get(CommonConst.NUMBER_0).getFirstProxy());
+            List<ProxyUser> proxyUsers = proxyUserService.findProxyUser(ids);
             List<Long> proxyIds = proxyUserList.stream().map(ProxyUser::getId).collect(Collectors.toList());
             List<ProxyCommission> proxyCommissions = proxyCommissionService.findProxyUser(proxyIds);
             if (proxyUsers != null){
