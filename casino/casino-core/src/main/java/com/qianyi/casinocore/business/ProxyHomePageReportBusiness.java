@@ -212,7 +212,8 @@ public class ProxyHomePageReportBusiness {
         }
 
         proxyUserService.makeZero(byId.getId());
-        proxyUserService.addProxyUsersNum(accept.getId(),proxyUserList.size());
+        List<ProxyUser> proxyUsers = proxyUserList.stream().filter(proxy -> proxy.getIsDelete()==CommonConst.NUMBER_1).collect(Collectors.toList());
+        proxyUserService.addProxyUsersNum(accept.getId(),proxyUsers.size());
 
         //查询报表并转移、转移下级、转移自己
         proxyUserList.forEach(proxyUser1 -> {
@@ -264,7 +265,8 @@ public class ProxyHomePageReportBusiness {
         }
 
         proxyUserService.makeZero(byId.getId());
-        proxyUserService.addProxyUsersNum(accept.getId(),proxyUserList.size());
+        List<ProxyUser> proxyUsers = proxyUserList.stream().filter(proxy -> proxy.getIsDelete()==CommonConst.NUMBER_1).collect(Collectors.toList());
+        proxyUserService.addProxyUsersNum(accept.getId(),proxyUsers.size());
 
         //查询报表并转移、转移下级、转移自己
         proxyUserList.forEach(proxyUser1 -> {

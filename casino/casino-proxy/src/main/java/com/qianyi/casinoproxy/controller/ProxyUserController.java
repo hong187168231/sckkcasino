@@ -276,7 +276,6 @@ public class ProxyUserController {
     @Transactional
     public ResponseEntity proxyUsersNum(){
         ProxyUser proxyUser = new ProxyUser();
-        proxyUser.setIsDelete(CommonConst.NUMBER_1);
         List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
         for (ProxyUser p:proxyUserList){
             if (p.getProxyRole() == CommonConst.NUMBER_3){
@@ -503,7 +502,7 @@ public class ProxyUserController {
         proxyUser.setFirstProxy(byId.getId());
         proxyUser.setIsDelete(CommonConst.NUMBER_1);
         List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
-        proxyUserList = proxyUserList == null?new ArrayList<>(): proxyUserList.stream().filter(PUser -> PUser.getId() != id).collect(Collectors.toList());
+        proxyUserList = proxyUserList == null?new ArrayList<>(): proxyUserList.stream().filter(PUser -> !PUser.getId().equals(id)).collect(Collectors.toList());
         return ResponseUtil.success(proxyUserList);
     }
 
@@ -671,6 +670,7 @@ public class ProxyUserController {
             if(!CasinoProxyUtil.checkNull(proxyUsers) && proxyUsers.size() >= CommonConst.NUMBER_1){
                 return ResponseUtil.custom("该代理的下级仍未转移");
             }
+            proxyUserService.subProxyUsersNum(byId.getFirstProxy());
         }else {
             User user = new User();
             user.setThirdProxy(id);
@@ -678,6 +678,8 @@ public class ProxyUserController {
             if ( !CasinoProxyUtil.checkNull(userList) && userList.size() >= CommonConst.NUMBER_1){
                 return ResponseUtil.custom("该代理会员尚未转移");
             }
+            proxyUserService.subProxyUsersNum(byId.getFirstProxy());
+            proxyUserService.subProxyUsersNum(byId.getSecondProxy());
         }
         byId.setIsDelete(CommonConst.NUMBER_2);
         proxyUserService.save(byId);

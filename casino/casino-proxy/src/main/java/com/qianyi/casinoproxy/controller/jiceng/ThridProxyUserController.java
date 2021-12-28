@@ -382,7 +382,7 @@ public class ThridProxyUserController {
         proxyUser.setFirstProxy(byId.getId());
         proxyUser.setIsDelete(CommonConst.NUMBER_1);
         List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
-        proxyUserList = proxyUserList == null?new ArrayList<>(): proxyUserList.stream().filter(PUser -> PUser.getId() != id).collect(Collectors.toList());
+        proxyUserList = proxyUserList == null?new ArrayList<>(): proxyUserList.stream().filter(PUser -> !PUser.getId().equals(id)).collect(Collectors.toList());
         return ResponseUtil.success(proxyUserList);
     }
     @ApiOperation("删除")

@@ -439,6 +439,7 @@ public class ProxyUserController {
             @ApiImplicitParam(name = "id", value = "id", required = true),
     })
     @GetMapping("delete")
+    @Transactional
     public ResponseEntity delete(Long id){
         if (LoginUtil.checkNull(id)){
             return ResponseUtil.custom("参数不合法");
@@ -462,6 +463,7 @@ public class ProxyUserController {
             if(!LoginUtil.checkNull(proxyUsers) && proxyUsers.size() >= CommonConst.NUMBER_1){
                 return ResponseUtil.custom("该代理的下级仍未转移");
             }
+            proxyUserService.subProxyUsersNum(byId.getFirstProxy());
         }else {
             User user = new User();
             user.setThirdProxy(id);
@@ -469,6 +471,8 @@ public class ProxyUserController {
             if ( !LoginUtil.checkNull(userList) && userList.size() >= CommonConst.NUMBER_1){
                 return ResponseUtil.custom("该代理会员尚未转移");
             }
+            proxyUserService.subProxyUsersNum(byId.getFirstProxy());
+            proxyUserService.subProxyUsersNum(byId.getSecondProxy());
         }
         byId.setIsDelete(CommonConst.NUMBER_2);
         proxyUserService.save(byId);
