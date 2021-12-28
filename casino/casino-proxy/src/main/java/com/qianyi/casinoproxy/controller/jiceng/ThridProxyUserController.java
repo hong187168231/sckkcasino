@@ -79,7 +79,7 @@ public class ThridProxyUserController {
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "proxyRole", value = "代理级别1：总代理 2：区域代理 3：基层代理", required = false),
             @ApiImplicitParam(name = "userFlag", value = "1：正常 2：锁定", required = false),
-            @ApiImplicitParam(name = "userFlag", value = "1：正常 2：删除", required = false),
+            @ApiImplicitParam(name = "isDelete", value = "1：正常 2：删除", required = false),
             @ApiImplicitParam(name = "userName", value = "账号", required = false),
             @ApiImplicitParam(name = "tag", value = "1：含下级 0：不包含", required = true),
             @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
@@ -95,7 +95,11 @@ public class ThridProxyUserController {
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         proxyUser.setProxyRole(proxyRole);
         proxyUser.setUserFlag(userFlag);
-        proxyUser.setIsDelete(isDelete);
+        if (CasinoProxyUtil.checkNull(isDelete)){
+            proxyUser.setIsDelete(CommonConst.NUMBER_1);
+        }else {
+            proxyUser.setIsDelete(isDelete);
+        }
         Long authId = CasinoProxyUtil.getAuthId();
         ProxyUser byId = proxyUserService.findById(authId);
         proxyUser.setId(authId);

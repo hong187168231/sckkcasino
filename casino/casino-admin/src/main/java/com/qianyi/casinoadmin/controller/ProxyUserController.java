@@ -93,7 +93,11 @@ public class ProxyUserController {
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         proxyUser.setProxyRole(proxyRole);
         proxyUser.setUserFlag(userFlag);
-        proxyUser.setIsDelete(isDelete);
+        if (LoginUtil.checkNull(isDelete)){
+            proxyUser.setIsDelete(CommonConst.NUMBER_1);
+        }else {
+            proxyUser.setIsDelete(isDelete);
+        }
         if (!LoginUtil.checkNull(userName)){
             ProxyUser byUserName = proxyUserService.findByUserName(userName);
             if (LoginUtil.checkNull(byUserName)){
