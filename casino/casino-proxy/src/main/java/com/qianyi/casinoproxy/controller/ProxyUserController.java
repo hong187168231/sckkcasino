@@ -647,6 +647,7 @@ public class ProxyUserController {
             @ApiImplicitParam(name = "id", value = "id", required = true),
     })
     @GetMapping("delete")
+    @Transactional
     public ResponseEntity delete(Long id){
         if (CasinoProxyUtil.checkNull(id)){
             return ResponseUtil.custom("参数不合法");
