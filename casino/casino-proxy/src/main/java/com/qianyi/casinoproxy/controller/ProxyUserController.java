@@ -133,7 +133,7 @@ public class ProxyUserController {
                 if (byUserName.getProxyRole() == CommonConst.NUMBER_2 && byUserName.getFirstProxy().equals(authId)){//1级搜2级
                     proxyUser.setSecondProxy(byUserName.getId());
                     proxyUser.setId(null);
-                }else if (byUserName.getProxyRole() == CommonConst.NUMBER_3 && (byUserName.getSecondProxy().equals(authId) ||byUserName.getFirstProxy().equals(authId))){//2级搜3级 1级搜3级
+                }else if (byUserName.getProxyRole() == CommonConst.NUMBER_3 && ((byUserName.getSecondProxy()!=null&&byUserName.getSecondProxy().equals(authId)) ||byUserName.getFirstProxy().equals(authId))){//2级搜3级 1级搜3级
                     proxyUser.setUserName(userName);
                     proxyUser.setId(null);
                 }else {//没有权限
@@ -147,7 +147,7 @@ public class ProxyUserController {
             if (CasinoProxyUtil.checkNull(byUserName)){
                 return ResponseUtil.success(new PageResultVO());
             }
-            if ((byUserName.getSecondProxy().equals(authId) ||byUserName.getFirstProxy().equals(authId)) || byUserName.getId().equals(authId)){
+            if (((byUserName.getSecondProxy()!=null&&byUserName.getSecondProxy().equals(authId)) ||byUserName.getFirstProxy().equals(authId)) || byUserName.getId().equals(authId)){
                 proxyUser.setUserName(userName);
                 proxyUser.setId(null);
             }else {
