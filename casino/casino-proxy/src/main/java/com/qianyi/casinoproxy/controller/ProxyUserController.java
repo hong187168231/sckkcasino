@@ -587,7 +587,13 @@ public class ProxyUserController {
                     for (ProxyCommission p:bySecondProxy){
                         BigDecimal subtract = byProxyUserId.getFirstCommission().subtract(money);
                         p.setFirstCommission(money);
-                        p.setSecondCommission(p.getSecondCommission().add(subtract));
+                        if ((money.add(p.getSecondCommission())).compareTo(CommonConst.BIGDECIMAL_1) >= CommonConst.NUMBER_0){
+                            p.setSecondCommission(CommonConst.BIGDECIMAL_1.subtract(money));
+                            p.setThirdCommission(BigDecimal.ZERO);
+                        }else {
+                            p.setSecondCommission(p.getSecondCommission().add(subtract));
+                            p.setThirdCommission(CommonConst.BIGDECIMAL_1.subtract(money).subtract(p.getSecondCommission()));
+                        }
                     }
                     //增加总代分成，直接减区域代理分成，不够在减基层代理
                 }else if (money.compareTo(byProxyUserId.getFirstCommission()) == CommonConst.NUMBER_1){
@@ -596,12 +602,14 @@ public class ProxyUserController {
                         p.setFirstCommission(money);
                         if (p.getSecondCommission().compareTo(subtract) >= CommonConst.NUMBER_0){
                             p.setSecondCommission(p.getSecondCommission().subtract(subtract));
+                            p.setThirdCommission(CommonConst.BIGDECIMAL_1.subtract(money).subtract(p.getSecondCommission()));
                         }else {
-                            BigDecimal difference = subtract.subtract(p.getSecondCommission());
                             p.setSecondCommission(BigDecimal.ZERO);
-                            p.setThirdCommission(p.getThirdCommission().subtract(difference));
+                            p.setThirdCommission(CommonConst.BIGDECIMAL_1.subtract(money).subtract(p.getSecondCommission()));
                         }
                     }
+                }else if (money.compareTo(byProxyUserId.getFirstCommission()) == CommonConst.NUMBER_0){
+                    return ResponseUtil.success(byProxyUserId);
                 }
                 bySecondProxy.stream().forEach(proxyCommission ->{
                     proxyCommissionService.save(proxyCommission);

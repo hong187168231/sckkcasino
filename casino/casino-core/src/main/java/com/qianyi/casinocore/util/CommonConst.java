@@ -98,6 +98,8 @@ public class CommonConst {
     public static final Float FLOAT_1 = 1F;
     public static final Float FLOAT_100 = 100F;
 
+    public static final BigDecimal BIGDECIMAL_1 = new BigDecimal(NUMBER_1);
+
     public static final BigDecimal BIGDECIMAL_100 = new BigDecimal(NUMBER_100);
 
     public static final String IDNOTNULL = "无效id";
