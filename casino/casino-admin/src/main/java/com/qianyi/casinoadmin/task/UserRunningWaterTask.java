@@ -50,7 +50,6 @@ public class UserRunningWaterTask {
         Calendar nowTime = Calendar.getInstance();
         nowTime.add(Calendar.DATE, -1);
         String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
-        synchronized (format.intern()){
             List<UserRunningWater> byStaticsTimes = userRunningWaterService.findByStaticsTimes(format);
             if (!LoginUtil.checkNull(byStaticsTimes) && byStaticsTimes.size() > CommonConst.NUMBER_0)
                 return;
@@ -68,7 +67,6 @@ public class UserRunningWaterTask {
             }catch (Exception ex){
                 log.error("每日会员流水报表统计失败",ex);
             }
-        }
     }
 
     public void gameRecord(String startTime, String endTime, String format){
