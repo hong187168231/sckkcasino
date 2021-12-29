@@ -47,18 +47,19 @@ spring:
     template:
       mandatory: true
   profiles:
-    active: test
-project:
+    active: dev
+project:   #不同环境需配置相应的值
   title: 千亿科技
-  wmUrl: https://api.a45.me/api/public/Gateway.php
-  vendorId: qy01twapi
-  signature: f76aecd01a78c8c2021c91d833ca50c6
-  ipWhite: 127.0.0.1                     #ip白名单，多个ip逗号分隔
-  smsUrl: http://127.0.0.1:9600                #短信服务
-  merchant: js
-  jwtsecrect: fda#$&%$3t55v785A45DF$^&#*JGRstTRG
+  wmUrl: https://api.a45.me/api/public/Gateway.php   #wm游戏远程地址
+  vendorId: qy01twapi                                #wm代理商(aid)
+  signature: f76aecd01a78c8c2021c91d833ca50c6        #wm代理商标识符
+  ipWhite: 127.0.0.1                     #ip白名单，多个ip逗号分隔,用于admin后台请求web接口
+  smsUrl: http://127.0.0.1:9600                #短信服务模块
+  merchant: js                                 #短信服务校验，代码中固定限制是js
+  jwtsecrect: fda#$&%$3t55v785A45DF$^&#*JGRstTRG   #jwt生成token秘钥
   swagger:
-    enable: true
+    enable: true                           #是否开启swagger接口文档
   telegramBot:  #定时器执行异常推送消息
-    token: 5075415436:AAHw20_vMAaajpIlGjCtdoF-ONH2Pnqwdhs
+    token: 5075415436:AAHw20_vMAaajpIlGjCtdoF-ONH2Pnqwdhs    #telegram机器人token
     chatId: -734299530
+
