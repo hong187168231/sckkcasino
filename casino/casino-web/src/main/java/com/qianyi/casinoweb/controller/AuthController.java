@@ -650,6 +650,6 @@ public class AuthController {
     private void setUserTokenToRedis(Long userId, String token) {
         JjwtUtil.Token jwtToken = new JjwtUtil.Token();
         jwtToken.setOldToken(token);
-        redisUtil.set(Constants.TOKEN_CASINO_WEB + userId, jwtToken);
+        redisUtil.set(Constants.TOKEN_CASINO_WEB + userId, jwtToken,JjwtUtil.ttl + Constants.WEB_REFRESH_TTL);
     }
 }
