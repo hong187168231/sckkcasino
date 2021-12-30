@@ -43,8 +43,10 @@ public class ProxyUserVo  implements Serializable {
     private Integer usersNum;
     @ApiModelProperty(value = "下级代理数")
     private Integer proxyUsersNum;
-    @ApiModelProperty(value = "是否锁定 1：正常 2：锁定, 3：删除")
+    @ApiModelProperty(value = "是否锁定 1：正常 2：锁定")
     private Integer userFlag;
+    @ApiModelProperty("是否删除 1：正常 2：删除")
+    private Integer isDelete;
     @ApiModelProperty("创建时间")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
@@ -64,6 +66,7 @@ public class ProxyUserVo  implements Serializable {
         this.nickName = proxyUser.getNickName();
         this.phone = proxyUser.getPhone();
         this.proxyRole = proxyUser.getProxyRole();
+        this.isDelete = proxyUser.getIsDelete();
         this.secondProxy = proxyUser.getSecondProxy();
         this.firstProxy = proxyUser.getFirstProxy();
         this.userFlag = proxyUser.getUserFlag();
