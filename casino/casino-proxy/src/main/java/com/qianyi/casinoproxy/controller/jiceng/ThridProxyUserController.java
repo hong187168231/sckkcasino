@@ -63,6 +63,7 @@ public class ThridProxyUserController {
 
     private static final String METHOD_FIRST_FORMAT = "总代(自己){0}";
 
+
     /**
      * 分页查询代理
      *
@@ -77,86 +78,39 @@ public class ThridProxyUserController {
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "proxyRole", value = "代理级别1：总代理 2：区域代理 3：基层代理", required = false),
-            @ApiImplicitParam(name = "userFlag", value = "1：正常 2：锁定, 3：删除", required = false),
+            @ApiImplicitParam(name = "userFlag", value = "1：正常 2：锁定", required = false),
+            @ApiImplicitParam(name = "isDelete", value = "1：正常 2：删除", required = false),
             @ApiImplicitParam(name = "userName", value = "账号", required = false),
             @ApiImplicitParam(name = "tag", value = "1：含下级 0：不包含", required = true),
             @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
             @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
     })
     public ResponseEntity<ProxyUserVo> findProxyUser(Integer pageSize, Integer pageCode,Integer proxyRole,Integer userFlag,Integer tag,String userName,
-                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
-                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+                                                     Integer isDelete,
+                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
+                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         ProxyUser proxyUser = new ProxyUser();
         Sort sort=Sort.by("proxyRole").ascending();
         sort = sort.and(Sort.by("id").descending());
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         proxyUser.setProxyRole(proxyRole);
         proxyUser.setUserFlag(userFlag);
-        proxyUser.setIsDelete(CommonConst.NUMBER_1);
-        Long authId = CasinoProxyUtil.getAuthId();
-        ProxyUser byId = proxyUserService.findById(authId);
-        proxyUser.setId(authId);
-        if (tag == CommonConst.NUMBER_1 && CasinoProxyUtil.checkNull(userName)){
-            if (byId.getProxyRole() == CommonConst.NUMBER_1){
-                proxyUser.setFirstProxy(authId);
-                proxyUser.setId(null);
-            }else if(byId.getProxyRole() == CommonConst.NUMBER_2){
-                proxyUser.setSecondProxy(authId);
-                proxyUser.setId(null);
-            }
-        }else if(tag == CommonConst.NUMBER_1 && !CasinoProxyUtil.checkNull(userName)){
-            ProxyUser byUserName = proxyUserService.findByUserName(userName);
-            if (CasinoProxyUtil.checkNull(byUserName)){
-                return ResponseUtil.success(new PageResultVO());
-            }
-            if (byUserName.getProxyRole() == byId.getProxyRole()){//级别相同
-                if (byUserName.getId() == authId){//自己查自己
-                    if (byUserName.getProxyRole() == CommonConst.NUMBER_1){//自己总代查自己
-                        proxyUser.setFirstProxy(authId);
-                        proxyUser.setId(null);
-                    }else if(byId.getProxyRole() == CommonConst.NUMBER_2){//自己区域查自己
-                        proxyUser.setSecondProxy(authId);
-                        proxyUser.setId(null);
-                    }
-                }else {
-                    return ResponseUtil.success(new PageResultVO());
-                }
-            }else if(byUserName.getProxyRole() > byId.getProxyRole()){
-                if (byUserName.getProxyRole() == CommonConst.NUMBER_2 && byUserName.getFirstProxy() == authId){//1级搜2级
-                    proxyUser.setSecondProxy(byUserName.getId());
-                    proxyUser.setId(null);
-                }else if (byUserName.getProxyRole() == CommonConst.NUMBER_3 && (byUserName.getSecondProxy() == authId||byUserName.getFirstProxy() == authId)){//2级搜3级 1级搜3级
-                    proxyUser.setUserName(userName);
-                    proxyUser.setId(null);
-                }else {//没有权限
-                    return ResponseUtil.success(new PageResultVO());
-                }
-            }else {
-                return ResponseUtil.success(new PageResultVO());
-            }
-        }else if(tag == CommonConst.NUMBER_0 && !CasinoProxyUtil.checkNull(userName)){
-            ProxyUser byUserName = proxyUserService.findByUserName(userName);
-            if (CasinoProxyUtil.checkNull(byUserName)){
-                return ResponseUtil.success(new PageResultVO());
-            }
-            if ((byUserName.getSecondProxy() == authId||byUserName.getFirstProxy() == authId) || byUserName.getId() == authId){
-                proxyUser.setUserName(userName);
-                proxyUser.setId(null);
-            }else {
-                return ResponseUtil.success(new PageResultVO());
-            }
+        if (CasinoProxyUtil.checkNull(isDelete)){
+            proxyUser.setIsDelete(CommonConst.NUMBER_1);
         }else {
-            return ResponseUtil.success(new PageResultVO());
+            proxyUser.setIsDelete(isDelete);
         }
+        Long authId = CasinoProxyUtil.getAuthId();
+        proxyUser.setId(authId);
         Page<ProxyUser> proxyUserPage = proxyUserService.findProxyUserPage(pageable, proxyUser, startDate, endDate);
         PageResultVO<ProxyUserVo> pageResultVO = new PageResultVO(proxyUserPage);
         List<ProxyUser> proxyUserList = proxyUserPage.getContent();
         if(proxyUserList != null && proxyUserList.size() > 0){
             List<ProxyUserVo> userVoList = new LinkedList();
-            List<Long> firstProxyIds = proxyUserList.stream().filter(item -> item.getProxyRole() != CommonConst.NUMBER_1).map(ProxyUser::getFirstProxy).collect(Collectors.toList());
-            List<Long> secondProxyIds = proxyUserList.stream().filter(item -> item.getProxyRole() == CommonConst.NUMBER_3).map(ProxyUser::getSecondProxy).collect(Collectors.toList());
-            firstProxyIds.addAll(secondProxyIds);
-            List<ProxyUser> proxyUsers = proxyUserService.findProxyUser(firstProxyIds);
+            List<Long> ids = new ArrayList<>();
+            ids.add(proxyUserList.get(CommonConst.NUMBER_0).getSecondProxy());
+            ids.add(proxyUserList.get(CommonConst.NUMBER_0).getFirstProxy());
+            List<ProxyUser> proxyUsers = proxyUserService.findProxyUser(ids);
             List<Long> proxyIds = proxyUserList.stream().map(ProxyUser::getId).collect(Collectors.toList());
             List<ProxyCommission> proxyCommissions = proxyCommissionService.findProxyUser(proxyIds);
             if (proxyUsers != null){
@@ -214,7 +168,7 @@ public class ThridProxyUserController {
         proxyUserService.save(proxyUser);
         return ResponseUtil.success();
     }
-    
+
     @ApiOperation("查询详情页面直属玩家数")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id", required = true),
@@ -243,7 +197,7 @@ public class ThridProxyUserController {
         }
         return ResponseUtil.success(userCount);
     }
-//    @ApiOperation("添加代理")
+    //    @ApiOperation("添加代理")
 //    @ApiImplicitParams({
 //            @ApiImplicitParam(name = "userName", value = "账号", required = true),
 //            @ApiImplicitParam(name = "nickName", value = "用户昵称", required = true),
@@ -300,17 +254,17 @@ public class ThridProxyUserController {
 //        jsonObject.put("password", password);
 //        return ResponseUtil.success(jsonObject);
 //    }
-
-    private void createrProxyCommission(ProxyUser saveProxyUser,Integer proxyRole){
-        ProxyCommission proxyCommission = new ProxyCommission();
-        proxyCommission.setProxyUserId(saveProxyUser.getId());
-        if (proxyRole == CommonConst.NUMBER_3){
-            ProxyCommission secondCommission = proxyCommissionService.findByProxyUserId(saveProxyUser.getSecondProxy());
-            proxyCommission.setSecondProxy(saveProxyUser.getSecondProxy());
-            proxyCommission.setFirstCommission((secondCommission == null || secondCommission.getFirstCommission() == null)?BigDecimal.ZERO:secondCommission.getFirstCommission());
-        }
-        proxyCommissionService.save(proxyCommission);
-    }
+//
+//    private void createrProxyCommission(ProxyUser saveProxyUser,Integer proxyRole){
+//        ProxyCommission proxyCommission = new ProxyCommission();
+//        proxyCommission.setProxyUserId(saveProxyUser.getId());
+//        if (proxyRole == CommonConst.NUMBER_3){
+//            ProxyCommission secondCommission = proxyCommissionService.findByProxyUserId(saveProxyUser.getSecondProxy());
+//            proxyCommission.setSecondProxy(saveProxyUser.getSecondProxy());
+//            proxyCommission.setFirstCommission((secondCommission == null || secondCommission.getFirstCommission() == null)?BigDecimal.ZERO:secondCommission.getFirstCommission());
+//        }
+//        proxyCommissionService.save(proxyCommission);
+//    }
     @ApiOperation("重置密码")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id", required = true),
@@ -358,57 +312,57 @@ public class ThridProxyUserController {
         proxyUserService.save(byId);
         return ResponseUtil.success();
     }
-    @ApiOperation("升级")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "id", required = true),
-    })
-    @GetMapping("upgrade")
-    public ResponseEntity upgrade(Long id){
-        if (CasinoProxyUtil.checkNull(id)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        ProxyUser byId = proxyUserService.findById(id);
-        if (CasinoProxyUtil.checkNull(byId)){
-            return ResponseUtil.custom("没有这个代理");
-        }
-        if (byId.getProxyRole() != CommonConst.NUMBER_3){
-            return ResponseUtil.custom("只有基层代理可以升级");
-        }
-        byId.setProxyRole(CommonConst.NUMBER_2);
-        byId.setSecondProxy(byId.getId());
-        proxyUserService.save(byId);
-        return ResponseUtil.success();
-    }
-    @ApiOperation("转移下级")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "passivityId", value = "被转移的id", required = true),
-            @ApiImplicitParam(name = "id", value = "接受id", required = true),
-    })
-    @GetMapping("transfer")
-    public ResponseEntity transfer(Long passivityId,Long id){
-        if (CasinoProxyUtil.checkNull(id,passivityId)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        if (passivityId == id){
-            return ResponseUtil.custom("参数不合法");
-        }
-        ProxyUser passivity = proxyUserService.findById(passivityId);
-        ProxyUser byId = proxyUserService.findById(id);
-        if (CasinoProxyUtil.checkNull(passivity,byId)){
-            return ResponseUtil.custom("没有这个代理");
-        }
-        if (passivity.getProxyRole() != CommonConst.NUMBER_2 || byId.getProxyRole() != CommonConst.NUMBER_2 ){
-            return ResponseUtil.custom("只有区域代理可以转移下级");
-        }
-        ProxyUser proxyUser = new ProxyUser();
-        proxyUser.setSecondProxy(passivity.getId());
-        List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
-        proxyUserList.stream().filter(PUser -> PUser.getId() != passivityId).forEach(proxy -> {
-            proxy.setSecondProxy(byId.getId());
-            proxyUserService.save(proxy);
-        });
-        return ResponseUtil.success();
-    }
+    //    @ApiOperation("升级")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "id", value = "id", required = true),
+//    })
+//    @GetMapping("upgrade")
+//    public ResponseEntity upgrade(Long id){
+//        if (CasinoProxyUtil.checkNull(id)){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        ProxyUser byId = proxyUserService.findById(id);
+//        if (CasinoProxyUtil.checkNull(byId)){
+//            return ResponseUtil.custom("没有这个代理");
+//        }
+//        if (byId.getProxyRole() != CommonConst.NUMBER_3){
+//            return ResponseUtil.custom("只有基层代理可以升级");
+//        }
+//        byId.setProxyRole(CommonConst.NUMBER_2);
+//        byId.setSecondProxy(byId.getId());
+//        proxyUserService.save(byId);
+//        return ResponseUtil.success();
+//    }
+//    @ApiOperation("转移下级")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "passivityId", value = "被转移的id", required = true),
+//            @ApiImplicitParam(name = "id", value = "接受id", required = true),
+//    })
+//    @GetMapping("transfer")
+//    public ResponseEntity transfer(Long passivityId,Long id){
+//        if (CasinoProxyUtil.checkNull(id,passivityId)){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        if (passivityId == id){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        ProxyUser passivity = proxyUserService.findById(passivityId);
+//        ProxyUser byId = proxyUserService.findById(id);
+//        if (CasinoProxyUtil.checkNull(passivity,byId)){
+//            return ResponseUtil.custom("没有这个代理");
+//        }
+//        if (passivity.getProxyRole() != CommonConst.NUMBER_2 || byId.getProxyRole() != CommonConst.NUMBER_2 ){
+//            return ResponseUtil.custom("只有区域代理可以转移下级");
+//        }
+//        ProxyUser proxyUser = new ProxyUser();
+//        proxyUser.setSecondProxy(passivity.getId());
+//        List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
+//        proxyUserList.stream().filter(PUser -> PUser.getId() != passivityId).forEach(proxy -> {
+//            proxy.setSecondProxy(byId.getId());
+//            proxyUserService.save(proxy);
+//        });
+//        return ResponseUtil.success();
+//    }
     @ApiOperation("获取下拉框数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "当前列id", required = true),
@@ -428,7 +382,7 @@ public class ThridProxyUserController {
         proxyUser.setFirstProxy(byId.getId());
         proxyUser.setIsDelete(CommonConst.NUMBER_1);
         List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
-        proxyUserList = proxyUserList == null?new ArrayList<>(): proxyUserList.stream().filter(PUser -> PUser.getId() != id).collect(Collectors.toList());
+        proxyUserList = proxyUserList == null?new ArrayList<>(): proxyUserList.stream().filter(PUser -> !PUser.getId().equals(id)).collect(Collectors.toList());
         return ResponseUtil.success(proxyUserList);
     }
     @ApiOperation("删除")
@@ -458,118 +412,118 @@ public class ThridProxyUserController {
         proxyUserService.save(byId);
         return ResponseUtil.success();
     }
-    @ApiOperation("查询单个代理分成比")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "点击列id", required = true),
-    })
-    @GetMapping("findProxyCommission")
-    public ResponseEntity findProxyCommission(Long id){
-        if (CasinoProxyUtil.checkNull(id)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        String commission = "";
-        ProxyUser proxyUser = proxyUserService.findById(id);
-        Long authId = CasinoProxyUtil.getAuthId();
-        ProxyUser byId = proxyUserService.findById(authId);
-        if (CasinoProxyUtil.checkNull(byId,proxyUser)){
-            return ResponseUtil.custom("没有这个代理");
-        }
-        if (proxyUser.getProxyRole() == CommonConst.NUMBER_1){
-            return ResponseUtil.custom("不能直接设置总代");
-        }
-        if (byId.getProxyRole() == CommonConst.NUMBER_3 ||(byId.getProxyRole() == CommonConst.NUMBER_2 && proxyUser.getProxyRole() == CommonConst.NUMBER_2)){
-            return ResponseUtil.custom("没有权限");
-        }
-        if (proxyUser.getProxyRole() == CommonConst.NUMBER_2){
-            commission = MessageFormat.format(messageUtil.get(METHOD_FIRST_FORMAT),"");
-            return ResponseUtil.success(commission);
-        }
-        ProxyCommission byProxyUserId = proxyCommissionService.findByProxyUserId(proxyUser.getId());
-        if (proxyUser.getProxyRole() == CommonConst.NUMBER_3){
-            if (CasinoProxyUtil.checkNull(byProxyUserId) || CasinoProxyUtil.checkNull(byProxyUserId.getFirstCommission())){
-                return ResponseUtil.success("总代未设置");
-            }else{
-                BigDecimal multiply = byProxyUserId.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100);
-                commission = MessageFormat.format(messageUtil.get(METHOD_SECOND_FORMAT)+METHOD_PERCENTAGE,CommonConst.BIGDECIMAL_100.subtract(multiply));
-                return ResponseUtil.success(commission);
-            }
-        }
-        return ResponseUtil.success(commission);
-    }
+//    @ApiOperation("查询单个代理分成比")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "id", value = "点击列id", required = true),
+//    })
+//    @GetMapping("findProxyCommission")
+//    public ResponseEntity findProxyCommission(Long id){
+//        if (CasinoProxyUtil.checkNull(id)){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        String commission = "";
+//        ProxyUser proxyUser = proxyUserService.findById(id);
+//        Long authId = CasinoProxyUtil.getAuthId();
+//        ProxyUser byId = proxyUserService.findById(authId);
+//        if (CasinoProxyUtil.checkNull(byId,proxyUser)){
+//            return ResponseUtil.custom("没有这个代理");
+//        }
+//        if (proxyUser.getProxyRole() == CommonConst.NUMBER_1){
+//            return ResponseUtil.custom("不能直接设置总代");
+//        }
+//        if (byId.getProxyRole() == CommonConst.NUMBER_3 ||(byId.getProxyRole() == CommonConst.NUMBER_2 && proxyUser.getProxyRole() == CommonConst.NUMBER_2)){
+//            return ResponseUtil.custom("没有权限");
+//        }
+//        if (proxyUser.getProxyRole() == CommonConst.NUMBER_2){
+//            commission = MessageFormat.format(messageUtil.get(METHOD_FIRST_FORMAT),"");
+//            return ResponseUtil.success(commission);
+//        }
+//        ProxyCommission byProxyUserId = proxyCommissionService.findByProxyUserId(proxyUser.getId());
+//        if (proxyUser.getProxyRole() == CommonConst.NUMBER_3){
+//            if (CasinoProxyUtil.checkNull(byProxyUserId) || CasinoProxyUtil.checkNull(byProxyUserId.getFirstCommission())){
+//                return ResponseUtil.success("总代未设置");
+//            }else{
+//                BigDecimal multiply = byProxyUserId.getFirstCommission().multiply(CommonConst.BIGDECIMAL_100);
+//                commission = MessageFormat.format(messageUtil.get(METHOD_SECOND_FORMAT)+METHOD_PERCENTAGE,CommonConst.BIGDECIMAL_100.subtract(multiply));
+//                return ResponseUtil.success(commission);
+//            }
+//        }
+//        return ResponseUtil.success(commission);
+//    }
 
-    @ApiOperation("单个修改代理分成比")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "点击列id", required = true),
-            @ApiImplicitParam(name = "bigDecimal", value = "返佣百分比，100传1，50传0.5", required = true),
-    })
-    @PostMapping("updateProxyCommission")
-    @Transactional
-    public ResponseEntity updateProxyCommission(Long id, String bigDecimal){
-        if (DateUtil.verifyTime()){
-            return ResponseUtil.custom("0点到1点不能修改该配置");
-        }
-        if (CasinoProxyUtil.checkNull(bigDecimal,id)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        BigDecimal money = CommonUtil.checkMoney(bigDecimal);
-        if(money.compareTo(BigDecimal.ZERO)<CommonConst.NUMBER_1){
-            return ResponseUtil.custom("返佣百分比类型错误");
-        }
-        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_1)) >= CommonConst.NUMBER_1){
-            return ResponseUtil.custom("超过最高占成比!");
-        }
-        ProxyUser proxyUser = proxyUserService.findById(id);
-        if (CasinoProxyUtil.checkNull(proxyUser)){
-            return ResponseUtil.custom("没有这个代理");
-        }
-        Long authId = CasinoProxyUtil.getAuthId();
-        ProxyUser byId = proxyUserService.findById(authId);
-        if (byId.getProxyRole() == CommonConst.NUMBER_3 ||(byId.getProxyRole() == CommonConst.NUMBER_2 && proxyUser.getProxyRole() == CommonConst.NUMBER_2)){
-            return ResponseUtil.custom("没有权限");
-        }
-        ProxyCommission byProxyUserId = proxyCommissionService.findByProxyUserId(proxyUser.getId());
-        if (CasinoProxyUtil.checkNull(byProxyUserId)){
-            byProxyUserId = new ProxyCommission();
-            byProxyUserId.setProxyUserId(proxyUser.getId());
-        }
-        if (proxyUser.getProxyRole() == CommonConst.NUMBER_2){
-            BigDecimal total = money.add(byProxyUserId.getSecondCommission()).add(byProxyUserId.getThirdCommission());
-            if (total.compareTo(new BigDecimal(CommonConst.NUMBER_1)) >= CommonConst.NUMBER_1){
-                return ResponseUtil.custom("超过最高占成比!");
-            }
-            List<ProxyCommission> bySecondProxy = proxyCommissionService.findBySecondProxy(proxyUser.getId());
-            if (!CasinoProxyUtil.checkNull(bySecondProxy) && bySecondProxy.size() > CommonConst.NUMBER_0){
-                for (ProxyCommission p:bySecondProxy){
-                    BigDecimal add = p.getSecondCommission().add(money);
-                    if (add.compareTo(new BigDecimal(CommonConst.NUMBER_1)) >= CommonConst.NUMBER_1){
-                        return ResponseUtil.custom("超过最高占成比!");
-                    }
-                    p.setFirstCommission(money);
-                    p.setSecondCommission(new BigDecimal(CommonConst.NUMBER_1).subtract(add));
-                    p.setThirdCommission(BigDecimal.ZERO);
-                }
-                bySecondProxy.stream().forEach(proxyCommission ->{
-                    proxyCommissionService.save(proxyCommission);
-                });
-            }
-            byProxyUserId.setFirstCommission(money);
-        }else if(proxyUser.getProxyRole() == CommonConst.NUMBER_3){
-            ProxyCommission byProxyUserId1 = proxyCommissionService.findByProxyUserId(proxyUser.getSecondProxy());
-            if (CasinoProxyUtil.checkNull(byProxyUserId1) || CasinoProxyUtil.checkNull(byProxyUserId1.getFirstCommission()) || byProxyUserId1.getFirstCommission().compareTo(BigDecimal.ZERO) < CommonConst.NUMBER_1){
-                return ResponseUtil.custom("请先设置总代");
-            }
-            byProxyUserId.setSecondProxy(proxyUser.getSecondProxy());
-            byProxyUserId.setSecondCommission(money);
-            byProxyUserId.setFirstCommission(byProxyUserId1.getFirstCommission());
-            money = money.add(byProxyUserId.getFirstCommission());
-            if (money.compareTo(new BigDecimal(CommonConst.NUMBER_1)) >= CommonConst.NUMBER_1){
-                return ResponseUtil.custom("超过最高占成比!");
-            }
-            byProxyUserId.setThirdCommission(new BigDecimal(CommonConst.NUMBER_1).subtract(money));
-        }else {
-            return ResponseUtil.custom("不能直接设置总代");
-        }
-        ProxyCommission save = proxyCommissionService.save(byProxyUserId);
-        return ResponseUtil.success(save);
-    }
+//    @ApiOperation("单个修改代理分成比")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "id", value = "点击列id", required = true),
+//            @ApiImplicitParam(name = "bigDecimal", value = "返佣百分比，100传1，50传0.5", required = true),
+//    })
+//    @PostMapping("updateProxyCommission")
+//    @Transactional
+//    public ResponseEntity updateProxyCommission(Long id, String bigDecimal){
+//        if (DateUtil.verifyTime()){
+//            return ResponseUtil.custom("0点到1点不能修改该配置");
+//        }
+//        if (CasinoProxyUtil.checkNull(bigDecimal,id)){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        BigDecimal money = CommonUtil.checkMoney(bigDecimal);
+//        if(money.compareTo(BigDecimal.ZERO)<CommonConst.NUMBER_1){
+//            return ResponseUtil.custom("返佣百分比类型错误");
+//        }
+//        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_1)) >= CommonConst.NUMBER_1){
+//            return ResponseUtil.custom("超过最高占成比!");
+//        }
+//        ProxyUser proxyUser = proxyUserService.findById(id);
+//        if (CasinoProxyUtil.checkNull(proxyUser)){
+//            return ResponseUtil.custom("没有这个代理");
+//        }
+//        Long authId = CasinoProxyUtil.getAuthId();
+//        ProxyUser byId = proxyUserService.findById(authId);
+//        if (byId.getProxyRole() == CommonConst.NUMBER_3 ||(byId.getProxyRole() == CommonConst.NUMBER_2 && proxyUser.getProxyRole() == CommonConst.NUMBER_2)){
+//            return ResponseUtil.custom("没有权限");
+//        }
+//        ProxyCommission byProxyUserId = proxyCommissionService.findByProxyUserId(proxyUser.getId());
+//        if (CasinoProxyUtil.checkNull(byProxyUserId)){
+//            byProxyUserId = new ProxyCommission();
+//            byProxyUserId.setProxyUserId(proxyUser.getId());
+//        }
+//        if (proxyUser.getProxyRole() == CommonConst.NUMBER_2){
+//            BigDecimal total = money.add(byProxyUserId.getSecondCommission()).add(byProxyUserId.getThirdCommission());
+//            if (total.compareTo(new BigDecimal(CommonConst.NUMBER_1)) >= CommonConst.NUMBER_1){
+//                return ResponseUtil.custom("超过最高占成比!");
+//            }
+//            List<ProxyCommission> bySecondProxy = proxyCommissionService.findBySecondProxy(proxyUser.getId());
+//            if (!CasinoProxyUtil.checkNull(bySecondProxy) && bySecondProxy.size() > CommonConst.NUMBER_0){
+//                for (ProxyCommission p:bySecondProxy){
+//                    BigDecimal add = p.getSecondCommission().add(money);
+//                    if (add.compareTo(new BigDecimal(CommonConst.NUMBER_1)) >= CommonConst.NUMBER_1){
+//                        return ResponseUtil.custom("超过最高占成比!");
+//                    }
+//                    p.setFirstCommission(money);
+//                    p.setSecondCommission(new BigDecimal(CommonConst.NUMBER_1).subtract(add));
+//                    p.setThirdCommission(BigDecimal.ZERO);
+//                }
+//                bySecondProxy.stream().forEach(proxyCommission ->{
+//                    proxyCommissionService.save(proxyCommission);
+//                });
+//            }
+//            byProxyUserId.setFirstCommission(money);
+//        }else if(proxyUser.getProxyRole() == CommonConst.NUMBER_3){
+//            ProxyCommission byProxyUserId1 = proxyCommissionService.findByProxyUserId(proxyUser.getSecondProxy());
+//            if (CasinoProxyUtil.checkNull(byProxyUserId1) || CasinoProxyUtil.checkNull(byProxyUserId1.getFirstCommission()) || byProxyUserId1.getFirstCommission().compareTo(BigDecimal.ZERO) < CommonConst.NUMBER_1){
+//                return ResponseUtil.custom("请先设置总代");
+//            }
+//            byProxyUserId.setSecondProxy(proxyUser.getSecondProxy());
+//            byProxyUserId.setSecondCommission(money);
+//            byProxyUserId.setFirstCommission(byProxyUserId1.getFirstCommission());
+//            money = money.add(byProxyUserId.getFirstCommission());
+//            if (money.compareTo(new BigDecimal(CommonConst.NUMBER_1)) >= CommonConst.NUMBER_1){
+//                return ResponseUtil.custom("超过最高占成比!");
+//            }
+//            byProxyUserId.setThirdCommission(new BigDecimal(CommonConst.NUMBER_1).subtract(money));
+//        }else {
+//            return ResponseUtil.custom("不能直接设置总代");
+//        }
+//        ProxyCommission save = proxyCommissionService.save(byProxyUserId);
+//        return ResponseUtil.success(save);
+//    }
 }

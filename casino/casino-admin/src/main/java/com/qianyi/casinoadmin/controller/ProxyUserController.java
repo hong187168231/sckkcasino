@@ -2,10 +2,13 @@ package com.qianyi.casinoadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.business.ProxyHomePageReportBusiness;
 import com.qianyi.casinocore.model.ProxyCommission;
+import com.qianyi.casinocore.model.ProxyHomePageReport;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.ProxyCommissionService;
+import com.qianyi.casinocore.service.ProxyHomePageReportService;
 import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.util.CommonConst;
@@ -22,6 +25,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,6 +47,7 @@ import java.util.stream.Collectors;
 
 @Api(tags = "代理中心")
 @RestController
+@Slf4j
 @RequestMapping("proxyUser")
 public class ProxyUserController {
     @Autowired
@@ -53,6 +58,9 @@ public class ProxyUserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ProxyHomePageReportBusiness proxyHomePageReportBusiness;
 
     @Autowired
     private MessageUtil messageUtil;
@@ -70,13 +78,15 @@ public class ProxyUserController {
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "proxyRole", value = "代理级别1：总代理 2：区域代理 3：基层代理", required = false),
-            @ApiImplicitParam(name = "userFlag", value = "1：正常 2：锁定, 3：删除", required = false),
+            @ApiImplicitParam(name = "userFlag", value = "1：正常 2：锁定", required = false),
+            @ApiImplicitParam(name = "isDelete", value = "1：正常 2：删除", required = false),
             @ApiImplicitParam(name = "userName", value = "账号", required = false),
             @ApiImplicitParam(name = "tag", value = "1：含下级 0：不包含", required = true),
             @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
             @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
     })
     public ResponseEntity<ProxyUserVo> findProxyUser(Integer pageSize, Integer pageCode,Integer proxyRole,Integer userFlag,Integer tag,String userName,
+                                                     Integer isDelete,
                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         ProxyUser proxyUser = new ProxyUser();
@@ -85,7 +95,11 @@ public class ProxyUserController {
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         proxyUser.setProxyRole(proxyRole);
         proxyUser.setUserFlag(userFlag);
-        proxyUser.setIsDelete(CommonConst.NUMBER_1);
+        if (LoginUtil.checkNull(isDelete)){
+            proxyUser.setIsDelete(CommonConst.NUMBER_1);
+        }else {
+            proxyUser.setIsDelete(isDelete);
+        }
         if (!LoginUtil.checkNull(userName)){
             ProxyUser byUserName = proxyUserService.findByUserName(userName);
             if (LoginUtil.checkNull(byUserName)){
@@ -196,6 +210,7 @@ public class ProxyUserController {
             @ApiImplicitParam(name = "tag", value = "tag 1:总代 2:区域代 3:基层", required = true),
     })
     @PostMapping("saveProxyUser")
+    @Transactional
     public ResponseEntity saveProxyUser(String userName, String nickName,Long id,Integer tag){
         if (LoginUtil.checkNull(userName,tag)){
             return ResponseUtil.custom("参数不合法");
@@ -376,33 +391,33 @@ public class ProxyUserController {
         proxyUserService.save(byId);
         return ResponseUtil.success();
     }
-    @ApiOperation("转移下级")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "passivityId", value = "被转移的id", required = true),
-            @ApiImplicitParam(name = "id", value = "接受id", required = true),
-    })
-    @GetMapping("transfer")
-    public ResponseEntity transfer(Long passivityId,Long id){
-        if (LoginUtil.checkNull(id,passivityId)){
-            return ResponseUtil.custom("参数不合法");
-        }
-        ProxyUser passivity = proxyUserService.findById(passivityId);
-        ProxyUser byId = proxyUserService.findById(id);
-        if (LoginUtil.checkNull(passivity,byId)){
-            return ResponseUtil.custom("没有这个代理");
-        }
-        if (passivity.getProxyRole() != CommonConst.NUMBER_1 || byId.getProxyRole() != CommonConst.NUMBER_1 ){
-            return ResponseUtil.custom("只有总代可以转移下级");
-        }
-        ProxyUser proxyUser = new ProxyUser();
-        proxyUser.setFirstProxy(passivity.getId());
-        List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
-        proxyUserList.stream().filter(PUser -> PUser.getId() != passivityId).forEach(proxy -> {
-            proxy.setFirstProxy(byId.getId());
-            proxyUserService.save(proxy);
-        });
-        return ResponseUtil.success();
-    }
+    //    @ApiOperation("转移下级")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "passivityId", value = "被转移的id", required = true),
+//            @ApiImplicitParam(name = "id", value = "接受id", required = true),
+//    })
+//    @GetMapping("transfer")
+//    public ResponseEntity transfer(Long passivityId,Long id){
+//        if (LoginUtil.checkNull(id,passivityId)){
+//            return ResponseUtil.custom("参数不合法");
+//        }
+//        ProxyUser passivity = proxyUserService.findById(passivityId);
+//        ProxyUser byId = proxyUserService.findById(id);
+//        if (LoginUtil.checkNull(passivity,byId)){
+//            return ResponseUtil.custom("没有这个代理");
+//        }
+//        if (passivity.getProxyRole() != CommonConst.NUMBER_1 || byId.getProxyRole() != CommonConst.NUMBER_1 ){
+//            return ResponseUtil.custom("只有总代可以转移下级");
+//        }
+//        ProxyUser proxyUser = new ProxyUser();
+//        proxyUser.setFirstProxy(passivity.getId());
+//        List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
+//        proxyUserList.stream().filter(PUser -> PUser.getId() != passivityId).forEach(proxy -> {
+//            proxy.setFirstProxy(byId.getId());
+//            proxyUserService.save(proxy);
+//        });
+//        return ResponseUtil.success();
+//    }
     @ApiOperation("获取下拉框数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "当前列id", required = true),
@@ -416,7 +431,7 @@ public class ProxyUserController {
         proxyUser.setProxyRole(CommonConst.NUMBER_1);
         proxyUser.setIsDelete(CommonConst.NUMBER_1);
         List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
-        proxyUserList = proxyUserList == null?new ArrayList<>(): proxyUserList.stream().filter(PUser -> PUser.getId() != id).collect(Collectors.toList());
+        proxyUserList = proxyUserList == null?new ArrayList<>(): proxyUserList.stream().filter(PUser -> !PUser.getId().equals(id)).collect(Collectors.toList());
         return ResponseUtil.success(proxyUserList);
     }
     @ApiOperation("删除")
@@ -424,7 +439,90 @@ public class ProxyUserController {
             @ApiImplicitParam(name = "id", value = "id", required = true),
     })
     @GetMapping("delete")
+    @Transactional
     public ResponseEntity delete(Long id){
+        if (LoginUtil.checkNull(id)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        ProxyUser byId = proxyUserService.findProxyUserById(id);
+        if (LoginUtil.checkNull(byId)){
+            return ResponseUtil.custom("没有这个代理");
+        }
+        if (byId.getIsDelete() == CommonConst.NUMBER_2){
+            return ResponseUtil.custom("该代理已经删除");
+        }
+        if (byId.getProxyRole() == CommonConst.NUMBER_1){
+            ProxyUser proxyUser = new ProxyUser();
+            proxyUser.setFirstProxy(byId.getId());
+            List<ProxyUser> proxyUsers = proxyUserService.findProxyUserList(proxyUser);
+            if(!LoginUtil.checkNull(proxyUsers) && proxyUsers.size() >= CommonConst.NUMBER_2){
+                return ResponseUtil.custom("该代理的下级仍未转移");
+            }
+        }else if (byId.getProxyRole() == CommonConst.NUMBER_2){
+            ProxyUser proxyUser = new ProxyUser();
+            proxyUser.setSecondProxy(byId.getId());
+            proxyUser.setProxyRole(CommonConst.NUMBER_3);
+            List<ProxyUser> proxyUsers = proxyUserService.findProxyUserList(proxyUser);
+            if(!LoginUtil.checkNull(proxyUsers) && proxyUsers.size() >= CommonConst.NUMBER_1){
+                return ResponseUtil.custom("该代理的下级仍未转移");
+            }
+            proxyUserService.subProxyUsersNum(byId.getFirstProxy());
+        }else {
+            User user = new User();
+            user.setThirdProxy(id);
+            List<User> userList = userService.findUserList(user, null, null);
+            if ( !LoginUtil.checkNull(userList) && userList.size() >= CommonConst.NUMBER_1){
+                return ResponseUtil.custom("该代理会员尚未转移");
+            }
+            proxyUserService.subProxyUsersNum(byId.getFirstProxy());
+            proxyUserService.subProxyUsersNum(byId.getSecondProxy());
+        }
+        byId.setIsDelete(CommonConst.NUMBER_2);
+        proxyUserService.save(byId);
+        return ResponseUtil.success();
+    }
+
+
+    @ApiOperation("转移会员")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "被转移者id(选中列id)", required = true),
+            @ApiImplicitParam(name = "acceptId", value = "接受者id", required = true),
+    })
+    @GetMapping("transferUser")
+    @Transactional
+    public ResponseEntity transferUser(Long id,Long acceptId){
+        if (LoginUtil.checkNull(id,acceptId)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        if (id.toString().equals(acceptId.toString())){
+            return ResponseUtil.custom("参数不合法");
+        }
+        ProxyUser byId = proxyUserService.findById(id);
+        ProxyUser accept = proxyUserService.findById(acceptId);
+        if (LoginUtil.checkNull(byId,accept)){
+            return ResponseUtil.custom("没有这个代理");
+        }
+        if ( byId.getProxyRole() != CommonConst.NUMBER_3 || accept.getProxyRole() != CommonConst.NUMBER_3){
+            return ResponseUtil.custom("只有基层代理可以转移会员");
+        }
+        if (!byId.getSecondProxy().equals(accept.getSecondProxy())){
+            return ResponseUtil.custom("不能跨区域代理转移");
+        }
+        log.info("admin开始转移会员被转移者{} 接受者{}",byId.getUserName(),accept.getUserName());
+        try {
+            return proxyHomePageReportBusiness.transferUser(id,acceptId,accept);
+        }catch (Exception ex){
+            return ResponseUtil.custom("转移失败请联系管理员");
+        }
+    }
+
+    @ApiOperation("转移会员获取下拉框数据")
+    @GetMapping("getTransferUser")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "选中列id", required = true),
+    })
+    @NoAuthorization
+    public ResponseEntity<ProxyUser> getTransferUser(Long id){
         if (LoginUtil.checkNull(id)){
             return ResponseUtil.custom("参数不合法");
         }
@@ -432,18 +530,73 @@ public class ProxyUserController {
         if (LoginUtil.checkNull(byId)){
             return ResponseUtil.custom("没有这个代理");
         }
-        if ( byId.getProxyRole() != CommonConst.NUMBER_1 ){
-            return ResponseUtil.custom("只有总代可以删除");
+        if (byId.getProxyRole() != CommonConst.NUMBER_3){
+            return ResponseUtil.custom("只有基层代理可以转移会员");
         }
         ProxyUser proxyUser = new ProxyUser();
-        proxyUser.setFirstProxy(byId.getId());
         proxyUser.setIsDelete(CommonConst.NUMBER_1);
+        proxyUser.setUserFlag(CommonConst.NUMBER_1);
+        proxyUser.setSecondProxy(byId.getSecondProxy());
+        proxyUser.setProxyRole(CommonConst.NUMBER_3);
         List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
-        if (proxyUserList != null && proxyUserList.size() > CommonConst.NUMBER_1){
-            return ResponseUtil.custom("该代理的下级仍未转移");
+        proxyUserList = proxyUserList.stream().filter(proxy -> !proxy.getId().equals(id)).collect(Collectors.toList());
+        return ResponseUtil.success(proxyUserList);
+    }
+
+    @ApiOperation("转移代理获取下拉框数据")
+    @GetMapping("getTransferProxy")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "选中列id", required = true),
+    })
+    @NoAuthorization
+    public ResponseEntity<ProxyUser> getTransferProxy(Long id){
+        if (LoginUtil.checkNull(id)){
+            return ResponseUtil.custom("参数不合法");
         }
-        byId.setIsDelete(CommonConst.NUMBER_2);
-        proxyUserService.save(byId);
-        return ResponseUtil.success();
+        ProxyUser byId = proxyUserService.findById(id);
+        if (LoginUtil.checkNull(byId)){
+            return ResponseUtil.custom("没有这个代理");
+        }
+        if (byId.getProxyRole() == CommonConst.NUMBER_3){
+            return ResponseUtil.custom("基层代理不能转移下级");
+        }
+        ProxyUser proxyUser = new ProxyUser();
+        proxyUser.setIsDelete(CommonConst.NUMBER_1);
+        proxyUser.setUserFlag(CommonConst.NUMBER_1);
+        if (byId.getProxyRole() == CommonConst.NUMBER_1){
+            proxyUser.setProxyRole(CommonConst.NUMBER_1);
+        }else {
+            proxyUser.setProxyRole(CommonConst.NUMBER_2);
+            proxyUser.setFirstProxy(byId.getFirstProxy());
+        }
+        List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
+        proxyUserList = proxyUserList.stream().filter(proxy -> !proxy.getId().equals(id)).collect(Collectors.toList());
+        return ResponseUtil.success(proxyUserList);
+    }
+
+    @ApiOperation("转移代理")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "被转移者id(选中列id)", required = true),
+            @ApiImplicitParam(name = "acceptId", value = "接受者id", required = true),
+    })
+    @GetMapping("transferProxy")
+    public ResponseEntity transferProxy(Long id,Long acceptId){
+        if (LoginUtil.checkNull(id,acceptId) || id.toString().equals(acceptId.toString())){
+            return ResponseUtil.custom("参数不合法");
+        }
+        ProxyUser byId = proxyUserService.findById(id);
+        ProxyUser accept = proxyUserService.findById(acceptId);
+        if (LoginUtil.checkNull(byId,accept)){
+            return ResponseUtil.custom("没有这个代理");
+        }
+        if (byId.getProxyRole() != accept.getProxyRole()){
+            return ResponseUtil.custom("只有同级才可以互转");
+        }
+        log.info("admin开始转移代理被转移者{} 接受者{}",byId.getUserName(),accept.getUserName());
+        try {
+            return proxyHomePageReportBusiness.transferProxy(byId,accept);
+        }catch (Exception ex){
+            return ResponseUtil.custom("转移失败请联系管理员");
+        }
     }
 }

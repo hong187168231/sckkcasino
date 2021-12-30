@@ -55,7 +55,6 @@ public class HomePageReportTask {
         Calendar nowTime = Calendar.getInstance();
         nowTime.add(Calendar.DATE, -1);
         String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
-        synchronized (format.intern()){
             List<HomePageReport> byStaticsTimes = homePageReportService.findByStaticsTimes(format);
             if (!LoginUtil.checkNull(byStaticsTimes) && byStaticsTimes.size() > CommonConst.NUMBER_0)
                 return;
@@ -80,7 +79,6 @@ public class HomePageReportTask {
             }catch (Exception ex){
                 log.error("首页报表统计失败",ex);
             }
-        }
     }
     public void chargeOrder(Date startDate,Date endDate,HomePageReport homePageReport){
         try {

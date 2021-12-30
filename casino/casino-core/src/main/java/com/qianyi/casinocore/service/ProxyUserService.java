@@ -27,6 +27,10 @@ public class ProxyUserService {
     @Autowired
     private ProxyUserRepository proxyUserRepository;
 
+    public ProxyUser findProxyUserById(Long id){
+        return proxyUserRepository.findProxyUserById(id);
+    }
+
     public List<ProxyUser> findAll() {
         return proxyUserRepository.findAll();
     }
@@ -65,6 +69,30 @@ public class ProxyUserService {
     public void addProxyUsersNum(Long id) {
         synchronized (id.toString().intern()) {
             proxyUserRepository.addProxyUsersNum(id);
+        }
+    }
+
+    @CacheEvict(key = "#id")
+    @Transactional
+    public void makeZero(Long id) {
+        synchronized (id.toString().intern()) {
+            proxyUserRepository.makeZero(id);
+        }
+    }
+
+    @CacheEvict(key = "#id")
+    @Transactional
+    public void addProxyUsersNum(Long id,Integer num) {
+        synchronized (id.toString().intern()) {
+            proxyUserRepository.addProxyUsersNum(id,num);
+        }
+    }
+
+    @CacheEvict(key = "#id")
+    @Transactional
+    public void subProxyUsersNum(Long id,Integer num) {
+        synchronized (id.toString().intern()) {
+            proxyUserRepository.subProxyUsersNum(id,num);
         }
     }
     /**

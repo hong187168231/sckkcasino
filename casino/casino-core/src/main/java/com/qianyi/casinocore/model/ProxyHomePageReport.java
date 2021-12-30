@@ -72,4 +72,26 @@ public class ProxyHomePageReport extends BaseEntity {
     @ApiModelProperty(value = "输赢金额")
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal winLossAmount;
+
+    public ProxyHomePageReport(Long proxyUserId,String staticsTimes,String staticsMonth,String staticsYear,Long firstProxy,Integer proxyRole){
+        this.proxyUserId = proxyUserId;
+        this.staticsTimes = staticsTimes;
+        this.staticsMonth = staticsMonth;
+        this.staticsYear = staticsYear;
+        this.firstProxy = firstProxy;
+        this.secondProxy = CommonConst.LONG_0;
+        this.proxyRole = proxyRole;
+        this.activeUsers = CommonConst.NUMBER_0;
+        this.chargeAmount = BigDecimal.ZERO;
+        this.chargeNums = CommonConst.NUMBER_0;
+        this.withdrawMoney = BigDecimal.ZERO;
+        this.withdrawNums = CommonConst.NUMBER_0;
+        this.validbetAmount = BigDecimal.ZERO;
+        this.winLossAmount = BigDecimal.ZERO;
+        this.newUsers = CommonConst.NUMBER_0;
+    }
+
+    public ProxyHomePageReport(){
+
+    }
 }

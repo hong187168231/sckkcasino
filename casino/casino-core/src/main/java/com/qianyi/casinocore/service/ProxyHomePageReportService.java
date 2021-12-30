@@ -16,6 +16,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,9 +46,27 @@ public class ProxyHomePageReportService {
         return proxyHomePageReportRepository.save(proxyHomePageReport);
     }
 
+    public List<ProxyHomePageReport> findByProxyUserId(Long proxyUserId){
+        return proxyHomePageReportRepository.findByProxyUserId(proxyUserId);
+    }
+
     public List<ProxyHomePageReport> findHomePageReports(ProxyHomePageReport proxyHomePageReport,String startTime, String endTime) {
         Specification<ProxyHomePageReport> condition = this.getCondition(proxyHomePageReport,startTime,endTime);
         return proxyHomePageReportRepository.findAll(condition);
+    }
+
+    @Transactional
+    public void updateFirstProxy(Long proxyUserId, Long firstProxy){
+        proxyHomePageReportRepository.updateFirstProxy(proxyUserId,firstProxy);
+    }
+
+    @Transactional
+    public void updateSecondProxy(Long proxyUserId, Long secondProxy){
+        proxyHomePageReportRepository.updateSecondProxy(proxyUserId,secondProxy);
+    }
+
+    public ProxyHomePageReport findByProxyUserIdAndStaticsTimes(Long proxyUserId,String staticsTimes){
+        return proxyHomePageReportRepository.findByProxyUserIdAndStaticsTimes(proxyUserId,staticsTimes);
     }
 
     public List<ProxyHomePageReport> findByStaticsTimes(String staticsTimes){

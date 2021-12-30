@@ -36,7 +36,6 @@ public class ProxyHomePageReportTask {
         Calendar nowTime = Calendar.getInstance();
         nowTime.add(Calendar.DATE, -1);
         String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
-        synchronized (format.intern()){
             List<ProxyHomePageReport> byStaticsTimes = proxyHomePageReportService.findByStaticsTimes(format);
             if (!CasinoProxyUtil.checkNull(byStaticsTimes) && byStaticsTimes.size() > CommonConst.NUMBER_0)
                 return;
@@ -59,7 +58,6 @@ public class ProxyHomePageReportTask {
             }catch (Exception ex){
                 log.error("代理首页报表统计失败",ex);
             }
-        }
     }
     public void create(ProxyUser proxyUser,String startTime,String endTime,Date startDate,Date endDate,String format){
         ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
