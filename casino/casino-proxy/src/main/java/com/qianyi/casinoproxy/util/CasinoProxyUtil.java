@@ -34,6 +34,9 @@ public class CasinoProxyUtil {
     //获取当前操作者的身份
     public static Long getAuthId() {
         String token = getToken();
+        if(checkNull(token)){
+            return null;
+        }
         return getAuthId(token);
     }
     @PostConstruct //初始化
@@ -47,7 +50,7 @@ public class CasinoProxyUtil {
     }
     //获取当前操作者的身份
     public static Long getAuthId(String token) {
-        JjwtUtil.Subject subject = JjwtUtil.parse(token, "casino-proxy");
+        JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
         if (subject == null) {
             return null;
         }
