@@ -2,6 +2,10 @@ package com.qianyi.casinocore.util;
 
 public final class TaskConst {
     /**
+     * 每一分钟一次
+     */
+    public final static String ONLINE_USER_TASK = "0 0/1 * * * ? ";
+    /**
      * 每三分钟一次
      */
     public final static String BACK_ORDER = "0 0/3 * * * ? ";
