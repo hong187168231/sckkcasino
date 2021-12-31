@@ -188,7 +188,11 @@ public class HomePageReportController {
         Integer count = 0;
         try {
             for (String s: keys){
-                if (JjwtUtil.check(s, Constants.CASINO_WEB)) {
+                JjwtUtil.Token refreshJwtToken = (JjwtUtil.Token)redisTemplate.opsForValue().get(s);
+                if (LoginUtil.checkNull(refreshJwtToken)){
+                    continue;
+                }
+                if (JjwtUtil.check(LoginUtil.checkNull(refreshJwtToken.getNewToken())?refreshJwtToken.getOldToken():refreshJwtToken.getNewToken(), Constants.CASINO_WEB)) {
                     count++;
                 }
             }
