@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -312,6 +313,7 @@ public class UserController {
             @ApiImplicitParam(name = "phone", value = "电话号码", required = false),
     })
     @PostMapping("saveUser")
+    @Transactional
     public ResponseEntity saveUser(String account, String name, String phone){
         if (LoginUtil.checkNull(account)){
             return ResponseUtil.custom("参数不合法");
