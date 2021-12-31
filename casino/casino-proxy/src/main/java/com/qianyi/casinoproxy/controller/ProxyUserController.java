@@ -205,8 +205,17 @@ public class ProxyUserController {
                             proxyUserVo.setCommissionRatio(commissionRatio);
                         }
                     });
-                    if (u.getProxyRole() == CommonConst.NUMBER_3){
-                        User user = new User();
+                    User user = new User();
+                    if (u.getProxyRole() == CommonConst.NUMBER_1){
+                        user.setFirstProxy(u.getId());
+                        Long  userCount  = userService.findUserCount(user,null,null);
+                        proxyUserVo.setUsersNum(Math.toIntExact(userCount));
+
+                    }else if (u.getProxyRole() == CommonConst.NUMBER_2){
+                        user.setSecondProxy(u.getId());
+                        Long  userCount  = userService.findUserCount(user,null,null);
+                        proxyUserVo.setUsersNum(Math.toIntExact(userCount));
+                    }else {
                         user.setThirdProxy(u.getId());
                         Long  userCount  = userService.findUserCount(user,null,null);
                         proxyUserVo.setUsersNum(Math.toIntExact(userCount));
