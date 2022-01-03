@@ -41,28 +41,47 @@ public class HttpClient4Util {
         log.info("get请求返回参数{}",s);
         return s;
     }
+
     public static String specialGet(String urlStr) throws Exception {
-        log.info("get请求参数{}",urlStr);
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-
-        URL url = new URL(urlStr);
-        URI uri = new URI("https",url.getUserInfo(),url.getHost(),url.getPort(),url.getPath(),url.getQuery(),null);
-
-        HttpGet httpGet = new HttpGet(uri);
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(1000).setConnectionRequestTimeout(500)
-                .setSocketTimeout(1000).build();
-        httpGet.setConfig(requestConfig);
+        log.info("specialGet请求参数{}", urlStr);
+        CloseableHttpClient httpClient = null;
         CloseableHttpResponse response = null;
+        String result = "";
         try {
-            response = httpclient.execute(httpGet);
+            httpClient = HttpClients.createDefault();
+            URL url = new URL(urlStr);
+            URI uri = new URI("https", url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), null);
+            HttpGet httpGet = new HttpGet(uri);
+            RequestConfig requestConfig = RequestConfig.custom()
+                    .setConnectTimeout(35000).setConnectionRequestTimeout(35000)
+                    .setSocketTimeout(60000).build();
+            httpGet.setConfig(requestConfig);
+            response = httpClient.execute(httpGet);
+            HttpEntity entity = response.getEntity();//得到请求回来的数据
+            result = EntityUtils.toString(entity, "UTF-8");
+            log.info("specialGet请求返回参数{}", result);
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            // 关闭资源
+            if (null != response) {
+                try {
+                    response.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (null != httpClient) {
+                try {
+                    httpClient.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-        HttpEntity entity = response.getEntity();//得到请求回来的数据
-        String s = EntityUtils.toString(entity, "UTF-8");
-        log.info("get请求返回参数{}",s);
-        return s;
+        return result;
     }
 
     public static String doGet(String url) {
