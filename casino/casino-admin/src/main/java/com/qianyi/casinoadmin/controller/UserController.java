@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -149,12 +150,13 @@ public class UserController {
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "account", value = "用户名", required = false),
+            @ApiImplicitParam(name = "proxyAccount", value = "代理线", required = false),
             @ApiImplicitParam(name = "state", value = "1：启用，其他：禁用", required = false),
             @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
             @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
     })
     @GetMapping("findUserList")
-    public ResponseEntity<UserVo> findUserList(Integer pageSize, Integer pageCode, String account,Integer state,
+    public ResponseEntity<UserVo> findUserList(Integer pageSize, Integer pageCode, String account,String proxyAccount,Integer state,
                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
 
@@ -162,6 +164,19 @@ public class UserController {
         User user = new User();
         user.setAccount(account);
         user.setState(state);
+        if (!LoginUtil.checkNull(proxyAccount)){
+            ProxyUser byUserName = proxyUserService.findByUserName(proxyAccount);
+            if (LoginUtil.checkNull(byUserName)){
+                return ResponseUtil.custom("没有这个代理");
+            }
+            if (byUserName.getProxyRole() == CommonConst.NUMBER_1){
+                user.setFirstProxy(byUserName.getId());
+            }else if (byUserName.getProxyRole() == CommonConst.NUMBER_2){
+                user.setSecondProxy(byUserName.getId());
+            }else {
+                user.setThirdProxy(byUserName.getId());
+            }
+        }
         Sort sort=Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<User> userPage = userService.findUserPage(pageable, user,startDate,endDate);
@@ -312,6 +327,7 @@ public class UserController {
             @ApiImplicitParam(name = "phone", value = "电话号码", required = false),
     })
     @PostMapping("saveUser")
+    @Transactional
     public ResponseEntity saveUser(String account, String name, String phone){
         if (LoginUtil.checkNull(account)){
             return ResponseUtil.custom("参数不合法");
