@@ -110,9 +110,6 @@ public class ProxyRebateConfigController {
             if (this.verifySize(proxyRebateConfig)){
                 return ResponseUtil.custom("低级别值不能大于高级别");
             }
-            if (this.verifyAmountLineSize(proxyRebateConfig)){
-                return ResponseUtil.custom("低级别值不能大于高级别");
-            }
             if (!LoginUtil.checkNull(byId)){
                 proxyRebateConfig.setId(byId.getId());
             }

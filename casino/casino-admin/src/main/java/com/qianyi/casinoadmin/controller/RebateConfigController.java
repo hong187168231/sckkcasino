@@ -63,9 +63,6 @@ public class RebateConfigController {
         if (this.verifySize(rebateConfig)){
             return ResponseUtil.custom("低级别值不能大于高级别");
         }
-        if (this.verifyAmountLineSize(rebateConfig)){
-            return ResponseUtil.custom("低级别值不能大于高级别");
-        }
         RebateConfig config = rebateConfigService.findFirst();
         if (!LoginUtil.checkNull(rebateConfig)){
             rebateConfig.setId(config.getId());
