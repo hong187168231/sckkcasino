@@ -57,13 +57,7 @@ public class RebateConfigController {
         if (this.check(rebateConfig)){
             return ResponseUtil.custom("参数必填");
         }
-        if (this.verify(rebateConfig)){
-            return ResponseUtil.custom("返佣不能大于30块");
-        }
         if (this.verifySize(rebateConfig)){
-            return ResponseUtil.custom("低级别值不能大于高级别");
-        }
-        if (this.verifyAmountLineSize(rebateConfig)){
             return ResponseUtil.custom("低级别值不能大于高级别");
         }
         RebateConfig config = rebateConfigService.findFirst();
@@ -102,25 +96,25 @@ public class RebateConfigController {
         return false;
     }
     private Boolean verifySize(RebateConfig rebateConfig){
-        if (rebateConfig.getFirstProfit().compareTo(rebateConfig.getSecondProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getFirstMoney() >= rebateConfig.getSecondMoney() ){
+        if (rebateConfig.getFirstMoney() >= rebateConfig.getSecondMoney() ){
             return true;
         }
-        if (rebateConfig.getSecondProfit().compareTo(rebateConfig.getThirdProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getSecondMoney() >= rebateConfig.getThirdMoney() ){
+        if ( rebateConfig.getSecondMoney() >= rebateConfig.getThirdMoney() ){
             return true;
         }
-        if (rebateConfig.getThirdProfit().compareTo(rebateConfig.getFourProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getThirdMoney() >= rebateConfig.getFourMoney() ){
+        if (rebateConfig.getThirdMoney() >= rebateConfig.getFourMoney() ){
             return true;
         }
-        if (rebateConfig.getFourProfit().compareTo(rebateConfig.getFiveProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getFourMoney() >= rebateConfig.getFiveMoney() ){
+        if ( rebateConfig.getFourMoney() >= rebateConfig.getFiveMoney() ){
             return true;
         }
-        if (rebateConfig.getFiveProfit().compareTo(rebateConfig.getSixProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getFiveMoney() >= rebateConfig.getSixMoney() ){
+        if ( rebateConfig.getFiveMoney() >= rebateConfig.getSixMoney() ){
             return true;
         }
-        if (rebateConfig.getSixProfit().compareTo(rebateConfig.getSevenProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getSixMoney() >= rebateConfig.getSevenMoney() ){
+        if (rebateConfig.getSixMoney() >= rebateConfig.getSevenMoney() ){
             return true;
         }
-        if (rebateConfig.getSevenProfit().compareTo(rebateConfig.getEightProfit()) >= CommonConst.NUMBER_0 || rebateConfig.getSevenMoney() >= rebateConfig.getEightMoney() ){
+        if ( rebateConfig.getSevenMoney() >= rebateConfig.getEightMoney() ){
             return true;
         }
         return false;
