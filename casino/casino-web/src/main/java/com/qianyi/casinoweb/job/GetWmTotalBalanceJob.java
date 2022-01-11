@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 
 /**
- * 整点查询平台在WM的总余额，更新到本地
+ * 每3分钟查询一次平台在WM的总余额，更新到本地
  */
 @Component
 @Slf4j
@@ -27,7 +27,7 @@ public class GetWmTotalBalanceJob {
     @Value("${spring.profiles.active}")
     private String active;
 
-    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "0 0/3 * * * ?")
     public void tasks() {
         try {
             log.info("开始查询平台在WM的总余额");
