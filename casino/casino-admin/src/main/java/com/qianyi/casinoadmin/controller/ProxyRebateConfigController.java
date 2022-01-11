@@ -104,9 +104,6 @@ public class ProxyRebateConfigController {
             if (this.check(proxyRebateConfig)){
                 return ResponseUtil.custom("参数必填");
             }
-            if (this.verify(proxyRebateConfig)){
-                return ResponseUtil.custom("返佣不能大于30块");
-            }
             if (this.verifySize(proxyRebateConfig)){
                 return ResponseUtil.custom("低级别值不能大于高级别");
             }
