@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class WashCodeChangeService {
@@ -55,6 +56,10 @@ public class WashCodeChangeService {
     public List<WashCodeChange> findUserList( Date startDate, Date endDate) {
         Specification<WashCodeChange> condition = this.getCondition(startDate,endDate);
         return washCodeChangeRepository.findAll(condition);
+    }
+
+    public BigDecimal queryWashCodeChangeAll(String startTime, String endTime){
+        return washCodeChangeRepository.queryWashCodeChangeAll(startTime,endTime);
     }
 
     private Specification<WashCodeChange> getCondition(Date startDate,Date endDate) {

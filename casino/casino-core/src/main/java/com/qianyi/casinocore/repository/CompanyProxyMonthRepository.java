@@ -156,4 +156,100 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
 
     @Query(value = "select count(1) from user",nativeQuery = true)
     int queryAllTotalElement(String startTime,String endTime);
+
+
+    @Query(value = "select sum(num) num,sum(bet_amount) bet_amount ,sum(validbet) validbet,sum(win_loss) win_loss,sum(wash_amount) wash_amount from (\n" +
+            "select \n" +
+            " ifnull(main_t.num,0) num,\n" +
+            " ifnull(main_t.bet_amount,0) bet_amount ,\n" +
+            " ifnull(main_t.validbet,0) validbet ,\n" +
+            " ifnull(main_t.win_loss,0) win_loss ,\n" +
+            " ifnull(wash_t.wash_amount,0) wash_amount \n" +
+            "from user u\n" +
+            "left join ( \n" +
+            "  select user_id , \n" +
+            "  count(1) num, \n" +
+            "  sum(bet) bet_amount, \n" +
+            "  sum(validbet) validbet , \n" +
+            "  sum(win_loss) win_loss  \n" +
+            "  from game_record gr \n" +
+            "  where settime >= ?2 and settime <= ?3\n" +
+            "  group by user_id \n" +
+            " ) main_t on u.id = main_t.user_id\n" +
+            " left join ( \n" +
+            "  select user_id , sum(amount) wash_amount  \n" +
+            "  from wash_code_change wcc  \n" +
+            "  where create_time >= ?2 and create_time <= ?3\n" +
+            "  group by user_id \n" +
+            " ) wash_t on u.id = wash_t.user_id\n" +
+            " where u.third_proxy =?1 ) a"
+            ,nativeQuery = true)
+    Map<String,Object> queryReportByThird(long proxyUserId ,String startTime,String endTime);
+
+    @Query(value = "select sum(num) num,sum(bet_amount) bet_amount ,sum(validbet) validbet,sum(win_loss) win_loss,sum(wash_amount) wash_amount from (\n" +
+            "select \n" +
+            " ifnull(main_t.num,0) num,\n" +
+            " ifnull(main_t.bet_amount,0) bet_amount ,\n" +
+            " ifnull(main_t.validbet,0) validbet ,\n" +
+            " ifnull(main_t.win_loss,0) win_loss ,\n" +
+            " ifnull(wash_t.wash_amount,0) wash_amount \n" +
+            "from user u\n" +
+            "left join ( \n" +
+            "  select user_id , \n" +
+            "  count(1) num, \n" +
+            "  sum(bet) bet_amount, \n" +
+            "  sum(validbet) validbet , \n" +
+            "  sum(win_loss) win_loss  \n" +
+            "  from game_record gr \n" +
+            "  where settime >= ?2 and settime <= ?3\n" +
+            "  group by user_id \n" +
+            " ) main_t on u.id = main_t.user_id\n" +
+            " left join ( \n" +
+            "  select user_id , sum(amount) wash_amount  \n" +
+            "  from wash_code_change wcc  \n" +
+            "  where create_time >= ?2 and create_time <= ?3\n" +
+            "  group by user_id \n" +
+            " ) wash_t on u.id = wash_t.user_id\n" +
+            " where u.second_proxy =?1 ) a"
+            ,nativeQuery = true)
+    Map<String,Object> queryReportBySecond(long proxyUserId ,String startTime,String endTime);
+
+    @Query(value = "select sum(num) num,sum(bet_amount) bet_amount ,sum(validbet) validbet,sum(win_loss) win_loss,sum(wash_amount) wash_amount from (\n" +
+            "select \n" +
+            " ifnull(main_t.num,0) num,\n" +
+            " ifnull(main_t.bet_amount,0) bet_amount ,\n" +
+            " ifnull(main_t.validbet,0) validbet ,\n" +
+            " ifnull(main_t.win_loss,0) win_loss ,\n" +
+            " ifnull(wash_t.wash_amount,0) wash_amount \n" +
+            "from user u\n" +
+            "left join ( \n" +
+            "  select user_id , \n" +
+            "  count(1) num, \n" +
+            "  sum(bet) bet_amount, \n" +
+            "  sum(validbet) validbet , \n" +
+            "  sum(win_loss) win_loss  \n" +
+            "  from game_record gr \n" +
+            "  where settime >= ?2 and settime <= ?3\n" +
+            "  group by user_id \n" +
+            " ) main_t on u.id = main_t.user_id\n" +
+            " left join ( \n" +
+            "  select user_id , sum(amount) wash_amount  \n" +
+            "  from wash_code_change wcc  \n" +
+            "  where create_time >= ?2 and create_time <= ?3\n" +
+            "  group by user_id \n" +
+            " ) wash_t on u.id = wash_t.user_id\n" +
+            " where u.first_proxy =?1 ) a"
+            ,nativeQuery = true)
+    Map<String,Object> queryReportByFirst(long proxyUserId ,String startTime,String endTime);
+
+
+    @Query(value = "  select \n" +
+            "  count(1) num, \n" +
+            "  sum(bet) bet_amount, \n" +
+            "  sum(validbet) validbet , \n" +
+            "  sum(win_loss) win_loss  \n" +
+            "  from game_record gr \n" +
+            "  where settime >= ?1 and settime <= ?2\n"
+            ,nativeQuery = true)
+    Map<String,Object> queryReportAll(String startTime,String endTime);
 }

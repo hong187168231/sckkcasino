@@ -78,7 +78,10 @@ public class NewPermissions {
                     sysPermissionService.save(sysPermission1);
                 }
             }
-
+            if (!collect.containsKey("/inTimeReport/find")) {
+                SysPermission sysPermission = new SysPermission("代理实时报表", "代理实时报表", "/inTimeReport/find", pid, CommonConst.NUMBER_2, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
         }
     }
 

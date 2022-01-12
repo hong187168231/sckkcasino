@@ -127,6 +127,11 @@ public class DateUtil {
         return formatter.format(time);
     }
 
+    public static String dateToPatten(Date time) {
+        SimpleDateFormat formatter = new SimpleDateFormat(DateUtil.patten); //定义将日期格式要换成的格式
+        return formatter.format(time);
+    }
+
     public static String dateToYYYYMM(Date date) {
         SimpleDateFormat sf = new SimpleDateFormat(DateUtil.YYYYMM);
         return sf.format(date);
