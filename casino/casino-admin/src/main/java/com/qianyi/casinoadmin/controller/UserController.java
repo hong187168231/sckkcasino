@@ -210,6 +210,7 @@ public class UserController {
                     proxyUsers.stream().forEach(proxyUser -> {
                         if(proxyUser.getId().equals(u.getThirdProxy() == null ? "":u.getThirdProxy())){
                             userVo.setThirdProxyAccount(proxyUser.getUserName());
+                            userVo.setThirdProxyId(proxyUser.getId());
                         }
                         if(proxyUser.getId().equals(u.getFirstProxy() == null ? "":u.getFirstProxy())){
                             userVo.setFirstProxyAccount(proxyUser.getUserName());

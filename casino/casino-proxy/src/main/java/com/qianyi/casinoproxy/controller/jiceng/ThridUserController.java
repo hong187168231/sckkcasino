@@ -192,6 +192,7 @@ public class ThridUserController {
                     proxyUsers.stream().forEach(proxyUser -> {
                         if(proxyUser.getId().equals(u.getThirdProxy() == null ? "":u.getThirdProxy())){
                             userVo.setThirdProxyAccount(proxyUser.getUserName());
+                            userVo.setThirdProxyId(proxyUser.getId());
                         }
                     });
                     userVoList.add(userVo);
