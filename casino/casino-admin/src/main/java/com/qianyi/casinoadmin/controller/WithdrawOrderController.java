@@ -7,6 +7,7 @@ import com.qianyi.casinocore.vo.WithdrawOrderVo;
 import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -188,6 +189,7 @@ public class WithdrawOrderController {
             @ApiImplicitParam(name = "type", value = "会员类型:0、公司会员，1、渠道会员", required = false),
     })
     @GetMapping("/findWithdrawOrderSum")
+    @NoAuthentication
     public ResponseEntity<WithdrawOrderVo> findWithdrawOrderSum(Integer status, String account,String no, String bankId,Integer type,
                                                         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){

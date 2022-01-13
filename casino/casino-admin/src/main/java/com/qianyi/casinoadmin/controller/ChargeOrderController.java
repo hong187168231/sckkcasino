@@ -14,6 +14,7 @@ import com.qianyi.casinocore.service.CollectionBankcardService;
 import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -209,6 +210,7 @@ public class ChargeOrderController {
             @ApiImplicitParam(name = "endDate", value = "结束时间", required = false),
     })
     @GetMapping("/findChargeOrderSum")
+    @NoAuthentication
     public ResponseEntity<ChargeOrderVo> findChargeOrderSum(Integer status, String orderNo,
                                                          String account,Integer type,
                                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
