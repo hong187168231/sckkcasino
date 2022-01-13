@@ -178,4 +178,46 @@ public class WithdrawOrderController {
         withdrawOrderService.updateWithdrawOrderRemark(remark,withdrawOrder.getId());
         return ResponseUtil.success();
     }
+
+    @ApiOperation("提现列表金额统计")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "status", value = "订单状态", required = false),
+            @ApiImplicitParam(name = "no", value = "订单号", required = false),
+            @ApiImplicitParam(name = "bankId", value = "银行卡Id", required = false),
+            @ApiImplicitParam(name = "account", value = "用户账号", required = false),
+            @ApiImplicitParam(name = "type", value = "会员类型:0、公司会员，1、渠道会员", required = false),
+    })
+    @GetMapping("/findWithdrawOrderSum")
+    public ResponseEntity<WithdrawOrderVo> findWithdrawOrderSum(Integer status, String account,String no, String bankId,Integer type,
+                                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+                                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        WithdrawOrder withdrawOrder = new WithdrawOrder();
+        if (!LoginUtil.checkNull(account)){
+            User user = userService.findByAccount(account);
+            if (LoginUtil.checkNull(user)){
+                WithdrawOrderVo vo = new WithdrawOrderVo();
+                vo.setPracticalAmount(BigDecimal.ZERO);
+                vo.setWithdrawMoney(BigDecimal.ZERO);
+                vo.setServiceCharge(BigDecimal.ZERO);
+                return ResponseUtil.success(vo);
+            }
+            withdrawOrder.setUserId(user.getId());
+        }
+        withdrawOrder.setStatus(status);
+        withdrawOrder.setNo(no);
+        withdrawOrder.setBankId(bankId);
+        withdrawOrder.setType(type);
+        WithdrawOrder withdrawOrder1 = withdrawOrderService.findWithdrawOrderSum(withdrawOrder,startDate,endDate);
+        WithdrawOrderVo vo = new WithdrawOrderVo();
+        if (LoginUtil.checkNull(withdrawOrder1)){
+            vo.setPracticalAmount(BigDecimal.ZERO);
+            vo.setWithdrawMoney(BigDecimal.ZERO);
+            vo.setServiceCharge(BigDecimal.ZERO);
+        }else {
+            vo.setPracticalAmount(withdrawOrder1.getPracticalAmount());
+            vo.setWithdrawMoney(withdrawOrder1.getWithdrawMoney());
+            vo.setServiceCharge(withdrawOrder1.getServiceCharge());
+        }
+        return ResponseUtil.success(vo);
+    }
 }

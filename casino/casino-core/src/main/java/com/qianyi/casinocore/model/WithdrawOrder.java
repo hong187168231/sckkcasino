@@ -61,4 +61,13 @@ public class WithdrawOrder extends BaseEntity {
     @ApiModelProperty("会员类型:0、公司会员，1、渠道会员")
     private Integer type;
 
+    public WithdrawOrder(){
+    }
+
+    public WithdrawOrder(BigDecimal withdrawMoney,BigDecimal practicalAmount,BigDecimal serviceCharge){
+        this.withdrawMoney = withdrawMoney==null?BigDecimal.ZERO:withdrawMoney;
+        this.practicalAmount = practicalAmount==null?BigDecimal.ZERO:practicalAmount;
+        this.serviceCharge = serviceCharge==null?BigDecimal.ZERO:serviceCharge;
+    }
+
 }

@@ -8,9 +8,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,6 +25,9 @@ public class ChargeOrderService {
 
     @Autowired
     private ChargeOrderRepository chargeOrderRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
 
     public ChargeOrder saveOrder(ChargeOrder entity){
@@ -178,5 +185,64 @@ public class ChargeOrderService {
             }
         };
         return specification;
+    }
+
+    public  ChargeOrder  findChargeOrderSum(ChargeOrder chargeOrder,Date startDate,Date endDatee) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ChargeOrder> query = builder.createQuery(ChargeOrder.class);
+        Root<ChargeOrder> root = query.from(ChargeOrder.class);
+
+        query.multiselect(
+                builder.sum(root.get("chargeAmount").as(BigDecimal.class)).alias("chargeAmount")
+        );
+        List<Predicate> predicates = new ArrayList();
+
+        if (chargeOrder.getStatus() != null) {
+            predicates.add(
+                    builder.equal(root.get("status").as(Integer.class), chargeOrder.getStatus())
+            );
+        }
+        if (chargeOrder.getType() != null) {
+            predicates.add(
+                    builder.equal(root.get("type").as(Integer.class), chargeOrder.getType())
+            );
+        }
+        if (chargeOrder.getUserId() != null) {
+            predicates.add(
+                    builder.equal(root.get("userId").as(Long.class), chargeOrder.getUserId())
+            );
+        }
+        if (!CommonUtil.checkNull(chargeOrder.getOrderNo())) {
+            predicates.add(
+                    builder.equal(root.get("orderNo").as(String.class), chargeOrder.getOrderNo())
+            );
+        }
+        if (chargeOrder.getFirstProxy() != null) {
+            predicates.add(
+                    builder.equal(root.get("firstProxy").as(Long.class), chargeOrder.getFirstProxy())
+            );
+        }
+        if (chargeOrder.getSecondProxy() != null) {
+            predicates.add(
+                    builder.equal(root.get("secondProxy").as(Long.class), chargeOrder.getSecondProxy())
+            );
+        }
+        if (chargeOrder.getThirdProxy() != null) {
+            predicates.add(
+                    builder.equal(root.get("thirdProxy").as(Long.class), chargeOrder.getThirdProxy())
+            );
+        }
+        if (startDate != null) {
+            predicates.add(builder.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+        }
+        if (endDatee != null) {
+            predicates.add(builder.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDatee));
+        }
+        query
+                .where(predicates.toArray(new Predicate[predicates.size()]));
+//                .groupBy(root.get("conversionStepCode"))
+//                .orderBy(builder.desc(root.get("contactUserNums")));
+        ChargeOrder singleResult = entityManager.createQuery(query).getSingleResult();
+        return singleResult;
     }
 }

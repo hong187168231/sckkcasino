@@ -10,11 +10,14 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -25,6 +28,9 @@ public class WithdrawOrderService {
 
     @Autowired
     private WithdrawOrderRepository withdrawOrderRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public WithdrawOrder saveOrder(WithdrawOrder entity){
         return withdrawOrderRepository.save(entity);
@@ -165,5 +171,72 @@ public class WithdrawOrderService {
 
     public Integer countByUserIdAndStatus(Long userId,int status) {
         return withdrawOrderRepository.countByUserIdAndStatus(userId,status);
+    }
+
+
+    public  WithdrawOrder  findWithdrawOrderSum(WithdrawOrder withdrawOrder,Date startDate,Date endDatee) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<WithdrawOrder> query = builder.createQuery(WithdrawOrder.class);
+        Root<WithdrawOrder> root = query.from(WithdrawOrder.class);
+
+        query.multiselect(
+                builder.sum(root.get("withdrawMoney").as(BigDecimal.class)).alias("withdrawMoney"),
+                builder.sum(root.get("practicalAmount").as(BigDecimal.class)).alias("practicalAmount"),
+                builder.sum(root.get("serviceCharge").as(BigDecimal.class)).alias("serviceCharge")
+        );
+        List<Predicate> predicates = new ArrayList();
+
+        if (withdrawOrder.getStatus() != null) {
+            predicates.add(
+                    builder.equal(root.get("status").as(Integer.class), withdrawOrder.getStatus())
+            );
+        }
+        if (withdrawOrder.getType() != null) {
+            predicates.add(
+                    builder.equal(root.get("type").as(Integer.class), withdrawOrder.getType())
+            );
+        }
+        if (withdrawOrder.getUserId() != null) {
+            predicates.add(
+                    builder.equal(root.get("userId").as(Long.class), withdrawOrder.getUserId())
+            );
+        }
+        if (!CommonUtil.checkNull(withdrawOrder.getNo())) {
+            predicates.add(
+                    builder.equal(root.get("no").as(String.class), withdrawOrder.getNo())
+            );
+        }
+        if (!CommonUtil.checkNull(withdrawOrder.getBankId())) {
+            predicates.add(
+                    builder.equal(root.get("bankId").as(String.class), withdrawOrder.getBankId())
+            );
+        }
+        if (withdrawOrder.getFirstProxy() != null) {
+            predicates.add(
+                    builder.equal(root.get("firstProxy").as(Long.class), withdrawOrder.getFirstProxy())
+            );
+        }
+        if (withdrawOrder.getSecondProxy() != null) {
+            predicates.add(
+                    builder.equal(root.get("secondProxy").as(Long.class), withdrawOrder.getSecondProxy())
+            );
+        }
+        if (withdrawOrder.getThirdProxy() != null) {
+            predicates.add(
+                    builder.equal(root.get("thirdProxy").as(Long.class), withdrawOrder.getThirdProxy())
+            );
+        }
+        if (startDate != null) {
+            predicates.add(builder.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+        }
+        if (endDatee != null) {
+            predicates.add(builder.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDatee));
+        }
+        query
+                .where(predicates.toArray(new Predicate[predicates.size()]));
+//                .groupBy(root.get("conversionStepCode"))
+//                .orderBy(builder.desc(root.get("contactUserNums")));
+        WithdrawOrder singleResult = entityManager.createQuery(query).getSingleResult();
+        return singleResult;
     }
 }
