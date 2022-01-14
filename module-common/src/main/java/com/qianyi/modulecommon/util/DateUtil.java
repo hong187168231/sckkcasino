@@ -14,6 +14,8 @@ public class DateUtil {
 
     private static String patten1 = "yyyy-MM-dd";
 
+    private static String patten2 = "yyyy-MM-dd HH";
+
     private static String pattenMonth = "yyyy-MM";
 
     public static final String YYYYMM = "yyyyMM";
@@ -30,12 +32,16 @@ public class DateUtil {
         return new SimpleDateFormat(patten);
     }
     
-     public static SimpleDateFormat getSimpleDateFormat() {
+    public static SimpleDateFormat getSimpleDateFormat() {
          return getSimpleDateFormat(patten);
      }
 
     public static SimpleDateFormat getSimpleDateFormat1() {
         return getSimpleDateFormat(patten1);
+    }
+
+    public static SimpleDateFormat getSimpleDateFormat2() {
+        return getSimpleDateFormat(patten2);
     }
 
     public static SimpleDateFormat getSimpleDateFormatMonth() {

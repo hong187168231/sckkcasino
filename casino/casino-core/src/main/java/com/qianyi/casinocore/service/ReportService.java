@@ -33,6 +33,10 @@ public class ReportService {
         return companyProxyMonthRepository.queryReportByThird(proxyUserId, startTime, endTime);
     }
 
+    public Map<String,Object> queryReportByCompany(String startTime,String endTime){
+        return companyProxyMonthRepository.queryReportByCompany(startTime, endTime);
+    }
+
     public Map<String,Object> queryReportBySecond(long proxyUserId ,String startTime,String endTime){
         return companyProxyMonthRepository.queryReportBySecond(proxyUserId, startTime, endTime);
     }

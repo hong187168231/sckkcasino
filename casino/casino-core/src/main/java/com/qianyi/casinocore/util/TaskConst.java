@@ -22,4 +22,9 @@ public final class TaskConst {
      * 每日零点四十分
      */
     public final static String USER_RUNNING_WATER = "0 40 0 * * ?";
+
+    /**
+     * 每日零点四十分
+     */
+    public final static String GAMERECORD_TASK = "0 15,30,45 * * * ?";
 }
