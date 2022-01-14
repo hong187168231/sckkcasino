@@ -87,7 +87,7 @@ public class GameRecordTaskTest {
                 this.create(CommonConst.LONG_0,CommonConst.LONG_0,CommonConst.LONG_0,format,companResult);
                 //统计代理
                 ProxyUser proxyUser = new ProxyUser();
-                proxyUser.setIsDelete(CommonConst.NUMBER_1);
+//                proxyUser.setIsDelete(CommonConst.NUMBER_1);
                 proxyUser.setProxyRole(CommonConst.NUMBER_3);
                 List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
                 if (LoginUtil.checkNull(proxyUserList) || proxyUserList.size() == CommonConst.NUMBER_0){
