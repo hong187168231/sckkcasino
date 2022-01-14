@@ -19,14 +19,14 @@ import java.util.*;
 
 @Slf4j
 @Component
-public class GameRecordTaskTest3 {
+public class GameRecordTaskTest4 {
     public final static String start = ":00:00";
 
     public final static String end = ":59:59";
 
     @Autowired
     private GameRecordReportService gameRecordReportService;
-    
+
     @Autowired
     private GameRecordService gameRecordService;
 
@@ -92,8 +92,8 @@ public class GameRecordTaskTest3 {
             if (LoginUtil.checkNull(reportResult.get(0).get("num")) || Integer.parseInt(reportResult.get(0).get("num").toString()) == CommonConst.NUMBER_0){
                 return;
             }
-            GameRecordReport gameRecordReport = new GameRecordReport();
             for (Map<String, Object> map:reportResult){
+                GameRecordReport gameRecordReport = new GameRecordReport();
                 gameRecordReport.setStaticsTimes(format);
                 gameRecordReport.setAmount(new BigDecimal(map.get("amount").toString()));
                 gameRecordReport.setBetAmount(new BigDecimal(map.get("bet").toString()));

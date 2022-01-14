@@ -2,10 +2,8 @@
 //
 //import com.qianyi.casinoadmin.util.LoginUtil;
 //import com.qianyi.casinocore.model.GameRecordReport;
-//import com.qianyi.casinocore.model.ProxyUser;
 //import com.qianyi.casinocore.service.GameRecordReportService;
-//import com.qianyi.casinocore.service.ProxyUserService;
-//import com.qianyi.casinocore.service.ReportService;
+//import com.qianyi.casinocore.service.GameRecordService;
 //import com.qianyi.casinocore.util.CommonConst;
 //import com.qianyi.casinocore.util.TaskConst;
 //import com.qianyi.modulecommon.util.DateUtil;
@@ -15,12 +13,11 @@
 //import org.springframework.stereotype.Component;
 //
 //import java.math.BigDecimal;
-//import java.util.Calendar;
-//import java.util.List;
-//import java.util.Map;
+//import java.text.ParseException;
+//import java.util.*;
 //
 //@Slf4j
-////@Component
+//@Component
 //public class GameRecordTask {
 //    public final static String start = ":00:00";
 //
@@ -30,13 +27,10 @@
 //    private GameRecordReportService gameRecordReportService;
 //
 //    @Autowired
-//    private ProxyUserService proxyUserService;
-//
-//    @Autowired
-//    private ReportService reportService;
+//    private GameRecordService gameRecordService;
 //
 //    @Scheduled(cron = TaskConst.GAMERECORD_TASK)
-//    public void create(){
+//    public void create() throws ParseException {
 //        log.info("每小时报表统计开始start=============================================》");
 //        Calendar nowTime = Calendar.getInstance();
 //        nowTime.add(Calendar.HOUR, -1);
@@ -48,43 +42,32 @@
 //        }
 //        String startTime = format + start;
 //        String endTime = format + end;
-//        //统计公司
-//        Map<String,Object> companResult = reportService.queryReportByCompany(startTime,endTime);
-//        this.create(CommonConst.LONG_0,CommonConst.LONG_0,CommonConst.LONG_0,format,companResult);
-//        //统计代理
-//        ProxyUser proxyUser = new ProxyUser();
-//        proxyUser.setIsDelete(CommonConst.NUMBER_1);
-//        proxyUser.setProxyRole(CommonConst.NUMBER_3);
-//        List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
-//        if (LoginUtil.checkNull(proxyUserList) || proxyUserList.size() == CommonConst.NUMBER_0){
-//            return;
-//        }
-//        proxyUserList.forEach(proxy -> {
-//            Map<String,Object> reportResult = reportService.queryReportByThird(proxyUser.getId(),startTime,endTime);
-//            this.create(proxy.getFirstProxy(),proxy.getSecondProxy(),proxy.getId(),format,reportResult);
-//        });
-//        proxyUserList.clear();
+//        List<Map<String, Object>> records = gameRecordService.queryGameRecords(startTime, endTime);
+//        this.create(format,records);
 //        log.info("每小时报表统计结束end=============================================》");
 //    }
-//    private void create(Long firstProxy,Long secondProxy,Long thirdProxy,String format,Map<String,Object> reportResult){
+//    private void create(String format,List<Map<String, Object>> reportResult){
 //        try {
 //            if (LoginUtil.checkNull(reportResult) || reportResult.size() == CommonConst.NUMBER_0){
 //                return;
 //            }
-//            if (LoginUtil.checkNull(reportResult.get("num")) || Integer.parseInt(reportResult.get("num").toString()) == CommonConst.NUMBER_0){
+//            if (LoginUtil.checkNull(reportResult.get(0).get("num")) || Integer.parseInt(reportResult.get(0).get("num").toString()) == CommonConst.NUMBER_0){
 //                return;
 //            }
-//            GameRecordReport gameRecordReport = new GameRecordReport();
-//            gameRecordReport.setStaticsTimes(format);
-//            gameRecordReport.setAmount(new BigDecimal(reportResult.get("wash_amount").toString()));
-//            gameRecordReport.setBetAmount(new BigDecimal(reportResult.get("bet_amount").toString()));
-//            gameRecordReport.setValidAmount(new BigDecimal(reportResult.get("validbet").toString()));
-//            gameRecordReport.setWinLossAmount(new BigDecimal(reportResult.get("win_loss").toString()));
-//            gameRecordReport.setBettingNumber(Integer.parseInt(reportResult.get("num").toString()));
-//            gameRecordReport.setFirstProxy(firstProxy);
-//            gameRecordReport.setSecondProxy(secondProxy);
-//            gameRecordReport.setThirdProxy(thirdProxy);
-//            gameRecordReportService.save(gameRecordReport);
+//            for (Map<String, Object> map:reportResult){
+//                GameRecordReport gameRecordReport = new GameRecordReport();
+//                gameRecordReport.setStaticsTimes(format);
+//                gameRecordReport.setAmount(new BigDecimal(map.get("amount").toString()));
+//                gameRecordReport.setBetAmount(new BigDecimal(map.get("bet").toString()));
+//                gameRecordReport.setValidAmount(new BigDecimal(map.get("validbet").toString()));
+//                gameRecordReport.setWinLossAmount(new BigDecimal(map.get("win_loss").toString()));
+//                gameRecordReport.setBettingNumber(Integer.parseInt(map.get("num").toString()));
+//                gameRecordReport.setGid(Integer.parseInt(map.get("gid").toString()));
+//                gameRecordReport.setFirstProxy(Long.parseLong(map.get("first_proxy").toString()));
+//                gameRecordReport.setSecondProxy(Long.parseLong(map.get("second_proxy").toString()));
+//                gameRecordReport.setThirdProxy(Long.parseLong(map.get("third_proxy").toString()));
+//                gameRecordReportService.save(gameRecordReport);
+//            }
 //        }catch (Exception ex){
 //            log.error("每小时报表统计失败",ex);
 //        }
