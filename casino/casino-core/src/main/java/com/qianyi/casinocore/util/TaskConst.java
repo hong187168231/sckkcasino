@@ -26,5 +26,5 @@ public final class TaskConst {
     /**
      * 每日零点四十分
      */
-    public final static String GAMERECORD_TASK = "0 15,30,45 * * * ?";
+    public final static String GAMERECORD_TASK = "0 15,30,50 * * * ?";
 }

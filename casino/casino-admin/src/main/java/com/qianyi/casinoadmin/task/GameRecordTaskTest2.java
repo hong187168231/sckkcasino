@@ -12,7 +12,6 @@
 //import lombok.extern.slf4j.Slf4j;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.scheduling.annotation.Scheduled;
-//import org.springframework.stereotype.Component;
 //
 //import java.math.BigDecimal;
 //import java.util.Calendar;
@@ -21,7 +20,7 @@
 //
 //@Slf4j
 ////@Component
-//public class GameRecordTask {
+//public class GameRecordTaskTest2 {
 //    public final static String start = ":00:00";
 //
 //    public final static String end = ":59:59";

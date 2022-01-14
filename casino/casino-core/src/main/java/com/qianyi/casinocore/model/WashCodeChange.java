@@ -4,8 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import javax.persistence.*;
 import java.math.BigDecimal;
 
 /**
@@ -14,6 +13,7 @@ import java.math.BigDecimal;
 @Entity
 @Data
 @ApiModel("洗码明细表")
+@Table(name ="wash_code_change",uniqueConstraints={@UniqueConstraint(columnNames={"gameRecordId"})})
 public class WashCodeChange extends BaseEntity {
 
 	@ApiModelProperty(value = "用户ID")

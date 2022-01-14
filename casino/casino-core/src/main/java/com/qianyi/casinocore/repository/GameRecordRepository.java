@@ -1,13 +1,11 @@
 package com.qianyi.casinocore.repository;
 
 import com.qianyi.casinocore.model.GameRecord;
-import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import javax.persistence.Tuple;
 import java.util.List;
 import java.util.Map;
 
@@ -39,4 +37,11 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
     int  countByIdLessThanEqualAndUserId(Long gameId,Long userId);
 
     GameRecord findByBetId(String betId);
+    @Query(value = "select ifnull(g.first_proxy,0) first_proxy," +
+            "ifnull(g.second_proxy,0) second_proxy,ifnull(g.third_proxy,0) third_proxy," +
+            "g.gid gid,COUNT(1) num,SUM(g.bet) bet,SUM(g.validbet) validbet,SUM(g.win_loss) win_loss," +
+            " ifnull(SUM(w.amount),0) amount from game_record g left join  " +
+            "wash_code_change w  on  w.game_record_id = g.id where g.settime >= ?1 " +
+            "and g.settime <= ?2 GROUP BY g.third_proxy,g.gid  ",nativeQuery = true)
+    List<Map<String,Object>> queryGameRecords(String startTime,String endTime);
 }

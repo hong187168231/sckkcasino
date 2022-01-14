@@ -119,6 +119,9 @@ public class GameRecordService {
         return gameRecordRepository.save(gameRecord);
     }
 
+    public List<Map<String,Object>> queryGameRecords(String startTime,String endTime){
+        return gameRecordRepository.queryGameRecords(startTime,endTime);
+    }
     public GameRecord findGameRecordById(Long gameId){return gameRecordRepository.findById(gameId).orElse(null);}
 
 
