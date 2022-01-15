@@ -81,6 +81,9 @@ public class GameRecordReportService {
                     criteriaBuilder.between(root.get("staticsTimes").as(String.class), startSetTime, endSetTime)
             );
         }
+        predicates.add(
+                criteriaBuilder.notEqual(root.get("firstProxy").as(Long.class), 0L)
+        );
         //group by type
         criteriaQuery.groupBy(root.get("firstProxy"));
         criteriaQuery.where(predicates.toArray(new Predicate[predicates.size()]));
@@ -134,10 +137,45 @@ public class GameRecordReportService {
                     builder.between(root.get("staticsTimes").as(String.class), startSetTime, endSetTime)
             );
         }
+        predicates.add(
+                builder.notEqual(root.get("firstProxy").as(Long.class), 0L)
+        );
         query
                 .where(predicates.toArray(new Predicate[predicates.size()]));
         GameRecordReport singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
     }
 
+    public  GameRecordReport  findRecordRecordSum(GameRecordReport gameRecordReport,String startSetTime,String endSetTime) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<GameRecordReport> query = builder.createQuery(GameRecordReport.class);
+        Root<GameRecordReport> root = query.from(GameRecordReport.class);
+
+        query.multiselect(
+                builder.sum(root.get("bettingNumber").as(Integer.class)).alias("bettingNumber"),
+                builder.sum(root.get("amount").as(BigDecimal.class)).alias("amount"),
+                builder.sum(root.get("betAmount").as(BigDecimal.class)).alias("betAmount"),
+                builder.sum(root.get("validAmount").as(BigDecimal.class)).alias("validAmount"),
+                builder.sum(root.get("winLossAmount").as(BigDecimal.class)).alias("winLossAmount")
+        );
+
+        List<Predicate> predicates = new ArrayList();
+        if (gameRecordReport.getGid() != null) {
+            predicates.add(
+                    builder.equal(root.get("gid").as(Integer.class), gameRecordReport.getGid())
+            );
+        }
+        if (!ObjectUtils.isEmpty(startSetTime) && !ObjectUtils.isEmpty(endSetTime)) {
+            predicates.add(
+                    builder.between(root.get("staticsTimes").as(String.class), startSetTime, endSetTime)
+            );
+        }
+        predicates.add(
+                builder.equal(root.get("firstProxy").as(Long.class), 0L)
+        );
+        query
+                .where(predicates.toArray(new Predicate[predicates.size()]));
+        GameRecordReport singleResult = entityManager.createQuery(query).getSingleResult();
+        return singleResult;
+    }
 }
