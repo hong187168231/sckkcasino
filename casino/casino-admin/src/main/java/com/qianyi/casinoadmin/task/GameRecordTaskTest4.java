@@ -57,11 +57,11 @@
 //        list.add(" 22");
 //        list.add(" 23");
 //    }
-//    @Scheduled(cron = TaskConst.GAMERECORD_TASK)
+//    @Scheduled(cron = TaskConst.BACK_ORDER)
 //    public void create() throws ParseException {
 //        log.info("每小时报表统计开始start=============================================》");
 //        Date startDate = DateUtil.getSimpleDateFormat1().parse("2021-11-01");
-//        Date endDate = DateUtil.getSimpleDateFormat1().parse("2022-01-14");
+//        Date endDate = DateUtil.getSimpleDateFormat1().parse("2022-01-15");
 //        Map<Integer,String> mapDate = this.findDates("D", startDate, endDate);
 ////        Calendar nowTime = Calendar.getInstance();
 ////        nowTime.add(Calendar.HOUR, -1);

@@ -58,4 +58,23 @@ public class GameRecordReport extends BaseEntity{
 
     @ApiModelProperty("基层代理ID")
     private Long thirdProxy;
+
+    public GameRecordReport(){
+
+    }
+    public GameRecordReport(Long firstProxy,Long bettingNumber,BigDecimal amount,BigDecimal betAmount,BigDecimal validAmount,BigDecimal winLossAmount){
+        this.firstProxy = firstProxy;
+        this.bettingNumber = bettingNumber==null?0:bettingNumber .intValue();
+        this.amount = amount;
+        this.betAmount = betAmount;
+        this.validAmount = validAmount;
+        this.winLossAmount = winLossAmount;
+    }
+    public GameRecordReport(Long bettingNumber,BigDecimal amount,BigDecimal betAmount,BigDecimal validAmount,BigDecimal winLossAmount){
+        this.bettingNumber = bettingNumber==null?0:bettingNumber .intValue();
+        this.amount = amount;
+        this.betAmount = betAmount;
+        this.validAmount = validAmount;
+        this.winLossAmount = winLossAmount;
+    }
 }

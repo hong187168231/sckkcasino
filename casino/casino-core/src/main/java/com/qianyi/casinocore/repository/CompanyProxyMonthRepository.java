@@ -45,7 +45,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             "  sum(validbet) validbet , \n" +
             "  sum(win_loss) win_loss  \n" +
             "  from game_record gr \n" +
-            "  where create_time >= ?1 and create_time <= ?2\n" +
+            "  where settime >= ?1 and settime <= ?2\n" +
             "  group by user_id \n" +
             " ) main_t on u.id = main_t.user_id\n" +
             " left join ( \n" +
@@ -57,7 +57,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             " left join ( \n" +
             "  select user_id , sum(ifnull(service_charge,0)) service_charge  \n" +
             "  from withdraw_order wo  \n" +
-            "  where create_time >= ?1 and create_time <= ?2\n" +
+            "  where update_time >= ?1 and update_time <= ?2\n" +
             "  group by user_id \n" +
             " ) withdraw_t on u.id = withdraw_t.user_id\n" +
             " left join ( \n" +
@@ -89,7 +89,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             "  sum(validbet) validbet , \n" +
             "  sum(win_loss) win_loss  \n" +
             "  from game_record gr \n" +
-            "  where create_time >= ?2 and create_time <= ?3\n" +
+            "  where settime >= ?2 and settime <= ?3\n" +
             "  group by user_id \n" +
             " ) main_t on u.id = main_t.user_id\n" +
             " left join ( \n" +
@@ -101,7 +101,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             " left join ( \n" +
             "  select user_id , sum(ifnull(service_charge,0)) service_charge  \n" +
             "  from withdraw_order wo  \n" +
-            "  where create_time >= ?2 and create_time <= ?3\n" +
+            "  where update_time >= ?2 and update_time <= ?3\n" +
             "  group by user_id \n" +
             " ) withdraw_t on u.id = withdraw_t.user_id\n" +
             " left join ( \n" +
@@ -131,7 +131,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             "  sum(validbet) validbet , \n" +
             "  sum(win_loss) win_loss  \n" +
             "  from game_record gr \n" +
-            "  where create_time >= ?1 and create_time <= ?2\n" +
+            "  where settime >= ?1 and settime <= ?2\n" +
             "  group by user_id \n" +
             " ) main_t on u.id = main_t.user_id\n" +
             " left join ( \n" +
@@ -143,7 +143,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             " left join ( \n" +
             "  select user_id , sum(ifnull(service_charge,0)) service_charge  \n" +
             "  from withdraw_order wo  \n" +
-            "  where create_time >= ?1 and create_time <= ?2\n" +
+            "  where update_time >= ?1 and update_time <= ?2\n" +
             "  group by user_id \n" +
             " ) withdraw_t on u.id = withdraw_t.user_id\n" +
             " left join ( \n" +
