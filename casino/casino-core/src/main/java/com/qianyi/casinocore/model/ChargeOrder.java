@@ -66,4 +66,11 @@ public class ChargeOrder extends BaseEntity{
 
     @ApiModelProperty("会员类型:0、公司会员，1、渠道会员")
     private Integer type;
+
+    public ChargeOrder(){
+    }
+
+    public ChargeOrder(BigDecimal chargeAmount){
+        this.chargeAmount = chargeAmount==null?BigDecimal.ZERO:chargeAmount;
+    }
 }
