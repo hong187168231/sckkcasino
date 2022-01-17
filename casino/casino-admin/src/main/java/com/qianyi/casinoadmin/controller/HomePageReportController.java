@@ -13,11 +13,13 @@ import com.qianyi.casinocore.service.CompanyProxyMonthService;
 import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinocore.service.UserRunningWaterService;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.DateUtil;
+import com.qianyi.modulejjwt.JjwtUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -25,6 +27,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,6 +57,9 @@ public class HomePageReportController {
     public final static String startMonth = "-01";
 
     public final static String endMonth = "-12";
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Autowired
     private CompanyProxyMonthService companyProxyMonthService;
@@ -130,7 +136,7 @@ public class HomePageReportController {
     })
     @NoAuthorization
     public ResponseEntity<HomePageReportVo> findTrendChart(Integer tag,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                              @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate) {
+                                                           @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate) {
         if (LoginUtil.checkNull(startDate, endDate)) {
             ResponseUtil.custom("参数必填");
         }
@@ -172,9 +178,30 @@ public class HomePageReportController {
         }
         Collections.reverse(list);
         return ResponseUtil.success(list);
-
     }
-    
+
+    @ApiOperation("查找在线人数")
+    @GetMapping("/findOnlineUser")
+    @NoAuthorization
+    public ResponseEntity findOnlineUser(){
+        Set<String> keys = redisTemplate.keys("token::casino-web::*");
+        Integer count = 0;
+        try {
+            for (String s: keys){
+                JjwtUtil.Token refreshJwtToken = (JjwtUtil.Token)redisTemplate.opsForValue().get(s);
+                if (LoginUtil.checkNull(refreshJwtToken)){
+                    continue;
+                }
+                if (JjwtUtil.check(LoginUtil.checkNull(refreshJwtToken.getNewToken())?refreshJwtToken.getOldToken():refreshJwtToken.getNewToken(), Constants.CASINO_WEB)) {
+                    count++;
+                }
+            }
+            keys.clear();
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询失败");
+        }
+        return ResponseUtil.success(count);
+    }
     private HomePageReportVo getHomePageReportVo(List<HomePageReportVo> list,String time,Integer tag){
         HomePageReportVo vo = new HomePageReportVo();
         BigDecimal chargeAmount = list.stream().map(HomePageReportVo::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);

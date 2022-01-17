@@ -14,6 +14,7 @@ import com.qianyi.casinocore.service.CollectionBankcardService;
 import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -34,6 +35,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -196,5 +198,41 @@ public class ChargeOrderController {
         }
         chargeOrderService.updateChargeOrdersRemark(remark,order.getId());
         return ResponseUtil.success();
+    }
+
+    @ApiOperation("充值申请列表统计")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "status", value = "状态(0未确认 1已确认)", required = false),
+            @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
+            @ApiImplicitParam(name = "account", value = "会员账号", required = false),
+            @ApiImplicitParam(name = "type", value = "会员类型:0、公司会员，1、渠道会员 2、官方会员", required = false),
+            @ApiImplicitParam(name = "startDate", value = "起始时间", required = false),
+            @ApiImplicitParam(name = "endDate", value = "结束时间", required = false),
+    })
+    @GetMapping("/findChargeOrderSum")
+    @NoAuthentication
+    public ResponseEntity<ChargeOrderVo> findChargeOrderSum(Integer status, String orderNo,
+                                                            String account,Integer type,
+                                                            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+                                                            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        ChargeOrder order = new ChargeOrder();
+        Long userId = null;
+        if (!LoginUtil.checkNull(account)){
+            User user = userService.findByAccount(account);
+            if (LoginUtil.checkNull(user)){
+                ChargeOrderVo vo = new ChargeOrderVo();
+                vo.setChargeAmount(BigDecimal.ZERO);
+                return ResponseUtil.success(vo);
+            }
+            userId = user.getId();
+        }
+        order.setUserId(userId);
+        order.setStatus(status);
+        order.setOrderNo(orderNo);
+        order.setType(type);
+        ChargeOrder chargeOrder = chargeOrderService.findChargeOrderSum(order,startDate,endDate);
+        ChargeOrderVo vo = new ChargeOrderVo();
+        vo.setChargeAmount(chargeOrder==null?BigDecimal.ZERO:chargeOrder.getChargeAmount());
+        return ResponseUtil.success(vo);
     }
 }

@@ -150,12 +150,13 @@ public class UserController {
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "account", value = "用户名", required = false),
+            @ApiImplicitParam(name = "proxyAccount", value = "代理线", required = false),
             @ApiImplicitParam(name = "state", value = "1：启用，其他：禁用", required = false),
             @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
             @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
     })
     @GetMapping("findUserList")
-    public ResponseEntity<UserVo> findUserList(Integer pageSize, Integer pageCode, String account,Integer state,
+    public ResponseEntity<UserVo> findUserList(Integer pageSize, Integer pageCode, String account,String proxyAccount,Integer state,
                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
 
@@ -163,6 +164,19 @@ public class UserController {
         User user = new User();
         user.setAccount(account);
         user.setState(state);
+        if (!LoginUtil.checkNull(proxyAccount)){
+            ProxyUser byUserName = proxyUserService.findByUserName(proxyAccount);
+            if (LoginUtil.checkNull(byUserName)){
+                return ResponseUtil.custom("没有这个代理");
+            }
+            if (byUserName.getProxyRole() == CommonConst.NUMBER_1){
+                user.setFirstProxy(byUserName.getId());
+            }else if (byUserName.getProxyRole() == CommonConst.NUMBER_2){
+                user.setSecondProxy(byUserName.getId());
+            }else {
+                user.setThirdProxy(byUserName.getId());
+            }
+        }
         Sort sort=Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<User> userPage = userService.findUserPage(pageable, user,startDate,endDate);
@@ -196,6 +210,7 @@ public class UserController {
                     proxyUsers.stream().forEach(proxyUser -> {
                         if(proxyUser.getId().equals(u.getThirdProxy() == null ? "":u.getThirdProxy())){
                             userVo.setThirdProxyAccount(proxyUser.getUserName());
+                            userVo.setThirdProxyId(proxyUser.getId());
                         }
                         if(proxyUser.getId().equals(u.getFirstProxy() == null ? "":u.getFirstProxy())){
                             userVo.setFirstProxyAccount(proxyUser.getUserName());
