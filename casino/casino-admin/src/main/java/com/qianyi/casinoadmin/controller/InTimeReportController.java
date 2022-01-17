@@ -81,17 +81,12 @@ public class InTimeReportController {
         Long proxyId = null;
         Integer proxyRole = null;
         if (!LoginUtil.checkNull(userName)){
-            if (userName.equals("公司") || userName.equals("company@")){
-                proxyId = CommonConst.LONG_0;
-                proxyRole = CommonConst.NUMBER_1;
-            }else {
-                ProxyUser byUserName = proxyUserService.findByUserName(userName);
-                if (LoginUtil.checkNull(byUserName)){
-                    return ResponseUtil.success(new PageResultVO());
-                }
-                proxyId = byUserName.getId();
-                proxyRole = byUserName.getProxyRole();
+            ProxyUser byUserName = proxyUserService.findByUserName(userName);
+            if (LoginUtil.checkNull(byUserName)){
+                return ResponseUtil.success(new PageResultVO());
             }
+            proxyId = byUserName.getId();
+            proxyRole = byUserName.getProxyRole();
         }
         Page<GameRecordReport> gameRecordReportPage = gameRecordReportService.findGameRecordReportPage(pageable, gameRecordReport, startTime, endTime,proxyId,proxyRole);
         PageResultVO<GameRecordReportVo> pageResultVO = new PageResultVO(gameRecordReportPage);
@@ -103,9 +98,9 @@ public class InTimeReportController {
             gameRecordReports.stream().forEach(gameRecordReport1 -> {
                 GameRecordReportVo vo = new GameRecordReportVo();
                 BeanUtils.copyProperties(gameRecordReport1,vo);
-                if (gameRecordReport1.getFirstProxy().equals(CommonConst.LONG_0)){
-                    vo.setAccount(messageUtil.get("公司"));
-                }
+//                if (gameRecordReport1.getFirstProxy().equals(CommonConst.LONG_0)){
+//                    vo.setAccount(messageUtil.get("公司"));
+//                }
                 proxyUsers.stream().forEach(proxyUser -> {
                     if (gameRecordReport1.getFirstProxy().equals(proxyUser.getId())){
                         vo.setAccount(proxyUser.getUserName());
@@ -146,17 +141,12 @@ public class InTimeReportController {
         Long proxyId = null;
         Integer proxyRole = null;
         if (!LoginUtil.checkNull(userName)){
-            if (userName.equals("公司") || userName.equals("company@")){
-                proxyId = CommonConst.LONG_0;
-                proxyRole = CommonConst.NUMBER_1;
-            }else {
-                ProxyUser byUserName = proxyUserService.findByUserName(userName);
-                if (LoginUtil.checkNull(byUserName)){
-                    return ResponseUtil.success(new PageResultVO());
-                }
-                proxyId = byUserName.getId();
-                proxyRole = byUserName.getProxyRole();
+            ProxyUser byUserName = proxyUserService.findByUserName(userName);
+            if (LoginUtil.checkNull(byUserName)){
+                return ResponseUtil.success(new PageResultVO());
             }
+            proxyId = byUserName.getId();
+            proxyRole = byUserName.getProxyRole();
         }
         return ResponseUtil.success(gameRecordReportService.findRecordRecordSum(gameRecordReport,startTime,endTime,proxyId,proxyRole));
 
