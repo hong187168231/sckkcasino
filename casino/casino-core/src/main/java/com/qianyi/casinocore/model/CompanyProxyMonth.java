@@ -32,7 +32,7 @@ public class CompanyProxyMonth extends BaseEntity implements Cloneable{
     @ApiModelProperty(value = "创造业绩的玩家数")
     private Integer playerNum;
     @ApiModelProperty(value = "团队业绩流水")
-    @Column(columnDefinition = "Decimal(10,6) default '0.000000'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.000000'")
     private BigDecimal groupBetAmount;
     @ApiModelProperty(value = "返佣级别")
     private String profitLevel;
@@ -44,13 +44,13 @@ public class CompanyProxyMonth extends BaseEntity implements Cloneable{
     private String profitAmountLine;
 
     @ApiModelProperty(value = "团队总返佣")
-    @Column(columnDefinition = "Decimal(10,6) default '0.000000'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.000000'")
     private BigDecimal groupTotalprofit;
     @ApiModelProperty(value = "佣金分成比")
-    @Column(columnDefinition = "Decimal(10,6) default '0.000000'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.000000'")
     private BigDecimal benefitRate;
     @ApiModelProperty(value = "个人结算佣金")
-    @Column(columnDefinition = "Decimal(10,6) default '0.000000'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.000000'")
     private BigDecimal profitAmount;
     @ApiModelProperty(value = "结清状态 0 未结清 1已结清")
     private Integer settleStatus;
