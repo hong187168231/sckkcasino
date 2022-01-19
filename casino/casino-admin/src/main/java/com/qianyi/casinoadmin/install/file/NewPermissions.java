@@ -79,11 +79,11 @@ public class NewPermissions {
                 }
             }
             if (!collect.containsKey("/inTimeReport/find")) {
-                SysPermission sysPermission = new SysPermission("代理报表", "代理报表", "/inTimeReport/find", pid, CommonConst.NUMBER_2, CommonConst.NUMBER_0);
+                SysPermission sysPermission = new SysPermission("代理对账报表", "代理对账报表", "/inTimeReport/find", pid, CommonConst.NUMBER_2, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
             if (!collect.containsKey("/companyReport/find")) {
-                SysPermission sysPermission = new SysPermission("公司报表", "公司报表", "/companyReport/find", pid, CommonConst.NUMBER_2, CommonConst.NUMBER_0);
+                SysPermission sysPermission = new SysPermission("普通会员报表", "普通会员报表", "/companyReport/find", pid, CommonConst.NUMBER_2, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
         }
