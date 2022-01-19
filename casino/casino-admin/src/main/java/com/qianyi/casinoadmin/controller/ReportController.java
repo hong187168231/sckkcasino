@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.HistoryTotal;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.ReportService;
@@ -24,10 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.util.*;
 
 @Api(tags = "报表中心")
 @Slf4j
@@ -48,13 +47,30 @@ public class ReportController {
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "userName", value = "账号", required = false),
-            @ApiImplicitParam(name = "startTime", value = "起始时间查询", required = false),
-            @ApiImplicitParam(name = "endTime", value = "结束时间查询", required = false),
+            @ApiImplicitParam(name = "startTime", value = "起始时间查询", required = true),
+            @ApiImplicitParam(name = "endTime", value = "结束时间查询", required = true),
     })
     public ResponseEntity<Map<String,Object>> queryPersonReport(Integer pageSize, Integer pageCode, String userName,
                                                      String startTime, String endTime){
-//        String startTime = startDate==null? null: DateUtil.getSimpleDateFormat1().format(startDate);
-//        String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
+        if (LoginUtil.checkNull(startTime,endTime,pageSize,pageCode)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        try {
+            Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
+            Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(startDate);
+            calendar.add(Calendar.HOUR, 12);
+            startDate = calendar.getTime();
+            startTime = DateUtil.dateToPatten(startDate);
+            calendar.setTime(endDate);
+            calendar.add(Calendar.HOUR, 12);
+            endDate = calendar.getTime();
+            endTime = DateUtil.dateToPatten(endDate);
+        } catch (ParseException e) {
+            return ResponseUtil.custom("参数不合法");
+        }
+
         if(StringUtils.hasLength(userName)){
             User user = userService.findByAccount(userName);
             if(user != null){
