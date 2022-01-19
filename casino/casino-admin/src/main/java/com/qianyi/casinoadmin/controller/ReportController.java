@@ -102,9 +102,18 @@ public class ReportController {
     })
     public ResponseEntity<Map<String,Object>> queryTotal(String userName,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
-        String startTime = startDate==null? null: DateUtil.getSimpleDateFormat().format(startDate);
-        String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat().format(endDate);
-        log.info("endtime:{}",endTime);
+        if (LoginUtil.checkNull(startDate,endDate)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startDate);
+        calendar.add(Calendar.HOUR, 12);
+        startDate = calendar.getTime();
+        String startTime = DateUtil.dateToPatten(startDate);
+        calendar.setTime(endDate);
+        calendar.add(Calendar.HOUR, 12);
+        endDate = calendar.getTime();
+        String endTime = DateUtil.dateToPatten(endDate);
         Map<String,Object> result = reportService.queryAllTotal(startTime,endTime);
         HistoryTotal itemObject = getHistoryItem(result);
 
