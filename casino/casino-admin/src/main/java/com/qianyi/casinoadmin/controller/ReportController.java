@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.HistoryTotal;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.ReportService;
@@ -24,10 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.util.*;
 
 @Api(tags = "报表中心")
 @Slf4j
@@ -53,8 +52,25 @@ public class ReportController {
     })
     public ResponseEntity<Map<String,Object>> queryPersonReport(Integer pageSize, Integer pageCode, String userName,
                                                      String startTime, String endTime){
-//        String startTime = startDate==null? null: DateUtil.getSimpleDateFormat1().format(startDate);
-//        String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
+        if (LoginUtil.checkNull(startTime,endTime,pageSize,pageCode)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        try {
+            Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
+            Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(startDate);
+            calendar.add(Calendar.HOUR, 12);
+            startDate = calendar.getTime();
+            startTime = DateUtil.dateToPatten(startDate);
+            calendar.setTime(endDate);
+            calendar.add(Calendar.HOUR, 12);
+            endDate = calendar.getTime();
+            endTime = DateUtil.dateToPatten(endDate);
+        } catch (ParseException e) {
+            return ResponseUtil.custom("参数不合法");
+        }
+
         if(StringUtils.hasLength(userName)){
             User user = userService.findByAccount(userName);
             if(user != null){
@@ -86,9 +102,18 @@ public class ReportController {
     })
     public ResponseEntity<Map<String,Object>> queryTotal(String userName,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
-        String startTime = startDate==null? null: DateUtil.getSimpleDateFormat().format(startDate);
-        String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat().format(endDate);
-        log.info("endtime:{}",endTime);
+        if (LoginUtil.checkNull(startDate,endDate)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startDate);
+        calendar.add(Calendar.HOUR, 12);
+        startDate = calendar.getTime();
+        String startTime = DateUtil.dateToPatten(startDate);
+        calendar.setTime(endDate);
+        calendar.add(Calendar.HOUR, 12);
+        endDate = calendar.getTime();
+        String endTime = DateUtil.dateToPatten(endDate);
         Map<String,Object> result = reportService.queryAllTotal(startTime,endTime);
         HistoryTotal itemObject = getHistoryItem(result);
 
