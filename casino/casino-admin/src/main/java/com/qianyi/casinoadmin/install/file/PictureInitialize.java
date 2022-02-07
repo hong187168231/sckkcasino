@@ -85,7 +85,7 @@ public class PictureInitialize {
 
         CustomerConfigure onlineUrl=new CustomerConfigure();
         onlineUrl.setCustomerMark(6);
-        onlineUrl.setCustomerAccount("http://www.okeexx.cn/#/test");
+        onlineUrl.setCustomerAccount("http://www.kk1688.net/#/test");
         onlineUrl.setCustomer("在线客服");
         onlineUrl.setState(Constants.open);
         onlineUrl.setAppIconUrl("/customer/app_zaixiankefu@2x.png");
