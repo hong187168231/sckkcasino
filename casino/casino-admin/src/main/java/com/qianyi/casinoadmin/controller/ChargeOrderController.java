@@ -1,18 +1,12 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.vo.ChargeOrderVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
-import com.qianyi.casinocore.model.ChargeOrder;
-import com.qianyi.casinocore.model.CollectionBankcard;
-import com.qianyi.casinocore.model.SysUser;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.service.ChargeOrderService;
-import com.qianyi.casinocore.service.CollectionBankcardService;
-import com.qianyi.casinocore.service.SysUserService;
-import com.qianyi.casinocore.service.UserService;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
@@ -61,6 +55,9 @@ public class ChargeOrderController {
 
     @Autowired
     private SysUserService sysUserService;
+
+    @Autowired
+    private BankInfoService bankInfoService;
     /**
      * 充值申请列表
      *
@@ -113,15 +110,17 @@ public class ChargeOrderController {
 //            List<String> updateBys = content.stream().map(ChargeOrder::getUpdateBy).collect(Collectors.toList());
 //            List<SysUser> sysUsers = sysUserService.findAll(updateBys);
             Map<Long, CollectionBankcard> bankcardMap = all.stream().collect(Collectors.toMap(CollectionBankcard::getId, a -> a, (k1, k2) -> k1));
+            List<String> bankInfoIds = bankcardMap.values().stream().map(CollectionBankcard::getBankId).collect(Collectors.toList());
+            List<BankInfo> bankInfos = bankInfoService.findAll(bankInfoIds);
             if(userList != null){
                 content.stream().forEach(chargeOrder ->{
                     ChargeOrderVo chargeOrderVo = new ChargeOrderVo(chargeOrder);
                     userList.stream().forEach(user->{
                         if (user.getId().equals(chargeOrder.getUserId())){
                             chargeOrderVo.setAccount(user.getAccount());
-                            this.setCollectionBankcard(bankcardMap.get(chargeOrder.getBankcardId()),chargeOrderVo);
                         }
                     });
+                    this.setCollectionBankcard(bankcardMap.get(chargeOrder.getBankcardId()),chargeOrderVo,bankInfos);
 //                    sysUsers.stream().forEach(sysUser->{
 //                        if (chargeOrder.getStatus() != CommonConst.NUMBER_0 && sysUser.getId().toString().equals(chargeOrder.getUpdateBy() == null?"":chargeOrder.getUpdateBy())){
 //                            chargeOrderVo.setUpdateBy(sysUser.getUserName());
@@ -134,12 +133,17 @@ public class ChargeOrderController {
         }
         return ResponseUtil.success(pageResultVO);
     }
-    private void  setCollectionBankcard(CollectionBankcard collectionBankcard,ChargeOrderVo chargeOrderVo){
+    private void  setCollectionBankcard(CollectionBankcard collectionBankcard,ChargeOrderVo chargeOrderVo,List<BankInfo> bankInfos){
         if (LoginUtil.checkNull(collectionBankcard)){
             return ;
         }
         chargeOrderVo.setBankNo(collectionBankcard.getBankNo());
         chargeOrderVo.setAccountName(collectionBankcard.getAccountName());
+        bankInfos.stream().forEach(bankInfo -> {
+            if (bankInfo.getId().toString().equals(collectionBankcard.getBankId())){
+                chargeOrderVo.setBankName(bankInfo.getBankName());
+            }
+        });
     }
 
     /**
