@@ -41,6 +41,8 @@ public class ChargeOrderVo implements Serializable {
     private Long bankcardId;
     @ApiModelProperty(value = "收款银行号")
     private String bankNo;
+    @ApiModelProperty(value = "银行名称")
+    private String bankName;
     @ApiModelProperty(value = "开户名")
     private String accountName;
     @ApiModelProperty("会员类型:0、公司会员，1、渠道会员")
