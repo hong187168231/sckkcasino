@@ -107,8 +107,8 @@ public class CollectionBankcardController {
             return ResponseUtil.custom("银行账号不能为空");
         }
         bankNo = bankNo.trim();
-        if (bankNo.length() > 20 || bankNo.length() < 9 || !bankNo.matches(Constants.regex)) {
-            return ResponseUtil.custom("长度只能在9~20位的数字");
+        if (bankNo.length() > 20 || bankNo.length() < 8 || !bankNo.matches(Constants.regex)) {
+            return ResponseUtil.custom("长度只能在8~20位的数字");
         }
         if (!accountName.matches(RegexEnum.NAME.getRegex())){
             return ResponseUtil.custom("持卡人姓名格式错误");
@@ -165,8 +165,8 @@ public class CollectionBankcardController {
                     && !byBankNo.get(CommonConst.NUMBER_0).getBankNo().equals(collectionBankcard.getBankNo())){
                 return ResponseUtil.custom("银行卡已存在");
             }
-            if (bankNo.length() > 20 || bankNo.length() < 9 || !bankNo.matches(Constants.regex)) {
-                return ResponseUtil.custom("长度只能在9~20位的数字");
+            if (bankNo.length() > 20 || bankNo.length() < 8 || !bankNo.matches(Constants.regex)) {
+                return ResponseUtil.custom("长度只能在8~20位的数字");
             }
             collectionBankcard.setBankNo(bankNo);
         }

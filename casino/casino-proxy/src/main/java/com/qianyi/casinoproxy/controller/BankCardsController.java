@@ -174,8 +174,8 @@ public class BankCardsController {
         if (CasinoProxyUtil.checkNull(bankAccount)) {
             return "银行账号不能为空";
         }
-        if (bankAccount.length() > 20 || bankAccount.length() < 9) {
-            return "长度只能在9~20位";
+        if (bankAccount.length() > 20 || bankAccount.length() < 8) {
+            return "长度只能在8~20位";
         }
         if (!bankAccount.matches(Constants.regex)) {
             return "银行账号只能输入数字";
