@@ -78,7 +78,7 @@ public class WMController {
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
         //未注册自动注册到第三方
-        if (third == null) {
+        if (third == null || third.getUserId() == null) {
             String account = UUID.randomUUID().toString();
             account = account.replaceAll("-", "");
             if (account.length() > 30) {
@@ -92,12 +92,10 @@ public class WMController {
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
 
-            if (third == null) {
-                third = new UserThird();
-                third.setUserId(authId);
-            }
+            third = new UserThird();
             third.setAccount(account);
             third.setPassword(password);
+            third.setUserId(authId);
             try {
                 userThirdService.save(third);
             } catch (Exception e) {
