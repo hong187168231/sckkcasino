@@ -19,6 +19,9 @@ public class UserThird extends BaseEntity{
     private Long userId;
     @Column(unique = true)
     private String account;
+    @Column(unique = true)
+    @ApiModelProperty(value = "GoldenF账号")
+    private String goldenfAccount;
     private String password;
     private String language;
 
