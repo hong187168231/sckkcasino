@@ -57,6 +57,11 @@ project:   #不同环境需配置相应的值
   smsUrl: http://127.0.0.1:9600                #短信服务模块
   merchant: js                                 #短信服务校验，代码中固定限制是js
   jwtsecrect: fda#$&%$3t55v785A45DF$^&#*JGRstTRG   #jwt生成token秘钥
+  goldenf:    #goldenf游戏配置
+    url: http://kk.test.gf-gaming.com/gf
+    secretKey: 16e4ef534cec559430e07e05eb71c719
+    operatorToken: 7970f61d512b7b681aa149fad927eee8
+    currency: USD #币种
   swagger:
     enable: true                           #是否开启swagger接口文档
   telegramBot:  #定时器执行异常推送消息
