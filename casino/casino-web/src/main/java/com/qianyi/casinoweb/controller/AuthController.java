@@ -9,7 +9,6 @@ import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.util.DeviceUtil;
 import com.qianyi.casinoweb.util.InviteCodeUtil;
 import com.qianyi.casinoweb.vo.LoginLogVo;
-import com.qianyi.livegoldenf.api.PublicGoldenFApi;
 import com.qianyi.moduleauthenticator.WangyiDunAuthUtil;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;
@@ -640,20 +639,15 @@ public class AuthController {
         }
         return ResponseUtil.success();
     }
-    @Autowired
-    private PublicGoldenFApi goldenFApi;
 
     @GetMapping("serviceHealthCheck")
     @ApiOperation("服务健康状态监测")
     @NoAuthentication
     public ResponseEntity serverHealthCheck() {
-        goldenFApi.playerCreate("test003","USD");
         return ResponseUtil.success();
     }
 
-
     private void setUserTokenToRedis(Long userId, String token) {
-
         JjwtUtil.Token jwtToken = new JjwtUtil.Token();
         jwtToken.setOldToken(token);
         redisUtil.set(Constants.TOKEN_CASINO_WEB + userId, jwtToken,JjwtUtil.ttl + Constants.WEB_REFRESH_TTL);
