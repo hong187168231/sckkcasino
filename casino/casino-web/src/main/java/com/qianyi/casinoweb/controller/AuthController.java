@@ -647,6 +647,26 @@ public class AuthController {
         return ResponseUtil.success();
     }
 
+
+    @GetMapping("checkPhoneIsRegister")
+    @ApiOperation("检查手机号是否已经注册")
+    @NoAuthentication
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "country", value = "区号，柬埔寨：855", required = true),
+            @ApiImplicitParam(name = "phone", value = "手机号", required = true)
+    })
+    public ResponseEntity checkPhoneIsRegister(String country, String phone) {
+        boolean checkNull = CommonUtil.checkNull(country, phone);
+        if (checkNull) {
+            return ResponseUtil.parameterNotNull();
+        }
+        List<User> list = userService.findByPhone(country + phone);
+        if(!CollectionUtils.isEmpty(list)){
+            return ResponseUtil.custom("当前手机号已注册");
+        }
+        return ResponseUtil.success();
+    }
+
     private void setUserTokenToRedis(Long userId, String token) {
         JjwtUtil.Token jwtToken = new JjwtUtil.Token();
         jwtToken.setOldToken(token);
