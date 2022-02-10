@@ -2,18 +2,22 @@ package com.qianyi.casinoweb.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.qianyi.casinocore.business.ThirdGameBusiness;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
-import com.qianyi.casinocore.model.*;
-import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.model.Order;
+import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.model.UserMoney;
+import com.qianyi.casinocore.model.UserThird;
+import com.qianyi.casinocore.service.OrderService;
+import com.qianyi.casinocore.service.UserMoneyService;
+import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.service.UserThirdService;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
-import com.qianyi.casinoweb.util.DeviceUtil;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
 import com.qianyi.livegoldenf.constants.LanguageEnum;
-import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
-import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -23,7 +27,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -37,7 +40,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.Locale;
 import java.util.UUID;
 
 @RestController
@@ -54,17 +56,19 @@ public class GoldenFController {
     @Autowired
     private OrderService orderService;
     @Autowired
-    private PlatformConfigService platformConfigService;
-    @Autowired
     private PublicGoldenFApi goldenFApi;
+    @Autowired
+    private ThirdGameBusiness gameBusiness;
     @Autowired
     @Qualifier("accountChangeJob")
     private AsyncService asyncService;
     @Value("${project.goldenf.currency:null}")
     private String currency;
+    @Value("${project.ipWhite}")
+    private String ipWhite;
 
     @ApiOperation("开游戏")
-    @RequestLimit(limit = 1, timeout = 5)
+//    @RequestLimit(limit = 1, timeout = 5)
     @Transactional
     @PostMapping("/openGame")
     @ApiImplicitParams({
@@ -103,7 +107,8 @@ public class GoldenFController {
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
         }
-        User user = userService.findById(authId);
+        //转出WM游戏的余额
+        gameBusiness.oneKeyRecoverWm(authId);
         //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(authId);
         BigDecimal userCenterMoney = BigDecimal.ZERO;
@@ -124,33 +129,14 @@ public class GoldenFController {
             String orderNo = orderService.getOrderNo();
             //加点
             ResponseEntity responseEntity = transferIn(goldenfAccount, authId, userCenterMoney.doubleValue(), orderNo);
-            if (responseEntity!=null){
+            if (responseEntity != null) {
                 return responseEntity;
             }
-            //钱转入第三方后本地扣减记录账变，扣款
+            //钱转入第三方后本地扣减，扣款
             userMoneyService.subMoney(authId, userCenterMoney);
-            Order order = new Order();
-            order.setMoney(userCenterMoney);
-            order.setUserId(authId);
-            order.setRemark("自动转入PG/CQ9");
-            order.setType(0);
-            order.setState(Constants.order_wait);
-            order.setNo(orderNo);
-            order.setFirstProxy(user.getFirstProxy());
-            order.setSecondProxy(user.getSecondProxy());
-            order.setThirdProxy(user.getThirdProxy());
-            orderService.save(order);
-
-            //账变中心记录账变
-            AccountChangeVo vo = new AccountChangeVo();
-            vo.setUserId(authId);
-            vo.setChangeEnum(AccountChangeEnum.PG_CQ9_IN);
-            vo.setAmount(userCenterMoney.negate());
-            vo.setAmountBefore(userMoney.getMoney());
-            vo.setAmountAfter(userMoney.getMoney().subtract(userCenterMoney));
-            asyncService.executeAsync(vo);
+            //记录账变
+            saveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, "自动转入PG/CQ9");
         }
-
         //开游戏
         String language = request.getHeader(Constants.LANGUAGE);
         String languageCode = LanguageEnum.getLanguageCode(language);
@@ -168,7 +154,31 @@ public class GoldenFController {
         return ResponseUtil.success(gameUrl);
     }
 
-    public ResponseEntity transferIn(String playerName,Long userId,double amonut,String orderNo){
+    public void saveAccountChange(Long userId, BigDecimal amount, BigDecimal amountBefore, BigDecimal amountAfter, Integer type, String orderNo, String remark) {
+        User user = userService.findById(userId);
+        Order order = new Order();
+        order.setMoney(amount);
+        order.setUserId(userId);
+        order.setRemark(remark);
+        order.setType(type);
+        order.setState(Constants.order_wait);
+        order.setNo(orderNo);
+        order.setFirstProxy(user.getFirstProxy());
+        order.setSecondProxy(user.getSecondProxy());
+        order.setThirdProxy(user.getThirdProxy());
+        orderService.save(order);
+
+        //账变中心记录账变
+        AccountChangeVo vo = new AccountChangeVo();
+        vo.setUserId(userId);
+        vo.setChangeEnum(AccountChangeEnum.PG_CQ9_IN);
+        vo.setAmount(amount.negate());
+        vo.setAmountBefore(amountBefore);
+        vo.setAmountAfter(amountAfter);
+        asyncService.executeAsync(vo);
+    }
+
+    public ResponseEntity transferIn(String playerName, Long userId, double amonut, String orderNo) {
         PublicGoldenFApi.ResponseEntity entity = goldenFApi.transferIn(playerName, amonut, orderNo, null);
         if (entity == null) {
             log.error("userId:{},进游戏加扣点失败", userId);
@@ -183,7 +193,7 @@ public class GoldenFController {
         PublicGoldenFApi.ResponseEntity playerTransactionRecord = goldenFApi.getPlayerTransactionRecord(playerName, time, time, null, orderNo, null);
         if (playerTransactionRecord == null) {
             log.error("userId:{},进游戏查询转账记录失败", userId);
-            return ResponseUtil.custom("加点失败,请联系客服");
+            return ResponseUtil.custom("服务器异常,请重新操作");
         }
         if (!ObjectUtils.isEmpty(playerTransactionRecord.getErrorCode())) {
             log.error("userId:{},errorCode={},errorMsg={}", userId, playerTransactionRecord.getErrorCode(), playerTransactionRecord.getErrorMessage());
@@ -197,162 +207,60 @@ public class GoldenFController {
         return null;
     }
 
-   /* @ApiOperation("查询当前登录用户WM余额")
-    @GetMapping("getWmBalance")
-    public ResponseEntity<BigDecimal> getWmBalance() {
+    @ApiOperation("查询当前登录用户PG/CQ9余额")
+    @GetMapping("/getBalance")
+    public ResponseEntity<BigDecimal> getBalance() {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
-        if (third == null) {
+        if (third == null || ObjectUtils.isEmpty(third.getGoldenfAccount())) {
             return ResponseUtil.success(BigDecimal.ZERO);
         }
-        User user = userService.findById(authId);
-        Integer lang = user.getLanguage();
-        if (lang == null) {
-            lang = 0;
-        }
-        try {
-            BigDecimal balance = wmApi.getBalance(third.getAccount(), lang);
-            if (balance == null) {
-                log.error("userId:{},获取用户WM余额为null", authId);
-                return ResponseUtil.custom("服务器异常,请重新操作");
-            }
-            return ResponseUtil.success(balance.setScale(2, BigDecimal.ROUND_HALF_UP));
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("userId:{},获取用户WM余额失败{}", authId, e.getMessage());
-            return ResponseUtil.custom("服务器异常,请重新操作");
-        }
+        ResponseEntity<BigDecimal> responseEntity = gameBusiness.getBalanceGoldenF(third.getGoldenfAccount(), authId);
+        return responseEntity;
     }
 
-    @ApiOperation("查询用户WM余额外部接口")
-//    @RequestLimit(limit = 1, timeout = 5)
-    @GetMapping("getWmBalanceApi")
+    @ApiOperation("查询用户PG/CQ9余额外部接口")
+    @GetMapping("/getBalanceApi")
     @NoAuthentication
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "account", value = "第三方账号", required = true),
-            @ApiImplicitParam(name = "lang", value = "语言", required = true),
+            @ApiImplicitParam(name = "userId", value = "用户ID", required = true)
     })
-    public ResponseEntity<BigDecimal> getWmBalanceApi(String account, Integer lang) {
-        log.info("开始查询WM余额:account={},lang={}", account, lang);
+    public ResponseEntity<BigDecimal> getBalanceApi(Long userId) {
+        log.info("开始查询PG/CQ9余额:userId={}", userId);
         if (!ipWhiteCheck()) {
             return ResponseUtil.custom("ip禁止访问");
         }
-        if (CasinoWebUtil.checkNull(account, lang)) {
+        if (CasinoWebUtil.checkNull(userId)) {
             return ResponseUtil.parameterNotNull();
         }
-        try {
-            BigDecimal balance = wmApi.getBalance(account, lang);
-            if (balance == null) {
-                log.error("account:{},获取用户WM余额为null", account);
-                return ResponseUtil.custom("服务器异常,请重新操作");
-            }
-            log.info("WM余额查询成功:account={},lang={},balance", account, lang, balance);
-            return ResponseUtil.success(balance);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("account:{},获取用户WM余额失败{}", account, e.getMessage());
-            return ResponseUtil.custom("服务器异常,请重新操作");
+        UserThird third = userThirdService.findByUserId(userId);
+        if (third == null || ObjectUtils.isEmpty(third.getGoldenfAccount())) {
+            return ResponseUtil.custom("当前用户暂未进入过游戏");
         }
+        ResponseEntity<BigDecimal> responseEntity = gameBusiness.getBalanceGoldenF(third.getGoldenfAccount(), userId);
+        return responseEntity;
     }
 
-    @ApiOperation("一键回收当前登录用户WM余额")
+    @ApiOperation("一键回收当前登录用户PG/CQ9余额")
     @Transactional
-    @GetMapping("oneKeyRecover")
+    @GetMapping("/oneKeyRecover")
     public ResponseEntity oneKeyRecover() {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
-        return oneKeyRecoverCommon(userId);
+        return gameBusiness.oneKeyRecoverGoldenF(userId);
     }
 
-    @ApiOperation("一键回收用户WM余额外部接口")
+    @ApiOperation("一键回收用户PG/CQ9余额外部接口")
     @Transactional
-    @GetMapping("oneKeyRecoverApi")
+    @GetMapping("/oneKeyRecoverApi")
     @NoAuthentication
     @ApiImplicitParam(name = "userId", value = "用户ID", required = true)
     public ResponseEntity oneKeyRecoverApi(Long userId) {
         if (!ipWhiteCheck()) {
             return ResponseUtil.custom("ip禁止访问");
         }
-        return oneKeyRecoverCommon(userId);
-    }
-
-    public ResponseEntity oneKeyRecoverCommon(Long userId) {
-        log.info("开始回收wm余额，userId={}", userId);
-        if (CasinoWebUtil.checkNull(userId)) {
-            return ResponseUtil.parameterNotNull();
-        }
-        UserThird third = userThirdService.findByUserId(userId);
-        if (third == null || ObjectUtils.isEmpty(third.getAccount())) {
-            return ResponseUtil.custom("WM余额为0");
-        }
-        User user = userService.findById(userId);
-        Integer lang = user.getLanguage();
-        if (lang == null) {
-            lang = 0;
-        }
-        String account = third.getAccount();
-        //先退出游戏
-        Boolean aBoolean = wmApi.logoutGame(account, lang);
-        if (!aBoolean) {
-            log.error("userId:{},退出游戏失败", userId);
-            return ResponseUtil.custom("服务器异常,请重新操作");
-        }
-        //查询用户在wm的余额
-        BigDecimal balance = BigDecimal.ZERO;
-        try {
-            balance = wmApi.getBalance(account, lang);
-            if (balance == null) {
-                log.error("userId:{},获取用户WM余额为null", userId);
-                return ResponseUtil.custom("服务器异常,请重新操作");
-            }
-        } catch (Exception e) {
-            log.error("userId:{},获取用户WM余额失败{}", userId, e.getMessage());
-            e.printStackTrace();
-            return ResponseUtil.custom("服务器异常,请重新操作");
-        }
-        if (balance.compareTo(BigDecimal.ONE) == -1) {
-            log.error("userId:{},balance={},金额小于1，不可回收", userId, balance);
-            return ResponseUtil.custom("WM余额小于1,不可回收");
-        }
-        //调用加扣点接口扣减wm余额  存在精度问题，只回收整数部分
-        BigDecimal recoverMoney = balance.negate().setScale(0, BigDecimal.ROUND_DOWN);
-        PublicWMApi.ResponseEntity entity = wmApi.changeBalance(account, recoverMoney, null, lang);
-        if (entity.getErrorCode() != 0) {
-            log.error("userId:{},errorCode={},errorMsg={}", userId, entity.getErrorCode(), entity.getErrorMessage());
-            return ResponseUtil.custom("回收失败,请联系客服");
-        }
-        balance = recoverMoney.abs();
-        //把额度加回本地
-        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
-        if (userMoney == null) {
-            userMoney = new UserMoney();
-            userMoney.setUserId(userId);
-            userMoneyService.save(userMoney);
-        }
-        userMoneyService.addMoney(userId, balance);
-        Order order = new Order();
-        order.setMoney(balance);
-        order.setUserId(userId);
-        order.setRemark("自动转出WM");
-        order.setType(1);
-        order.setState(Constants.order_wait);
-        String orderNo = orderService.getOrderNo();
-        order.setNo(orderNo);
-        order.setFirstProxy(user.getFirstProxy());
-        order.setSecondProxy(user.getSecondProxy());
-        order.setThirdProxy(user.getThirdProxy());
-        orderService.save(order);
-        //账变中心记录账变
-        AccountChangeVo vo = new AccountChangeVo();
-        vo.setUserId(userId);
-        vo.setChangeEnum(AccountChangeEnum.RECOVERY);
-        vo.setAmount(balance);
-        vo.setAmountBefore(userMoney.getMoney());
-        vo.setAmountAfter(userMoney.getMoney().add(balance));
-        asyncService.executeAsync(vo);
-        log.info("wm余额回收成功，userId={}", userId);
-        return ResponseUtil.success();
+        return gameBusiness.oneKeyRecoverGoldenF(userId);
     }
 
     private Boolean ipWhiteCheck() {
@@ -367,5 +275,5 @@ public class GoldenFController {
             }
         }
         return false;
-    }*/
+    }
 }

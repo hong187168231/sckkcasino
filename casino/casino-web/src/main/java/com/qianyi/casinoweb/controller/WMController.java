@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Locale;
 import java.util.UUID;
 
+import com.qianyi.casinocore.business.ThirdGameBusiness;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
@@ -57,6 +58,8 @@ public class WMController {
     @Autowired
     PublicWMApi wmApi;
     @Autowired
+    ThirdGameBusiness thirdGameBusiness;
+    @Autowired
     @Qualifier("accountChangeJob")
     AsyncService asyncService;
 
@@ -78,7 +81,7 @@ public class WMController {
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
         //未注册自动注册到第三方
-        if (third == null) {
+        if (third == null|| ObjectUtils.isEmpty(third.getAccount())) {
             String account = UUID.randomUUID().toString();
             account = account.replaceAll("-", "");
             if (account.length() > 30) {
@@ -116,6 +119,8 @@ public class WMController {
         if (Locale.CHINA.toString().equals(language)) {
             lang = 0;//中文
         }
+        //回收PG/CQ9的余额
+        thirdGameBusiness.oneKeyRecoverGoldenF(authId);
         PlatformConfig platformConfig = platformConfigService.findFirst();
         //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(authId);
@@ -324,7 +329,7 @@ public class WMController {
     public ResponseEntity oneKeyRecover() {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
-        return oneKeyRecoverCommon(userId);
+        return thirdGameBusiness.oneKeyRecoverWm(userId);
     }
 
     @ApiOperation("一键回收用户WM余额外部接口")
@@ -336,85 +341,7 @@ public class WMController {
         if (!ipWhiteCheck()) {
             return ResponseUtil.custom("ip禁止访问");
         }
-        return oneKeyRecoverCommon(userId);
-    }
-
-    public ResponseEntity oneKeyRecoverCommon(Long userId) {
-        log.info("开始回收wm余额，userId={}",userId);
-        if (CasinoWebUtil.checkNull(userId)) {
-            return ResponseUtil.parameterNotNull();
-        }
-        UserThird third = userThirdService.findByUserId(userId);
-        if (third == null || ObjectUtils.isEmpty(third.getAccount())) {
-            return ResponseUtil.custom("WM余额为0");
-        }
-        User user = userService.findById(userId);
-        Integer lang = user.getLanguage();
-        if (lang == null) {
-            lang = 0;
-        }
-        String account = third.getAccount();
-        //先退出游戏
-        Boolean aBoolean = wmApi.logoutGame(account, lang);
-        if (!aBoolean) {
-            log.error("userId:{},退出游戏失败",userId);
-            return ResponseUtil.custom("服务器异常,请重新操作");
-        }
-        //查询用户在wm的余额
-        BigDecimal balance = BigDecimal.ZERO;
-        try {
-            balance = wmApi.getBalance(account, lang);
-            if (balance == null) {
-                log.error("userId:{},获取用户WM余额为null",userId);
-                return ResponseUtil.custom("服务器异常,请重新操作");
-            }
-        } catch (Exception e) {
-            log.error("userId:{},获取用户WM余额失败{}",userId, e.getMessage());
-            e.printStackTrace();
-            return ResponseUtil.custom("服务器异常,请重新操作");
-        }
-        if (balance.compareTo(BigDecimal.ONE) == -1) {
-            log.error("userId:{},balance={},金额小于1，不可回收", userId, balance);
-            return ResponseUtil.custom("WM余额小于1,不可回收");
-        }
-        //调用加扣点接口扣减wm余额  存在精度问题，只回收整数部分
-        BigDecimal recoverMoney = balance.negate().setScale(0, BigDecimal.ROUND_DOWN);
-        PublicWMApi.ResponseEntity entity = wmApi.changeBalance(account, recoverMoney, null, lang);
-        if (entity.getErrorCode() != 0) {
-            log.error("userId:{},errorCode={},errorMsg={}",userId, entity.getErrorCode(), entity.getErrorMessage());
-            return ResponseUtil.custom("回收失败,请联系客服");
-        }
-        balance = recoverMoney.abs();
-        //把额度加回本地
-        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
-        if (userMoney == null) {
-            userMoney = new UserMoney();
-            userMoney.setUserId(userId);
-            userMoneyService.save(userMoney);
-        }
-        userMoneyService.addMoney(userId, balance);
-        Order order = new Order();
-        order.setMoney(balance);
-        order.setUserId(userId);
-        order.setRemark("自动转出WM");
-        order.setType(1);
-        order.setState(Constants.order_wait);
-        String orderNo = orderService.getOrderNo();
-        order.setNo(orderNo);
-        order.setFirstProxy(user.getFirstProxy());
-        order.setSecondProxy(user.getSecondProxy());
-        order.setThirdProxy(user.getThirdProxy());
-        orderService.save(order);
-        //账变中心记录账变
-        AccountChangeVo vo = new AccountChangeVo();
-        vo.setUserId(userId);
-        vo.setChangeEnum(AccountChangeEnum.RECOVERY);
-        vo.setAmount(balance);
-        vo.setAmountBefore(userMoney.getMoney());
-        vo.setAmountAfter(userMoney.getMoney().add(balance));
-        asyncService.executeAsync(vo);
-        log.info("wm余额回收成功，userId={}",userId);
-        return ResponseUtil.success();
+        return thirdGameBusiness.oneKeyRecoverWm(userId);
     }
 
     private Boolean ipWhiteCheck() {
