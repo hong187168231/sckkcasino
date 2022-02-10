@@ -122,7 +122,7 @@ public class ChargeOrderController {
                         if (user.getId().equals(chargeOrder.getUserId())){
                             chargeOrderVo.setAccount(user.getAccount());
                             if (!LoginUtil.checkNull(user.getThirdProxy())){
-                                ProxyUser proxyUserById = proxyUserService.findProxyUserById(user.getThirdProxy());
+                                ProxyUser proxyUserById = proxyUserService.findById(user.getThirdProxy());
                                 chargeOrderVo.setThirdProxy(proxyUserById != null?proxyUserById.getUserName():"");
                             }
                         }
