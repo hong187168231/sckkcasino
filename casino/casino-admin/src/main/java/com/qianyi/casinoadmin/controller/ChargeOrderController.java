@@ -52,6 +52,9 @@ public class ChargeOrderController {
 
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private ProxyUserService proxyUserService;
 
     @Autowired
     private SysUserService sysUserService;
@@ -118,6 +121,10 @@ public class ChargeOrderController {
                     userList.stream().forEach(user->{
                         if (user.getId().equals(chargeOrder.getUserId())){
                             chargeOrderVo.setAccount(user.getAccount());
+                            if (!LoginUtil.checkNull(user.getThirdProxy())){
+                                ProxyUser proxyUserById = proxyUserService.findProxyUserById(user.getThirdProxy());
+                                chargeOrderVo.setThirdProxy(proxyUserById != null?proxyUserById.getUserName():"");
+                            }
                         }
                     });
                     this.setCollectionBankcard(bankcardMap.get(chargeOrder.getBankcardId()),chargeOrderVo,bankInfos);
