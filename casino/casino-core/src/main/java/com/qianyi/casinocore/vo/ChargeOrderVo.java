@@ -17,6 +17,8 @@ public class ChargeOrderVo implements Serializable {
     private Long id;
     @ApiModelProperty(value = "会员账号")
     private String account;
+    @ApiModelProperty(value = "基层代理账号")
+    private String thirdProxy;
     @ApiModelProperty(value = "用户ID")
     private Long userId;
     @ApiModelProperty(value = "订单号")
