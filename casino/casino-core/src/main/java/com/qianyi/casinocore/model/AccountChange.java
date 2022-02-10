@@ -25,7 +25,7 @@ public class AccountChange extends BaseEntity {
 	@ApiModelProperty(value = "订单号")
 	private String orderNo;
 
-	@ApiModelProperty(value = "账变类型:0.洗码领取,7.转入wm,8.一键回收,9.代理佣金领取")
+	@ApiModelProperty(value = "账变类型:0.洗码领取,7.转入wm,8.一键回收(转出WM),9.代理佣金领取,10.转入PC/CQ9,11.转出PC/CQ9")
 	private Integer type;
 
 	@ApiModelProperty(value = "额度变化")
