@@ -73,8 +73,8 @@ public class CompanyProxyMonthBusiness {
         log.info("firstList size is {}, secondeList size is {}, thirdList size is {}",firstList.size(),secondeList.size(),thirdList.size());
 
         // 处理总返佣：总返佣group_totalprofit = 下级profit_amount总计
-        List<CompanyProxyMonth> secondeCompanyProxyDetail = processSecTemp(secondeList,thirdList,2);
-        List<CompanyProxyMonth> firstCompanyProxyDetail = processSecTemp(firstList,secondeCompanyProxyDetail,1);
+        List<CompanyProxyMonth> secondeCompanyProxyDetail = processSec(secondeList,thirdList,2);
+        List<CompanyProxyMonth> firstCompanyProxyDetail = processSec(firstList,secondeCompanyProxyDetail,1);
 
         List<CompanyProxyMonth> resultList = Stream.concat(thirdList.stream(),secondeCompanyProxyDetail.stream()).collect(Collectors.toList());
         resultList.addAll(firstCompanyProxyDetail);

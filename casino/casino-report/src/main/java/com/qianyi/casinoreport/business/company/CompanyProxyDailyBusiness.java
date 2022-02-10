@@ -67,8 +67,8 @@ public class CompanyProxyDailyBusiness {
         log.info("firstList size is {}, secondeList size is {}, thirdList size is {}",firstList.size(),secondeList.size(),thirdList.size());
 
         // 处理总返佣：总返佣group_totalprofit = 下级profit_amount总计
-        List<CompanyProxyDetail> secondeCompanyProxyDetail = processSecTemp(secondeList,thirdList,2);
-        List<CompanyProxyDetail> firstCompanyProxyDetail = processSecTemp(firstList,secondeCompanyProxyDetail,1);
+        List<CompanyProxyDetail> secondeCompanyProxyDetail = processSec(secondeList,thirdList,2);
+        List<CompanyProxyDetail> firstCompanyProxyDetail = processSec(firstList,secondeCompanyProxyDetail,1);
 
         List<CompanyProxyDetail> resultList = Stream.concat(thirdList.stream(),secondeCompanyProxyDetail.stream()).collect(Collectors.toList());
         resultList.addAll(firstCompanyProxyDetail);
