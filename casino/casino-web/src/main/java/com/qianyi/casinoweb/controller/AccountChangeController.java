@@ -86,7 +86,7 @@ public class AccountChangeController {
                 if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
                     list.add(cb.between(root.get("createTime").as(String.class), startTime, endTime));
                 }
-                int[] types = {AccountChangeEnum.WASH_CODE.getType(), AccountChangeEnum.WM_IN.getType(), AccountChangeEnum.RECOVERY.getType(), AccountChangeEnum.SHARE_PROFIT.getType()};
+                int[] types = {AccountChangeEnum.WASH_CODE.getType(), AccountChangeEnum.WM_IN.getType(), AccountChangeEnum.RECOVERY.getType(), AccountChangeEnum.SHARE_PROFIT.getType(), AccountChangeEnum.PG_CQ9_IN.getType(), AccountChangeEnum.PG_CQ9_OUT.getType()};
                 CriteriaBuilder.In<Object> in = cb.in(root.get("type"));
                 for (int type : types) {
                     in.value(type);
