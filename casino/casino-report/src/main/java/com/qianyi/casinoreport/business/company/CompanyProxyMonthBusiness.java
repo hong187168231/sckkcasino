@@ -133,9 +133,10 @@ public class CompanyProxyMonthBusiness {
         for (Long userId : groupSec.keySet()) {
             List<CompanyProxyMonth> subList = groupSec.get(userId);
             if(level==2)
-                subThird = secList.stream().filter(x->x.getSecondProxy()==userId).collect(Collectors.toList());
+                subThird = secList.stream().filter(x->x.getSecondProxy().equals(userId)).collect(Collectors.toList());
             else
-                subThird = secList.stream().filter(x->x.getFirstProxy()==userId).collect(Collectors.toList());
+                subThird = secList.stream().filter(x->x.getFirstProxy().equals(userId)).collect(Collectors.toList());
+
 
             if(userId == 4 && level== 1){
                 log.info("++++++++++++");
