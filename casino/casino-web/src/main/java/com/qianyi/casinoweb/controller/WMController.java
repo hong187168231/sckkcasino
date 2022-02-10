@@ -263,7 +263,7 @@ public class WMController {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
-        if (third == null) {
+        if (third == null||ObjectUtils.isEmpty(third.getAccount())) {
             return ResponseUtil.success(BigDecimal.ZERO);
         }
         User user = userService.findById(authId);
