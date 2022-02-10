@@ -66,8 +66,8 @@ public class WashCodeConfigRunner implements CommandLineRunner {
         list.add(setData("112", "温州牌九", "Wenzhou Pai Gow"));
         list.add(setData("113", "二八杠", "Mahjong tiles"));
         list.add(setData("128", "安達巴哈", "AndarBahar"));
-        list.add(setData("201", "PG", "PG"));
-        list.add(setData("202", "CQ9", "CQ9"));
+        list.add(setData("PG", "PG", "PG"));
+        list.add(setData("CQ9", "CQ9", "CQ9"));
         return list;
     }
 
