@@ -240,7 +240,7 @@ public class UserMoneyService {
     public JSONObject oneKeyRecover(User user){
         try {
             String param = "userId={0}";
-            param = MessageFormat.format(param,user.getId());
+            param = MessageFormat.format(param,user.getId().toString());
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null?"":first.getWebConfiguration();
             WMurl = WMurl + recycleUrl;
