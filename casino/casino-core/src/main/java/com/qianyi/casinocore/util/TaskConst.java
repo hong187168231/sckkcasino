@@ -27,4 +27,9 @@ public final class TaskConst {
      * 每日零点四十分
      */
     public final static String GAMERECORD_TASK = "0 15,30,45 * * * ?";
+
+    /**
+     * 每小时十九分
+     */
+    public final static String GAMERECORD_TASK_NEW = "0 19 * * * ?";
 }
