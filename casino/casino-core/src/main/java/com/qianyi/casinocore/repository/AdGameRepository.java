@@ -8,4 +8,8 @@ import java.util.List;
 
 public interface AdGameRepository extends JpaRepository<AdGame,Long>, JpaSpecificationExecutor<AdGame> {
     List<AdGame> findByGameCode(String gameCode);
+
+    List<AdGame> findByGamePlatformIdAndGamesStatus(Integer gamePlatformId,Integer gamesStatus);
+
+    List<AdGame> findByGamePlatformIdAndGameNameLikeAndGamesStatus(Integer gamePlatformId,String gameName,Integer gamesStatus);
 }

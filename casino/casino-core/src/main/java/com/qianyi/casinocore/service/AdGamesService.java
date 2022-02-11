@@ -2,9 +2,12 @@ package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.AdGame;
 import com.qianyi.casinocore.repository.AdGameRepository;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,8 +27,18 @@ public class AdGamesService {
     @Autowired
     private AdGameRepository adGameRepository;
 
-    public List<AdGame> findByGameCode(String gameCode){
+    public List<AdGame> findByGameCode(String gameCode) {
         return adGameRepository.findByGameCode(gameCode);
+    }
+
+    @Cacheable(key = "#root.methodName+'::'+#p0")
+    public List<AdGame> findByGamePlatformIdAndGamesStatusIsTrue(Integer gamePlatformId) {
+        return adGameRepository.findByGamePlatformIdAndGamesStatus(gamePlatformId, Constants.open);
+    }
+
+    @Cacheable(key = "#root.methodName+'::'+#p0+'::'+#p1")
+    public List<AdGame> findByGamePlatformIdAndGameNameAndGamesStatusIsTrue(Integer gamePlatformId, String gameName) {
+        return adGameRepository.findByGamePlatformIdAndGameNameLikeAndGamesStatus(gamePlatformId, "%" + gameName + "%", Constants.open);
     }
 
 
@@ -55,6 +68,7 @@ public class AdGamesService {
         return adGameRepository.findAll(condition);
     }
 
+    @CacheEvict(allEntries = true)
     public void saveAll(List<AdGame> adGameList) {
         adGameRepository.saveAll(adGameList);
     }

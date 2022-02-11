@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface PlatformGameRepository extends JpaRepository<PlatformGame,Long>, JpaSpecificationExecutor<PlatformGame> {
+
+    PlatformGame findByGamePlatformName(String gamePlatformName);
 }
