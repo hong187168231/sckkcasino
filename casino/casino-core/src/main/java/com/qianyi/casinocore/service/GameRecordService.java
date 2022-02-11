@@ -122,6 +122,11 @@ public class GameRecordService {
     public List<Map<String,Object>> queryGameRecords(String startTime,String endTime){
         return gameRecordRepository.queryGameRecords(startTime,endTime);
     }
+
+    public List<Map<String,Object>> queryGameRecords(Long id,Integer num){
+        return gameRecordRepository.queryGameRecords(id,num);
+    }
+
     public GameRecord findGameRecordById(Long gameId){return gameRecordRepository.findById(gameId).orElse(null);}
 
 

@@ -7,6 +7,8 @@ import com.qianyi.modulecommon.Constants;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
@@ -108,5 +110,17 @@ public class CommonUtil {
             return true;
         }
         return false;
+    }
+
+    public static Long toHash(String key) {
+        try {
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            md5.update(key.getBytes("utf-8"));
+            BigInteger bigInt = new BigInteger(1, md5.digest());
+            return Math.abs(bigInt.longValue());
+        } catch (Exception ex) {
+            return null;
+        }
+
     }
 }

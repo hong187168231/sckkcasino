@@ -60,6 +60,9 @@ public class Initialization implements CommandLineRunner {
     @Autowired
     NewPermissions newPermissions;
 
+    @Autowired
+    private GameRecordEndIndexService gameRecordEndIndexService;
+
 
 
     @Override
@@ -74,7 +77,18 @@ public class Initialization implements CommandLineRunner {
        this.runAddSysUser();
        //客户中心配置初始化
         this.saveCustomerConfigureInfo();
+        this.saveGameRecordEndIndex();
     }
+
+    private void saveGameRecordEndIndex() {
+        GameRecordEndIndex first = gameRecordEndIndexService.findFirst();
+        if (LoginUtil.checkNull(first)){
+            first = new GameRecordEndIndex();
+            first.setGameRecordId(0L);
+            gameRecordEndIndexService.save(first);
+        }
+    }
+
     /**
      * 添加新的权限脚本
      */
