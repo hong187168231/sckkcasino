@@ -16,4 +16,7 @@ import java.math.BigDecimal;
 public class GameRecordEndIndex extends BaseEntity{
     @ApiModelProperty("wm注单id")
     private Long GameRecordId;
+
+    @ApiModelProperty("电子注单id")
+    private Long GameRecordGoldenFId;
 }

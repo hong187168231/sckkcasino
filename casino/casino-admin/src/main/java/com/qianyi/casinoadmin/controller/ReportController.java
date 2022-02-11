@@ -2,9 +2,12 @@ package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.HistoryTotal;
+import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.service.ReportService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.CompanyProxyReportVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
@@ -39,6 +42,9 @@ public class ReportController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ProxyUserService proxyUserService;
 
 //    @NoAuthorization
     @ApiOperation("查询个人报表")
@@ -78,15 +84,36 @@ public class ReportController {
                 return ResponseUtil.success(combinePage(reportResult,1,pageCode,pageSize));
             }
             List<Map<String,Object>> emptyResult = new ArrayList<Map<String,Object>>();
-            return ResponseUtil.success(combinePage(emptyResult,0,pageCode,pageSize));
+            PageResultVO<Map<String, Object>> mapPageResultVO = combinePage(emptyResult, 0, pageCode, pageSize);
+            return ResponseUtil.success(getMap(mapPageResultVO));
         }
 
         int page = (pageCode-1)*pageSize;
         List<Map<String,Object>> reportResult = reportService.queryAllPersonReport(startTime,endTime,page,pageSize);
         int totalElement = reportService.queryTotalElement(startTime,endTime);
-        return ResponseUtil.success(combinePage(reportResult,totalElement,pageCode,pageSize));
+        PageResultVO<Map<String, Object>> mapPageResultVO = combinePage(reportResult, totalElement, pageCode, pageSize);
+        return ResponseUtil.success(getMap(mapPageResultVO));
     }
 
+    private PageResultVO<Map<String, Object>> getMap(PageResultVO<Map<String, Object>> mapPageResultVO){
+        List<Map<String, Object>> content = (List<Map<String, Object>>)mapPageResultVO.getContent();
+        List<Map<String, Object>> list = null;
+        if (!LoginUtil.checkNull(content) && content.size() > CommonConst.NUMBER_0){
+            list = new LinkedList<>();
+            for (Map<String, Object> item:content){
+                if (LoginUtil.checkNull(item.get("third_proxy"))){
+                    list.add(item);
+                    continue;
+                }
+                ProxyUser third_proxy = proxyUserService.findById(Long.parseLong(item.get("third_proxy").toString()));
+                Map<String, Object> newMap = new HashMap<>(item);
+                newMap.put("thirdProxy",third_proxy==null?"":third_proxy.getUserName());
+                list.add(newMap);
+            }
+        }
+        mapPageResultVO.setContent(list);
+        return mapPageResultVO;
+    }
     private PageResultVO<Map<String,Object>> combinePage(List<Map<String,Object>> reportResult,int totalElement,int page,int num){
         PageResultVO<Map<String,Object>> pageResult = new PageResultVO<Map<String,Object>>(page,num,Long.parseLong(totalElement+""),reportResult);
         return pageResult;
