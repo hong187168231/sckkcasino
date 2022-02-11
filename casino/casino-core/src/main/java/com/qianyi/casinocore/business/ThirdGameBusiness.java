@@ -164,7 +164,7 @@ public class ThirdGameBusiness {
             userMoney.setUserId(userId);
             userMoneyService.save(userMoney);
         }
-        userMoneyService.addMoney(userId, recoverMoney);
+        userMoneyService.addMoney(userId, balance);
         String orderNo = orderService.getOrderNo();
         saveAccountChange(userId, balance, userMoney.getMoney(), balance.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.RECOVERY,"自动转出WM", user);
         log.info("wm余额回收成功，userId={}", userId);
