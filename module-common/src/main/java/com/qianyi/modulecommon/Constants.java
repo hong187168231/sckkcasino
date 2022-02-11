@@ -93,6 +93,7 @@ public class Constants {
     public static final String INVITE_TYPE_COMPANY= "888";
     //redis用户key前缀
     public static final String REDIS_USERID= "userId::";
+    public static final String REDIS_GAMECODE= "gameCode::";
     //redis每日短信发送数量前缀
     public static final String REDIS_SMSIPSENDNUM= "sms::ipSendNum::";
     //redis每日短信前缀
