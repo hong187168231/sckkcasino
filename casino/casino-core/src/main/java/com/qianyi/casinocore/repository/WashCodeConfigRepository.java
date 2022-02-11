@@ -11,4 +11,6 @@ public interface WashCodeConfigRepository extends JpaRepository<WashCodeConfig,L
     List<WashCodeConfig> findByPlatform(String platform);
 
     List<WashCodeConfig> findByPlatformAndState(String platform,Integer state);
+
+    List<WashCodeConfig> findByState(Integer state);
 }

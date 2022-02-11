@@ -54,6 +54,24 @@ public class UserWashCodeConfigService {
         return configs;
     }
 
+    public List<WashCodeConfig> getWashCodeConfig(Long userId) {
+        //先查询用户级的洗码配置
+        List<UserWashCodeConfig> codeConfigs = userWashCodeConfigRepository.findByUserIdAndState(userId, Constants.open);
+        if (!CollectionUtils.isEmpty(codeConfigs)) {
+            List<WashCodeConfig> list = new ArrayList<>();
+            WashCodeConfig config = null;
+            for (UserWashCodeConfig codeConfig : codeConfigs) {
+                config = new WashCodeConfig();
+                BeanUtils.copyProperties(codeConfig, config);
+                list.add(config);
+            }
+            return list;
+        }
+        //先查询全局洗码配置
+        List<WashCodeConfig> configs = washCodeConfigService.findByState(Constants.open);
+        return configs;
+    }
+
     public WashCodeConfig getWashCodeConfigByUserIdAndGameId(String platform,Long userId,String gameId) {
         List<WashCodeConfig> washCodeConfig = getWashCodeConfig(platform,userId);
         for (WashCodeConfig config : washCodeConfig) {
