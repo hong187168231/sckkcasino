@@ -27,6 +27,11 @@ public class WashCodeConfigService {
         return washCodeConfigRepository.findByPlatformAndState(platform,state);
     }
 
+    @Cacheable(key = "'findByState::'+#p0")
+    public List<WashCodeConfig> findByState(Integer state){
+        return washCodeConfigRepository.findByState(state);
+    }
+
     @Cacheable(key = "#platform")
     public List<WashCodeConfig> findByPlatform(String platform){
         return washCodeConfigRepository.findByPlatform(platform);

@@ -58,7 +58,7 @@ public class GameRecordGoldenF extends BaseEntity {
     private Long firstProxy;
 
     @ApiModelProperty(value = "二级代理")
-    private Long secondeProxy;
+    private Long secondProxy;
 
     @ApiModelProperty(value = "三级代理")
     private Long thirdProxy;
