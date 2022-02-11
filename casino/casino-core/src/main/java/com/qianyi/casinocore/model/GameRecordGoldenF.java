@@ -46,7 +46,7 @@ public class GameRecordGoldenF extends BaseEntity {
     private Long createAt;
 
     @ApiModelProperty(value = "创建时间字符串")
-    private Long createAtStr;
+    private String createAtStr;
 
     @ApiModelProperty(value = "交易编号")
     private String traceId;
