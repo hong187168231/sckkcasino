@@ -27,6 +27,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
 
     @Query(value = "select \n" +
             "u.account , \n" +
+            "u.third_proxy , \n" +
             " u.id,\n" +
             " ifnull(main_t.num,0) num,\n" +
             " ifnull(main_t.bet_amount,0) bet_amount ,\n" +
@@ -71,6 +72,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
 
     @Query(value = "select \n" +
             "u.account , \n" +
+            "u.third_proxy , \n" +
             " u.id,\n" +
             " ifnull(main_t.num,0) num,\n" +
             " ifnull(main_t.bet_amount,0) bet_amount ,\n" +
