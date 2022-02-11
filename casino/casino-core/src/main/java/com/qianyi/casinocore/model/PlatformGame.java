@@ -17,6 +17,6 @@ public class PlatformGame extends BaseEntity  {
     @ApiModelProperty(value = "游戏平台ID")
     private String gamePlatformName;
 
-    @ApiModelProperty(value = "平台状态：0下架，1：上架")
-    private String gameStatus;
+    @ApiModelProperty(value = "平台状态：0：维护，1：正常")
+    private Integer gameStatus;
 }

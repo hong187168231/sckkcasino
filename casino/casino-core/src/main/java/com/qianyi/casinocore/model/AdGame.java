@@ -15,11 +15,11 @@ public class AdGame extends BaseEntity{
     private Integer gamePlatformId;
 
     @ApiModelProperty(value = "游戏编码")
-    private Integer gameCode;
+    private String gameCode;
 
     @ApiModelProperty(value = "游戏名称")
-    private Integer gameName;
+    private String gameName;
 
-    @ApiModelProperty(value = "是否上架 0：下架 1：上架")
+    @ApiModelProperty(value = "是否维护 0：维护 1正常")
     private Integer gamesStatus;
 }
