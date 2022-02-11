@@ -174,7 +174,7 @@ public class GameRecordJob {
                     continue;
                 }
                 //洗码
-                gameRecordAsyncOper.washCode(Constants.PLATFORM, record);
+                gameRecordAsyncOper.washCode(Constants.PLATFORM_WM, record);
                 //扣减打码量
                 gameRecordAsyncOper.subCodeNum(platformConfig, record);
                 //代理分润

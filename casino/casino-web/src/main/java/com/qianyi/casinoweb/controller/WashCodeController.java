@@ -1,6 +1,5 @@
 package com.qianyi.casinoweb.controller;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
@@ -73,7 +72,7 @@ public class WashCodeController {
         if (userMoney != null && userMoney.getWashCode() != null) {
             washCode = userMoney.getWashCode();
         }
-        List<WashCodeConfig> washCodeConfig = userWashCodeConfigService.getWashCodeConfig(Constants.PLATFORM,userId);
+        List<WashCodeConfig> washCodeConfig = userWashCodeConfigService.getWashCodeConfig(Constants.PLATFORM_WM,userId);
         List<WashCodeChange> list = washCodeChangeService.getList(userId, startTime, endTime);
         ChargeOrderListData chargeOrderListData=new ChargeOrderListData();
         List<WashCodeVo> voList = new ArrayList<>();

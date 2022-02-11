@@ -78,7 +78,9 @@ public class Constants {
     public final static String CASINO_PROXY = "casino-proxy";
 
     public final static String TOTAL_WASHCODE = "totalWashCode";//redis洗码总计key
-    public final static String PLATFORM = "wm";
+    public final static String PLATFORM_WM = "wm";
+    public final static String PLATFORM_PG = "PG";
+    public final static String PLATFORM_CQ9 = "CQ9";
     //校验数字
     public static final String regex = "^[0-9]*$";
     //校验手机号
