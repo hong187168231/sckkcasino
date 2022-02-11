@@ -58,4 +58,8 @@ public class AdGamesService {
     public void saveAll(List<AdGame> adGameList) {
         adGameRepository.saveAll(adGameList);
     }
+
+    public Long fontCount() {
+        return adGameRepository.count();
+    }
 }
