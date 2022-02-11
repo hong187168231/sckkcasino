@@ -72,7 +72,7 @@ public class WashCodeController {
         if (userMoney != null && userMoney.getWashCode() != null) {
             washCode = userMoney.getWashCode();
         }
-        List<WashCodeConfig> washCodeConfig = userWashCodeConfigService.getWashCodeConfig(Constants.PLATFORM_WM,userId);
+        List<WashCodeConfig> washCodeConfig = userWashCodeConfigService.getWashCodeConfig(userId);
         List<WashCodeChange> list = washCodeChangeService.getList(userId, startTime, endTime);
         ChargeOrderListData chargeOrderListData=new ChargeOrderListData();
         List<WashCodeVo> voList = new ArrayList<>();
