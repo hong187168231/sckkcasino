@@ -40,4 +40,8 @@ public class PlatformGameService {
     public void save(PlatformGame platformGame) {
         platformGameRepository.save(platformGame);
     }
+
+    public void saveAll(List<PlatformGame> platformGames) {
+        platformGameRepository.saveAll(platformGames);
+    }
 }
