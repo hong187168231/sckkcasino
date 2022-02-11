@@ -12,7 +12,7 @@ import java.util.List;
 
 @Service
 @CacheConfig(cacheNames = {"adGame"})
-public class AdGameService {
+public class AdGamesService {
 
     @Autowired
     private AdGameRepository adGameRepository;
