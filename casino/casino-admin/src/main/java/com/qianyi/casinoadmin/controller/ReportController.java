@@ -81,11 +81,11 @@ public class ReportController {
             User user = userService.findByAccount(userName);
             if(user != null){
                 List<Map<String,Object>> reportResult = reportService.queryPersonReport(user.getId(),startTime,endTime);
-                return ResponseUtil.success(combinePage(reportResult,1,pageCode,pageSize));
+                PageResultVO<Map<String, Object>> mapPageResultVO = combinePage(reportResult, 1, pageCode, pageSize);
+                return ResponseUtil.success(getMap(mapPageResultVO));
             }
             List<Map<String,Object>> emptyResult = new ArrayList<Map<String,Object>>();
-            PageResultVO<Map<String, Object>> mapPageResultVO = combinePage(emptyResult, 0, pageCode, pageSize);
-            return ResponseUtil.success(getMap(mapPageResultVO));
+            return ResponseUtil.success(combinePage(emptyResult, 0, pageCode, pageSize));
         }
 
         int page = (pageCode-1)*pageSize;

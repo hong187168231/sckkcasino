@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
@@ -48,7 +49,7 @@ public class ThirdGameBusiness {
     @Qualifier("accountChangeJob")
     private AsyncService asyncService;
 
-    @Transactional
+    @Transactional(propagation= Propagation.REQUIRES_NEW)
     public ResponseEntity oneKeyRecoverGoldenF(Long userId) {
         log.info("开始回收PG/CQ9余额，userId={}", userId);
         if (userId == null) {
@@ -111,6 +112,7 @@ public class ThirdGameBusiness {
         return ResponseUtil.success();
     }
 
+    @Transactional(propagation= Propagation.REQUIRES_NEW)
     public ResponseEntity oneKeyRecoverWm(Long userId) {
         log.info("开始回收wm余额，userId={}", userId);
         if (userId == null) {
