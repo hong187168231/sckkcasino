@@ -4,14 +4,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.business.ThirdGameBusiness;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
-import com.qianyi.casinocore.model.Order;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.UserMoney;
-import com.qianyi.casinocore.model.UserThird;
-import com.qianyi.casinocore.service.OrderService;
-import com.qianyi.casinocore.service.UserMoneyService;
-import com.qianyi.casinocore.service.UserService;
-import com.qianyi.casinocore.service.UserThirdService;
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
@@ -40,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -59,6 +54,10 @@ public class GoldenFController {
     private PublicGoldenFApi goldenFApi;
     @Autowired
     private ThirdGameBusiness gameBusiness;
+    @Autowired
+    private PlatformGameService platformGameService;
+    @Autowired
+    private AdGamesService adGamesService;
     @Autowired
     @Qualifier("accountChangeJob")
     private AsyncService asyncService;
@@ -261,6 +260,32 @@ public class GoldenFController {
             return ResponseUtil.custom("ip禁止访问");
         }
         return gameBusiness.oneKeyRecoverGoldenF(userId);
+    }
+
+    @ApiOperation("PG/CQ9游戏列表")
+    @GetMapping("/gameList")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9", required = true),
+            @ApiImplicitParam(name = "gameName", value = "游戏名称", required = false),
+    })
+    @NoAuthentication
+    public ResponseEntity<List<AdGame>> gameList(String vendorCode, String gameName) {
+        if (CasinoWebUtil.checkNull(vendorCode)) {
+            return ResponseUtil.parameterNotNull();
+        }
+        PlatformGame platformGame = platformGameService.findByGamePlatformName(vendorCode);
+        if (platformGame == null) {
+            return ResponseUtil.custom("当前产品不存在");
+        }
+        if (platformGame.getGameStatus() != Constants.open) {
+            return ResponseUtil.custom("当前产品已下架");
+        }
+        if (ObjectUtils.isEmpty(gameName)) {
+            List<AdGame> gameList = adGamesService.findByGamePlatformIdAndGamesStatusIsTrue(platformGame.getGamePlatformId());
+            return ResponseUtil.success(gameList);
+        }
+        List<AdGame> gameList = adGamesService.findByGamePlatformIdAndGameNameAndGamesStatusIsTrue(platformGame.getGamePlatformId(), gameName);
+        return ResponseUtil.success(gameList);
     }
 
     private Boolean ipWhiteCheck() {
