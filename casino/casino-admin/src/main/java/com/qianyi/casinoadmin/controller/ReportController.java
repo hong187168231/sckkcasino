@@ -101,12 +101,21 @@ public class ReportController {
         if (!LoginUtil.checkNull(content) && content.size() > CommonConst.NUMBER_0){
             list = new LinkedList<>();
             for (Map<String, Object> item:content){
-                if (LoginUtil.checkNull(item.get("third_proxy"))){
-                    list.add(item);
+                Map<String, Object> newMap = new HashMap<>(item);
+                newMap.put("all_profit_amount",new BigDecimal(newMap.get("all_profit_amount").toString()).setScale(2, RoundingMode.HALF_UP));
+                newMap.put("avg_benefit",new BigDecimal(newMap.get("avg_benefit").toString()).setScale(2, RoundingMode.HALF_UP));
+                newMap.put("bet_amount",new BigDecimal(newMap.get("bet_amount").toString()).setScale(2, RoundingMode.HALF_UP));
+                newMap.put("service_charge",new BigDecimal(newMap.get("service_charge").toString()).setScale(2, RoundingMode.HALF_UP));
+                newMap.put("total_amount",new BigDecimal(newMap.get("total_amount").toString()).setScale(2, RoundingMode.HALF_UP));
+                newMap.put("validbet",new BigDecimal(newMap.get("validbet").toString()).setScale(2, RoundingMode.HALF_UP));
+                newMap.put("wash_amount",new BigDecimal(newMap.get("wash_amount").toString()).setScale(2, RoundingMode.HALF_UP));
+                newMap.put("win_loss",new BigDecimal(newMap.get("win_loss").toString()).setScale(2, RoundingMode.HALF_UP));
+                if (LoginUtil.checkNull(newMap.get("third_proxy"))){
+                    list.add(newMap);
                     continue;
                 }
-                ProxyUser third_proxy = proxyUserService.findById(Long.parseLong(item.get("third_proxy").toString()));
-                Map<String, Object> newMap = new HashMap<>(item);
+                ProxyUser third_proxy = proxyUserService.findById(Long.parseLong(newMap.get("third_proxy").toString()));
+
                 newMap.put("thirdProxy",third_proxy==null?"":third_proxy.getUserName());
                 list.add(newMap);
             }
@@ -114,6 +123,7 @@ public class ReportController {
         mapPageResultVO.setContent(list);
         return mapPageResultVO;
     }
+
     private PageResultVO<Map<String,Object>> combinePage(List<Map<String,Object>> reportResult,int totalElement,int page,int num){
         PageResultVO<Map<String,Object>> pageResult = new PageResultVO<Map<String,Object>>(page,num,Long.parseLong(totalElement+""),reportResult);
         return pageResult;
