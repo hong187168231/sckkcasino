@@ -37,6 +37,7 @@ public class GameRecordReportNewService {
         if (first == null){
             return;
         }
+        log.info("得到wm注单下标{}",first.getGameRecordId());
         List<Map<String, Object>> reportResult = gameRecordService.queryGameRecords(first.getGameRecordId(), 13);
         try {
             if (reportResult == null || reportResult.size() == CommonConst.NUMBER_0){
@@ -67,6 +68,7 @@ public class GameRecordReportNewService {
                     gameRecordReport.getBettingNumber(),gameRecordReport.getFirstProxy(),gameRecordReport.getSecondProxy(),gameRecordReport.getThirdProxy(),gameRecordReport.getGid());
             }
             first.setGameRecordId(max);
+            log.info("保存wm注单下标{}",first.getGameRecordId());
             gameRecordEndIndexService.save(first);
         }catch (Exception ex){
             log.error("每小时报表统计失败",ex);
