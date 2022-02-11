@@ -269,7 +269,7 @@ public class GoldenFController {
             @ApiImplicitParam(name = "gameName", value = "游戏名称", required = false),
     })
     @NoAuthentication
-    public ResponseEntity gameList(String vendorCode, String gameName) {
+    public ResponseEntity<List<AdGame>> gameList(String vendorCode, String gameName) {
         if (CasinoWebUtil.checkNull(vendorCode)) {
             return ResponseUtil.parameterNotNull();
         }
