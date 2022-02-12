@@ -34,7 +34,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 @RestController
@@ -269,7 +271,7 @@ public class GoldenFController {
             @ApiImplicitParam(name = "gameName", value = "游戏名称", required = false),
     })
     @NoAuthentication
-    public ResponseEntity<List<AdGame>> gameList(String vendorCode, String gameName) {
+    public ResponseEntity<List<AdGame>> gameList(String vendorCode, String gameName, HttpServletRequest request) {
         if (CasinoWebUtil.checkNull(vendorCode)) {
             return ResponseUtil.parameterNotNull();
         }
@@ -280,11 +282,19 @@ public class GoldenFController {
         if (platformGame.getGameStatus() != Constants.open) {
             return ResponseUtil.custom("产品已下架");
         }
+        List<AdGame> gameList =new ArrayList<>();
         if (ObjectUtils.isEmpty(gameName)) {
-            List<AdGame> gameList = adGamesService.findByGamePlatformIdAndGamesStatusIsTrue(platformGame.getGamePlatformId());
+            gameList = adGamesService.findByGamePlatformIdAndGamesStatusIsTrue(platformGame.getGamePlatformId());
+        }else{
+            gameList = adGamesService.findByGamePlatformIdAndGameNameAndGamesStatusIsTrue(platformGame.getGamePlatformId(), gameName);
+        }
+        String language = request.getHeader(Constants.LANGUAGE);
+        if (Locale.CHINA.toString().equals(language)) {
             return ResponseUtil.success(gameList);
         }
-        List<AdGame> gameList = adGamesService.findByGamePlatformIdAndGameNameAndGamesStatusIsTrue(platformGame.getGamePlatformId(), gameName);
+        for (AdGame adGame : gameList) {
+            adGame.setGameName(adGame.getGameEnName());
+        }
         return ResponseUtil.success(gameList);
     }
 
