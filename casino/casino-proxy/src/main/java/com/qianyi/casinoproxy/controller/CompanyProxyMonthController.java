@@ -130,7 +130,7 @@ public class CompanyProxyMonthController {
                     companyProxyMonthVo.setSettleStatus(Collections.min(collect));
                     CompanyProxyMonth proxyDetail = proxyHomes.get(CommonConst.NUMBER_0);
                     //全线返佣比列
-                    if (companyProxyMonthVo.getProxyRole() == CommonConst.NUMBER_3){
+         /*           if (companyProxyMonthVo.getProxyRole() == CommonConst.NUMBER_3){
                         String profitRate="--";
                         if (!proxyDetail.getProfitRate().equals(CommonConst.STRING_0)){
                             profitRate=messageUtil.get("每")+" "+proxyDetail.getProfitAmountLine()==null?messageUtil.get("万"):proxyDetail.getProfitAmountLine()+" "+messageUtil.get("返")+" "+ Double.valueOf(proxyDetail.getProfitRate()).intValue()+messageUtil.get(CommonConst.COMPANY);
@@ -139,7 +139,7 @@ public class CompanyProxyMonthController {
                         //返佣级别:根据返佣金额查询当前返佣级别
                         String profitLevel = proxyDetail.getProfitLevelNumber();
                         companyProxyMonthVo.setProfitLevel(profitLevel);
-                    }
+                    }*/
                     companyProxyMonthVo.setBenefitRate(proxyDetail.getBenefitRate());
                     companyProxyMonthVo.setId(proxyDetail.getId());
                     companyProxyMonthVo.setUpdateTime(companyProxyMonthVo.getSettleStatus()==CommonConst.NUMBER_0 ? null:proxyDetail.getUpdateTime());

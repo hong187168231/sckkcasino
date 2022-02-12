@@ -19,6 +19,8 @@ public class CompanyProxyMonth extends BaseEntity implements Cloneable{
 
     @ApiModelProperty(value = "用户id")
     private Long userId;
+
+    private Long userIdTemp;
     @ApiModelProperty("代理角色 1：总代理 2：区域代理 3：基层代理")
     private Integer proxyRole;
     @ApiModelProperty(value = "总代理")
@@ -34,14 +36,7 @@ public class CompanyProxyMonth extends BaseEntity implements Cloneable{
     @ApiModelProperty(value = "团队业绩流水")
     @Column(columnDefinition = "Decimal(19,6) default '0.000000'")
     private BigDecimal groupBetAmount;
-    @ApiModelProperty(value = "返佣级别")
-    private String profitLevel;
-    @ApiModelProperty(value = "返佣等级数")
-    private String profitLevelNumber ;
-    @ApiModelProperty(value = "返佣比例")
-    private String profitRate;
-    @ApiModelProperty(value = "返佣金额线")
-    private String profitAmountLine;
+
 
     @ApiModelProperty(value = "团队总返佣")
     @Column(columnDefinition = "Decimal(19,6) default '0.000000'")

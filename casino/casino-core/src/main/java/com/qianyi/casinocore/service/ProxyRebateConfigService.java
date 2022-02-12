@@ -14,16 +14,16 @@ import org.springframework.stereotype.Service;
 public class ProxyRebateConfigService {
     @Autowired
     private ProxyRebateConfigRepository rebateConfigRepository;
-    @CachePut(key="#result.proxyUserId",condition = "#result != null")
+    @CachePut(key="#result.proxyUserId+'::'+#result.gameType",condition = "#result != null")
     public ProxyRebateConfig save(ProxyRebateConfig proxyRebateConfig) {
         return rebateConfigRepository.save(proxyRebateConfig);
     }
-    @Cacheable(key = "#proxyUserId")
-    public ProxyRebateConfig findById(Long proxyUserId) {
-        ProxyRebateConfig byProxyUserId = rebateConfigRepository.findByProxyUserId(proxyUserId);
+    @Cacheable(key = "#proxyUserId+'::'+#gameType")
+    public ProxyRebateConfig findByProxyUserIdAndGameType(Long proxyUserId,Integer gameType) {
+        ProxyRebateConfig byProxyUserId = rebateConfigRepository.findByProxyUserIdAndGameType(proxyUserId, gameType);
         return byProxyUserId;
     }
-    @CacheEvict(key = "#proxyUserId")
+    @CacheEvict(key = "#proxyUserId+'::'+#proxyRebateConfig.gameType")
     public void delete(Long proxyUserId,ProxyRebateConfig proxyRebateConfig) {
         rebateConfigRepository.delete(proxyRebateConfig);
     }

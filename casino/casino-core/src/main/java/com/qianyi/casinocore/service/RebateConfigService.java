@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.ProxyRebateConfig;
+import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.RebateConfig;
 import com.qianyi.casinocore.repository.ProxyRebateConfigRepository;
 import com.qianyi.casinocore.repository.RebateConfigRepository;
@@ -29,6 +30,11 @@ public class RebateConfigService {
         }
         return null;
     }
+    @Cacheable(cacheNames = "rebateConfig")
+    public RebateConfig findGameType(Integer gameType){
+        return rebateConfigRepository.findByGameType(gameType);
+    }
+
     @CacheEvict(cacheNames = "rebateConfig", allEntries = true)
     public RebateConfig save(RebateConfig rebateConfig) {
         return rebateConfigRepository.save(rebateConfig);

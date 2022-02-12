@@ -61,8 +61,6 @@ public class CompanyProxyMonthVo implements Serializable {
         this.staticsTimes = companyProxyMonth.getStaticsTimes();
         this.playerNum = companyProxyMonth.getPlayerNum();
         this.groupBetAmount = companyProxyMonth.getGroupBetAmount();
-        this.profitLevel = companyProxyMonth.getProfitLevel();
-        this.profitRate = companyProxyMonth.getProfitRate();
         this.groupTotalprofit = companyProxyMonth.getGroupTotalprofit();
         this.benefitRate = companyProxyMonth.getBenefitRate();
         this.profitAmount = companyProxyMonth.getProfitAmount();

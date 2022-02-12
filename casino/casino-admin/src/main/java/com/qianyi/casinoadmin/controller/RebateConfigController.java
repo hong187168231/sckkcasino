@@ -34,9 +34,12 @@ public class RebateConfigController {
 
 
     @ApiOperation("查询全局代理返佣等级配置")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "gameType", value = "游戏类型：1:WM,2:PG,3:CQ9", required = true),
+    })
     @GetMapping("/findAll")
-    public ResponseEntity<RebateConfig> findRegisterSwitchVo(){
-        RebateConfig first = rebateConfigService.findFirst();
+    public ResponseEntity<RebateConfig> findRegisterSwitchVo(Integer gameType){
+        RebateConfig first = rebateConfigService.findGameType(gameType);
         return new ResponseEntity(ResponseCode.SUCCESS, first);
     }
 
@@ -59,10 +62,6 @@ public class RebateConfigController {
         }
         if (this.verifySize(rebateConfig)){
             return ResponseUtil.custom("低级别值不能大于高级别");
-        }
-        RebateConfig config = rebateConfigService.findFirst();
-        if (!LoginUtil.checkNull(rebateConfig)){
-            rebateConfig.setId(config.getId());
         }
         rebateConfigService.save(rebateConfig);
         return ResponseUtil.success();

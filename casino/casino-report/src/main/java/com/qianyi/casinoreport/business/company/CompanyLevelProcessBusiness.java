@@ -24,13 +24,13 @@ public class CompanyLevelProcessBusiness {
     @Autowired
     private ProxyRebateConfigService proxyRebateConfigService;
 
-    public CompanyLevelBO getLevelData(BigDecimal amount,Long firstProxy){
+    public CompanyLevelBO getLevelData(BigDecimal amount,Long firstProxy,Integer gameType){
         RebateConfig rebateConfig=null;
-        ProxyRebateConfig proxyRebateConfig = proxyRebateConfigService.findById(firstProxy);
+        ProxyRebateConfig proxyRebateConfig = proxyRebateConfigService.findByProxyUserIdAndGameType(firstProxy,gameType);
         if (proxyRebateConfig!=null){
             rebateConfig=queryProxyRebateConfig(proxyRebateConfig);
         }else {
-            rebateConfig=rebateConfigService.findFirst();
+            rebateConfig=rebateConfigService.findGameType(gameType);
         }
         log.info("rebateConfig:{}",rebateConfig);
         Map<Integer,Integer> profitLevelList = getProfitLevelList(rebateConfig);

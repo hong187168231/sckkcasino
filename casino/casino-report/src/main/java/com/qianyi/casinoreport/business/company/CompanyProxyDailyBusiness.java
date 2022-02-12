@@ -2,10 +2,7 @@ package com.qianyi.casinoreport.business.company;
 
 import com.qianyi.casinocore.model.CompanyProxyDetail;
 import com.qianyi.casinocore.model.ProxyCommission;
-import com.qianyi.casinocore.service.CompanyProxyDetailService;
-import com.qianyi.casinocore.service.GameRecordService;
-import com.qianyi.casinocore.service.ProxyCommissionService;
-import com.qianyi.casinocore.service.ProxyRebateConfigService;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
 import com.qianyi.casinoreport.vo.CompanyLevelBO;
 import lombok.extern.slf4j.Slf4j;
@@ -31,16 +28,14 @@ public class CompanyProxyDailyBusiness {
     private ProxyCommissionService proxyCommissionService;
 
     @Autowired
-    private ProxyRebateConfigService proxyRebateConfigService;
-
-    @Autowired
     private GameRecordService gameRecordService;
 
     @Autowired
-    private CompanyLevelProcessBusiness companyLevelProcessBusiness;
+    private GameRecordGoldenFService gameRecordGoldenFService;
+
 
     @Autowired
-    private CompanyProxyMonthBusiness companyProxyMonthBusiness;
+    private CompanyLevelProcessBusiness companyLevelProcessBusiness;
 
     //传入计算当天的时间  yyyy-MM-dd 格式
     @Transactional
@@ -52,7 +47,13 @@ public class CompanyProxyDailyBusiness {
         log.info("processDailyReport start startTime:{} endTime:{}",startTime,endTime);
         //查询当天游戏记录(third_proxy is not null)
         List<CompanyOrderAmountVo> companyOrderAmountVoList = gameRecordService.getStatisticsResult(startTime,endTime);
+        processingData(companyOrderAmountVoList);
+        //查询电子游戏数据
+        List<CompanyOrderAmountVo> statisticsResult = gameRecordGoldenFService.getStatisticsResult(startTime, endTime);
+        processingData(statisticsResult);
+    }
 
+    public void  processingData (List<CompanyOrderAmountVo> companyOrderAmountVoList){
         List<CompanyProxyDetail> firstList= new ArrayList<>();
         List<CompanyProxyDetail> secondeList= new ArrayList<>();
         List<CompanyProxyDetail> thirdList= new ArrayList<>();
@@ -77,36 +78,9 @@ public class CompanyProxyDailyBusiness {
         log.info("resultList:{}",resultList);
         companyProxyDetailService.saveAll(resultList);
         log.info("save all proxyDetail data finish");
-
-//        log.info("start process month report");
-//        companyProxyMonthBusiness.processCompanyMonth(dayTime);
-//        log.info("start process month report finish");
     }
 
 
-    private List<CompanyProxyDetail> processSecTemp(List<CompanyProxyDetail> firstList,List<CompanyProxyDetail> secList,int level) {
-        Map<Long,List<CompanyProxyDetail>> firstProxy=new HashMap<>();
-        if (level==2){
-            firstProxy = secList.stream().collect(Collectors.groupingBy(CompanyProxyDetail::getSecondProxy));
-        }else {
-             firstProxy = secList.stream().collect(Collectors.groupingBy(CompanyProxyDetail::getFirstProxy));
-        }
-        Map<Long, List<CompanyProxyDetail>> finalFirstProxy = firstProxy;
-        firstList.forEach(info ->{
-            List<CompanyProxyDetail> subList = finalFirstProxy.get(info.getUserId());
-            if (subList!=null){
-                List<CompanyProxyDetail> collect=new ArrayList<>();
-                List<CompanyProxyDetail> collect1 = subList.stream().filter(x -> x.getFirstProxy() == info.getFirstProxy() &&   x.getThirdProxy() == info.getThirdProxy()).collect(Collectors.toList());
-                List<CompanyProxyDetail> collect2 = subList.stream().filter(x ->  x.getSecondProxy() == info.getSecondProxy() && x.getThirdProxy() == info.getThirdProxy()).collect(Collectors.toList());
-                collect = level==2 ? collect1 : collect2;
-                if (collect!=null){
-                    //处理总返佣：总返佣group_totalprofit = 下级profit_amount总计
-                    info.setGroupTotalprofit(collect.stream().map(x->x.getProfitAmount()).reduce(BigDecimal.ZERO,BigDecimal::add));
-                }
-            }
-        });
-        return firstList;
-    }
     private List<CompanyProxyDetail> processSec(List<CompanyProxyDetail> firstList,List<CompanyProxyDetail> secList,int level) {
         List<CompanyProxyDetail> companyProxyDetailList = new ArrayList<>();
         Map<Long,List<CompanyProxyDetail>> groupSec = firstList.stream().collect(Collectors.groupingBy(CompanyProxyDetail::getUserId));
@@ -149,7 +123,7 @@ public class CompanyProxyDailyBusiness {
      */
     public void processOrder(CompanyOrderAmountVo companyOrderAmountVo,List<CompanyProxyDetail> firstList,List<CompanyProxyDetail> secondeList,List<CompanyProxyDetail> thirdList){
         //返佣比例
-        CompanyLevelBO companyLevelBO = companyLevelProcessBusiness.getLevelData(new BigDecimal(companyOrderAmountVo.getValidbet()),companyOrderAmountVo.getFirstProxy());
+        CompanyLevelBO companyLevelBO = companyLevelProcessBusiness.getLevelData(new BigDecimal(companyOrderAmountVo.getValidbet()),companyOrderAmountVo.getFirstProxy(),companyOrderAmountVo.getGameType());
         //根据基层代查询代理佣金配置表
         ProxyCommission proxyCommission = proxyCommissionService.findByProxyUserId(companyOrderAmountVo.getThirdProxy());
 
@@ -173,6 +147,7 @@ public class CompanyProxyDailyBusiness {
                 .thirdProxy(companyOrderAmountVo.getThirdProxy())
                 .proxyRole(proxyType)
                 .userId(userid)
+                .gameType(companyOrderAmountVo.getGameType())
                 .profitLevel(companyLevelBO.getProfitLevel()+"")
                 .profitRate(companyLevelBO.getProfitAmount().toString())
                 .profitAmountLine(companyLevelBO.getProfitAmountLine().toString())

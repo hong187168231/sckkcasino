@@ -1,8 +1,13 @@
 package com.qianyi.casinocore.service;
 
+import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.repository.GameRecordGoldenFRepository;
+import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class GameRecordGoldenFService {
@@ -22,4 +27,9 @@ public class GameRecordGoldenFService {
         gameRecordGoldenFRepository.updateProfitStatus(id,shareProfitStatus);
     }
 
+    public List<CompanyOrderAmountVo> getStatisticsResult(String startTime, String endTime){
+        List<Map<String,Object>> orderAmountVoList = gameRecordGoldenFRepository.getStatisticsResult(startTime,endTime);
+        String json = JSON.toJSONString(orderAmountVoList);
+        return JSON.parseArray(json,CompanyOrderAmountVo.class);
+    }
 }
