@@ -19,4 +19,13 @@ public class PlatformGame extends BaseEntity  {
 
     @ApiModelProperty(value = "平台状态：0：维护，1：正常")
     private Integer gameStatus;
+
+    public PlatformGame() {
+    }
+
+    public PlatformGame(Integer gamePlatformId, String gamePlatformName, Integer gameStatus) {
+        this.gamePlatformId = gamePlatformId;
+        this.gamePlatformName = gamePlatformName;
+        this.gameStatus = gameStatus;
+    }
 }

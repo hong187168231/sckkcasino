@@ -40,4 +40,9 @@ public class PlatformGameService {
     public void save(PlatformGame platformGame) {
         platformGameRepository.save(platformGame);
     }
+
+    @CacheEvict(allEntries = true)
+    public void saveAll(List<PlatformGame> platformGames) {
+        platformGameRepository.saveAll(platformGames);
+    }
 }
