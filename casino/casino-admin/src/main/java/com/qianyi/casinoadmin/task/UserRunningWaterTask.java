@@ -58,6 +58,7 @@ import java.util.stream.Collectors;
                 //                    Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
                 //                    Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
                 this.gameRecord(startTime, endTime, format);
+                this.findSumBetAmount(startTime, endTime, format);
                 this.shareProfitChange(format, startTime, endTime);
             }
             log.info("每日会员流水报表统计结束end=============================================》");
@@ -91,7 +92,7 @@ import java.util.stream.Collectors;
         }
     }
 
-    public void findSumbetAmount(String startTime, String endTime, String format) {
+    public void findSumBetAmount(String startTime, String endTime, String format) {
         try {
             List<Map<String, String>> sumBetAmount = gameRecordGoldenFService.findSumBetAmount(startTime, endTime);
             if (sumBetAmount == null || sumBetAmount.size() == CommonConst.NUMBER_0) {
