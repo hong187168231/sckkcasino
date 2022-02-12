@@ -47,6 +47,10 @@ public class GameRecordService {
         return gameRecordRepository.findAll(condition);
     }
 
+    public List<Map<String, String>> findGameRecords(String startTime,String endTime) {
+        return gameRecordRepository.findGameRecords(startTime,endTime);
+    }
+
     public  GameRecord  findRecordRecordSum(GameRecord game,String startBetTime,String endBetTime,String startSetTime,String endSetTime) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<GameRecord> query = builder.createQuery(GameRecord.class);

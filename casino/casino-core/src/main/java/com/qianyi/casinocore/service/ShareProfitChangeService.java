@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -36,6 +37,10 @@ public class ShareProfitChangeService {
 
     public List<ShareProfitChange> saveAll(List<ShareProfitChange> shareProfitChangeList){
         return shareProfitChangeRepository.saveAll(shareProfitChangeList);
+    }
+
+    public List<Map<String, String>> findSumAmount(String startTime, String endTime){
+        return shareProfitChangeRepository.findSumAmount(startTime,endTime);
     }
 
     public List<ShareProfitChange> findAll(Long fromUserId,Long userId,Date startDate, Date endDate){

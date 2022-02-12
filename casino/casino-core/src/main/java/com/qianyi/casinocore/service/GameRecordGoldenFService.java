@@ -24,6 +24,10 @@ public class GameRecordGoldenFService {
         gameRecordGoldenFRepository.updateWashCodeStatus(id,washCodeStatus);
     }
 
+    public List<Map<String, String>> findSumBetAmount(String startTime, String endTime){
+        return gameRecordGoldenFRepository.findSumBetAmount(startTime,endTime);
+    }
+
     public void updateProfitStatus(Long id,Integer shareProfitStatus){
         gameRecordGoldenFRepository.updateProfitStatus(id,shareProfitStatus);
     }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -62,4 +63,6 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
         " GROUP BY g.third_proxy , LEFT(g.settime,?2)  ",nativeQuery = true)
     List<Map<String,Object>> queryGameRecords(Long id,Integer num);
 
+    @Query(value = "select g.user_id userId,SUM(g.validbet) validbet from game_record g where g.settime BETWEEN ?1 and ?2 GROUP BY g.user_id;",nativeQuery = true)
+    List<Map<String, String>> findGameRecords(String startTime,String endTime);
 }

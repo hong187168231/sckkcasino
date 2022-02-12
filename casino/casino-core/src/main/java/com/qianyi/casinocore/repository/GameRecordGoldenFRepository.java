@@ -45,4 +45,7 @@ public interface GameRecordGoldenFRepository extends JpaRepository<GameRecordGol
         "wash_code_change w  on  w.game_record_id = g.id and w.platform = ?3 where g.id > ?1 and g.vendor_code = ?3 " +
         " GROUP BY g.third_proxy,LEFT(g.create_at_str,?2)  ",nativeQuery = true)
     List<Map<String,Object>> queryGameRecords(Long id,Integer num,String platform);
+
+    @Query(value = "select g.user_id userId,SUM(g.bet_amount) betAmount from game_record_goldenf g where g.create_at_str BETWEEN ?1 and ?2 GROUP BY g.user_id;",nativeQuery = true)
+    List<Map<String, String>> findSumBetAmount(String startTime,String endTime);
 }
