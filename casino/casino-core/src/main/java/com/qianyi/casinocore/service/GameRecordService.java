@@ -127,10 +127,6 @@ public class GameRecordService {
         return gameRecordRepository.queryGameRecords(id,num);
     }
 
-    public List<Map<String,Object>> queryGameRecords(Long id,Integer num,String platform){
-        return gameRecordRepository.queryGameRecords(id,num,platform);
-    }
-
     public GameRecord findGameRecordById(Long gameId){return gameRecordRepository.findById(gameId).orElse(null);}
 
 

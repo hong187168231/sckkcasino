@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.Query;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -33,4 +34,15 @@ public interface GameRecordGoldenFRepository extends JpaRepository<GameRecordGol
             "group by third_proxy,user_id,vendor_code ",nativeQuery = true)
     List<Map<String,Object>> getStatisticsResult(String startTime, String endTime);
 
+    @Query(value = "select ifnull(sum(g.bet_amount),0) betAmount from game_record_goldenf g where g.create_at_str "
+        + " BETWEEN ?2  and ?3 and g.user_id = ?1 ",nativeQuery = true)
+    BigDecimal findSumBetAmount(Long userId,String startTime,String endTime);
+
+    @Query(value = "select MAX(g.id) maxId,LEFT(g.create_at_str,?2) set_time,ifnull(g.first_proxy,0) first_proxy," +
+        "ifnull(g.second_proxy,0) second_proxy,ifnull(g.third_proxy,0) third_proxy," +
+        "COUNT(1) num,SUM(g.bet_amount) bet,SUM(g.bet_amount) validbet,SUM(g.win_amount) win_loss," +
+        " ifnull(SUM(w.amount),0) amount from game_record_goldenf g left join  " +
+        "wash_code_change w  on  w.game_record_id = g.id and w.platform = ?3 where g.id > ?1 and g.vendor_code = ?3 " +
+        " GROUP BY g.third_proxy,LEFT(g.create_at_str,?2)  ",nativeQuery = true)
+    List<Map<String,Object>> queryGameRecords(Long id,Integer num,String platform);
 }

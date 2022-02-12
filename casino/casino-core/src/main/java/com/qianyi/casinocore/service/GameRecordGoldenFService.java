@@ -6,6 +6,7 @@ import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -31,5 +32,13 @@ public class GameRecordGoldenFService {
         List<Map<String,Object>> orderAmountVoList = gameRecordGoldenFRepository.getStatisticsResult(startTime,endTime);
         String json = JSON.toJSONString(orderAmountVoList);
         return JSON.parseArray(json,CompanyOrderAmountVo.class);
+    }
+
+    public List<Map<String,Object>> queryGameRecords(Long id,Integer num,String platform){
+        return gameRecordGoldenFRepository.queryGameRecords(id,num,platform);
+    }
+
+    public BigDecimal findSumBetAmount(Long userId,String startTime,String endTime){
+        return gameRecordGoldenFRepository.findSumBetAmount(userId,startTime,endTime);
     }
 }

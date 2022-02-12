@@ -44,6 +44,9 @@ public class ProxyReportController {
     @Autowired
     private GameRecordService gameRecordService;
 
+    @Autowired
+    private GameRecordGoldenFService gameRecordGoldenFService;
+
     public final static  SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
     public final static  SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -328,7 +331,10 @@ public class ProxyReportController {
         proxyReportVo.setContribution(contribution);
         if (tag != CommonConst.NUMBER_0){
             GameRecord gameRecord = gameRecordService.findRecordRecordSum(id, startTime, endTime);
+            //wm有效投注
             proxyReportVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
+            //电子有效投注
+            proxyReportVo.setPerformance(gameRecordGoldenFService.findSumBetAmount(userId,startTime+start,endTime+end).add(proxyReportVo.getPerformance()));
             if (shareProfitChanges == null || shareProfitChanges.size() == CommonConst.NUMBER_0){
                 proxyReportVo.setCommission("0");
             }else {
@@ -344,8 +350,11 @@ public class ProxyReportController {
                           Date startDate,Date endDate,Integer tag,Integer level){
         ProxyReportVo proxyReportVo = new ProxyReportVo();
         proxyReportVo.setTier(tag);
+        //wm有效投注
         GameRecord gameRecord = gameRecordService.findRecordRecordSum(user.getId(), startTime+start, endTime+end);
         proxyReportVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
+        //电子有效投注
+        proxyReportVo.setPerformance(gameRecordGoldenFService.findSumBetAmount(user.getId(),startTime+start,endTime+end).add(proxyReportVo.getPerformance()));
         if (tag == CommonConst.NUMBER_0){
             proxyReportVo.setContribution(BigDecimal.ZERO);
         }else {

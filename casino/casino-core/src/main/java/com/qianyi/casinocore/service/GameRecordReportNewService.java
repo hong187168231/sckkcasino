@@ -24,6 +24,9 @@ public class GameRecordReportNewService {
     private GameRecordService gameRecordService;
 
     @Autowired
+    private GameRecordGoldenFService gameRecordGoldenFService;
+
+    @Autowired
     private GameRecordEndIndexService gameRecordEndIndexService;
 
     @Transactional
@@ -76,7 +79,7 @@ public class GameRecordReportNewService {
             return;
         }
         log.info("得到PG注单下标{}",first.getPGMaxId());
-        List<Map<String, Object>> reportResult = gameRecordService.queryGameRecords(first.getPGMaxId(), 13,"PG");
+        List<Map<String, Object>> reportResult = gameRecordGoldenFService.queryGameRecords(first.getPGMaxId(), 13,"PG");
         try {
             if (reportResult == null || reportResult.size() == CommonConst.NUMBER_0){
                 return;
@@ -94,7 +97,7 @@ public class GameRecordReportNewService {
                 gameRecordReport.setAmount(new BigDecimal(map.get("amount").toString()));
                 gameRecordReport.setBetAmount(new BigDecimal(map.get("bet").toString()));
                 gameRecordReport.setValidAmount(new BigDecimal(map.get("validbet").toString()));
-                gameRecordReport.setWinLossAmount(new BigDecimal(map.get("win_loss").toString()));
+                gameRecordReport.setWinLossAmount(new BigDecimal(map.get("win_loss").toString()).subtract(gameRecordReport.getBetAmount()));
                 gameRecordReport.setBettingNumber(Integer.parseInt(map.get("num").toString()));
                 gameRecordReport.setPlatform("PG");
                 gameRecordReport.setFirstProxy(Long.parseLong(map.get("first_proxy").toString()));
@@ -119,7 +122,7 @@ public class GameRecordReportNewService {
             return;
         }
         log.info("得到CQ9注单下标{}",first.getCQ9MaxId());
-        List<Map<String, Object>> reportResult = gameRecordService.queryGameRecords(first.getCQ9MaxId(), 13,"CQ9");
+        List<Map<String, Object>> reportResult = gameRecordGoldenFService.queryGameRecords(first.getCQ9MaxId(), 13,"CQ9");
         try {
             if (reportResult == null || reportResult.size() == CommonConst.NUMBER_0){
                 return;
@@ -137,7 +140,7 @@ public class GameRecordReportNewService {
                 gameRecordReport.setAmount(new BigDecimal(map.get("amount").toString()));
                 gameRecordReport.setBetAmount(new BigDecimal(map.get("bet").toString()));
                 gameRecordReport.setValidAmount(new BigDecimal(map.get("validbet").toString()));
-                gameRecordReport.setWinLossAmount(new BigDecimal(map.get("win_loss").toString()));
+                gameRecordReport.setWinLossAmount(new BigDecimal(map.get("win_loss").toString()).subtract(gameRecordReport.getBetAmount()));
                 gameRecordReport.setBettingNumber(Integer.parseInt(map.get("num").toString()));
                 gameRecordReport.setPlatform("CQ9");
                 gameRecordReport.setFirstProxy(Long.parseLong(map.get("first_proxy").toString()));
