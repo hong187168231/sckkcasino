@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.*;
 
@@ -55,9 +56,11 @@ public class ReportController {
             @ApiImplicitParam(name = "userName", value = "账号", required = false),
             @ApiImplicitParam(name = "startTime", value = "起始时间查询", required = true),
             @ApiImplicitParam(name = "endTime", value = "结束时间查询", required = true),
+            @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
+            @ApiImplicitParam(name = "tag", value = "1：投注笔数 2：投注金额 3：有效投注 4：洗码发放 5：用户输赢金额", required = false),
     })
     public ResponseEntity<Map<String,Object>> queryPersonReport(Integer pageSize, Integer pageCode, String userName,
-                                                     String startTime, String endTime){
+                                                     String startTime, String endTime,Integer sort,Integer tag){
         if (LoginUtil.checkNull(startTime,endTime,pageSize,pageCode)){
             return ResponseUtil.custom("参数不合法");
         }
@@ -89,7 +92,42 @@ public class ReportController {
         }
 
         int page = (pageCode-1)*pageSize;
-        List<Map<String,Object>> reportResult = reportService.queryAllPersonReport(startTime,endTime,page,pageSize);
+        List<Map<String,Object>> reportResult = null;
+        if (LoginUtil.checkNull(tag)){
+            reportResult = reportService.queryAllPersonReport(startTime,endTime,page,pageSize);
+        }else {
+            String str = "ORDER BY {0} ";
+            switch (tag) {
+                case 1:
+                    str = MessageFormat.format(str,"num");
+                    break;
+                case 2:
+                    str = MessageFormat.format(str,"bet_amount");
+                    break;
+                case 3:
+                    str = MessageFormat.format(str,"validbet");
+                    break;
+                case 4:
+                    str = MessageFormat.format(str,"wash_amount");
+                    break;
+                case 5:
+                    str = MessageFormat.format(str,"win_loss");
+                    break;
+                default:
+                    return ResponseUtil.custom("参数不合法");
+            }
+            if (LoginUtil.checkNull(sort) || sort == CommonConst.NUMBER_1){
+                str = str + "ASC";
+            }else {
+                str = str + "DESC";
+            }
+            try {
+                reportResult = userService.findMap(startTime, endTime, page, pageSize, str);
+            } catch (Exception e) {
+                return ResponseUtil.custom("查询失败");
+            }
+
+        }
         int totalElement = reportService.queryTotalElement(startTime,endTime);
         PageResultVO<Map<String, Object>> mapPageResultVO = combinePage(reportResult, totalElement, pageCode, pageSize);
         return ResponseUtil.success(getMap(mapPageResultVO));

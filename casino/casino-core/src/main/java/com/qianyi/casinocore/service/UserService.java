@@ -1,8 +1,11 @@
 package com.qianyi.casinocore.service;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.repository.UserRepository;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.*;
@@ -11,13 +14,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.text.MessageFormat;
+import java.util.*;
 
 @Service
 @Transactional
@@ -26,6 +37,9 @@ public class UserService {
 
     @Autowired
     UserRepository userRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public User findByAccount(String account) {
         return userRepository.findByAccount(account);
@@ -241,4 +255,59 @@ public class UserService {
     public User findByFirstPidAndAccount(Long userId,String account) {
         return userRepository.findByFirstPidAndAccount(userId,account);
     }
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String,Object>> findMap(String startTime,String endTime,int page,int pageSize,String sort)
+        throws Exception {
+        String dataSql = "select \n" + "u.account , \n" + "u.third_proxy , \n" + " u.id,\n"
+            + " ifnull(main_t.num,0) num,\n" + " ifnull(main_t.bet_amount,0) bet_amount ,\n"
+            + " ifnull(main_t.validbet,0) validbet ,\n" + " ifnull(main_t.win_loss,0) win_loss ,\n"
+            + " ifnull(wash_t.wash_amount,0) wash_amount, \n"
+            + " ifnull(withdraw_t.service_charge,0) service_charge, \n" + " ifnull(pr.amount,0) all_profit_amount, \n"
+            + " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)) avg_benefit, \n"
+            + " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0) total_amount\n"
+            + "from user u\n" + "left join ( \n" + "  select user_id , \n" + "  count(1) num, \n"
+            + "  sum(bet) bet_amount, \n" + "  sum(validbet) validbet , \n" + "  sum(win_loss) win_loss  \n"
+            + "  from game_record gr \n"
+            + "  where settime >= {0} and settime <= {1}\n"
+            + "  group by user_id \n" + " ) main_t on u.id = main_t.user_id\n" + " left join ( \n"
+            + "  select user_id , sum(amount) wash_amount  \n" + "  from wash_code_change wcc  \n"
+            + "  where create_time >= {0} and create_time <= {1}\n"
+            + "  group by user_id \n" + " ) wash_t on u.id = wash_t.user_id\n" + " left join ( \n"
+            + "  select user_id , sum(ifnull(service_charge,0)) service_charge  \n" + "  from withdraw_order wo  \n"
+            + "  where update_time >= {0} and update_time <= {1}\n"
+            + "  group by user_id \n" + " ) withdraw_t on u.id = withdraw_t.user_id\n" + " left join ( \n"
+            + "  select user_id , sum(amount) amount from share_profit_change spc  \n"
+            + "  where create_time >= {0} and create_time <= {1}\n"
+            + "  group by user_id  \n" + " ) pr on u.id=pr.user_id \n" + " where 1=1 {2} \n" + "limit {3},{4}";
+        startTime = "'"+startTime+"'";
+        endTime = "'"+endTime+"'";
+        String sql = MessageFormat.format(dataSql,startTime,endTime,sort,page,pageSize);
+        System.out.println(sql);
+        Query countQuery = entityManager.createNativeQuery(sql);
+        List resultList = countQuery.getResultList();
+        List<Map<String,Object>> list = null;
+        if (resultList != null && resultList.size() > CommonConst.NUMBER_0){
+            list = new LinkedList();
+            for (Object result:resultList){
+                Map<String,Object> map = new HashMap();
+                Object[] obj = (Object[]) result;
+                map.put("account",obj[0]);
+                map.put("third_proxy",obj[1]);
+                map.put("id",obj[2]);
+                map.put("num",obj[3]);
+                map.put("bet_amount",obj[4]);
+                map.put("validbet",obj[5]);
+                map.put("win_loss",obj[6]);
+                map.put("wash_amount",obj[7]);
+                map.put("service_charge",obj[8]);
+                map.put("all_profit_amount",obj[9]);
+                map.put("avg_benefit",obj[10]);
+                map.put("total_amount",obj[11]);
+                list.add(map);
+            }
+        }
+        return list;
+    }
+
 }
