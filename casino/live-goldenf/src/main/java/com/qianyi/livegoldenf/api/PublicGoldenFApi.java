@@ -117,6 +117,17 @@ public class PublicGoldenFApi {
         return entity;
     }
 
+    public static void main(String[] args) {
+        String url =  "http://kk.test.gf-gaming.com/gf/TransferIn";
+        Map<String, Object> params = new HashMap<>();
+        params.put("secret_key", "16e4ef534cec559430e07e05eb71c719");
+        params.put("operator_token", "7970f61d512b7b681aa149fad927eee8");
+        params.put("amount", 10);
+        params.put("player_name", "test001");
+        log.info("启动游戏参数{}：", JSONObject.toJSONString(params));
+        String result = HttpClient4Util.doPost(url, params);
+    }
+
     /**
      * 玩家充值
      *

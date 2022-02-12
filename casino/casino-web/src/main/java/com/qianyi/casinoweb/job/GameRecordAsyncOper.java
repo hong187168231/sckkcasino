@@ -37,8 +37,8 @@ public class GameRecordAsyncOper {
      * @param record
      */
     @Async("asyncExecutor")
-    public void subCodeNum(PlatformConfig platformConfig, GameRecord record) {
-        userMoneyBusiness.subCodeNum(platformConfig, record);
+    public void subCodeNum(String platform, PlatformConfig platformConfig, GameRecord record) {
+        userMoneyBusiness.subCodeNum(platform, platformConfig, record);
     }
 
     /**
@@ -47,8 +47,8 @@ public class GameRecordAsyncOper {
      * @param record
      */
     @Async("asyncExecutor")
-    public void shareProfit(GameRecord record) {
-        userMoneyBusiness.shareProfit(record);
+    public void shareProfit(String platform, GameRecord record) {
+        userMoneyBusiness.shareProfit(platform, record);
     }
 
     /**

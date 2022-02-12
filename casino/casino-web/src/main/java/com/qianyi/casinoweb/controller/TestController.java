@@ -40,14 +40,17 @@ public class TestController {
     @GetMapping("sendMq")
     @ApiOperation("批量发送分润MQ")
     @NoAuthentication
-    @ApiImplicitParam(name = "id", value = "起始ID", required = true)
-    public ResponseEntity sendMq(Long id) {
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "id", value = "起始ID", required = true),
+        @ApiImplicitParam(name = "platform", value = "平台:wm,PG,CQ9", required = true),
+    })
+    public ResponseEntity sendMq(Long id,String platform) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String startTime = format.format(new Date());
         List<GameRecord> list = gameRecordService.findByCreateByAndIdGreaterThanEqualOrderByIdAsc("0", id);
         redisUtil.set("sendMq::startTime::" + id, startTime);
         for (GameRecord gameRecord : list) {
-            gameRecordAsyncOper.shareProfit(gameRecord);
+            gameRecordAsyncOper.shareProfit(platform,gameRecord);
             redisUtil.set("sendMq::endId::" + id, gameRecord.getId());
             redisUtil.incr("sendMq::totalNum", 1);
         }
@@ -59,10 +62,13 @@ public class TestController {
     @GetMapping("sendMqByBetId")
     @ApiOperation("根据注单ID发送消息")
     @NoAuthentication
-    @ApiImplicitParam(name = "betId", value = "注单ID", required = true)
-    public ResponseEntity sendMqByBetId(String betId) {
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "betId", value = "注单ID", required = true),
+            @ApiImplicitParam(name = "platform", value = "平台:wm,PG,CQ9", required = true),
+    })
+    public ResponseEntity sendMqByBetId(String betId,String platform) {
         GameRecord gameRecord = gameRecordService.findByBetId(betId);
-        gameRecordAsyncOper.shareProfit(gameRecord);
+        gameRecordAsyncOper.shareProfit(platform,gameRecord);
         return ResponseUtil.success();
     }
 

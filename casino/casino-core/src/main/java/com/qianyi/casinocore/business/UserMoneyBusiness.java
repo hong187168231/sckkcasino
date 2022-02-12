@@ -34,6 +34,8 @@ public class UserMoneyBusiness {
     private UserWashCodeConfigService userWashCodeConfigService;
     @Autowired
     private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private GameRecordGoldenFService gameRecordGoldenFService;
 
     //默认最小清零打码量
     private static final BigDecimal DEFAULT_CLEAR = new BigDecimal("10");
@@ -45,8 +47,8 @@ public class UserMoneyBusiness {
      * @return
      */
     @Transactional
-    public void subCodeNum(PlatformConfig platformConfig, GameRecord record) {
-        log.info("开始打码,注单ID={},注单明细={}",record.getBetId(), record.toString());
+    public void subCodeNum(String platform, PlatformConfig platformConfig, GameRecord record) {
+        log.info("开始打码,平台={}，注单ID={},注单明细={}",platform,record.getBetId(), record.toString());
         BigDecimal validbet = new BigDecimal(record.getValidbet());
         Long userId = record.getUserId();
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
@@ -63,13 +65,18 @@ public class UserMoneyBusiness {
             BigDecimal codeNumAfter = userMoney.getCodeNum().subtract(validbet);
             CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, record, validbet.negate(), userMoney.getCodeNum(), codeNumAfter);
             codeNumChange.setType(0);
+            codeNumChange.setPlatform(platform);
             codeNumChangeService.save(codeNumChange);
             userMoney.setCodeNum(codeNumAfter);
             //检查最小清零打码量
             checkClearCodeNum(platformConfig, userId, record, userMoney);
         }
-        gameRecordService.updateCodeNumStatus(record.getId(), Constants.yes);
-        log.info("打码结束,注单ID={}", record.getBetId());
+        if(Constants.PLATFORM_WM.equals(platform)){
+            gameRecordService.updateCodeNumStatus(record.getId(), Constants.yes);
+        }else if(Constants.PLATFORM_PG.equals(platform)||Constants.PLATFORM_CQ9.equals(platform)){
+            gameRecordGoldenFService.updateCodeNumStatus(record.getId(), Constants.yes);
+        }
+        log.info("打码结束,平台={},注单ID={}",platform, record.getBetId());
     }
 
     /**
@@ -102,7 +109,7 @@ public class UserMoneyBusiness {
     public void washCode(String platform, GameRecord gameRecord) {
         BigDecimal validbet = new BigDecimal(gameRecord.getValidbet());
         Long userId = gameRecord.getUserId();
-        log.info("开始洗码,注单ID={},注单明细={}", gameRecord.getBetId(), gameRecord.toString());
+        log.info("开始洗码,平台={},注单ID={},注单明细={}",platform, gameRecord.getBetId(), gameRecord.toString());
         WashCodeConfig config = userWashCodeConfigService.getWashCodeConfigByUserIdAndGameId(platform, userId, gameRecord.getGid().toString());
         if (config != null && config.getRate() != null && config.getRate().compareTo(BigDecimal.ZERO) == 1) {
             log.info("游戏洗码配置={}", config.toString());
@@ -122,8 +129,12 @@ public class UserMoneyBusiness {
             userMoneyService.findUserByUserIdUseLock(userId);
             userMoneyService.addWashCode(userId, washCodeVal);
         }
-        gameRecordService.updateWashCodeStatus(gameRecord.getId(),Constants.yes);
-        log.info("洗码完成,注单ID={}", gameRecord.getBetId());
+        if(Constants.PLATFORM_WM.equals(platform)) {
+            gameRecordService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
+        }else if(Constants.PLATFORM_PG.equals(platform)||Constants.PLATFORM_CQ9.equals(platform)){
+            gameRecordGoldenFService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
+        }
+        log.info("洗码完成,平台={},注单ID={}",platform, gameRecord.getBetId());
     }
 
     /**
@@ -132,16 +143,17 @@ public class UserMoneyBusiness {
      * @param record
      */
     @Transactional
-    public void shareProfit(GameRecord record) {
-        log.info("开始三级分润,注单ID={},注单明细={}",record.getBetId(), record.toString());
+    public void shareProfit(String platform,GameRecord record) {
+        log.info("开始三级分润,平台={},注单ID={},注单明细={}",platform,record.getBetId(), record.toString());
         BigDecimal validbet = new BigDecimal(record.getValidbet());
         Long userId = record.getUserId();
         ShareProfitMqVo shareProfitMqVo=new ShareProfitMqVo();
+        shareProfitMqVo.setPlatform(platform);
         shareProfitMqVo.setUserId(userId);
         shareProfitMqVo.setValidbet(validbet);
         shareProfitMqVo.setGameRecordId(record.getId());
         shareProfitMqVo.setBetTime(record.getBetTime());
         rabbitTemplate.convertAndSend(RabbitMqConstants.SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.SHAREPROFIT_DIRECT, shareProfitMqVo, new CorrelationData(UUID.randomUUID().toString()));
-        log.info("分润消息发送成功,注单ID={},消息明细={}", record.getBetId(), shareProfitMqVo);
+        log.info("分润消息发送成功,平台={},注单ID={},消息明细={}",platform, record.getBetId(), shareProfitMqVo);
     }
 }
