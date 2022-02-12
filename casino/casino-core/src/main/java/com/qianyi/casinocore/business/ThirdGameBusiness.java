@@ -57,7 +57,7 @@ public class ThirdGameBusiness {
         }
         UserThird third = userThirdService.findByUserId(userId);
         if (third == null || ObjectUtils.isEmpty(third.getGoldenfAccount())) {
-            return ResponseUtil.custom("当前用户暂未进入过游戏");
+            return ResponseUtil.custom("PG/CQ9余额为0");
         }
         ResponseEntity<BigDecimal> responseEntity = getBalanceGoldenF(third.getGoldenfAccount(), userId);
         if (responseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {

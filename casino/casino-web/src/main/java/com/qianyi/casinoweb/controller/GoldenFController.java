@@ -275,10 +275,10 @@ public class GoldenFController {
         }
         PlatformGame platformGame = platformGameService.findByGamePlatformName(vendorCode);
         if (platformGame == null) {
-            return ResponseUtil.custom("当前产品不存在");
+            return ResponseUtil.custom("产品不存在");
         }
         if (platformGame.getGameStatus() != Constants.open) {
-            return ResponseUtil.custom("当前产品已下架");
+            return ResponseUtil.custom("产品已下架");
         }
         if (ObjectUtils.isEmpty(gameName)) {
             List<AdGame> gameList = adGamesService.findByGamePlatformIdAndGamesStatusIsTrue(platformGame.getGamePlatformId());
