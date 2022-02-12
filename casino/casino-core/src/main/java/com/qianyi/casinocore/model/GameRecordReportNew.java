@@ -23,8 +23,11 @@ public class GameRecordReportNew extends BaseEntity{
     @ApiModelProperty("投注笔数")
     private Integer bettingNumber;
 
-    @ApiModelProperty(value = "游戏类别编号")
-    private Integer gid;
+//    @ApiModelProperty(value = "游戏类别编号")
+//    private Integer gid;
+
+    @ApiModelProperty(value = "平台:wm,PG,CQ9")
+    private String platform;
 
     @ApiModelProperty(value = "洗码金额")
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")

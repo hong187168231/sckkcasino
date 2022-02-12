@@ -17,6 +17,9 @@ public class GameRecordEndIndex extends BaseEntity{
     @ApiModelProperty("wm注单id")
     private Long GameRecordId;
 
-    @ApiModelProperty("电子注单id")
-    private Long GameRecordGoldenFId;
+    @ApiModelProperty("PG电子注单id")
+    private Long PGMaxId;
+
+    @ApiModelProperty("CQ9电子注单id")
+    private Long CQ9MaxId;
 }

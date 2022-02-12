@@ -59,6 +59,14 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
         "g.gid gid,COUNT(1) num,SUM(g.bet) bet,SUM(g.validbet) validbet,SUM(g.win_loss) win_loss," +
         " ifnull(SUM(w.amount),0) amount from game_record g left join  " +
         "wash_code_change w  on  w.game_record_id = g.id and w.platform = 'wm' where g.id > ?1 " +
-        " GROUP BY g.third_proxy,g.gid,LEFT(g.settime,?2)  ",nativeQuery = true)
+        " GROUP BY g.third_proxy , LEFT(g.settime,?2)  ",nativeQuery = true)
     List<Map<String,Object>> queryGameRecords(Long id,Integer num);
+
+    @Query(value = "select MAX(g.id) maxId,LEFT(g.create_at_str,?2) set_time,ifnull(g.first_proxy,0) first_proxy," +
+        "ifnull(g.second_proxy,0) second_proxy,ifnull(g.third_proxy,0) third_proxy," +
+        "COUNT(1) num,SUM(g.bet_amount) bet,SUM(g.bet_amount) validbet,SUM(g.win_amount) win_loss," +
+        " ifnull(SUM(w.amount),0) amount from game_record_goldenf g left join  " +
+        "wash_code_change w  on  w.game_record_id = g.id and w.platform = ?3 where g.id > ?1 and g.vendor_code = ?3 " +
+        " GROUP BY g.third_proxy,LEFT(g.create_at_str,?2)  ",nativeQuery = true)
+    List<Map<String,Object>> queryGameRecords(Long id,Integer num,String platform);
 }

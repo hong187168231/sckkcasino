@@ -23,7 +23,9 @@ public class GameRecordTaskNew {
     @Scheduled(cron = TaskConst.GAMERECORD_TASK_NEW)
     public void create(){
         log.info("每小时报表统计开始start=============================================》");
-        gameRecordReportService.saveGameRecordReport01();
+        gameRecordReportService.saveGameRecordReportWM();
+        gameRecordReportService.saveGameRecordReportPG();
+        gameRecordReportService.saveGameRecordReportCQ9();
         log.info("每小时报表统计结束end=============================================》");
     }
 }

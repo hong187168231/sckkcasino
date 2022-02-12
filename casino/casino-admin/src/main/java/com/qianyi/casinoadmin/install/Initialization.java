@@ -85,10 +85,13 @@ public class Initialization implements CommandLineRunner {
         if (LoginUtil.checkNull(first)){
             first = new GameRecordEndIndex();
             first.setGameRecordId(0L);
+            first.setPGMaxId(0L);
+            first.setCQ9MaxId(0L);
             gameRecordEndIndexService.save(first);
         }else {
             first.setGameRecordId(first.getGameRecordId()==null?0L:first.getGameRecordId());
-            first.setGameRecordGoldenFId(first.getGameRecordGoldenFId()==null?0L:first.getGameRecordGoldenFId());
+            first.setPGMaxId(first.getPGMaxId()==null?0L:first.getPGMaxId());
+            first.setCQ9MaxId(first.getCQ9MaxId()==null?0L:first.getCQ9MaxId());
         }
     }
 
