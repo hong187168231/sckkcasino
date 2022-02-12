@@ -22,6 +22,9 @@ public class CodeNumChange extends BaseEntity {
 	@ApiModelProperty(value = "游戏记录ID")
 	private Long gameRecordId;
 
+	@ApiModelProperty(value = "平台:wm,PG,CQ9")
+	private String platform;
+
 	@ApiModelProperty(value = "注单号")
 	private String betId;
 

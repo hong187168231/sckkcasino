@@ -38,21 +38,37 @@ public class TestController {
     private RedisUtil redisUtil;
 
     @GetMapping("sendMq")
-    @ApiOperation("批量发送分润MQ测试")
+    @ApiOperation("批量发送分润MQ")
     @NoAuthentication
-    @ApiImplicitParam(name = "id", value = "起始ID", required = true)
-    public ResponseEntity sendMq(Long id) {
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "id", value = "起始ID", required = true),
+        @ApiImplicitParam(name = "platform", value = "平台:wm,PG,CQ9", required = true),
+    })
+    public ResponseEntity sendMq(Long id,String platform) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String startTime = format.format(new Date());
         List<GameRecord> list = gameRecordService.findByCreateByAndIdGreaterThanEqualOrderByIdAsc("0", id);
         redisUtil.set("sendMq::startTime::" + id, startTime);
         for (GameRecord gameRecord : list) {
-            gameRecordAsyncOper.shareProfit(gameRecord);
+            gameRecordAsyncOper.shareProfit(platform,gameRecord);
             redisUtil.set("sendMq::endId::" + id, gameRecord.getId());
             redisUtil.incr("sendMq::totalNum", 1);
         }
         String endTime = format.format(new Date());
         redisUtil.set("sendMq::endTime::" + id, endTime);
+        return ResponseUtil.success();
+    }
+
+    @GetMapping("sendMqByBetId")
+    @ApiOperation("根据注单ID发送消息")
+    @NoAuthentication
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "betId", value = "注单ID", required = true),
+            @ApiImplicitParam(name = "platform", value = "平台:wm,PG,CQ9", required = true),
+    })
+    public ResponseEntity sendMqByBetId(String betId,String platform) {
+        GameRecord gameRecord = gameRecordService.findByBetId(betId);
+        gameRecordAsyncOper.shareProfit(platform,gameRecord);
         return ResponseUtil.success();
     }
 
@@ -63,5 +79,27 @@ public class TestController {
     public ResponseEntity sendMsgToTelegramBot(String msg) {
         gameRecordAsyncOper.sendMsgToTelegramBot(msg);
         return ResponseUtil.success();
+    }
+
+    @GetMapping("requestTest")
+    @ApiOperation("请求次数测试")
+    @NoAuthentication
+    @ApiImplicitParam(name = "msg", value = "消息", required = true)
+    public ResponseEntity requestTest(String msg) {
+        log.info("请求成功,消息={}", msg);
+        return ResponseUtil.success();
+    }
+
+    @GetMapping("getVerificationCodeByPhone")
+    @ApiOperation("根据手机号查询验证码，测试用")
+    @NoAuthentication
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "country", value = "区号，柬埔寨：855", required = true),
+            @ApiImplicitParam(name = "phone", value = "手机号", required = true)
+    })
+    public ResponseEntity getVerificationCodeByPhone(String country, String phone) {
+        String phoneKey = Constants.REDIS_SMSCODE + country + phone;
+        Object val = redisUtil.get(phoneKey);
+        return ResponseUtil.success(val);
     }
 }

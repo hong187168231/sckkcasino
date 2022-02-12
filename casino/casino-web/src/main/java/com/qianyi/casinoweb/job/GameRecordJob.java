@@ -176,9 +176,9 @@ public class GameRecordJob {
                 //洗码
                 gameRecordAsyncOper.washCode(Constants.PLATFORM_WM, record);
                 //扣减打码量
-                gameRecordAsyncOper.subCodeNum(platformConfig, record);
+                gameRecordAsyncOper.subCodeNum(Constants.PLATFORM_WM,platformConfig, record);
                 //代理分润
-                gameRecordAsyncOper.shareProfit(record);
+                gameRecordAsyncOper.shareProfit(Constants.PLATFORM_WM,record);
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("保存游戏记录时报错,message={}", e.getMessage());
