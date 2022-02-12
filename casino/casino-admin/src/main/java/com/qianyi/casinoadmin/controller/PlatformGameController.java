@@ -74,15 +74,22 @@ public class PlatformGameController {
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "gamePlatformName", value = "游戏名称", required = true),
-            @ApiImplicitParam(name = "gamesStatus", value = "是否维护 0：维护 1正常", required = false)
+            @ApiImplicitParam(name = "gamesStatus", value = "是否维护 0：维护 1正常", required = false),
+            @ApiImplicitParam(name = "platformId", value = "1:PG 2:CQ9", required = false)
     })
-    public ResponseEntity<AdGame> findGameList(Integer pageSize, Integer pageCode,String gamePlatformName) {
+    public ResponseEntity<AdGame> findGameList(Integer pageSize, Integer pageCode,String gamePlatformName, Integer platformId) {
         if (LoginUtil.checkNull(gamePlatformName)) {
             return ResponseUtil.success("数据不存在");
         }
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize);
         AdGame adGame = new AdGame();
-        adGame.setGameName(gamePlatformName);
+        if(!LoginUtil.checkNull(gamePlatformName)){
+            adGame.setGameName(gamePlatformName);
+        }
+        if(platformId != null){
+            adGame.setGamePlatformId(platformId);
+        }
+
         Page<AdGame> adGamePage =  adGameService.findAll(pageable, adGame);
         return ResponseUtil.success(adGamePage);
     }
