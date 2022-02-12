@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.model;
 
+import com.qianyi.modulecommon.Constants;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -62,4 +63,13 @@ public class GameRecordGoldenF extends BaseEntity {
 
     @ApiModelProperty(value = "三级代理")
     private Long thirdProxy;
+
+    @ApiModelProperty(value = "洗码状态：1：成功")
+    private Integer washCodeStatus;
+
+    @ApiModelProperty(value = "打码状态：1：成功")
+    private Integer codeNumStatus;
+
+    @ApiModelProperty(value = "分润状态：0:失败，>0：成功")
+    private Integer shareProfitStatus = Constants.no;
 }
