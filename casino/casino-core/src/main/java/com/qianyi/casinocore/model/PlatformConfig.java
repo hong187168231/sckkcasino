@@ -71,6 +71,9 @@ public class PlatformConfig {
     @ApiModelProperty("WM余额警戒线")
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal wmMoneyWarning;
+    @ApiModelProperty("PG/CQ9余额警戒线")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    private BigDecimal electronicsMoneyWarning;
 
     @ApiModelProperty("一级玩家返佣")
     @Column(columnDefinition = "Decimal(10,6) default '0.000000'")

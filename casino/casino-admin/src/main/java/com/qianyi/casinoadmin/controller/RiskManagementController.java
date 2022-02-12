@@ -47,9 +47,10 @@ public class RiskManagementController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "ipMaxNum", value = "注册ip限制", required = false),
             @ApiImplicitParam(name = "wmMoneyWarning", value = "WM余额警戒线", required = false),
+            @ApiImplicitParam(name = "electronicsMoneyWarning", value = "PG/CQ9余额警戒线", required = false),
     })
     @PostMapping("/saveRiskConfig")
-    public ResponseEntity saveSysConfig(Integer ipMaxNum, BigDecimal wmMoneyWarning){
+    public ResponseEntity saveSysConfig(Integer ipMaxNum, BigDecimal wmMoneyWarning,BigDecimal electronicsMoneyWarning){
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (LoginUtil.checkNull(platformConfig)){
             platformConfig = new PlatformConfig();
@@ -62,6 +63,13 @@ public class RiskManagementController {
                 return ResponseUtil.custom("金额不能大于99999999");
             }
             platformConfig.setWmMoneyWarning(wmMoneyWarning);
+        }
+
+        if (!LoginUtil.checkNull(electronicsMoneyWarning)){
+            if (electronicsMoneyWarning.compareTo(new BigDecimal(CommonConst.NUMBER_99999999)) >= CommonConst.NUMBER_1){
+                return ResponseUtil.custom("金额不能大于99999999");
+            }
+            platformConfig.setElectronicsMoneyWarning(electronicsMoneyWarning);
         }
         platformConfigService.save(platformConfig);
         return ResponseUtil.success();
