@@ -41,9 +41,13 @@ public class UserMoneyService {
 
     private String recycleUrl = "/wm/oneKeyRecoverApi?";
 
+    private String PG_refreshUrl = "/golednf/getBalanceApi?";
+
+    private String PG_recycleUrl = "/golednf/oneKeyRecoverApi?";
+
     public UserMoney findUserByUserIdUseLock(Long userId) {
-       //return userMoneyRepository.findUserByUserIdUseLock(userId);
-       return userMoneyRepository.findUserMoneyByUserId(userId);
+        //return userMoneyRepository.findUserByUserIdUseLock(userId);
+        return userMoneyRepository.findUserMoneyByUserId(userId);
     }
 
     public UserMoney findUserByUserIdUse(Long userId) {
@@ -57,7 +61,7 @@ public class UserMoneyService {
     }
 
     @CacheEvict(key = "#userId")
-/*    @Transactional*/
+    /*    @Transactional*/
     public void changeProfit(Long userId,BigDecimal shareProfit){
         userMoneyRepository.changeProfit(userId,shareProfit);
     }
@@ -231,8 +235,8 @@ public class UserMoneyService {
             log.info("{}查询web接口返回{}",user.getAccount(),s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
-//            Object data = parse.get("data");
-//            return new BigDecimal(data.toString());
+            //            Object data = parse.get("data");
+            //            return new BigDecimal(data.toString());
         } catch (Exception e) {
             return null;
         }
@@ -246,6 +250,36 @@ public class UserMoneyService {
             WMurl = WMurl + recycleUrl;
             String s = HttpClient4Util.get(WMurl + param);
             log.info("{}回收余额web接口返回{}",user.getAccount(),s);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    public JSONObject refreshPGAndCQ9(User user) {
+        try {
+            String param = "userId={0}";
+            param = MessageFormat.format(param,user.getId().toString());
+            PlatformConfig first = platformConfigService.findFirst();
+            String WMurl = first == null?"":first.getWebConfiguration();
+            WMurl = WMurl + PG_refreshUrl;
+            String s = HttpClient4Util.get(WMurl + param);
+            log.info("{}查询PG余额web接口返回{}",user.getAccount(),s);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    public JSONObject oneKeyRecoverApi(User user){
+        try {
+            String param = "userId={0}";
+            param = MessageFormat.format(param,user.getId().toString());
+            PlatformConfig first = platformConfigService.findFirst();
+            String WMurl = first == null?"":first.getWebConfiguration();
+            WMurl = WMurl + PG_recycleUrl;
+            String s = HttpClient4Util.get(WMurl + param);
+            log.info("{}回收PG余额web接口返回{}",user.getAccount(),s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
         } catch (Exception e) {
