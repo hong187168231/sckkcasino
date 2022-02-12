@@ -6,6 +6,8 @@ import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import java.math.BigDecimal;
 
 /**
@@ -14,6 +16,7 @@ import java.math.BigDecimal;
 @Entity
 @Data
 @ApiModel("打码明细表")
+@Table(name ="code_num_change",uniqueConstraints={@UniqueConstraint(columnNames={"platform","gameRecordId"})})
 public class CodeNumChange extends BaseEntity {
 
 	@ApiModelProperty(value = "用户ID")
