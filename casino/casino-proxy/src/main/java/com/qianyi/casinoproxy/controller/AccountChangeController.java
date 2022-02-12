@@ -9,6 +9,7 @@ import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.AccountChangeBackVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -102,6 +103,7 @@ public class AccountChangeController {
     }
     @ApiOperation("查询账变类型")
     @GetMapping("/getData")
+    @NoAuthorization
     public ResponseEntity getData(){
         AccountChangeEnum[] values = AccountChangeEnum.values();
         Map<Integer,String> map = new HashMap<>();
