@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface ProxyRebateConfigRepository  extends JpaRepository<ProxyRebateConfig,Long>, JpaSpecificationExecutor<ProxyRebateConfig> {
     ProxyRebateConfig findByProxyUserId(Long proxyUserId);
+
+    ProxyRebateConfig findByProxyUserIdAndGameType(Long proxyUserId,Integer gameType) ;
 }

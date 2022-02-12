@@ -11,12 +11,12 @@ import java.util.Map;
 
 public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, JpaSpecificationExecutor<GameRecord> {
 
-    @Query(value = "select max(first_proxy) first_proxy ,max(second_proxy) second_proxy ,third_proxy third_proxy,count(distinct user_id) player_num ,max(bet_time) bet_time, sum(validbet) validbet \n" +
+    @Query(value = "select max(first_proxy) first_proxy ,max(second_proxy) second_proxy ,third_proxy third_proxy, user_id as  userId,count(distinct user_id) player_num ,max(bet_time) bet_time, sum(validbet) validbet,1 as gameType \n" +
             "from game_record gr\n" +
             "where\n" +
             "bet_time between ?1 and ?2\n" +
             "and third_proxy is not null \n" +
-            "group by third_proxy ",nativeQuery = true)
+            "group by third_proxy,user_id ",nativeQuery = true)
     List<Map<String,Object>> getStatisticsResult(String startTime, String endTime);
 
     @Modifying

@@ -19,6 +19,12 @@ public class ProxyRebateConfig {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * 游戏类型：1:WM,2:PG,3:CQ9
+     */
+    @ApiModelProperty("游戏类型：1:WM,2:PG,3:CQ9")
+    private Integer gameType;
+
     @ApiModelProperty("总代理id")
     private Long proxyUserId;
 

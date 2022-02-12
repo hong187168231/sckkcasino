@@ -37,6 +37,8 @@ public class CompanyProxyMonthBusiness {
 
     @Autowired
     private GameRecordService gameRecordService;
+    @Autowired
+    private GameRecordGoldenFService gameRecordGoldenFService;
 
     @Autowired
     private CompanyLevelProcessBusiness companyLevelProcessBusiness;
@@ -58,73 +60,78 @@ public class CompanyProxyMonthBusiness {
         log.info("processDailyReport start startTime:{} endTime:{}",startTime,endTime);
         //查询当天游戏记录(third_proxy is not null)
         List<CompanyOrderAmountVo> companyOrderAmountVoList = gameRecordService.getStatisticsResult(startTime,endTime);
-
         List<CompanyProxyMonth> firstList= new ArrayList<>();
         List<CompanyProxyMonth> secondeList= new ArrayList<>();
         List<CompanyProxyMonth> thirdList= new ArrayList<>();
-
         companyOrderAmountVoList.forEach(item->processOrder(item,firstList,secondeList,thirdList));
-
         if(firstList.size() == 0) {
             log.info("first level is no user");
             return;
         }
+        //查询电子游戏数据
+        List<CompanyProxyMonth> firstList1= new ArrayList<>();
+        List<CompanyProxyMonth> secondeList1= new ArrayList<>();
+        List<CompanyProxyMonth> thirdList1= new ArrayList<>();
+        List<CompanyOrderAmountVo> statisticsResult = gameRecordGoldenFService.getStatisticsResult(startTime, endTime);
+        statisticsResult.forEach(item->processOrder(item,firstList1,secondeList1,thirdList1));
+        if(firstList.size() == 0) {
+            log.info("first level is no user");
+            return;
+        }
+        firstList.addAll(firstList1);
+        secondeList.addAll(secondeList1);
+        thirdList.addAll(thirdList1);
 
+        List<CompanyProxyMonth> firstResultList = proxyList(firstList);
+        List<CompanyProxyMonth> secondeResultList = proxyList(secondeList);
+        List<CompanyProxyMonth> thirdResultList = proxyList(thirdList);
+
+        List<CompanyProxyMonth> resultList = processingData(firstResultList, secondeResultList, thirdResultList);
+
+        log.info("save all proxyDetail data");
+        log.info("resultList:{}",resultList);
+        companyProxyMonthService.saveAll(resultList);
+        log.info("save all proxyDetail data finish");
+    }
+
+    /**
+     * 合并代理数据
+     * @param proxyInfoList
+     * @return
+     */
+    public   List<CompanyProxyMonth> proxyList(List<CompanyProxyMonth>  proxyInfoList){
+        Map<Long, CompanyProxyMonth> proxyMap = new HashMap<>();
+        proxyInfoList.forEach(info ->{
+            CompanyProxyMonth last = proxyMap.get(info.getUserId());
+            if (null !=last ){
+                if (last.getUserIdTemp().equals(info.getUserIdTemp())){
+                    info.setPlayerNum(info.getPlayerNum());
+                }else {
+                    info.setPlayerNum(info.getPlayerNum()+last.getPlayerNum());
+                }
+                info.setGroupBetAmount(info.getGroupBetAmount().add(last.getGroupBetAmount()));
+                info.setGroupTotalprofit(info.getGroupTotalprofit().add(last.getGroupTotalprofit()));
+                info.setProfitAmount(info.getProfitAmount().add(last.getProfitAmount()));
+                proxyMap.put(info.getUserId(),info);
+            }else {
+                proxyMap.put(info.getUserId(),info);
+            }
+        });
+       return proxyMap.values().stream().collect(Collectors.toList());
+    }
+
+
+    //处理总返佣
+    public List<CompanyProxyMonth>  processingData (List<CompanyProxyMonth> firstList,  List<CompanyProxyMonth> secondeList,  List<CompanyProxyMonth> thirdList){
         log.info("firstList size is {}, secondeList size is {}, thirdList size is {}",firstList.size(),secondeList.size(),thirdList.size());
-
         // 处理总返佣：总返佣group_totalprofit = 下级profit_amount总计
         List<CompanyProxyMonth> secondeCompanyProxyDetail = processSec(secondeList,thirdList,2);
         List<CompanyProxyMonth> firstCompanyProxyDetail = processSec(firstList,secondeCompanyProxyDetail,1);
 
         List<CompanyProxyMonth> resultList = Stream.concat(thirdList.stream(),secondeCompanyProxyDetail.stream()).collect(Collectors.toList());
         resultList.addAll(firstCompanyProxyDetail);
-
-        log.info("save all proxyDetail data");
-        log.info("resultList:{}",resultList);
-        //计算分佣等级
-        Map<Long, List<CompanyProxyMonth>> firstMap = resultList.stream().collect(Collectors.groupingBy(CompanyProxyMonth::getUserId));
-        resultList.forEach(info->{
-            List<CompanyProxyMonth> proxyHomes = firstMap.get(info.getUserId());
-            if (proxyHomes!=null){
-                BigDecimal reduce = proxyHomes.stream().map(CompanyProxyMonth::getGroupBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-                CompanyLevelBO levelData = companyLevelProcessBusiness.getLevelData(reduce, info.getFirstProxy());
-                info.setProfitAmountLine(levelData.getProfitAmountLine().toString());
-                info.setProfitRate(levelData.getProfitAmount().toString());
-                info.setProfitLevel(levelData.getProfitLevel().toString());
-                info.setProfitLevelNumber(queryRebateLevel(levelData.getProfitLevel()+"",info.getFirstProxy()));
-            }
-        });
-//        companyProxyDetailService.saveAll(resultList);
-        companyProxyMonthService.saveAll(resultList);
-        log.info("save all proxyDetail data finish");
-
+        return resultList;
     }
-
-
-
-    private List<CompanyProxyMonth> processSecTemp(List<CompanyProxyMonth> firstList,List<CompanyProxyMonth> secList,int level) {
-        Map<Long,List<CompanyProxyMonth>> firstProxy=new HashMap<>();
-        if (level==2){
-            firstProxy = secList.stream().collect(Collectors.groupingBy(CompanyProxyMonth::getSecondProxy));
-        }else {
-            firstProxy = secList.stream().collect(Collectors.groupingBy(CompanyProxyMonth::getFirstProxy));
-        }
-        Map<Long, List<CompanyProxyMonth>> finalFirstProxy = firstProxy;
-        firstList.forEach(info ->{
-            List<CompanyProxyMonth> subList = finalFirstProxy.get(info.getUserId());
-            if (subList!=null){
-                List<CompanyProxyMonth> collect=new ArrayList<>();
-                List<CompanyProxyMonth> collect1 = subList.stream().filter(x ->x.getFirstProxy() == info.getFirstProxy() &&  x.getThirdProxy() == info.getThirdProxy()).collect(Collectors.toList());
-                List<CompanyProxyMonth> collect2 = subList.stream().filter(x -> x.getSecondProxy() == info.getSecondProxy() && x.getThirdProxy() == info.getThirdProxy()).collect(Collectors.toList());
-                collect = level==2 ? collect1 : collect2;
-                if (collect!=null){
-                    info.setGroupTotalprofit(collect.stream().map(x->x.getGroupTotalprofit()).reduce(BigDecimal.ZERO,BigDecimal::add));
-                }
-            }
-        });
-        return firstList;
-    }
-
 
     private List<CompanyProxyMonth> processSec(List<CompanyProxyMonth> firstList,List<CompanyProxyMonth> secList,int level) {
         List<CompanyProxyMonth> companyProxyDetailList = new ArrayList<>();
@@ -179,7 +186,7 @@ public class CompanyProxyMonthBusiness {
      */
     public void processOrder(CompanyOrderAmountVo companyOrderAmountVo,List<CompanyProxyMonth> firstList,List<CompanyProxyMonth> secondeList,List<CompanyProxyMonth> thirdList){
         //返佣比例
-        CompanyLevelBO companyLevelBO = companyLevelProcessBusiness.getLevelData(new BigDecimal(companyOrderAmountVo.getValidbet()),companyOrderAmountVo.getFirstProxy());
+        CompanyLevelBO companyLevelBO = companyLevelProcessBusiness.getLevelData(new BigDecimal(companyOrderAmountVo.getValidbet()),companyOrderAmountVo.getFirstProxy(),companyOrderAmountVo.getGameType());
         //根据基层代查询代理佣金配置表
         ProxyCommission proxyCommission = proxyCommissionService.findByProxyUserId(companyOrderAmountVo.getThirdProxy());
 
@@ -203,10 +210,7 @@ public class CompanyProxyMonthBusiness {
                 .thirdProxy(companyOrderAmountVo.getThirdProxy())
                 .proxyRole(proxyType)
                 .userId(userid)
-               /* .profitLevel(companyLevelBO.getProfitLevel()+"")
-                .profitLevelNumber(queryRebateLevel(companyLevelBO.getProfitLevel()+"",userid))
-                .profitRate(companyLevelBO.getProfitAmount().toString())
-                .profitAmountLine(companyLevelBO.getProfitAmountLine().toString())*/
+                .userIdTemp(companyOrderAmountVo.getUserId())
                 .groupBetAmount(new BigDecimal(companyOrderAmountVo.getValidbet()))
                 .playerNum(companyOrderAmountVo.getPlayerNum())
                 // 返佣金额(如:达到1w返佣10元) * 实际倍数(下注金额/10000) * 代理佣金配置值
@@ -228,7 +232,7 @@ public class CompanyProxyMonthBusiness {
     public String queryRebateLevel(String profitAmount,Long proxyUserId){
         //ProxyUser proxyUser = proxyUserService.findById(proxyUserId);
         //查询父级
-        ProxyRebateConfig proxyRebateConfig = proxyRebateConfigService.findById(proxyUserId);
+        ProxyRebateConfig proxyRebateConfig = proxyRebateConfigService.findByProxyUserIdAndGameType(proxyUserId,null);
         RebateConfig rebateConfig = rebateConfigService.findFirst();
         String profit= profitAmount;
         //L1

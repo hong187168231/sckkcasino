@@ -13,7 +13,6 @@ import java.util.Map;
 public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyMonth,Long>, JpaSpecificationExecutor<CompanyProxyMonth> {
 
     void deleteByStaticsTimes(String staticsTimes);
-
     @Query(value = "select user_id,max(proxy_role) proxy_role ,\n" +
         "max(first_proxy) first_proxy ,max(second_proxy) second_proxy ,max(third_proxy) third_proxy ,\n" +
         "max(substr( ?1 ,1,7)) statics_times, \n" +

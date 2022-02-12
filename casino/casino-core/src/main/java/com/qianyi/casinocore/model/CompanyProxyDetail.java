@@ -57,6 +57,11 @@ public class CompanyProxyDetail extends BaseEntity implements Cloneable{
     private Integer settleStatus;
     @ApiModelProperty(value = "投注时间")
     private LocalDateTime betTime;
+    /**
+     * 游戏类型：1:WM,2:PG,3:CQ9
+     */
+    @ApiModelProperty("游戏类型：1:WM,2:PG,3:CQ9")
+    private Integer gameType;
 
     @Override
     public Object clone() {

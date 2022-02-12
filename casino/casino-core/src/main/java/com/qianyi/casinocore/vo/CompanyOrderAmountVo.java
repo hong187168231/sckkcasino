@@ -42,6 +42,9 @@ public class CompanyOrderAmountVo {
     @ApiModelProperty("玩家数")
     private Integer playerNum;
 
+
+    @ApiModelProperty("用户ID")
+    private Long userId;
     /**
      * 下注時間
      */
@@ -54,4 +57,11 @@ public class CompanyOrderAmountVo {
      */
     @ApiModelProperty(value = "有效下注")
     private String validbet;
+
+
+    /**
+     * 游戏类型：1:WM,2:PG,3:CQ9
+     */
+    @ApiModelProperty("游戏类型：1:WM,2:PG,3:CQ9")
+    private Integer gameType;
 }

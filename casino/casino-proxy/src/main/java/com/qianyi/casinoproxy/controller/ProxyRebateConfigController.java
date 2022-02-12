@@ -36,14 +36,15 @@ public class ProxyRebateConfigController {
     @ApiOperation("查询代理返佣等级配置")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "当前详情页面代理id", required = true),
+            @ApiImplicitParam(name = "gameType", value = "游戏类型：1:WM,2:PG,3:CQ9", required = true),
     })
     @GetMapping("/findAll")
-    public ResponseEntity findAll(Long id){
+    public ResponseEntity findAll(Long id,Integer gameType){
         ProxyUser proxyUser = proxyUserService.findById(id);
         if (CasinoProxyUtil.checkNull(proxyUser)){
             return ResponseUtil.custom("代理不存在");
         }
-        ProxyRebateConfig proxyRebateConfig = proxyRebateConfigService.findById(proxyUser.getFirstProxy());
+        ProxyRebateConfig proxyRebateConfig = proxyRebateConfigService.findByProxyUserIdAndGameType(proxyUser.getFirstProxy(),gameType);
         if (!CasinoProxyUtil.checkNull(proxyRebateConfig)){
             return ResponseUtil.success(proxyRebateConfig);
         }
