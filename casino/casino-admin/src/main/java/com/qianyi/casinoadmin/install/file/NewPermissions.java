@@ -53,7 +53,39 @@ public class NewPermissions {
             //报表管理
             setMemberCenter(collect);
         }
+        if(!collect.containsKey("/thirdGameMange")){
+            //第三方游戏管理
+            thirdGameMange();
+        }
         sysPermissionService.saveAllList(sysPermissions);
+    }
+
+    private void thirdGameMange() {
+        SysPermission sysPermission = new SysPermission("第三方游戏管理", "第三方游戏管理", "/thirdGameMange", 0l, CommonConst.NUMBER_1, CommonConst.NUMBER_0);
+        sysPermissionService.save(sysPermission);
+        List<SysPermission> sysPermissions = new ArrayList<>();
+        SysPermission pgPlatform = new SysPermission("PG电子游戏管理", "PG电子游戏管理", "/adGame/platformList", sysPermission.getId(), CommonConst.NUMBER_2, CommonConst.NUMBER_0);
+        SysPermission cq9Permission = new SysPermission("CQ9电子游戏管理", "CQ9电子游戏管理", "/adGame/platformList", sysPermission.getId(), CommonConst.NUMBER_2, CommonConst.NUMBER_0);
+        sysPermissions.add(pgPlatform);
+        sysPermissions.add(cq9Permission);
+        sysPermissionService.saveAllList(sysPermissions);
+        List<SysPermission> pgPermissions = new ArrayList<>();
+        List<SysPermission> cq9Permissions = new ArrayList<>();
+        SysPermission pgAdgamePlatform = new SysPermission("游戏列表", "游戏列表", "/adGame/findGameList", pgPlatform.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+        SysPermission pgPlatformUpdate = new SysPermission("平台是否维护", "平台是否维护", "/adGame/updatePlatformStatus", pgPlatform.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+        SysPermission pgAdGameUpdate = new SysPermission("游戏状态修改", "游戏状态修改", "/adGame/updateDomainName", pgPlatform.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+        pgPermissions.add(pgAdgamePlatform);
+        pgPermissions.add(pgPlatformUpdate);
+        pgPermissions.add(pgAdGameUpdate);
+        sysPermissionService.saveAllList(pgPermissions);
+        SysPermission cq9AdgamePlatform = new SysPermission("游戏列表", "游戏列表", "/adGame/findGameList", cq9Permission.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+        SysPermission cq9PlatformUpdate = new SysPermission("平台是否维护", "平台是否维护", "/adGame/updatePlatformStatus", cq9Permission.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+        SysPermission cq9AdGameUpdate = new SysPermission("游戏状态修改", "游戏状态修改", "/adGame/updateDomainName", cq9Permission.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+
+        cq9Permissions.add(cq9AdgamePlatform);
+        cq9Permissions.add(cq9PlatformUpdate);
+        cq9Permissions.add(cq9AdGameUpdate);
+        sysPermissionService.saveAllList(cq9Permissions);
     }
 
     private static ArrayList<SysPermission> removeSysPermission( List<SysPermission> sysPermissionList){
