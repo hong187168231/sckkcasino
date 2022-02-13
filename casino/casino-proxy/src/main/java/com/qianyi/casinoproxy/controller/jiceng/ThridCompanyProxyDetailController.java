@@ -171,7 +171,8 @@ public class ThridCompanyProxyDetailController {
         Date end = DateUtil.getSimpleDateFormat().parse(endTime);
         proxyHomePageReportService.chargeOrder(byId, start, end, proxyHomePageReport);
         proxyHomePageReportService.withdrawOrder(byId, start, end, proxyHomePageReport);
-        Set<Long> set = proxyHomePageReportService.gameRecordAndActive(byId, startTime, endTime, proxyHomePageReport);
+//        Set<Long> set = proxyHomePageReportService.gameRecordAndActive(byId, startTime, endTime, proxyHomePageReport);
+        Set<Long> set = new HashSet<>();
         proxyHomePageReportService.getNewUsers(byId, start, end, proxyHomePageReport);
         CompanyProxyReportVo companyProxyReportVo = this.assemble(proxyHomePageReport,set);
         return this.assemble(companyProxyReportVo,byId);
