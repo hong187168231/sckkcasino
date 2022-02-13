@@ -47,7 +47,7 @@ public class GameRecordService {
         return gameRecordRepository.findAll(condition);
     }
 
-    public List<Map<String, String>> findGameRecords(String startTime,String endTime) {
+    public List<Map<String, Object>> findGameRecords(String startTime,String endTime) {
         return gameRecordRepository.findGameRecords(startTime,endTime);
     }
 

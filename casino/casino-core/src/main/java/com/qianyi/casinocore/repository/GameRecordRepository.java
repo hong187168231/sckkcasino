@@ -64,5 +64,5 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
     List<Map<String,Object>> queryGameRecords(Long id,Integer num);
 
     @Query(value = "select g.user_id userId,SUM(g.validbet) validbet from game_record g where g.settime BETWEEN ?1 and ?2 GROUP BY g.user_id;",nativeQuery = true)
-    List<Map<String, String>> findGameRecords(String startTime,String endTime);
+    List<Map<String, Object>> findGameRecords(String startTime,String endTime);
 }

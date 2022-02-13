@@ -39,7 +39,7 @@ public class ShareProfitChangeService {
         return shareProfitChangeRepository.saveAll(shareProfitChangeList);
     }
 
-    public List<Map<String, String>> findSumAmount(String startTime, String endTime){
+    public List<Map<String, Object>> findSumAmount(String startTime, String endTime){
         return shareProfitChangeRepository.findSumAmount(startTime,endTime);
     }
 
