@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, JpaSpecificationExecutor<GameRecord> {
 
@@ -65,4 +66,31 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
 
     @Query(value = "select g.user_id userId,SUM(g.validbet) validbet from game_record g where g.settime BETWEEN ?1 and ?2 GROUP BY g.user_id;",nativeQuery = true)
     List<Map<String, Object>> findGameRecords(String startTime,String endTime);
+
+    @Query(value = "select SUM(g.validbet) validbet from game_record g where g.user_id = ?1 and g.settime BETWEEN ?2 and ?3 ",nativeQuery = true)
+    BigDecimal findGameRecords(Long userId,String startTime,String endTime);
+
+    @Query(value = "select g.user_id  from game_record g where g.settime BETWEEN ?1 and ?2 GROUP BY g.user_id;",nativeQuery = true)
+    Set<Long> findGroupByUser(String startTime,String endTime);
+
+    @Query(value = "select SUM(g.validbet) validbet,SUM(g.win_loss) winLoss from game_record g where g.settime BETWEEN ?1 and ?2 ",nativeQuery = true)
+    Map<String, Object> findSumBetAndWinLoss(String startTime,String endTime);
+
+    @Query(value = "select g.user_id  from game_record g where g.settime BETWEEN ?1 and ?2 and g.first_proxy = ?3 GROUP BY g.user_id;",nativeQuery = true)
+    Set<Long> findGroupByFirst(String startTime,String endTime,Long firstProxy);
+
+    @Query(value = "select ifnull(SUM(g.validbet),0) validbet,ifnull(SUM(g.win_loss),0) winLoss from game_record g where g.settime BETWEEN ?1 and ?2 and g.first_proxy = ?3",nativeQuery = true)
+    Map<String, Object> findSumBetAndWinLossByFirst(String startTime,String endTime,Long firstProxy);
+
+    @Query(value = "select g.user_id  from game_record g where g.settime BETWEEN ?1 and ?2 and g.second_proxy = ?3 GROUP BY g.user_id;",nativeQuery = true)
+    Set<Long> findGroupBySecond(String startTime,String endTime,Long secondProxy);
+
+    @Query(value = "select ifnull(SUM(g.validbet),0) validbet,ifnull(SUM(g.win_loss),0) winLoss  from game_record g where g.settime BETWEEN ?1 and ?2 and g.second_proxy = ?3",nativeQuery = true)
+    Map<String, Object> findSumBetAndWinLossBySecond(String startTime,String endTime,Long secondProxy);
+
+    @Query(value = "select g.user_id  from game_record g where g.settime BETWEEN ?1 and ?2 and g.third_proxy = ?3 GROUP BY g.user_id;",nativeQuery = true)
+    Set<Long> findGroupByThird(String startTime,String endTime,Long thirdProxy);
+
+    @Query(value = "select ifnull(SUM(g.validbet),0) validbet,ifnull(SUM(g.win_loss),0) winLoss  from game_record g where g.settime BETWEEN ?1 and ?2 and g.third_proxy = ?3",nativeQuery = true)
+    Map<String, Object> findSumBetAndWinLossByThird(String startTime,String endTime,Long thirdProxy);
 }

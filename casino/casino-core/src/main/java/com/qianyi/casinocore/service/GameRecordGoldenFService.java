@@ -1,14 +1,24 @@
 package com.qianyi.casinocore.service;
 
 import com.alibaba.fastjson.JSON;
+import com.qianyi.casinocore.model.GameRecordGoldenF;
 import com.qianyi.casinocore.repository.GameRecordGoldenFRepository;
 import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
+import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class GameRecordGoldenFService {
@@ -28,6 +38,14 @@ public class GameRecordGoldenFService {
         return gameRecordGoldenFRepository.findSumBetAmount(startTime,endTime);
     }
 
+    public Set<Long> findGroupByUser(String startTime,String endTime){
+        return gameRecordGoldenFRepository.findGroupByUser(startTime,endTime);
+    }
+
+    public Map<String, Object> findSumBetAndWinLoss(String startTime,String endTime){
+        return gameRecordGoldenFRepository.findSumBetAndWinLoss(startTime,endTime);
+    }
+
     public void updateProfitStatus(Long id,Integer shareProfitStatus){
         gameRecordGoldenFRepository.updateProfitStatus(id,shareProfitStatus);
     }
@@ -44,5 +62,29 @@ public class GameRecordGoldenFService {
 
     public BigDecimal findSumBetAmount(Long userId,String startTime,String endTime){
         return gameRecordGoldenFRepository.findSumBetAmount(userId,startTime,endTime);
+    }
+
+    public Set<Long> findGroupByFirst(String startTime,String endTime,Long firstProxy){
+        return gameRecordGoldenFRepository.findGroupByFirst(startTime,endTime,firstProxy);
+    }
+
+    public Map<String, Object> findSumBetAndWinLossByFirst(String startTime,String endTime,Long firstProxy){
+        return gameRecordGoldenFRepository.findSumBetAndWinLossByFirst(startTime,endTime,firstProxy);
+    }
+
+    public Set<Long> findGroupBySecond(String startTime,String endTime,Long firstProxy){
+        return gameRecordGoldenFRepository.findGroupBySecond(startTime,endTime,firstProxy);
+    }
+
+    public Map<String, Object> findSumBetAndWinLossBySecond(String startTime,String endTime,Long firstProxy){
+        return gameRecordGoldenFRepository.findSumBetAndWinLossBySecond(startTime,endTime,firstProxy);
+    }
+
+    public Set<Long> findGroupByThird(String startTime,String endTime,Long firstProxy){
+        return gameRecordGoldenFRepository.findGroupByThird(startTime,endTime,firstProxy);
+    }
+
+    public Map<String, Object> findSumBetAndWinLossByThird(String startTime,String endTime,Long firstProxy){
+        return gameRecordGoldenFRepository.findSumBetAndWinLossByThird(startTime,endTime,firstProxy);
     }
 }
