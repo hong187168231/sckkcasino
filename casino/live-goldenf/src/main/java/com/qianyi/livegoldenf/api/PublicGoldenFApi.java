@@ -63,7 +63,7 @@ public class PublicGoldenFApi {
      * @param language 游戏语言（选填）
      * @return
      */
-    public String startGameDemo(String gameCode, String language) {
+    public ResponseEntity startGameDemo(String gameCode, String language) {
         String url = domain + "/Demo";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
@@ -76,18 +76,7 @@ public class PublicGoldenFApi {
         String result = HttpClient4Util.doPost(url, params);
         log.info("试玩游戏结果{}：", result);
         ResponseEntity entity = entity(result);
-        if (entity == null || !ObjectUtils.isEmpty(entity.getErrorCode())) {
-            return null;
-        }
-        JSONObject jsonData = JSONObject.parseObject(entity.getData());
-        if (jsonData == null) {
-            return null;
-        }
-        String actionResult = jsonData.getString("action_result");
-        if (!"Success".equals(actionResult)) {
-            return null;
-        }
-        return jsonData.getString("game_url");
+        return entity;
     }
 
     /**
