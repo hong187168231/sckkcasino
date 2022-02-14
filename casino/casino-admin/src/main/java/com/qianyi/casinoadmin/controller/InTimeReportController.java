@@ -1,14 +1,9 @@
 package com.qianyi.casinoadmin.controller;
 
-import com.mysql.cj.log.Log;
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.model.GameRecordReport;
+import com.qianyi.casinocore.model.GameRecordReportNew;
 import com.qianyi.casinocore.model.ProxyUser;
-import com.qianyi.casinocore.service.GameRecordReportService;
-import com.qianyi.casinocore.service.ProxyUserService;
-import com.qianyi.casinocore.service.ReportService;
-import com.qianyi.casinocore.service.WashCodeChangeService;
-import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.GameRecordReportVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
@@ -31,7 +26,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,7 +36,7 @@ import java.util.stream.Collectors;
 public class InTimeReportController {
 
     @Autowired
-    private GameRecordReportService gameRecordReportService;
+    private GameRecordReportNewService gameRecordReportNewService;
 
     @Autowired
     private ProxyUserService proxyUserService;
@@ -56,11 +50,12 @@ public class InTimeReportController {
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
-            @ApiImplicitParam(name = "gid", value = "游戏类别编号 百家乐:101 龙虎:102 轮盘:103 骰宝:104 牛牛:105 番摊:107 色碟:108 鱼虾蟹:110 炸金花:111 安达巴哈:128", required = false),
+//            @ApiImplicitParam(name = "gid", value = "游戏类别编号 百家乐:101 龙虎:102 轮盘:103 骰宝:104 牛牛:105 番摊:107 色碟:108 鱼虾蟹:110 炸金花:111 安达巴哈:128", required = false),
+            @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
             @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
-    public ResponseEntity<GameRecordReportVo> find(Integer pageSize, Integer pageCode, String userName, Integer gid, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+    public ResponseEntity<GameRecordReportVo> find(Integer pageSize, Integer pageCode, String userName, String platform, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(startDate) ||  LoginUtil.checkNull(endDate)){
             return ResponseUtil.custom("参数不合法");
@@ -76,8 +71,8 @@ public class InTimeReportController {
         calendar.add(Calendar.HOUR, 12);
         endDate = calendar.getTime();
         String endTime = DateUtil.dateToPatten2(endDate);
-        GameRecordReport gameRecordReport = new GameRecordReport();
-        gameRecordReport.setGid(gid);
+        GameRecordReportNew gameRecordReport = new GameRecordReportNew();
+        gameRecordReport.setPlatform(platform);
         Long proxyId = null;
         Integer proxyRole = null;
         if (!LoginUtil.checkNull(userName)){
@@ -88,12 +83,12 @@ public class InTimeReportController {
             proxyId = byUserName.getId();
             proxyRole = byUserName.getProxyRole();
         }
-        Page<GameRecordReport> gameRecordReportPage = gameRecordReportService.findGameRecordReportPage(pageable, gameRecordReport, startTime, endTime,proxyId,proxyRole);
+        Page<GameRecordReportNew> gameRecordReportPage = gameRecordReportNewService.findGameRecordReportPage(pageable, gameRecordReport, startTime, endTime,proxyId,proxyRole);
         PageResultVO<GameRecordReportVo> pageResultVO = new PageResultVO(gameRecordReportPage);
-        List<GameRecordReport> gameRecordReports = gameRecordReportPage.getContent();
+        List<GameRecordReportNew> gameRecordReports = gameRecordReportPage.getContent();
         if(!LoginUtil.checkNull(gameRecordReports) && gameRecordReports.size() > 0){
             List<GameRecordReportVo> gameRecordReportVos = new LinkedList();
-            List<Long> firsts = gameRecordReports.stream().map(GameRecordReport::getFirstProxy).collect(Collectors.toList());
+            List<Long> firsts = gameRecordReports.stream().map(GameRecordReportNew::getFirstProxy).collect(Collectors.toList());
             List<ProxyUser> proxyUsers = proxyUserService.findProxyUser(firsts);
             gameRecordReports.stream().forEach(gameRecordReport1 -> {
                 GameRecordReportVo vo = new GameRecordReportVo();
@@ -117,12 +112,13 @@ public class InTimeReportController {
     @GetMapping("/findSum")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
-            @ApiImplicitParam(name = "gid", value = "游戏类别编号 百家乐:101 龙虎:102 轮盘:103 骰宝:104 牛牛:105 番摊:107 色碟:108 鱼虾蟹:110 炸金花:111 安达巴哈:128", required = false),
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
+        //            @ApiImplicitParam(name = "gid", value = "游戏类别编号 百家乐:101 龙虎:102 轮盘:103 骰宝:104 牛牛:105 番摊:107 色碟:108 鱼虾蟹:110 炸金花:111 安达巴哈:128", required = false),
+        @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
+        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
     @NoAuthentication
-    public ResponseEntity findSum( String userName,Integer gid,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+    public ResponseEntity findSum( String userName,String platform,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(startDate) ||  LoginUtil.checkNull(endDate)){
             return ResponseUtil.custom("参数不合法");
@@ -136,8 +132,8 @@ public class InTimeReportController {
         calendar.add(Calendar.HOUR, 12);
         endDate = calendar.getTime();
         String endTime = DateUtil.dateToPatten2(endDate);
-        GameRecordReport gameRecordReport = new GameRecordReport();
-        gameRecordReport.setGid(gid);
+        GameRecordReportNew gameRecordReport = new GameRecordReportNew();
+        gameRecordReport.setPlatform(platform);
         Long proxyId = null;
         Integer proxyRole = null;
         if (!LoginUtil.checkNull(userName)){
@@ -148,7 +144,7 @@ public class InTimeReportController {
             proxyId = byUserName.getId();
             proxyRole = byUserName.getProxyRole();
         }
-        return ResponseUtil.success(gameRecordReportService.findRecordRecordSum(gameRecordReport,startTime,endTime,proxyId,proxyRole));
+        return ResponseUtil.success(gameRecordReportNewService.findRecordRecordSum(gameRecordReport,startTime,endTime,proxyId,proxyRole));
 
     }
 }

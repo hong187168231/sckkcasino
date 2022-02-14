@@ -18,7 +18,7 @@ public class ExcelUtils {
             int rowNum = sheet.getLastRowNum();
             int colNum = row.getPhysicalNumberOfCells();
             //正文内容应该从第二行读取，第一行为表头
-            for (int ri = 1; ri < rowNum; ri++) {
+            for (int ri = 1; ri <= rowNum; ri++) {
                 row = sheet.getRow(ri);
                 int ci = 0;
                 List<String> col = new ArrayList<>();

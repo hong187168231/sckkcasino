@@ -18,9 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -51,13 +49,31 @@ public class UserWashCodeConfigController {
                 BeanUtils.copyProperties(washCodeConfig, userWashCodeConfig, UserWashCodeConfig.class);
                 byUserIdAndPlatform.add(userWashCodeConfig);
             }
+        }else{
+            List<WashCodeConfig> washCodeConfigList = washCodeConfigService.findAll();
+            if(byUserIdAndPlatform.size() != washCodeConfigList.size()){
+                Map<String, UserWashCodeConfig> userWashCodeConfigMap = byUserIdAndPlatform.stream().collect(Collectors.toMap(UserWashCodeConfig::getGameId, serWashCodeConfig -> serWashCodeConfig));
+                Map<String, WashCodeConfig> washCodeConfigMap = washCodeConfigList.stream().collect(Collectors.toMap(WashCodeConfig::getGameId, washCodeConfig -> washCodeConfig));
+                List<UserWashCodeConfig> userWashCodeConfigs = new ArrayList<>();
+                for (String key : washCodeConfigMap.keySet()) {
+                    if(!userWashCodeConfigMap.containsKey(key)){
+                        UserWashCodeConfig userWashCodeConfig = new UserWashCodeConfig();
+                        userWashCodeConfig.setUserId(userId);
+                        BeanUtils.copyProperties(washCodeConfigMap.get(key), userWashCodeConfig, UserWashCodeConfig.class);
+                        userWashCodeConfig.setId(null);
+                        userWashCodeConfigs.add(userWashCodeConfig);
+                    }
+                }
+                if(!userWashCodeConfigs.isEmpty()){
+                    userWashCodeConfigService.saveAll(userWashCodeConfigs);
+                    byUserIdAndPlatform = userWashCodeConfigService.findByUserId(userId);
+                }
+            }
         }
 
         List<UserWashCodeConfig> washCodeConfigs = byUserIdAndPlatform.stream().filter(userWashCodeConfig -> !LoginUtil.checkNull(userWashCodeConfig.getPlatform())).collect(Collectors.toList());
 
-        Map<String, List<UserWashCodeConfig>> collect = washCodeConfigs.stream().collect(Collectors.groupingBy(UserWashCodeConfig::getPlatform));
-
-        return ResponseUtil.success(collect);
+        return ResponseUtil.success(washCodeConfigs);
     }
 
 

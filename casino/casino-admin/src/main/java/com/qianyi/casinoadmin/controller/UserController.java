@@ -267,7 +267,7 @@ public class UserController {
     }
 
 
-    private Page<UserMoney> getPageResultVO(Integer sortType, Date startDate, Date endDate, Integer pageSize, Integer pageCode) {
+    private Page<UserMoney> getPageResultVO(Integer sortType, Date startDate, Date endDate, Integer pageCode, Integer pageSize) {
         Sort sort = Sort.by("money").descending();
         if(sortType == CommonConst.NUMBER_1){
             sort = Sort.by("money").ascending();

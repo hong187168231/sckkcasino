@@ -44,4 +44,10 @@ public class ShareProfitBO {
     @ApiModelProperty(value = "下注时间 年月日时分秒")
     private Date betDate;
 
+    /**
+     * 游戏类型：1:WM,2:PG,3:CQ9
+     */
+    @ApiModelProperty("游戏类型：1:WM,2:PG,3:CQ9")
+    private Integer gameType;
+
 }

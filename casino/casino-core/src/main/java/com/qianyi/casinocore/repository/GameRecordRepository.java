@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,8 +36,8 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
 
     List<GameRecord> findByCreateByAndIdGreaterThanEqualOrderByIdAsc(String createBy,Long id);
 
-    @Query(value = "select count(1) as amount  from game_record rg where rg.id<=?1 and rg.user_id=?2",nativeQuery = true)
-    int  countByIdLessThanEqualAndUserId(Long gameId,Long userId);
+    @Query(value = "select count(1) as amount  from game_record rg where rg.create_time <=?1 and rg.user_id=?2",nativeQuery = true)
+    int  countByIdLessThanEqualAndUserId(Date createTime, Long userId);
 
     GameRecord findByBetId(String betId);
 
