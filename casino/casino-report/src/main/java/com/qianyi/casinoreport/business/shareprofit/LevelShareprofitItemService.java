@@ -2,21 +2,23 @@ package com.qianyi.casinoreport.business.shareprofit;
 
 import com.qianyi.casinocore.constant.ShareProfitConstant;
 import com.qianyi.casinocore.model.*;
-import com.qianyi.casinocore.service.GameRecordService;
-import com.qianyi.casinocore.service.ShareProfitChangeService;
-import com.qianyi.casinocore.service.UserMoneyService;
-import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.ShareProfitBO;
 import com.qianyi.casinoreport.business.LevelProxyReportBusiness;
 import com.qianyi.casinoreport.business.ProxyReportBusiness;
 import com.qianyi.casinoreport.business.LevelProxyDayReportBusiness;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -29,16 +31,25 @@ public class LevelShareprofitItemService {
     private UserService userService;
 
     @Autowired
+    private UserReportService userReportService;
+
+
+    @Autowired
     private ShareProfitChangeService shareProfitChangeService;
+
+    @Autowired
+    private GameRecordService gameRecordService;
+
+    @Autowired
+    private GameRecordGoldenFService gameRecordGoldenFService;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Autowired
     private LevelProxyDayReportBusiness levelProxyDayReportBusiness;
     @Autowired
     private LevelProxyReportBusiness levelproxyReportBusiness;
-
-
-    @Autowired
-    private GameRecordService gameRecordService;
 
     /**
      *  处理各级代理分润入库
@@ -49,28 +60,37 @@ public class LevelShareprofitItemService {
         Long startTime = System.currentTimeMillis();
         ShareProfitChange ShareProfitChangeInfo = shareProfitChangeService.findByUserIdAndOrderNo(shareProfitBO.getUserId(), shareProfitBO.getRecordBetId());
         if (ShareProfitChangeInfo==null){
-            UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(shareProfitBO.getUserId());
-            User user = userService.findUserByIdUseLock(shareProfitBO.getRecordUserId());
+            UserMoney userMoney = userMoneyService.findUserByUserIdUse(shareProfitBO.getUserId());
+            User user = userReportService.findUserByUserIdUse(shareProfitBO.getRecordUserId());
             if(userMoney==null)return;
             log.info("shareProfitBOList processItem That took {} milliseconds",System.currentTimeMillis()-startTime);
             //明细入库
             levelProcessProfitDetail(shareProfitBO,userMoney);
             //进行分润
-            userMoney.setShareProfit(userMoney.getShareProfit().add(shareProfitBO.getProfitAmount()));
-            userMoneyService.changeProfit(userMoney.getUserId(),userMoney.getShareProfit());
+            //userMoney.setShareProfit(userMoney.getShareProfit().add(shareProfitBO.getProfitAmount()));
+            userMoneyService.changeProfit(userMoney.getUserId(),shareProfitBO.getProfitAmount());
+
             //进行日报表处理
             levelProxyDayReportBusiness.processReport(shareProfitBO);
             //进行总报表处理
             levelproxyReportBusiness.processReport(shareProfitBO);
-            //设置第一次投注用户
-            userService.updateIsFirstBet(user.getId(), Constants.yes);
+
+            if(user.getIsFirstBet()==Constants.no){
+                //设置第一次投注用户
+                userService.updateIsFirstBet(user.getId(), Constants.yes);
+            }
             log.info("all store That took {} milliseconds",System.currentTimeMillis()-startTime);
-            //更新分润状态
-             gameRecordService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
+
+            //根据不同的游戏修改游戏分润状态
+            if (shareProfitBO.getGameType()==1){
+                gameRecordService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
+            }else {
+                gameRecordGoldenFService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
+            }
+
             log.info("processShareProfitList That took {} milliseconds",System.currentTimeMillis()-startTime);
         }
     }
-
 
     private void levelProcessProfitDetail(ShareProfitBO shareProfitBO,UserMoney userMoney) {
         ShareProfitChange shareProfitChange = new ShareProfitChange();
@@ -85,11 +105,12 @@ public class LevelShareprofitItemService {
         shareProfitChange.setParentLevel(shareProfitBO.getParentLevel());
         shareProfitChange.setValidbet(shareProfitBO.getBetAmount());
         shareProfitChange.setBetTime(shareProfitBO.getBetDate());
+        shareProfitChange.setGameType(shareProfitBO.getGameType());
         log.info("shareProfitBO:{}",shareProfitBO);
         shareProfitChangeService.save(shareProfitChange);
     }
 
     private BigDecimal getAfterAmount(ShareProfitBO shareProfitBO, UserMoney userMoney){
-        return userMoney.getShareProfit().add(shareProfitBO.getProfitAmount());
+        return userMoney.getShareProfit().add(shareProfitBO.getProfitAmount()).setScale(6,BigDecimal.ROUND_HALF_UP);
     }
 }

@@ -45,6 +45,13 @@ public class UserMoneyService {
       // return userMoneyRepository.findUserByUserIdUseLock(userId);
        return userMoneyRepository.findUserMoneyByUserId(userId);
     }
+
+
+    public UserMoney findUserByUserIdUse(Long userId) {
+        return userMoneyRepository.findByUserId(userId);
+        // return userMoneyRepository.findUserMoneyByUserId(userId);
+    }
+
     public List<UserMoney> saveAll(List<UserMoney> userMoneyList){
         return userMoneyRepository.saveAll(userMoneyList);
     }

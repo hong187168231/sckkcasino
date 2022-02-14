@@ -1,9 +1,6 @@
 package com.qianyi.casinoreport.business.shareprofit;
 
-import com.qianyi.casinocore.model.ConsumerError;
-import com.qianyi.casinocore.model.GameRecord;
-import com.qianyi.casinocore.model.PlatformConfig;
-import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.ShareProfitBO;
 import com.qianyi.casinocore.vo.ShareProfitMqVo;
@@ -17,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,8 +28,14 @@ public class LevelShareProfitBusiness {
     @Autowired
     private GameRecordService gameRecordService;
 
+
+    @Autowired
+    private GameRecordGoldenFService gameRecordGoldenFService;
+
     @Autowired
     private PlatformConfigService platformConfigService;
+    @Autowired
+    private PromoteCommissionConfigService promoteCommissionConfigService;
 
     @Autowired
     private ConsumerErrorService consumerErrorService;
@@ -45,9 +49,33 @@ public class LevelShareProfitBusiness {
      */
     public void procerssShareProfit(ShareProfitMqVo shareProfitMqVo){
         try {
-            GameRecord record = gameRecordService.findGameRecordById(shareProfitMqVo.getGameRecordId());
-            PlatformConfig platformConfig = platformConfigService.findFirst();
-            List<ShareProfitBO> shareProfitBOList = shareProfitOperator(platformConfig, shareProfitMqVo,record);
+            Integer gameType=0;
+            GameRecord record=new GameRecord();
+            if (!shareProfitMqVo.getPlatform().equals("wm")){
+                GameRecordGoldenF recordGoldenF = gameRecordGoldenFService.findGameRecordById(shareProfitMqVo.getGameRecordId());
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date = simpleDateFormat.parse(recordGoldenF.getCreateAtStr());
+
+                GameRecord gameRecord=new GameRecord();
+                gameRecord.setCreateTime(date);
+                gameRecord.setBetId(recordGoldenF.getBetId());
+                gameRecord.setUserId(recordGoldenF.getUserId());
+                record=gameRecord;
+                if (shareProfitMqVo.getPlatform().equals("PG")){
+                    gameType=2;
+                }
+                if (shareProfitMqVo.getPlatform().equals("CQ9")){
+                    gameType=3;
+                }
+            }else {
+                gameType=1;
+                record = gameRecordService.findGameRecordById(shareProfitMqVo.getGameRecordId());
+            }
+
+
+            //查询代理推广配置
+            PromoteCommissionConfig byGameType = promoteCommissionConfigService.findByGameType(gameType);
+            List<ShareProfitBO> shareProfitBOList = shareProfitOperator(byGameType, shareProfitMqVo,record);
             shareProfitTransactionService.processShareProfitMq(shareProfitBOList);
         }catch (Exception e){
             log.error("share profit error : {}",e);
@@ -65,29 +93,29 @@ public class LevelShareProfitBusiness {
 
     /**
      * 各级代理数据组装
-     * @param platformConfig
+     * @param byGameType
      * @param shareProfitMqVo
      * @param record
      * @return
      */
-    private List<ShareProfitBO> shareProfitOperator(PlatformConfig platformConfig, ShareProfitMqVo shareProfitMqVo, GameRecord record) {
+    private List<ShareProfitBO> shareProfitOperator( PromoteCommissionConfig byGameType , ShareProfitMqVo shareProfitMqVo, GameRecord record) {
         Long startTime = System.currentTimeMillis();
         User user = userService.findById(shareProfitMqVo.getUserId());
         log.info("shareProfitOperator user:{}",user);
         String betTime = shareProfitMqVo.getBetTime().substring(0,10);
         List<ShareProfitBO> shareProfitBOList = new ArrayList<>();
         if(ShareProfitUtils.compareIntegerNotNull( user.getFirstPid()))
-            shareProfitBOList.add(getShareProfitBO(user,user.getFirstPid(),shareProfitMqVo.getValidbet(),platformConfig.getFirstCommission(),getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),true,1,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
+            shareProfitBOList.add(getShareProfitBO(user,user.getFirstPid(),shareProfitMqVo.getValidbet(),byGameType.getFirstCommission(),byGameType.getGameType(),getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),true,1,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
         if(ShareProfitUtils.compareIntegerNotNull( user.getSecondPid()))
-            shareProfitBOList.add(getShareProfitBO(user,user.getSecondPid(),shareProfitMqVo.getValidbet(),platformConfig.getSecondCommission(),getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),false,2,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
+            shareProfitBOList.add(getShareProfitBO(user,user.getSecondPid(),shareProfitMqVo.getValidbet(),byGameType.getSecondCommission(),byGameType.getGameType(),getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),false,2,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
         if(ShareProfitUtils.compareIntegerNotNull( user.getThirdPid()))
-            shareProfitBOList.add(getShareProfitBO(user,user.getThirdPid(),shareProfitMqVo.getValidbet(),platformConfig.getThirdCommission(),getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),false,3,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
+            shareProfitBOList.add(getShareProfitBO(user,user.getThirdPid(),shareProfitMqVo.getValidbet(),byGameType.getThirdCommission(),byGameType.getGameType(),getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),false,3,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
         log.info("get list object is {}",shareProfitBOList);
         log.info("shareProfitOperator That took {} milliseconds",System.currentTimeMillis()-startTime);
         return shareProfitBOList;
     }
 
-    private ShareProfitBO getShareProfitBO(User user,Long userId,BigDecimal betAmount,BigDecimal commission,
+    private ShareProfitBO getShareProfitBO(User user,Long userId,BigDecimal betAmount,BigDecimal commission,Integer gameType,
                                            Boolean isFirst,String betTime,String betDate,boolean direct,Integer parentLevel,Long recordUserId,Long recordId,String recordBetId){
         ShareProfitBO shareProfitBO = new ShareProfitBO();
         shareProfitBO.setFromUserId(user.getId());
@@ -109,13 +137,17 @@ public class LevelShareProfitBusiness {
         shareProfitBO.setRecordUserId(recordUserId);
         shareProfitBO.setRecordBetId(recordBetId);
         shareProfitBO.setRecordId(recordId);
+        shareProfitBO.setGameType(gameType);
         log.info("user:{} \\n shareProfitBO{}",user,shareProfitBO);
         return shareProfitBO;
     }
 
     private boolean getUserIsFirstBet(GameRecord record,Long userId){
         //根据game_record表来判断是否是第一次下注
-       int amount= gameRecordService.countByIdLessThanEqualAndUserId(record.getId(),userId);
+        int amount=0;
+       int recordAmount= gameRecordService.countByIdLessThanEqualAndUserId(record.getCreateTime(),userId);
+       int goldenFAmount= gameRecordGoldenFService.countByIdLessThanEqualAndUserId(record.getCreateTime(),userId);
+        amount=recordAmount+goldenFAmount;
         if (amount==Constants.yes){
             return true;
         }

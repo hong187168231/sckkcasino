@@ -22,9 +22,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class GameRecordService {
@@ -45,6 +43,46 @@ public class GameRecordService {
     public List<GameRecord> findGameRecords(GameRecord gameRecord,String startTime,String endTime) {
         Specification<GameRecord> condition = getCondition(gameRecord,startTime,endTime);
         return gameRecordRepository.findAll(condition);
+    }
+
+    public List<Map<String, Object>> findGameRecords(String startTime,String endTime) {
+        return gameRecordRepository.findGameRecords(startTime,endTime);
+    }
+
+    public BigDecimal findGameRecords(Long userId,String startTime,String endTime) {
+        return gameRecordRepository.findGameRecords(userId,startTime,endTime);
+    }
+
+    public Set<Long> findGroupByUser(String startTime,String endTime){
+        return gameRecordRepository.findGroupByUser(startTime,endTime);
+    }
+
+    public Map<String, Object> findSumBetAndWinLoss(String startTime,String endTime){
+        return gameRecordRepository.findSumBetAndWinLoss(startTime,endTime);
+    }
+
+    public Set<Long> findGroupByFirst(String startTime,String endTime,Long firstProxy){
+        return gameRecordRepository.findGroupByFirst(startTime,endTime,firstProxy);
+    }
+
+    public Map<String, Object> findSumBetAndWinLossByFirst(String startTime,String endTime,Long firstProxy){
+        return gameRecordRepository.findSumBetAndWinLossByFirst(startTime,endTime,firstProxy);
+    }
+
+    public Set<Long> findGroupBySecond(String startTime,String endTime,Long firstProxy){
+        return gameRecordRepository.findGroupBySecond(startTime,endTime,firstProxy);
+    }
+
+    public Map<String, Object> findSumBetAndWinLossBySecond(String startTime,String endTime,Long firstProxy){
+        return gameRecordRepository.findSumBetAndWinLossBySecond(startTime,endTime,firstProxy);
+    }
+
+    public Set<Long> findGroupByThird(String startTime,String endTime,Long firstProxy){
+        return gameRecordRepository.findGroupByThird(startTime,endTime,firstProxy);
+    }
+
+    public Map<String, Object> findSumBetAndWinLossByThird(String startTime,String endTime,Long firstProxy){
+        return gameRecordRepository.findSumBetAndWinLossByThird(startTime,endTime,firstProxy);
     }
 
     public  GameRecord  findRecordRecordSum(GameRecord game,String startBetTime,String endBetTime,String startSetTime,String endSetTime) {
@@ -122,11 +160,16 @@ public class GameRecordService {
     public List<Map<String,Object>> queryGameRecords(String startTime,String endTime){
         return gameRecordRepository.queryGameRecords(startTime,endTime);
     }
+
+    public List<Map<String,Object>> queryGameRecords(Long id,Integer num){
+        return gameRecordRepository.queryGameRecords(id,num);
+    }
+
     public GameRecord findGameRecordById(Long gameId){return gameRecordRepository.findById(gameId).orElse(null);}
 
 
-    public int countByIdLessThanEqualAndUserId(Long gameId,Long UserId){
-        return gameRecordRepository.countByIdLessThanEqualAndUserId(gameId,UserId);
+    public int countByIdLessThanEqualAndUserId(Date createTime, Long UserId){
+        return gameRecordRepository.countByIdLessThanEqualAndUserId(createTime,UserId);
     }
 
 

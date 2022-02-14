@@ -7,8 +7,11 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.Query;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface GameRecordGoldenFRepository extends JpaRepository<GameRecordGoldenF,Long>, JpaSpecificationExecutor<GameRecordGoldenF> {
 
@@ -32,5 +35,51 @@ public interface GameRecordGoldenFRepository extends JpaRepository<GameRecordGol
             "and third_proxy is not null \n" +
             "group by third_proxy,user_id,vendor_code ",nativeQuery = true)
     List<Map<String,Object>> getStatisticsResult(String startTime, String endTime);
+
+    @Query(value = "select ifnull(sum(g.bet_amount),0) betAmount from game_record_goldenf g where g.create_at_str "
+        + " BETWEEN ?2  and ?3 and g.user_id = ?1 ",nativeQuery = true)
+    BigDecimal findSumBetAmount(Long userId,String startTime,String endTime);
+
+    @Query(value = "select MAX(g.id) maxId,LEFT(g.create_at_str,?2) set_time,ifnull(g.first_proxy,0) first_proxy," +
+        "ifnull(g.second_proxy,0) second_proxy,ifnull(g.third_proxy,0) third_proxy," +
+        "COUNT(1) num,SUM(g.bet_amount) bet,SUM(g.bet_amount) validbet,SUM(g.win_amount) win_loss," +
+        " ifnull(SUM(w.amount),0) amount from game_record_goldenf g left join  " +
+        "wash_code_change w  on  w.game_record_id = g.id and w.platform = ?3 where g.id > ?1 and g.vendor_code = ?3 " +
+        " GROUP BY g.third_proxy,LEFT(g.create_at_str,?2)  ",nativeQuery = true)
+    List<Map<String,Object>> queryGameRecords(Long id,Integer num,String platform);
+
+    @Query(value = "select g.user_id userId,SUM(g.bet_amount) betAmount from game_record_goldenf g where g.create_at_str BETWEEN ?1 and ?2 GROUP BY g.user_id;",nativeQuery = true)
+    List<Map<String, Object>> findSumBetAmount(String startTime,String endTime);
+
+    @Query(value = "select g.user_id from game_record_goldenf g where g.create_at_str BETWEEN ?1 and ?2 GROUP BY g.user_id;",nativeQuery = true)
+    Set<Long> findGroupByUser(String startTime,String endTime);
+
+    @Query(value = "select SUM(g.bet_amount) betAmount,SUM(g.win_amount-g.bet_amount) winAmount from game_record_goldenf g where g.create_at_str BETWEEN ?1 and ?2 ",nativeQuery = true)
+    Map<String, Object> findSumBetAndWinLoss(String startTime,String endTime);
+
+    @Query(value = "select g.user_id from game_record_goldenf g where g.create_at_str BETWEEN ?1 and ?2 and g.first_proxy = ?3 GROUP BY g.user_id;",nativeQuery = true)
+    Set<Long> findGroupByFirst(String startTime,String endTime,Long firstProxy);
+
+    @Query(value = "select ifnull(SUM(g.bet_amount),0) betAmount,ifnull(SUM(g.win_amount-g.bet_amount),0) winAmount from game_record_goldenf g "
+        + "where g.create_at_str BETWEEN ?1 and ?2  and g.first_proxy = ?3 ",nativeQuery = true)
+    Map<String, Object> findSumBetAndWinLossByFirst(String startTime,String endTime,Long firstProxy);
+
+    @Query(value = "select g.user_id from game_record_goldenf g where g.create_at_str BETWEEN ?1 and ?2 and g.second_proxy = ?3 GROUP BY g.user_id;",nativeQuery = true)
+    Set<Long> findGroupBySecond(String startTime,String endTime,Long secondProxy);
+
+    @Query(value = "select ifnull(SUM(g.bet_amount),0) betAmount,ifnull(SUM(g.win_amount-g.bet_amount),0) winAmount from game_record_goldenf g "
+        + "where g.create_at_str BETWEEN ?1 and ?2  and g.second_proxy = ?3 ",nativeQuery = true)
+    Map<String, Object> findSumBetAndWinLossBySecond(String startTime,String endTime,Long secondProxy);
+
+    @Query(value = "select g.user_id from game_record_goldenf g where g.create_at_str BETWEEN ?1 and ?2 and g.third_proxy = ?3 GROUP BY g.user_id;",nativeQuery = true)
+    Set<Long> findGroupByThird(String startTime,String endTime,Long thirdProxy);
+
+    @Query(value = "select ifnull(SUM(g.bet_amount),0) betAmount,ifnull(SUM(g.win_amount-g.bet_amount),0) winAmount from game_record_goldenf g "
+        + "where g.create_at_str BETWEEN ?1 and ?2  and g.third_proxy = ?3 ",nativeQuery = true)
+    Map<String, Object> findSumBetAndWinLossByThird(String startTime,String endTime,Long thirdProxy);
+
+
+    @Query(value = "select count(1) as amount  from game_record_goldenf rg where rg.create_at_str <=?1 and rg.user_id=?2",nativeQuery = true)
+    int  countByIdLessThanEqualAndUserId(Date createTime, Long userId);
 
 }
