@@ -257,7 +257,7 @@ public class UserService {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Map<String,Object>> findMap(String startTime,String endTime,int page,int pageSize,String sort)
+    public List<Map<String,Object>> findMap(String startTime,String endTime,Integer page,Integer pageSize,String sort)
         throws Exception {
         String dataSql = "select \n" + "u.account , \n" + "u.third_proxy , \n" + " u.id,\n"
             + " ifnull(main_t.num,0) num,\n" + " ifnull(main_t.bet_amount,0) bet_amount ,\n"
@@ -282,7 +282,7 @@ public class UserService {
             + "  group by user_id  \n" + " ) pr on u.id=pr.user_id \n" + " where 1=1 {2} \n" + "limit {3},{4}";
         startTime = "'"+startTime+"'";
         endTime = "'"+endTime+"'";
-        String sql = MessageFormat.format(dataSql,startTime,endTime,sort,page,pageSize);
+        String sql = MessageFormat.format(dataSql,startTime,endTime,sort,page.toString(),pageSize.toString());
         System.out.println(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List resultList = countQuery.getResultList();
