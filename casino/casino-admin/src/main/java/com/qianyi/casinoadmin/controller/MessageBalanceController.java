@@ -6,10 +6,12 @@ import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
+import com.qianyi.modulecommon.util.HttpClient4Util;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,24 +25,17 @@ public class MessageBalanceController {
 
     private final static String url_half = "https://api.onbuka.com/v3/";
 
+    @Value("${project.smsUrl}")
+    private String smsUrl;
+
     @PostMapping("balance")
     @ApiOperation("查询短信平台余额")
     @NoAuthorization
     public ResponseEntity balance() {
-        String url = getUrl("getBalance");
-        String result = BukaHttpClient4Util.doGet(url);
-        System.out.println(result);
-
         try {
-            JSONObject jsonObject = JSONObject.parseObject(result);
-            Integer status = jsonObject.getInteger("status");
-            if (status != 0) {
-                String message = jsonObject.getString("reason");
-                return ResponseUtil.custom(message);
-            }
-
-            String balance = jsonObject.getString("balance");
-            return ResponseUtil.success(balance);
+            String result = HttpClient4Util.doPost(smsUrl + "/buka/balance", null);
+            ResponseEntity responseEntity = JSONObject.parseObject(result, ResponseEntity.class);
+            return responseEntity;
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseUtil.fail();
