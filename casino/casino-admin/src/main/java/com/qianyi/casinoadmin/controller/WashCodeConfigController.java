@@ -44,9 +44,7 @@ public class WashCodeConfigController {
         }
         List<WashCodeConfig> washCodeConfigs = washCodeConfigList.stream().filter(washCodeConfig -> !LoginUtil.checkNull(washCodeConfig.getPlatform())).collect(Collectors.toList());
 
-        Map<String, List<WashCodeConfig>> collect = washCodeConfigs.stream().collect(Collectors.groupingBy(WashCodeConfig::getPlatform));
-
-        return ResponseUtil.success(collect);
+        return ResponseUtil.success(washCodeConfigs);
     }
 
     @PostMapping("updateWashCodeConfigs")
