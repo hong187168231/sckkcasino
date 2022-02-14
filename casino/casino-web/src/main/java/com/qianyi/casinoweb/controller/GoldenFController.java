@@ -224,6 +224,13 @@ public class GoldenFController {
         if (CollectionUtils.isEmpty(adGameList)) {
             return ResponseUtil.custom("游戏不存在");
         }
+        PlatformGame platformGame = platformGameService.findBygamePlatformId(adGameList.get(0).getGamePlatformId());
+        if (platformGame == null) {
+            return ResponseUtil.custom("游戏不存在");
+        }
+        if (!Constants.PLATFORM_PG.equals(platformGame.getGamePlatformName())) {
+            return ResponseUtil.custom("游戏不支持试玩");
+        }
         //开游戏
         String language = request.getHeader(Constants.LANGUAGE);
         String languageCode = LanguageEnum.getLanguageCode(language);
