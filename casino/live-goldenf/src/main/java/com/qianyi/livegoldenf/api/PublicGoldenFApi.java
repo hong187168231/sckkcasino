@@ -233,6 +233,24 @@ public class PublicGoldenFApi {
         return entity;
     }
 
+    public ResponseEntity getPlayerGameRecord(Long startTime,Long endTime,String vendorCode,int page,int pageSize){
+        String url = domain + "/v3/Bet/Record/Get";
+        Map<String, Object> params = new HashMap<>();
+        params.put("secret_key", secretKey);
+        params.put("operator_token", operatorToken);
+        params.put("vendor_code", vendorCode);
+        params.put("start_time", startTime);
+        params.put("end_time", endTime);
+        params.put("page", page);
+        params.put("page_size", pageSize);
+        log.info("查询单个玩家的转账记录参数{}：", JSONObject.toJSONString(params));
+        String result = HttpClient4Util.doPost(url, params);
+        log.info("查询单个玩家的转账记录结果{}：", result);
+        ResponseEntity entity = entity(result);
+        return entity;
+
+    }
+
     private static ResponseEntity entity(String result) {
         if (result == null) {
             return null;
