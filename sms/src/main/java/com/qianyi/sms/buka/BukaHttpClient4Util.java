@@ -39,9 +39,12 @@ public class BukaHttpClient4Util {
             String timestamp = System.currentTimeMillis() / 1000 + "";
 
             httpGet.addHeader("Content-Type", "application/json;charset=UTF-8");
-            httpGet.addHeader("Sign", getSign("CUAil5MD","VQA2STLv",timestamp));
-            httpGet.addHeader("Api-Key", "CUAil5MD");
+//        httpGet.addHeader("Sign", getSign("CUAil5MD","VQA2STLv",timestamp));
+//        httpGet.addHeader("Api-Key", "CUAil5MD");
+            httpGet.addHeader("Sign", getSign("yZsJDkLy","LTTNMAsT",timestamp));
+            httpGet.addHeader("Api-Key", "yZsJDkLy");
             httpGet.addHeader("Timestamp",timestamp );
+
             // 设置配置请求参数
             RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(35000)// 连接主机服务超时时间
                     .setConnectionRequestTimeout(35000)// 请求超时时间
@@ -100,8 +103,10 @@ public class BukaHttpClient4Util {
 //        String timestamp = "1634910821";
 
         httpPost.addHeader("Content-Type", "application/json;charset=UTF-8");
-        httpPost.addHeader("Sign", getSign("CUAil5MD","VQA2STLv",timestamp));
-        httpPost.addHeader("Api-Key", "CUAil5MD");
+//        httpPost.addHeader("Sign", getSign("CUAil5MD","VQA2STLv",timestamp));
+//        httpPost.addHeader("Api-Key", "CUAil5MD");
+        httpPost.addHeader("Sign", getSign("yZsJDkLy","LTTNMAsT",timestamp));
+        httpPost.addHeader("Api-Key", "yZsJDkLy");
         httpPost.addHeader("Timestamp",timestamp );
 
         StringEntity stringEntity = new StringEntity(JSONObject.toJSONString(paramMap), "utf-8");
