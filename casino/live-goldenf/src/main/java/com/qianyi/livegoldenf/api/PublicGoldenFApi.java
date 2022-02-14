@@ -16,7 +16,7 @@ import java.util.Map;
 public class PublicGoldenFApi {
 
     @Value("${project.goldenf.url:null}")
-    private String url;
+    private String domain;
     @Value("${project.goldenf.secretKey:null}")
     private String secretKey;
     @Value("${project.goldenf.operatorToken:null}")
@@ -30,7 +30,7 @@ public class PublicGoldenFApi {
      * @return
      */
     public boolean playerCreate(String playerName, String currency) {
-        url = url + "/Player/Create";
+        String url = domain + "/Player/Create";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
         params.put("operator_token", operatorToken);
@@ -63,8 +63,8 @@ public class PublicGoldenFApi {
      * @param language 游戏语言（选填）
      * @return
      */
-    public String startGameDemo(String gameCode, String language) {
-        url = url + "/Demo";
+    public ResponseEntity startGameDemo(String gameCode, String language) {
+        String url = domain + "/Demo";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
         params.put("operator_token", operatorToken);
@@ -76,18 +76,7 @@ public class PublicGoldenFApi {
         String result = HttpClient4Util.doPost(url, params);
         log.info("试玩游戏结果{}：", result);
         ResponseEntity entity = entity(result);
-        if (entity == null || !ObjectUtils.isEmpty(entity.getErrorCode())) {
-            return null;
-        }
-        JSONObject jsonData = JSONObject.parseObject(entity.getData());
-        if (jsonData == null) {
-            return null;
-        }
-        String actionResult = jsonData.getString("action_result");
-        if (!"Success".equals(actionResult)) {
-            return null;
-        }
-        return jsonData.getString("game_url");
+        return entity;
     }
 
     /**
@@ -97,8 +86,8 @@ public class PublicGoldenFApi {
      * @param limit     游戏限红（选填）目前仅支援MGPLUS真人视讯、SBO
      * @return
      */
-    public String startGame(String palerName, String gameCode, String language, String limit) {
-        url = url + "/Launch";
+    public ResponseEntity startGame(String palerName, String gameCode, String language, String limit) {
+        String url = domain + "/Launch";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
         params.put("operator_token", operatorToken);
@@ -114,18 +103,7 @@ public class PublicGoldenFApi {
         String result = HttpClient4Util.doPost(url, params);
         log.info("启动游戏结果{}：", result);
         ResponseEntity entity = entity(result);
-        if (entity == null || !ObjectUtils.isEmpty(entity.getErrorCode())) {
-            return null;
-        }
-        JSONObject jsonData = JSONObject.parseObject(entity.getData());
-        if (jsonData == null) {
-            return null;
-        }
-        String actionResult = jsonData.getString("action_result");
-        if (!"Success".equals(actionResult)) {
-            return null;
-        }
-        return jsonData.getString("game_url");
+        return entity;
     }
 
     public static void main(String[] args) {
@@ -149,7 +127,7 @@ public class PublicGoldenFApi {
      * @return
      */
     public ResponseEntity transferIn(String palerName, double amount, String traceId, String walletCode) {
-        url = url + "/TransferIn";
+        String url = domain + "/TransferIn";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
         params.put("operator_token", operatorToken);
@@ -177,8 +155,8 @@ public class PublicGoldenFApi {
      * @param walletCode 指定钱包代码 (选填) (适用于2.04后的API)
      * @return
      */
-    public String transferOut(String palerName, double amount, String traceId, String walletCode) {
-        url = url + "/TransferOut";
+    public ResponseEntity transferOut(String palerName, double amount, String traceId, String walletCode) {
+        String url = domain + "/TransferOut";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
         params.put("operator_token", operatorToken);
@@ -194,10 +172,7 @@ public class PublicGoldenFApi {
         String result = HttpClient4Util.doPost(url, params);
         log.info("玩家提值结果{}：", result);
         ResponseEntity entity = entity(result);
-        if (entity == null || !ObjectUtils.isEmpty(entity.getErrorCode())) {
-            return null;
-        }
-        return entity.getErrorCode();
+        return entity;
     }
 
     /**
@@ -207,8 +182,8 @@ public class PublicGoldenFApi {
      * @param walletCode 指定钱包代码（选填）（适用于2.04后的API）
      * @return
      */
-    public String getPlayerBalance(String palerName, String walletCode) {
-        url = url + "/GetPlayerBalance";
+    public ResponseEntity getPlayerBalance(String palerName, String walletCode) {
+        String url = domain + "/GetPlayerBalance";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
         params.put("operator_token", operatorToken);
@@ -220,10 +195,7 @@ public class PublicGoldenFApi {
         String result = HttpClient4Util.doPost(url, params);
         log.info("查询玩家钱包余额结果{}：", result);
         ResponseEntity entity = entity(result);
-        if (entity == null || !ObjectUtils.isEmpty(entity.getErrorCode())) {
-            return null;
-        }
-        return entity.getData();
+        return entity;
     }
 
     /**
@@ -237,8 +209,8 @@ public class PublicGoldenFApi {
      * @param timestampDigit 指定返回时间戳格式（选填） 缺省值：13 10 = 10位数时间戳格式 13 = 13位数时间戳格式
      * @return
      */
-    public String getPlayerTransactionRecord(String palerName, long startTime, long endTime, String walletCode, String traceId, Integer timestampDigit) {
-        url = url + "/Transaction/Record/Player/Get";
+    public ResponseEntity getPlayerTransactionRecord(String palerName, long startTime, long endTime, String walletCode, String traceId, Integer timestampDigit) {
+        String url = domain + "/Transaction/Record/Player/Get";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
         params.put("operator_token", operatorToken);
@@ -258,10 +230,7 @@ public class PublicGoldenFApi {
         String result = HttpClient4Util.doPost(url, params);
         log.info("查询单个玩家的转账记录结果{}：", result);
         ResponseEntity entity = entity(result);
-        if (entity == null || !ObjectUtils.isEmpty(entity.getErrorCode())) {
-            return null;
-        }
-        return entity.getData();
+        return entity;
     }
 
     private static ResponseEntity entity(String result) {
