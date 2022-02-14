@@ -209,7 +209,7 @@ public class GoldenFController {
         return null;
     }
 
-    @ApiOperation("游戏试玩")
+    @ApiOperation("PG游戏试玩,CQ9不支持试玩")
     @PostMapping("/openGameDemo")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = true),
