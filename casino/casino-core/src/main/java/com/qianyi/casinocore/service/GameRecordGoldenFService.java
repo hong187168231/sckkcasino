@@ -2,6 +2,7 @@ package com.qianyi.casinocore.service;
 
 import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.model.GameRecordGoldenF;
+import com.qianyi.casinocore.model.GameRecordGoldenfEndTime;
 import com.qianyi.casinocore.repository.GameRecordGoldenFRepository;
 import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -85,5 +86,12 @@ public class GameRecordGoldenFService {
 
     public GameRecordGoldenF findGameRecordById(Long gameId){return gameRecordGoldenFRepository.findById(gameId).orElse(null);}
 
+    public GameRecordGoldenF save(GameRecordGoldenF gameRecordGoldenF){
+        return gameRecordGoldenFRepository.save(gameRecordGoldenF);
+    }
+
+    public GameRecordGoldenF findGameRecordGoldenFByTraceId(String traceId){
+        return gameRecordGoldenFRepository.findGameRecordGoldenFByTraceId(traceId);
+    }
 
 }

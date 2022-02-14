@@ -82,4 +82,5 @@ public interface GameRecordGoldenFRepository extends JpaRepository<GameRecordGol
     @Query(value = "select count(1) as amount  from game_record_goldenf rg where rg.create_at_str <=?1 and rg.user_id=?2",nativeQuery = true)
     int  countByIdLessThanEqualAndUserId(Date createTime, Long userId);
 
+    GameRecordGoldenF findGameRecordGoldenFByTraceId(String traceId);
 }
