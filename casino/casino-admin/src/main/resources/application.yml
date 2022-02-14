@@ -55,6 +55,7 @@ project:
   title: 后台管理
   username: admin1,admin2,admin3,admin4,admin5
   password: 123456
+  smsUrl: http://127.0.0.1:9600                #短信服务模块
   swagger:
     enable: true
 
