@@ -51,7 +51,8 @@ public class BukaController {
 
         String url = getUrl("sendSms");
         TreeMap<String, Object> params = new TreeMap<>();
-        params.put("appId", "xb2jVhUB");
+//        params.put("appId", "xb2jVhUB");
+        params.put("appId", "XVi0FJNS");
         phone = country + phone;
         params.put("numbers", phone);
         String content = getContent(merchant, language, code);
@@ -168,7 +169,7 @@ public class BukaController {
 
     public static void main(String[] args) {
         BukaController controller = new BukaController();
-        ResponseEntity responseEntity = controller.sendRegister("js", "855", "965299206", "123456", 3);
+        ResponseEntity responseEntity = controller.sendRegister("js", "855", "963299406", "123456", 3);
 //        ResponseEntity responseEntity = controller.balance();
         System.out.println(JSONObject.toJSONString(responseEntity));
     }
