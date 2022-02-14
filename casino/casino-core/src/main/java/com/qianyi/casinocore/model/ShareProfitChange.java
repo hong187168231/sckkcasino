@@ -54,6 +54,12 @@ public class ShareProfitChange extends BaseEntity {
 
     @ApiModelProperty(value = "下注时间")
     private Date betTime;
+
+    /**
+     * 游戏类型：1:WM,2:PG,3:CQ9
+     */
+    @ApiModelProperty("游戏类型：1:WM,2:PG,3:CQ9")
+    private Integer gameType;
     public ShareProfitChange() {
     }
 

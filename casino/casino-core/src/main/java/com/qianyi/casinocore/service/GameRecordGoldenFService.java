@@ -4,21 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.model.GameRecordGoldenF;
 import com.qianyi.casinocore.repository.GameRecordGoldenFRepository;
 import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
-import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class GameRecordGoldenFService {
@@ -87,4 +76,12 @@ public class GameRecordGoldenFService {
     public Map<String, Object> findSumBetAndWinLossByThird(String startTime,String endTime,Long firstProxy){
         return gameRecordGoldenFRepository.findSumBetAndWinLossByThird(startTime,endTime,firstProxy);
     }
+
+    public int countByIdLessThanEqualAndUserId(Date createTime, Long UserId){
+        return gameRecordGoldenFRepository.countByIdLessThanEqualAndUserId(createTime,UserId);
+    }
+
+    public GameRecordGoldenF findGameRecordById(Long gameId){return gameRecordGoldenFRepository.findById(gameId).orElse(null);}
+
+
 }
