@@ -11,8 +11,8 @@ import javax.persistence.Entity;
 @ApiModel("游戏表")
 public class AdGame extends BaseEntity{
 
-    @ApiModelProperty(value = "游戏平台ID")
-    private Integer gamePlatformId;
+    @ApiModelProperty(value = "平台:WM,PG,CQ9")
+    private String gamePlatformName;
 
     @ApiModelProperty(value = "游戏编码")
     private String gameCode;
@@ -23,6 +23,6 @@ public class AdGame extends BaseEntity{
     @ApiModelProperty(value = "游戏英文名称")
     private String gameEnName;
 
-    @ApiModelProperty(value = "是否维护 0：维护 1正常")
+    @ApiModelProperty(value = "是否维护 0：维护 1正常 2下架")
     private Integer gamesStatus;
 }
