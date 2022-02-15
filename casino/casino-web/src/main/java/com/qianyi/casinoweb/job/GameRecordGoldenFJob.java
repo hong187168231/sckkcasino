@@ -1,17 +1,12 @@
 package com.qianyi.casinoweb.job;
 
 import com.alibaba.fastjson.JSON;
-import com.qianyi.casinocore.model.GameRecordGoldenF;
-import com.qianyi.casinocore.model.GameRecordGoldenfEndTime;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.UserThird;
-import com.qianyi.casinocore.service.GameRecordGoldenFService;
-import com.qianyi.casinocore.service.GameRecordGoldenfEndTimeService;
-import com.qianyi.casinocore.service.UserService;
-import com.qianyi.casinocore.service.UserThirdService;
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinoweb.util.DateUtil;
 import com.qianyi.casinoweb.vo.GameRecordObj;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
+import com.qianyi.modulecommon.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,6 +30,17 @@ public class GameRecordGoldenFJob {
 
     @Autowired
     private GameRecordGoldenfEndTimeService gameRecordGoldenfEndTimeService;
+
+    @Autowired
+    PlatformConfigService platformConfigService;
+
+    @Autowired
+    AdGamesService adGamesService;
+
+    @Autowired
+    private GameRecordAsyncOper gameRecordAsyncOper;
+    @Autowired
+    private PlatformGameService platformGameService;
 
     public void pullGoldenF(){
         pullGameRecord("PG");
@@ -115,6 +121,7 @@ public class GameRecordGoldenFJob {
     }
 
     private void processRecords(List<GameRecordGoldenF> recordGoldenFS) {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
         recordGoldenFS.forEach(item->{
             UserThird userThird = userThirdService.findByGoldenfAccount(item.getPlayerName());
             User user = userService.findById(userThird.getUserId());
@@ -125,13 +132,36 @@ public class GameRecordGoldenFJob {
             if(item.getCreatedAt()==null)
                 log.info("{}",item);
             item.setCreateAtStr(DateUtil.timeStamp2Date(item.getCreatedAt(),""));
+            GameRecord gameRecord = combineGameRecord(item);
             GameRecordGoldenF gameRecordGoldenF = gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
             if(gameRecordGoldenF==null)
                 gameRecordGoldenFService.save(item);
+
+            processBusiness(item,gameRecord,platformConfig);
         });
     }
 
+    private void processBusiness(GameRecordGoldenF gameRecordGoldenF,GameRecord gameRecord, PlatformConfig platformConfig) {
+        //洗码
+        gameRecordAsyncOper.washCode(gameRecordGoldenF.getVendorCode(), gameRecord);
+        //扣减打码量
+        gameRecordAsyncOper.subCodeNum(gameRecordGoldenF.getVendorCode(),platformConfig, gameRecord);
+        //代理分润
+        gameRecordAsyncOper.shareProfit(gameRecordGoldenF.getVendorCode(),gameRecord);
+    }
 
+
+    private GameRecord combineGameRecord(GameRecordGoldenF item) {
+        PlatformGame platformGame = platformGameService.findByGamePlatformName(item.getVendorCode());
+        List<AdGame> adGameList = adGamesService.findByGameCode(item.getGameCode());
+        GameRecord gameRecord = new GameRecord();
+        gameRecord.setBetId(item.getBetId());
+        gameRecord.setValidbet(item.getBetAmount().toString());
+        gameRecord.setUserId(item.getUserId());
+        gameRecord.setGid(platformGame.getGamePlatformId());
+        gameRecord.setGname(adGameList.size()>0?adGameList.get(1).getGameName():null);
+        return gameRecord;
+    }
 
 
 }
