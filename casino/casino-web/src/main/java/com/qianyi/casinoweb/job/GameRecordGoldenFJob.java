@@ -152,14 +152,13 @@ public class GameRecordGoldenFJob {
 
 
     private GameRecord combineGameRecord(GameRecordGoldenF item) {
-        PlatformGame platformGame = platformGameService.findByGamePlatformName(item.getVendorCode());
-        List<AdGame> adGameList = adGamesService.findByGameCode(item.getGameCode());
+        AdGame adGame = adGamesService.findByGamePlatformNameAndGameCode(item.getVendorCode(),item.getGameCode());
         GameRecord gameRecord = new GameRecord();
         gameRecord.setBetId(item.getBetId());
         gameRecord.setValidbet(item.getBetAmount().toString());
         gameRecord.setUserId(item.getUserId());
-        gameRecord.setGid(platformGame.getGamePlatformId());
-        gameRecord.setGname(adGameList.size()>0?adGameList.get(1).getGameName():null);
+        gameRecord.setGameId(adGame.getGameCode());
+        gameRecord.setGname(adGame.getGameName());
         return gameRecord;
     }
 

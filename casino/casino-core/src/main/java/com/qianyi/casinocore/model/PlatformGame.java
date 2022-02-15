@@ -12,9 +12,6 @@ import javax.persistence.Entity;
 public class PlatformGame extends BaseEntity  {
 
     @ApiModelProperty(value = "游戏平台ID")
-    private Integer gamePlatformId;
-
-    @ApiModelProperty(value = "游戏平台ID")
     private String gamePlatformName;
 
     @ApiModelProperty(value = "平台状态：0：维护，1：正常")
@@ -23,8 +20,7 @@ public class PlatformGame extends BaseEntity  {
     public PlatformGame() {
     }
 
-    public PlatformGame(Integer gamePlatformId, String gamePlatformName, Integer gameStatus) {
-        this.gamePlatformId = gamePlatformId;
+    public PlatformGame(String gamePlatformName, Integer gameStatus) {
         this.gamePlatformName = gamePlatformName;
         this.gameStatus = gameStatus;
     }
