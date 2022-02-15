@@ -14,9 +14,6 @@ public class AdGame extends BaseEntity{
     @ApiModelProperty(value = "平台:WM,PG,CQ9")
     private String gamePlatformName;
 
-    @ApiModelProperty(value = "游戏平台名称")
-    private String gamePlatformName;
-
     @ApiModelProperty(value = "游戏编码")
     private String gameCode;
 

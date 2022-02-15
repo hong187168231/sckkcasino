@@ -2,6 +2,7 @@ package com.qianyi.casinocore.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.qianyi.casinocore.model.Order;
+import com.qianyi.casinocore.util.CommonConst;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -51,7 +52,7 @@ public class OrderVo  implements Serializable {
         this.no = order.getNo();
         this.money = order.getMoney();
         this.state = order.getState();
-        this.remark = order.getRemark();
+        this.remark = order.getGamePlatformName() + (order.getType() == CommonConst.NUMBER_0? "转入" : "转出");
         this.type = order.getType();
         this.createTime = order.getCreateTime();
         this.createBy = order.getCreateBy();
