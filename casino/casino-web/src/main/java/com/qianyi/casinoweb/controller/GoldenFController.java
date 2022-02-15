@@ -332,10 +332,10 @@ public class GoldenFController {
         return gameBusiness.oneKeyRecoverGoldenF(userId);
     }
 
-    @ApiOperation("PG/CQ9游戏列表")
+    @ApiOperation("WM,PG/CQ9游戏列表")
     @GetMapping("/gameList")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9", required = true),
+            @ApiImplicitParam(name = "vendorCode", value = "产品代码:WM,PG,CQ9", required = true),
             @ApiImplicitParam(name = "gameName", value = "游戏名称", required = false),
     })
     @NoAuthentication
