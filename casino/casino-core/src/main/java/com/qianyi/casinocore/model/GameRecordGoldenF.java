@@ -44,7 +44,7 @@ public class GameRecordGoldenF extends BaseEntity {
     private String walletCode;
 
     @ApiModelProperty(value = "创建时间")
-    private Long createAt;
+    private Long createdAt;
 
     @ApiModelProperty(value = "创建时间字符串")
     private String createAtStr;

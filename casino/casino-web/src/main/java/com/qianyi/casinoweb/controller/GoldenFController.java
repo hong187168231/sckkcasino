@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -206,6 +207,45 @@ public class GoldenFController {
             return ResponseUtil.custom("加点失败,请联系客服");
         }
         return null;
+    }
+
+    @ApiOperation("PG游戏试玩,CQ9不支持试玩")
+    @PostMapping("/openGameDemo")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = true),
+    })
+    @NoAuthentication
+    public ResponseEntity gameDemo(String gameCode, HttpServletRequest request) {
+        boolean checkNull = CommonUtil.checkNull(gameCode);
+        if (checkNull) {
+            return ResponseUtil.parameterNotNull();
+        }
+        List<AdGame> adGameList = adGamesService.findByGameCode(gameCode);
+        if (CollectionUtils.isEmpty(adGameList)) {
+            return ResponseUtil.custom("游戏不存在");
+        }
+        PlatformGame platformGame = platformGameService.findBygamePlatformId(adGameList.get(0).getGamePlatformId());
+        if (platformGame == null) {
+            return ResponseUtil.custom("游戏不存在");
+        }
+        if (!Constants.PLATFORM_PG.equals(platformGame.getGamePlatformName())) {
+            return ResponseUtil.custom("游戏不支持试玩");
+        }
+        //开游戏
+        String language = request.getHeader(Constants.LANGUAGE);
+        String languageCode = LanguageEnum.getLanguageCode(language);
+        PublicGoldenFApi.ResponseEntity entity = goldenFApi.startGameDemo(gameCode, languageCode);
+        if (entity == null) {
+            log.error("PG游戏试玩获取gameUrl失败");
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        if (!ObjectUtils.isEmpty(entity.getErrorCode())) {
+            log.error("errorCode={},errorMsg={}", entity.getErrorCode(), entity.getErrorMessage());
+            return ResponseUtil.custom("进入游戏失败,请联系客服");
+        }
+        JSONObject jsonData = JSONObject.parseObject(entity.getData());
+        String gameUrl = jsonData.getString("game_url");
+        return ResponseUtil.success(gameUrl);
     }
 
     @ApiOperation("查询当前登录用户PG/CQ9余额")

@@ -1,8 +1,8 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.model.GameRecordReport;
-import com.qianyi.casinocore.service.GameRecordReportService;
+import com.qianyi.casinocore.model.GameRecordReportNew;
+import com.qianyi.casinocore.service.GameRecordReportNewService;
 import com.qianyi.casinocore.vo.GameRecordReportVo;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -28,16 +28,17 @@ import java.util.Date;
 public class CompanyReportController {
 
     @Autowired
-    private GameRecordReportService gameRecordReportService;
+    private GameRecordReportNewService gameRecordReportNewService;
 
     @ApiOperation("查询公司报表")
     @GetMapping("/find")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "gid", value = "游戏类别编号 百家乐:101 龙虎:102 轮盘:103 骰宝:104 牛牛:105 番摊:107 色碟:108 鱼虾蟹:110 炸金花:111 安达巴哈:128", required = false),
+        //            @ApiImplicitParam(name = "gid", value = "游戏类别编号 百家乐:101 龙虎:102 轮盘:103 骰宝:104 牛牛:105 番摊:107 色碟:108 鱼虾蟹:110 炸金花:111 安达巴哈:128", required = false),
+            @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
             @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
-    public ResponseEntity<GameRecordReportVo> find(Integer gid, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+    public ResponseEntity<GameRecordReportVo> find(String platform, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(startDate) ||  LoginUtil.checkNull(endDate)){
             return ResponseUtil.custom("参数不合法");
@@ -51,8 +52,8 @@ public class CompanyReportController {
         calendar.add(Calendar.HOUR, 12);
         endDate = calendar.getTime();
         String endTime = DateUtil.dateToPatten2(endDate);
-        GameRecordReport gameRecordReport = new GameRecordReport();
-        gameRecordReport.setGid(gid);
-        return ResponseUtil.success(gameRecordReportService.findRecordRecordSum(gameRecordReport,startTime,endTime));
+        GameRecordReportNew gameRecordReport = new GameRecordReportNew();
+        gameRecordReport.setPlatform(platform);
+        return ResponseUtil.success(gameRecordReportNewService.findRecordRecordSum(gameRecordReport,startTime,endTime));
     }
 }

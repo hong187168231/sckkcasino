@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,4 +77,10 @@ public interface GameRecordGoldenFRepository extends JpaRepository<GameRecordGol
     @Query(value = "select ifnull(SUM(g.bet_amount),0) betAmount,ifnull(SUM(g.win_amount-g.bet_amount),0) winAmount from game_record_goldenf g "
         + "where g.create_at_str BETWEEN ?1 and ?2  and g.third_proxy = ?3 ",nativeQuery = true)
     Map<String, Object> findSumBetAndWinLossByThird(String startTime,String endTime,Long thirdProxy);
+
+
+    @Query(value = "select count(1) as amount  from game_record_goldenf rg where rg.create_at_str <=?1 and rg.user_id=?2",nativeQuery = true)
+    int  countByIdLessThanEqualAndUserId(Date createTime, Long userId);
+
+    GameRecordGoldenF findGameRecordGoldenFByTraceId(String traceId);
 }

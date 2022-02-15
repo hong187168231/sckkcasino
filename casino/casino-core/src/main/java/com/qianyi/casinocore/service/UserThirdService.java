@@ -31,4 +31,9 @@ public class UserThirdService {
     public UserThird findByAccount(String account) {
         return userThirdRepository.findByAccount(account);
     }
+
+    @Cacheable(key = "#p0")
+    public UserThird findByGoldenfAccount(String account) {
+        return userThirdRepository.findByGoldenfAccount(account);
+    }
 }

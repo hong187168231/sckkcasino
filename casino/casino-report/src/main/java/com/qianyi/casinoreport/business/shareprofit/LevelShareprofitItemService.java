@@ -41,6 +41,9 @@ public class LevelShareprofitItemService {
     private GameRecordService gameRecordService;
 
     @Autowired
+    private GameRecordGoldenFService gameRecordGoldenFService;
+
+    @Autowired
     private RabbitTemplate rabbitTemplate;
 
     @Autowired
@@ -77,8 +80,14 @@ public class LevelShareprofitItemService {
                 userService.updateIsFirstBet(user.getId(), Constants.yes);
             }
             log.info("all store That took {} milliseconds",System.currentTimeMillis()-startTime);
-            //更新分润状态
-             gameRecordService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
+
+            //根据不同的游戏修改游戏分润状态
+            if (shareProfitBO.getGameType()==1){
+                gameRecordService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
+            }else {
+                gameRecordGoldenFService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
+            }
+
             log.info("processShareProfitList That took {} milliseconds",System.currentTimeMillis()-startTime);
         }
     }
@@ -96,6 +105,7 @@ public class LevelShareprofitItemService {
         shareProfitChange.setParentLevel(shareProfitBO.getParentLevel());
         shareProfitChange.setValidbet(shareProfitBO.getBetAmount());
         shareProfitChange.setBetTime(shareProfitBO.getBetDate());
+        shareProfitChange.setGameType(shareProfitBO.getGameType());
         log.info("shareProfitBO:{}",shareProfitBO);
         shareProfitChangeService.save(shareProfitChange);
     }

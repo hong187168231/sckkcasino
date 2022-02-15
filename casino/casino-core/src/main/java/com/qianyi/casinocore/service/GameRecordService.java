@@ -22,10 +22,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class GameRecordService {
@@ -171,8 +168,8 @@ public class GameRecordService {
     public GameRecord findGameRecordById(Long gameId){return gameRecordRepository.findById(gameId).orElse(null);}
 
 
-    public int countByIdLessThanEqualAndUserId(Long gameId,Long UserId){
-        return gameRecordRepository.countByIdLessThanEqualAndUserId(gameId,UserId);
+    public int countByIdLessThanEqualAndUserId(Date createTime, Long UserId){
+        return gameRecordRepository.countByIdLessThanEqualAndUserId(createTime,UserId);
     }
 
 
