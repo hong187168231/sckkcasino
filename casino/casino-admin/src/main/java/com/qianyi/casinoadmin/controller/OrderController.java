@@ -1,12 +1,15 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.enums.AccountChangeEnum;
+import com.qianyi.casinocore.enums.PlatformTransterEnum;
 import com.qianyi.casinocore.vo.OrderVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.model.Order;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.OrderService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.MessageUtil;
@@ -23,8 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -52,9 +54,11 @@ public class OrderController {
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "account", value = "用户账号", required = false),
             @ApiImplicitParam(name = "no", value = "订单号", required = false),
+            @ApiImplicitParam(name = "gamePlatformName", value = "平台名称: WM, PG/CQ9", required = false),
     })
     @GetMapping("findOrderList")
-    public ResponseEntity<OrderVo> findOrderList(Integer pageSize, Integer pageCode,  String account, String no){
+    public ResponseEntity<OrderVo> findOrderList(Integer pageSize, Integer pageCode,  String account, String no,
+                                                 String gamePlatformName){
         Order order = new Order();
         if (!LoginUtil.checkNull(account)){
             User user = userService.findByAccount(account);
@@ -64,6 +68,7 @@ public class OrderController {
             order.setUserId(user.getId());
         }
         order.setNo(no);
+        order.setGamePlatformName(gamePlatformName);
         Sort sort=Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<Order> userPage = orderService.findOrderPage(pageable, order);
@@ -90,46 +95,16 @@ public class OrderController {
         return ResponseUtil.success(pageResultVO);
     }
 
-//    @ApiOperation("添加订单")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "userId", value = "用户名", required = true),
-//            @ApiImplicitParam(name = "money", value = "订单金额", required = true),
-//            @ApiImplicitParam(name = "remark", value = "备注", required = false),
-//    })
-//    @PostMapping("saveOrder")
-//    public ResponseEntity saveOrder(Long userId, BigDecimal money, String remark){
-//        Order order = new Order();
-//        order.setUserId(userId);
-//        order.setMoney(money);
-//        order.setNo(orderService.getOrderNo());
-//        order.setRemark(remark + "");
-//        order.setState(Constants.order_wait);
-//        orderService.save(order);
-//        return ResponseUtil.success();
-//    }
-//
-//    @ApiOperation("修改订单")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "id", value = "订单id", required = true),
-//            @ApiImplicitParam(name = "status", value = "订单状态", required = true),
-//            @ApiImplicitParam(name = "remark", value = "备注", required = false),
-//    })
-//    @PostMapping("updateOrder")
-//    public ResponseEntity updateOrder(Long id, Integer status, String remark){
-//        Order order = orderService.findById(id);
-//        if(order == null){
-//            return ResponseUtil.custom("订单不存在");
-//        }
-//
-//        order.setState(status);
-//        if(LoginUtil.checkNull(remark)){
-//            order.setRemark(remark);
-//        }
-//
-//        orderService.save(order);
-//        return ResponseUtil.success();
-//    }
-
-
+    @ApiOperation("查询资金明细类型")
+    @GetMapping("/getData")
+    @NoAuthorization
+    public ResponseEntity getData(){
+        PlatformTransterEnum[] values = PlatformTransterEnum.values();
+        List<String> platformList = new ArrayList<>();
+        for (PlatformTransterEnum platformTransterEnum:values){
+            platformList.add(platformTransterEnum.getName());
+        }
+        return ResponseUtil.success(platformList);
+    }
 
 }
