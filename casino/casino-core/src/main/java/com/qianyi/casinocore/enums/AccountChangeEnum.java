@@ -15,8 +15,8 @@ public enum AccountChangeEnum {
     WM_IN(7, "WMIN","转入WM"),
     RECOVERY(8, "RECOVERY","一键回收WM"),
     SHARE_PROFIT(9, "SP","代理佣金领取"),
-    PG_CQ9_IN(10, "PGCQ9IN","转入PC/CQ9"),
-    PG_CQ9_OUT(11, "PGCQ9OUT","转出PC/CQ9"),
+    PG_CQ9_IN(10, "PGCQ9IN","PC/CQ9转入"),
+    PG_CQ9_OUT(11, "PGCQ9OUT","PC/CQ9转出"),
     ;
 
     private Integer type;
