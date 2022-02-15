@@ -14,10 +14,10 @@ public class PlatformGame extends BaseEntity  {
     @ApiModelProperty(value = "游戏平台ID")
     private Integer gamePlatformId;
 
-    @ApiModelProperty(value = "游戏平台ID")
+    @ApiModelProperty(value = "游戏平台名称")
     private String gamePlatformName;
 
-    @ApiModelProperty(value = "平台状态：0：维护，1：正常")
+    @ApiModelProperty(value = "平台状态：0：维护，1：正常，2：下架")
     private Integer gameStatus;
 
     public PlatformGame() {

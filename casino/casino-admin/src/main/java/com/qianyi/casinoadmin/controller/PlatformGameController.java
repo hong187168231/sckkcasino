@@ -7,6 +7,7 @@ import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.model.PlatformGame;
 import com.qianyi.casinocore.service.AdGamesService;
 import com.qianyi.casinocore.service.PlatformGameService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -53,11 +54,11 @@ public class PlatformGameController {
     @ApiOperation("三方平台维护")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id", required = true),
-            @ApiImplicitParam(name = "gameStatus", value = "平台状态：0：维护，1：正常", required = true)
+            @ApiImplicitParam(name = "gameStatus", value = "平台状态：0：维护，1：正常 2：下架", required = true)
     })
     @PostMapping("/updatePlatformStatus")
     public ResponseEntity<PlatformGame> updatePlatformStatus(Long id,Integer gameStatus){
-        if(gameStatus != Constants.open && gameStatus != Constants.close)
+        if(gameStatus != CommonConst.NUMBER_0 && gameStatus != CommonConst.NUMBER_1 && gameStatus != CommonConst.NUMBER_2)
             return ResponseUtil.success("参数不合法");
         PlatformGame platformGame = platformGameService.findById(id);
         if(platformGame == null){
@@ -74,7 +75,7 @@ public class PlatformGameController {
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "gamePlatformName", value = "游戏名称", required = true),
-            @ApiImplicitParam(name = "gamesStatus", value = "是否维护 0：维护 1正常", required = false),
+            @ApiImplicitParam(name = "gamesStatus", value = "是否维护 0：维护 1：正常, 2：下架", required = false),
             @ApiImplicitParam(name = "platformId", value = "1:PG 2:CQ9", required = false)
     })
     public ResponseEntity<AdGame> findGameList(Integer pageSize, Integer pageCode,String gamePlatformName, Integer platformId) {
@@ -97,11 +98,11 @@ public class PlatformGameController {
     @ApiOperation("游戏维护")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "gameIdList", value = "id集合", required = true),
-            @ApiImplicitParam(name = "gameStatus", value = "平台状态：0：维护，1：正常", required = true)
+            @ApiImplicitParam(name = "gameStatus", value = "平台状态：0：维护，1：正常, 2:下架", required = true)
     })
     @PostMapping("/updateDomainName")
     public ResponseEntity<AdGame> updateGameStatus(@RequestBody List<String> gameIdList, Integer gameStatus){
-        if(gameStatus != Constants.open && gameStatus != Constants.close)
+        if(gameStatus != CommonConst.NUMBER_0 && gameStatus != CommonConst.NUMBER_1 && gameStatus != CommonConst.NUMBER_2)
             return ResponseUtil.success("参数不合法");
 
         if(gameIdList == null || gameIdList.isEmpty()){
