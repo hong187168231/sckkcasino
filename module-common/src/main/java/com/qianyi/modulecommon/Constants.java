@@ -79,8 +79,10 @@ public class Constants {
 
     public final static String TOTAL_WASHCODE = "totalWashCode";//redis洗码总计key
     public final static String PLATFORM_WM = "wm";
+    public final static String PLATFORM_WM_BIG = "WM";
     public final static String PLATFORM_PG = "PG";
     public final static String PLATFORM_CQ9 = "CQ9";
+    public final static String PLATFORM_PG_CQ9 = "PG/CQ9";
     //校验数字
     public static final String regex = "^[0-9]*$";
     //校验手机号

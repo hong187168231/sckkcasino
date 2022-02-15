@@ -107,7 +107,7 @@ public class ThirdGameBusiness {
         userMoneyService.addMoney(userId, recoverMoney);
         //记录账变
         User user = userService.findById(userId);
-        saveAccountChange(userId, recoverMoney, userMoney.getMoney(), recoverMoney.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.PG_CQ9_OUT,"自动转出PG/CQ9", user);
+        saveAccountChange(Constants.PLATFORM_PG_CQ9,userId, recoverMoney, userMoney.getMoney(), recoverMoney.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.PG_CQ9_OUT,"自动转出PG/CQ9", user);
         log.info("PG/CQ9余额回收成功，userId={}", userId);
         return ResponseUtil.success();
     }
@@ -168,7 +168,7 @@ public class ThirdGameBusiness {
         }
         userMoneyService.addMoney(userId, balance);
         String orderNo = orderService.getOrderNo();
-        saveAccountChange(userId, balance, userMoney.getMoney(), balance.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.RECOVERY,"自动转出WM", user);
+        saveAccountChange(Constants.PLATFORM_WM_BIG,userId, balance, userMoney.getMoney(), balance.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.RECOVERY,"自动转出WM", user);
         log.info("wm余额回收成功，userId={}", userId);
         return ResponseUtil.success();
     }
@@ -188,7 +188,7 @@ public class ThirdGameBusiness {
         return ResponseUtil.success(balance.setScale(2, BigDecimal.ROUND_HALF_UP));
     }
 
-    public void saveAccountChange(Long userId, BigDecimal amount, BigDecimal amountBefore, BigDecimal amountAfter, Integer type, String orderNo,AccountChangeEnum changeEnum, String remark, User user) {
+    public void saveAccountChange(String gamePlatformName,Long userId, BigDecimal amount, BigDecimal amountBefore, BigDecimal amountAfter, Integer type, String orderNo,AccountChangeEnum changeEnum, String remark, User user) {
         Order order = new Order();
         order.setMoney(amount);
         order.setUserId(userId);
@@ -199,6 +199,7 @@ public class ThirdGameBusiness {
         order.setFirstProxy(user.getFirstProxy());
         order.setSecondProxy(user.getSecondProxy());
         order.setThirdProxy(user.getThirdProxy());
+        order.setGamePlatformName(gamePlatformName);
         orderService.save(order);
 
         //账变中心记录账变
