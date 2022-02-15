@@ -160,6 +160,7 @@ public class WMController {
             order.setType(0);
             order.setState(Constants.order_wait);
             order.setNo(orderNo);
+            order.setGamePlatformName(Constants.PLATFORM_WM_BIG);
             order.setFirstProxy(user.getFirstProxy());
             order.setSecondProxy(user.getSecondProxy());
             order.setThirdProxy(user.getThirdProxy());

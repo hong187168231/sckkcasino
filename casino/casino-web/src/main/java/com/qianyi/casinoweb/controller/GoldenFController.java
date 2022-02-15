@@ -171,7 +171,7 @@ public class GoldenFController {
         order.setType(type);
         order.setState(Constants.order_wait);
         order.setNo(orderNo);
-        order.setGamePlatformName("PG/CQ9");
+        order.setGamePlatformName(Constants.PLATFORM_PG_CQ9);
         order.setFirstProxy(user.getFirstProxy());
         order.setSecondProxy(user.getSecondProxy());
         order.setThirdProxy(user.getThirdProxy());
