@@ -209,7 +209,7 @@ public class GoldenFController {
         return null;
     }
 
-    @ApiOperation("游戏试玩")
+    @ApiOperation("PG游戏试玩,CQ9不支持试玩")
     @PostMapping("/openGameDemo")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = true),
@@ -223,6 +223,13 @@ public class GoldenFController {
         List<AdGame> adGameList = adGamesService.findByGameCode(gameCode);
         if (CollectionUtils.isEmpty(adGameList)) {
             return ResponseUtil.custom("游戏不存在");
+        }
+        PlatformGame platformGame = platformGameService.findBygamePlatformId(adGameList.get(0).getGamePlatformId());
+        if (platformGame == null) {
+            return ResponseUtil.custom("游戏不存在");
+        }
+        if (!Constants.PLATFORM_PG.equals(platformGame.getGamePlatformName())) {
+            return ResponseUtil.custom("游戏不支持试玩");
         }
         //开游戏
         String language = request.getHeader(Constants.LANGUAGE);
