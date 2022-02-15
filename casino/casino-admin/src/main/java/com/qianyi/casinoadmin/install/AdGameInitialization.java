@@ -57,6 +57,9 @@ public class AdGameInitialization implements CommandLineRunner {
                 if(i == 4){
                     adGame.setGameEnName(list.get(i).trim());
                 }
+                if(i == 5){
+                    adGame.setGamePlatformName(list.get(i).trim());
+                }
                 adGameList.add(adGame);
             }
         }
