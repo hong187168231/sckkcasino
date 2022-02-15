@@ -70,8 +70,9 @@ public class AdGameInitialization implements CommandLineRunner {
         List<PlatformGame> platformGameList = platformGameService.findAll();
         if(platformGameList == null || platformGameList.isEmpty()){
             List<PlatformGame> platformGames = new ArrayList<>();
-            platformGames.add(new PlatformGame(1, "PG", 1));
-            platformGames.add(new PlatformGame(2, "CQ9", 1));
+            platformGames.add(new PlatformGame(1, "WM", 1));
+            platformGames.add(new PlatformGame(2, "PG", 1));
+            platformGames.add(new PlatformGame(3, "CQ9", 1));
             platformGameService.saveAll(platformGames);
         }
 
