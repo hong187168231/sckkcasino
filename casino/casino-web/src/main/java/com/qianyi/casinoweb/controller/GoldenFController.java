@@ -13,6 +13,7 @@ import com.qianyi.livegoldenf.constants.LanguageEnum;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.executor.AsyncService;
+import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -74,12 +75,17 @@ public class GoldenFController {
     @Transactional
     @PostMapping("/openGame")
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9", required = true),
             @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = true),
     })
-    public ResponseEntity openGame(String gameCode, HttpServletRequest request) {
-        boolean checkNull = CommonUtil.checkNull(gameCode);
+    public ResponseEntity openGame(String vendorCode, String gameCode, HttpServletRequest request) {
+        boolean checkNull = CommonUtil.checkNull(vendorCode, gameCode);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
+        }
+        ResponseEntity response = checkGame(vendorCode, gameCode);
+        if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return response;
         }
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
@@ -165,6 +171,7 @@ public class GoldenFController {
         order.setType(type);
         order.setState(Constants.order_wait);
         order.setNo(orderNo);
+        order.setGamePlatformName("PG/CQ9");
         order.setFirstProxy(user.getFirstProxy());
         order.setSecondProxy(user.getSecondProxy());
         order.setThirdProxy(user.getThirdProxy());
@@ -212,24 +219,21 @@ public class GoldenFController {
     @ApiOperation("PG游戏试玩,CQ9不支持试玩")
     @PostMapping("/openGameDemo")
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9", required = true),
             @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = true),
     })
     @NoAuthentication
-    public ResponseEntity gameDemo(String gameCode, HttpServletRequest request) {
-        boolean checkNull = CommonUtil.checkNull(gameCode);
+    public ResponseEntity gameDemo(String vendorCode, String gameCode, HttpServletRequest request) {
+        boolean checkNull = CommonUtil.checkNull(vendorCode, gameCode);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
-        List<AdGame> adGameList = adGamesService.findByGameCode(gameCode);
-        if (CollectionUtils.isEmpty(adGameList)) {
-            return ResponseUtil.custom("游戏不存在");
-        }
-        PlatformGame platformGame = platformGameService.findBygamePlatformId(adGameList.get(0).getGamePlatformId());
-        if (platformGame == null) {
-            return ResponseUtil.custom("游戏不存在");
-        }
-        if (!Constants.PLATFORM_PG.equals(platformGame.getGamePlatformName())) {
+        if (!Constants.PLATFORM_PG.equals(vendorCode)) {
             return ResponseUtil.custom("游戏不支持试玩");
+        }
+        ResponseEntity responseEntity = checkGame(vendorCode, gameCode);
+        if (responseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return responseEntity;
         }
         //开游戏
         String language = request.getHeader(Constants.LANGUAGE);
@@ -246,6 +250,30 @@ public class GoldenFController {
         JSONObject jsonData = JSONObject.parseObject(entity.getData());
         String gameUrl = jsonData.getString("game_url");
         return ResponseUtil.success(gameUrl);
+    }
+
+    public ResponseEntity checkGame(String vendorCode, String gameCode) {
+        PlatformGame platformGame = platformGameService.findByGamePlatformName(vendorCode);
+        if (platformGame == null) {
+            return ResponseUtil.custom("产品不存在");
+        }
+        if (platformGame.getGameStatus() == 0) {
+            return ResponseUtil.custom("产品维护中");
+        }
+        if (platformGame.getGameStatus() == 2) {
+            return ResponseUtil.custom("产品已下架");
+        }
+        AdGame adGame = adGamesService.findByGamePlatformNameAndGameCode(vendorCode, gameCode);
+        if (adGame == null) {
+            return ResponseUtil.custom("游戏不存在");
+        }
+        if (adGame.getGamesStatus() == 0) {
+            return ResponseUtil.custom("游戏维护中");
+        }
+        if (adGame.getGamesStatus() == 2) {
+            return ResponseUtil.custom("游戏已下架");
+        }
+        return ResponseUtil.success();
     }
 
     @ApiOperation("查询当前登录用户PG/CQ9余额")
@@ -319,14 +347,20 @@ public class GoldenFController {
         if (platformGame == null) {
             return ResponseUtil.custom("产品不存在");
         }
-        if (platformGame.getGameStatus() != Constants.open) {
+        if (platformGame.getGameStatus() == 0) {
+            return ResponseUtil.custom("产品维护中");
+        }
+        if (platformGame.getGameStatus() == 2) {
             return ResponseUtil.custom("产品已下架");
         }
-        List<AdGame> gameList =new ArrayList<>();
+        List<AdGame> gameList = new ArrayList<>();
+        List<Integer> gameStatus = new ArrayList<>();
+        gameStatus.add(0);
+        gameStatus.add(1);
         if (ObjectUtils.isEmpty(gameName)) {
-            gameList = adGamesService.findByGamePlatformIdAndGamesStatusIsTrue(platformGame.getGamePlatformId());
-        }else{
-            gameList = adGamesService.findByGamePlatformIdAndGameNameAndGamesStatusIsTrue(platformGame.getGamePlatformId(), gameName);
+            gameList = adGamesService.findByGamePlatformNameAndGamesStatusIn(vendorCode, gameStatus);
+        } else {
+            gameList = adGamesService.findByGamePlatformNameAndGameNameLikeAndGamesStatus(vendorCode, gameName, gameStatus);
         }
         String language = request.getHeader(Constants.LANGUAGE);
         if (Locale.CHINA.toString().equals(language)) {

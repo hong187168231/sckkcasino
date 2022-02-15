@@ -9,7 +9,9 @@ import java.util.List;
 public interface AdGameRepository extends JpaRepository<AdGame,Long>, JpaSpecificationExecutor<AdGame> {
     List<AdGame> findByGameCode(String gameCode);
 
-    List<AdGame> findByGamePlatformIdAndGamesStatus(Integer gamePlatformId,Integer gamesStatus);
+    AdGame findByGamePlatformNameAndGameCode(String gamePlatformName,String gameCode);
 
-    List<AdGame> findByGamePlatformIdAndGameNameLikeAndGamesStatus(Integer gamePlatformId,String gameName,Integer gamesStatus);
+    List<AdGame> findByGamePlatformNameAndGameNameLikeAndGamesStatusIn(String gamePlatformName,String gameName,List<Integer> gameStatus);
+
+    List<AdGame> findByGamePlatformNameAndGamesStatusIn(String gamePlatformName, List<Integer> gameStatus);
 }
