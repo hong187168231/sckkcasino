@@ -43,8 +43,8 @@ public class GameRecordGoldenFJob {
     private PlatformGameService platformGameService;
 
     public void pullGoldenF(){
-        pullGameRecord("PG");
-
+        pullGameRecord(Constants.PLATFORM_PG);
+        pullGameRecord(Constants.PLATFORM_CQ9);
     }
 
 
@@ -52,9 +52,9 @@ public class GameRecordGoldenFJob {
 
         //从数据库获取最近的拉单时间和平台
         // 获取 starttime
-        Long startTime = 1644588300000l;
+//        Long startTime = 1644588300000l;
 //        Long endTime = 1644588600000l;
-//        Long startTime = getGoldenStartTime();
+        Long startTime = getGoldenStartTime(vendorCode);
 
         Long endTime = getGoldenEndTime(startTime);
         log.info("startime is {}  endtime is {}",startTime,endTime);
@@ -81,8 +81,8 @@ public class GameRecordGoldenFJob {
         processSuccessRequest(startTime,endTime,vendorCode);
     }
 
-    private Long getGoldenStartTime() {
-        GameRecordGoldenfEndTime gameRecordGoldenfEndTime = gameRecordGoldenfEndTimeService.findFirstByOrderByEndTimeDesc();
+    private Long getGoldenStartTime(String vendor) {
+        GameRecordGoldenfEndTime gameRecordGoldenfEndTime = gameRecordGoldenfEndTimeService.findFirstByVendorCodeOrderByEndTimeDesc(vendor);
         Long startTime = 0l;
         if(gameRecordGoldenfEndTime==null){
             startTime = DateUtil.next5MinuteTime();

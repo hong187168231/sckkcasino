@@ -16,6 +16,10 @@ public class GameRecordGoldenfEndTimeService {
         return gameRecordGoldenfEndTimeRepository.findFirstByOrderByEndTimeDesc();
     }
 
+    public GameRecordGoldenfEndTime findFirstByVendorCodeOrderByEndTimeDesc(String vendor){
+        return gameRecordGoldenfEndTimeRepository.findFirstByVendorCodeOrderByEndTimeDesc(vendor);
+    }
+
     public GameRecordGoldenfEndTime save(GameRecordGoldenfEndTime gameRecordGoldenfEndTime){
         return gameRecordGoldenfEndTimeRepository.save(gameRecordGoldenfEndTime);
     }
