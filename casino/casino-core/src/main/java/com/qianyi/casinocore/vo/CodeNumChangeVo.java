@@ -28,6 +28,8 @@ public class CodeNumChangeVo implements Serializable {
     private BigDecimal amountBefore;
     @ApiModelProperty(value = "打码量变化后")
     private BigDecimal amountAfter;
+    @ApiModelProperty(value = "平台:wm,PG,CQ9")
+    private String platform;
     @ApiModelProperty("创建时间")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
@@ -52,6 +54,7 @@ public class CodeNumChangeVo implements Serializable {
         this.createBy = codeNumChange.getCreateBy();
         this.updateBy = codeNumChange.getUpdateBy();
         this.updateTime = codeNumChange.getUpdateTime();
+        this.platform = codeNumChange.getPlatform();
         int codeType = null == codeNumChange.getType()? 2 : codeNumChange.getType();
         this.type = codeType;
 
