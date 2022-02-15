@@ -42,9 +42,6 @@ public class AdGameInitialization implements CommandLineRunner {
         for (List<String> list : lists) {
             AdGame adGame = new AdGame();
             for (int i = 0; i < list.size(); i++) {
-                if(i == 0){
-                    adGame.setGamePlatformId(Integer.parseInt(list.get(i)));
-                }
                 if(i == 1){
                     adGame.setGameName(list.get(i).trim());
                 }
@@ -73,9 +70,9 @@ public class AdGameInitialization implements CommandLineRunner {
         List<PlatformGame> platformGameList = platformGameService.findAll();
         if(platformGameList == null || platformGameList.isEmpty()){
             List<PlatformGame> platformGames = new ArrayList<>();
-            platformGames.add(new PlatformGame(1, "WM", 1));
-            platformGames.add(new PlatformGame(2, "PG", 1));
-            platformGames.add(new PlatformGame(3, "CQ9", 1));
+            platformGames.add(new PlatformGame("WM", 1));
+            platformGames.add(new PlatformGame("PG", 1));
+            platformGames.add(new PlatformGame("CQ9", 1));
             platformGameService.saveAll(platformGames);
         }
 
