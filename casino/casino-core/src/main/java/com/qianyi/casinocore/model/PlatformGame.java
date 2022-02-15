@@ -11,10 +11,10 @@ import javax.persistence.Entity;
 @ApiModel("三方游戏平台表")
 public class PlatformGame extends BaseEntity  {
 
-    @ApiModelProperty(value = "游戏平台ID")
+    @ApiModelProperty(value = "平台:WM,PG,CQ9")
     private String gamePlatformName;
 
-    @ApiModelProperty(value = "平台状态：0：维护，1：正常")
+    @ApiModelProperty(value = "平台状态：0：维护，1：正常，2：下架")
     private Integer gameStatus;
 
     public PlatformGame() {
