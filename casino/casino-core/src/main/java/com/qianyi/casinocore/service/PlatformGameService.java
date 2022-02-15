@@ -36,11 +36,6 @@ public class PlatformGameService {
         return platformGameRepository.findByGamePlatformName(gamePlatformName);
     }
 
-    @Cacheable(key = "#root.methodName+'::'+#p0")
-    public PlatformGame findBygamePlatformId(Integer gamePlatformId){
-        return platformGameRepository.findBygamePlatformId(gamePlatformId);
-    }
-
     @CacheEvict(allEntries = true)
     public void save(PlatformGame platformGame) {
         platformGameRepository.save(platformGame);

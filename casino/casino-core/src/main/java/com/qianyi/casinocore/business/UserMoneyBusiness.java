@@ -120,7 +120,11 @@ public class UserMoneyBusiness {
             washCodeChange.setUserId(userId);
             washCodeChange.setAmount(washCodeVal);
             washCodeChange.setPlatform(platform);
-            washCodeChange.setGameId(gameRecord.getGid().toString());
+            if (Constants.PLATFORM_WM.equals(platform)) {
+                washCodeChange.setGameId(gameRecord.getGid().toString());
+            } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
+                washCodeChange.setGameId(gameRecord.getGameId());
+            }
             washCodeChange.setGameName(gameRecord.getGname());
             washCodeChange.setRate(config.getRate());
             washCodeChange.setValidbet(validbet);

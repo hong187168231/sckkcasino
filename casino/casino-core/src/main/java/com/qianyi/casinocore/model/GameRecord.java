@@ -179,6 +179,12 @@ public class GameRecord extends BaseEntity{
     @ApiModelProperty("基层代理ID")
     private Long thirdProxy;
 
+    /**
+     * PG/CQ9传递数据用
+     */
+    @Transient
+    private String gameId;
+
     public GameRecord(BigDecimal bet,BigDecimal validbet,BigDecimal water,BigDecimal waterbet,BigDecimal winLoss){
         this.bet = bet==null?"0":bet.toString();
         this.validbet = validbet==null?"0":validbet.toString();

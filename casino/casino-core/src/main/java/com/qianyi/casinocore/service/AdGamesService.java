@@ -31,14 +31,19 @@ public class AdGamesService {
         return adGameRepository.findByGameCode(gameCode);
     }
 
+    @Cacheable(key = "#root.methodName+'::'+#p0+'::'+#p1")
+    public AdGame findByGamePlatformNameAndGameCode(String gamePlatformName,String gameCode) {
+        return adGameRepository.findByGamePlatformNameAndGameCode(gamePlatformName,gameCode);
+    }
+
     @Cacheable(key = "#root.methodName+'::'+#p0")
-    public List<AdGame> findByGamePlatformIdAndGamesStatusIsTrue(Integer gamePlatformId) {
-        return adGameRepository.findByGamePlatformIdAndGamesStatus(gamePlatformId, Constants.open);
+    public List<AdGame> findByGamePlatformNameAndGamesStatusIn(String gamePlatformName,List<Integer> gameStatus) {
+        return adGameRepository.findByGamePlatformNameAndGamesStatusIn(gamePlatformName, gameStatus);
     }
 
     @Cacheable(key = "#root.methodName+'::'+#p0+'::'+#p1")
-    public List<AdGame> findByGamePlatformIdAndGameNameAndGamesStatusIsTrue(Integer gamePlatformId, String gameName) {
-        return adGameRepository.findByGamePlatformIdAndGameNameLikeAndGamesStatus(gamePlatformId, "%" + gameName + "%", Constants.open);
+    public List<AdGame> findByGamePlatformNameAndGameNameLikeAndGamesStatus(String gamePlatformName, String gameName,List<Integer> gameStatus) {
+        return adGameRepository.findByGamePlatformNameAndGameNameLikeAndGamesStatusIn(gamePlatformName, "%" + gameName + "%", gameStatus);
     }
 
 
@@ -55,8 +60,8 @@ public class AdGamesService {
                 if (!CommonUtil.checkNull(adGame.getGameName())) {
                     list.add(cb.equal(root.get("gameName").as(String.class), adGame.getGameName()));
                 }
-                if (adGame.getGamePlatformId() != null) {
-                    list.add(cb.equal(root.get("gamePlatformId").as(Integer.class), adGame.getGamePlatformId()));
+                if (!CommonUtil.checkNull(adGame.getGamePlatformName())) {
+                    list.add(cb.equal(root.get("gamePlatformName").as(String.class), adGame.getGamePlatformName()));
                 }
                 if (adGame.getGamesStatus() != null) {
                     list.add(cb.equal(root.get("gamesStatus").as(Integer.class), adGame.getGamesStatus()));
