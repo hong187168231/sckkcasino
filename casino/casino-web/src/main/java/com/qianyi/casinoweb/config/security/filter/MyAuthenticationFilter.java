@@ -90,8 +90,6 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String logRequestBody(MultiReadHttpServletRequest request) {
-        //日志打印traceId，同一次请求的traceId相同，方便定位日志
-        ThreadContext.put("traceId", UUID.randomUUID().toString().replaceAll("-",""));
         MultiReadHttpServletRequest wrapper = request;
         if (wrapper != null) {
             try {
