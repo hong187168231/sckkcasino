@@ -98,9 +98,9 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
                 String bodyJson = wrapper.getBodyJsonStrByJson(request);
                 String ip = IpUtil.getIp(request);
                 String url = wrapper.getRequestURI().replace("//", "/");
-                log.info("ip={},请求url:{}", ip, url);
+//                log.info("ip={},请求url:{}", ip, url);
                 Constants.URL_MAPPING_MAP.put(url, url);
-                log.info("`{}` 接收到的参数: {}", url, bodyJson);
+//                log.info("`{}` 接收到的参数: {}", url, bodyJson);
                 return bodyJson;
             } catch (Exception e) {
                 e.printStackTrace();

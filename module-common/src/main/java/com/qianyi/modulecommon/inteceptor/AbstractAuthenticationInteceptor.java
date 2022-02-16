@@ -1,6 +1,9 @@
 package com.qianyi.modulecommon.inteceptor;
 
 import com.qianyi.modulecommon.annotation.NoAuthentication;
+import com.qianyi.modulecommon.util.IpUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -8,11 +11,19 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
-
+@Slf4j
 public abstract class AbstractAuthenticationInteceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        String ip = IpUtil.getIp(request);
+        String path = request.getRequestURI().replace("//", "/");
+        String requestMethod = request.getMethod();
+        String queryString = request.getQueryString();
+        //获取请求body
+        byte[] bodyBytes = StreamUtils.copyToByteArray(request.getInputStream());
+        String body = new String(bodyBytes, request.getCharacterEncoding());
+        log.info("请求IP:{},请求方法:{},请求类型:{},请求参数:{},请求体:{}", ip, path, requestMethod, queryString, body);
         //不是映射到方法不用拦截
         if (!(handler instanceof HandlerMethod)) {
             return true;
