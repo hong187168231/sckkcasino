@@ -117,13 +117,15 @@ public class GameRecordGoldenFJob {
         List<GameRecordGoldenF> recordGoldenFS = gameRecordObj.getBetlogs();
         processRecords(recordGoldenFS);
 
-        return gameRecordObj.getPage() == gameRecordObj.getPageCount();
+        return gameRecordObj.getPage().equals(gameRecordObj.getPageCount());
     }
 
     private void processRecords(List<GameRecordGoldenF> recordGoldenFS) {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         recordGoldenFS.forEach(item->{
             UserThird userThird = userThirdService.findByGoldenfAccount(item.getPlayerName());
+            if(userThird == null)
+                return;
             User user = userService.findById(userThird.getUserId());
             item.setUserId(userThird.getUserId());
             item.setFirstProxy(user.getFirstProxy());
@@ -132,14 +134,24 @@ public class GameRecordGoldenFJob {
             if(item.getCreatedAt()==null)
                 log.info("{}",item);
             item.setCreateAtStr(DateUtil.timeStamp2Date(item.getCreatedAt(),""));
-            GameRecord gameRecord = combineGameRecord(item);
-            GameRecordGoldenF gameRecordGoldenF = gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
-            if(gameRecordGoldenF==null)
-                gameRecordGoldenFService.save(item);
-
-            processBusiness(item,gameRecord,platformConfig);
+            saveToDB(item,platformConfig);
         });
     }
+
+    private void saveToDB(GameRecordGoldenF item,PlatformConfig platformConfig) {
+        try {
+            GameRecordGoldenF gameRecordGoldenF = gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
+            if(gameRecordGoldenF==null){
+                gameRecordGoldenFService.save(item);
+                GameRecord gameRecord = combineGameRecord(item);
+                processBusiness(item,gameRecord,platformConfig);
+            }
+        }catch (Exception e){
+            log.error("",e);
+        }
+
+    }
+
 
     private void processBusiness(GameRecordGoldenF gameRecordGoldenF,GameRecord gameRecord, PlatformConfig platformConfig) {
         //洗码

@@ -46,14 +46,14 @@ public class GameRecordGoldenFJobTest {
 
     @Test
     public void should_request_data(){
-        GameRecordGoldenfEndTime gameRecordGoldenfEndTime = gameRecordGoldenfEndTimeService.findFirstByOrderByEndTimeDesc();
+        GameRecordGoldenfEndTime gameRecordGoldenfEndTime = gameRecordGoldenfEndTimeService.findFirstByVendorCodeOrderByEndTimeDesc("PG");
         log.info("{}",gameRecordGoldenfEndTime);
         if(gameRecordGoldenfEndTime == null){
             GameRecordGoldenfEndTime goldenfEndTime = new GameRecordGoldenfEndTime();
             goldenfEndTime.setEndTime(next5MinuteTime());
             goldenfEndTime.setStartTime(0l);
             goldenfEndTime.setVendorCode("PG");
-            gameRecordGoldenfEndTimeService.save(goldenfEndTime);
+//            gameRecordGoldenfEndTimeService.save(goldenfEndTime);
         }
 
     }
