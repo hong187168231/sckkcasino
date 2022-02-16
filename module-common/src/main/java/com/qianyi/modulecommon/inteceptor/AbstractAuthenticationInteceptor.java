@@ -3,6 +3,7 @@ package com.qianyi.modulecommon.inteceptor;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.ThreadContext;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -11,11 +12,15 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
+import java.util.UUID;
+
 @Slf4j
 public abstract class AbstractAuthenticationInteceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        //日志打印traceId，同一次请求的traceId相同，方便定位日志
+        ThreadContext.put("traceId", UUID.randomUUID().toString().replaceAll("-",""));
         String ip = IpUtil.getIp(request);
         String path = request.getRequestURI().replace("//", "/");
         String requestMethod = request.getMethod();
