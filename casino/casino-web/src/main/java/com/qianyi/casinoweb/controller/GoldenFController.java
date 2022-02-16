@@ -309,6 +309,7 @@ public class GoldenFController {
         }
         return gameBusiness.oneKeyRecoverGoldenF(userId);
     }
+/*
 
     @ApiOperation("WM,PG/CQ9游戏列表")
     @GetMapping("/gameList")
@@ -346,6 +347,7 @@ public class GoldenFController {
         }
         return ResponseUtil.success(gameList);
     }
+*/
 
 
     @ApiOperation("查询WM,PG,CQ9维护状态的游戏")
