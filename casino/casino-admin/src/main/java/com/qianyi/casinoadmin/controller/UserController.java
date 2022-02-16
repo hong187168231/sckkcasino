@@ -160,8 +160,8 @@ public class UserController {
     })
     @GetMapping("findUserList")
     public ResponseEntity<UserVo> findUserList(Integer pageSize, Integer pageCode, String account,String proxyAccount,Integer state,
-                                       @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
-                                       @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate, Integer sortType){
+                                               @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
+                                               @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate, Integer sortType){
 
         //后续扩展加参数。
         User user = new User();
@@ -267,7 +267,7 @@ public class UserController {
     }
 
 
-    private Page<UserMoney> getPageResultVO(Integer sortType, Date startDate, Date endDate, Integer pageSize, Integer pageCode) {
+    private Page<UserMoney> getPageResultVO(Integer sortType, Date startDate, Date endDate, Integer pageCode, Integer pageSize) {
         Sort sort = Sort.by("money").descending();
         if(sortType == CommonConst.NUMBER_1){
             sort = Sort.by("money").ascending();
