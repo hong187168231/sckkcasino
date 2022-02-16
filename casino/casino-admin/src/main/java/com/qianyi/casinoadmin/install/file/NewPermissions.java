@@ -65,8 +65,8 @@ public class NewPermissions {
         sysPermissionService.save(sysPermission);
         List<SysPermission> sysPermissions = new ArrayList<>();
         SysPermission pgPlatform = new SysPermission("PG电子游戏管理", "PG电子游戏管理", "/adGame/platformListPG", sysPermission.getId(), CommonConst.NUMBER_2, CommonConst.NUMBER_0);
-        SysPermission cq9Permission = new SysPermission("CQ9电子游戏管理", "CQ9电子游戏管理", "/adGame/platformListPG", sysPermission.getId(), CommonConst.NUMBER_2, CommonConst.NUMBER_0);
-        SysPermission wmPermission = new SysPermission("CQ9电子游戏管理", "CQ9电子游戏管理", "/adGame/platformListWM", sysPermission.getId(), CommonConst.NUMBER_2, CommonConst.NUMBER_0);
+        SysPermission cq9Permission = new SysPermission("CQ9电子游戏管理", "CQ9电子游戏管理", "/adGame/platformListCQ9", sysPermission.getId(), CommonConst.NUMBER_2, CommonConst.NUMBER_0);
+        SysPermission wmPermission = new SysPermission("WM电子游戏管理", "WM电子游戏管理", "/adGame/platformListWM", sysPermission.getId(), CommonConst.NUMBER_2, CommonConst.NUMBER_0);
         sysPermissions.add(pgPlatform);
         sysPermissions.add(cq9Permission);
         sysPermissions.add(wmPermission);
