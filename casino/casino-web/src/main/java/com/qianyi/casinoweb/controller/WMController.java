@@ -78,9 +78,9 @@ public class WMController {
                     "5. 牛牛  6. 三公  7. 番摊  8. 色碟 9. 鱼虾蟹 10. 炸金花 11. 牌九 12. 二八杠 13.安達巴哈", required = false),
     })
     public ResponseEntity openGame(Integer gameType, HttpServletRequest request) {
-        //开游戏
-        String mode = getMode(gameType);
-        ResponseEntity response = thirdGameBusiness.checkGame(Constants.PLATFORM_WM_BIG, mode);
+        //判断游戏状态
+        String gameCode = gameType == null ? gameType.toString() : null;
+        ResponseEntity response = thirdGameBusiness.checkGame(Constants.PLATFORM_WM_BIG, gameCode);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
             return response;
         }
@@ -182,7 +182,8 @@ public class WMController {
             vo.setAmountAfter(userMoney.getMoney().subtract(userCenterMoney));
             asyncService.executeAsync(vo);
         }
-
+        //开游戏
+        String mode = getMode(gameType);
         //获取进游戏地址
         String url = getOpenGameUrl(request, third, mode, lang,platformConfig);
         if (CommonUtil.checkNull(url)) {
