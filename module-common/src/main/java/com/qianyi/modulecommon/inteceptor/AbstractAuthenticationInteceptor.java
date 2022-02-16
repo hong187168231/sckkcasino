@@ -26,9 +26,9 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
         String requestMethod = request.getMethod();
         String queryString = request.getQueryString();
         //获取请求body
-        byte[] bodyBytes = StreamUtils.copyToByteArray(request.getInputStream());
-        String body = new String(bodyBytes, request.getCharacterEncoding());
-        log.info("请求IP:{},请求方法:{},请求类型:{},请求参数:{},请求体:{}", ip, path, requestMethod, queryString, body);
+//        byte[] bodyBytes = StreamUtils.copyToByteArray(request.getInputStream());
+//        String body = new String(bodyBytes, request.getCharacterEncoding());
+        log.info("请求IP:{},请求方法:{},请求类型:{},请求参数:{}", ip, path, requestMethod, queryString);
         //不是映射到方法不用拦截
         if (!(handler instanceof HandlerMethod)) {
             return true;
