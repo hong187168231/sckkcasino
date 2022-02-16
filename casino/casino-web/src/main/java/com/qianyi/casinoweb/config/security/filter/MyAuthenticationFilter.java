@@ -97,16 +97,14 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String logRequestBody(MultiReadHttpServletRequest request) {
-        //日志打印traceId，同一次请求的traceId相同，方便定位日志
-        ThreadContext.put("traceId", UUID.randomUUID().toString().replaceAll("-",""));
         MultiReadHttpServletRequest wrapper = request;
         if (wrapper != null) {
             try {
                 String bodyJson = wrapper.getBodyJsonStrByJson(request);
 //                String ip = IpUtil.getIp(request);
                 String url = wrapper.getRequestURI().replace("//", "/");
-                String ua = request.getHeader("User-Agent");
-                boolean checkMobileOrPc = DeviceUtil.checkAgentIsMobile(ua);
+//                String ua = request.getHeader("User-Agent");
+//                boolean checkMobileOrPc = DeviceUtil.checkAgentIsMobile(ua);
 //                if(checkMobileOrPc){
 //                    log.info("来自移动端的请求，ip={},请求url:{}", ip, url);
 //                }else{
