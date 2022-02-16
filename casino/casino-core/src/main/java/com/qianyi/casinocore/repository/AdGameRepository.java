@@ -14,4 +14,8 @@ public interface AdGameRepository extends JpaRepository<AdGame,Long>, JpaSpecifi
     List<AdGame> findByGamePlatformNameAndGameNameLikeAndGamesStatusIn(String gamePlatformName,String gameName,List<Integer> gameStatus);
 
     List<AdGame> findByGamePlatformNameAndGamesStatusIn(String gamePlatformName, List<Integer> gameStatus);
+
+    List<AdGame> findByGamesStatus(Integer gamesStatus);
+
+    List<AdGame> findByGamePlatformNameAndGamesStatus(String gamePlatformName, Integer gamesStatus);
 }
