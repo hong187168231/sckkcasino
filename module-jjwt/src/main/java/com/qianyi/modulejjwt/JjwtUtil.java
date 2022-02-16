@@ -93,7 +93,7 @@ public class JjwtUtil {
             return subject;
 
         } catch (ExpiredJwtException e) {
-            log.error("token={},iss={} 已过期，msg={}", token, iss, e.getMessage());
+//            log.error("token={},iss={} 已过期，msg={}", token, iss, e.getMessage());
             return null;
         } catch (Exception e) {
             e.printStackTrace();

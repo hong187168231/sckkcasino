@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
-public class UserVo implements Serializable {
+public class UserVo implements Serializable , Comparable<BigDecimal> {
     private static final long serialVersionUID = -6875617998456387632L;
     @ApiModelProperty("id")
     private Long id;
@@ -101,5 +101,10 @@ public class UserVo implements Serializable {
         this.updateBy = user.getUpdateBy();
         this.updateTime = user.getUpdateTime();
         this.createBy = user.getCreateBy();
+    }
+
+    @Override
+    public int compareTo(BigDecimal o) {
+        return 0;
     }
 }

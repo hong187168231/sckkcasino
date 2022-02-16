@@ -27,12 +27,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.*;
@@ -154,11 +156,12 @@ public class UserController {
             @ApiImplicitParam(name = "state", value = "1：启用，其他：禁用", required = false),
             @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
             @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
+            @ApiImplicitParam(name = "sortType", value = "1：余额小到大排序，2余额大到下排序", required = false),
     })
     @GetMapping("findUserList")
     public ResponseEntity<UserVo> findUserList(Integer pageSize, Integer pageCode, String account,String proxyAccount,Integer state,
-                                       @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
-                                       @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+                                               @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
+                                               @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate, Integer sortType){
 
         //后续扩展加参数。
         User user = new User();
@@ -177,15 +180,30 @@ public class UserController {
                 user.setThirdProxy(byUserName.getId());
             }
         }
-        Sort sort=Sort.by("id").descending();
-        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
-        Page<User> userPage = userService.findUserPage(pageable, user,startDate,endDate);
-        PageResultVO<UserVo> pageResultVO = new PageResultVO(userPage);
-        List<User> userList = userPage.getContent();
+
+        PageResultVO<UserVo> pageResultVO;
+        List<UserMoney> userMoneyList = new ArrayList<>();
+        List<User> userList;
+        if(sortType != null && LoginUtil.checkNull(account)){
+            Page<UserMoney> userMoneyPage = getPageResultVO(sortType, startDate, endDate, pageCode, pageSize);
+            userMoneyList = userMoneyPage.getContent();
+            List<Long> userIds = userMoneyPage.getContent().stream().map(UserMoney::getUserId).collect(Collectors.toList());
+            userList = userService.findAll(userIds);
+            pageResultVO = new PageResultVO(userMoneyPage);
+        }else{
+            Sort sort=Sort.by("id").descending();
+            Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+            Page<User> userPage = userService.findUserPage(pageable, user,startDate,endDate);
+            pageResultVO = new PageResultVO(userPage);
+            userList = userPage.getContent();
+        }
+
         if(userList != null && userList.size() > 0){
             List<UserVo> userVoList = new LinkedList();
             List<Long> userIds = userList.stream().map(User::getId).collect(Collectors.toList());
-            List<UserMoney> userMoneyList =  userMoneyService.findAll(userIds);
+            if (userMoneyList == null || userMoneyList.isEmpty()) {
+                userMoneyList =  userMoneyService.findAll(userIds);
+            }
             List<Long> firstPids = userList.stream().map(User::getFirstPid).collect(Collectors.toList());
             List<User> firstPidUsers = userService.findAll(firstPids);
             List<Long> thirdProxys = userList.stream().map(User::getThirdProxy).collect(Collectors.toList());
@@ -193,9 +211,10 @@ public class UserController {
             thirdProxys.addAll(firstProxys);
             List<ProxyUser> proxyUsers = proxyUserService.findProxyUser(thirdProxys);
             if(userMoneyList != null){
+                List<UserMoney> finalUserMoneyList = userMoneyList;
                 userList.stream().forEach(u -> {
                     UserVo userVo = new UserVo(u);
-                    userMoneyList.stream().forEach(userMoney -> {
+                    finalUserMoneyList.stream().forEach(userMoney -> {
                         if(u.getId().equals(userMoney.getUserId())){
                             userVo.setMoney(userMoney.getMoney());
                             userVo.setCodeNum(userMoney.getCodeNum());
@@ -218,11 +237,64 @@ public class UserController {
                     });
                     userVoList.add(userVo);
                 });
+                if(sortType !=null){
+                    sortUserVoList(userVoList, sortType);
+                }
                 pageResultVO.setContent(userVoList);
             }
-//            this.setWMMoney(userList);
         }
         return ResponseUtil.success(pageResultVO);
+    }
+
+    private List<UserVo> sortUserVoList(List<UserVo> userVoList, Integer sortType) {
+        if(sortType == CommonConst.NUMBER_1){
+            return searchAsc(userVoList);
+        }
+        return searchDesc(userVoList);
+    }
+
+
+    //降序排序
+    public List<UserVo> searchDesc(List<UserVo> userVoList){
+        Collections.sort(userVoList, (o1, o2) -> -o1.getMoney().compareTo(o2.getMoney()));
+        return userVoList;
+    }
+
+    //升序排列
+    public List<UserVo> searchAsc(List<UserVo> userVoList){
+        Collections.sort(userVoList, (o1, o2) -> o1.getMoney().compareTo(o2.getMoney()));
+        return userVoList;
+    }
+
+
+    private Page<UserMoney> getPageResultVO(Integer sortType, Date startDate, Date endDate, Integer pageCode, Integer pageSize) {
+        Sort sort = Sort.by("money").descending();
+        if(sortType == CommonConst.NUMBER_1){
+            sort = Sort.by("money").ascending();
+        }
+        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        Specification<UserMoney> condition = this.getCondition(startDate, endDate);
+        Page<UserMoney> userMoneyPage = userMoneyService.findUserMoneyPage(condition, pageable);
+
+        return userMoneyPage;
+    }
+
+    private Specification<UserMoney> getCondition(Date startDate, Date endDate) {
+        Specification<UserMoney> specification = new Specification<UserMoney>() {
+            @Override
+            public Predicate toPredicate(Root<UserMoney> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                Predicate predicate = cb.conjunction();
+                if (startDate != null) {
+                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+                }
+                if (endDate != null) {
+                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
     }
 
     @ApiOperation("刷新WM余额")
