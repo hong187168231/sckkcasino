@@ -154,7 +154,7 @@ public class UserController {
             @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false)
     })
     @GetMapping("findUserTotal")
-    public ResponseEntity<BigDecimal> findUserList( String account,String proxyAccount,Integer state,
+    public ResponseEntity<BigDecimal> findUserTotal( String account,String proxyAccount,Integer state,
                                                @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
                                                @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         //后续扩展加参数。
