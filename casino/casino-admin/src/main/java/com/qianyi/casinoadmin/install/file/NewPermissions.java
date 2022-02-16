@@ -122,12 +122,9 @@ public class NewPermissions {
                 SysPermission sysPermission = new SysPermission("一键回收用户PG/CQ9余额", "一键回收用户PG/CQ9余额", "/user/oneKeyRecoverApi", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
+            Long userPid = collect.get("/memberCenter").getId();
             if (!collect.containsKey("/user/findUserTotal")) {
-                SysPermission sysPermission = new SysPermission("会员管理总计", "会员管理总计", "/user/findUserTotal", pid, CommonConst.NUMBER_2, CommonConst.NUMBER_0);
-                sysPermissionService.save(sysPermission);
-            }
-            if (!collect.containsKey("/bankcard/unboundBankName")) {
-                SysPermission sysPermission = new SysPermission("解除银行卡实名认证", "解除银行卡实名认证", "/bankcard/unboundBankName", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                SysPermission sysPermission = new SysPermission("当前查询结果总计", "当前查询结果总计", "/user/findUserTotal", userPid, CommonConst.NUMBER_2, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
 
