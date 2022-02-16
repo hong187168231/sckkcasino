@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,21 +45,57 @@ public class PlatformGameController {
     @Autowired
     private PlatformGameService platformGameService;
 
-    @GetMapping("/platformList")
-    @ApiOperation("平台列表")
-    public ResponseEntity<PlatformGame> platformList() {
+    @GetMapping("/platformListWM")
+    @ApiOperation("平台列表WM")
+    public ResponseEntity<PlatformGame> platformListWM() {
         List<PlatformGame> platformGames =  platformGameService.findAll();
-        return ResponseUtil.success(platformGames);
+        if(platformGames != null && platformGames.isEmpty()){
+            for (PlatformGame platformGame : platformGames) {
+                if(platformGame.getGamePlatformName().equals("WM")){
+                    return ResponseUtil.success(platformGame);
+                }
+            }
+        }
+        return ResponseUtil.success();
     }
+
+    @GetMapping("/platformListPG")
+    @ApiOperation("平台列表PG")
+    public ResponseEntity<PlatformGame> platformListPG() {
+        List<PlatformGame> platformGames =  platformGameService.findAll();
+        if(platformGames != null && platformGames.isEmpty()){
+            for (PlatformGame platformGame : platformGames) {
+                if(platformGame.getGamePlatformName().equals("PG")){
+                    return ResponseUtil.success(platformGame);
+                }
+            }
+        }
+        return ResponseUtil.success();
+    }
+
+    @GetMapping("/platformListCQ9")
+    @ApiOperation("平台列表CQ9")
+    public ResponseEntity<PlatformGame> platformListCQ9() {
+        List<PlatformGame> platformGames =  platformGameService.findAll();
+        if(platformGames != null && platformGames.isEmpty()){
+            for (PlatformGame platformGame : platformGames) {
+                if(platformGame.getGamePlatformName().equals("CQ9")){
+                    return ResponseUtil.success(platformGame);
+                }
+            }
+        }
+        return ResponseUtil.success();
+    }
+
 
     @ApiOperation("三方平台维护")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id", required = true),
-            @ApiImplicitParam(name = "gameStatus", value = "平台状态：0：维护，1：正常 2：下架", required = true)
+            @ApiImplicitParam(name = "gameStatus", value = "平台状态：0：维护，1：正常", required = true)
     })
     @PostMapping("/updatePlatformStatus")
     public ResponseEntity<PlatformGame> updatePlatformStatus(Long id,Integer gameStatus){
-        if(gameStatus != CommonConst.NUMBER_0 && gameStatus != CommonConst.NUMBER_1 && gameStatus != CommonConst.NUMBER_2)
+        if(gameStatus != CommonConst.NUMBER_0 && gameStatus != CommonConst.NUMBER_1)
             return ResponseUtil.success("参数不合法");
         PlatformGame platformGame = platformGameService.findById(id);
         if(platformGame == null){
@@ -74,17 +111,25 @@ public class PlatformGameController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "gamePlatformName", value = "游戏名称", required = true),
+            @ApiImplicitParam(name = "gamePlatformName", value = "平台名称名称", required = true),
+            @ApiImplicitParam(name = "gameName", value = "游戏名称", required = false),
             @ApiImplicitParam(name = "gamesStatus", value = "是否维护 0：维护 1：正常, 2：下架", required = false)
     })
-    public ResponseEntity<AdGame> findGameList(Integer pageSize, Integer pageCode,String gamePlatformName) {
+    public ResponseEntity<AdGame> findGameList(Integer pageSize, Integer pageCode,String gamePlatformName, String gameName, Integer gamesStatus) {
         if (LoginUtil.checkNull(gamePlatformName)) {
             return ResponseUtil.success("数据不存在");
         }
-        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize);
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         AdGame adGame = new AdGame();
         if(!LoginUtil.checkNull(gamePlatformName)){
-            adGame.setGameName(gamePlatformName);
+            adGame.setGamePlatformName(gamePlatformName);
+        }
+        if(!LoginUtil.checkNull(gameName)){
+            adGame.setGameName(gameName);
+        }
+        if(gamesStatus != null){
+            adGame.setGamesStatus(gamesStatus);
         }
 
         Page<AdGame> adGamePage =  adGameService.findAll(pageable, adGame);
@@ -98,7 +143,7 @@ public class PlatformGameController {
     })
     @PostMapping("/updateDomainName")
     public ResponseEntity<AdGame> updateGameStatus(@RequestBody List<String> gameIdList, Integer gameStatus){
-        if(gameStatus != CommonConst.NUMBER_0 && gameStatus != CommonConst.NUMBER_1 && gameStatus != CommonConst.NUMBER_2)
+        if(gameStatus != CommonConst.NUMBER_0 && gameStatus != CommonConst.NUMBER_1)
             return ResponseUtil.success("参数不合法");
 
         if(gameIdList == null || gameIdList.isEmpty()){

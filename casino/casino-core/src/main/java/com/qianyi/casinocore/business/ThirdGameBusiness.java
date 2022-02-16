@@ -3,14 +3,8 @@ package com.qianyi.casinocore.business;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
-import com.qianyi.casinocore.model.Order;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.UserMoney;
-import com.qianyi.casinocore.model.UserThird;
-import com.qianyi.casinocore.service.OrderService;
-import com.qianyi.casinocore.service.UserMoneyService;
-import com.qianyi.casinocore.service.UserService;
-import com.qianyi.casinocore.service.UserThirdService;
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
 import com.qianyi.livewm.api.PublicWMApi;
@@ -45,6 +39,10 @@ public class ThirdGameBusiness {
     private PublicGoldenFApi goldenFApi;
     @Autowired
     private PublicWMApi wmApi;
+    @Autowired
+    private PlatformGameService platformGameService;
+    @Autowired
+    private AdGamesService adGamesService;
     @Autowired
     @Qualifier("accountChangeJob")
     private AsyncService asyncService;
@@ -210,5 +208,26 @@ public class ThirdGameBusiness {
         vo.setAmountBefore(amountBefore);
         vo.setAmountAfter(amountAfter);
         asyncService.executeAsync(vo);
+    }
+
+    public ResponseEntity checkGame(String vendorCode, String gameCode) {
+        PlatformGame platformGame = platformGameService.findByGamePlatformName(vendorCode);
+        if (platformGame == null) {
+            return ResponseUtil.custom("产品不存在");
+        }
+        if (platformGame.getGameStatus() == 0) {
+            return ResponseUtil.custom("产品维护中");
+        }
+        if (ObjectUtils.isEmpty(gameCode)){
+            return ResponseUtil.success();
+        }
+        AdGame adGame = adGamesService.findByGamePlatformNameAndGameCode(vendorCode, gameCode);
+        if (adGame == null) {
+            return ResponseUtil.custom("游戏不存在");
+        }
+        if (adGame.getGamesStatus() == 0) {
+            return ResponseUtil.custom("游戏维护中");
+        }
+        return ResponseUtil.success();
     }
 }
