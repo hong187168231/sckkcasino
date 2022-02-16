@@ -6,6 +6,7 @@ import com.qianyi.casinoweb.config.security.util.Constants;
 import com.qianyi.casinoweb.config.security.util.MultiReadHttpServletRequest;
 import com.qianyi.casinoweb.config.security.util.MultiReadHttpServletResponse;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
+import com.qianyi.casinoweb.util.DeviceUtil;
 import com.qianyi.modulecommon.util.IpUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StopWatch;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -45,6 +47,11 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
         log.debug("请求头类型： " + request.getContentType());
         if ((request.getContentType() == null && request.getContentLength() > 0) || (request.getContentType() != null && !request.getContentType().contains(Constants.REQUEST_HEADERS_CONTENT_TYPE))) {
             filterChain.doFilter(request, response);
+            return;
+        }
+        String requestURI = request.getRequestURI();
+        //解决swagger死循环的问题，/null/swagger-resources/configuration/ui
+        if (!ObjectUtils.isEmpty(requestURI) && requestURI.contains("/swagger-ui/null")) {
             return;
         }
         log.debug("进行request，respone的转换");
@@ -90,13 +97,21 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String logRequestBody(MultiReadHttpServletRequest request) {
+        //日志打印traceId，同一次请求的traceId相同，方便定位日志
+        ThreadContext.put("traceId", UUID.randomUUID().toString().replaceAll("-",""));
         MultiReadHttpServletRequest wrapper = request;
         if (wrapper != null) {
             try {
                 String bodyJson = wrapper.getBodyJsonStrByJson(request);
-                String ip = IpUtil.getIp(request);
+//                String ip = IpUtil.getIp(request);
                 String url = wrapper.getRequestURI().replace("//", "/");
-//                log.info("ip={},请求url:{}", ip, url);
+                String ua = request.getHeader("User-Agent");
+                boolean checkMobileOrPc = DeviceUtil.checkAgentIsMobile(ua);
+//                if(checkMobileOrPc){
+//                    log.info("来自移动端的请求，ip={},请求url:{}", ip, url);
+//                }else{
+//                    log.info("来自PC端的请求，ip={},请求url:{}", ip, url);
+//                }
                 Constants.URL_MAPPING_MAP.put(url, url);
 //                log.info("`{}` 接收到的参数: {}", url, bodyJson);
                 return bodyJson;
