@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
 
@@ -81,10 +82,11 @@ public class PlatformGameController {
         if (LoginUtil.checkNull(gamePlatformName)) {
             return ResponseUtil.success("数据不存在");
         }
-        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize);
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         AdGame adGame = new AdGame();
         if(!LoginUtil.checkNull(gamePlatformName)){
-            adGame.setGameName(gamePlatformName);
+            adGame.setGamePlatformName(gamePlatformName);
         }
 
         Page<AdGame> adGamePage =  adGameService.findAll(pageable, adGame);
