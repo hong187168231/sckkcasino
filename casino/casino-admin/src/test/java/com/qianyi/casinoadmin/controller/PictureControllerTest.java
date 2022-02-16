@@ -89,11 +89,11 @@ public class PictureControllerTest {
         System.out.println(groupBySecond);
         System.out.println(sumBetAndWinLossBySecond);
     }
-    @Test
-    public void getMap() throws Exception {
-        List<Map<String,Object>> map = userService.findMap("2021-11-01 00:00:00", "2022-11-01 00:00:00", 1, 10,"ORDER BY bet_amount DESC");
-        System.out.println(map.size());
-    }
+//    @Test
+//    public void getMap() throws Exception {
+//        List<Map<String,Object>> map = userService.findMap("2021-11-01 00:00:00", "2022-11-01 00:00:00", 1, 10,"ORDER BY bet_amount DESC");
+//        System.out.println(map.size());
+//    }
     @Test
     public void queryAllPersonReport(){
 //        Sort.Order order = new Sort.Order(Sort.Direction.DESC,"proxy.bet_amount");
