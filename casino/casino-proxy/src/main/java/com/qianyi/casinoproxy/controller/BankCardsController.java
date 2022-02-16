@@ -192,18 +192,19 @@ public class BankCardsController {
     })
     @Transactional
     public ResponseEntity disable(Long userId, Long bankId){
-        if(CasinoProxyUtil.checkNull(userId,bankId)){
-            return ResponseUtil.custom("参数错误");
-        }
-        //查询银行卡
-        Bankcards bank = bankcardsService.findById(bankId);
-        if(CasinoProxyUtil.checkNull(bank)){
-            return ResponseUtil.custom("该银行卡已解绑");
-        }
-        BankcardsDel bankcardsDel = new BankcardsDel(bank);
-        bankcardsDelService.save(bankcardsDel);
-        bankcardsService.delBankcards(bank);
-        return ResponseUtil.success();
+        return ResponseUtil.custom("代理不能解绑");
+//        if(CasinoProxyUtil.checkNull(userId,bankId)){
+//            return ResponseUtil.custom("参数错误");
+//        }
+//        //查询银行卡
+//        Bankcards bank = bankcardsService.findById(bankId);
+//        if(CasinoProxyUtil.checkNull(bank)){
+//            return ResponseUtil.custom("该银行卡已解绑");
+//        }
+//        BankcardsDel bankcardsDel = new BankcardsDel(bank);
+//        bankcardsDelService.save(bankcardsDel);
+//        bankcardsService.delBankcards(bank);
+//        return ResponseUtil.success();
     }
 
 
