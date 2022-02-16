@@ -141,6 +141,51 @@ public class UserController {
         return userVoList;
     }
 
+    /**
+     * 用户列表总计
+     * @return
+     */
+    @ApiOperation("用户列表总计")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "account", value = "用户名", required = false),
+            @ApiImplicitParam(name = "proxyAccount", value = "代理线", required = false),
+            @ApiImplicitParam(name = "state", value = "1：启用，其他：禁用", required = false),
+            @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false)
+    })
+    @GetMapping("findUserTotal")
+    public ResponseEntity<BigDecimal> findUserTotal( String account,String proxyAccount,Integer state,
+                                               @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
+                                               @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+        //后续扩展加参数。
+        User user = new User();
+        user.setAccount(account);
+        user.setState(state);
+        if (!LoginUtil.checkNull(proxyAccount)){
+            ProxyUser byUserName = proxyUserService.findByUserName(proxyAccount);
+            if (LoginUtil.checkNull(byUserName)){
+                return ResponseUtil.success(BigDecimal.ZERO);
+            }
+            if (byUserName.getProxyRole() == CommonConst.NUMBER_1){
+                user.setFirstProxy(byUserName.getId());
+            }else if (byUserName.getProxyRole() == CommonConst.NUMBER_2){
+                user.setSecondProxy(byUserName.getId());
+            }else {
+                user.setThirdProxy(byUserName.getId());
+            }
+        }
+        List<User> userList = userService.findUserList(user, startDate, endDate);
+
+        if(userList != null && userList.size() > 0){
+            List<Long> userIds = userList.stream().map(User::getId).collect(Collectors.toList());
+            List<UserMoney> all = userMoneyService.findAll(userIds);
+            BigDecimal sum = all.stream().map(UserMoney::getMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
+            return ResponseUtil.success(sum);
+        }
+        return ResponseUtil.success(BigDecimal.ZERO);
+    }
+
+
 
     /**
      * 查询操作
@@ -355,43 +400,98 @@ public class UserController {
             return ResponseUtil.custom("回收WM余额失败");
         }
     }
-//    public void setWMMoney(List<User> userList) {
-//
-//        log.info("query WM money data：【{}】 ", userList);
-//        List<CompletableFuture<User>> completableFutures = new ArrayList<>();
-//        for (User user : userList) {
-//            UserThird third = userThirdService.findByUserId(user.getId());
-//            if (third == null) {
-//                continue;
-//            }
-//            CompletableFuture<User> completableFuture =  CompletableFuture.supplyAsync(() -> {
-//                return getWMonetUser(user, third);
-//            });
-//            completableFutures.add(completableFuture);
-//        }
-//        CompletableFuture<Void> voidCompletableFuture = CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[]{}));
-//        try {
-//            voidCompletableFuture.join();
-//        }catch (Exception e){
-//            //打印日志
-//            log.error("query User WM money error：【{}】", e);
-//        }
-//    }
 
-//    private User getWMonetUser(User user, UserThird third) {
-//        Integer lang = user.getLanguage();
-//        if (lang == null) {
-//            lang = 0;
-//        }
-//        BigDecimal balance = null;
-//        try {
-//            balance = wmApi.getBalance(third.getAccount(), lang);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        user.setWmMoney(balance);
-//        return user;
-//    }
+    @ApiOperation("查询用户PG/CQ9余额")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("refreshPGAndCQ9")
+    public ResponseEntity refreshPGAndCQ9(Long id){
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
+        }
+        JSONObject jsonObject = userMoneyService.refreshPGAndCQ9(user);
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("查询PG/CQ9余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (LoginUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询PG/CQ9余额失败");
+        }
+    }
+
+    @ApiOperation("一键回收用户PG/CQ9余额")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("oneKeyRecoverApi")
+    public ResponseEntity oneKeyRecoverApi(Long id){
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            return ResponseUtil.custom("客户不存在");
+        }
+        JSONObject jsonObject = userMoneyService.oneKeyRecoverApi(user);
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("回收PG/CQ9余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                return ResponseUtil.success();
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("回收PG/CQ9余额失败");
+        }
+    }
+    //    public void setWMMoney(List<User> userList) {
+    //
+    //        log.info("query WM money data：【{}】 ", userList);
+    //        List<CompletableFuture<User>> completableFutures = new ArrayList<>();
+    //        for (User user : userList) {
+    //            UserThird third = userThirdService.findByUserId(user.getId());
+    //            if (third == null) {
+    //                continue;
+    //            }
+    //            CompletableFuture<User> completableFuture =  CompletableFuture.supplyAsync(() -> {
+    //                return getWMonetUser(user, third);
+    //            });
+    //            completableFutures.add(completableFuture);
+    //        }
+    //        CompletableFuture<Void> voidCompletableFuture = CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[]{}));
+    //        try {
+    //            voidCompletableFuture.join();
+    //        }catch (Exception e){
+    //            //打印日志
+    //            log.error("query User WM money error：【{}】", e);
+    //        }
+    //    }
+
+    //    private User getWMonetUser(User user, UserThird third) {
+    //        Integer lang = user.getLanguage();
+    //        if (lang == null) {
+    //            lang = 0;
+    //        }
+    //        BigDecimal balance = null;
+    //        try {
+    //            balance = wmApi.getBalance(third.getAccount(), lang);
+    //        } catch (Exception e) {
+    //            e.printStackTrace();
+    //        }
+    //        user.setWmMoney(balance);
+    //        return user;
+    //    }
 
     @ApiOperation("添加用户")
     @ApiImplicitParams({
