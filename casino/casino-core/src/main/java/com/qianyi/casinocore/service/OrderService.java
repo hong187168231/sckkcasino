@@ -62,6 +62,9 @@ public class OrderService {
                 if(order.getUserId() != null){
                     list.add(cb.equal(root.get("userId").as(Long.class), order.getUserId()));
                 }
+                if (!CommonUtil.checkNull(order.getGamePlatformName())) {
+                    list.add(cb.equal(root.get("gamePlatformName").as(String.class), order.getGamePlatformName()));
+                }
                 if (order.getFirstProxy() != null) {
                     list.add(cb.equal(root.get("firstProxy").as(Long.class), order.getFirstProxy()));
                 }

@@ -52,7 +52,7 @@ public class OrderVo  implements Serializable {
         this.no = order.getNo();
         this.money = order.getMoney();
         this.state = order.getState();
-        this.remark = order.getGamePlatformName() + (order.getType() == CommonConst.NUMBER_0? "转入" : "转出");
+        this.remark = (order.getType() == CommonConst.NUMBER_0? "转入" : "转出") + order.getGamePlatformName();
         this.type = order.getType();
         this.createTime = order.getCreateTime();
         this.createBy = order.getCreateBy();
