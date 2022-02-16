@@ -124,7 +124,7 @@ public class NewPermissions {
             }
             Long userPid = collect.get("/memberCenter").getId();
             if (!collect.containsKey("/user/findUserTotal")) {
-                SysPermission sysPermission = new SysPermission("会员管理总计", "会员管理总计", "/user/findUserTotal", userPid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                SysPermission sysPermission = new SysPermission("会员管理总计", "会员管理总计", "/user/findUserTotal", userPid, CommonConst.NUMBER_2, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
 
