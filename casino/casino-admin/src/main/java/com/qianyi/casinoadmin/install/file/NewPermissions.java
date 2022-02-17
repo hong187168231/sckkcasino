@@ -248,6 +248,14 @@ public class NewPermissions {
                 SysPermission sysPermission = new SysPermission("编辑银行卡账号校验开关", "编辑银行卡账号校验开关", "/platformConfig/updateBankcardRealNameSwitch", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
+            if (!collect.containsKey("/platformConfig/findPlatformMaintenance")){
+                SysPermission sysPermission = new SysPermission("查询平台维护开关", "查询平台维护开关", "/platformConfig/findPlatformMaintenance", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/platformConfig/updatePlatformMaintenance")){
+                SysPermission sysPermission = new SysPermission("修改平台维护开关", "修改平台维护开关", "/platformConfig/updatePlatformMaintenance", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
         }
     }
     private void setSystemConfig(Map<String, SysPermission> collect) {
