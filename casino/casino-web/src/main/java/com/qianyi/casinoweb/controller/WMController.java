@@ -138,7 +138,7 @@ public class WMController {
 
         if (platformConfig != null && platformConfig.getWmMoney() != null) {
             BigDecimal wmMoney = platformConfig.getWmMoney();
-            if (wmMoney != null && wmMoney.compareTo(BigDecimal.ZERO) == 1) {
+            if (wmMoney != null && wmMoney.compareTo(BigDecimal.ZERO) > -1) {
                 if (wmMoney.compareTo(userCenterMoney) == -1) {
                     userCenterMoney = wmMoney;
                 }
