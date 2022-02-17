@@ -50,6 +50,12 @@ public class PictureControllerTest {
     private GameRecordGoldenFService gameRecordGoldenFService;
 
     @Test
+    public void findMap(){
+        List<Map<String, Object>> map = userService.findMap("WM", "2021-11-01 00:00:00", "2022-11-01 00:00:00", 60844L);
+        System.out.println(map.size());
+    }
+
+    @Test
     public void findSumbetAmount(){
         List<Map<String, Object>> gameRecords =
             gameRecordGoldenFService.findSumBetAmount("2022-02-01 23:00:00", "2022-02-12 23:59:59");
