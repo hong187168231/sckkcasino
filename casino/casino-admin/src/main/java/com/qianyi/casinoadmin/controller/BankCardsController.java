@@ -191,7 +191,7 @@ public class BankCardsController {
     public ResponseEntity unboundBankName(Long userId) {
         List<Bankcards> byUserId = bankcardsService.findBankcardsByUserId(userId);
         if(!LoginUtil.checkNull(byUserId) && byUserId.size() > CommonConst.NUMBER_0){
-           return ResponseUtil.success("操作失败、用户有未解绑的银行卡");
+           return ResponseUtil.custom("操作失败、用户有未解绑的银行卡");
         }
         User byId = userService.findById(userId);
         byId.setRealName(null);
