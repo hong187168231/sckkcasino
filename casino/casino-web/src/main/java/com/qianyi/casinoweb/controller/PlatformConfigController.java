@@ -1,5 +1,6 @@
 package com.qianyi.casinoweb.controller;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.modulecommon.Constants;
@@ -66,12 +67,14 @@ public class PlatformConfigController {
     }
 
     @GetMapping("checkPlatformMaintenanceSwitch")
-    @ApiOperation("检查平台维护开关,true:维护中")
+    @ApiOperation("检查平台维护开关")
     @NoAuthentication
-    public ResponseEntity<Boolean> checkPlatformMaintenanceSwitch() {
+    public ResponseEntity<PlatformMaintenanceSwitch> checkPlatformMaintenanceSwitch() {
+        PlatformMaintenanceSwitch vo = new PlatformMaintenanceSwitch();
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (platformConfig == null || platformConfig.getMaintenanceStart() == null || platformConfig.getMaintenanceEnd() == null) {
-            return ResponseUtil.success(false);
+            vo.setOnOff(false);
+            return ResponseUtil.success(vo);
         }
         Integer maintenance = platformConfig.getPlatformMaintenance();
         boolean switchb = maintenance == Constants.open ? true : false;
@@ -79,7 +82,13 @@ public class PlatformConfigController {
         if (switchb) {
             switchb = DateUtil.isEffectiveDate(new Date(), platformConfig.getMaintenanceStart(), platformConfig.getMaintenanceEnd());
         }
-        return ResponseUtil.success(switchb);
+        vo.setOnOff(switchb);
+        //最后确定状态
+        if (switchb) {
+            vo.setStartTime(platformConfig.getMaintenanceStart());
+            vo.setEndTime(platformConfig.getMaintenanceEnd());
+        }
+        return ResponseUtil.success(vo);
     }
 
     @Data
@@ -94,5 +103,18 @@ public class PlatformConfigController {
 
         @ApiModelProperty("三级玩家返佣")
         private BigDecimal thirdCommission;
+    }
+
+    @Data
+    @ApiModel("平台维护开关")
+    class PlatformMaintenanceSwitch{
+        @ApiModelProperty("开关状态，true:开启，false:关闭")
+        private Boolean onOff;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+        private Date startTime;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+        private Date endTime;
     }
 }
