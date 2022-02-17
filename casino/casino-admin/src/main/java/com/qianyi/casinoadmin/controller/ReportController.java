@@ -56,11 +56,13 @@ public class ReportController {
             @ApiImplicitParam(name = "userName", value = "账号", required = false),
             @ApiImplicitParam(name = "startTime", value = "起始时间查询", required = true),
             @ApiImplicitParam(name = "endTime", value = "结束时间查询", required = true),
+            @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
+            @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
             @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
             @ApiImplicitParam(name = "tag", value = "1：投注笔数 2：投注金额 3：有效投注 4：洗码发放 5：用户输赢金额", required = false),
     })
     public ResponseEntity<Map<String,Object>> queryPersonReport(Integer pageSize, Integer pageCode, String userName,
-                                                     String startTime, String endTime,Integer sort,Integer tag){
+                                                     String startTime, String endTime,String platform,Integer sort,Integer tag){
         if (LoginUtil.checkNull(startTime,endTime,pageSize,pageCode)){
             return ResponseUtil.custom("参数不合法");
         }
@@ -83,7 +85,7 @@ public class ReportController {
         if(StringUtils.hasLength(userName)){
             User user = userService.findByAccount(userName);
             if(user != null){
-                List<Map<String,Object>> reportResult = reportService.queryPersonReport(user.getId(),startTime,endTime);
+                List<Map<String,Object>> reportResult = userService.findMap(platform,startTime,endTime,user.getId());
                 PageResultVO<Map<String, Object>> mapPageResultVO = combinePage(reportResult, 1, pageCode, pageSize);
                 return ResponseUtil.success(getMap(mapPageResultVO));
             }
@@ -93,8 +95,9 @@ public class ReportController {
 
         int page = (pageCode-1)*pageSize;
         List<Map<String,Object>> reportResult = null;
+        try {
         if (LoginUtil.checkNull(tag)){
-            reportResult = reportService.queryAllPersonReport(startTime,endTime,page,pageSize);
+            reportResult = userService.findMap(platform,startTime, endTime, page, pageSize, "");
         }else {
             String str = "ORDER BY {0} ";
             switch (tag) {
@@ -121,12 +124,10 @@ public class ReportController {
             }else {
                 str = str + "DESC";
             }
-            try {
-                reportResult = userService.findMap(startTime, endTime, page, pageSize, str);
-            } catch (Exception e) {
-                return ResponseUtil.custom("查询失败");
-            }
-
+            reportResult = userService.findMap(platform,startTime, endTime, page, pageSize, str);
+        }
+        } catch (Exception e) {
+            return ResponseUtil.custom("查询失败");
         }
         int totalElement = reportService.queryTotalElement(startTime,endTime);
         PageResultVO<Map<String, Object>> mapPageResultVO = combinePage(reportResult, totalElement, pageCode, pageSize);

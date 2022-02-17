@@ -2,12 +2,14 @@ package com.qianyi.casinocore.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.mysql.cj.util.StringUtils;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.repository.UserRepository;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.SqlConst;
 import com.qianyi.modulecommon.util.CommonUtil;
+import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.Page;
@@ -258,14 +260,44 @@ public class UserService {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Map<String,Object>> findMap(String startTime,String endTime,Integer page,Integer pageSize,String sort)
+    public List<Map<String,Object>> findMap(String platform,String startTime,String endTime,Integer page,Integer pageSize,String sort)
         throws Exception {
         startTime = "'"+startTime+"'";
         endTime = "'"+endTime+"'";
-        String sql = MessageFormat.format(SqlConst.dataSql,startTime,endTime,sort,page.toString(),pageSize.toString());
-        System.out.println(sql);
+        String sql = "";
+        if(StringUtils.isNullOrEmpty(platform)){
+            sql = MessageFormat.format(SqlConst.totalSql,startTime,endTime,sort,page.toString(),pageSize.toString());
+        }else if (platform.equals("WM")){
+            sql = MessageFormat.format(SqlConst.wmSql,startTime,endTime,sort,page.toString(),pageSize.toString());
+        }else if (platform.equals("PG")){
+            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime,endTime,sort,page.toString(),pageSize.toString(),"PG");
+        }else {
+            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime,endTime,sort,page.toString(),pageSize.toString(),"CQ9");
+        }
         Query countQuery = entityManager.createNativeQuery(sql);
         List resultList = countQuery.getResultList();
+        return getList(resultList);
+    }
+    @SuppressWarnings("unchecked")
+    public List<Map<String,Object>> findMap(String platform,String startTime,String endTime,Long userId){
+        startTime = "'"+startTime+"'";
+        endTime = "'"+endTime+"'";
+        String sql = "";
+        if(StringUtils.isNullOrEmpty(platform)){
+            sql = MessageFormat.format(SqlConst.seleOneTotal,startTime,endTime,userId.toString());
+        }else if (platform.equals("WM")){
+            sql = MessageFormat.format(SqlConst.seleOneWm,startTime,endTime,userId.toString());
+        }else if (platform.equals("PG")){
+            sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"PG");
+        }else {
+            sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"CQ9");
+        }
+        Query countQuery = entityManager.createNativeQuery(sql);
+        List resultList = countQuery.getResultList();
+        return getList(resultList);
+    }
+
+    private List<Map<String,Object>> getList(List resultList){
         List<Map<String,Object>> list = null;
         if (resultList != null && resultList.size() > CommonConst.NUMBER_0){
             list = new LinkedList();
@@ -289,5 +321,4 @@ public class UserService {
         }
         return list;
     }
-
 }

@@ -143,6 +143,14 @@ public class PlatformConfig {
     @ApiModelProperty("银行卡绑定同名只能绑定一个账号校验开关 0:关闭，1:开启")
     private Integer bankcardRealNameSwitch;
 
+    @ApiModelProperty("平台维护开关 0:维护 1:开启")
+    private Integer platformMaintenance;
+
+    @ApiModelProperty("维护起始时间")
+    private Date maintenanceStart;
+
+    @ApiModelProperty("维护结束时间")
+    private Date maintenanceEnd;
 
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){
