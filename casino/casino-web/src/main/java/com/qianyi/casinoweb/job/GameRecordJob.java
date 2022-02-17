@@ -49,7 +49,7 @@ public class GameRecordJob {
     String active;
 
     //每隔5分钟执行一次
-    @Scheduled(cron = "0 0/5 * * * ?")
+//    @Scheduled(cron = "0 0/5 * * * ?")
     public void pullGameRecord() {
         log.info("定时器开始拉取游戏记录");
         String timeMsg = null;
