@@ -79,7 +79,7 @@ public class WMController {
     })
     public ResponseEntity openGame(Integer gameType, HttpServletRequest request) {
         //判断游戏状态
-        String gameCode = gameType == null ? gameType.toString() : null;
+        String gameCode = gameType != null ? gameType.toString() : null;
         ResponseEntity response = thirdGameBusiness.checkGame(Constants.PLATFORM_WM_BIG, gameCode);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
             return response;
@@ -138,10 +138,9 @@ public class WMController {
 
         if (platformConfig != null && platformConfig.getWmMoney() != null) {
             BigDecimal wmMoney = platformConfig.getWmMoney();
-            if (wmMoney != null && wmMoney.compareTo(BigDecimal.ZERO) == 1) {
-                if (wmMoney.compareTo(userCenterMoney) == -1) {
-                    userCenterMoney = wmMoney;
-                }
+            if (wmMoney != null && wmMoney.compareTo(userCenterMoney) == -1) {
+                userCenterMoney = wmMoney;
+                log.error("userId:{},进游戏加扣是WM余额不足，wm余额={}",third.getUserId(),wmMoney);
             }
         }
 
