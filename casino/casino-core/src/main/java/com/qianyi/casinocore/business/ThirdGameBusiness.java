@@ -210,13 +210,16 @@ public class ThirdGameBusiness {
         asyncService.executeAsync(vo);
     }
 
-    public ResponseEntity checkGame(String vendorCode, String gameCode) {
+    public ResponseEntity checkPlatformAndGameStatus(String vendorCode, String gameCode) {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(vendorCode);
         if (platformGame == null) {
             return ResponseUtil.custom("产品不存在");
         }
         if (platformGame.getGameStatus() == 0) {
             return ResponseUtil.custom("产品维护中");
+        }
+        if (platformGame.getGameStatus() == 2) {
+            return ResponseUtil.custom("产品已关闭");
         }
         if (ObjectUtils.isEmpty(gameCode)){
             return ResponseUtil.success();
@@ -227,6 +230,9 @@ public class ThirdGameBusiness {
         }
         if (adGame.getGamesStatus() == 0) {
             return ResponseUtil.custom("游戏维护中");
+        }
+        if (adGame.getGamesStatus() == 2) {
+            return ResponseUtil.custom("游戏已关闭");
         }
         return ResponseUtil.success();
     }
