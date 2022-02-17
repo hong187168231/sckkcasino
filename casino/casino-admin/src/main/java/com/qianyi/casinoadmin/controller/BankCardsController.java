@@ -182,6 +182,28 @@ public class BankCardsController {
         bankInfoService.deleteBankInfo(id);
         return ResponseUtil.success();
     }
+
+    @GetMapping("/unboundBankName")
+    @ApiOperation("解绑银行卡名称")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId", value = "用户id", required = true),
+    })
+    @NoAuthorization
+    public ResponseEntity unboundBankName(Long userId) {
+        List<Bankcards> byUserId = bankcardsService.findBankcardsByUserId(userId);
+        List<BankcardsDel> byUserIdList = bankcardsDelService.findByUserId(userId);
+        if (LoginUtil.checkNull(byUserId) && LoginUtil.checkNull(byUserIdList)){
+            return ResponseUtil.custom("该用户未绑定银行卡");
+        }
+        if(!LoginUtil.checkNull(byUserId) && byUserId.size() > CommonConst.NUMBER_0){
+           return ResponseUtil.custom("操作失败、用户有未解绑的银行卡");
+        }
+        User byId = userService.findById(userId);
+        byId.setRealName(null);
+        userService.save(byId);
+        return ResponseUtil.success("解绑银行卡实名认证成功");
+    }
+
     @GetMapping("/boundList")
     @ApiOperation("用户已绑定银行卡列表")
     @ApiImplicitParams({

@@ -3,6 +3,7 @@ package com.qianyi.casinoproxy.controller;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.ShareProfitChange;
 import com.qianyi.casinocore.model.UserRunningWater;
+import com.qianyi.casinocore.service.GameRecordGoldenFService;
 import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinocore.service.ShareProfitChangeService;
 import com.qianyi.casinocore.service.UserRunningWaterService;
@@ -49,6 +50,9 @@ public class UserRunningWaterController {
 
     @Autowired
     private ShareProfitChangeService shareProfitChangeService;
+
+    @Autowired
+    private GameRecordGoldenFService gameRecordGoldenFService;
 
     public final static String start = " 00:00:00";
 
@@ -105,16 +109,11 @@ public class UserRunningWaterController {
         String endTime = format + end;
         Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
         Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
-        GameRecord gameRecord = new GameRecord();
-        gameRecord.setUserId(userId);
-        List<GameRecord> gameRecords = gameRecordService.findGameRecords(gameRecord, startTime, endTime);
-        if (!CasinoProxyUtil.checkNull(gameRecords) && gameRecords.size() > CommonConst.NUMBER_0){
-            BigDecimal validbetAmount = BigDecimal.ZERO;
-            for (GameRecord g : gameRecords){
-                validbetAmount = validbetAmount.add(new BigDecimal(g.getValidbet()));
-            }
+        BigDecimal validbet = gameRecordService.findGameRecords(userId, startTime, endTime);
+        BigDecimal betAmount = gameRecordGoldenFService.findSumBetAmount(userId, startTime, endTime);
+        if (!CasinoProxyUtil.checkNull(validbet) || betAmount.compareTo(BigDecimal.ZERO) != CommonConst.NUMBER_0){
             runningWater = new UserRunningWater();
-            runningWater.setAmount(validbetAmount);
+            runningWater.setAmount(betAmount.add(validbet == null?BigDecimal.ZERO:validbet));
             runningWater.setStaticsTimes(format);
             runningWater.setCommission(BigDecimal.ZERO);
         }

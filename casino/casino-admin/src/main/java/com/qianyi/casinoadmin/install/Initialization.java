@@ -349,6 +349,9 @@ public class Initialization implements CommandLineRunner {
             if (LoginUtil.checkNull(platformConfig.getPeopleProxySwitch())){
                 platformConfig.setPeopleProxySwitch(platformConfigFile.getPeopleProxySwitch());
             }
+            if(LoginUtil.checkNull(platformConfig.getPlatformMaintenance())){
+                platformConfig.setPlatformMaintenance(CommonConst.NUMBER_1);
+            }
             platformConfigService.save(platformConfig);
         }
     }
