@@ -188,8 +188,13 @@ public class BankCardsController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userId", value = "用户id", required = true),
     })
+    @NoAuthorization
     public ResponseEntity unboundBankName(Long userId) {
         List<Bankcards> byUserId = bankcardsService.findBankcardsByUserId(userId);
+        List<BankcardsDel> byUserIdList = bankcardsDelService.findByUserId(userId);
+        if (LoginUtil.checkNull(byUserId) && LoginUtil.checkNull(byUserIdList)){
+            return ResponseUtil.custom("该用户未绑定银行卡");
+        }
         if(!LoginUtil.checkNull(byUserId) && byUserId.size() > CommonConst.NUMBER_0){
            return ResponseUtil.custom("操作失败、用户有未解绑的银行卡");
         }
