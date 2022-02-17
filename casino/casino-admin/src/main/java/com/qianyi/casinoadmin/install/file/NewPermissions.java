@@ -49,7 +49,55 @@ public class NewPermissions {
             //报表管理
             setReportCenter(collect);
         }
+        if(collect.containsKey("/memberCenter")){
+            //报表管理
+            setMemberCenter(collect);
+        }
+        if(!collect.containsKey("/thirdGameMange")){
+            //第三方游戏管理
+            thirdGameMange();
+        }
         sysPermissionService.saveAllList(sysPermissions);
+    }
+
+    private void thirdGameMange() {
+        SysPermission sysPermission = new SysPermission("第三方游戏管理", "第三方游戏管理", "/thirdGameMange", 0l, CommonConst.NUMBER_1, CommonConst.NUMBER_0);
+        sysPermissionService.save(sysPermission);
+        List<SysPermission> sysPermissions = new ArrayList<>();
+        SysPermission pgPlatform = new SysPermission("PG电子游戏管理", "PG电子游戏管理", "/adGame/platformListPG", sysPermission.getId(), CommonConst.NUMBER_2, CommonConst.NUMBER_0);
+        SysPermission cq9Permission = new SysPermission("CQ9电子游戏管理", "CQ9电子游戏管理", "/adGame/platformListCQ9", sysPermission.getId(), CommonConst.NUMBER_2, CommonConst.NUMBER_0);
+        SysPermission wmPermission = new SysPermission("WM电子游戏管理", "WM电子游戏管理", "/adGame/platformListWM", sysPermission.getId(), CommonConst.NUMBER_2, CommonConst.NUMBER_0);
+        sysPermissions.add(pgPlatform);
+        sysPermissions.add(cq9Permission);
+        sysPermissions.add(wmPermission);
+        sysPermissionService.saveAllList(sysPermissions);
+        List<SysPermission> pgPermissions = new ArrayList<>();
+        List<SysPermission> cq9Permissions = new ArrayList<>();
+        List<SysPermission> wmPermissions = new ArrayList<>();
+        SysPermission pgAdgamePlatform = new SysPermission("游戏列表", "游戏列表", "/adGame/findGameList", pgPlatform.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+        SysPermission pgPlatformUpdate = new SysPermission("平台是否维护", "平台是否维护", "/adGame/updatePlatformStatus", pgPlatform.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+        SysPermission pgAdGameUpdate = new SysPermission("游戏状态修改", "游戏状态修改", "/adGame/updateDomainName", pgPlatform.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+        pgPermissions.add(pgAdgamePlatform);
+        pgPermissions.add(pgPlatformUpdate);
+        pgPermissions.add(pgAdGameUpdate);
+        sysPermissionService.saveAllList(pgPermissions);
+        SysPermission cq9AdgamePlatform = new SysPermission("游戏列表", "游戏列表", "/adGame/findGameList", cq9Permission.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+        SysPermission cq9PlatformUpdate = new SysPermission("平台是否维护", "平台是否维护", "/adGame/updatePlatformStatus", cq9Permission.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+        SysPermission cq9AdGameUpdate = new SysPermission("游戏状态修改", "游戏状态修改", "/adGame/updateDomainName", cq9Permission.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+
+        cq9Permissions.add(cq9AdgamePlatform);
+        cq9Permissions.add(cq9PlatformUpdate);
+        cq9Permissions.add(cq9AdGameUpdate);
+        sysPermissionService.saveAllList(cq9Permissions);
+
+        SysPermission wm9AdgamePlatform = new SysPermission("游戏列表", "游戏列表", "/adGame/findGameList", wmPermission.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+        SysPermission wm9PlatformUpdate = new SysPermission("平台是否维护", "平台是否维护", "/adGame/updatePlatformStatus", wmPermission.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+        SysPermission wm9AdGameUpdate = new SysPermission("游戏状态修改", "游戏状态修改", "/adGame/updateDomainName", wmPermission.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+
+        wmPermissions.add(wm9AdgamePlatform);
+        wmPermissions.add(wm9PlatformUpdate);
+        wmPermissions.add(wm9AdGameUpdate);
+        sysPermissionService.saveAllList(wmPermissions);
     }
 
     private static ArrayList<SysPermission> removeSysPermission( List<SysPermission> sysPermissionList){
@@ -63,6 +111,28 @@ public class NewPermissions {
         return new ArrayList<>(set);
     }
 
+    private void setMemberCenter(Map<String, SysPermission> collect){
+        if (collect.containsKey("/user/findUserList")) {
+            Long pid = collect.get("/user/findUserList").getId();
+            if (!collect.containsKey("/user/refreshPGAndCQ9")) {
+                SysPermission sysPermission = new SysPermission("查询用户PG/CQ9余额", "查询用户PG/CQ9余额", "/user/refreshPGAndCQ9", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/user/oneKeyRecoverApi")) {
+                SysPermission sysPermission = new SysPermission("一键回收用户PG/CQ9余额", "一键回收用户PG/CQ9余额", "/user/oneKeyRecoverApi", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/user/findUserTotal")) {
+                SysPermission sysPermission = new SysPermission("当前查询结果总计", "当前查询结果总计", "/user/findUserTotal", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/bankcard/unboundBankName")) {
+                SysPermission sysPermission = new SysPermission("解除银行卡实名认证", "解除银行卡实名认证", "/bankcard/unboundBankName", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+
+        }
+    }
     /**
      * 报表管理
      * @param collect
