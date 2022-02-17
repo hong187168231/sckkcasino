@@ -125,6 +125,51 @@ public class UserController {
         return userVoList;
     }
 
+    /**
+     * 用户列表总计
+     * @return
+     */
+    @ApiOperation("用户列表总计")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "account", value = "用户名", required = false),
+            @ApiImplicitParam(name = "account", value = "用户名", required = false),
+            @ApiImplicitParam(name = "secondProxyAccount", value = "区域代理账号", required = false),
+            @ApiImplicitParam(name = "thirdProxyAccount", value = "基层代理账号", required = false),
+            @ApiImplicitParam(name = "state", value = "1：启用，其他：禁用", required = false),
+            @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
+    })
+    @GetMapping("findUserTotal")
+    public ResponseEntity<BigDecimal> findUserTotal(  String account,Integer state,
+                                                    String secondProxyAccount,String thirdProxyAccount,
+                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
+                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+        //后续扩展加参数。
+        User user = new User();
+        user.setAccount(account);
+        user.setState(state);
+        if (CasinoProxyUtil.setParameter(user)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        if (!CasinoProxyUtil.checkNull(secondProxyAccount)){
+            ProxyUser byUserName = proxyUserService.findByUserName(secondProxyAccount);
+            user.setSecondProxy(byUserName == null?CommonConst.LONG_0:byUserName.getId());
+        }
+        if (!CasinoProxyUtil.checkNull(thirdProxyAccount)){
+            ProxyUser byUserName = proxyUserService.findByUserName(thirdProxyAccount);
+            user.setThirdProxy(byUserName == null?CommonConst.LONG_0:byUserName.getId());
+        }
+        List<User> userList = userService.findUserList(user, startDate, endDate);
+
+        if(userList != null && userList.size() > 0){
+            List<Long> userIds = userList.stream().map(User::getId).collect(Collectors.toList());
+            List<UserMoney> all = userMoneyService.findAll(userIds);
+            BigDecimal sum = all.stream().map(UserMoney::getMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
+            return ResponseUtil.success(sum);
+        }
+        return ResponseUtil.success(BigDecimal.ZERO);
+    }
+
 
     /**
      * 查询操作
