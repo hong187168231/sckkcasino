@@ -60,6 +60,9 @@ public class Initialization implements CommandLineRunner {
     @Autowired
     NewPermissions newPermissions;
 
+    @Autowired
+    private GameRecordEndIndexService gameRecordEndIndexService;
+
 
 
     @Override
@@ -74,7 +77,24 @@ public class Initialization implements CommandLineRunner {
        this.runAddSysUser();
        //客户中心配置初始化
         this.saveCustomerConfigureInfo();
+        this.saveGameRecordEndIndex();
     }
+
+    private void saveGameRecordEndIndex() {
+        GameRecordEndIndex first = gameRecordEndIndexService.findFirst();
+        if (LoginUtil.checkNull(first)){
+            first = new GameRecordEndIndex();
+            first.setGameRecordId(0L);
+            first.setPGMaxId(0L);
+            first.setCQ9MaxId(0L);
+            gameRecordEndIndexService.save(first);
+        }else {
+            first.setGameRecordId(first.getGameRecordId()==null?0L:first.getGameRecordId());
+            first.setPGMaxId(first.getPGMaxId()==null?0L:first.getPGMaxId());
+            first.setCQ9MaxId(first.getCQ9MaxId()==null?0L:first.getCQ9MaxId());
+        }
+    }
+
     /**
      * 添加新的权限脚本
      */
@@ -311,6 +331,8 @@ public class Initialization implements CommandLineRunner {
             platformConfig.setUploadUrl(platformConfigFile.getUploadUrl());
             platformConfig.setReadUploadUrl(platformConfigFile.getReadUploadUrl());
             platformConfig.setMoneySymbol(platformConfigFile.getMoneySymbol());
+            platformConfig.setPeopleProxySwitch(platformConfigFile.getPeopleProxySwitch());
+            platformConfig.setBankcardRealNameSwitch(platformConfigFile.getBankcardRealNameSwitch());
             platformConfigService.save(platformConfig);
         }else {
             PlatformConfig platformConfig = all.get(CommonConst.NUMBER_0);
@@ -320,6 +342,15 @@ public class Initialization implements CommandLineRunner {
             }
             if (LoginUtil.checkNull(platformConfig.getCustomerCode())){
                 platformConfig.setCustomerCode("21141305");
+            }
+            if (LoginUtil.checkNull(platformConfig.getBankcardRealNameSwitch())){
+                platformConfig.setBankcardRealNameSwitch(platformConfigFile.getBankcardRealNameSwitch());
+            }
+            if (LoginUtil.checkNull(platformConfig.getPeopleProxySwitch())){
+                platformConfig.setPeopleProxySwitch(platformConfigFile.getPeopleProxySwitch());
+            }
+            if(LoginUtil.checkNull(platformConfig.getPlatformMaintenance())){
+                platformConfig.setPlatformMaintenance(CommonConst.NUMBER_1);
             }
             platformConfigService.save(platformConfig);
         }
