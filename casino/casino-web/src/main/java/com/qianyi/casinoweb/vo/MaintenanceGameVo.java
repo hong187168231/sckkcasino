@@ -7,7 +7,7 @@ import lombok.Data;
 
 import java.util.List;
 
-@ApiModel("隐藏维护状态游戏列表")
+@ApiModel("维护、关闭状态游戏列表")
 @Data
 public class MaintenanceGameVo {
 
