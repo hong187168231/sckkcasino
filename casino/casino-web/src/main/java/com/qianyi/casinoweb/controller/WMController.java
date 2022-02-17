@@ -80,7 +80,7 @@ public class WMController {
     public ResponseEntity openGame(Integer gameType, HttpServletRequest request) {
         //判断游戏状态
         String gameCode = gameType != null ? gameType.toString() : null;
-        ResponseEntity response = thirdGameBusiness.checkGame(Constants.PLATFORM_WM_BIG, gameCode);
+        ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(Constants.PLATFORM_WM_BIG, gameCode);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
             return response;
         }
@@ -276,6 +276,11 @@ public class WMController {
 //    @RequestLimit(limit = 1, timeout = 5)
     @GetMapping("getWmBalance")
     public ResponseEntity<BigDecimal> getWmBalance() {
+        //判断平台状态
+        ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(Constants.PLATFORM_WM_BIG, null);
+        if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return response;
+        }
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
@@ -310,6 +315,11 @@ public class WMController {
             @ApiImplicitParam(name = "lang", value = "语言", required = true),
     })
     public ResponseEntity<BigDecimal> getWmBalanceApi(String account, Integer lang) {
+        //判断平台状态
+        ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(Constants.PLATFORM_WM_BIG, null);
+        if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return response;
+        }
         log.info("开始查询WM余额:account={},lang={}", account, lang);
         if (!ipWhiteCheck()) {
             return ResponseUtil.custom("ip禁止访问");
@@ -336,6 +346,11 @@ public class WMController {
     @Transactional
     @GetMapping("oneKeyRecover")
     public ResponseEntity oneKeyRecover() {
+        //判断平台状态
+        ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(Constants.PLATFORM_WM_BIG, null);
+        if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return response;
+        }
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         return thirdGameBusiness.oneKeyRecoverWm(userId);
@@ -347,6 +362,11 @@ public class WMController {
     @NoAuthentication
     @ApiImplicitParam(name = "userId", value = "用户ID", required = true)
     public ResponseEntity oneKeyRecoverApi(Long userId) {
+        //判断平台状态
+        ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(Constants.PLATFORM_WM_BIG, null);
+        if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return response;
+        }
         if (!ipWhiteCheck()) {
             return ResponseUtil.custom("ip禁止访问");
         }

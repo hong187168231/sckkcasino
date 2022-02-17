@@ -1,12 +1,13 @@
 package com.qianyi.casinoweb.vo;
 
+import com.qianyi.casinocore.model.AdGame;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.List;
 
-@ApiModel("维护状态游戏列表")
+@ApiModel("隐藏维护状态游戏列表")
 @Data
 public class MaintenanceGameVo {
 
@@ -14,20 +15,8 @@ public class MaintenanceGameVo {
     private String gamePlatformName;
 
     @ApiModelProperty(value = "平台状态：0：维护，1：正常")
-    private Integer gameStatus;
+    private Integer platformStatus;
 
-    @ApiModelProperty(value = "维护状态游戏列表")
+    @ApiModelProperty(value = "维护/关闭状态游戏列表")
     private List<AdGame> gameList;
-
-    @Data
-    @ApiModel("维护状态游戏")
-    public static class AdGame {
-
-        @ApiModelProperty(value = "游戏编码")
-        private String gameCode;
-
-        @ApiModelProperty(value = "游戏名称")
-        private String gameName;
-
-    }
 }
