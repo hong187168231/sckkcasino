@@ -21,7 +21,8 @@ public class DateUtil {
 
     public static long next5MinuteTime(){
         long now = System.currentTimeMillis();
-        return (now - now % (1000*60*5) + (100*60*5))/1000;
+        return (now - now % (1000*60*5))/1000;
+//        return (now - now % (1000*60*5) + (100*60*5))/1000;
 
     }
 }
