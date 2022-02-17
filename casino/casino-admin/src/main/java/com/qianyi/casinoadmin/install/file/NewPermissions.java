@@ -70,10 +70,6 @@ public class NewPermissions {
     private void setMemberCenter(Map<String, SysPermission> collect){
         if (collect.containsKey("/user/findUserList")) {
             Long pid = collect.get("/user/findUserList").getId();
-            if (!collect.containsKey("/user/findUserTotal")) {
-                SysPermission sysPermission = new SysPermission("当前查询结果总计", "当前查询结果总计", "/user/findUserTotal", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
-                sysPermissionService.save(sysPermission);
-            }
             if (!collect.containsKey("/bankcard/unboundBankName")) {
                 SysPermission sysPermission = new SysPermission("解除银行卡实名认证", "解除银行卡实名认证", "/bankcard/unboundBankName", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
