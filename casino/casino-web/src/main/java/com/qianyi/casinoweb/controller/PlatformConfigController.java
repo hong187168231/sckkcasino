@@ -2,9 +2,11 @@ package com.qianyi.casinoweb.controller;
 
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.DateUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 @RestController
 @RequestMapping("platformConfig")
@@ -60,6 +63,23 @@ public class PlatformConfigController {
         PeopleProportion peopleProportion = new PeopleProportion();
         BeanUtils.copyProperties(platformConfig, peopleProportion);
         return ResponseUtil.success(peopleProportion);
+    }
+
+    @GetMapping("checkPlatformMaintenanceSwitch")
+    @ApiOperation("检查平台维护开关,true:维护中")
+    @NoAuthentication
+    public ResponseEntity<Boolean> checkPlatformMaintenanceSwitch() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig == null || platformConfig.getMaintenanceStart() == null || platformConfig.getMaintenanceEnd() == null) {
+            return ResponseUtil.success(false);
+        }
+        Integer maintenance = platformConfig.getPlatformMaintenance();
+        boolean switchb = maintenance == Constants.open ? true : false;
+        //先判断开关是否是维护状态，在判断当前时间是否在维护时区间内
+        if (switchb) {
+            switchb = DateUtil.isEffectiveDate(new Date(), platformConfig.getMaintenanceStart(), platformConfig.getMaintenanceEnd());
+        }
+        return ResponseUtil.success(switchb);
     }
 
     @Data
