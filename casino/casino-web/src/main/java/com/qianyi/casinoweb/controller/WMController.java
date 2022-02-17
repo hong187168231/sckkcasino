@@ -140,6 +140,7 @@ public class WMController {
             BigDecimal wmMoney = platformConfig.getWmMoney();
             if (wmMoney != null && wmMoney.compareTo(userCenterMoney) == -1) {
                 userCenterMoney = wmMoney;
+                log.error("userId:{},进游戏加扣是WM余额不足，wm余额={}",third.getUserId(),wmMoney);
             }
         }
 
