@@ -108,7 +108,7 @@ public class PlatformConfigController {
     @Data
     @ApiModel("平台维护开关")
     class PlatformMaintenanceSwitch{
-        @ApiModelProperty("开关状态，true:开启，false:关闭")
+        @ApiModelProperty("开关状态，true:维护中，false:正常")
         private Boolean onOff;
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
