@@ -79,7 +79,7 @@ public class WMController {
     })
     public ResponseEntity openGame(Integer gameType, HttpServletRequest request) {
         //判断游戏状态
-        String gameCode = gameType == null ? gameType.toString() : null;
+        String gameCode = gameType != null ? gameType.toString() : null;
         ResponseEntity response = thirdGameBusiness.checkGame(Constants.PLATFORM_WM_BIG, gameCode);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
             return response;
