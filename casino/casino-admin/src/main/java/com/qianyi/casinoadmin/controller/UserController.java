@@ -354,7 +354,7 @@ public class UserController {
         }
         UserThird userThird = userThirdService.findByUserId(user.getId());
         if (LoginUtil.checkNull(userThird)){
-            return ResponseUtil.custom("该账户尚未登录过第三方平台");
+            return ResponseUtil.success("该账户尚未登录过第三方平台");
         }
         JSONObject jsonObject = userMoneyService.getWMonetUser(user, userThird);
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
@@ -368,7 +368,7 @@ public class UserController {
                 }
                 return ResponseUtil.success(jsonObject.get("data"));
             }else {
-                return ResponseUtil.custom(jsonObject.get("msg").toString());
+                return ResponseUtil.success(jsonObject.get("msg").toString());
             }
         }catch (Exception ex){
             return ResponseUtil.custom("查询失败");
@@ -423,7 +423,7 @@ public class UserController {
                 }
                 return ResponseUtil.success(jsonObject.get("data"));
             }else {
-                return ResponseUtil.custom(jsonObject.get("msg").toString());
+                return ResponseUtil.success(jsonObject.get("msg").toString());
             }
         }catch (Exception ex){
             return ResponseUtil.custom("查询PG/CQ9余额失败");
