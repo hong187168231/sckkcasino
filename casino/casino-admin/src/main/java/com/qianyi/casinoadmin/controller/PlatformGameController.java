@@ -49,7 +49,7 @@ public class PlatformGameController {
     @ApiOperation("平台列表WM")
     public ResponseEntity<PlatformGame> platformListWM() {
         List<PlatformGame> platformGames =  platformGameService.findAll();
-        if(platformGames != null && platformGames.isEmpty()){
+        if(platformGames != null && !platformGames.isEmpty()){
             for (PlatformGame platformGame : platformGames) {
                 if(platformGame.getGamePlatformName().equals("WM")){
                     return ResponseUtil.success(platformGame);
@@ -63,7 +63,7 @@ public class PlatformGameController {
     @ApiOperation("平台列表PG")
     public ResponseEntity<PlatformGame> platformListPG() {
         List<PlatformGame> platformGames =  platformGameService.findAll();
-        if(platformGames != null && platformGames.isEmpty()){
+        if(platformGames != null && !platformGames.isEmpty()){
             for (PlatformGame platformGame : platformGames) {
                 if(platformGame.getGamePlatformName().equals("PG")){
                     return ResponseUtil.success(platformGame);
@@ -77,7 +77,7 @@ public class PlatformGameController {
     @ApiOperation("平台列表CQ9")
     public ResponseEntity<PlatformGame> platformListCQ9() {
         List<PlatformGame> platformGames =  platformGameService.findAll();
-        if(platformGames != null && platformGames.isEmpty()){
+        if(platformGames != null && !platformGames.isEmpty()){
             for (PlatformGame platformGame : platformGames) {
                 if(platformGame.getGamePlatformName().equals("CQ9")){
                     return ResponseUtil.success(platformGame);
