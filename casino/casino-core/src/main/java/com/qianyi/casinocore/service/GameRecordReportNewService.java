@@ -210,7 +210,7 @@ public class GameRecordReportNewService {
 
         if (gameRecordReport.getPlatform() != null) {
             predicates.add(
-                criteriaBuilder.equal(root.get("platform").as(Integer.class), gameRecordReport.getPlatform())
+                criteriaBuilder.equal(root.get("platform").as(String.class), gameRecordReport.getPlatform())
             );
         }
         if (!ObjectUtils.isEmpty(startSetTime) && !ObjectUtils.isEmpty(endSetTime)) {
@@ -266,7 +266,7 @@ public class GameRecordReportNewService {
 
         if (gameRecordReport.getPlatform() != null) {
             predicates.add(
-                builder.equal(root.get("platform").as(Integer.class), gameRecordReport.getPlatform())
+                builder.equal(root.get("platform").as(String.class), gameRecordReport.getPlatform())
             );
         }
         if (!ObjectUtils.isEmpty(startSetTime) && !ObjectUtils.isEmpty(endSetTime)) {
@@ -299,7 +299,7 @@ public class GameRecordReportNewService {
         List<Predicate> predicates = new ArrayList();
         if (gameRecordReport.getPlatform() != null) {
             predicates.add(
-                builder.equal(root.get("platform").as(Integer.class), gameRecordReport.getPlatform())
+                builder.equal(root.get("platform").as(String.class), gameRecordReport.getPlatform())
             );
         }
         if (!ObjectUtils.isEmpty(startSetTime) && !ObjectUtils.isEmpty(endSetTime)) {

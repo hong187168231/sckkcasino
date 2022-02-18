@@ -48,7 +48,7 @@ public class ProxyRebateConfigController {
         if (!CasinoProxyUtil.checkNull(proxyRebateConfig)){
             return ResponseUtil.success(proxyRebateConfig);
         }
-        RebateConfig rebateConfig = rebateConfigService.findFirst();
+        RebateConfig rebateConfig = rebateConfigService.findGameType(gameType);
         return ResponseUtil.success(rebateConfig);
     }
 }
