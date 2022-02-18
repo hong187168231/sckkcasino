@@ -232,7 +232,7 @@ public class GoldenFController {
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
             return response;
         }
-        if (!Constants.PLATFORM_PG.equals(vendorCode)) {
+        if (Constants.PLATFORM_CQ9.equals(vendorCode)) {
             return ResponseUtil.custom("游戏不支持试玩");
         }
         //开游戏
