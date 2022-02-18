@@ -218,8 +218,6 @@ public class ProxyHomePageReportService {
             proxyHomePageReport.setValidbetAmount(validbetAmount);
             proxyHomePageReport.setWinLossAmount(winLoss);
             proxyHomePageReport.setActiveUsers(set.size());
-            gameRecordMap.clear();
-            gameRecordGoldenFMap.clear();
             return set;
         }catch (Exception ex){
             log.error("统计代理{}三方游戏注单失败{}",proxyUser.getUserName(),ex);
