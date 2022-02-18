@@ -33,9 +33,14 @@ public class GameRecordGoldenFJobTest {
     @Autowired
     GameRecordGoldenfEndTimeService gameRecordGoldenfEndTimeService;
 
+
+    //{secret_key=16e4ef534cec559430e07e05eb71c719, start_time=1645104330000, vendor_code=PG, operator_token=7970f61d512b7b681aa149fad927eee8, end_time=1645104630000, page=24179, page_size=1000}
+    //1644588300000l, 1644588600000l
     @Test
     public void should_request_back() {
-        PublicGoldenFApi.ResponseEntity responseEntity = publicGoldenFApi.getPlayerGameRecord(1644588300000l, 1644588600000l, "PG", 1, 1000);
+        Long startTime = 0l;
+        Long endTime = 0l;
+        PublicGoldenFApi.ResponseEntity responseEntity = publicGoldenFApi.getPlayerGameRecord(1645167300000l, 1645167330000l, "PG", 1, 1000);
 
         GameRecordObj gameRecordObj =  JSON.parseObject(responseEntity.getData(), GameRecordObj.class);
 
@@ -68,6 +73,17 @@ public class GameRecordGoldenFJobTest {
         }
 
     }
+
+    @Test
+    public void should_time_vos(){
+        List<GoldenFTimeVO> timeVOS = gameRecordGoldenFJob.getTimes("PG");
+
+        timeVOS.forEach(item ->{
+            log.info("{}",item);
+        });
+    }
+
+
 
     @Test
     public void should_validate_time(){

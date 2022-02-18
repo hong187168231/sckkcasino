@@ -75,16 +75,17 @@ public class GameRecordGoldenFJob {
         return startTime*1000;
     }
 
-    private List<GoldenFTimeVO> getTimes(String vendor){
+    public List<GoldenFTimeVO> getTimes(String vendor){
+        List<GoldenFTimeVO> timeVOS = new ArrayList<>();
         GameRecordGoldenfEndTime gameRecordGoldenfEndTime = gameRecordGoldenfEndTimeService.findFirstByVendorCodeOrderByEndTimeDesc(vendor);
         Long startTime = getGoldenStartTime(gameRecordGoldenfEndTime);
-        Long endTime = System.currentTimeMillis();
+        Long endTime = System.currentTimeMillis()-(60*1000);
         log.info("{},{}",startTime,endTime);
         Long range = endTime-startTime;
+        if(range<=0) return timeVOS;
         log.info("{}",range);
         Long num = range/(5*60*1000);
         log.info("num is {}",num);
-        List<GoldenFTimeVO> timeVOS = new ArrayList<>();
         for(int i=0;i<=num;i++){
             GoldenFTimeVO goldenFTimeVO = new GoldenFTimeVO();
             Long tempEndTime = startTime+(5*60*1000);
@@ -118,17 +119,15 @@ public class GameRecordGoldenFJob {
                 failCount++;
                 continue;
             }
-            if(saveData(responseEntity))
+            if(saveData(responseEntity)){
                 break;
+            }else {
+
+            }
+
             page++;
         }
         processSuccessRequest(startTime,endTime,vendorCode);
-    }
-
-
-
-    private Long getGoldenEndTime(Long startTime){
-        return startTime+(5*60*1000);
     }
 
     private void processSuccessRequest(Long startTime,Long endTime,String vendorCode) {
@@ -140,7 +139,7 @@ public class GameRecordGoldenFJob {
     }
 
     private void processFaildRequest(Long startTime,Long endTime,String vendorCode,PublicGoldenFApi.ResponseEntity responseEntity) {
-
+        log.error("startTime{},endTime{},vendorCode{},responseEntity{}",startTime,endTime,vendorCode,responseEntity);
     }
 
     private boolean checkRequestFail(PublicGoldenFApi.ResponseEntity responseEntity) {
@@ -149,11 +148,10 @@ public class GameRecordGoldenFJob {
 
     private Boolean saveData(PublicGoldenFApi.ResponseEntity responseEntity) {
         GameRecordObj gameRecordObj = JSON.parseObject(responseEntity.getData(), GameRecordObj.class);
-
         List<GameRecordGoldenF> recordGoldenFS = gameRecordObj.getBetlogs();
         processRecords(recordGoldenFS);
-
-        return gameRecordObj.getPage().equals(gameRecordObj.getPageCount());
+        log.info("");
+        return gameRecordObj.getPage() >= gameRecordObj.getPageCount();
     }
 
     private void processRecords(List<GameRecordGoldenF> recordGoldenFS) {
