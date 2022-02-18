@@ -51,6 +51,26 @@ public class UserWashCodeConfigController {
                 BeanUtils.copyProperties(washCodeConfig, userWashCodeConfig, UserWashCodeConfig.class);
                 byUserIdAndPlatform.add(userWashCodeConfig);
             }
+        }else{
+            List<WashCodeConfig> washCodeConfigList = washCodeConfigService.findAll();
+            if(byUserIdAndPlatform.size() != washCodeConfigList.size()){
+                Map<String, UserWashCodeConfig> userWashCodeConfigMap = byUserIdAndPlatform.stream().collect(Collectors.toMap(UserWashCodeConfig::getGameId, serWashCodeConfig -> serWashCodeConfig));
+                Map<String, WashCodeConfig> washCodeConfigMap = washCodeConfigList.stream().collect(Collectors.toMap(WashCodeConfig::getGameId, washCodeConfig -> washCodeConfig));
+                List<UserWashCodeConfig> userWashCodeConfigs = new ArrayList<>();
+                for (String key : washCodeConfigMap.keySet()) {
+                    if(!userWashCodeConfigMap.containsKey(key)){
+                        UserWashCodeConfig userWashCodeConfig = new UserWashCodeConfig();
+                        userWashCodeConfig.setUserId(userId);
+                        BeanUtils.copyProperties(washCodeConfigMap.get(key), userWashCodeConfig, UserWashCodeConfig.class);
+                        userWashCodeConfig.setId(null);
+                        userWashCodeConfigs.add(userWashCodeConfig);
+                    }
+                }
+                if(!userWashCodeConfigs.isEmpty()){
+                    userWashCodeConfigService.saveAll(userWashCodeConfigs);
+                    byUserIdAndPlatform = userWashCodeConfigService.findByUserId(userId);
+                }
+            }
         }
 
         List<UserWashCodeConfig> washCodeConfigs = byUserIdAndPlatform.stream().filter(userWashCodeConfig -> !CasinoProxyUtil.checkNull(userWashCodeConfig.getPlatform())).collect(Collectors.toList());
