@@ -47,10 +47,21 @@ public class CompanyProxyDailyBusiness {
         log.info("processDailyReport start startTime:{} endTime:{}",startTime,endTime);
         //查询当天游戏记录(third_proxy is not null)
         List<CompanyOrderAmountVo> companyOrderAmountVoList = gameRecordService.getStatisticsResult(startTime,endTime);
-        processingData(companyOrderAmountVoList);
+        if(companyOrderAmountVoList.size()>0){
+            processingData(companyOrderAmountVoList);
+        }
         //查询电子游戏数据
         List<CompanyOrderAmountVo> statisticsResult = gameRecordGoldenFService.getStatisticsResult(startTime, endTime);
-        processingData(statisticsResult);
+        if(statisticsResult.size()>0){
+            processingData(statisticsResult);
+        }
+
+        if(companyOrderAmountVoList.size() == 0 && statisticsResult.size()==0) {
+            log.info("first level is no user");
+            return;
+        }
+
+
     }
 
     public void  processingData (List<CompanyOrderAmountVo> companyOrderAmountVoList){

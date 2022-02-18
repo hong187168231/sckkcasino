@@ -69,17 +69,15 @@ public class CompanyProxyMonthBusiness {
         List<CompanyProxyMonth> secondeList= new ArrayList<>();
         List<CompanyProxyMonth> thirdList= new ArrayList<>();
         companyOrderAmountVoList.forEach(item->processOrder(item,firstList,secondeList,thirdList));
-        if(firstList.size() == 0) {
-            log.info("first level is no user");
-            return;
-        }
+
         //查询电子游戏数据
         List<CompanyProxyMonth> firstList1= new ArrayList<>();
         List<CompanyProxyMonth> secondeList1= new ArrayList<>();
         List<CompanyProxyMonth> thirdList1= new ArrayList<>();
         List<CompanyOrderAmountVo> statisticsResult = gameRecordGoldenFService.getStatisticsResult(startTime, endTime);
         statisticsResult.forEach(item->processOrder(item,firstList1,secondeList1,thirdList1));
-        if(firstList.size() == 0) {
+
+        if(firstList.size() == 0 && firstList1.size()==0) {
             log.info("first level is no user");
             return;
         }
