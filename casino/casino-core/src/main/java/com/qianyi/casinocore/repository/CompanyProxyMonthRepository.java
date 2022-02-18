@@ -45,7 +45,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             "  sum(validbet) validbet , \n" +
             "  sum(win_loss) win_loss  \n" +
             "  from game_record gr \n" +
-            "  where settime >= ?1 and settime <= ?2\n" +
+            "  where bet_time >= ?1 and bet_time <= ?2\n" +
             "  group by user_id \n" +
             " ) main_t on u.id = main_t.user_id\n" +
             " left join ( \n" +
@@ -90,7 +90,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             "  sum(validbet) validbet , \n" +
             "  sum(win_loss) win_loss  \n" +
             "  from game_record gr \n" +
-            "  where settime >= ?2 and settime <= ?3\n" +
+            "  where bet_time >= ?2 and bet_time <= ?3\n" +
             "  group by user_id \n" +
             " ) main_t on u.id = main_t.user_id\n" +
             " left join ( \n" +
@@ -132,7 +132,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             "  sum(validbet) validbet , \n" +
             "  sum(win_loss) win_loss  \n" +
             "  from game_record gr \n" +
-            "  where settime >= ?1 and settime <= ?2\n" +
+            "  where bet_time >= ?1 and bet_time <= ?2\n" +
             "  group by user_id \n" +
             " ) main_t on u.id = main_t.user_id\n" +
             " left join ( \n" +
@@ -174,7 +174,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             "  sum(validbet) validbet , \n" +
             "  sum(win_loss) win_loss  \n" +
             "  from game_record gr \n" +
-            "  where settime >= ?2 and settime <= ?3\n" +
+            "  where bet_time >= ?2 and bet_time <= ?3\n" +
             "  group by user_id \n" +
             " ) main_t on u.id = main_t.user_id\n" +
             " left join ( \n" +
@@ -202,7 +202,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             "  sum(validbet) validbet , \n" +
             "  sum(win_loss) win_loss  \n" +
             "  from game_record gr \n" +
-            "  where settime >= ?1 and settime <= ?2\n" +
+            "  where bet_time >= ?1 and bet_time <= ?2\n" +
             "  group by user_id \n" +
             " ) main_t on u.id = main_t.user_id\n" +
             " left join ( \n" +
@@ -230,7 +230,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             "  sum(validbet) validbet , \n" +
             "  sum(win_loss) win_loss  \n" +
             "  from game_record gr \n" +
-            "  where settime >= ?2 and settime <= ?3\n" +
+            "  where bet_time >= ?2 and bet_time <= ?3\n" +
             "  group by user_id \n" +
             " ) main_t on u.id = main_t.user_id\n" +
             " left join ( \n" +
@@ -258,7 +258,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             "  sum(validbet) validbet , \n" +
             "  sum(win_loss) win_loss  \n" +
             "  from game_record gr \n" +
-            "  where settime >= ?2 and settime <= ?3\n" +
+            "  where bet_time >= ?2 and bet_time <= ?3\n" +
             "  group by user_id \n" +
             " ) main_t on u.id = main_t.user_id\n" +
             " left join ( \n" +
@@ -278,7 +278,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             "  sum(validbet) validbet , \n" +
             "  sum(win_loss) win_loss  \n" +
             "  from game_record gr \n" +
-            "  where settime >= ?1 and settime <= ?2\n"
+            "  where bet_time >= ?1 and bet_time <= ?2\n"
             ,nativeQuery = true)
     Map<String,Object> queryReportAll(String startTime,String endTime);
 }
