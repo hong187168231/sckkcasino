@@ -78,11 +78,18 @@ public class WMController {
                     "5. 牛牛  6. 三公  7. 番摊  8. 色碟 9. 鱼虾蟹 10. 炸金花 11. 牌九 12. 二八杠 13.安達巴哈", required = false),
     })
     public ResponseEntity openGame(Integer gameType, HttpServletRequest request) {
-        //判断游戏状态
-        String gameCode = gameType != null ? gameType.toString() : null;
-        ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(Constants.PLATFORM_WM_BIG, gameCode);
-        if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
-            return response;
+        //判断平台和游戏状态
+        if (gameType == null) {
+            ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
+            if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+                return response;
+            }
+        } else {
+            String gameCode = gameType.toString();
+            ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(Constants.PLATFORM_WM_BIG, gameCode);
+            if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+                return response;
+            }
         }
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
@@ -277,8 +284,9 @@ public class WMController {
     @GetMapping("getWmBalance")
     public ResponseEntity<BigDecimal> getWmBalance() {
         //判断平台状态
-        ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(Constants.PLATFORM_WM_BIG, null);
+        ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+            response.setMsg(Constants.PLATFORM_WM_BIG + response.getMsg());
             return response;
         }
         //获取登陆用户
@@ -316,8 +324,9 @@ public class WMController {
     })
     public ResponseEntity<BigDecimal> getWmBalanceApi(String account, Integer lang) {
         //判断平台状态
-        ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(Constants.PLATFORM_WM_BIG, null);
+        ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+            response.setMsg(Constants.PLATFORM_WM_BIG + response.getMsg());
             return response;
         }
         log.info("开始查询WM余额:account={},lang={}", account, lang);
@@ -347,8 +356,9 @@ public class WMController {
     @GetMapping("oneKeyRecover")
     public ResponseEntity oneKeyRecover() {
         //判断平台状态
-        ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(Constants.PLATFORM_WM_BIG, null);
+        ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+            response.setMsg(Constants.PLATFORM_WM_BIG + response.getMsg());
             return response;
         }
         //获取登陆用户
@@ -363,8 +373,9 @@ public class WMController {
     @ApiImplicitParam(name = "userId", value = "用户ID", required = true)
     public ResponseEntity oneKeyRecoverApi(Long userId) {
         //判断平台状态
-        ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(Constants.PLATFORM_WM_BIG, null);
+        ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+            response.setMsg(Constants.PLATFORM_WM_BIG + response.getMsg());
             return response;
         }
         if (!ipWhiteCheck()) {

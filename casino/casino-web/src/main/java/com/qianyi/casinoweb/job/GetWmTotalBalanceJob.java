@@ -1,8 +1,12 @@
 package com.qianyi.casinoweb.job;
 
+import com.qianyi.casinocore.business.ThirdGameBusiness;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.livewm.api.PublicWMApi;
+import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.reponse.ResponseCode;
+import com.qianyi.modulecommon.reponse.ResponseEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +27,8 @@ public class GetWmTotalBalanceJob {
     @Autowired
     private PlatformConfigService platformConfigService;
     @Autowired
+    private ThirdGameBusiness thirdGameBusiness;
+    @Autowired
     private GameRecordAsyncOper gameRecordAsyncOper;
     @Value("${spring.profiles.active}")
     private String active;
@@ -31,6 +37,10 @@ public class GetWmTotalBalanceJob {
     public void tasks() {
         try {
             log.info("开始查询平台在WM的总余额");
+            ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
+            if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+                log.error("{},查询平台在WM的总余额失败", Constants.PLATFORM_WM_BIG + response.getMsg());
+            }
             BigDecimal agentBalance = wmApi.getAgentBalance(0);
             if (agentBalance == null) {
                 log.error("查询平台在WM的总余额远程请求异常");

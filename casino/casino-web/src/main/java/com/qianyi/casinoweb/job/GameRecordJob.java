@@ -1,10 +1,13 @@
 package com.qianyi.casinoweb.job;
 
 import com.alibaba.fastjson.JSON;
+import com.qianyi.casinocore.business.ThirdGameBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.reponse.ResponseCode;
+import com.qianyi.modulecommon.reponse.ResponseEntity;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +43,8 @@ public class GameRecordJob {
     @Autowired
     UserThirdService userThirdService;
     @Autowired
+    ThirdGameBusiness thirdGameBusiness;
+    @Autowired
     UserService userService;
     @Autowired
     PlatformConfigService platformConfigService;
@@ -52,6 +57,10 @@ public class GameRecordJob {
     @Scheduled(cron = "0 0/5 * * * ?")
     public void pullGameRecord() {
         log.info("定时器开始拉取游戏记录");
+        ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
+        if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+            log.error("{},游戏记录拉取失败", Constants.PLATFORM_WM_BIG + response.getMsg());
+        }
         String timeMsg = null;
         try {
             //多环境不能同时发起请求，test环境延迟30s执行，正式环境优先,报表查询需间隔30秒，未搜寻到数据需间隔10秒。
