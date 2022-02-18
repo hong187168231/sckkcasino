@@ -58,7 +58,7 @@ public class SqlConst {
         + " -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0) total_amount\n"
         + "from user u\n" + "left join ( \n" + "  select user_id , \n" + "  count(1) num, \n"
         + "  sum(bet_amount) bet_amount, \n" + "  sum(win_amount-bet_amount) win_loss  \n"
-        + "  from game_record_goldenf grg \n" + "  where vendor_code = {5} \n"
+        + "  from game_record_goldenf grg \n" + "  where vendor_code = {5}  and \n"
         + "   create_at_str >= {0} and create_at_str <= {1}\n" + "  group by user_id \n"
         + " ) goldenf_t on u.id = goldenf_t.user_id\n" + " left join ( \n"
         + "  select user_id , sum(amount) wash_amount  \n" + "  from wash_code_change wcc  \n"
