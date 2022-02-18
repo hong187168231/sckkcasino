@@ -56,6 +56,11 @@ public class ResponseUtil {
         return new ResponseEntity(translateMsg);
     }
 
+    public static ResponseEntity customBefore(Object data, String msg) {
+        String translateMsg = data + " " + messageUtil.get(msg);
+        return new ResponseEntity(translateMsg);
+    }
+
     public static ResponseEntity risk() {
         return new ResponseEntity(ResponseCode.RISK,messageUtil.get(ResponseCode.RISK.getMsg()));
 
