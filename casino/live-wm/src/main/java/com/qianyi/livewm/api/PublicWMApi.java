@@ -186,7 +186,7 @@ public class PublicWMApi {
             BigDecimal decimal = new BigDecimal(String.valueOf(entity.getResult()));
             return decimal;
         }
-        throw new Exception("未获取到信息");
+        throw new Exception(String.valueOf(entity));
     }
 
     //取用户余额
@@ -214,7 +214,7 @@ public class PublicWMApi {
             BigDecimal decimal = new BigDecimal(String.valueOf(entity.getResult()));
             return decimal;
         }
-        throw new Exception("未获取到信息");
+        throw new Exception(String.valueOf(entity));
     }
 
     //开关游戏帐号的登陆和下注
