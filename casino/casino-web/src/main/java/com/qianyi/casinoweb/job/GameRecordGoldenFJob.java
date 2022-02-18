@@ -90,7 +90,7 @@ public class GameRecordGoldenFJob {
             GoldenFTimeVO goldenFTimeVO = new GoldenFTimeVO();
             Long tempEndTime = startTime+(5*60*1000);
             goldenFTimeVO.setStartTime(startTime);
-            goldenFTimeVO.setEndTime(tempEndTime);
+            goldenFTimeVO.setEndTime(tempEndTime>endTime?endTime:tempEndTime);
             timeVOS.add(goldenFTimeVO);
             startTime = tempEndTime;
         }
