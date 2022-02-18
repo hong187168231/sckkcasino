@@ -334,7 +334,7 @@ public class ProxyReportController {
             //wm有效投注
             proxyReportVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
             //电子有效投注
-            proxyReportVo.setPerformance(gameRecordGoldenFService.findSumBetAmount(userId,startTime+start,endTime+end).add(proxyReportVo.getPerformance()));
+            proxyReportVo.setPerformance(gameRecordGoldenFService.findSumBetAmount(id,startTime,endTime).add(proxyReportVo.getPerformance()));
             if (shareProfitChanges == null || shareProfitChanges.size() == CommonConst.NUMBER_0){
                 proxyReportVo.setCommission("0");
             }else {
