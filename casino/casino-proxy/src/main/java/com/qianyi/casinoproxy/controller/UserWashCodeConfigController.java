@@ -75,9 +75,7 @@ public class UserWashCodeConfigController {
 
         List<UserWashCodeConfig> washCodeConfigs = byUserIdAndPlatform.stream().filter(userWashCodeConfig -> !CasinoProxyUtil.checkNull(userWashCodeConfig.getPlatform())).collect(Collectors.toList());
 
-        Map<String, List<UserWashCodeConfig>> collect = washCodeConfigs.stream().collect(Collectors.groupingBy(UserWashCodeConfig::getPlatform));
-
-        return ResponseUtil.success(collect);
+        return ResponseUtil.success(washCodeConfigs);
     }
 
 
@@ -87,11 +85,11 @@ public class UserWashCodeConfigController {
         //第一次编辑，保存所有洗码数据
 
         if(userWashCodeConfigs != null && userWashCodeConfigs.size() > 0){
-            for (UserWashCodeConfig u : userWashCodeConfigs){
-                if (u.getRate().compareTo(BigDecimal.ZERO) < CommonConst.NUMBER_0){
+            for (UserWashCodeConfig userWashCodeConfig : userWashCodeConfigs) {
+                if (userWashCodeConfig.getRate().compareTo(BigDecimal.ZERO) < CommonConst.NUMBER_0){
                     return ResponseUtil.custom("参数不合法");
                 }
-                if(u.getRate().compareTo(BigDecimal.valueOf(0.9)) > 0){
+                if(userWashCodeConfig.getRate().compareTo(BigDecimal.valueOf(0.9)) > 0){
                     return ResponseUtil.custom("洗码倍率超过限制");
                 }
             }
@@ -104,6 +102,7 @@ public class UserWashCodeConfigController {
                     UserWashCodeConfig userWashCodeConfig = new UserWashCodeConfig();
                     userWashCodeConfig.setUserId(userId);
                     BeanUtils.copyProperties(washCodeConfig, userWashCodeConfig, UserWashCodeConfig.class);
+                    userWashCodeConfig.setId(null);
                     codeConfigs.add(userWashCodeConfig);
                 }
             }else{

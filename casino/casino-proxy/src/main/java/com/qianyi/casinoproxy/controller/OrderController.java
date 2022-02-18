@@ -53,14 +53,16 @@ public class OrderController {
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "account", value = "用户账号", required = false),
             @ApiImplicitParam(name = "no", value = "订单号", required = false),
+            @ApiImplicitParam(name = "gamePlatformName", value = "平台名称: WM, PG/CQ9", required = false),
     })
     @GetMapping("findOrderList")
-    public ResponseEntity<OrderVo> findOrderList(Integer pageSize, Integer pageCode,  String account, String no){
+    public ResponseEntity<OrderVo> findOrderList(Integer pageSize, Integer pageCode,  String account, String no,   String gamePlatformName){
         Order order = new Order();
         if (CasinoProxyUtil.setParameter(order)){
             return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
         }
         order.setNo(no);
+        order.setGamePlatformName(gamePlatformName);
         if (!CasinoProxyUtil.checkNull(account)){
             User user = userService.findByAccount(account);
             if (CasinoProxyUtil.checkNull(user)){

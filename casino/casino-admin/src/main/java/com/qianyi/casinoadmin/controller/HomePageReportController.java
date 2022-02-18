@@ -273,16 +273,14 @@ public class HomePageReportController {
             BigDecimal gameRecordWinLoss = gameRecordSum.get("winLoss") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("winLoss").toString());
 
             Map<String, Object> gameRecordGoldenFSum = gameRecordGoldenFService.findSumBetAndWinLoss(startTime, endTime);
-            BigDecimal gameRecordGoldenFValidbet = gameRecordGoldenFSum.get("betAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("betAmount").toString());
-            BigDecimal gameRecordGoldenFWinLoss = gameRecordGoldenFSum.get("winAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("winAmount").toString());
+            BigDecimal gameRecordGoldenFValidbet = gameRecordGoldenFSum.get("betAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("betAmount").toString());
+            BigDecimal gameRecordGoldenFWinLoss = gameRecordGoldenFSum.get("winAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("winAmount").toString());
 
             homePageReport.setValidbetAmount(gameRecordValidbet.add(gameRecordGoldenFValidbet));
             homePageReport.setWinLossAmount(BigDecimal.ZERO.subtract(gameRecordWinLoss).subtract(gameRecordGoldenFWinLoss));
             Set<Long> gameRecordGoldenFUser = gameRecordGoldenFService.findGroupByUser(startTime, endTime);
             Set<Long> gameRecordUser = gameRecordService.findGroupByUser(startTime, endTime);
             gameRecordGoldenFUser.addAll(gameRecordUser);
-            gameRecordSum.clear();
-            gameRecordGoldenFSum.clear();
             return gameRecordGoldenFUser;
         }catch (Exception ex){
             log.error("统计三方游戏注单失败",ex);

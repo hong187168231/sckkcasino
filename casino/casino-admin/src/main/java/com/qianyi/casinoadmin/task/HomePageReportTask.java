@@ -134,9 +134,6 @@ public class HomePageReportTask {
             homePageReport.setWinLossAmount(gameRecordWinLoss.add(gameRecordGoldenFWinLoss));
             gameRecordUser.addAll(gameRecordGoldenFUser);
             homePageReport.setActiveUsers(gameRecordUser.size());
-            gameRecordSum.clear();
-            gameRecordUser.clear();
-            gameRecordGoldenFSum.clear();
         }catch (Exception ex){
             log.error("统计三方游戏注单失败",ex);
         }
