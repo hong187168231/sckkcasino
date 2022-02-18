@@ -208,7 +208,7 @@ public class GameRecordReportNewService {
             );
         }
 
-        if (gameRecordReport.getPlatform() != null) {
+        if (!com.qianyi.modulecommon.util.CommonUtil.checkNull(gameRecordReport.getPlatform())) {
             predicates.add(
                 criteriaBuilder.equal(root.get("platform").as(String.class), gameRecordReport.getPlatform())
             );
@@ -264,7 +264,7 @@ public class GameRecordReportNewService {
             );
         }
 
-        if (gameRecordReport.getPlatform() != null) {
+        if (!com.qianyi.modulecommon.util.CommonUtil.checkNull(gameRecordReport.getPlatform())) {
             predicates.add(
                 builder.equal(root.get("platform").as(String.class), gameRecordReport.getPlatform())
             );
@@ -297,7 +297,7 @@ public class GameRecordReportNewService {
         );
 
         List<Predicate> predicates = new ArrayList();
-        if (gameRecordReport.getPlatform() != null) {
+        if (!com.qianyi.modulecommon.util.CommonUtil.checkNull(gameRecordReport.getPlatform())) {
             predicates.add(
                 builder.equal(root.get("platform").as(String.class), gameRecordReport.getPlatform())
             );
