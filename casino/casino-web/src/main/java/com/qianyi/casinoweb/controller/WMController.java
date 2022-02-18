@@ -286,7 +286,6 @@ public class WMController {
         //判断平台状态
         ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
-            response.setMsg(Constants.PLATFORM_WM_BIG + response.getMsg());
             return response;
         }
         //获取登陆用户
@@ -326,7 +325,6 @@ public class WMController {
         //判断平台状态
         ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
-            response.setMsg(Constants.PLATFORM_WM_BIG + response.getMsg());
             return response;
         }
         log.info("开始查询WM余额:account={},lang={}", account, lang);
@@ -358,7 +356,6 @@ public class WMController {
         //判断平台状态
         ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
-            response.setMsg(Constants.PLATFORM_WM_BIG + response.getMsg());
             return response;
         }
         //获取登陆用户
@@ -375,7 +372,6 @@ public class WMController {
         //判断平台状态
         ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
-            response.setMsg(Constants.PLATFORM_WM_BIG + response.getMsg());
             return response;
         }
         if (!ipWhiteCheck()) {

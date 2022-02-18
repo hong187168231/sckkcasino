@@ -217,13 +217,13 @@ public class ThirdGameBusiness {
         }
         PlatformGame platformGame = platformGameService.findByGamePlatformName(vendorCode);
         if (platformGame == null) {
-            return ResponseUtil.custom("平台不存在");
+            return ResponseUtil.customBefore(vendorCode,"平台不存在");
         }
         if (platformGame.getGameStatus() == 0) {
-            return ResponseUtil.custom("平台维护中");
+            return ResponseUtil.customBefore(vendorCode,"平台维护中");
         }
         if (platformGame.getGameStatus() == 2) {
-            return ResponseUtil.custom("平台已关闭");
+            return ResponseUtil.customBefore(vendorCode,"平台已关闭");
         }
         return ResponseUtil.success();
     }
