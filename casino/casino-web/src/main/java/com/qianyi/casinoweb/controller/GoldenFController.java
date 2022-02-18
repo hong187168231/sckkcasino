@@ -154,7 +154,7 @@ public class GoldenFController {
         }
         if (!ObjectUtils.isEmpty(entity.getErrorCode())) {
             log.error("userId:{},errorCode={},errorMsg={}", third.getUserId(), entity.getErrorCode(), entity.getErrorMessage());
-            return ResponseUtil.custom("进入游戏失败,请联系客服");
+            return ResponseUtil.custom("服务器异常,请重新操作");
         }
         JSONObject jsonData = JSONObject.parseObject(entity.getData());
         String gameUrl = jsonData.getString("game_url");
@@ -245,7 +245,7 @@ public class GoldenFController {
         }
         if (!ObjectUtils.isEmpty(entity.getErrorCode())) {
             log.error("errorCode={},errorMsg={}", entity.getErrorCode(), entity.getErrorMessage());
-            return ResponseUtil.custom("进入游戏失败,请联系客服");
+            return ResponseUtil.custom("服务器异常,请重新操作");
         }
         JSONObject jsonData = JSONObject.parseObject(entity.getData());
         String gameUrl = jsonData.getString("game_url");
