@@ -235,10 +235,6 @@ public class GoldenFController {
         if (!Constants.PLATFORM_PG.equals(vendorCode)) {
             return ResponseUtil.custom("游戏不支持试玩");
         }
-        ResponseEntity responseEntity = thirdGameBusiness.checkPlatformAndGameStatus(vendorCode, gameCode);
-        if (responseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
-            return responseEntity;
-        }
         //开游戏
         String language = request.getHeader(Constants.LANGUAGE);
         String languageCode = LanguageEnum.getLanguageCode(language);
@@ -373,7 +369,7 @@ public class GoldenFController {
         vo.setPlatformStatus(platformGame.getGameStatus());
         //维护关闭状态的游戏
         List<Integer> gameStatusList = new ArrayList<>();
-        gameStatusList.add(1);
+        gameStatusList.add(0);
         gameStatusList.add(2);
         List<AdGame> gameList = adGamesService.findByGamePlatformNameAndGamesStatusIn(gamePlatformName, gameStatusList);
         vo.setGameList(gameList);
