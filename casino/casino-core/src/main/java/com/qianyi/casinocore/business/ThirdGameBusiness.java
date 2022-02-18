@@ -210,19 +210,30 @@ public class ThirdGameBusiness {
         asyncService.executeAsync(vo);
     }
 
-    public ResponseEntity checkPlatformAndGameStatus(String vendorCode, String gameCode) {
+
+    public ResponseEntity checkPlatformStatus(String vendorCode) {
+        if(ObjectUtils.isEmpty(vendorCode)){
+            return ResponseUtil.custom("平台不存在");
+        }
         PlatformGame platformGame = platformGameService.findByGamePlatformName(vendorCode);
         if (platformGame == null) {
-            return ResponseUtil.custom("产品不存在");
+            return ResponseUtil.custom("平台不存在");
         }
         if (platformGame.getGameStatus() == 0) {
-            return ResponseUtil.custom("产品维护中");
+            return ResponseUtil.custom("平台维护中");
         }
         if (platformGame.getGameStatus() == 2) {
-            return ResponseUtil.custom("产品已关闭");
+            return ResponseUtil.custom("平台已关闭");
         }
-        if (ObjectUtils.isEmpty(gameCode)){
-            return ResponseUtil.success();
+        return ResponseUtil.success();
+    }
+
+    public ResponseEntity checkGameStatus(String vendorCode, String gameCode) {
+        if(ObjectUtils.isEmpty(vendorCode)){
+            return ResponseUtil.custom("平台不存在");
+        }
+        if(ObjectUtils.isEmpty(gameCode)){
+            return ResponseUtil.custom("游戏不存在");
         }
         AdGame adGame = adGamesService.findByGamePlatformNameAndGameCode(vendorCode, gameCode);
         if (adGame == null) {
@@ -235,5 +246,14 @@ public class ThirdGameBusiness {
             return ResponseUtil.custom("游戏已关闭");
         }
         return ResponseUtil.success();
+    }
+
+    public ResponseEntity checkPlatformAndGameStatus(String vendorCode, String gameCode) {
+        ResponseEntity presponse = checkPlatformStatus(vendorCode);
+        if (presponse.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return presponse;
+        }
+        ResponseEntity gresponse = checkGameStatus(vendorCode, gameCode);
+        return gresponse;
     }
 }
