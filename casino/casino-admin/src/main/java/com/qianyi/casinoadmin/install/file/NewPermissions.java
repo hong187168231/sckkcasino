@@ -57,6 +57,14 @@ public class NewPermissions {
             //第三方游戏管理
             thirdGameMange();
         }
+        if(collect.containsKey("/order/findOrderList")){
+            SysPermission sysPermission = collect.get("/order/findOrderList");
+            if(sysPermission.getName().equals("WM资金明细")){
+                sysPermission.setName("第三方资金明细");
+                sysPermission.setDescritpion("第三方资金明细");
+                sysPermissionService.save(sysPermission);
+            }
+        }
         sysPermissionService.saveAllList(sysPermissions);
     }
 
