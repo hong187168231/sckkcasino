@@ -24,11 +24,9 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,7 +38,6 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 @RestController
@@ -59,7 +56,7 @@ public class GoldenFController {
     @Autowired
     private PublicGoldenFApi goldenFApi;
     @Autowired
-    private ThirdGameBusiness gameBusiness;
+    private ThirdGameBusiness thirdGameBusiness;
     @Autowired
     private PlatformGameService platformGameService;
     @Autowired
@@ -85,7 +82,7 @@ public class GoldenFController {
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
-        ResponseEntity response = gameBusiness.checkGame(vendorCode, gameCode);
+        ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(vendorCode, gameCode);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
             return response;
         }
@@ -118,7 +115,7 @@ public class GoldenFController {
             }
         }
         //转出WM游戏的余额
-        gameBusiness.oneKeyRecoverWm(authId);
+        thirdGameBusiness.oneKeyRecoverWm(authId);
         //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(authId);
         BigDecimal userCenterMoney = BigDecimal.ZERO;
@@ -230,12 +227,13 @@ public class GoldenFController {
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
+        //判断平台和游戏状态
+        ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(vendorCode, gameCode);
+        if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return response;
+        }
         if (!Constants.PLATFORM_PG.equals(vendorCode)) {
             return ResponseUtil.custom("游戏不支持试玩");
-        }
-        ResponseEntity responseEntity = gameBusiness.checkGame(vendorCode, gameCode);
-        if (responseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
-            return responseEntity;
         }
         //开游戏
         String language = request.getHeader(Constants.LANGUAGE);
@@ -263,7 +261,7 @@ public class GoldenFController {
         if (third == null || ObjectUtils.isEmpty(third.getGoldenfAccount())) {
             return ResponseUtil.success(BigDecimal.ZERO);
         }
-        ResponseEntity<BigDecimal> responseEntity = gameBusiness.getBalanceGoldenF(third.getGoldenfAccount(), authId);
+        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getBalanceGoldenF(third.getGoldenfAccount(), authId);
         return responseEntity;
     }
 
@@ -285,7 +283,7 @@ public class GoldenFController {
         if (third == null || ObjectUtils.isEmpty(third.getGoldenfAccount())) {
             return ResponseUtil.custom("当前用户暂未进入过游戏");
         }
-        ResponseEntity<BigDecimal> responseEntity = gameBusiness.getBalanceGoldenF(third.getGoldenfAccount(), userId);
+        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getBalanceGoldenF(third.getGoldenfAccount(), userId);
         return responseEntity;
     }
 
@@ -295,7 +293,7 @@ public class GoldenFController {
     public ResponseEntity oneKeyRecover() {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
-        return gameBusiness.oneKeyRecoverGoldenF(userId);
+        return thirdGameBusiness.oneKeyRecoverGoldenF(userId);
     }
 
     @ApiOperation("一键回收用户PG/CQ9余额外部接口")
@@ -307,7 +305,7 @@ public class GoldenFController {
         if (!ipWhiteCheck()) {
             return ResponseUtil.custom("ip禁止访问");
         }
-        return gameBusiness.oneKeyRecoverGoldenF(userId);
+        return thirdGameBusiness.oneKeyRecoverGoldenF(userId);
     }
 /*
 
@@ -350,7 +348,7 @@ public class GoldenFController {
 */
 
 
-    @ApiOperation("查询WM,PG,CQ9维护状态的游戏")
+    @ApiOperation("查询WM,PG,CQ9隐藏、维护状态的游戏")
     @GetMapping("/maintenanceGameList")
     @NoAuthentication
     public ResponseEntity<List<MaintenanceGameVo>> maintenanceGameList() {
@@ -368,17 +366,13 @@ public class GoldenFController {
         MaintenanceGameVo vo = new MaintenanceGameVo();
         vo.setGamePlatformName(gamePlatformName);
         PlatformGame platformGame = platformGameService.findByGamePlatformName(gamePlatformName);
-        vo.setGameStatus(platformGame.getGameStatus());
-        List<MaintenanceGameVo.AdGame> adGameList = new ArrayList<>();
-        if (vo.getGameStatus() == Constants.open) {
-            List<AdGame> gameList = adGamesService.findByGamePlatformNameAndGamesStatus(gamePlatformName,Constants.close);
-            for (AdGame adGame : gameList) {
-                MaintenanceGameVo.AdGame game = new MaintenanceGameVo.AdGame();
-                BeanUtils.copyProperties(adGame, game);
-                adGameList.add(game);
-            }
-        }
-        vo.setGameList(adGameList);
+        vo.setPlatformStatus(platformGame.getGameStatus());
+        //维护关闭状态的游戏
+        List<Integer> gameStatusList = new ArrayList<>();
+        gameStatusList.add(0);
+        gameStatusList.add(2);
+        List<AdGame> gameList = adGamesService.findByGamePlatformNameAndGamesStatusIn(gamePlatformName, gameStatusList);
+        vo.setGameList(gameList);
         return vo;
     }
 

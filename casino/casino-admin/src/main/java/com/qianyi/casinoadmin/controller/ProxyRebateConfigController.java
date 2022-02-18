@@ -63,7 +63,7 @@ public class ProxyRebateConfigController {
             jsonObject.put("tag", tag);
             return ResponseUtil.success(jsonObject);
         }
-        RebateConfig rebateConfig = rebateConfigService.findFirst();
+        RebateConfig rebateConfig = rebateConfigService.findGameType(gameType);
         tag = CommonConst.NUMBER_0;
         jsonObject.put("data", rebateConfig);
         jsonObject.put("tag", tag);
