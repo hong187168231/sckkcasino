@@ -25,7 +25,7 @@
         <!--滚动输出策略-->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!--路径-->
-            <fileNamePattern>casino-admin-logs/info.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <fileNamePattern>../logs/casino-admin/info.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
             <!--保存的时间（天数）-->
             <maxHistory>30</maxHistory>
             <!--日志文件的总大小-->
@@ -51,7 +51,7 @@
         <!--滚动输出策略-->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!--路径-->
-            <fileNamePattern>casino-admin-logs/warn.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <fileNamePattern>../logs/casino-admin/warn.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
             <!--保存的时间（天数）-->
             <maxHistory>30</maxHistory>
             <!--日志文件的总大小-->
@@ -75,7 +75,7 @@
         <!--滚动输出策略-->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!--路径-->
-            <fileNamePattern>casino-admin-logs/error.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <fileNamePattern>../logs/casino-admin/error.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
             <!--保存的时间（天数）-->
             <maxHistory>30</maxHistory>
             <!--日志文件的总大小-->
