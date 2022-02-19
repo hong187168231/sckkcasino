@@ -1,16 +1,21 @@
 package com.qianyi.casinoweb.job;
 
 import com.alibaba.fastjson.JSON;
+import com.qianyi.casinocore.constant.GoldenFConstant;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinoweb.util.DateUtil;
 import com.qianyi.casinoweb.vo.GameRecordObj;
+import com.qianyi.casinoweb.vo.GoldenFTimeVO;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
 import com.qianyi.modulecommon.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -42,21 +47,61 @@ public class GameRecordGoldenFJob {
     @Autowired
     private PlatformGameService platformGameService;
 
+    //每隔5分钟执行一次
+    @Scheduled(cron = "0 0/2 * * * ?")
     public void pullGoldenF(){
         pullGameRecord(Constants.PLATFORM_PG);
         pullGameRecord(Constants.PLATFORM_CQ9);
     }
 
-
     private void pullGameRecord(String vendorCode){
-
         //从数据库获取最近的拉单时间和平台
         // 获取 starttime
 //        Long startTime = 1644588300000l;
 //        Long endTime = 1644588600000l;
-        Long startTime = getGoldenStartTime(vendorCode);
+        List<GoldenFTimeVO> timeVOS = getTimes(vendorCode);
+        timeVOS.forEach(item ->{
+            excutePull(vendorCode,item.getStartTime(),item.getEndTime());
+        });
 
-        Long endTime = getGoldenEndTime(startTime);
+    }
+
+    private Long getGoldenStartTime(GameRecordGoldenfEndTime gameRecordGoldenfEndTime) {
+        Long startTime=0l;
+        if(gameRecordGoldenfEndTime==null){
+            startTime = DateUtil.next5MinuteTime();
+        }else
+            startTime = gameRecordGoldenfEndTime.getEndTime();
+        return startTime*1000;
+    }
+
+    public List<GoldenFTimeVO> getTimes(String vendor){
+        List<GoldenFTimeVO> timeVOS = new ArrayList<>();
+        GameRecordGoldenfEndTime gameRecordGoldenfEndTime = gameRecordGoldenfEndTimeService.findFirstByVendorCodeOrderByEndTimeDesc(vendor);
+        Long startTime = getGoldenStartTime(gameRecordGoldenfEndTime);
+        Long endTime = System.currentTimeMillis()-(60*1000);
+        log.info("{},{}",startTime,endTime);
+        Long range = endTime-startTime;
+        if(range<=0) return timeVOS;
+        log.info("{}",range);
+        Long num = range/(5*60*1000);
+        log.info("num is {}",num);
+        for(int i=0;i<=num;i++){
+            GoldenFTimeVO goldenFTimeVO = new GoldenFTimeVO();
+            Long tempEndTime = startTime+(5*60*1000);
+            goldenFTimeVO.setStartTime(startTime);
+            goldenFTimeVO.setEndTime(tempEndTime>endTime?endTime:tempEndTime);
+            timeVOS.add(goldenFTimeVO);
+            startTime = tempEndTime;
+        }
+        log.info("{}",timeVOS);
+        return timeVOS;
+    }
+
+
+    private void excutePull(String vendorCode, Long startTime, Long endTime){
+
+
         log.info("startime is {}  endtime is {}",startTime,endTime);
         Integer failCount = 0;
 
@@ -68,31 +113,21 @@ public class GameRecordGoldenFJob {
             // 获取数据
             PublicGoldenFApi.ResponseEntity responseEntity = publicGoldenFApi.getPlayerGameRecord(startTime, endTime, vendorCode, page, pageSize);
 
-            if(checkRequestFail(responseEntity)){
+            if(responseEntity==null || checkRequestFail(responseEntity)){
                 processFaildRequest(startTime,endTime,vendorCode,responseEntity);
                 if(failCount>=2) break;
                 failCount++;
                 continue;
             }
-            if(saveData(responseEntity))
+            if(saveData(responseEntity)){
                 break;
+            }else {
+
+            }
+
             page++;
         }
         processSuccessRequest(startTime,endTime,vendorCode);
-    }
-
-    private Long getGoldenStartTime(String vendor) {
-        GameRecordGoldenfEndTime gameRecordGoldenfEndTime = gameRecordGoldenfEndTimeService.findFirstByVendorCodeOrderByEndTimeDesc(vendor);
-        Long startTime = 0l;
-        if(gameRecordGoldenfEndTime==null){
-            startTime = DateUtil.next5MinuteTime();
-        }else
-            startTime = gameRecordGoldenfEndTime.getEndTime();
-        return startTime*1000;
-    }
-
-    private Long getGoldenEndTime(Long startTime){
-        return startTime+(5*60*1000);
     }
 
     private void processSuccessRequest(Long startTime,Long endTime,String vendorCode) {
@@ -104,7 +139,7 @@ public class GameRecordGoldenFJob {
     }
 
     private void processFaildRequest(Long startTime,Long endTime,String vendorCode,PublicGoldenFApi.ResponseEntity responseEntity) {
-
+        log.error("startTime{},endTime{},vendorCode{},responseEntity{}",startTime,endTime,vendorCode,responseEntity);
     }
 
     private boolean checkRequestFail(PublicGoldenFApi.ResponseEntity responseEntity) {
@@ -113,17 +148,18 @@ public class GameRecordGoldenFJob {
 
     private Boolean saveData(PublicGoldenFApi.ResponseEntity responseEntity) {
         GameRecordObj gameRecordObj = JSON.parseObject(responseEntity.getData(), GameRecordObj.class);
-
         List<GameRecordGoldenF> recordGoldenFS = gameRecordObj.getBetlogs();
         processRecords(recordGoldenFS);
-
-        return gameRecordObj.getPage() == gameRecordObj.getPageCount();
+        log.info("");
+        return gameRecordObj.getPage() >= gameRecordObj.getPageCount();
     }
 
     private void processRecords(List<GameRecordGoldenF> recordGoldenFS) {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         recordGoldenFS.forEach(item->{
             UserThird userThird = userThirdService.findByGoldenfAccount(item.getPlayerName());
+            if(userThird == null)
+                return;
             User user = userService.findById(userThird.getUserId());
             item.setUserId(userThird.getUserId());
             item.setFirstProxy(user.getFirstProxy());
@@ -132,16 +168,30 @@ public class GameRecordGoldenFJob {
             if(item.getCreatedAt()==null)
                 log.info("{}",item);
             item.setCreateAtStr(DateUtil.timeStamp2Date(item.getCreatedAt(),""));
-            GameRecord gameRecord = combineGameRecord(item);
-            GameRecordGoldenF gameRecordGoldenF = gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
-            if(gameRecordGoldenF==null)
-                gameRecordGoldenFService.save(item);
-
-            processBusiness(item,gameRecord,platformConfig);
+            saveToDB(item,platformConfig);
         });
     }
 
+    private void saveToDB(GameRecordGoldenF item,PlatformConfig platformConfig) {
+        try {
+            GameRecordGoldenF gameRecordGoldenF = gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
+            if(gameRecordGoldenF==null){
+                gameRecordGoldenFService.save(item);
+                GameRecord gameRecord = combineGameRecord(item);
+                processBusiness(item,gameRecord,platformConfig);
+            }
+        }catch (Exception e){
+            log.error("",e);
+        }
+
+    }
+
+
     private void processBusiness(GameRecordGoldenF gameRecordGoldenF,GameRecord gameRecord, PlatformConfig platformConfig) {
+        if(gameRecordGoldenF.getBetAmount().compareTo(BigDecimal.ZERO)==0)
+            return;
+        if(!gameRecordGoldenF.getTransType().equals(GoldenFConstant.GOLDENF_STAKE))
+            return;
         //洗码
         gameRecordAsyncOper.washCode(gameRecordGoldenF.getVendorCode(), gameRecord);
         //扣减打码量
@@ -157,7 +207,7 @@ public class GameRecordGoldenFJob {
         gameRecord.setBetId(item.getBetId());
         gameRecord.setValidbet(item.getBetAmount().toString());
         gameRecord.setUserId(item.getUserId());
-        gameRecord.setGameId(adGame.getGameCode());
+        gameRecord.setGameCode(adGame.getGameCode());
         gameRecord.setGname(adGame.getGameName());
         return gameRecord;
     }
