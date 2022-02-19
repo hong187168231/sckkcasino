@@ -172,11 +172,11 @@ public class ReportController {
     @ApiOperation("查询个人报表总计")
     @GetMapping("/queryTotal")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userName", value = "账号", required = false),
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
+        @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
+        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
-    public ResponseEntity<Map<String,Object>> queryTotal(String userName,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+    public ResponseEntity<Map<String,Object>> queryTotal(String platform,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(startDate,endDate)){
             return ResponseUtil.custom("参数不合法");
@@ -190,9 +190,8 @@ public class ReportController {
         calendar.add(Calendar.HOUR, 12);
         endDate = calendar.getTime();
         String endTime = DateUtil.dateToPatten(endDate);
-        Map<String,Object> result = reportService.queryAllTotal(startTime,endTime);
+        Map<String,Object> result = userService.findMap(platform,startTime,endTime);
         HistoryTotal itemObject = getHistoryItem(result);
-
         return ResponseUtil.success(itemObject);
     }
 
