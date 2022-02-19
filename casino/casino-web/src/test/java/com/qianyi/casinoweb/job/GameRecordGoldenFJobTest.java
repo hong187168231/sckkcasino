@@ -40,7 +40,7 @@ public class GameRecordGoldenFJobTest {
     public void should_request_back() {
         Long startTime = 0l;
         Long endTime = 0l;
-        PublicGoldenFApi.ResponseEntity responseEntity = publicGoldenFApi.getPlayerGameRecord(1645167300000l, 1645167330000l, "PG", 1, 1000);
+        PublicGoldenFApi.ResponseEntity responseEntity = publicGoldenFApi.getPlayerGameRecord(1645179900000l, 1645180200000l, "PG", 1, 1000);
 
         GameRecordObj gameRecordObj =  JSON.parseObject(responseEntity.getData(), GameRecordObj.class);
 
