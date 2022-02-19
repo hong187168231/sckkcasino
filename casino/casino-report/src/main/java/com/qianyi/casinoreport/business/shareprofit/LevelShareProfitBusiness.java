@@ -60,6 +60,7 @@ public class LevelShareProfitBusiness {
                 gameRecord.setCreateTime(date);
                 gameRecord.setBetId(recordGoldenF.getBetId());
                 gameRecord.setUserId(recordGoldenF.getUserId());
+                gameRecord.setValidbet(recordGoldenF.getBetAmount().toString());
                 record=gameRecord;
                 if (shareProfitMqVo.getPlatform().equals("PG")){
                     gameType=2;
@@ -105,11 +106,11 @@ public class LevelShareProfitBusiness {
         String betTime = shareProfitMqVo.getBetTime().substring(0,10);
         List<ShareProfitBO> shareProfitBOList = new ArrayList<>();
         if(ShareProfitUtils.compareIntegerNotNull( user.getFirstPid()))
-            shareProfitBOList.add(getShareProfitBO(user,user.getFirstPid(),shareProfitMqVo.getValidbet(),byGameType.getFirstCommission(),byGameType.getGameType(),getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),true,1,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
+            shareProfitBOList.add(getShareProfitBO(user,user.getFirstPid(),new BigDecimal(record.getValidbet()),byGameType.getFirstCommission(),byGameType.getGameType(),getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),true,1,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
         if(ShareProfitUtils.compareIntegerNotNull( user.getSecondPid()))
-            shareProfitBOList.add(getShareProfitBO(user,user.getSecondPid(),shareProfitMqVo.getValidbet(),byGameType.getSecondCommission(),byGameType.getGameType(),getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),false,2,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
+            shareProfitBOList.add(getShareProfitBO(user,user.getSecondPid(),new BigDecimal(record.getValidbet()),byGameType.getSecondCommission(),byGameType.getGameType(),getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),false,2,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
         if(ShareProfitUtils.compareIntegerNotNull( user.getThirdPid()))
-            shareProfitBOList.add(getShareProfitBO(user,user.getThirdPid(),shareProfitMqVo.getValidbet(),byGameType.getThirdCommission(),byGameType.getGameType(),getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),false,3,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
+            shareProfitBOList.add(getShareProfitBO(user,user.getThirdPid(),new BigDecimal(record.getValidbet()),byGameType.getThirdCommission(),byGameType.getGameType(),getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),false,3,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
         log.info("get list object is {}",shareProfitBOList);
         log.info("shareProfitOperator That took {} milliseconds",System.currentTimeMillis()-startTime);
         return shareProfitBOList;
