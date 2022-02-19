@@ -60,6 +60,7 @@ public class LevelShareProfitBusiness {
                 gameRecord.setCreateTime(date);
                 gameRecord.setBetId(recordGoldenF.getBetId());
                 gameRecord.setUserId(recordGoldenF.getUserId());
+                gameRecord.setValidbet(recordGoldenF.getBetAmount().toString());
                 record=gameRecord;
                 if (shareProfitMqVo.getPlatform().equals("PG")){
                     gameType=2;
