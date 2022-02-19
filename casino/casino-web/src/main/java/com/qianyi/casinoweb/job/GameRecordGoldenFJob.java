@@ -11,6 +11,7 @@ import com.qianyi.livegoldenf.api.PublicGoldenFApi;
 import com.qianyi.modulecommon.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -47,7 +48,7 @@ public class GameRecordGoldenFJob {
     private PlatformGameService platformGameService;
 
     //每隔5分钟执行一次
-//    @Scheduled(cron = "0 0/2 * * * ?")
+    @Scheduled(cron = "0 0/2 * * * ?")
     public void pullGoldenF(){
         pullGameRecord(Constants.PLATFORM_PG);
         pullGameRecord(Constants.PLATFORM_CQ9);
