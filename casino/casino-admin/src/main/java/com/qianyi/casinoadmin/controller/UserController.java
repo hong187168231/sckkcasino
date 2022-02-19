@@ -353,7 +353,7 @@ public class UserController {
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
         UserThird userThird = userThirdService.findByUserId(user.getId());
-        if (LoginUtil.checkNull(userThird)){
+        if (LoginUtil.checkNull(userThird) || LoginUtil.checkNull(userThird.getAccount())){
             return ResponseUtil.custom("该账户尚未登录过第三方平台");
         }
         JSONObject jsonObject = userMoneyService.getWMonetUser(user, userThird);
