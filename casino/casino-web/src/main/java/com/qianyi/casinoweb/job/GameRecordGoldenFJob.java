@@ -177,6 +177,9 @@ public class GameRecordGoldenFJob {
             GameRecordGoldenF gameRecordGoldenF = gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
             if(gameRecordGoldenF==null){
                 gameRecordGoldenFService.save(item);
+            }else
+            {
+                gameRecordGoldenFService.save(gameRecordGoldenF);
             }
             GameRecord gameRecord = combineGameRecord(gameRecordGoldenF==null?item:gameRecordGoldenF);
             processBusiness(item,gameRecord,platformConfig);
