@@ -179,6 +179,8 @@ public class GameRecordGoldenFJob {
                 gameRecordGoldenFService.save(item);
             }else
             {
+                gameRecordGoldenF.setBetAmount(item.getBetAmount());
+                gameRecordGoldenF.setWinAmount(item.getWinAmount());
                 gameRecordGoldenFService.save(gameRecordGoldenF);
             }
             GameRecord gameRecord = combineGameRecord(gameRecordGoldenF==null?item:gameRecordGoldenF);
