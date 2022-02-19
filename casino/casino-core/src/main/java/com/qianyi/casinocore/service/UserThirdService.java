@@ -20,19 +20,17 @@ public class UserThirdService {
         return userThirdRepository.findByUserId(userId);
     }
 
-    @Caching(
-            put = {@CachePut(key = "#result.userId"), @CachePut(key = "#result.account")}
-    )
+    @CachePut(key = "#po.userId")
     public UserThird save(UserThird third) {
         return userThirdRepository.save(third);
     }
 
-    @Cacheable(key = "#p0")
+    @Cacheable(key = "#root.methodName+'::'+#p0")
     public UserThird findByAccount(String account) {
         return userThirdRepository.findByAccount(account);
     }
 
-    @Cacheable(key = "#p0")
+    @Cacheable(key = "#root.methodName+'::'+#p0")
     public UserThird findByGoldenfAccount(String account) {
         return userThirdRepository.findByGoldenfAccount(account);
     }
