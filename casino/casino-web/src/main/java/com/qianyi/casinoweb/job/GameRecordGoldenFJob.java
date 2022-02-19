@@ -177,9 +177,9 @@ public class GameRecordGoldenFJob {
             GameRecordGoldenF gameRecordGoldenF = gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
             if(gameRecordGoldenF==null){
                 gameRecordGoldenFService.save(item);
-                GameRecord gameRecord = combineGameRecord(item);
-                processBusiness(item,gameRecord,platformConfig);
             }
+            GameRecord gameRecord = combineGameRecord(gameRecordGoldenF==null?item:gameRecordGoldenF);
+            processBusiness(item,gameRecord,platformConfig);
         }catch (Exception e){
             log.error("",e);
         }
@@ -209,6 +209,8 @@ public class GameRecordGoldenFJob {
         gameRecord.setUserId(item.getUserId());
         gameRecord.setGameCode(adGame.getGameCode());
         gameRecord.setGname(adGame.getGameName());
+        gameRecord.setBetTime(item.getCreateAtStr());
+        gameRecord.setId(item.getId());
         return gameRecord;
     }
 
