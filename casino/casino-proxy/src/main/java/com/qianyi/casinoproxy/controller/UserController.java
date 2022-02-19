@@ -264,11 +264,11 @@ public class UserController {
         }
         UserThird userThird = userThirdService.findByUserId(user.getId());
         if (CasinoProxyUtil.checkNull(userThird)  || CasinoProxyUtil.checkNull(userThird.getAccount()) ){
-            return ResponseUtil.custom("该账户尚未登录过第三方平台");
+            return ResponseUtil.success(CommonConst.NUMBER_0);
         }
         JSONObject jsonObject = userMoneyService.getWMonetUser(user, userThird);
         if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
-            return ResponseUtil.custom("查询失败");
+            return ResponseUtil.custom("查询WM余额失败");
         }
         try {
             Integer code = (Integer) jsonObject.get("code");
@@ -281,7 +281,7 @@ public class UserController {
                 return ResponseUtil.custom(jsonObject.get("msg").toString());
             }
         }catch (Exception ex){
-            return ResponseUtil.custom("查询失败");
+            return ResponseUtil.custom("查询WM余额失败");
         }
     }
 
