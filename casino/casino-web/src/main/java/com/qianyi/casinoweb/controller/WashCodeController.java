@@ -52,7 +52,7 @@ public class WashCodeController {
             @ApiImplicitParam(name = "date", value = "时间：0：今天，1：昨天，2：近7天", required = true)
     })
     @GetMapping("/getList")
-    public ResponseEntity<ChargeOrderListData> chargeOrderList(String date,HttpServletRequest request) {
+    public ResponseEntity<ChargeOrderListData> chargeOrderList(String date, HttpServletRequest request) {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         String startTime = null;
@@ -68,13 +68,14 @@ public class WashCodeController {
             endTime = DateUtil.getEndTime(0);
         }
         UserMoney userMoney = userMoneyService.findByUserId(userId);
-        BigDecimal washCode = BigDecimal.ZERO.setScale(2);;
+        BigDecimal washCode = BigDecimal.ZERO.setScale(2);
+        ;
         if (userMoney != null && userMoney.getWashCode() != null) {
             washCode = userMoney.getWashCode();
         }
         List<WashCodeConfig> washCodeConfig = userWashCodeConfigService.getWashCodeConfig(userId);
         List<WashCodeChange> list = washCodeChangeService.getList(userId, startTime, endTime);
-        ChargeOrderListData chargeOrderListData=new ChargeOrderListData();
+        ChargeOrderListData chargeOrderListData = new ChargeOrderListData();
         List<WashCodeVo> voList = new ArrayList<>();
         //洗码比例取配置表的,数据为空返回默认值
         if (CollectionUtils.isEmpty(list)) {
@@ -97,10 +98,19 @@ public class WashCodeController {
             washCodeVo = new WashCodeVo();
             boolean flag = true;
             for (WashCodeChange change : list) {
-                if (!ObjectUtils.isEmpty(config.getGameId()) && config.getGameId().equals(change.getGameId())) {
+                //WM的洗码配置是配置到下面的游戏项上
+                if (Constants.PLATFORM_WM.equals(change.getPlatform()) && !ObjectUtils.isEmpty(config.getGameId()) && config.getGameId().equals(change.getGameId())) {
                     BeanUtils.copyProperties(change, washCodeVo);
                     washCodeVo.setRate(config.getRate() + "%");
-                    setGameName(request,washCodeVo,config);
+                    setGameName(request, washCodeVo, config);
+                    voList.add(washCodeVo);
+                    flag = false;
+                    break;
+                    //PG/CQ9的洗码配置是配置到平台项上
+                } else if ((Constants.PLATFORM_PG.equals(change.getPlatform()) || Constants.PLATFORM_CQ9.equals(change.getPlatform())) && config.getGameId().equals(change.getPlatform())) {
+                    BeanUtils.copyProperties(change, washCodeVo);
+                    washCodeVo.setRate(config.getRate() + "%");
+                    setGameName(request, washCodeVo, config);
                     voList.add(washCodeVo);
                     flag = false;
                     break;
@@ -108,7 +118,7 @@ public class WashCodeController {
             }
             if (flag) {
                 BeanUtils.copyProperties(config, washCodeVo);
-                setGameName(request,washCodeVo,config);
+                setGameName(request, washCodeVo, config);
                 washCodeVo.setValidbet(BigDecimal.ZERO);
                 washCodeVo.setRate(config.getRate() + "%");
                 washCodeVo.setAmount(BigDecimal.ZERO);
@@ -122,6 +132,7 @@ public class WashCodeController {
 
     /**
      * 根据前端选择的语音切换游戏名称
+     *
      * @param request
      * @param washCodeVo
      * @param config
@@ -153,19 +164,19 @@ public class WashCodeController {
         userMoneyService.addMoney(userId, washCode);
         userMoneyService.subWashCode(userId, washCode);
 
-        AccountChangeVo vo=new AccountChangeVo();
+        AccountChangeVo vo = new AccountChangeVo();
         vo.setUserId(userId);
         vo.setChangeEnum(AccountChangeEnum.WASH_CODE);
         vo.setAmount(washCode);
         vo.setAmountBefore(userMoney.getMoney());
         vo.setAmountAfter(userMoney.getMoney().add(washCode));
         asyncService.executeAsync(vo);
-        return ResponseUtil.success("成功领取金额" , washCode.stripTrailingZeros().toPlainString());
+        return ResponseUtil.success("成功领取金额", washCode.stripTrailingZeros().toPlainString());
     }
 
     @Data
     @ApiModel("用户洗码列表")
-    class ChargeOrderListData{
+    class ChargeOrderListData {
         @ApiModelProperty(value = "洗码金额")
         @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
         private BigDecimal totalAmount;
