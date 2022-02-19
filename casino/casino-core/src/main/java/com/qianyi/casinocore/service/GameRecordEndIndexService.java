@@ -16,7 +16,7 @@ public class GameRecordEndIndexService {
     @Autowired
     private GameRecordEndIndexRepository gameRecordEndIndexRepository;
 
-    @Cacheable(cacheNames = "gameRecordEndIndex")
+//    @Cacheable(cacheNames = "gameRecordEndIndex")
     public GameRecordEndIndex findFirst() {
         List<GameRecordEndIndex> gameRecordEndIndexList = gameRecordEndIndexRepository.findAll();
         if (!CollectionUtils.isEmpty(gameRecordEndIndexList)) {
@@ -25,7 +25,11 @@ public class GameRecordEndIndexService {
         return null;
     }
 
-    @CacheEvict(cacheNames = "gameRecordEndIndex", allEntries = true)
+    public GameRecordEndIndex findUGameRecordEndIndexUseLock(){
+        return gameRecordEndIndexRepository.findUGameRecordEndIndexUseLock();
+    }
+
+//    @CacheEvict(cacheNames = "gameRecordEndIndex", allEntries = true)
     public void save(GameRecordEndIndex gameRecordEndIndex) {
         gameRecordEndIndexRepository.save(gameRecordEndIndex);
     }

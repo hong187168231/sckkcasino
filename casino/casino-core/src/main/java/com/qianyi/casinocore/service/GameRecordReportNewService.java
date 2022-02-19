@@ -45,7 +45,7 @@ public class GameRecordReportNewService {
 
     @Transactional
     public void saveGameRecordReportWM(){
-        GameRecordEndIndex first = gameRecordEndIndexService.findFirst();
+        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
         if (first == null){
             return;
         }
@@ -88,7 +88,7 @@ public class GameRecordReportNewService {
     }
     @Transactional
     public void saveGameRecordReportPG(){
-        GameRecordEndIndex first = gameRecordEndIndexService.findFirst();
+        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
         if (first == null){
             return;
         }
@@ -131,7 +131,7 @@ public class GameRecordReportNewService {
     }
     @Transactional
     public void saveGameRecordReportCQ9(){
-        GameRecordEndIndex first = gameRecordEndIndexService.findFirst();
+        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
         if (first == null){
             return;
         }

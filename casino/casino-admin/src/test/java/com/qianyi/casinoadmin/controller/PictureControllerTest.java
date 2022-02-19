@@ -49,16 +49,38 @@ public class PictureControllerTest {
     @Autowired
     private GameRecordGoldenFService gameRecordGoldenFService;
 
+    @Autowired
+    private GameRecordEndIndexService gameRecordEndIndexService;
+    
+    @Autowired
+    private ReportService reportService;
+
+    @Test
+    public void enddIndex(){
+        GameRecordEndIndex uGameRecordEndIndexUseLock = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
+        System.out.println(uGameRecordEndIndexUseLock);
+    }
+    
+    @Test
+    public void queryTotal(){
+        Map<String, Object> stringObjectMap = reportService.queryAllTotal("2022-02-18 00:00:00", "2022-02-18 23:59:59");
+        System.out.println(stringObjectMap);
+    }
+
     @Test
     public void findMap(){
-        List<Map<String, Object>> map = userService.findMap("WM", "2021-11-01 00:00:00", "2022-11-01 00:00:00", 60844L);
-        System.out.println(map.size());
+//        List<Map<String, Object>> map = userService.findMap("WM", "2021-11-01 00:00:00", "2022-11-01 00:00:00", 60844L);
+//        System.out.println(map.size());
+        Map<String, Object> wm = userService.findMap("WM", "2022-02-18 00:00:00", "2022-02-18 23:59:59");
+        System.out.println(wm);
     }
 
     @Test
     public void findSumbetAmount(){
         List<Map<String, Object>> gameRecords =
             gameRecordGoldenFService.findSumBetAmount("2022-02-01 23:00:00", "2022-02-12 23:59:59");
+        BigDecimal sumBetAmount =
+            gameRecordGoldenFService.findSumBetAmount(60736L, "2022-02-18 00:00:00", "2022-02-18 23:59:59");
         System.out.println(gameRecords.size());
     }
     @Test
