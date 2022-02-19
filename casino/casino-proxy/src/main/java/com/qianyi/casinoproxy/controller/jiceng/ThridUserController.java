@@ -251,7 +251,7 @@ public class ThridUserController {
             return ResponseUtil.custom("客户不存在");
         }
         UserThird userThird = userThirdService.findByUserId(user.getId());
-        if (CasinoProxyUtil.checkNull(userThird)){
+        if (CasinoProxyUtil.checkNull(userThird)  || CasinoProxyUtil.checkNull(userThird.getAccount()) ){
             return ResponseUtil.custom("该账户尚未登录过第三方平台");
         }
         JSONObject jsonObject = userMoneyService.getWMonetUser(user, userThird);
