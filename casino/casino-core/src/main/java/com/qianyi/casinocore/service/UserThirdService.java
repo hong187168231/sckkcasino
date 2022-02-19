@@ -20,7 +20,7 @@ public class UserThirdService {
         return userThirdRepository.findByUserId(userId);
     }
 
-    @CachePut(key = "#po.userId")
+    @CachePut(key = "#p0.userId")
     public UserThird save(UserThird third) {
         return userThirdRepository.save(third);
     }
