@@ -109,8 +109,14 @@ public class UserMoneyBusiness {
     public void washCode(String platform, GameRecord gameRecord) {
         BigDecimal validbet = new BigDecimal(gameRecord.getValidbet());
         Long userId = gameRecord.getUserId();
+        String gameCode = null;
+        if (Constants.PLATFORM_WM.equals(platform)) {
+            gameCode = gameRecord.getGid().toString();
+        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
+            gameCode = gameRecord.getGameId();
+        }
         log.info("开始洗码,平台={},注单ID={},注单明细={}",platform, gameRecord.getBetId(), gameRecord.toString());
-        WashCodeConfig config = userWashCodeConfigService.getWashCodeConfigByUserIdAndGameId(platform, userId, gameRecord.getGid().toString());
+        WashCodeConfig config = userWashCodeConfigService.getWashCodeConfigByUserIdAndGameId(platform, userId, gameCode);
         if (config != null && config.getRate() != null && config.getRate().compareTo(BigDecimal.ZERO) == 1) {
             log.info("游戏洗码配置={}", config.toString());
             //数据库存的10是代表百分之10
@@ -120,11 +126,7 @@ public class UserMoneyBusiness {
             washCodeChange.setUserId(userId);
             washCodeChange.setAmount(washCodeVal);
             washCodeChange.setPlatform(platform);
-            if (Constants.PLATFORM_WM.equals(platform)) {
-                washCodeChange.setGameId(gameRecord.getGid().toString());
-            } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
-                washCodeChange.setGameId(gameRecord.getGameId());
-            }
+            washCodeChange.setGameId(gameCode);
             washCodeChange.setGameName(gameRecord.getGname());
             washCodeChange.setRate(config.getRate());
             washCodeChange.setValidbet(validbet);
