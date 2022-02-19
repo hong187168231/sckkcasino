@@ -113,7 +113,7 @@ public class UserMoneyBusiness {
         if (Constants.PLATFORM_WM.equals(platform)) {
             gameCode = gameRecord.getGid().toString();
         } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
-            gameCode = gameRecord.getGameId();
+            gameCode = gameRecord.getGameCode();
         }
         log.info("开始洗码,平台={},注单ID={},注单明细={}",platform, gameRecord.getBetId(), gameRecord.toString());
         WashCodeConfig config = userWashCodeConfigService.getWashCodeConfigByUserIdAndGameId(platform, userId, gameCode);

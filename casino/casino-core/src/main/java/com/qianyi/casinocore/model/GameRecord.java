@@ -183,7 +183,7 @@ public class GameRecord extends BaseEntity{
      * PG/CQ9传递数据用
      */
     @Transient
-    private String gameId;
+    private String gameCode;
 
     public GameRecord(BigDecimal bet,BigDecimal validbet,BigDecimal water,BigDecimal waterbet,BigDecimal winLoss){
         this.bet = bet==null?"0":bet.toString();
