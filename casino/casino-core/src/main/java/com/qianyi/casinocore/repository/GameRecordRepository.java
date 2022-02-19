@@ -41,7 +41,7 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
             "ifnull(g.second_proxy,0) second_proxy,ifnull(g.third_proxy,0) third_proxy," +
             "g.gid gid,COUNT(1) num,SUM(g.bet) bet,SUM(g.validbet) validbet,SUM(g.win_loss) win_loss," +
             " ifnull(SUM(w.amount),0) amount from game_record g left join  " +
-            "wash_code_change w  on  w.game_record_id = g.id where g.settime >= ?1 " +
-            "and g.settime <= ?2 GROUP BY g.third_proxy,g.gid  ",nativeQuery = true)
+            "wash_code_change w  on  w.game_record_id = g.id where g.bet_time >= ?1 " +
+            "and g.bet_time <= ?2 GROUP BY g.third_proxy,g.gid  ",nativeQuery = true)
     List<Map<String,Object>> queryGameRecords(String startTime,String endTime);
 }

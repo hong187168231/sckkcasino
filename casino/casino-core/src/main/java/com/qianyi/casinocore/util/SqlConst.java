@@ -11,7 +11,7 @@ public class SqlConst {
         + "from user u\n" + "left join ( \n" + "  select user_id , \n" + "  count(1) num, \n"
         + "  sum(bet) bet_amount, \n" + "  sum(validbet) validbet , \n" + "  sum(win_loss) win_loss  \n"
         + "  from game_record gr \n"
-        + "  where settime >= {0} and settime <= {1}\n"
+        + "  where bet_time >= {0} and bet_time <= {1}\n"
         + "  group by user_id \n" + " ) main_t on u.id = main_t.user_id\n" + " left join ( \n"
         + "  select user_id , sum(amount) wash_amount  \n" + "  from wash_code_change wcc  \n"
         + "  where create_time >= {0} and create_time <= {1}\n"
