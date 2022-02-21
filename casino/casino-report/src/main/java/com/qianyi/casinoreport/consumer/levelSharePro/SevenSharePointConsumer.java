@@ -1,11 +1,7 @@
 package com.qianyi.casinoreport.consumer.levelSharePro;
 
 import com.qianyi.casinocore.vo.ShareProfitBO;
-import com.qianyi.casinocore.vo.ShareProfitMqVo;
-import com.qianyi.casinoreport.business.shareprofit.LevelShareProfitBusiness;
 import com.qianyi.casinoreport.business.shareprofit.LevelShareprofitItemService;
-import com.qianyi.casinoreport.business.shareprofit.ShareProfitBusiness;
-import com.qianyi.casinoreport.business.shareprofit.ShareprofitItemService;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +14,9 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Slf4j
-@RabbitListener(queues = RabbitMqConstants.ONE_SHAREPROFIT_DIRECTQUEUE)
+@RabbitListener(queues = RabbitMqConstants.SEVEN_SHAREPROFIT_DIRECTQUEUE)
 @Component
-public class FirstSharePointConsumer {
+public class SevenSharePointConsumer {
 
     @Autowired
     private LevelShareprofitItemService sharepointItemService;
@@ -35,7 +31,7 @@ public class FirstSharePointConsumer {
     @RabbitHandler
 
     public void process(ShareProfitBO shareProfitBO, Channel channel, Message message) throws IOException {
-        log.info("ONE-start 游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
+        log.info("SEVEN-start 游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
         try {
             sharepointItemService.levelProcessItem(shareProfitBO);
         } catch (Exception e) {
@@ -43,6 +39,6 @@ public class FirstSharePointConsumer {
         }finally {
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         }
-        log.info("ONE-end 游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
+        log.info("SEVEN-end 游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
     }
 }
