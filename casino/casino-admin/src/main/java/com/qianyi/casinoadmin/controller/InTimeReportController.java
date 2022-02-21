@@ -146,7 +146,11 @@ public class InTimeReportController {
             proxyId = byUserName.getId();
             proxyRole = byUserName.getProxyRole();
         }
-        return ResponseUtil.success(gameRecordReportNewService.findRecordRecordSum(gameRecordReport,startTime,endTime,proxyId,proxyRole));
+        GameRecordReportNew recordRecordSum = gameRecordReportNewService.findRecordRecordSum(gameRecordReport, startTime, endTime, proxyId, proxyRole);
+        if (!LoginUtil.checkNull(recordRecordSum)){
+            recordRecordSum.setAmount(recordRecordSum.getAmount() != null? recordRecordSum.getAmount().setScale(2, RoundingMode.HALF_UP):null);
+        }
+        return ResponseUtil.success(recordRecordSum);
 
     }
 }
