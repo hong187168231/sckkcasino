@@ -151,11 +151,16 @@ public class GameRecordGoldenFJob {
     }
 
     private Boolean saveData(PublicGoldenFApi.ResponseEntity responseEntity) {
-        GameRecordObj gameRecordObj = JSON.parseObject(responseEntity.getData(), GameRecordObj.class);
-        List<GameRecordGoldenF> recordGoldenFS = gameRecordObj.getBetlogs();
-        processRecords(recordGoldenFS);
-        log.info("");
-        return gameRecordObj.getPage() >= gameRecordObj.getPageCount();
+        try{
+            log.info("reponseEntity is {}",responseEntity);
+            GameRecordObj gameRecordObj = JSON.parseObject(responseEntity.getData(), GameRecordObj.class);
+            List<GameRecordGoldenF> recordGoldenFS = gameRecordObj.getBetlogs();
+            processRecords(recordGoldenFS);
+            return gameRecordObj.getPage() >= gameRecordObj.getPageCount();
+        }catch (Exception ex){
+            log.error("处理结果集异常",ex);
+            return false;
+        }
     }
 
     private void processRecords(List<GameRecordGoldenF> recordGoldenFS) {
@@ -185,11 +190,6 @@ public class GameRecordGoldenFJob {
             GameRecordGoldenF gameRecordGoldenF = gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
             if(gameRecordGoldenF==null){
                 gameRecordGoldenFService.save(item);
-            }else
-            {
-                gameRecordGoldenF.setBetAmount(item.getBetAmount());
-                gameRecordGoldenF.setWinAmount(item.getWinAmount());
-                gameRecordGoldenFService.save(gameRecordGoldenF);
             }
             GameRecord gameRecord = combineGameRecord(gameRecordGoldenF==null?item:gameRecordGoldenF);
             processBusiness(item,gameRecord,platformConfig);
