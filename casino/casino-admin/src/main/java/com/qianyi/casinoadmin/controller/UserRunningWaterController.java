@@ -85,14 +85,16 @@ public class UserRunningWaterController {
             }
         }
         Sort sort=Sort.by("id").descending();
+        String startTime = startDate == null?null:DateUtil.dateToPatten1(startDate);
+        String endTime = endDate == null?null:DateUtil.dateToPatten1(endDate);
         if (LoginUtil.checkNull(runningWater)){
             Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
-            Page<UserRunningWater> userPage = userRunningWaterService.findUserPage(pageable, userRunningWater,startDate,endDate);
+            Page<UserRunningWater> userPage = userRunningWaterService.findUserPage(pageable, userRunningWater,startTime,endTime);
             return ResponseUtil.success(userPage);
         }else {
             List<UserRunningWater> list = new LinkedList<>();
             list.add(runningWater);
-            List<UserRunningWater> userRunningWaters = userRunningWaterService.findUserRunningWaters(sort,userRunningWater, startDate, endDate);
+            List<UserRunningWater> userRunningWaters = userRunningWaterService.findUserRunningWaters(sort,userRunningWater, startTime, endTime);
             list.addAll(userRunningWaters);
             PageVo pageVO = new PageVo(pageCode,pageSize);
             PageResultVO<UserRunningWater> pageResultVO = (PageResultVO<UserRunningWater>) CommonUtil.handlePageResult(list, pageVO);
