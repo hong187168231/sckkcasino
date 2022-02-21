@@ -44,6 +44,9 @@ public class ProxyReportController {
     @Autowired
     private GameRecordService gameRecordService;
 
+    @Autowired
+    private GameRecordGoldenFService gameRecordGoldenFService;
+
     public final static  SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
     public final static  SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -57,12 +60,12 @@ public class ProxyReportController {
     @ApiOperation("查询人人代报表")
     @GetMapping("/find")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userName", value = "账号", required = true),
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
+        @ApiImplicitParam(name = "userName", value = "账号", required = true),
+        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
+        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
     public ResponseEntity<ProxyReportVo> find(String userName, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                              @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(userName,startDate,endDate)){
             return ResponseUtil.custom("参数必填");
         }
@@ -114,13 +117,13 @@ public class ProxyReportController {
     @ApiOperation("下级明细")
     @GetMapping("/findDetail")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "当前列id", required = true),
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
-            @ApiImplicitParam(name = "tier", value = "当前层级 层级 0 当前 1 一级 2 二级 3 三级", required = true),
+        @ApiImplicitParam(name = "id", value = "当前列id", required = true),
+        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
+        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
+        @ApiImplicitParam(name = "tier", value = "当前层级 层级 0 当前 1 一级 2 二级 3 三级", required = true),
     })
     public ResponseEntity<ProxyReportVo> findDetail(Long id, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                              @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate,Integer tier){
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate,Integer tier){
         if (LoginUtil.checkNull(id,startDate,endDate,tier)){
             return ResponseUtil.custom("参数必填");
         }
@@ -207,13 +210,13 @@ public class ProxyReportController {
     @ApiOperation("每日结算细节")
     @GetMapping("/findDayDetail")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "当前列id", required = true),
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
-            @ApiImplicitParam(name = "tier", value = "当前层级 层级 0 当前 1 一级 2 二级 3 三级", required = true),
+        @ApiImplicitParam(name = "id", value = "当前列id", required = true),
+        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
+        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
+        @ApiImplicitParam(name = "tier", value = "当前层级 层级 0 当前 1 一级 2 二级 3 三级", required = true),
     })
     public ResponseEntity<ProxyReportVo> findDayDetail(Long id, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate,Integer tier){
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate,Integer tier){
         if (LoginUtil.checkNull(id,startDate,endDate)){
             return ResponseUtil.custom("参数必填");
         }
@@ -328,7 +331,10 @@ public class ProxyReportController {
         proxyReportVo.setContribution(contribution);
         if (tag != CommonConst.NUMBER_0){
             GameRecord gameRecord = gameRecordService.findRecordRecordSum(id, startTime, endTime);
+            //wm有效投注
             proxyReportVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
+            //电子有效投注
+            proxyReportVo.setPerformance(gameRecordGoldenFService.findSumBetAmount(id,startTime,endTime).add(proxyReportVo.getPerformance()));
             if (shareProfitChanges == null || shareProfitChanges.size() == CommonConst.NUMBER_0){
                 proxyReportVo.setCommission("0");
             }else {
@@ -341,11 +347,14 @@ public class ProxyReportController {
     }
 
     private void assemble(User user,Long userId,String startTime,String endTime,List<ProxyReportVo> list,
-                          Date startDate,Date endDate,Integer tag,Integer level){
+        Date startDate,Date endDate,Integer tag,Integer level){
         ProxyReportVo proxyReportVo = new ProxyReportVo();
         proxyReportVo.setTier(tag);
+        //wm有效投注
         GameRecord gameRecord = gameRecordService.findRecordRecordSum(user.getId(), startTime+start, endTime+end);
         proxyReportVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
+        //电子有效投注
+        proxyReportVo.setPerformance(gameRecordGoldenFService.findSumBetAmount(user.getId(),startTime+start,endTime+end).add(proxyReportVo.getPerformance()));
         if (tag == CommonConst.NUMBER_0){
             proxyReportVo.setContribution(BigDecimal.ZERO);
         }else {
@@ -364,7 +373,7 @@ public class ProxyReportController {
         list.add(proxyReportVo);
     }
     private void assemble(User user,Long userId,String startTime,String endTime,List<ProxyReportVo> list,
-                          Date startDate,Date endDate,Integer tag,Integer level,ReentrantLock reentrantLock, Condition condition, AtomicInteger atomicInteger){
+        Date startDate,Date endDate,Integer tag,Integer level,ReentrantLock reentrantLock, Condition condition, AtomicInteger atomicInteger){
         try {
             this.assemble(user,userId,startTime,endTime,list,startDate,endDate,tag,level);
         }finally {

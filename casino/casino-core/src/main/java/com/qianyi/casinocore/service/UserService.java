@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.service;
 
+import com.mysql.cj.util.StringUtils;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.repository.UserRepository;
@@ -246,14 +247,76 @@ public class UserService {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Map<String,Object>> findMap(String startTime,String endTime,Integer page,Integer pageSize,String sort)
+    public List<Map<String,Object>> findMap(String platform,String startTime,String endTime,Integer page,Integer pageSize,String sort)
         throws Exception {
         startTime = "'"+startTime+"'";
         endTime = "'"+endTime+"'";
-        String sql = MessageFormat.format(SqlConst.dataSql,startTime,endTime,sort,page.toString(),pageSize.toString());
+        String sql = "";
+        if(StringUtils.isNullOrEmpty(platform)){
+            sql = MessageFormat.format(SqlConst.totalSql,startTime,endTime,sort,page.toString(),pageSize.toString());
+        }else if (platform.equals("WM")){
+            sql = MessageFormat.format(SqlConst.wmSql,startTime,endTime,sort,page.toString(),pageSize.toString());
+        }else if (platform.equals("PG")){
+            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime,endTime,sort,page.toString(),pageSize.toString(),"'PG'");
+        }else {
+            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime,endTime,sort,page.toString(),pageSize.toString(),"'CQ9'");
+        }
+        Query countQuery = entityManager.createNativeQuery(sql);
+        List resultList = countQuery.getResultList();
+        return getList(resultList);
+    }
+    @SuppressWarnings("unchecked")
+    public List<Map<String,Object>> findMap(String platform,String startTime,String endTime,Long userId){
+        startTime = "'"+startTime+"'";
+        endTime = "'"+endTime+"'";
+        String sql = "";
+        if(StringUtils.isNullOrEmpty(platform)){
+            sql = MessageFormat.format(SqlConst.seleOneTotal,startTime,endTime,userId.toString());
+        }else if (platform.equals("WM")){
+            sql = MessageFormat.format(SqlConst.seleOneWm,startTime,endTime,userId.toString());
+        }else if (platform.equals("PG")){
+            sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"'PG'");
+        }else {
+            sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"'CQ9'");
+        }
         System.out.println(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List resultList = countQuery.getResultList();
+        return getList(resultList);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String,Object> findMap(String platform,String startTime,String endTime){
+        startTime = "'"+startTime+"'";
+        endTime = "'"+endTime+"'";
+        String sql = "";
+        if(StringUtils.isNullOrEmpty(platform)){
+            sql = MessageFormat.format(SqlConst.sumSql,startTime,endTime);
+        }else if (platform.equals("WM")){
+            sql = MessageFormat.format(SqlConst.WMSumSql,startTime,endTime,"'wm'");
+        }else if (platform.equals("PG")){
+            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime,endTime,"'PG'");
+        }else {
+            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime,endTime,"'CQ9'");
+        }
+        System.out.println(sql);
+        Query countQuery = entityManager.createNativeQuery(sql);
+        Object result = countQuery.getSingleResult();
+        Map<String,Object> map = new HashMap();
+        Object[] obj = (Object[]) result;
+        map.put("num",obj[0]);
+        map.put("bet_amount",obj[1]);
+        map.put("validbet",obj[2]);
+        map.put("win_loss",obj[3]);
+        map.put("wash_amount",obj[4]);
+        map.put("service_charge",obj[5]);
+        map.put("all_profit_amount",obj[6]);
+        map.put("avg_benefit",obj[7]);
+        map.put("total_amount",obj[8]);
+        return map;
+    }
+
+    private List<Map<String,Object>> getList(List resultList){
         List<Map<String,Object>> list = null;
         if (resultList != null && resultList.size() > CommonConst.NUMBER_0){
             list = new LinkedList();

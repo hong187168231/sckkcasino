@@ -10,6 +10,7 @@ import com.qianyi.casinocore.model.CompanyProxyMonth;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.UserRunningWater;
 import com.qianyi.casinocore.service.CompanyProxyMonthService;
+import com.qianyi.casinocore.service.GameRecordGoldenFService;
 import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinocore.service.UserRunningWaterService;
 import com.qianyi.casinocore.util.CommonConst;
@@ -69,15 +70,18 @@ public class HomePageReportController {
 
     @Autowired
     private GameRecordService gameRecordService;
+
+    @Autowired
+    private GameRecordGoldenFService gameRecordGoldenFService;
     @ApiOperation("查询首页报表")
     @GetMapping("/find")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
+        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     @NoAuthorization
     public ResponseEntity<HomePageReportVo> find(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         HomePageReportVo homePageReportVo = null;
         try {
             homePageReportVo = this.assemble();
@@ -130,13 +134,13 @@ public class HomePageReportController {
     @ApiOperation("查找走势图")
     @GetMapping("/findTrendChart")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "tag", value = "1:每日 2:每月 3:每年", required = false),
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
+        @ApiImplicitParam(name = "tag", value = "1:每日 2:每月 3:每年", required = false),
+        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
+        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
     @NoAuthorization
     public ResponseEntity<HomePageReportVo> findTrendChart(Integer tag,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                           @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate) {
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate) {
         if (LoginUtil.checkNull(startDate, endDate)) {
             ResponseUtil.custom("参数必填");
         }
@@ -264,27 +268,20 @@ public class HomePageReportController {
     }
     private Set<Long>  gameRecord(String startTime,String endTime,HomePageReport homePageReport){
         try {
-            GameRecord gameRecord = new GameRecord();
-            List<GameRecord> gameRecords = gameRecordService.findGameRecords(gameRecord, startTime, endTime);
-            if (LoginUtil.checkNull(gameRecord) || gameRecords.size() == CommonConst.NUMBER_0){
-                homePageReport.setValidbetAmount(BigDecimal.ZERO);
-                homePageReport.setWinLossAmount(BigDecimal.ZERO);
-                return null;
-            }
-            BigDecimal validbetAmount = BigDecimal.ZERO;
-            BigDecimal winLoss = BigDecimal.ZERO;
-            for (GameRecord g : gameRecords){
-                validbetAmount = validbetAmount.add(new BigDecimal(g.getValidbet()));
-                winLoss = winLoss.add(new BigDecimal(g.getWinLoss()));
-            }
-            homePageReport.setValidbetAmount(validbetAmount);
-            homePageReport.setWinLossAmount(BigDecimal.ZERO.subtract(winLoss));
-            Set<Long> set = new HashSet<>();
-            gameRecords.stream().filter(CommonUtil.distinctByKey(GameRecord::getUserId)).forEach(game ->{
-                set.add(game.getUserId());
-            });
-            gameRecords.clear();
-            return set;
+            Map<String, Object> gameRecordSum = gameRecordService.findSumBetAndWinLoss(startTime, endTime);
+            BigDecimal gameRecordValidbet = gameRecordSum.get("validbet") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("validbet").toString());
+            BigDecimal gameRecordWinLoss = gameRecordSum.get("winLoss") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("winLoss").toString());
+
+            Map<String, Object> gameRecordGoldenFSum = gameRecordGoldenFService.findSumBetAndWinLoss(startTime, endTime);
+            BigDecimal gameRecordGoldenFValidbet = gameRecordGoldenFSum.get("betAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("betAmount").toString());
+            BigDecimal gameRecordGoldenFWinLoss = gameRecordGoldenFSum.get("winAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("winAmount").toString());
+
+            homePageReport.setValidbetAmount(gameRecordValidbet.add(gameRecordGoldenFValidbet));
+            homePageReport.setWinLossAmount(BigDecimal.ZERO.subtract(gameRecordWinLoss).subtract(gameRecordGoldenFWinLoss));
+            Set<Long> gameRecordGoldenFUser = gameRecordGoldenFService.findGroupByUser(startTime, endTime);
+            Set<Long> gameRecordUser = gameRecordService.findGroupByUser(startTime, endTime);
+            gameRecordGoldenFUser.addAll(gameRecordUser);
+            return gameRecordGoldenFUser;
         }catch (Exception ex){
             log.error("统计三方游戏注单失败",ex);
         }

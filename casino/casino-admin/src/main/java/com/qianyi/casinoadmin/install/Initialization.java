@@ -77,7 +77,7 @@ public class Initialization implements CommandLineRunner {
        this.runAddSysUser();
        //客户中心配置初始化
         this.saveCustomerConfigureInfo();
-        // this.saveGameRecordEndIndex();
+        this.saveGameRecordEndIndex();
     }
 
     private void saveGameRecordEndIndex() {

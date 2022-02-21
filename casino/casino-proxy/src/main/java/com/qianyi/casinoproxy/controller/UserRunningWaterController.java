@@ -3,6 +3,7 @@ package com.qianyi.casinoproxy.controller;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.ShareProfitChange;
 import com.qianyi.casinocore.model.UserRunningWater;
+import com.qianyi.casinocore.service.GameRecordGoldenFService;
 import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinocore.service.ShareProfitChangeService;
 import com.qianyi.casinocore.service.UserRunningWaterService;
@@ -50,6 +51,9 @@ public class UserRunningWaterController {
     @Autowired
     private ShareProfitChangeService shareProfitChangeService;
 
+    @Autowired
+    private GameRecordGoldenFService gameRecordGoldenFService;
+
     public final static String start = " 00:00:00";
 
     public final static String end = " 23:59:59";
@@ -57,15 +61,15 @@ public class UserRunningWaterController {
     @ApiOperation("查询会员流水报表")
     @GetMapping("/find")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
-            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "userId", value = "会员id", required = true),
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
+        @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "userId", value = "会员id", required = true),
+        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<UserRunningWater> find(Integer pageSize, Integer pageCode, Long userId,
-                                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (CasinoProxyUtil.checkNull(userId)){
             return ResponseUtil.custom("参数必填");
         }
@@ -80,19 +84,22 @@ public class UserRunningWaterController {
             }
         }
         Sort sort=Sort.by("id").descending();
+        String startTime = startDate == null?null:DateUtil.dateToPatten1(startDate);
+        String endTime = endDate == null?null:DateUtil.dateToPatten1(endDate);
         if (CasinoProxyUtil.checkNull(runningWater)){
             Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
-            Page<UserRunningWater> userPage = userRunningWaterService.findUserPage(pageable, userRunningWater,startDate,endDate);
+            Page<UserRunningWater> userPage = userRunningWaterService.findUserPage(pageable, userRunningWater,startTime,endTime);
             return ResponseUtil.success(userPage);
         }else {
             List<UserRunningWater> list = new LinkedList<>();
             list.add(runningWater);
-            List<UserRunningWater> userRunningWaters = userRunningWaterService.findUserRunningWaters(sort,userRunningWater, startDate, endDate);
+            List<UserRunningWater> userRunningWaters = userRunningWaterService.findUserRunningWaters(sort,userRunningWater, startTime, endTime);
             if (!CasinoProxyUtil.checkNull(userRunningWaters) && userRunningWaters.size() > CommonConst.NUMBER_0){
                 list.addAll(userRunningWaters);
             }
             PageVo pageVO = new PageVo(pageCode,pageSize);
             PageResultVO<UserRunningWater> pageResultVO = (PageResultVO<UserRunningWater>) CommonUtil.handlePageResult(list, pageVO);
+            userRunningWaters.clear();
             return ResponseUtil.success(pageResultVO);
         }
     }
@@ -104,16 +111,11 @@ public class UserRunningWaterController {
         String endTime = format + end;
         Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
         Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
-        GameRecord gameRecord = new GameRecord();
-        gameRecord.setUserId(userId);
-        List<GameRecord> gameRecords = gameRecordService.findGameRecords(gameRecord, startTime, endTime);
-        if (!CasinoProxyUtil.checkNull(gameRecords) && gameRecords.size() > CommonConst.NUMBER_0){
-            BigDecimal validbetAmount = BigDecimal.ZERO;
-            for (GameRecord g : gameRecords){
-                validbetAmount = validbetAmount.add(new BigDecimal(g.getValidbet()));
-            }
+        BigDecimal validbet = gameRecordService.findGameRecords(userId, startTime, endTime);
+        BigDecimal betAmount = gameRecordGoldenFService.findSumBetAmount(userId, startTime, endTime);
+        if (!CasinoProxyUtil.checkNull(validbet) || betAmount.compareTo(BigDecimal.ZERO) != CommonConst.NUMBER_0){
             runningWater = new UserRunningWater();
-            runningWater.setAmount(validbetAmount);
+            runningWater.setAmount(betAmount.add(validbet == null?BigDecimal.ZERO:validbet));
             runningWater.setStaticsTimes(format);
             runningWater.setCommission(BigDecimal.ZERO);
         }

@@ -7,6 +7,8 @@ import com.qianyi.modulecommon.Constants;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
@@ -101,12 +103,24 @@ public class CommonUtil {
     private static Boolean setMethod(Object object,String parameter,Long proxyRole){
         try {
             Method setMethod = object.getClass().getMethod(MessageFormat.format(METHOD_FORMAT, SET,
-                    com.qianyi.modulecommon.util.CommonUtil.toUpperCaseFirstOne(parameter)), Long.class);
+                com.qianyi.modulecommon.util.CommonUtil.toUpperCaseFirstOne(parameter)), Long.class);
             setMethod.invoke(object, proxyRole);
         } catch (Exception e) {
             log.error("反射生成对象异常",e);
             return true;
         }
         return false;
+    }
+
+    public static Long toHash(String key) {
+        try {
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            md5.update(key.getBytes("utf-8"));
+            BigInteger bigInt = new BigInteger(1, md5.digest());
+            return Math.abs(bigInt.longValue());
+        } catch (Exception ex) {
+            return null;
+        }
+
     }
 }

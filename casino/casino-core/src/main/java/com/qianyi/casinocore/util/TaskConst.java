@@ -10,21 +10,26 @@ public final class TaskConst {
      */
     public final static String BACK_ORDER = "0 0/3 * * * ? ";
     /**
-     * 每日凌晨一点
+     * 每日凌晨55
      */
-    public final static String HOME_PAGE_REPORT = "0 30 0 * * ?";
+    public final static String HOME_PAGE_REPORT = "0 55 0 * * ?";
     /**
      * 每日零点五十分
      */
-    public final static String PROXY_HOME_PAGE_REPORT = "0 25 0 * * ?";
+    public final static String PROXY_HOME_PAGE_REPORT = "0 50 0 * * ?";
 
     /**
      * 每日零点四十分
      */
-    public final static String USER_RUNNING_WATER = "0 16 0 * * ?";
+    public final static String USER_RUNNING_WATER = "0 40 0 * * ?";
 
     /**
      * 每日零点四十分
      */
     public final static String GAMERECORD_TASK = "0 15,30,45 * * * ?";
+
+    /**
+     * 每小时十九分
+     */
+    public final static String GAMERECORD_TASK_NEW = "0 18 * * * ?";
 }

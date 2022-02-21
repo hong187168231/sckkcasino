@@ -344,7 +344,7 @@ public class UserController {
 
     @ApiOperation("刷新WM余额")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+        @ApiImplicitParam(name = "id", value = "客户id", required = true),
     })
     @GetMapping("refreshWM")
     public ResponseEntity getWMMoney(Long id){
@@ -353,12 +353,12 @@ public class UserController {
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
         UserThird userThird = userThirdService.findByUserId(user.getId());
-        if (LoginUtil.checkNull(userThird)){
-            return ResponseUtil.custom("该账户尚未登录过第三方平台");
+        if (LoginUtil.checkNull(userThird) || LoginUtil.checkNull(userThird.getAccount())){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
         }
         JSONObject jsonObject = userMoneyService.getWMonetUser(user, userThird);
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
-            return ResponseUtil.custom("查询失败");
+            return ResponseUtil.custom("查询WM余额失败");
         }
         try {
             Integer code = (Integer) jsonObject.get("code");
@@ -371,13 +371,13 @@ public class UserController {
                 return ResponseUtil.custom(jsonObject.get("msg").toString());
             }
         }catch (Exception ex){
-            return ResponseUtil.custom("查询失败");
+            return ResponseUtil.custom("查询WM余额失败");
         }
     }
 
     @ApiOperation("一键回收用户WM余额")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+        @ApiImplicitParam(name = "id", value = "客户id", required = true),
     })
     @GetMapping("oneKeyRecover")
     public ResponseEntity oneKeyRecover(Long id){

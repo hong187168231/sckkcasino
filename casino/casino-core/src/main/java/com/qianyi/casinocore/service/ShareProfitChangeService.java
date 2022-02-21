@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -36,6 +37,10 @@ public class ShareProfitChangeService {
 
     public List<ShareProfitChange> saveAll(List<ShareProfitChange> shareProfitChangeList){
         return shareProfitChangeRepository.saveAll(shareProfitChangeList);
+    }
+
+    public List<Map<String, Object>> findSumAmount(String startTime, String endTime){
+        return shareProfitChangeRepository.findSumAmount(startTime,endTime);
     }
 
     public List<ShareProfitChange> findAll(Long fromUserId,Long userId,Date startDate, Date endDate){
@@ -80,10 +85,10 @@ public class ShareProfitChangeService {
         CriteriaQuery<ShareProfitChange> query = builder.createQuery(ShareProfitChange.class);
         Root<ShareProfitChange> root = query.from(ShareProfitChange.class);
         query.multiselect(
-                root.get("userId").as(Long.class),
-                root.get("fromUserId").as(Long.class),
-                builder.sum(root.get("amount").as(BigDecimal.class)).alias("amount"),
-                builder.sum(root.get("validbet").as(BigDecimal.class)).alias("validbet")
+            root.get("userId").as(Long.class),
+            root.get("fromUserId").as(Long.class),
+            builder.sum(root.get("amount").as(BigDecimal.class)).alias("amount"),
+            builder.sum(root.get("validbet").as(BigDecimal.class)).alias("validbet")
         );
         List<Predicate> predicates = new ArrayList();
         if(directUserId!=null){

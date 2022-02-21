@@ -39,4 +39,7 @@ public class PlatformConfigFile {
     private String uploadUrl;
     private String readUploadUrl;
     private String moneySymbol;
+    private Integer peopleProxySwitch;
+    private Integer bankcardRealNameSwitch;
+
 }

@@ -15,10 +15,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -49,36 +46,40 @@ public class HomePageReportTask {
     @Autowired
     private WashCodeChangeService washCodeChangeService;
 
+    @Autowired
+    private GameRecordGoldenFService gameRecordGoldenFService;
+
     @Scheduled(cron = TaskConst.HOME_PAGE_REPORT)
     public void create(){
         log.info("每日首页报表统计开始start=============================================》");
         Calendar nowTime = Calendar.getInstance();
         nowTime.add(Calendar.DATE, -1);
         String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
-            List<HomePageReport> byStaticsTimes = homePageReportService.findByStaticsTimes(format);
-            if (!LoginUtil.checkNull(byStaticsTimes) && byStaticsTimes.size() > CommonConst.NUMBER_0)
-                return;
-            try {
-                String startTime = format + start;
-                String endTime = format + end;
-                Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
-                Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
-                HomePageReport homePageReport = new HomePageReport();
-                homePageReport.setStaticsTimes(format);
-                homePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
-                homePageReport.setStaticsYear(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4));
-                this.chargeOrder(startDate,endDate,homePageReport);
-                this.withdrawOrder(startDate,endDate,homePageReport);
-                this.gameRecord(startTime,endTime,homePageReport);
-                this.shareProfitChange(startDate,endDate,homePageReport);
-                this.getNewUsers(startDate,endDate,homePageReport);
-                this.bonusAmount(startDate,endDate,homePageReport);
-                this.washCodeAmount(startDate,endDate,homePageReport);
-                homePageReportService.save(homePageReport);
-                log.info("每日首页报表统计结束end=============================================》");
-            }catch (Exception ex){
-                log.error("首页报表统计失败",ex);
-            }
+        List<HomePageReport> byStaticsTimes = homePageReportService.findByStaticsTimes(format);
+        if (!LoginUtil.checkNull(byStaticsTimes) && byStaticsTimes.size() > CommonConst.NUMBER_0)
+            return;
+        try {
+            String startTime = format + start;
+            String endTime = format + end;
+            Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
+            Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
+            HomePageReport homePageReport = new HomePageReport();
+            homePageReport.setStaticsTimes(format);
+            homePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
+            homePageReport.setStaticsYear(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4));
+            this.chargeOrder(startDate,endDate,homePageReport);
+            this.withdrawOrder(startDate,endDate,homePageReport);
+            this.gameRecord(startTime,endTime,homePageReport);
+            this.shareProfitChange(startDate,endDate,homePageReport);
+            this.getNewUsers(startDate,endDate,homePageReport);
+            this.bonusAmount(startDate,endDate,homePageReport);
+            this.washCodeAmount(startDate,endDate,homePageReport);
+            homePageReportService.save(homePageReport);
+            log.info("每日首页报表统计结束end=============================================》");
+        }catch (Exception ex){
+            log.error("首页报表统计失败",ex);
+        }
+
     }
     public void chargeOrder(Date startDate,Date endDate,HomePageReport homePageReport){
         try {
@@ -91,10 +92,10 @@ public class HomePageReportTask {
                 return;
             }
             BigDecimal chargeAmount = chargeOrders.stream().map(ChargeOrder::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-//            BigDecimal serviceCharge = chargeOrders.stream().map(ChargeOrder::getServiceCharge).reduce(BigDecimal.ZERO, BigDecimal::add);
+            //            BigDecimal serviceCharge = chargeOrders.stream().map(ChargeOrder::getServiceCharge).reduce(BigDecimal.ZERO, BigDecimal::add);
             homePageReport.setChargeAmount(chargeAmount);
             homePageReport.setChargeNums(chargeOrders.size());
-//            homePageReport.setServiceCharge(serviceCharge);
+            //            homePageReport.setServiceCharge(serviceCharge);
             chargeOrders.clear();
         }catch (Exception ex){
             log.error("统计充值订单失败",ex);
@@ -122,25 +123,18 @@ public class HomePageReportTask {
     }
     public void gameRecord(String startTime,String endTime,HomePageReport homePageReport){
         try {
-            GameRecord gameRecord = new GameRecord();
-            List<GameRecord> gameRecords = gameRecordService.findGameRecords(gameRecord, startTime, endTime);
-            if (LoginUtil.checkNull(gameRecord) || gameRecords.size() == CommonConst.NUMBER_0){
-                homePageReport.setValidbetAmount(BigDecimal.ZERO);
-                homePageReport.setWinLossAmount(BigDecimal.ZERO);
-                homePageReport.setActiveUsers(CommonConst.NUMBER_0);
-                return;
-            }
-            BigDecimal validbetAmount = BigDecimal.ZERO;
-            BigDecimal winLoss = BigDecimal.ZERO;
-            for (GameRecord g : gameRecords){
-                validbetAmount = validbetAmount.add(new BigDecimal(g.getValidbet()));
-                winLoss = winLoss.add(new BigDecimal(g.getWinLoss()));
-            }
-            homePageReport.setValidbetAmount(validbetAmount);
-            homePageReport.setWinLossAmount(winLoss);
-            gameRecords = gameRecords.stream().filter(CommonUtil.distinctByKey(GameRecord::getUserId)).collect(Collectors.toList());
-            homePageReport.setActiveUsers(gameRecords.size());
-            gameRecords.clear();
+            Map<String, Object> gameRecordSum = gameRecordService.findSumBetAndWinLoss(startTime, endTime);
+            BigDecimal gameRecordValidbet = gameRecordSum.get("validbet") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("validbet").toString());
+            BigDecimal gameRecordWinLoss = gameRecordSum.get("winLoss") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("winLoss").toString());
+            Set<Long> gameRecordUser = gameRecordService.findGroupByUser(startTime, endTime);
+            Map<String, Object> gameRecordGoldenFSum = gameRecordGoldenFService.findSumBetAndWinLoss(startTime, endTime);
+            BigDecimal gameRecordGoldenFValidbet = gameRecordGoldenFSum.get("betAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("betAmount").toString());
+            BigDecimal gameRecordGoldenFWinLoss = gameRecordGoldenFSum.get("winAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("winAmount").toString());
+            Set<Long> gameRecordGoldenFUser = gameRecordGoldenFService.findGroupByUser(startTime,endTime);
+            homePageReport.setValidbetAmount(gameRecordValidbet.add(gameRecordGoldenFValidbet));
+            homePageReport.setWinLossAmount(gameRecordWinLoss.add(gameRecordGoldenFWinLoss));
+            gameRecordUser.addAll(gameRecordGoldenFUser);
+            homePageReport.setActiveUsers(gameRecordUser.size());
         }catch (Exception ex){
             log.error("统计三方游戏注单失败",ex);
         }

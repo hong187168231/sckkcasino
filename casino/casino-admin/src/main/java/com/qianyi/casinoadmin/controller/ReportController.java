@@ -47,7 +47,7 @@ public class ReportController {
     @Autowired
     private ProxyUserService proxyUserService;
 
-//    @NoAuthorization
+    //    @NoAuthorization
     @ApiOperation("查询个人报表")
     @GetMapping("/queryPersonReport")
     @ApiImplicitParams({
@@ -56,11 +56,13 @@ public class ReportController {
         @ApiImplicitParam(name = "userName", value = "账号", required = false),
         @ApiImplicitParam(name = "startTime", value = "起始时间查询", required = true),
         @ApiImplicitParam(name = "endTime", value = "结束时间查询", required = true),
+        @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
+        @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
         @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
         @ApiImplicitParam(name = "tag", value = "1：投注笔数 2：投注金额 3：有效投注 4：洗码发放 5：用户输赢金额", required = false),
     })
     public ResponseEntity<Map<String,Object>> queryPersonReport(Integer pageSize, Integer pageCode, String userName,
-        String startTime, String endTime,Integer sort,Integer tag){
+        String startTime, String endTime,String platform,Integer sort,Integer tag){
         if (LoginUtil.checkNull(startTime,endTime,pageSize,pageCode)){
             return ResponseUtil.custom("参数不合法");
         }
@@ -83,7 +85,7 @@ public class ReportController {
         if(StringUtils.hasLength(userName)){
             User user = userService.findByAccount(userName);
             if(user != null){
-                List<Map<String,Object>> reportResult = reportService.queryPersonReport(user.getId(),startTime,endTime);
+                List<Map<String,Object>> reportResult = userService.findMap(platform,startTime,endTime,user.getId());
                 PageResultVO<Map<String, Object>> mapPageResultVO = combinePage(reportResult, 1, pageCode, pageSize);
                 return ResponseUtil.success(getMap(mapPageResultVO));
             }
@@ -93,40 +95,39 @@ public class ReportController {
 
         int page = (pageCode-1)*pageSize;
         List<Map<String,Object>> reportResult = null;
-        if (LoginUtil.checkNull(tag)){
-            reportResult = reportService.queryAllPersonReport(startTime,endTime,page,pageSize);
-        }else {
-            String str = "ORDER BY {0} ";
-            switch (tag) {
-                case 1:
-                    str = MessageFormat.format(str,"num");
-                    break;
-                case 2:
-                    str = MessageFormat.format(str,"bet_amount");
-                    break;
-                case 3:
-                    str = MessageFormat.format(str,"validbet");
-                    break;
-                case 4:
-                    str = MessageFormat.format(str,"wash_amount");
-                    break;
-                case 5:
-                    str = MessageFormat.format(str,"win_loss");
-                    break;
-                default:
-                    return ResponseUtil.custom("参数不合法");
-            }
-            if (LoginUtil.checkNull(sort) || sort == CommonConst.NUMBER_1){
-                str = str + "ASC";
+        try {
+            if (LoginUtil.checkNull(tag)){
+                reportResult = userService.findMap(platform,startTime, endTime, page, pageSize, "");
             }else {
-                str = str + "DESC";
+                String str = "ORDER BY {0} ";
+                switch (tag) {
+                    case 1:
+                        str = MessageFormat.format(str,"num");
+                        break;
+                    case 2:
+                        str = MessageFormat.format(str,"bet_amount");
+                        break;
+                    case 3:
+                        str = MessageFormat.format(str,"validbet");
+                        break;
+                    case 4:
+                        str = MessageFormat.format(str,"wash_amount");
+                        break;
+                    case 5:
+                        str = MessageFormat.format(str,"win_loss");
+                        break;
+                    default:
+                        return ResponseUtil.custom("参数不合法");
+                }
+                if (LoginUtil.checkNull(sort) || sort == CommonConst.NUMBER_1){
+                    str = str + "ASC";
+                }else {
+                    str = str + "DESC";
+                }
+                reportResult = userService.findMap(platform,startTime, endTime, page, pageSize, str);
             }
-            try {
-                reportResult = userService.findMap(startTime, endTime, page, pageSize, str);
-            } catch (Exception e) {
-                return ResponseUtil.custom("查询失败");
-            }
-
+        } catch (Exception e) {
+            return ResponseUtil.custom("查询失败");
         }
         int totalElement = reportService.queryTotalElement(startTime,endTime);
         PageResultVO<Map<String, Object>> mapPageResultVO = combinePage(reportResult, totalElement, pageCode, pageSize);
@@ -167,17 +168,17 @@ public class ReportController {
         return pageResult;
     }
 
-//    @NoAuthorization
+    //    @NoAuthorization
     @ApiOperation("查询个人报表总计")
     @GetMapping("/queryTotal")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
-            @ApiImplicitParam(name = "userName", value = "账号", required = false),
+        @ApiImplicitParam(name = "userName", value = "账号", required = false),
         @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
         @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<Map<String,Object>> queryTotal(String userName,String platform,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(startDate,endDate)){
             return ResponseUtil.custom("参数不合法");
         }

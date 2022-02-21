@@ -254,7 +254,7 @@ public class UserController {
 
     @ApiOperation("刷新WM余额")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+        @ApiImplicitParam(name = "id", value = "客户id", required = true),
     })
     @GetMapping("refreshWM")
     public ResponseEntity getWMMoney(Long id){
@@ -263,12 +263,12 @@ public class UserController {
             return ResponseUtil.custom("客户不存在");
         }
         UserThird userThird = userThirdService.findByUserId(user.getId());
-        if (CasinoProxyUtil.checkNull(userThird)){
-            return ResponseUtil.custom("该账户尚未登录过第三方平台");
+        if (CasinoProxyUtil.checkNull(userThird)  || CasinoProxyUtil.checkNull(userThird.getAccount()) ){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
         }
         JSONObject jsonObject = userMoneyService.getWMonetUser(user, userThird);
         if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
-            return ResponseUtil.custom("查询失败");
+            return ResponseUtil.custom("查询WM余额失败");
         }
         try {
             Integer code = (Integer) jsonObject.get("code");
@@ -281,7 +281,36 @@ public class UserController {
                 return ResponseUtil.custom(jsonObject.get("msg").toString());
             }
         }catch (Exception ex){
-            return ResponseUtil.custom("查询失败");
+            return ResponseUtil.custom("查询WM余额失败");
+        }
+    }
+
+    @ApiOperation("查询用户PG/CQ9余额")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("refreshPGAndCQ9")
+    public ResponseEntity refreshPGAndCQ9(Long id){
+        User user = userService.findById(id);
+        if (CasinoProxyUtil.checkNull(user)){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
+        }
+        JSONObject jsonObject = userMoneyService.refreshPGAndCQ9(user);
+        if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("查询PG/CQ9余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (CasinoProxyUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询PG/CQ9余额失败");
         }
     }
 //    @ApiOperation("删除用户")

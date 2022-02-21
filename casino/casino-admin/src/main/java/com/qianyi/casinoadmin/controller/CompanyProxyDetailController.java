@@ -52,17 +52,17 @@ public class CompanyProxyDetailController {
     @ApiOperation("查询代理报表")
     @GetMapping("/find")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
-            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "proxyRole", value = "代理级别1：总代理 2：区域代理 3：基层代理", required = false),
-            @ApiImplicitParam(name = "userName", value = "账号", required = false),
-            @ApiImplicitParam(name = "tag", value = "1：含下级 0：不包含", required = false),
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
+        @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "proxyRole", value = "代理级别1：总代理 2：区域代理 3：基层代理", required = false),
+        @ApiImplicitParam(name = "userName", value = "账号", required = false),
+        @ApiImplicitParam(name = "tag", value = "1：含下级 0：不包含", required = false),
+        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<CompanyProxyReportVo> find(Integer pageSize, Integer pageCode,Integer proxyRole, Integer tag, String userName,
-                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         ProxyUser proxyUser = new ProxyUser();
         Sort sort=Sort.by("proxyRole").ascending();
         sort = sort.and(Sort.by("id").descending());
@@ -170,13 +170,13 @@ public class CompanyProxyDetailController {
     @ApiOperation("每日结算细节")
     @GetMapping("/findDailyDetails")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "当前id", required = false),
-            @ApiImplicitParam(name = "userName", value = "账号", required = false),
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
+        @ApiImplicitParam(name = "id", value = "当前id", required = false),
+        @ApiImplicitParam(name = "userName", value = "账号", required = false),
+        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<CompanyProxyReportVo> findDailyDetails(Long id,String userName,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(id) && LoginUtil.checkNull(userName)  ){
             return ResponseUtil.custom("参数不合法");
         }
@@ -226,7 +226,7 @@ public class CompanyProxyDetailController {
         Date end = DateUtil.getSimpleDateFormat().parse(endTime);
         proxyHomePageReportService.chargeOrder(byId, start, end, proxyHomePageReport);
         proxyHomePageReportService.withdrawOrder(byId, start, end, proxyHomePageReport);
-        Set<Long> set = proxyHomePageReportService.gameRecordAndActive(byId, startTime, endTime, proxyHomePageReport);
+        Set<Long> set = proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
         proxyHomePageReportService.getNewUsers(byId, start, end, proxyHomePageReport);
         if (byId.getProxyRole() == CommonConst.NUMBER_1){
             proxyHomePageReportService.getNewSecondProxys(byId,start,end,proxyHomePageReport);
