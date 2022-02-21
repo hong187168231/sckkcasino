@@ -4,6 +4,7 @@ import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.ThreadContext;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
 import java.util.UUID;
 
 @Slf4j
@@ -24,7 +26,11 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
         String ip = IpUtil.getIp(request);
         String path = request.getRequestURI().replace("//", "/");
         String requestMethod = request.getMethod();
-        String queryString = request.getQueryString();
+        String query = request.getQueryString();
+        String queryString = null;
+        if (!ObjectUtils.isEmpty(query)) {
+            queryString = URLDecoder.decode(request.getQueryString(), "UTF-8");//将中文转码
+        }
         //获取请求body
 //        byte[] bodyBytes = StreamUtils.copyToByteArray(request.getInputStream());
 //        String body = new String(bodyBytes, request.getCharacterEncoding());
