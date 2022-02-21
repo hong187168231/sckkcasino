@@ -1,7 +1,6 @@
 package com.qianyi.casinoreport.consumer.levelSharePro;
 
 import com.qianyi.casinocore.vo.ShareProfitBO;
-import com.qianyi.casinoreport.business.LevelProxyReportBusiness;
 import com.qianyi.casinoreport.business.shareprofit.LevelShareprofitItemService;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import com.rabbitmq.client.Channel;
@@ -15,14 +14,15 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Slf4j
-//@RabbitListener(queues = RabbitMqConstants.REPORT_PROFIT_QUEUE)
+@RabbitListener(queues = RabbitMqConstants.EIGHT_SHAREPROFIT_DIRECTQUEUE)
 @Component
-public class ProxyReportConsumer {
+public class EightSharePointConsumer {
 
     @Autowired
-    private LevelProxyReportBusiness levelproxyReportBusiness;
+    private LevelShareprofitItemService sharepointItemService;
+
     /**
-     *  代理线总报表分润队列
+     *  代理线分润消息队列
      * @param shareProfitBO
      * @param channel
      * @param message
@@ -31,15 +31,14 @@ public class ProxyReportConsumer {
     @RabbitHandler
 
     public void process(ShareProfitBO shareProfitBO, Channel channel, Message message) throws IOException {
-        log.info("start总报表-游戏id:{},代理线报表分润队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
+        log.info("EIGHT-start 游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
         try {
-            //进行总报表处理
-            levelproxyReportBusiness.processReport(shareProfitBO);
+            sharepointItemService.levelProcessItem(shareProfitBO);
         } catch (Exception e) {
-            log.error("游戏id:{},总报表-分润总报表处理执行异常:{}",shareProfitBO.getRecordId(),e);
+            log.error("代理线分润消息队列执行异常:"+ e);
         }finally {
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         }
-        log.info("end总报表-游戏id:{},代理线报表分润队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
+        log.info("EIGHT-end 游戏id:{},代理线分润消息队列：{}",shareProfitBO.getRecordId(),shareProfitBO);
     }
 }
