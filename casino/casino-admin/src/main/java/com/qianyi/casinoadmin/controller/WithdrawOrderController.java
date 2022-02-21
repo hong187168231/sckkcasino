@@ -135,7 +135,7 @@ public class WithdrawOrderController {
         //查询银行卡
         Map<Long, BankInfo> bankInfoMap = bankInfoList.stream().collect(Collectors.toMap(BankInfo::getId, a -> a, (k1, k2) -> k1));
         BankInfo bankInfo = bankInfoMap.get(Long.valueOf(bankcards.getBankId()));
-        withdrawOrderVo.setBankName(bankInfo==null ? "null": bankInfo.getBankName());
+        withdrawOrderVo.setBankName(bankInfo==null ? null : bankInfo.getBankName());
     }
     @ApiOperation("提现审核")
     @ApiImplicitParams({
