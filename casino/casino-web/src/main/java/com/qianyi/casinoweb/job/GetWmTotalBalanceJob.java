@@ -37,10 +37,6 @@ public class GetWmTotalBalanceJob {
     public void tasks() {
         try {
             log.info("开始查询平台在WM的总余额");
-            ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
-            if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
-                log.error("{},查询平台在WM的总余额失败", Constants.PLATFORM_WM_BIG + response.getMsg());
-            }
             BigDecimal agentBalance = wmApi.getAgentBalance(0);
             if (agentBalance == null) {
                 log.error("查询平台在WM的总余额远程请求异常");
