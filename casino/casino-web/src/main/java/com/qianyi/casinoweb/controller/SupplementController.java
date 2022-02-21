@@ -111,15 +111,14 @@ public class SupplementController {
             if (ObjectUtils.isEmpty(result)) {
                 log.error("{}游戏记录拉取失败,远程请求异常", timeMsg);
                 list.add(timeMsg + "游戏记录拉取失败,远程请求异常");
-            }
-            //查询结果无记录
-            if ("notData".equals(result)) {
+            } else if ("notData".equals(result)) { //查询结果无记录
                 log.info("{}时间范围无记录", timeMsg);
-            }
-            List<GameRecord> gameRecords = JSON.parseArray(result, GameRecord.class);
-            if (!CollectionUtils.isEmpty(gameRecords)) {
-                gameRecordJob.saveAll(gameRecords);
-                list.add(timeMsg + "游戏记录保存完成");
+            } else {
+                List<GameRecord> gameRecords = JSON.parseArray(result, GameRecord.class);
+                if (!CollectionUtils.isEmpty(gameRecords)) {
+                    gameRecordJob.saveAll(gameRecords);
+                    list.add(timeMsg + "游戏记录保存完成");
+                }
             }
         } catch (Exception e) {
             log.error("{}游戏记录拉取异常", timeMsg);
