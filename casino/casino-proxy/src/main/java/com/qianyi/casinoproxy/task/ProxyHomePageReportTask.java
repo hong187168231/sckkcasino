@@ -13,7 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -30,17 +33,9 @@ public class ProxyHomePageReportTask {
     @Scheduled(cron = TaskConst.PROXY_HOME_PAGE_REPORT)
     public void create(){
         log.info("每日代理首页报表统计开始start=============================================》");
-        List<String> list = new ArrayList<>();
-        list.add("2022-02-13");
-        list.add("2022-02-14");
-        list.add("2022-02-15");
-        list.add("2022-02-16");
-        list.add("2022-02-17");
-        list.add("2022-02-18");
-        list.add("2022-02-19");
-        list.add("2022-02-20");
-        for (String str:list){
-            String format = str;
+        Calendar nowTime = Calendar.getInstance();
+        nowTime.add(Calendar.DATE, -1);
+        String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
             List<ProxyHomePageReport> byStaticsTimes = proxyHomePageReportService.findByStaticsTimes(format);
             if (!CasinoProxyUtil.checkNull(byStaticsTimes) && byStaticsTimes.size() > CommonConst.NUMBER_0)
                 return;
@@ -51,7 +46,7 @@ public class ProxyHomePageReportTask {
                 Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
                 ProxyUser proxyUser = new ProxyUser();
                 proxyUser.setIsDelete(CommonConst.NUMBER_1);
-                //                proxyUser.setUserFlag(CommonConst.NUMBER_1);
+//                proxyUser.setUserFlag(CommonConst.NUMBER_1);
                 List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
                 if (CasinoProxyUtil.checkNull(proxyUserList) || proxyUserList.size() == CommonConst.NUMBER_0){
                     return;
@@ -63,32 +58,6 @@ public class ProxyHomePageReportTask {
             }catch (Exception ex){
                 log.error("代理首页报表统计失败",ex);
             }
-        }
-//        Calendar nowTime = Calendar.getInstance();
-//        nowTime.add(Calendar.DATE, -1);
-//        String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
-//            List<ProxyHomePageReport> byStaticsTimes = proxyHomePageReportService.findByStaticsTimes(format);
-//            if (!CasinoProxyUtil.checkNull(byStaticsTimes) && byStaticsTimes.size() > CommonConst.NUMBER_0)
-//                return;
-//            try {
-//                String startTime = format + start;
-//                String endTime = format + end;
-//                Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
-//                Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
-//                ProxyUser proxyUser = new ProxyUser();
-//                proxyUser.setIsDelete(CommonConst.NUMBER_1);
-////                proxyUser.setUserFlag(CommonConst.NUMBER_1);
-//                List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
-//                if (CasinoProxyUtil.checkNull(proxyUserList) || proxyUserList.size() == CommonConst.NUMBER_0){
-//                    return;
-//                }
-//                proxyUserList.forEach(proxy -> {
-//                    new Thread(()->this.create(proxy,startTime,endTime,startDate,endDate,format)).start();
-//                });
-//                log.info("每日代理首页报表统计结束end=============================================》");
-//            }catch (Exception ex){
-//                log.error("代理首页报表统计失败",ex);
-//            }
     }
     public void create(ProxyUser proxyUser,String startTime,String endTime,Date startDate,Date endDate,String format){
         ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
