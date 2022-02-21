@@ -60,8 +60,8 @@ public class AdGamesService {
                 if (!CommonUtil.checkNull(adGame.getGameName())) {
                     list.add(cb.equal(root.get("gameName").as(String.class), adGame.getGameName()));
                 }
-                if (adGame.getGamePlatformId() != null) {
-                    list.add(cb.equal(root.get("gamePlatformId").as(Integer.class), adGame.getGamePlatformId()));
+                if (!CommonUtil.checkNull(adGame.getGamePlatformName())) {
+                    list.add(cb.equal(root.get("gamePlatformName").as(String.class), adGame.getGamePlatformName()));
                 }
                 if (adGame.getGamesStatus() != null) {
                     list.add(cb.equal(root.get("gamesStatus").as(Integer.class), adGame.getGamesStatus()));
