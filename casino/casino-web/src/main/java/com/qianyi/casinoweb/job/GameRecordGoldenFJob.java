@@ -177,6 +177,11 @@ public class GameRecordGoldenFJob {
             GameRecordGoldenF gameRecordGoldenF = gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
             if(gameRecordGoldenF==null){
                 gameRecordGoldenFService.save(item);
+            }else
+            {
+                gameRecordGoldenF.setBetAmount(item.getBetAmount());
+                gameRecordGoldenF.setWinAmount(item.getWinAmount());
+                gameRecordGoldenFService.save(gameRecordGoldenF);
             }
             GameRecord gameRecord = combineGameRecord(gameRecordGoldenF==null?item:gameRecordGoldenF);
             processBusiness(item,gameRecord,platformConfig);
