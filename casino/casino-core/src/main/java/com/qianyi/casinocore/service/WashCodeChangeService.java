@@ -2,6 +2,7 @@ package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.WashCodeChange;
 import com.qianyi.casinocore.repository.WashCodeChangeRepository;
+import com.qianyi.modulecommon.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,16 @@ public class WashCodeChangeService {
     }
 
     public List<WashCodeChange> getList(Long userId, String startTime, String endTime) {
+        List<WashCodeChange> list =new ArrayList<>();
+        List<WashCodeChange> wmList = getWmList(Constants.PLATFORM_WM, userId, startTime, endTime);
+        List<WashCodeChange> pgList = getWmList(Constants.PLATFORM_PG, userId, startTime, endTime);
+        List<WashCodeChange> cq9List = getWmList(Constants.PLATFORM_CQ9, userId, startTime, endTime);
+        list.addAll(wmList);
+        list.addAll(pgList);
+        list.addAll(cq9List);
+        return list;
+    }
+    public List<WashCodeChange> getWmList(String platform,Long userId, String startTime, String endTime) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<WashCodeChange> query = builder.createQuery(WashCodeChange.class);
         Root<WashCodeChange> root = query.from(WashCodeChange.class);
@@ -44,14 +55,19 @@ public class WashCodeChangeService {
 
         List<Predicate> predicates = new ArrayList();
         predicates.add(builder.equal(root.get("userId").as(Long.class), userId));
+        predicates.add(builder.equal(root.get("platform").as(String.class), platform));
         if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
             predicates.add(builder.between(root.get("createTime").as(String.class), startTime, endTime));
         }
-        query.where(predicates.toArray(new Predicate[predicates.size()])).groupBy(root.get("platform"), root.get("gameId"));
-
+        if(Constants.PLATFORM_PG.equals(platform)||Constants.PLATFORM_CQ9.equals(platform)){
+            query.where(predicates.toArray(new Predicate[predicates.size()])).groupBy(root.get("platform"));
+        }else {
+            query.where(predicates.toArray(new Predicate[predicates.size()])).groupBy(root.get("platform"), root.get("gameId"));
+        }
         List<WashCodeChange> list = entityManager.createQuery(query).getResultList();
         return list;
     }
+
     public List<WashCodeChange> findUserList( Date startDate, Date endDate) {
         Specification<WashCodeChange> condition = this.getCondition(startDate,endDate);
         return washCodeChangeRepository.findAll(condition);
