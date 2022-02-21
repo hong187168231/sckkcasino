@@ -50,11 +50,11 @@ public class HomeReportController {
     @ApiOperation("查询代理首页报表")
     @GetMapping("/find")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
+        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<ProxyHomePageReportVo> find(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         ProxyHomePageReport proxyHomeReport = new  ProxyHomePageReport();
         proxyHomeReport.setProxyUserId(CasinoProxyUtil.getAuthId());
         ProxyHomePageReportVo proxyHomePageReportVo = null;
@@ -110,13 +110,13 @@ public class HomeReportController {
     @ApiOperation("查找走势图")
     @GetMapping("/findTrendChart")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
-            @ApiImplicitParam(name = "tag", value = "1:每日 2:每月 3:每年", required = false),
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
+        @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
+        @ApiImplicitParam(name = "tag", value = "1:每日 2:每月 3:每年", required = false),
+        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
+        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
     public ResponseEntity<ProxyHomePageReportVo> findTrendChart(Integer tag,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate,String userName) {
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate,String userName) {
         if (CasinoProxyUtil.checkNull(startDate, endDate)) {
             return ResponseUtil.custom("参数必填");
         }
@@ -218,7 +218,7 @@ public class HomeReportController {
         Date end = DateUtil.getSimpleDateFormat().parse(endTime);
         proxyHomePageReportService.chargeOrder(byId, start, end, proxyHomePageReport);
         proxyHomePageReportService.withdrawOrder(byId, start, end, proxyHomePageReport);
-        Set<Long> set = proxyHomePageReportService.gameRecordAndActive(byId, startTime, endTime, proxyHomePageReport);
+        Set<Long> set = proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
         proxyHomePageReportService.getNewUsers(byId, start, end, proxyHomePageReport);
         if (byId.getProxyRole() == CommonConst.NUMBER_1){
             proxyHomePageReportService.getNewSecondProxys(byId,start, end,proxyHomePageReport);
