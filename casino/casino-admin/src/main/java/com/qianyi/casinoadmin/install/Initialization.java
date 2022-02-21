@@ -17,6 +17,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +44,12 @@ public class Initialization implements CommandLineRunner {
     private BankInfoService bankInfoService;
 
     @Autowired
+    private PromoteCommissionConfigService promoteCommissionConfigService;
+
+
+    @Autowired
     private CustomerConfigureService customerConfigureService;
+
     @Autowired
     private PictureService pictureService;
     @Autowired
@@ -81,6 +88,9 @@ public class Initialization implements CommandLineRunner {
        //客户中心配置初始化
         this.saveCustomerConfigureInfo();
         this.saveGameRecordEndIndex();
+
+        this. saveReturnCommissionInfo();
+        this.saveCommission();
     }
 
     private void saveGameRecordEndIndex() {
@@ -196,6 +206,93 @@ public class Initialization implements CommandLineRunner {
                 saveCustomerInfo(customerInfo,uploadUrl);
             });
         }
+    }
+
+    //玩家推广配置
+    public void saveCommission(){
+        PlatformConfig platformConfig= platformConfigService.findFirst();
+        List<PromoteCommissionConfig> all = promoteCommissionConfigService.findAll();
+        if (all==null || all.size()== CommonConst.NUMBER_0){
+            List<PromoteCommissionConfig> list =new ArrayList<>();PromoteCommissionConfig promoteCommission=new PromoteCommissionConfig();
+            promoteCommission.setFirstCommission(platformConfig.getFirstCommission()==null ?BigDecimal.ZERO :platformConfig.getFirstCommission());
+            promoteCommission.setSecondCommission(platformConfig.getSecondCommission()==null ?BigDecimal.ZERO :platformConfig.getSecondCommission());
+            promoteCommission.setThirdCommission( platformConfig.getThirdCommission()==null ?BigDecimal.ZERO :platformConfig.getThirdCommission());
+            promoteCommission.setGameType(1);
+            list.add(promoteCommission);
+
+            PromoteCommissionConfig promoteCommission1=new PromoteCommissionConfig();
+            promoteCommission1.setFirstCommission(BigDecimal.ZERO);
+            promoteCommission1.setSecondCommission(BigDecimal.ZERO);
+            promoteCommission1.setThirdCommission( BigDecimal.ZERO);
+            promoteCommission1.setGameType(2);
+            list.add(promoteCommission1);
+
+            PromoteCommissionConfig promoteCommission2=new PromoteCommissionConfig();
+            promoteCommission2.setFirstCommission(BigDecimal.ZERO);
+            promoteCommission2.setSecondCommission(BigDecimal.ZERO);
+            promoteCommission2.setThirdCommission( BigDecimal.ZERO);
+            promoteCommission2.setGameType(3);
+            list.add(promoteCommission2);
+            promoteCommissionConfigService.save(list);
+        }
+    }
+
+    //返佣配置
+    public void saveReturnCommissionInfo(){
+
+        RebateConfig gameTypeTemp = rebateConfigService.findGameType(1);
+        if (gameTypeTemp==null){
+            RebateConfig all = rebateConfigService.findFirst();
+            if (all!=null && all.getGameType()==null){
+                all.setGameType(1);
+                rebateConfigService.save(all);
+            }
+        }
+        RebateConfig gameType = rebateConfigService.findGameType(2);
+        if(gameType==null){
+            addRebateConfig(2);
+        }
+        RebateConfig gameType2 = rebateConfigService.findGameType(3);
+        if(gameType2==null){
+            addRebateConfig(3);
+        }
+    }
+
+    public void addRebateConfig(Integer gameType){
+        RebateConfig rebateConfig=new RebateConfig();
+        rebateConfig.setGameType(gameType);
+
+        rebateConfig.setFirstMoney(0);
+        rebateConfig.setFirstAmountLine(new BigDecimal(10));
+        rebateConfig.setFirstProfit(new BigDecimal(10));
+
+        rebateConfig.setSecondMoney(5);
+        rebateConfig.setSecondAmountLine(new BigDecimal(5));
+        rebateConfig.setSecondProfit(new BigDecimal(12));
+
+        rebateConfig.setThirdMoney(20);
+        rebateConfig.setThirdAmountLine(new BigDecimal(20));
+        rebateConfig.setThirdProfit(new BigDecimal(14));
+
+        rebateConfig.setFourMoney(50);
+        rebateConfig.setFourAmountLine(new BigDecimal(50));
+        rebateConfig.setFourProfit(new BigDecimal(16));
+
+        rebateConfig.setFiveMoney(100);
+        rebateConfig.setFiveAmountLine(new BigDecimal(100));
+        rebateConfig.setFiveProfit(new BigDecimal(18));
+
+        rebateConfig.setSixMoney(200);
+        rebateConfig.setSixAmountLine(new BigDecimal(200));
+        rebateConfig.setSixProfit(new BigDecimal(23));
+
+        rebateConfig.setSevenMoney(400);
+        rebateConfig.setSevenAmountLine(new BigDecimal(400));
+        rebateConfig.setSevenProfit(new BigDecimal(25));
+        rebateConfig.setEightMoney(800);
+        rebateConfig.setEightAmountLine(new BigDecimal(800));
+        rebateConfig.setEightProfit(new BigDecimal(30));
+        rebateConfigService.save(rebateConfig);
     }
 
     private void saveCustomerInfo(CustomerConfigure customerInfo,String uploadUrl){
