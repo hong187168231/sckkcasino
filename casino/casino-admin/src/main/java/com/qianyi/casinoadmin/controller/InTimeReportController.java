@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -93,6 +94,7 @@ public class InTimeReportController {
             gameRecordReports.stream().forEach(gameRecordReport1 -> {
                 GameRecordReportVo vo = new GameRecordReportVo();
                 BeanUtils.copyProperties(gameRecordReport1,vo);
+                vo.setAmount(vo.getAmount().setScale(2, RoundingMode.HALF_UP));
                 //                if (gameRecordReport1.getFirstProxy().equals(CommonConst.LONG_0)){
                 //                    vo.setAccount(messageUtil.get("公司"));
                 //                }
