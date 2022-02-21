@@ -51,6 +51,9 @@ public class WithdrawOrderController {
     private BankcardsService bankcardsService;
 
     @Autowired
+    private BankInfoService bankInfoService;
+
+    @Autowired
     private SysUserService sysUserService;
 
     @ApiOperation("提现列表")
@@ -91,6 +94,8 @@ public class WithdrawOrderController {
             List<String> collect = content.stream().map(WithdrawOrder::getBankId).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
             List<Bankcards> all = bankcardsService.findAll(collect);
+            //查询银行卡
+            List<BankInfo> bankInfoList = bankInfoService.findAll();
 //            List<String> updateBys = content.stream().map(WithdrawOrder::getUpdateBy).collect(Collectors.toList());
 //            List<SysUser> sysUsers = sysUserService.findAll(updateBys);
             Map<Long, Bankcards> bankcardMap = all.stream().collect(Collectors.toMap(Bankcards::getId, a -> a, (k1, k2) -> k1));
@@ -102,7 +107,7 @@ public class WithdrawOrderController {
                             withdrawOrderVo.setAccount(user.getAccount());
                             if (!LoginUtil.checkNull(withdrawOrderVo.getBankId())){
                                 try {
-                                    this.setBankcards(bankcardMap.get(Long.valueOf(withdrawOrderVo.getBankId())),withdrawOrderVo);
+                                    this.setBankcards(bankcardMap.get(Long.valueOf(withdrawOrderVo.getBankId())),withdrawOrderVo,bankInfoList);
                                 }catch (Exception ex){
                                     log.info("bankId类型转换错误{}",withdrawOrderVo.getBankId());
                                 }
@@ -121,12 +126,16 @@ public class WithdrawOrderController {
         }
         return ResponseUtil.success(pageResultVO);
     }
-    private void  setBankcards(Bankcards bankcards,WithdrawOrderVo withdrawOrderVo){
+    private void  setBankcards(Bankcards bankcards,WithdrawOrderVo withdrawOrderVo,   List<BankInfo> bankInfoList ){
         if (LoginUtil.checkNull(bankcards)){
             return ;
         }
         withdrawOrderVo.setBankNo(bankcards.getBankAccount());
         withdrawOrderVo.setAccountName(bankcards.getRealName());
+        //查询银行卡
+        Map<Long, BankInfo> bankInfoMap = bankInfoList.stream().collect(Collectors.toMap(BankInfo::getId, a -> a, (k1, k2) -> k1));
+        BankInfo bankInfo = bankInfoMap.get(Long.valueOf(bankcards.getBankId()));
+        withdrawOrderVo.setBankName(bankInfo==null ? "null": bankInfo.getBankName());
     }
     @ApiOperation("提现审核")
     @ApiImplicitParams({

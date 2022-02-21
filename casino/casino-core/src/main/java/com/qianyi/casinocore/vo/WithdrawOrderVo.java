@@ -34,6 +34,8 @@ public class WithdrawOrderVo implements Serializable {
     private String bankId;
     @ApiModelProperty(value = "用户的银行号")
     private String bankNo;
+    @ApiModelProperty(value = "银行卡名称")
+    private String bankName;
     @ApiModelProperty(value = "开户名")
     private String accountName;
     @ApiModelProperty(value = "收款方式 1银行卡 2支付宝 3微信 4人工操作")
