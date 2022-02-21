@@ -44,7 +44,7 @@ public class LevelProxyDayReportBusiness {
         ProxyDayReport proxyDayReport = proxyDayReportService.findByUserIdAndDay(userId,dayTime);
         if(proxyDayReport == null)
             buildProxyDayReport(userId,dayTime);
-        return proxyDayReportService.findByUserIdAndDayWithLock(userId,dayTime);
+        return proxyDayReportService.findByUserIdAndDay(userId,dayTime);
     }
 
 

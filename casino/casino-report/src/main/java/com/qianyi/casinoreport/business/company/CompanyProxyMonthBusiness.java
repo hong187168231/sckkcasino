@@ -6,6 +6,7 @@ import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
 import com.qianyi.casinocore.vo.CompanyProxyMonthVo;
 import com.qianyi.casinoreport.vo.CompanyLevelBO;
+import com.qianyi.modulecommon.util.MessageUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,10 @@ public class CompanyProxyMonthBusiness {
 
     @Autowired
     private ProxyUserService proxyUserService;
+
+
+    @Autowired
+    private MessageUtil messageUtil;
 
 
     //传入计算当天的时间  yyyy-MM-dd 格式
@@ -267,7 +272,8 @@ public class CompanyProxyMonthBusiness {
         if(profit.equals(String.valueOf(eightMoney))){
             return CommonConst.REBATE_LEVEL_8;
         }
-        return CommonConst.REBATE_LEVEL;
+        String rebateLevel=messageUtil.get(CommonConst.REBATE_LEVEL);
+        return rebateLevel;
     }
 
 

@@ -44,8 +44,13 @@ public class SharePointConsumer {
     @RabbitHandler
     public void process(ShareProfitMqVo shareProfitMqVo, Channel channel, Message message) throws IOException {
         log.info("游戏id:{},消费者接受到的消息是：{}",shareProfitMqVo.getGameRecordId(),shareProfitMqVo);
-        levelShareProfitBusiness.procerssShareProfit(shareProfitMqVo);
-        channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        try {
+            levelShareProfitBusiness.procerssShareProfit(shareProfitMqVo);
+        } catch (Exception e) {
+            log.error("代理线分润消息队列执行异常:"+ e);
+        }finally {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        }
         log.info("游戏id:{},消费者处理完当前消息：{}",shareProfitMqVo.getGameRecordId(),shareProfitMqVo);
     }
 }

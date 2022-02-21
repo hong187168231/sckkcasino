@@ -12,9 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+
 @Slf4j
 @Service
-@Transactional(rollbackFor = Exception.class)
+//@Transactional(rollbackFor = Exception.class)
 public class LevelProxyReportBusiness {
     @Autowired
     private ProxyReportService proxyReportService;
@@ -33,7 +35,7 @@ public class LevelProxyReportBusiness {
         else
             noDirectProxy(proxyReport,shareProfitBO);
 
-       //proxyReportService.save(proxyReport);
+        //proxyReportService.save(proxyReport);
     }
 
     public void allProxy(ProxyReport proxyReport,ShareProfitBO shareProfitBO){
@@ -72,7 +74,7 @@ public class LevelProxyReportBusiness {
         ProxyReport proxyReport = proxyReportService.findByUserId(userId);
         if(proxyReport == null)
             buildProxyReport(userId);
-        return proxyReportService.findByUserIdWithLock(userId);
+        return proxyReportService.findByUserId(userId);
     }
 
     /**
