@@ -20,5 +20,7 @@ public class UserThirdVo  implements Serializable {
     private BigDecimal codeNum;
     @ApiModelProperty("WM余额")
     private BigDecimal wmMoney;
+    @ApiModelProperty("平台名称 WM、PG/CQ9")
+    private String platform;
 
 }
