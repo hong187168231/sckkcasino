@@ -57,6 +57,14 @@ public class NewPermissions {
             //第三方游戏管理
             thirdGameMange();
         }
+        if(collect.containsKey("/order/findOrderList")){
+            SysPermission sysPermission = collect.get("/order/findOrderList");
+            if(sysPermission.getName().equals("WM资金明细")){
+                sysPermission.setName("第三方资金明细");
+                sysPermission.setDescritpion("第三方资金明细");
+                sysPermissionService.save(sysPermission);
+            }
+        }
         sysPermissionService.saveAllList(sysPermissions);
     }
 
@@ -122,9 +130,12 @@ public class NewPermissions {
                 SysPermission sysPermission = new SysPermission("一键回收用户PG/CQ9余额", "一键回收用户PG/CQ9余额", "/user/oneKeyRecoverApi", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
-            Long userPid = collect.get("/memberCenter").getId();
             if (!collect.containsKey("/user/findUserTotal")) {
-                SysPermission sysPermission = new SysPermission("当前查询结果总计", "当前查询结果总计", "/user/findUserTotal", userPid, CommonConst.NUMBER_2, CommonConst.NUMBER_0);
+                SysPermission sysPermission = new SysPermission("当前查询结果总计", "当前查询结果总计", "/user/findUserTotal", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/bankcard/unboundBankName")) {
+                SysPermission sysPermission = new SysPermission("解除银行卡实名认证", "解除银行卡实名认证", "/bankcard/unboundBankName", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
 
@@ -246,6 +257,14 @@ public class NewPermissions {
             }
             if (!collect.containsKey("/platformConfig/updateBankcardRealNameSwitch")){
                 SysPermission sysPermission = new SysPermission("编辑银行卡账号校验开关", "编辑银行卡账号校验开关", "/platformConfig/updateBankcardRealNameSwitch", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/platformConfig/findPlatformMaintenance")){
+                SysPermission sysPermission = new SysPermission("查询平台维护开关", "查询平台维护开关", "/platformConfig/findPlatformMaintenance", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/platformConfig/updatePlatformMaintenance")){
+                SysPermission sysPermission = new SysPermission("修改平台维护开关", "修改平台维护开关", "/platformConfig/updatePlatformMaintenance", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
         }
