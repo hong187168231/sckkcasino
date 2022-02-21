@@ -15,7 +15,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -46,6 +48,8 @@ public class GameRecordGoldenFJob {
     private GameRecordAsyncOper gameRecordAsyncOper;
     @Autowired
     private PlatformGameService platformGameService;
+
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     //每隔5分钟执行一次
     @Scheduled(cron = "0 0/2 * * * ?")
@@ -147,11 +151,16 @@ public class GameRecordGoldenFJob {
     }
 
     private Boolean saveData(PublicGoldenFApi.ResponseEntity responseEntity) {
-        GameRecordObj gameRecordObj = JSON.parseObject(responseEntity.getData(), GameRecordObj.class);
-        List<GameRecordGoldenF> recordGoldenFS = gameRecordObj.getBetlogs();
-        processRecords(recordGoldenFS);
-        log.info("");
-        return gameRecordObj.getPage() >= gameRecordObj.getPageCount();
+        try{
+            log.info("reponseEntity is {}",responseEntity);
+            GameRecordObj gameRecordObj = JSON.parseObject(responseEntity.getData(), GameRecordObj.class);
+            List<GameRecordGoldenF> recordGoldenFS = gameRecordObj.getBetlogs();
+            processRecords(recordGoldenFS);
+            return gameRecordObj.getPage() >= gameRecordObj.getPageCount();
+        }catch (Exception ex){
+            log.error("处理结果集异常",ex);
+            return false;
+        }
     }
 
     private void processRecords(List<GameRecordGoldenF> recordGoldenFS) {
@@ -172,14 +181,18 @@ public class GameRecordGoldenFJob {
         });
     }
 
+    private String convertStdTime(Long seconds){
+        return simpleDateFormat.format(seconds);
+    }
+
     private void saveToDB(GameRecordGoldenF item,PlatformConfig platformConfig) {
         try {
             GameRecordGoldenF gameRecordGoldenF = gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
             if(gameRecordGoldenF==null){
                 gameRecordGoldenFService.save(item);
-                GameRecord gameRecord = combineGameRecord(item);
-                processBusiness(item,gameRecord,platformConfig);
             }
+            GameRecord gameRecord = combineGameRecord(gameRecordGoldenF==null?item:gameRecordGoldenF);
+            processBusiness(item,gameRecord,platformConfig);
         }catch (Exception e){
             log.error("",e);
         }
@@ -209,6 +222,8 @@ public class GameRecordGoldenFJob {
         gameRecord.setUserId(item.getUserId());
         gameRecord.setGameCode(adGame.getGameCode());
         gameRecord.setGname(adGame.getGameName());
+        gameRecord.setBetTime(item.getCreateAtStr());
+        gameRecord.setId(item.getId());
         return gameRecord;
     }
 

@@ -5,12 +5,18 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.Table;
 import java.math.BigDecimal;
 
 @Entity
 @Data
 @ApiModel("资金详情")
+@Table(name = "game_record_goldenf",indexes = {
+        @Index(name = "goldenf_traceId",columnList = "traceId",unique = true)
+})
 public class GameRecordGoldenF extends BaseEntity {
 
     @ApiModelProperty(value = "用户姓名")
@@ -32,9 +38,11 @@ public class GameRecordGoldenF extends BaseEntity {
     private String currency;
 
     @ApiModelProperty(value = "下注金额")
+    @Column(columnDefinition = "Decimal(19,6) default '0.000000'")
     private BigDecimal betAmount;
 
     @ApiModelProperty(value = "派彩或退回金额")
+    @Column(columnDefinition = "Decimal(19,6) default '0.000000'")
     private BigDecimal winAmount;
 
     @ApiModelProperty(value = "产品代码")
@@ -44,7 +52,7 @@ public class GameRecordGoldenF extends BaseEntity {
     private String walletCode;
 
     @ApiModelProperty(value = "创建时间")
-    private Long createAt;
+    private Long createdAt;
 
     @ApiModelProperty(value = "创建时间字符串")
     private String createAtStr;
