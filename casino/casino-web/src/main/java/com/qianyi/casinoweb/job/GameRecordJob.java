@@ -57,10 +57,6 @@ public class GameRecordJob {
     @Scheduled(cron = "0 0/5 * * * ?")
     public void pullGameRecord() {
         log.info("定时器开始拉取游戏记录");
-        ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
-        if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
-            log.error("{},游戏记录拉取失败", Constants.PLATFORM_WM_BIG + response.getMsg());
-        }
         String timeMsg = null;
         try {
             //多环境不能同时发起请求，test环境延迟30s执行，正式环境优先,报表查询需间隔30秒，未搜寻到数据需间隔10秒。
@@ -119,12 +115,7 @@ public class GameRecordJob {
         String endTime = format.format(nowDate);
         //第一次拉取数据取当前时间前5分钟为开始时间，之后以上次拉取数据的结束时间为开始时间
         if (ObjectUtils.isEmpty(time)) {
-            Date date = format.parse(endTime);
-            Calendar now = Calendar.getInstance();
-            now.setTime(date);
-            now.add(Calendar.MINUTE, -5);
-            Date afterFiveMin = now.getTime();
-            startTime = format.format(afterFiveMin);
+            startTime = getBeforeDateTime(format,endTime,-5);
         } else {
             startTime = time;
         }
@@ -139,10 +130,23 @@ public class GameRecordJob {
             Date afterFiveMin = now.getTime();
             endTime = format.format(afterFiveMin);
         }
+        //开始时间往前2分钟，重叠两分钟的时间区间
+        startTime = getBeforeDateTime(format,startTime,-2);
+
         StartTimeAndEndTime startTimeAndEndTime = new StartTimeAndEndTime();
         startTimeAndEndTime.setStartTime(startTime);
         startTimeAndEndTime.setEndTime(endTime);
         return startTimeAndEndTime;
+    }
+
+    private String getBeforeDateTime(SimpleDateFormat format,String currentTime,int before) throws ParseException {
+        Date date = format.parse(currentTime);
+        Calendar now = Calendar.getInstance();
+        now.setTime(date);
+        now.add(Calendar.MINUTE, before);
+        Date afterFiveMin = now.getTime();
+        String dateTime = format.format(afterFiveMin);
+        return dateTime;
     }
 
     /**
