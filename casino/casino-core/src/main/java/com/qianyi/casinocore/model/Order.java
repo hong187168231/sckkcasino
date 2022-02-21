@@ -24,6 +24,9 @@ public class Order extends BaseEntity {
     private Integer state;
     @ApiModelProperty("备注")
     private String remark;
+    @ApiModelProperty("平台名称: WM, PG/CQ9")
+    @Column(columnDefinition = "varchar(16) default 'WM'")
+    private String gamePlatformName;
 
     /**
      * 0.转入，1.转出
