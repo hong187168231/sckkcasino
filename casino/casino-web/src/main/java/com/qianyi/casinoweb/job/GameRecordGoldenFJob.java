@@ -15,7 +15,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -46,6 +48,8 @@ public class GameRecordGoldenFJob {
     private GameRecordAsyncOper gameRecordAsyncOper;
     @Autowired
     private PlatformGameService platformGameService;
+
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     //每隔5分钟执行一次
     @Scheduled(cron = "0 0/2 * * * ?")
@@ -170,6 +174,10 @@ public class GameRecordGoldenFJob {
             item.setCreateAtStr(DateUtil.timeStamp2Date(item.getCreatedAt(),""));
             saveToDB(item,platformConfig);
         });
+    }
+
+    private String convertStdTime(Long seconds){
+        return simpleDateFormat.format(seconds);
     }
 
     private void saveToDB(GameRecordGoldenF item,PlatformConfig platformConfig) {
