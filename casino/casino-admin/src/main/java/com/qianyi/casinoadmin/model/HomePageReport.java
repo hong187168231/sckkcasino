@@ -43,6 +43,10 @@ public class HomePageReport extends BaseEntity {
     @Column(columnDefinition = "Decimal(15,6) default '0.00'")
     private BigDecimal washCodeAmount;
 
+    @ApiModelProperty(value = "抽点金额")
+    @Column(columnDefinition = "Decimal(15,6) default '0.00'")
+    private BigDecimal extractPointsAmount;
+
     @ApiModelProperty(value = "结算人人代佣金")
     @Column(columnDefinition = "Decimal(15,6) default '0.00'")
     private BigDecimal  shareAmount;
