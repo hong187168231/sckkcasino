@@ -207,6 +207,8 @@ public class GameRecordGoldenFJob {
             return;
         //洗码
         gameRecordAsyncOper.washCode(gameRecordGoldenF.getVendorCode(), gameRecord);
+        // 抽点
+        gameRecordAsyncOper.extractPoints(gameRecordGoldenF.getVendorCode(), gameRecord);
         //扣减打码量
         gameRecordAsyncOper.subCodeNum(gameRecordGoldenF.getVendorCode(),platformConfig, gameRecord);
         //代理分润

@@ -1,0 +1,47 @@
+package com.qianyi.casinocore.service;
+
+import com.qianyi.casinocore.co.extractpoints.ExtractPointsConfigCo;
+import com.qianyi.casinocore.model.ExtractPointsConfig;
+import com.qianyi.casinocore.repository.ExtractPointsConfigRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+
+import javax.persistence.criteria.Predicate;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * 代理抽点默认配置服务类
+ *
+ * @author lance
+ * @since 2022 -02-21 12:54:42
+ */
+@Service
+public class ExtractPointsConfigService {
+
+    @Autowired
+    private ExtractPointsConfigRepository repository;
+
+    /**
+     * 代理抽点列表查询
+     *
+     * @param co 查询参数
+     * @return {@link List} 出参释义
+     * @author lance
+     * @since 2022 -02-21 12:54:42
+     */
+    public List<ExtractPointsConfig> findList(ExtractPointsConfigCo co) {
+        Specification<ExtractPointsConfig> condition = (root, q, cb) -> {
+            List<Predicate> list = new ArrayList<>();
+            if (!StringUtils.isEmpty(co.getPlatform())) {
+                list.add(cb.equal(root.get("platform").as(String.class), co.getPlatform()));
+            }
+            return cb.and(list.toArray(new Predicate[list.size()]));
+        };
+        return repository.findAll(condition);
+    }
+
+}

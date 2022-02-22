@@ -1,5 +1,6 @@
 package com.qianyi.casinoweb.job;
 
+import com.qianyi.casinocore.business.ExtractPointsConfigBusiness;
 import com.qianyi.casinocore.business.TelegramBotBusiness;
 import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.model.GameRecord;
@@ -19,6 +20,9 @@ public class GameRecordAsyncOper {
     @Autowired
     private TelegramBotBusiness telegramBotBusiness;
 
+    @Autowired
+    private ExtractPointsConfigBusiness extractPointsConfigBusiness;
+
     /**
      * 异步洗码
      *
@@ -28,6 +32,16 @@ public class GameRecordAsyncOper {
     @Async("asyncExecutor")
     public void washCode(String platform, GameRecord gameRecord) {
         userMoneyBusiness.washCode(platform, gameRecord);
+    }
+
+    /**
+     * 异步抽点
+     * @param platform
+     * @param gameRecord
+     */
+    @Async("asyncExecutor")
+    public void extractPoints(String platform, GameRecord gameRecord) {
+        extractPointsConfigBusiness.extractPoints(platform, gameRecord);
     }
 
     /**
