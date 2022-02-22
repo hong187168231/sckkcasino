@@ -99,13 +99,13 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
                 String value = request.getHeader(key);
                 map.put(key, value);
             }
-            StringBuffer body = new StringBuffer();
-            String line = null;
-            BufferedReader reader = request.getReader();
-            while ((line = reader.readLine()) != null) {
-                body.append(line);
-            }
-            log.info("请求IP:{},请求方法:{},请求类型:{},请求头:{},请求路径参数:{},请求体参数:{}", ip, path, requestMethod, map.toString(), queryString, body.toString());
+//            StringBuffer body = new StringBuffer();
+//            String line = null;
+//            BufferedReader reader = request.getReader();
+//            while ((line = reader.readLine()) != null) {
+//                body.append(line);
+//            }
+            log.info("请求IP:{},请求方法:{},请求类型:{},请求头:{},请求路径参数:{}", ip, path, requestMethod, map.toString(), queryString);
         } catch (Exception e) {
             e.printStackTrace();
         }
