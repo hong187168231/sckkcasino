@@ -49,7 +49,7 @@ public class SupplementController {
     @Autowired
     private GameRecordJob gameRecordJob;
 
-    @GetMapping("/wmSupplement")
+    @GetMapping("/wm")
     @ApiOperation("WM平台手动补单")
     @NoAuthentication
     @ApiImplicitParams({
@@ -118,7 +118,7 @@ public class SupplementController {
                 List<GameRecord> gameRecords = JSON.parseArray(result, GameRecord.class);
                 if (!CollectionUtils.isEmpty(gameRecords)) {
                     gameRecordJob.saveAll(gameRecords);
-                    list.add(timeMsg + "游戏记录保存完成");
+                    list.add(timeMsg + "游戏记录补单完成");
                 }
             }
         } catch (Exception e) {
