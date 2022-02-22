@@ -127,6 +127,12 @@ public class SupplementController {
             e.printStackTrace();
         }
         if (!endTime.equals(endTimeNew)) {
+            try {
+                //报表查询需间隔30秒，未搜寻到数据需间隔10秒。
+                Thread.sleep(30 * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             getDateTimeReport(list, endTimeNew, endTime, df);
         }
         return list;
