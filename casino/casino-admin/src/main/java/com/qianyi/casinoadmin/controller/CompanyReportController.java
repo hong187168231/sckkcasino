@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.RoundingMode;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -54,6 +55,10 @@ public class CompanyReportController {
         String endTime = DateUtil.dateToPatten2(endDate);
         GameRecordReportNew gameRecordReport = new GameRecordReportNew();
         gameRecordReport.setPlatform(platform);
-        return ResponseUtil.success(gameRecordReportNewService.findRecordRecordSum(gameRecordReport,startTime,endTime));
+        GameRecordReportNew recordRecordSum = gameRecordReportNewService.findRecordRecordSum(gameRecordReport, startTime, endTime);
+        if (!LoginUtil.checkNull(recordRecordSum)){
+            recordRecordSum.setAmount(recordRecordSum.getAmount() != null? recordRecordSum.getAmount().setScale(2, RoundingMode.HALF_UP):null);
+        }
+        return ResponseUtil.success(recordRecordSum);
     }
 }
