@@ -5,6 +5,7 @@ import com.qianyi.casinocore.util.CommonConst;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -35,6 +36,9 @@ public class HomePageReportVo implements Serializable {
 
     @ApiModelProperty(value = "洗码金额")
     private BigDecimal washCodeAmount;
+
+    @ApiModelProperty(value = "代理抽点金额")
+    private BigDecimal extractPointsAmount;
 
     @ApiModelProperty(value = "结算人人代佣金")
     private BigDecimal  shareAmount;

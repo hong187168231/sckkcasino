@@ -101,6 +101,9 @@ public class HomePageReportController {
             BigDecimal shareAmount = homePageReports.stream().map(HomePageReport::getShareAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal bonusAmount = homePageReports.stream().map(HomePageReport::getBonusAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal serviceCharge = homePageReports.stream().map(HomePageReport::getServiceCharge).reduce(BigDecimal.ZERO, BigDecimal::add);
+            // 抽点总额
+            BigDecimal extractPointsAmount = homePageReports.stream().map(HomePageReport::getExtractPointsAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+
             Integer newUsers = homePageReports.stream().mapToInt(HomePageReport::getNewUsers).sum();
             homePageReportVo.setChargeAmount(homePageReportVo.getChargeAmount().add(chargeAmount));
             homePageReportVo.setWithdrawMoney(homePageReportVo.getWithdrawMoney().add(withdrawMoney));
@@ -113,6 +116,9 @@ public class HomePageReportController {
             homePageReportVo.setChargeNums(chargeNums + homePageReportVo.getChargeNums());
             homePageReportVo.setWithdrawNums(withdrawNums + homePageReportVo.getWithdrawNums());
             homePageReportVo.setNewUsers(newUsers + homePageReportVo.getNewUsers());
+            // 设置抽点总额
+            homePageReportVo.setExtractPointsAmount(extractPointsAmount);
+
             UserRunningWater userRunningWater = new UserRunningWater();
             List<UserRunningWater> userRunningWaterList = userRunningWaterService.findUserRunningWaterList(userRunningWater, startTime, endTime);
             Set<Long> userIdSet = homePageReportVo.getUserIdSet();
