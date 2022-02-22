@@ -113,6 +113,7 @@ public class SupplementController {
                 list.add(timeMsg + "游戏记录拉取失败,远程请求异常");
             } else if ("notData".equals(result)) { //查询结果无记录
                 log.info("{}时间范围无记录", timeMsg);
+                list.add(timeMsg + "时间范围无记录");
             } else {
                 List<GameRecord> gameRecords = JSON.parseArray(result, GameRecord.class);
                 if (!CollectionUtils.isEmpty(gameRecords)) {
