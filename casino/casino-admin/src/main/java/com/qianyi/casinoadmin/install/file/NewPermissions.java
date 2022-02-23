@@ -50,7 +50,7 @@ public class NewPermissions {
             setReportCenter(collect);
         }
         if(collect.containsKey("/memberCenter")){
-            //报表管理
+            //会员中心
             setMemberCenter(collect);
         }
         if(!collect.containsKey("/thirdGameMange")){
@@ -138,7 +138,14 @@ public class NewPermissions {
                 SysPermission sysPermission = new SysPermission("解除银行卡实名认证", "解除银行卡实名认证", "/bankcard/unboundBankName", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
-
+            if (!collect.containsKey("/extractPointsConfig/user/findAll")) {
+                SysPermission sysPermission = new SysPermission("用户抽点配置表查询", "用户抽点配置表查询", "/extractPointsConfig/user/findAll", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/extractPointsConfig/user/update")) {
+                SysPermission sysPermission = new SysPermission("更新用户抽点配置", "更新用户抽点配置", "/extractPointsConfig/user/update", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
         }
     }
     /**
@@ -209,6 +216,14 @@ public class NewPermissions {
                 SysPermission sysPermission = new SysPermission("删除", "删除", "/proxyUser/delete", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
+            if (!collect.containsKey("/extractPointsConfig/poxy/findAll")) {
+                SysPermission sysPermission = new SysPermission("代理抽点配置表查询", "代理抽点配置表查询", "/extractPointsConfig/poxy/findAll", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/extractPointsConfig/poxy/update")) {
+                SysPermission sysPermission = new SysPermission("更新基础代代理抽点配置", "更新基础代代理抽点配置", "/extractPointsConfig/poxy/update", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
         }
     }
 
@@ -229,7 +244,7 @@ public class NewPermissions {
                 sysPermissionService.deleteById(updateByUrl.getId());
             }
             Long pid = collect.get("/operateCenter").getId();
-            SysPermission sysConfigPermission = new SysPermission("客服中心配置", "客服中心配置", "/customer/findCustomerList", pid, 2, 0);
+            SysPermission sysConfigPermission = new SysPermission("客服中心配置", "客服中心配置", "/customer/findCustomerList", pid, CommonConst.NUMBER_2, CommonConst.NUMBER_0);
             save = sysPermissionService.save(sysConfigPermission);
         }
         if(save.getUrl()!=null && save.getUrl().equals("/customer/findCustomerList")){
@@ -265,6 +280,19 @@ public class NewPermissions {
             }
             if (!collect.containsKey("/platformConfig/updatePlatformMaintenance")){
                 SysPermission sysPermission = new SysPermission("修改平台维护开关", "修改平台维护开关", "/platformConfig/updatePlatformMaintenance", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+        }
+
+        // 代理抽点配置
+        if (!collect.containsKey("/extractPointsConfig/findAll")) {
+            Long pid = collect.get("/operateCenter").getId();
+            SysPermission sysConfigPermission = new SysPermission("代理抽点配置", "代理抽点配置", "/extractPointsConfig/findAll", pid, CommonConst.NUMBER_2, CommonConst.NUMBER_0);
+            save = sysPermissionService.save(sysConfigPermission);
+            pid = save.getId();
+            if (!collect.containsKey("/extractPointsConfig/update")) {
+                // 更新默认的抽点配置
+                SysPermission sysPermission = new SysPermission("更新默认的抽点配置", "更新默认的抽点配置", "/extractPointsConfig/update", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
         }

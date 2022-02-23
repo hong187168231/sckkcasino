@@ -99,3 +99,7 @@ ALTER TABLE `casino`.`game_record`
 
 ALTER TABLE `casino`.`game_record_goldenf`
     ADD COLUMN `extract_status` int NOT NULL DEFAULT 0 COMMENT '抽点状态: 0: 否 1: 是' AFTER `wash_code_status`;
+
+-- 首页报表新增字段
+ALTER TABLE `casino`.`home_page_report`
+    ADD COLUMN `extract_points_amount` decimal(15, 6) NOT NULL DEFAULT 0.00 COMMENT '抽点金额' AFTER `wash_code_amount`;
