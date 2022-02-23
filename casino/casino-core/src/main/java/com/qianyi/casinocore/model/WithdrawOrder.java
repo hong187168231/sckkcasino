@@ -34,6 +34,14 @@ public class WithdrawOrder extends BaseEntity {
     @ApiModelProperty(value = "手续费")
     private BigDecimal serviceCharge;
 
+    public BigDecimal getServiceCharge(){
+        // 管理后台下分是没有手续费的，这里防止出现空指针
+        if (serviceCharge == null) {
+            return BigDecimal.ZERO;
+        }
+        return serviceCharge;
+    }
+
     @ApiModelProperty(value = "银行卡Id")
     private String bankId;
 
