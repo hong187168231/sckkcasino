@@ -21,4 +21,6 @@ public interface BankcardsRepository extends JpaRepository<Bankcards,Long> , Jpa
     Bankcards findByUserIdAndBankAccount(Long userId, String bankAccount);
 
     List<Bankcards> findByRealName(String realName);
+
+    List<Bankcards> findByBankAccountAndUserIdNot(String bankAccount, Long userId);
 }
