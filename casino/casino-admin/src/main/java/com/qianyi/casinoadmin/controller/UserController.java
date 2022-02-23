@@ -381,6 +381,27 @@ public class UserController {
         }
     }
 
+    @ApiOperation("请求玩家再WM余额总余额")
+    @GetMapping("getWMMoneyTotal")
+    public ResponseEntity getWMMoneyTotal(){
+        List<UserThird> allAcount = userThirdService.findAllAcount();
+        if (LoginUtil.checkNull(allAcount) || allAcount.size() == CommonConst.NUMBER_0){
+            return ResponseUtil.success(BigDecimal.ZERO);
+        }
+        BigDecimal sum = BigDecimal.ZERO;
+        for (UserThird u:allAcount){
+            JSONObject jsonObject = userMoneyService.getWMonetUser(u);
+            if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+                continue;
+            }
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
+                sum.add(new BigDecimal(jsonObject.get("data").toString()));
+            }
+        }
+        return ResponseUtil.success(sum);
+    }
+
     @ApiOperation("一键回收用户WM余额")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "id", value = "客户id", required = true),
@@ -405,6 +426,27 @@ public class UserController {
         }catch (Exception ex){
             return ResponseUtil.custom("回收WM余额失败");
         }
+    }
+
+    @ApiOperation("查询玩家PG/CQ9总余额")
+    @GetMapping("refreshPGTotal")
+    public ResponseEntity refreshPGTotal(){
+        List<UserThird> allGoldenfAccount = userThirdService.findAllGoldenfAccount();
+        if (LoginUtil.checkNull(allGoldenfAccount) || allGoldenfAccount.size() == CommonConst.NUMBER_0){
+            return ResponseUtil.success(BigDecimal.ZERO);
+        }
+        BigDecimal sum = BigDecimal.ZERO;
+        for (UserThird u:allGoldenfAccount){
+            JSONObject jsonObject = userMoneyService.refreshPGAndCQ9(u);
+            if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+                continue;
+            }
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
+                sum.add(new BigDecimal(jsonObject.get("data").toString()));
+            }
+        }
+        return ResponseUtil.success(sum);
     }
 
     @ApiOperation("查询用户PG/CQ9余额")
