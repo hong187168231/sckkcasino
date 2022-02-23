@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.service;
 
+import com.qianyi.casinocore.co.withdrwa.WithdrawOrderCo;
 import com.qianyi.casinocore.model.WithdrawOrder;
 import com.qianyi.casinocore.repository.WithdrawOrderRepository;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -63,6 +64,48 @@ public class WithdrawOrderService {
         Specification<WithdrawOrder> condition = this.getConditionByUpdate(withdrawOrder,startDate,endDate);
         return withdrawOrderRepository.findAll(condition);
     }
+
+    /**
+     * 查询所有成功的取款订单
+     * @param co
+     * @return
+     */
+    public List<WithdrawOrder> findSuccessedListByUpdate(WithdrawOrderCo co) {
+        Specification<WithdrawOrder> condition = (root, q, cb) -> {
+            Predicate predicate = cb.conjunction();
+            List<Predicate> list = new ArrayList<>();
+            list.add(
+                    cb.or(
+                            // 1：通过
+                            cb.equal(root.get("status").as(Integer.class), 1),
+                            // 4.总控下分
+                            cb.equal(root.get("status").as(Integer.class), 4)
+                    )
+            );
+            if (co.getStartDate() != null) {
+                list.add(cb.greaterThanOrEqualTo(root.get("updateTime").as(Date.class), co.getStartDate()));
+            }
+            if (co.getEndDate() != null) {
+                list.add(cb.lessThanOrEqualTo(root.get("updateTime").as(Date.class), co.getEndDate()));
+            }
+
+            if (co.getFirstProxy() != null) {
+                list.add(cb.equal(root.get("firstProxy").as(Long.class), co.getFirstProxy()));
+            }
+            if (co.getSecondProxy() != null) {
+                list.add(cb.equal(root.get("secondProxy").as(Long.class), co.getSecondProxy()));
+            }
+            if (co.getThirdProxy() != null) {
+                list.add(cb.equal(root.get("thirdProxy").as(Long.class), co.getThirdProxy()));
+            }
+
+            predicate = cb.and(list.toArray(new Predicate[list.size()]));
+
+            return predicate;
+        };
+        return withdrawOrderRepository.findAll(condition);
+    }
+
     private Specification<WithdrawOrder> getConditionByUpdate(WithdrawOrder withdrawOrder,Date startDate,Date endDate) {
         Specification<WithdrawOrder> specification = new Specification<WithdrawOrder>() {
             List<Predicate> list = new ArrayList<Predicate>();
