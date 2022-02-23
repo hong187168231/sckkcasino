@@ -245,7 +245,13 @@ public class UserMoneyService {
         }
     }
     public JSONObject getWMonetUser(UserThird third) {
-        Integer lang = userService.findById(third.getUserId()).getLanguage();
+        User byId = userService.findById(third.getUserId());
+        Integer lang;
+        if (byId == null){
+            lang = 0;
+        }else {
+            lang = byId.getLanguage();
+        }
         if (lang == null) {
             lang = 0;
         }

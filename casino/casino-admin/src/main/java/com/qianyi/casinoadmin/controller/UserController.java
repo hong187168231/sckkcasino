@@ -396,7 +396,7 @@ public class UserController {
             }
             Integer code = (Integer) jsonObject.get("code");
             if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
-                sum.add(new BigDecimal(jsonObject.get("data").toString()));
+                sum = sum.add(new BigDecimal(jsonObject.get("data").toString()));
             }
         }
         return ResponseUtil.success(sum);
@@ -443,7 +443,7 @@ public class UserController {
             }
             Integer code = (Integer) jsonObject.get("code");
             if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
-                sum.add(new BigDecimal(jsonObject.get("data").toString()));
+                sum = sum.add(new BigDecimal(jsonObject.get("data").toString()));
             }
         }
         return ResponseUtil.success(sum);
