@@ -12,11 +12,11 @@ public enum AccountChangeEnum {
     WITHDRAWDEFEATED_CODE(4, "TXSB","提现失败"),
     SUB_CODE(5, "RGKJ","人工扣减"),
     WITHDRAW_APPLY(6, "QY","提现申请"),
-    WM_IN(7, "WMIN","转入WM"),
-    RECOVERY(8, "RECOVERY","一键回收WM"),
+    WM_IN(7, "WMIN","WM转入"),
+    RECOVERY(8, "RECOVERY","WM转出"),
     SHARE_PROFIT(9, "SP","代理佣金领取"),
-    PG_CQ9_IN(10, "PGCQ9IN","PC/CQ9转入"),
-    PG_CQ9_OUT(11, "PGCQ9OUT","PC/CQ9转出"),
+    PG_CQ9_IN(10, "PGCQ9IN","PG/CQ9转入"),
+    PG_CQ9_OUT(11, "PGCQ9OUT","PG/CQ9转出"),
     ;
 
     private Integer type;
