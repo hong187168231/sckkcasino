@@ -1,5 +1,7 @@
 package com.qianyi.casinocore.vo;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -12,6 +14,7 @@ public class UserTotalVo implements Serializable {
     @ApiModelProperty("待领取洗码金额")
     private BigDecimal washCode = BigDecimal.ZERO;
     @ApiModelProperty("中心余额")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal money = BigDecimal.ZERO;
 
 }
