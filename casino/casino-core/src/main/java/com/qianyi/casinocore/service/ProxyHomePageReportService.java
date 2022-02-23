@@ -1,5 +1,7 @@
 package com.qianyi.casinocore.service;
 
+import com.qianyi.casinocore.co.charge.ChargeOrderCo;
+import com.qianyi.casinocore.co.withdrwa.WithdrawOrderCo;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.model.ProxyHomePageReport;
@@ -19,7 +21,6 @@ import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -143,12 +144,18 @@ public class ProxyHomePageReportService {
     }
     public void chargeOrder(ProxyUser proxyUser, Date startDate, Date endDate, ProxyHomePageReport proxyHomePageReport){
         try {
-            ChargeOrder chargeOrder = new ChargeOrder();
-            chargeOrder.setStatus(CommonConst.NUMBER_1);
-            if (CommonUtil.setParameter(chargeOrder,proxyUser)){
-                return;
+            ChargeOrderCo co = new ChargeOrderCo();
+            co.setStartDate(startDate);
+            co.setEndDate(endDate);
+            if (proxyUser.getProxyRole() == CommonConst.NUMBER_1) {
+                co.setFirstProxy(proxyUser.getId());
+            } else if (proxyUser.getProxyRole() == CommonConst.NUMBER_2){
+                co.setSecondProxy(proxyUser.getId());
+            } else if(proxyUser.getProxyRole() == CommonConst.NUMBER_3){
+                co.setThirdProxy(proxyUser.getId());
             }
-            List<ChargeOrder> chargeOrders = chargeOrderService.findListByUpdate(chargeOrder, startDate, endDate);
+
+            List<ChargeOrder> chargeOrders = chargeOrderService.findSuccessedListByUpdate(co);
             if (chargeOrders == null || chargeOrders.size() == CommonConst.NUMBER_0){
                 proxyHomePageReport.setChargeAmount(BigDecimal.ZERO);
                 proxyHomePageReport.setChargeNums(CommonConst.NUMBER_0);
@@ -164,12 +171,19 @@ public class ProxyHomePageReportService {
     }
     public void withdrawOrder(ProxyUser proxyUser,Date startDate,Date endDate,ProxyHomePageReport proxyHomePageReport){
         try {
-            WithdrawOrder withdrawOrder = new WithdrawOrder();
-            withdrawOrder.setStatus(CommonConst.NUMBER_1);
-            if (CommonUtil.setParameter(withdrawOrder,proxyUser)){
-                return;
+            WithdrawOrderCo co = new WithdrawOrderCo();
+
+            co.setStartDate(startDate);
+            co.setEndDate(endDate);
+            if (proxyUser.getProxyRole() == CommonConst.NUMBER_1) {
+                co.setFirstProxy(proxyUser.getId());
+            } else if (proxyUser.getProxyRole() == CommonConst.NUMBER_2){
+                co.setSecondProxy(proxyUser.getId());
+            } else if(proxyUser.getProxyRole() == CommonConst.NUMBER_3){
+                co.setThirdProxy(proxyUser.getId());
             }
-            List<WithdrawOrder> withdrawOrders = withdrawOrderService.findListByUpdate(withdrawOrder, startDate, endDate);
+
+            List<WithdrawOrder> withdrawOrders = withdrawOrderService.findSuccessedListByUpdate(co);
             if (withdrawOrders == null || withdrawOrders.size() == CommonConst.NUMBER_0){
                 proxyHomePageReport.setWithdrawMoney(BigDecimal.ZERO);
                 proxyHomePageReport.setWithdrawNums(CommonConst.NUMBER_0);

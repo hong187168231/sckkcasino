@@ -38,6 +38,7 @@ public class UserVo implements Serializable , Comparable<BigDecimal> {
     @ApiModelProperty("配置收款卡等级")//null 完全随机  或者 A|B|C|D
     private String cardLevel;
     @ApiModelProperty("收款卡张数")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal money = BigDecimal.ZERO;
 
     @ApiModelProperty("待领取洗码金额")
