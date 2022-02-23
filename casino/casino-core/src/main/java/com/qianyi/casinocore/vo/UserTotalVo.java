@@ -15,6 +15,7 @@ public class UserTotalVo implements Serializable {
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal washCode = BigDecimal.ZERO;
     @ApiModelProperty("中心余额")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal money = BigDecimal.ZERO;
 
 }
