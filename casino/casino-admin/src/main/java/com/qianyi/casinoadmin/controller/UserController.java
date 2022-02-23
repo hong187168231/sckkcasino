@@ -6,6 +6,7 @@ import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.util.PasswordUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
+import com.qianyi.casinocore.vo.UserTotalVo;
 import com.qianyi.casinocore.vo.UserVo;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
 import com.qianyi.casinocore.business.WithdrawBusiness;
@@ -154,9 +155,9 @@ public class UserController {
             @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false)
     })
     @GetMapping("findUserTotal")
-    public ResponseEntity<BigDecimal> findUserTotal( String account,String proxyAccount,Integer state,
-                                               @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
-                                               @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+    public ResponseEntity<UserTotalVo> findUserTotal(String account, String proxyAccount, Integer state,
+                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
+                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         //后续扩展加参数。
         User user = new User();
         user.setAccount(account);
@@ -175,12 +176,15 @@ public class UserController {
             }
         }
         List<User> userList = userService.findUserList(user, startDate, endDate);
-
+        UserTotalVo userTotalVo=new UserTotalVo();
         if(userList != null && userList.size() > 0){
             List<Long> userIds = userList.stream().map(User::getId).collect(Collectors.toList());
             List<UserMoney> all = userMoneyService.findAll(userIds);
             BigDecimal sum = all.stream().map(UserMoney::getMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
-            return ResponseUtil.success(sum);
+            BigDecimal washCode = all.stream().map(UserMoney::getWashCode).reduce(BigDecimal.ZERO, BigDecimal::add);
+            userTotalVo.setMoney(sum);
+            userTotalVo.setWashCode(washCode);
+            return ResponseUtil.success(userTotalVo);
         }
         return ResponseUtil.success(BigDecimal.ZERO);
     }
@@ -262,6 +266,8 @@ public class UserController {
                     finalUserMoneyList.stream().forEach(userMoney -> {
                         if(u.getId().equals(userMoney.getUserId())){
                             userVo.setMoney(userMoney.getMoney());
+                            //待领取洗码金额
+                            userVo.setNotCodeWashingAmount(userMoney.getWashCode());
                             userVo.setCodeNum(userMoney.getCodeNum());
                             userVo.setWithdrawMoney(userMoney.getWithdrawMoney());//可以提现金额
                         }
