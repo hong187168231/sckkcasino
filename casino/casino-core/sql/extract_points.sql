@@ -97,6 +97,9 @@ CREATE TABLE `extract_points_change` (
 ALTER TABLE `casino`.`game_record`
     ADD COLUMN `extract_status` int NOT NULL DEFAULT 0 COMMENT '抽点状态: 0: 否 1: 是' AFTER `wash_code_status`;
 
+ALTER TABLE `casino`.`game_record`
+    MODIFY COLUMN `extract_status` int NULL DEFAULT 0 COMMENT '抽点状态: 0: 否 1: 是' AFTER `wash_code_status`;
+
 ALTER TABLE `casino`.`game_record_goldenf`
     ADD COLUMN `extract_status` int NOT NULL DEFAULT 0 COMMENT '抽点状态: 0: 否 1: 是' AFTER `wash_code_status`;
 
