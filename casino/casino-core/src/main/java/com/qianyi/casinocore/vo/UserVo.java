@@ -1,7 +1,9 @@
 package com.qianyi.casinocore.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.qianyi.casinocore.model.User;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -40,6 +42,7 @@ public class UserVo implements Serializable , Comparable<BigDecimal> {
     private BigDecimal money = BigDecimal.ZERO;
 
     @ApiModelProperty("待领取洗码金额")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal notCodeWashingAmount = BigDecimal.ZERO;
 
     @ApiModelProperty("剩余打码量")
