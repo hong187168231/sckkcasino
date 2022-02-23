@@ -96,10 +96,11 @@ public class BankCardsController {
         if (!bankcardRealNameSwitch) {
             return ResponseUtil.custom("同一个持卡人只能绑定一个账号");
         }
+        bankcards= bankcardsService.boundCard(bankcards);
+        //把真实姓名保存到user
         if (!ObjectUtils.isEmpty(user.getRealName()) && !user.getRealName().equals(userRealName)) {
             userService.save(user);
         }
-        bankcards= bankcardsService.boundCard(bankcards);
         return ResponseUtil.success(bankcards);
     }
 
