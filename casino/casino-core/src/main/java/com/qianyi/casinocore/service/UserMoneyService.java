@@ -283,15 +283,15 @@ public class UserMoneyService {
             return null;
         }
     }
-    public JSONObject refreshPGAndCQ9(User user) {
+    public JSONObject refreshPGAndCQ9(Long userId) {
         try {
             String param = "userId={0}";
-            param = MessageFormat.format(param,user.getId().toString());
+            param = MessageFormat.format(param,userId.toString());
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null?"":first.getWebConfiguration();
             WMurl = WMurl + PG_refreshUrl;
             String s = HttpClient4Util.get(WMurl + param);
-            log.info("{}查询PG余额web接口返回{}",user.getAccount(),s);
+            log.info("{}查询PG余额web接口返回{}",userId,s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
         } catch (Exception e) {
