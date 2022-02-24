@@ -38,7 +38,7 @@ public class HomePageReportVo implements Serializable {
     private BigDecimal washCodeAmount;
 
     @ApiModelProperty(value = "代理抽点金额")
-    private BigDecimal extractPointsAmount;
+    private BigDecimal extractPointsAmount = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "结算人人代佣金")
     private BigDecimal  shareAmount;

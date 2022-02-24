@@ -130,6 +130,14 @@ public class NewPermissions {
                 SysPermission sysPermission = new SysPermission("一键回收用户PG/CQ9余额", "一键回收用户PG/CQ9余额", "/user/oneKeyRecoverApi", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
+            if (!collect.containsKey("/user/getWMMoneyTotal")) {
+                SysPermission sysPermission = new SysPermission("请求玩家再WM余额总余额", "请求玩家再WM余额总余额", "/user/getWMMoneyTotal", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
+            if (!collect.containsKey("/user/refreshPGTotal")) {
+                SysPermission sysPermission = new SysPermission("查询玩家PG/CQ9总余额", "查询玩家PG/CQ9总余额", "/user/refreshPGTotal", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+                sysPermissionService.save(sysPermission);
+            }
             if (!collect.containsKey("/user/findUserTotal")) {
                 SysPermission sysPermission = new SysPermission("当前查询结果总计", "当前查询结果总计", "/user/findUserTotal", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);

@@ -37,6 +37,9 @@ public class UserMoneyService {
     @Autowired
     private PlatformConfigService platformConfigService;
 
+    @Autowired
+    private UserService userService;
+
     private String refreshUrl = "/wm/getWmBalanceApi?";
 
     private String recycleUrl = "/wm/oneKeyRecoverApi?";
@@ -227,7 +230,7 @@ public class UserMoneyService {
         }
         try {
             String param = "account={0}&lang={1}";
-            param = MessageFormat.format(param,third.getAccount(),lang);
+            param = MessageFormat.format(param,third.getAccount(),lang.toString());
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null?"":first.getWebConfiguration();
             WMurl = WMurl + refreshUrl;
@@ -237,6 +240,30 @@ public class UserMoneyService {
             return parse;
             //            Object data = parse.get("data");
             //            return new BigDecimal(data.toString());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    public JSONObject getWMonetUser(UserThird third) {
+        User byId = userService.findById(third.getUserId());
+        Integer lang;
+        if (byId == null){
+            lang = 0;
+        }else {
+            lang = byId.getLanguage();
+        }
+        if (lang == null) {
+            lang = 0;
+        }
+        try {
+            String param = "account={0}&lang={1}";
+            param = MessageFormat.format(param,third.getAccount(),lang.toString());
+            PlatformConfig first = platformConfigService.findFirst();
+            String WMurl = first == null?"":first.getWebConfiguration();
+            WMurl = WMurl + refreshUrl;
+            String s = HttpClient4Util.get(WMurl + param);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
         } catch (Exception e) {
             return null;
         }
@@ -271,6 +298,22 @@ public class UserMoneyService {
             return null;
         }
     }
+
+    public JSONObject refreshPGAndCQ9(UserThird userThird) {
+        try {
+            String param = "userId={0}";
+            param = MessageFormat.format(param,userThird.getUserId().toString());
+            PlatformConfig first = platformConfigService.findFirst();
+            String WMurl = first == null?"":first.getWebConfiguration();
+            WMurl = WMurl + PG_refreshUrl;
+            String s = HttpClient4Util.get(WMurl + param);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public JSONObject oneKeyRecoverApi(User user){
         try {
             String param = "userId={0}";
