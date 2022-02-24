@@ -263,7 +263,7 @@ public class WithdrawBusiness {
             withdrawOrder.setStatus(status);
             withdrawOrderService.saveOrder(withdrawOrder);
             log.info("通过提现userId {} 订单号 {} withdrawMoney is {}, practicalAmount is {}",withdrawOrder.getUserId(),withdrawOrder.getNo(),money, withdrawOrder.getWithdrawMoney());
-            return ResponseUtil.success();
+            return ResponseUtil.success(money);
         }
         //对用户数据进行行锁
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
