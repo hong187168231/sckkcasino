@@ -7,6 +7,7 @@ import org.springframework.cache.annotation.*;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Service
 @Transactional
@@ -35,5 +36,13 @@ public class UserThirdService {
     @Cacheable(key = "#root.methodName+'::'+#p0")
     public UserThird findByGoldenfAccount(String account) {
         return userThirdRepository.findByGoldenfAccount(account);
+    }
+
+    public List<UserThird> findAllAcount(){
+        return userThirdRepository.findAllAcount();
+    }
+
+    public List<UserThird> findAllGoldenfAccount(){
+        return userThirdRepository.findAllGoldenfAccount();
     }
 }

@@ -227,7 +227,7 @@ public class UserMoneyService {
         }
         try {
             String param = "account={0}&lang={1}";
-            param = MessageFormat.format(param,third.getAccount(),lang);
+            param = MessageFormat.format(param,third.getAccount(),lang.toString());
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null?"":first.getWebConfiguration();
             WMurl = WMurl + refreshUrl;
@@ -237,6 +237,30 @@ public class UserMoneyService {
             return parse;
             //            Object data = parse.get("data");
             //            return new BigDecimal(data.toString());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    public JSONObject getWMonetUser(UserThird third) {
+        User byId = userService.findById(third.getUserId());
+        Integer lang;
+        if (byId == null){
+            lang = 0;
+        }else {
+            lang = byId.getLanguage();
+        }
+        if (lang == null) {
+            lang = 0;
+        }
+        try {
+            String param = "account={0}&lang={1}";
+            param = MessageFormat.format(param,third.getAccount(),lang.toString());
+            PlatformConfig first = platformConfigService.findFirst();
+            String WMurl = first == null?"":first.getWebConfiguration();
+            WMurl = WMurl + refreshUrl;
+            String s = HttpClient4Util.get(WMurl + param);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
         } catch (Exception e) {
             return null;
         }
@@ -256,21 +280,37 @@ public class UserMoneyService {
             return null;
         }
     }
-    public JSONObject refreshPGAndCQ9(User user) {
+    public JSONObject refreshPGAndCQ9(Long userId) {
         try {
             String param = "userId={0}";
-            param = MessageFormat.format(param,user.getId().toString());
+            param = MessageFormat.format(param,userId.toString());
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null?"":first.getWebConfiguration();
             WMurl = WMurl + PG_refreshUrl;
             String s = HttpClient4Util.get(WMurl + param);
-            log.info("{}查询PG余额web接口返回{}",user.getAccount(),s);
+            log.info("{}查询PG余额web接口返回{}",userId,s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
         } catch (Exception e) {
             return null;
         }
     }
+
+    public JSONObject refreshPGAndCQ9(UserThird userThird) {
+        try {
+            String param = "userId={0}";
+            param = MessageFormat.format(param,userThird.getUserId().toString());
+            PlatformConfig first = platformConfigService.findFirst();
+            String WMurl = first == null?"":first.getWebConfiguration();
+            WMurl = WMurl + PG_refreshUrl;
+            String s = HttpClient4Util.get(WMurl + param);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public JSONObject oneKeyRecoverApi(User user){
         try {
             String param = "userId={0}";
