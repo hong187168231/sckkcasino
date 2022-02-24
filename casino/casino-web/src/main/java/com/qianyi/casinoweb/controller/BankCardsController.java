@@ -82,7 +82,7 @@ public class BankCardsController {
         }
         List<Bankcards> bankcardsList = bankcardsService.findByBankAccount(bankAccount);
         if (!CollectionUtils.isEmpty(bankcardsList)) {
-            return ResponseUtil.custom("该银行卡已被绑定");
+            return ResponseUtil.custom("当前银行卡已被绑定");
         }
 //        Bankcards checkBankcards = bankcardsService.findByUserIdAndBankAccount(userId, bankAccount);
 //        if (checkBankcards != null) {

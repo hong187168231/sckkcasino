@@ -78,6 +78,10 @@ public class User extends BaseEntity implements UserDetails {
      */
     @ApiModelProperty("会员类型:0、公司会员，1、渠道会员，2、官方推广")
     private Integer type;
+    @ApiModelProperty("注册域名")
+    private String registerDomainName;
+
+
     @JsonIgnore
     @Transient
     private String token;

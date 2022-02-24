@@ -34,4 +34,8 @@ public class DomainConfigService {
     public void deleteId(Long id) {
         domainConfigRepository.deleteById(id);
     }
+
+    public DomainConfig findByDomainUrlAndDomainStatus(String origin, Integer domainStatus) {
+        return domainConfigRepository.findByDomainUrlAndDomainStatus(origin,domainStatus);
+    }
 }

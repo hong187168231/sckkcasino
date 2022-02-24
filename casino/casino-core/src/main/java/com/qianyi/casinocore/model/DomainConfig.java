@@ -17,7 +17,7 @@ public class DomainConfig extends BaseEntity {
     @ApiModelProperty(value = "域名地址")
     private String domainUrl;
 
-    @ApiModelProperty(value = "状态 1：禁用， 1：启用")
+    @ApiModelProperty(value = "状态 0：禁用， 1：启用")
     private Integer domainStatus;
 
 
