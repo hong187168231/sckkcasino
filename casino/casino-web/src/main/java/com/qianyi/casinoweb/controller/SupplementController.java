@@ -106,6 +106,7 @@ public class SupplementController {
                 endTimeNew = endTime;
             }
             timeMsg = startTime + "到" + endTimeNew;
+            log.info("开始拉取{}的注单记录", timeMsg);
             String result = wmApi.getDateTimeReport(null, startTime, endTimeNew, 0, 1, 2, null, null);
             //远程请求异常
             if (ObjectUtils.isEmpty(result)) {
@@ -118,6 +119,7 @@ public class SupplementController {
                 List<GameRecord> gameRecords = JSON.parseArray(result, GameRecord.class);
                 if (!CollectionUtils.isEmpty(gameRecords)) {
                     gameRecordJob.saveAll(gameRecords);
+                    log.info("{}游戏记录补单完成", timeMsg);
                     list.add(timeMsg + "游戏记录补单完成");
                 }
             }

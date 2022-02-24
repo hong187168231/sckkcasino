@@ -80,10 +80,14 @@ public class BankCardsController {
         if(isGreatThan6()){
             return ResponseUtil.custom("最多只能添加6张银行卡");
         }
-        Bankcards checkBankcards=bankcardsService.findByUserIdAndBankAccount(userId,bankAccount);
-        if (checkBankcards != null) {
-            return ResponseUtil.custom("该卡号银行卡已添加,请勿重复添加");
+        List<Bankcards> bankcardsList = bankcardsService.findByBankAccount(bankAccount);
+        if (!CollectionUtils.isEmpty(bankcardsList)) {
+            return ResponseUtil.custom("该卡号银行卡已被绑定");
         }
+//        Bankcards checkBankcards = bankcardsService.findByUserIdAndBankAccount(userId, bankAccount);
+//        if (checkBankcards != null) {
+//            return ResponseUtil.custom("该卡号银行卡已添加,请勿重复添加");
+//        }
         User user = userService.findById(userId);
         String userRealName = user.getRealName();
         Bankcards bankcards = boundCard(firstBankcard,bankId,bankAccount,address,realName,user);
@@ -92,10 +96,11 @@ public class BankCardsController {
         if (!bankcardRealNameSwitch) {
             return ResponseUtil.custom("同一个持卡人只能绑定一个账号");
         }
+        bankcards= bankcardsService.boundCard(bankcards);
+        //把真实姓名保存到user
         if (!ObjectUtils.isEmpty(user.getRealName()) && !user.getRealName().equals(userRealName)) {
             userService.save(user);
         }
-        bankcards= bankcardsService.boundCard(bankcards);
         return ResponseUtil.success(bankcards);
     }
 
