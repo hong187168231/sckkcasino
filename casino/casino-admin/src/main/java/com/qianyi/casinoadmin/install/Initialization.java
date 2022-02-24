@@ -73,6 +73,13 @@ public class Initialization implements CommandLineRunner {
     @Autowired
     private GameRecordReportNewService gameRecordReportService;
 
+    @Autowired
+    private ChargeOrderService chargeOrderService;
+    @Autowired
+    private WithdrawOrderService withdrawOrderService;
+    @Autowired
+    private AccountChangeService accountChangeService;
+
 
 
     @Override
@@ -91,8 +98,30 @@ public class Initialization implements CommandLineRunner {
 
         this. saveReturnCommissionInfo();
         this.saveCommission();
+        this.initializationTotalPlatformQuota();
     }
 
+
+    public  void initializationTotalPlatformQuota(){
+        PlatformConfig platformConfig= platformConfigService.findFirst();
+        if (platformConfig!=null && (platformConfig.getHistoricalDataId()==null || platformConfig.getHistoricalDataId()!=1)){
+            BigDecimal amount=new BigDecimal(5000000);
+            BigDecimal charge = chargeOrderService.sumChargeAmount();
+            List<AccountChange> codeWashingList = accountChangeService.findByType(0);
+            BigDecimal codeWashing = codeWashingList.stream().map(AccountChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            List<AccountChange> renrenLoanList = accountChangeService.findByType(9);
+            BigDecimal renrenLoan = renrenLoanList.stream().map(AccountChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal add = charge.add(codeWashing).add(renrenLoan);
+            amount= amount.subtract(add);
+            //提现/下分
+            BigDecimal withdraw = withdrawOrderService.sumWithdrawMoney();
+            amount= amount.add(withdraw);
+            platformConfig.setTotalPlatformQuota(amount);
+            platformConfig.setHistoricalDataId(1);
+           platformConfigService.save(platformConfig);
+
+        }
+    }
     private void saveGameRecordEndIndex() {
         GameRecordEndIndex first = gameRecordEndIndexService.findFirst();
         if (LoginUtil.checkNull(first)){
@@ -435,6 +464,7 @@ public class Initialization implements CommandLineRunner {
             platformConfig.setMoneySymbol(platformConfigFile.getMoneySymbol());
             platformConfig.setPeopleProxySwitch(platformConfigFile.getPeopleProxySwitch());
             platformConfig.setBankcardRealNameSwitch(platformConfigFile.getBankcardRealNameSwitch());
+            platformConfig.setTotalPlatformQuota(platformConfigFile.getTotalPlatformQuota());
             platformConfigService.save(platformConfig);
         }else {
             PlatformConfig platformConfig = all.get(CommonConst.NUMBER_0);

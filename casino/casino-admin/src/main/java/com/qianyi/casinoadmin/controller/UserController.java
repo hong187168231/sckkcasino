@@ -82,6 +82,8 @@ public class UserController {
 
     @Autowired
     GenerateInviteCodeRunner generateInviteCodeRunner;
+    @Autowired
+    PlatformConfigController platformConfigController;
 
     @Autowired
     private MessageUtil messageUtil;
@@ -381,6 +383,27 @@ public class UserController {
         }
     }
 
+    @ApiOperation("请求玩家再WM余额总余额")
+    @GetMapping("getWMMoneyTotal")
+    public ResponseEntity getWMMoneyTotal(){
+        List<UserThird> allAcount = userThirdService.findAllAcount();
+        if (LoginUtil.checkNull(allAcount) || allAcount.size() == CommonConst.NUMBER_0){
+            return ResponseUtil.success(BigDecimal.ZERO);
+        }
+        BigDecimal sum = BigDecimal.ZERO;
+        for (UserThird u:allAcount){
+            JSONObject jsonObject = userMoneyService.getWMonetUser(u);
+            if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+                continue;
+            }
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
+                sum = sum.add(new BigDecimal(jsonObject.get("data").toString()));
+            }
+        }
+        return ResponseUtil.success(sum);
+    }
+
     @ApiOperation("一键回收用户WM余额")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "id", value = "客户id", required = true),
@@ -405,6 +428,27 @@ public class UserController {
         }catch (Exception ex){
             return ResponseUtil.custom("回收WM余额失败");
         }
+    }
+
+    @ApiOperation("查询玩家PG/CQ9总余额")
+    @GetMapping("refreshPGTotal")
+    public ResponseEntity refreshPGTotal(){
+        List<UserThird> allGoldenfAccount = userThirdService.findAllGoldenfAccount();
+        if (LoginUtil.checkNull(allGoldenfAccount) || allGoldenfAccount.size() == CommonConst.NUMBER_0){
+            return ResponseUtil.success(BigDecimal.ZERO);
+        }
+        BigDecimal sum = BigDecimal.ZERO;
+        for (UserThird u:allGoldenfAccount){
+            JSONObject jsonObject = userMoneyService.refreshPGAndCQ9(u);
+            if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+                continue;
+            }
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
+                sum = sum.add(new BigDecimal(jsonObject.get("data").toString()));
+            }
+        }
+        return ResponseUtil.success(sum);
     }
 
     @ApiOperation("查询用户PG/CQ9余额")
@@ -728,8 +772,16 @@ public class UserController {
         chargeOrder.setChargeAmount(money);
         chargeOrder.setLastModifier(lastModifier);
         chargeOrder.setType(user.getType());
-//        chargeOrder.setRealityAmount(money);
-        return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_masterControl,Constants.remitType_general,Constants.CODENUMCHANGE_MASTERCONTROL);
+        //        chargeOrder.setRealityAmount(money);
+        ResponseEntity  queryTotalPlatformQuota = platformConfigController.queryTotalPlatformQuota("上分失败,平台额度不足");
+        if (queryTotalPlatformQuota.getCode()!=CommonConst.NUMBER_0){
+            return queryTotalPlatformQuota;
+        }
+        ResponseEntity responseEntity = chargeOrderBusiness.saveOrderSuccess(user, chargeOrder, Constants.chargeOrder_masterControl, Constants.remitType_general, Constants.CODENUMCHANGE_MASTERCONTROL);
+        if(responseEntity.getCode()==CommonConst.NUMBER_0){
+            platformConfigController.updateTotalPlatformQuota(CommonConst.NUMBER_0, new BigDecimal(chargeAmount));
+        }
+        return responseEntity;
     }
     /**
      * 后台新增提现订单
@@ -768,7 +820,11 @@ public class UserController {
         Long userId = LoginUtil.getLoginUserId();
         SysUser sysUser = sysUserService.findById(userId);
         String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
-        return withdrawBusiness.updateWithdrawAndUser(user,id,money,bankId,Constants.withdrawOrder_masterControl,lastModifier,remark);
+        ResponseEntity responseEntity = withdrawBusiness.updateWithdrawAndUser(user, id, money, bankId, Constants.withdrawOrder_masterControl, lastModifier, remark);
+        if (responseEntity.getCode()==CommonConst.NUMBER_0){
+            platformConfigController.updateTotalPlatformQuota(CommonConst.NUMBER_1,new BigDecimal(withdrawMoney));
+        }
+        return responseEntity;
     }
     @ApiOperation("后台下分检验可提款金额")
     @ApiImplicitParams({

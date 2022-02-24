@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -633,4 +634,102 @@ public class PlatformConfigController {
         platformConfigService.save(first);
         return ResponseUtil.success();
     }
+
+    /**
+     * 查询平台维护开关
+     * @return
+     */
+    @ApiOperation("查询平台维护开关")
+    @GetMapping("/findPlatformMaintenance")
+    public ResponseEntity<MaintenanceVo> findPlatformMaintenance(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        MaintenanceVo maintenanceVo = new MaintenanceVo();
+        if(LoginUtil.checkNull(platformConfig)){
+            platformConfig = new PlatformConfig();
+            platformConfig.setPlatformMaintenance(CommonConst.NUMBER_1);
+        }
+        if(!LoginUtil.checkNull(platformConfig.getMaintenanceEnd())){
+            if (new Date().compareTo(platformConfig.getMaintenanceEnd()) > CommonConst.NUMBER_0 && platformConfig.getPlatformMaintenance() == CommonConst.NUMBER_0){
+                platformConfig.setPlatformMaintenance(CommonConst.NUMBER_1);
+                platformConfigService.save(platformConfig);
+            }
+        }
+        maintenanceVo.setPlatformMaintenance(platformConfig.getPlatformMaintenance());
+        maintenanceVo.setMaintenanceEnd(platformConfig.getMaintenanceEnd());
+        maintenanceVo.setMaintenanceStart(platformConfig.getMaintenanceStart());
+        return ResponseUtil.success(maintenanceVo);
+    }
+
+    /**
+     * 修改平台维护开关
+     * @return
+     */
+    @ApiOperation("修改平台维护开关")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "platformMaintenance", value = "平台维护开关 0:维护 1:开启", required = true),
+        @ApiImplicitParam(name = "maintenanceStart", value = "维护起始时间", required = false),
+        @ApiImplicitParam(name = "maintenanceEnd", value = "维护结束时间", required = false),
+    })
+    @GetMapping("/updatePlatformMaintenance")
+    public ResponseEntity updatePlatformMaintenance(Integer platformMaintenance,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date maintenanceStart,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date maintenanceEnd){
+        if(LoginUtil.checkNull(platformMaintenance)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if(LoginUtil.checkNull(platformConfig)){
+            platformConfig = new PlatformConfig();
+        }
+        if (platformMaintenance == CommonConst.NUMBER_0){
+            if (LoginUtil.checkNull(maintenanceStart,maintenanceEnd)){
+                return ResponseUtil.custom("参数不合法");
+            }
+            if (maintenanceStart.compareTo(maintenanceEnd) > CommonConst.NUMBER_0){
+                return ResponseUtil.custom("参数不合法");
+            }
+            platformConfig.setPlatformMaintenance(platformMaintenance);
+            platformConfig.setMaintenanceStart(maintenanceStart);
+            platformConfig.setMaintenanceEnd(maintenanceEnd);
+        }else if (platformMaintenance == CommonConst.NUMBER_1){
+            platformConfig.setPlatformMaintenance(platformMaintenance);
+        }else {
+            return ResponseUtil.custom("参数不合法");
+        }
+        platformConfigService.save(platformConfig);
+        return ResponseUtil.success();
+
+    }
+
+    /**
+     * 增减平台总余额
+     * @param type
+     * @param amount
+     * @return
+     */
+    @ApiOperation("增减平台总余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "type", value = "0:减 1:加", required = true),
+            @ApiImplicitParam(name = "amount", value = "操作金额", required = true),
+    })
+    @GetMapping("/updateTotalPlatformQuota")
+    public  synchronized ResponseEntity updateTotalPlatformQuota(Integer type,BigDecimal amount){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (type.equals( CommonConst.NUMBER_0)){
+            platformConfig.setTotalPlatformQuota(platformConfig.getTotalPlatformQuota().subtract(amount));
+        }else {
+            platformConfig.setTotalPlatformQuota(platformConfig.getTotalPlatformQuota().add(amount));
+        }
+        platformConfigService.save(platformConfig);
+        return ResponseUtil.success();
+    }
+    @ApiOperation("查询平台总余额")
+    @GetMapping("/queryTotalPlatformQuota")
+    public  ResponseEntity queryTotalPlatformQuota(String cistomName){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if ( platformConfig.getTotalPlatformQuota().compareTo(BigDecimal.ZERO)<=0){
+            return ResponseUtil.custom(cistomName);
+        }
+        return ResponseUtil.success();
+    }
+
 }

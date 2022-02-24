@@ -133,7 +133,7 @@ public class ChargeOrderBusiness {
         this.saveAccountChang(changeEnum,userMoney.getUserId(),chargeOrder,userMoney.getMoney());
         //发送充值消息
         this.sendMessage(userMoney.getUserId(),isFirst,chargeOrder);
-        return ResponseUtil.success();
+        return ResponseUtil.success(chargeOrder.getChargeAmount());
     }
 
     private CodeNumChange getCodeNumCharge(Long userId, String orderNo, BigDecimal codeNum, BigDecimal subtract, BigDecimal amountAfter,Integer type) {

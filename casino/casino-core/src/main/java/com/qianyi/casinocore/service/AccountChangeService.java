@@ -14,6 +14,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -86,5 +87,9 @@ public class AccountChangeService {
     public Page<AccountChange> findAccountChange(Specification<AccountChange> condition, Pageable pageable) {
         Page<AccountChange> all = accountChangeRepository.findAll(condition, pageable);
         return all;
+    }
+
+    public List<AccountChange> findByType(Integer type){
+        return accountChangeRepository.findByType(type);
     }
 }
