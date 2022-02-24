@@ -21,6 +21,6 @@ public interface WithdrawOrderRepository extends JpaRepository<WithdrawOrder,Lon
     void updateWithdrawOrderRemark(String remark,Long id);
 
 
-    @Query(value = "select SUM(withdraw_money) from withdraw_order where `status` in (1,4,5)",nativeQuery = true)
+    @Query(value = "select SUM(practical_amount) from withdraw_order where `status` in (1,4,5)",nativeQuery = true)
     BigDecimal sumWithdrawMoney();
 }
