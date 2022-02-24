@@ -44,10 +44,6 @@ public class Initialization implements CommandLineRunner {
     private BankInfoService bankInfoService;
 
     @Autowired
-    private PromoteCommissionConfigService promoteCommissionConfigService;
-
-
-    @Autowired
     private CustomerConfigureService customerConfigureService;
 
     @Autowired
@@ -95,7 +91,6 @@ public class Initialization implements CommandLineRunner {
         this.saveGameRecordEndIndex();
 
         this. saveReturnCommissionInfo();
-        this.saveCommission();
         this.initializationTotalPlatformQuota();
     }
 
@@ -231,35 +226,6 @@ public class Initialization implements CommandLineRunner {
             customer.forEach(customerInfo ->{
                 saveCustomerInfo(customerInfo,uploadUrl);
             });
-        }
-    }
-
-    //玩家推广配置
-    public void saveCommission(){
-        PlatformConfig platformConfig= platformConfigService.findFirst();
-        List<PromoteCommissionConfig> all = promoteCommissionConfigService.findAll();
-        if (all==null || all.size()== CommonConst.NUMBER_0){
-            List<PromoteCommissionConfig> list =new ArrayList<>();PromoteCommissionConfig promoteCommission=new PromoteCommissionConfig();
-            promoteCommission.setFirstCommission(platformConfig.getFirstCommission()==null ?BigDecimal.ZERO :platformConfig.getFirstCommission());
-            promoteCommission.setSecondCommission(platformConfig.getSecondCommission()==null ?BigDecimal.ZERO :platformConfig.getSecondCommission());
-            promoteCommission.setThirdCommission( platformConfig.getThirdCommission()==null ?BigDecimal.ZERO :platformConfig.getThirdCommission());
-            promoteCommission.setGameType(1);
-            list.add(promoteCommission);
-
-            PromoteCommissionConfig promoteCommission1=new PromoteCommissionConfig();
-            promoteCommission1.setFirstCommission(BigDecimal.ZERO);
-            promoteCommission1.setSecondCommission(BigDecimal.ZERO);
-            promoteCommission1.setThirdCommission( BigDecimal.ZERO);
-            promoteCommission1.setGameType(2);
-            list.add(promoteCommission1);
-
-            PromoteCommissionConfig promoteCommission2=new PromoteCommissionConfig();
-            promoteCommission2.setFirstCommission(BigDecimal.ZERO);
-            promoteCommission2.setSecondCommission(BigDecimal.ZERO);
-            promoteCommission2.setThirdCommission( BigDecimal.ZERO);
-            promoteCommission2.setGameType(3);
-            list.add(promoteCommission2);
-            promoteCommissionConfigService.save(list);
         }
     }
 
