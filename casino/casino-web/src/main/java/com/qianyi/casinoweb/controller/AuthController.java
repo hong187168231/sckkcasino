@@ -75,6 +75,8 @@ public class AuthController {
     ProxyUserService proxyUserService;
     @Autowired
     GenerateInviteCodeRunner generateInviteCodeRunner;
+    @Autowired
+    DomainConfigService domainConfigService;
 
     @Autowired
     @Qualifier("loginLogJob")
@@ -97,17 +99,23 @@ public class AuthController {
             @ApiImplicitParam(name = "phone", value = "手机号", required = true),
             @ApiImplicitParam(name = "phoneCode", value = "手机号验证码", required = true),
             @ApiImplicitParam(name = "validate", value = "网易易顿", required = true),
-            @ApiImplicitParam(name = "inviteCode", value = "邀请码", required = true),
-            @ApiImplicitParam(name = "inviteType", value = "邀请类型:everyone:人人代，proxy:基层代理，888:官方推广", required = true),
+            @ApiImplicitParam(name = "inviteCode", value = "邀请码", required = false),
+            @ApiImplicitParam(name = "inviteType", value = "邀请类型:everyone:人人代，proxy:基层代理，888:官方推广", required = false),
     })
     public ResponseEntity spreadRegister(String account, String password, String country, String phone, String phoneCode, HttpServletRequest request, String validate, String inviteCode, String inviteType) {
-        boolean checkNull = CommonUtil.checkNull(account, password, country, phone, phoneCode, validate, inviteCode, inviteType);
+        boolean checkNull = CommonUtil.checkNull(account, password, country, phone, phoneCode, validate);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
-        ResponseEntity checkInviteCode = checkInviteCode(inviteType, inviteCode);
-        if (checkInviteCode.getCode() != 0) {
-            return checkInviteCode;
+        //检验域名或者邀请码
+        ResponseEntity checkResponse = ResponseUtil.success();
+        if (ObjectUtils.isEmpty(inviteCode) && ObjectUtils.isEmpty(inviteType)) {
+            checkResponse = checkRegisterDomainName(request);
+        } else {
+            checkResponse = checkInviteCode(inviteType, inviteCode);
+        }
+        if (checkResponse.getCode() != 0) {
+            return checkResponse;
         }
         ResponseEntity responseEntity = registerCommon(account, password,country, phone,phoneCode, request, validate, inviteCode, inviteType);
         return responseEntity;
@@ -217,6 +225,10 @@ public class AuthController {
                 return ResponseUtil.custom("直推数量已达上限");
             }
         }
+        //获取注册时用的域名
+        String origin = request.getHeader("origin");
+        user.setRegisterDomainName(origin);
+
         User save = userService.save(user);
         //userMoney表初始化数据
         UserMoney userMoney = new UserMoney();
@@ -289,6 +301,11 @@ public class AuthController {
         }
         //官方推广
         if (Constants.INVITE_TYPE_COMPANY.equals(inviteType)) {
+            user.setType(Constants.USER_TYPE2);
+            return;
+        }
+        //官方链接渠道
+        if (ObjectUtils.isEmpty(inviteCode) && ObjectUtils.isEmpty(inviteType)) {
             user.setType(Constants.USER_TYPE2);
             return;
         }
@@ -539,6 +556,24 @@ public class AuthController {
             return ResponseUtil.success(Constants.close);
         }
         return ResponseUtil.success(platformConfig.getRegisterSwitch());
+    }
+
+    /**
+     * 通过官方链接注册时检验使用的域名是否是系统配置的域名
+     * @param request
+     * @return
+     */
+    @GetMapping("checkRegisterDomainName")
+    @ApiOperation("校验注册域名是否是官方域名")
+    @NoAuthentication
+    public ResponseEntity checkRegisterDomainName(HttpServletRequest request) {
+        //获取注册时用的域名
+        String origin = request.getHeader("origin");
+        DomainConfig domainConfig = domainConfigService.findByDomainUrlAndDomainStatus(origin, Constants.open);
+        if (domainConfig == null) {
+            return ResponseUtil.custom("域名错误");
+        }
+        return ResponseUtil.success();
     }
 
     @GetMapping("checkInviteCode")
