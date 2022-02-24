@@ -85,7 +85,7 @@ public class DomainConfigController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id", required = true)
     })
-    @PostMapping("deleteId")
+    @GetMapping("deleteId")
     public ResponseEntity<DomainConfig> deleteId(Long id){
 
         domainConfigService.deleteId(id);
