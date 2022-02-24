@@ -44,8 +44,6 @@ public class PlatformConfigController {
     private PlatformConfigService platformConfigService;
 
     @Autowired
-    private PromoteCommissionConfigService promoteCommissionConfigService;
-    @Autowired
     private Initialization initialization;
 
     @Autowired
@@ -56,19 +54,48 @@ public class PlatformConfigController {
     @Autowired
     private MessageUtil messageUtil;
 
-
     @ApiOperation("玩家推广返佣配置查询")
     @GetMapping("/findCommission")
-    public ResponseEntity<List<PromoteCommissionConfig>> findAll(){
-        List<PromoteCommissionConfig> promoteCommissionConfigList = promoteCommissionConfigService.findAll();
-        return new ResponseEntity(ResponseCode.SUCCESS, promoteCommissionConfigList);
+    public ResponseEntity<UserCommissionVo> findAll(){
+        List<PlatformConfig> platformConfigList = platformConfigService.findAll();
+        UserCommissionVo userCommissionVo = null;
+        for (PlatformConfig platformConfig : platformConfigList) {
+            userCommissionVo = UserCommissionVo.builder()
+                    .name(messageUtil.get("玩家推广返佣配置"))
+                    .id(platformConfig.getId())
+                    .firstCommission(platformConfig.getFirstCommission())
+                    .secondCommission(platformConfig.getSecondCommission())
+                    .thirdCommission(platformConfig.getThirdCommission())
+                    .build();
+        }
+        return new ResponseEntity(ResponseCode.SUCCESS, userCommissionVo);
     }
-
     @ApiOperation("编辑玩家推广返佣配置")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "firstCommission", value = "一级代理返佣", required = true),
+            @ApiImplicitParam(name = "secondCommission", value = "二级代理返佣", required = true),
+            @ApiImplicitParam(name = "thirdCommission", value = "三级代理返佣", required = true)
+    })
     @PostMapping("/updateCommission")
-    @NoAuthorization
-    public ResponseEntity<UserCommissionVo> update(@RequestBody  List<PromoteCommissionConfig> list){
-        promoteCommissionConfigService.save(list);
+    public ResponseEntity<UserCommissionVo> update(BigDecimal firstCommission, BigDecimal secondCommission, BigDecimal thirdCommission){
+        if (LoginUtil.checkNull(firstCommission,secondCommission,thirdCommission)){
+            return ResponseUtil.custom("参数错误");
+        }
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if(!LoginUtil.checkNull(platformConfig)){
+            platformConfig.setFirstCommission(firstCommission);
+            platformConfig.setSecondCommission(secondCommission);
+            platformConfig.setThirdCommission(thirdCommission);
+            platformConfig.setCommissionUpdate(new Date());
+            platformConfigService.save(platformConfig);
+        }else{
+            PlatformConfig platform = new PlatformConfig();
+            platform.setFirstCommission(firstCommission);
+            platform.setSecondCommission(secondCommission);
+            platform.setThirdCommission(thirdCommission);
+            platform.setCommissionUpdate(new Date());
+            platformConfigService.save(platform);
+        }
         return new ResponseEntity(ResponseCode.SUCCESS);
     }
 
