@@ -35,9 +35,6 @@ public class LevelShareProfitBusiness {
     @Autowired
     private PlatformConfigService platformConfigService;
     @Autowired
-    private PromoteCommissionConfigService promoteCommissionConfigService;
-
-    @Autowired
     private ConsumerErrorService consumerErrorService;
 
     @Autowired
@@ -75,8 +72,8 @@ public class LevelShareProfitBusiness {
 
 
             //查询代理推广配置
-            PromoteCommissionConfig byGameType = promoteCommissionConfigService.findByGameType(gameType);
-            List<ShareProfitBO> shareProfitBOList = shareProfitOperator(byGameType, shareProfitMqVo,record);
+            PlatformConfig platformConfig = platformConfigService.findFirst();
+            List<ShareProfitBO> shareProfitBOList = shareProfitOperator(platformConfig, shareProfitMqVo,record,gameType);
             shareProfitTransactionService.processShareProfitMq(shareProfitBOList);
         }catch (Exception e){
             log.error("share profit error:"+ e);
@@ -94,23 +91,23 @@ public class LevelShareProfitBusiness {
 
     /**
      * 各级代理数据组装
-     * @param byGameType
+     * @param platformConfig
      * @param shareProfitMqVo
      * @param record
      * @return
      */
-    private List<ShareProfitBO> shareProfitOperator( PromoteCommissionConfig byGameType , ShareProfitMqVo shareProfitMqVo, GameRecord record) {
+    private List<ShareProfitBO> shareProfitOperator(   PlatformConfig platformConfig  , ShareProfitMqVo shareProfitMqVo, GameRecord record,Integer gameType) {
         Long startTime = System.currentTimeMillis();
         User user = userService.findById(shareProfitMqVo.getUserId());
         log.info("shareProfitOperator user:{}",user);
         String betTime = shareProfitMqVo.getBetTime().substring(0,10);
         List<ShareProfitBO> shareProfitBOList = new ArrayList<>();
         if(ShareProfitUtils.compareIntegerNotNull( user.getFirstPid()))
-            shareProfitBOList.add(getShareProfitBO(user,user.getFirstPid(),new BigDecimal(record.getValidbet()),byGameType.getFirstCommission(),byGameType.getGameType(),getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),true,1,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
+            shareProfitBOList.add(getShareProfitBO(user,user.getFirstPid(),new BigDecimal(record.getValidbet()),platformConfig.getFirstCommission(),gameType,getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),true,1,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
         if(ShareProfitUtils.compareIntegerNotNull( user.getSecondPid()))
-            shareProfitBOList.add(getShareProfitBO(user,user.getSecondPid(),new BigDecimal(record.getValidbet()),byGameType.getSecondCommission(),byGameType.getGameType(),getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),false,2,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
+            shareProfitBOList.add(getShareProfitBO(user,user.getSecondPid(),new BigDecimal(record.getValidbet()),platformConfig.getSecondCommission(),gameType,getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),false,2,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
         if(ShareProfitUtils.compareIntegerNotNull( user.getThirdPid()))
-            shareProfitBOList.add(getShareProfitBO(user,user.getThirdPid(),new BigDecimal(record.getValidbet()),byGameType.getThirdCommission(),byGameType.getGameType(),getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),false,3,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
+            shareProfitBOList.add(getShareProfitBO(user,user.getThirdPid(),new BigDecimal(record.getValidbet()),platformConfig.getThirdCommission(),gameType,getUserIsFirstBet(record,user.getId()),betTime,shareProfitMqVo.getBetTime(),false,3,record.getUserId(),shareProfitMqVo.getGameRecordId(),record.getBetId()));
         log.info("get list object is {}",shareProfitBOList);
         log.info("shareProfitOperator That took {} milliseconds",System.currentTimeMillis()-startTime);
         return shareProfitBOList;
