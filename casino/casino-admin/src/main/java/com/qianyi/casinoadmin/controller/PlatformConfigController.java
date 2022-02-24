@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -697,4 +698,37 @@ public class PlatformConfigController {
         return ResponseUtil.success();
 
     }
+
+    /**
+     * 增减平台总余额
+     * @param type
+     * @param amount
+     * @return
+     */
+    @ApiOperation("增减平台总余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "type", value = "0:减 1:加", required = true),
+            @ApiImplicitParam(name = "amount", value = "操作金额", required = true),
+    })
+    @GetMapping("/updateTotalPlatformQuota")
+    public  synchronized ResponseEntity updateTotalPlatformQuota(Integer type,BigDecimal amount){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (type.equals( CommonConst.NUMBER_0)){
+            platformConfig.setTotalPlatformQuota(platformConfig.getTotalPlatformQuota().subtract(amount));
+        }else {
+            platformConfig.setTotalPlatformQuota(platformConfig.getTotalPlatformQuota().add(amount));
+        }
+        platformConfigService.save(platformConfig);
+        return ResponseUtil.success();
+    }
+    @ApiOperation("查询平台总余额")
+    @GetMapping("/queryTotalPlatformQuota")
+    public  ResponseEntity queryTotalPlatformQuota(String cistomName){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if ( platformConfig.getTotalPlatformQuota().compareTo(BigDecimal.ZERO)<=0){
+            return ResponseUtil.custom(cistomName);
+        }
+        return ResponseUtil.success();
+    }
+
 }

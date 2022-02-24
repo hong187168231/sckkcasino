@@ -41,5 +41,6 @@ public class PlatformConfigFile {
     private String moneySymbol;
     private Integer peopleProxySwitch;
     private Integer bankcardRealNameSwitch;
+    private BigDecimal totalPlatformQuota;
 
 }

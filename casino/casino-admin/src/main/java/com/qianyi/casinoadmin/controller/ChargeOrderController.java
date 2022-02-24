@@ -61,6 +61,9 @@ public class ChargeOrderController {
 
     @Autowired
     private BankInfoService bankInfoService;
+
+    @Autowired
+    PlatformConfigController platformConfigController;
     /**
      * 充值申请列表
      *
@@ -185,7 +188,19 @@ public class ChargeOrderController {
         Long userId = LoginUtil.getLoginUserId();
         SysUser sysUser = sysUserService.findById(userId);
         String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
-        return chargeOrderBusiness.checkOrderSuccess(id,status,remark,lastModifier);
+
+        if (status == CommonConst.NUMBER_1){
+            ResponseEntity  queryTotalPlatformQuota = platformConfigController.queryTotalPlatformQuota("审核通过失败,平台额度不足");
+            if (queryTotalPlatformQuota.getCode()!=CommonConst.NUMBER_0){
+                return queryTotalPlatformQuota;
+            }
+        }
+        ResponseEntity responseEntity = chargeOrderBusiness.checkOrderSuccess(id, status, remark, lastModifier);
+        if (responseEntity.getCode() == CommonConst.NUMBER_0 && status == CommonConst.NUMBER_1) {
+            Object data = responseEntity.getData();
+            platformConfigController.updateTotalPlatformQuota(CommonConst.NUMBER_0, new BigDecimal(String.valueOf(data)));
+        }
+        return responseEntity;
     }
 
     /**

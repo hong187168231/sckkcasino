@@ -152,6 +152,15 @@ public class PlatformConfig {
     @ApiModelProperty("维护结束时间")
     private Date maintenanceEnd;
 
+    @ApiModelProperty("平台总额度")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    private BigDecimal totalPlatformQuota;
+
+    @ApiModelProperty("平台总额度初始化标识")
+    private Integer historicalDataId;
+
+
+
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){
         if (this.chargeRate == null){

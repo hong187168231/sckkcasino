@@ -82,6 +82,8 @@ public class UserController {
 
     @Autowired
     GenerateInviteCodeRunner generateInviteCodeRunner;
+    @Autowired
+    PlatformConfigController platformConfigController;
 
     @Autowired
     private MessageUtil messageUtil;
@@ -757,7 +759,15 @@ public class UserController {
         chargeOrder.setLastModifier(lastModifier);
         chargeOrder.setType(user.getType());
         //        chargeOrder.setRealityAmount(money);
-        return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_masterControl,Constants.remitType_general,Constants.CODENUMCHANGE_MASTERCONTROL);
+        ResponseEntity  queryTotalPlatformQuota = platformConfigController.queryTotalPlatformQuota("上分失败,平台额度不足");
+        if (queryTotalPlatformQuota.getCode()!=CommonConst.NUMBER_0){
+            return queryTotalPlatformQuota;
+        }
+        ResponseEntity responseEntity = chargeOrderBusiness.saveOrderSuccess(user, chargeOrder, Constants.chargeOrder_masterControl, Constants.remitType_general, Constants.CODENUMCHANGE_MASTERCONTROL);
+        if(responseEntity.getCode()==CommonConst.NUMBER_0){
+            platformConfigController.updateTotalPlatformQuota(CommonConst.NUMBER_0, new BigDecimal(chargeAmount));
+        }
+        return responseEntity;
     }
     /**
      * 后台新增提现订单
@@ -796,7 +806,11 @@ public class UserController {
         Long userId = LoginUtil.getLoginUserId();
         SysUser sysUser = sysUserService.findById(userId);
         String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
-        return withdrawBusiness.updateWithdrawAndUser(user,id,money,bankId,Constants.withdrawOrder_masterControl,lastModifier,remark);
+        ResponseEntity responseEntity = withdrawBusiness.updateWithdrawAndUser(user, id, money, bankId, Constants.withdrawOrder_masterControl, lastModifier, remark);
+        if (responseEntity.getCode()==CommonConst.NUMBER_0){
+            platformConfigController.updateTotalPlatformQuota(CommonConst.NUMBER_1,new BigDecimal(withdrawMoney));
+        }
+        return responseEntity;
     }
     @ApiOperation("后台下分检验可提款金额")
     @ApiImplicitParams({

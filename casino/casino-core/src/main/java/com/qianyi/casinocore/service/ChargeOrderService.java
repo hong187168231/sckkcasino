@@ -287,4 +287,10 @@ public class ChargeOrderService {
         ChargeOrder singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
     }
+
+
+    public BigDecimal sumChargeAmount(){
+        return chargeOrderRepository.sumChargeAmount();
+    }
+
 }

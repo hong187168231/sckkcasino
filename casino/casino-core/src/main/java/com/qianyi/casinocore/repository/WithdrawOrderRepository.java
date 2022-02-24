@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.math.BigDecimal;
+
 public interface WithdrawOrderRepository extends JpaRepository<WithdrawOrder,Long>, JpaSpecificationExecutor<WithdrawOrder> {
 
     @Query(value = "select * from withdraw_order u where u.id = ? for update",nativeQuery = true)
@@ -17,4 +19,8 @@ public interface WithdrawOrderRepository extends JpaRepository<WithdrawOrder,Lon
     @Modifying
     @Query(value = "update withdraw_order c set c.remark = ?1 where  c.id = ?2",nativeQuery = true)
     void updateWithdrawOrderRemark(String remark,Long id);
+
+
+    @Query(value = "select SUM(withdraw_money) from withdraw_order where `status` in (1,4,5)",nativeQuery = true)
+    BigDecimal sumWithdrawMoney();
 }

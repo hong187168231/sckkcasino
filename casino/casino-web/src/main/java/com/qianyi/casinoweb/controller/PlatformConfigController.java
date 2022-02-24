@@ -3,19 +3,18 @@ package com.qianyi.casinoweb.controller;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.DateUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -89,6 +88,24 @@ public class PlatformConfigController {
             vo.setEndTime(platformConfig.getMaintenanceEnd());
         }
         return ResponseUtil.success(vo);
+    }
+
+    @ApiOperation("增减平台总余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "type", value = "0:减 1:加", required = true),
+            @ApiImplicitParam(name = "amount", value = "操作金额", required = true),
+    })
+    @GetMapping("/updateTotalPlatformQuota")
+    @Async("asyncExecutor")
+    public  synchronized ResponseEntity updateTotalPlatformQuota(Integer type,BigDecimal amount){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (type.equals( CommonConst.NUMBER_0)){
+            platformConfig.setTotalPlatformQuota(platformConfig.getTotalPlatformQuota().subtract(amount));
+        }else {
+            platformConfig.setTotalPlatformQuota(platformConfig.getTotalPlatformQuota().add(amount));
+        }
+        platformConfigService.save(platformConfig);
+        return ResponseUtil.success();
     }
 
     @Data

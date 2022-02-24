@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.vo.WashCodeVo;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
@@ -43,9 +45,10 @@ public class WashCodeController {
     @Autowired
     private WashCodeChangeService washCodeChangeService;
     @Autowired
+    private PlatformConfigController platformConfigController;
+    @Autowired
     @Qualifier("accountChangeJob")
     AsyncService asyncService;
-
 
     @ApiOperation("用户洗码列表")
     @ApiImplicitParams({
@@ -171,6 +174,8 @@ public class WashCodeController {
         vo.setAmountBefore(userMoney.getMoney());
         vo.setAmountAfter(userMoney.getMoney().add(washCode));
         asyncService.executeAsync(vo);
+        //增减平台总余额
+        platformConfigController.updateTotalPlatformQuota (CommonConst.NUMBER_0,washCode.stripTrailingZeros());
         return ResponseUtil.success("成功领取金额", washCode.stripTrailingZeros().toPlainString());
     }
 

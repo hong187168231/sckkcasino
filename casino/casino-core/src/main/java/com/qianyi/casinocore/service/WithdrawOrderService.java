@@ -282,4 +282,9 @@ public class WithdrawOrderService {
         WithdrawOrder singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
     }
+
+
+    public BigDecimal sumWithdrawMoney(){
+        return withdrawOrderRepository.sumWithdrawMoney();
+    }
 }
