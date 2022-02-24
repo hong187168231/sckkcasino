@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 
@@ -745,7 +746,7 @@ public class PlatformConfigController {
         platformConfigService.save(platformConfig);
         return ResponseUtil.success();
     }
-    @ApiOperation("查询平台总余额")
+    @ApiOperation("校验平台总余额")
     @GetMapping("/queryTotalPlatformQuota")
     public  ResponseEntity queryTotalPlatformQuota(String cistomName){
         PlatformConfig platformConfig = platformConfigService.findFirst();
@@ -754,5 +755,15 @@ public class PlatformConfigController {
         }
         return ResponseUtil.success();
     }
+
+
+    @ApiOperation("后台查询平台总余额")
+    @GetMapping("/queryTotalPlatformQuotaInfo")
+    @NoAuthorization
+    public  ResponseEntity queryTotalPlatformQuotaInfo(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        return ResponseUtil.success(platformConfig==null ?BigDecimal.ZERO:platformConfig.getTotalPlatformQuota().setScale(2, RoundingMode.HALF_UP));
+    }
+
 
 }
