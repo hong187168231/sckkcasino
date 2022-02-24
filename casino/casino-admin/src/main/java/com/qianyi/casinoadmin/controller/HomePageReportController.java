@@ -260,19 +260,20 @@ public class HomePageReportController {
         Date end = DateUtil.getSimpleDateFormat().parse(endTime);
         HomePageReport homePageReport = new HomePageReport();
         homePageReport.setStaticsTimes(format);
-        homePageReport.setStaticsYear(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4));
-        homePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
-        homePageReportTask.chargeOrder(start,end,homePageReport);
-        homePageReportTask.withdrawOrder(start,end,homePageReport);
-        Set<Long> set = this.gameRecord(startTime,endTime,homePageReport);
-        homePageReportTask.shareProfitChange(start,end,homePageReport);
-        homePageReportTask.getNewUsers(start,end,homePageReport);
-        homePageReportTask.bonusAmount(start,end,homePageReport);
-        homePageReportTask.washCodeAmount(start,end,homePageReport);
+        homePageReport.setStaticsYear(format.substring(CommonConst.NUMBER_0, CommonConst.NUMBER_4));
+        homePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0, CommonConst.NUMBER_7));
+        homePageReportTask.chargeOrder(start, end, homePageReport);
+        homePageReportTask.withdrawOrder(start, end, homePageReport);
+        Set<Long> set = this.gameRecord(startTime, endTime, homePageReport);
+        homePageReportTask.shareProfitChange(start, end, homePageReport);
+        homePageReportTask.getNewUsers(start, end, homePageReport);
+        homePageReportTask.bonusAmount(start, end, homePageReport);
+        homePageReportTask.washCodeAmount(start, end, homePageReport);
+        homePageReportTask.extractPointsAmount(start, end, homePageReport);
         HomePageReportVo homePageReportVo = new HomePageReportVo(homePageReport,set);
         return homePageReportVo;
     }
-    private Set<Long>  gameRecord(String startTime,String endTime,HomePageReport homePageReport){
+    private Set<Long>  gameRecord(String startTime, String endTime, HomePageReport homePageReport){
         try {
             Map<String, Object> gameRecordSum = gameRecordService.findSumBetAndWinLoss(startTime, endTime);
             BigDecimal gameRecordValidbet = gameRecordSum.get("validbet") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("validbet").toString());
@@ -294,8 +295,11 @@ public class HomePageReportController {
         return null;
     }
 
+    // 计算毛利
     private HomePageReportVo getHomePageReportVo(HomePageReportVo homePageReportVo){
-        homePageReportVo.setGrossMargin1(homePageReportVo.getWinLossAmount().subtract(homePageReportVo.getWashCodeAmount()));
+        // 毛利1需要修改:
+        // 毛利1 = 平台输赢金额 - 洗码 - 代理抽点
+        homePageReportVo.setGrossMargin1(homePageReportVo.getWinLossAmount().subtract(homePageReportVo.getWashCodeAmount()).subtract(homePageReportVo.getExtractPointsAmount()));
         homePageReportVo.setGrossMargin2(homePageReportVo.getGrossMargin1().subtract(homePageReportVo.getShareAmount()).subtract(homePageReportVo.getBonusAmount()).add(homePageReportVo.getServiceCharge()));
         homePageReportVo.setGrossMargin3(homePageReportVo.getGrossMargin2().subtract(homePageReportVo.getProxyProfit()));
         return homePageReportVo;
