@@ -27,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -291,11 +292,11 @@ public class UserController {
     })
     @GetMapping("refreshPGAndCQ9")
     public ResponseEntity refreshPGAndCQ9(Long id){
-        User user = userService.findById(id);
-        if (CasinoProxyUtil.checkNull(user)){
+        UserThird third = userThirdService.findByUserId(id);
+        if (CasinoProxyUtil.checkNull(third) || ObjectUtils.isEmpty(third.getGoldenfAccount())){
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
-        JSONObject jsonObject = userMoneyService.refreshPGAndCQ9(user);
+        JSONObject jsonObject = userMoneyService.refreshPGAndCQ9(third.getUserId());
         if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             return ResponseUtil.custom("查询PG/CQ9余额失败");
         }
