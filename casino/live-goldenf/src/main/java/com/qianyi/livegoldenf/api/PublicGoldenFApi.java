@@ -15,8 +15,10 @@ import java.util.Map;
 @Slf4j
 public class PublicGoldenFApi {
 
-    @Value("${project.goldenf.url:null}")
-    private String domain;
+    @Value("${project.goldenf.apiUrl:null}")
+    private String apiUrl;
+    @Value("${project.goldenf.recordUrl:null}")
+    private String recordUrl;
     @Value("${project.goldenf.secretKey:null}")
     private String secretKey;
     @Value("${project.goldenf.operatorToken:null}")
@@ -30,7 +32,7 @@ public class PublicGoldenFApi {
      * @return
      */
     public boolean playerCreate(String playerName, String currency) {
-        String url = domain + "/Player/Create";
+        String url = apiUrl + "/Player/Create";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
         params.put("operator_token", operatorToken);
@@ -64,7 +66,7 @@ public class PublicGoldenFApi {
      * @return
      */
     public ResponseEntity startGameDemo(String gameCode, String language) {
-        String url = domain + "/Demo";
+        String url = apiUrl + "/Demo";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
         params.put("operator_token", operatorToken);
@@ -87,7 +89,7 @@ public class PublicGoldenFApi {
      * @return
      */
     public ResponseEntity startGame(String palerName, String gameCode, String language, String limit) {
-        String url = domain + "/Launch";
+        String url = apiUrl + "/Launch";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
         params.put("operator_token", operatorToken);
@@ -127,7 +129,7 @@ public class PublicGoldenFApi {
      * @return
      */
     public ResponseEntity transferIn(String palerName, double amount, String traceId, String walletCode) {
-        String url = domain + "/TransferIn";
+        String url = apiUrl + "/TransferIn";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
         params.put("operator_token", operatorToken);
@@ -156,7 +158,7 @@ public class PublicGoldenFApi {
      * @return
      */
     public ResponseEntity transferOut(String palerName, double amount, String traceId, String walletCode) {
-        String url = domain + "/TransferOut";
+        String url = apiUrl + "/TransferOut";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
         params.put("operator_token", operatorToken);
@@ -183,7 +185,7 @@ public class PublicGoldenFApi {
      * @return
      */
     public ResponseEntity getPlayerBalance(String palerName, String walletCode) {
-        String url = domain + "/GetPlayerBalance";
+        String url = apiUrl + "/GetPlayerBalance";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
         params.put("operator_token", operatorToken);
@@ -210,7 +212,7 @@ public class PublicGoldenFApi {
      * @return
      */
     public ResponseEntity getPlayerTransactionRecord(String palerName, long startTime, long endTime, String walletCode, String traceId, Integer timestampDigit) {
-        String url = domain + "/Transaction/Record/Player/Get";
+        String url = recordUrl + "/Transaction/Record/Player/Get";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
         params.put("operator_token", operatorToken);
@@ -234,7 +236,7 @@ public class PublicGoldenFApi {
     }
 
     public ResponseEntity getPlayerGameRecord(Long startTime,Long endTime,String vendorCode,int page,int pageSize){
-        String url = domain + "/v3/Bet/Record/Get";
+        String url = recordUrl + "/v3/Bet/Record/Get";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
         params.put("operator_token", operatorToken);
