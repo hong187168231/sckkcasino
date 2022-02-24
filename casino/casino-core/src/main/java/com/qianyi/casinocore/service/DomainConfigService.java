@@ -30,4 +30,8 @@ public class DomainConfigService {
     public void save(DomainConfig domainConfig) {
         domainConfigRepository.save(domainConfig);
     }
+
+    public void deleteId(Long id) {
+        domainConfigRepository.deleteById(id);
+    }
 }

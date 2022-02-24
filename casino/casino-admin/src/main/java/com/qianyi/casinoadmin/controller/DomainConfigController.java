@@ -1,8 +1,10 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.DomainConfig;
 import com.qianyi.casinocore.service.DomainConfigService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -40,9 +42,12 @@ public class DomainConfigController {
             @ApiImplicitParam(name = "domainName", value = "域名名称", required = false),
             @ApiImplicitParam(name = "domainUrl", value = "域名地址", required = true),
             @ApiImplicitParam(name = "id", value = "id", required = false),
-            @ApiImplicitParam(name = "domainStatus", value = "状态 1：禁用， 1：启用", required = true)})
+            @ApiImplicitParam(name = "domainStatus", value = "状态 0：禁用， 1：启用", required = true)})
     public ResponseEntity<DomainConfig> saveDomain(String domainName,String domainUrl,Long id, Integer domainStatus){
         if (LoginUtil.checkNull(domainUrl) || domainStatus == null){
+            ResponseUtil.custom("参数不合法");
+        }
+        if(domainStatus != CommonConst.NUMBER_0 && domainStatus != CommonConst.NUMBER_1){
             ResponseUtil.custom("参数不合法");
         }
         DomainConfig domainConfig = new DomainConfig();
@@ -58,5 +63,32 @@ public class DomainConfigController {
         domainConfig.setDomainStatus(domainStatus);
         domainConfigService.save(domainConfig);
         return ResponseUtil.success(domainConfig);
+    }
+
+    @ApiOperation("修改渔民状态")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "id", required = true),
+            @ApiImplicitParam(name = "domainStatus", value = "状态 0：禁用， 1：启用", required = true)
+    })
+    @PostMapping("domainStatus")
+    public ResponseEntity<DomainConfig> updateDomainStatus(Long id, Integer domainStatus){
+        if(domainStatus != CommonConst.NUMBER_0 && domainStatus != CommonConst.NUMBER_1){
+            ResponseUtil.custom("参数不合法");
+        }
+        DomainConfig domainConfig = domainConfigService.findById(id);
+        domainConfig.setDomainStatus(domainStatus);
+        domainConfigService.save(domainConfig);
+        return ResponseUtil.success(domainConfig);
+    }
+
+    @ApiOperation("修改银行状态")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "id", required = true)
+    })
+    @PostMapping("deleteId")
+    public ResponseEntity<DomainConfig> deleteId(Long id){
+
+        domainConfigService.deleteId(id);
+        return ResponseUtil.success();
     }
 }
