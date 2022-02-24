@@ -3,11 +3,12 @@ package com.qianyi.casinoadmin.task;
 import com.qianyi.casinoadmin.model.HomePageReport;
 import com.qianyi.casinoadmin.service.HomePageReportService;
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.co.charge.ChargeOrderCo;
+import com.qianyi.casinocore.co.withdrwa.WithdrawOrderCo;
 import com.qianyi.casinocore.util.TaskConst;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -83,9 +83,10 @@ public class HomePageReportTask {
     }
     public void chargeOrder(Date startDate,Date endDate,HomePageReport homePageReport){
         try {
-            ChargeOrder chargeOrder = new ChargeOrder();
-            chargeOrder.setStatus(CommonConst.NUMBER_1);
-            List<ChargeOrder> chargeOrders = chargeOrderService.findListByUpdate(chargeOrder, startDate, endDate);
+            ChargeOrderCo co = new ChargeOrderCo();
+            co.setStartDate(startDate);
+            co.setEndDate(endDate);
+            List<ChargeOrder> chargeOrders = chargeOrderService.findSuccessedListByUpdate(co);
             if (LoginUtil.checkNull(chargeOrders) || chargeOrders.size() == CommonConst.NUMBER_0){
                 homePageReport.setChargeAmount(BigDecimal.ZERO);
                 homePageReport.setChargeNums(CommonConst.NUMBER_0);
@@ -103,9 +104,10 @@ public class HomePageReportTask {
     }
     public void withdrawOrder(Date startDate,Date endDate,HomePageReport homePageReport){
         try {
-            WithdrawOrder withdrawOrder = new WithdrawOrder();
-            withdrawOrder.setStatus(CommonConst.NUMBER_1);
-            List<WithdrawOrder> withdrawOrders = withdrawOrderService.findListByUpdate(withdrawOrder, startDate, endDate);
+            WithdrawOrderCo co = new WithdrawOrderCo();
+            co.setStartDate(startDate);
+            co.setEndDate(endDate);
+            List<WithdrawOrder> withdrawOrders = withdrawOrderService.findSuccessedListByUpdate(co);
             if (LoginUtil.checkNull(withdrawOrders) || withdrawOrders.size() == CommonConst.NUMBER_0){
                 homePageReport.setWithdrawMoney(BigDecimal.ZERO);
                 homePageReport.setWithdrawNums(CommonConst.NUMBER_0);

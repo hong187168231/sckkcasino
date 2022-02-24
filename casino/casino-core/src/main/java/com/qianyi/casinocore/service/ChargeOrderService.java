@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.service;
 
+import com.qianyi.casinocore.co.charge.ChargeOrderCo;
 import com.qianyi.casinocore.model.ChargeOrder;
 import com.qianyi.casinocore.repository.ChargeOrderRepository;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -41,6 +42,47 @@ public class ChargeOrderService {
 
     public List<ChargeOrder> findListByUpdate(ChargeOrder chargeOrder,Date startDate,Date endDate){
         Specification<ChargeOrder> condition = getConditionByUpdate(chargeOrder,startDate,endDate);
+        return chargeOrderRepository.findAll(condition);
+    }
+
+    /**
+     * 查询所有成功的充值订单
+     * @param co
+     * @return
+     */
+    public List<ChargeOrder> findSuccessedListByUpdate(ChargeOrderCo co){
+        Specification<ChargeOrder> condition = (root, q, cb) -> {
+            Predicate predicate = cb.conjunction();
+            List<Predicate> list = new ArrayList<>();
+            list.add(
+                    cb.or(
+                            // 1.成功
+                            cb.equal(root.get("status").as(Integer.class), 1),
+                            // 4.总控上分
+                            cb.equal(root.get("status").as(Integer.class), 4)
+                    )
+            );
+            if (co.getStartDate() != null) {
+                list.add(cb.greaterThanOrEqualTo(root.get("updateTime").as(Date.class), co.getStartDate()));
+            }
+            if (co.getEndDate() != null) {
+                list.add(cb.lessThanOrEqualTo(root.get("updateTime").as(Date.class), co.getEndDate()));
+            }
+
+            if (co.getFirstProxy() != null) {
+                list.add(cb.equal(root.get("firstProxy").as(Long.class), co.getFirstProxy()));
+            }
+            if (co.getSecondProxy() != null) {
+                list.add(cb.equal(root.get("secondProxy").as(Long.class), co.getSecondProxy()));
+            }
+            if (co.getThirdProxy() != null) {
+                list.add(cb.equal(root.get("thirdProxy").as(Long.class), co.getThirdProxy()));
+            }
+
+            predicate = cb.and(list.toArray(new Predicate[list.size()]));
+
+            return predicate;
+        };
         return chargeOrderRepository.findAll(condition);
     }
 
