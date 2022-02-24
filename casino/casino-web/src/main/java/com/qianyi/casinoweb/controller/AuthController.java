@@ -117,7 +117,7 @@ public class AuthController {
         if (checkResponse.getCode() != 0) {
             return checkResponse;
         }
-        ResponseEntity responseEntity = registerCommon(account, password,country, phone,phoneCode, request, validate, inviteCode, inviteType);
+        ResponseEntity responseEntity = registerCommon(account, password,country, phone,phoneCode, request, validate, inviteCode, inviteType,0);
         return responseEntity;
     }
 
@@ -146,7 +146,7 @@ public class AuthController {
         if (platformConfig == null || platformConfig.getRegisterSwitch() == null || platformConfig.getRegisterSwitch() == Constants.close) {
             return ResponseUtil.custom("注册通道已关闭");
         }
-        ResponseEntity responseEntity = registerCommon(account, password, country, phone, phoneCode, request, validate, inviteCode, null);
+        ResponseEntity responseEntity = registerCommon(account, password, country, phone, phoneCode, request, validate, inviteCode, null,1);
         return responseEntity;
     }
 
@@ -163,7 +163,7 @@ public class AuthController {
      */
     @Transactional
     public ResponseEntity registerCommon(String account, String password, String country, String phone, String phoneCode,
-                                         HttpServletRequest request, String validate, String inviteCode, String inviteType) {
+                                         HttpServletRequest request, String validate, String inviteCode, String inviteType,Integer source) {
         boolean wangyidun = WangyiDunAuthUtil.verify(validate);
         if (!wangyidun) {
             return ResponseUtil.custom("验证码错误");
@@ -212,7 +212,7 @@ public class AuthController {
         String inviteCodeNew = generateInviteCodeRunner.getInviteCode();
         user = User.setBaseUser(account, CasinoWebUtil.bcrypt(password), phone, ip,inviteCodeNew);
         //设置父级
-        setParent(inviteCode, inviteType, user);
+        setParent(inviteCode, inviteType, user,source);
         Long firstPid = user.getFirstPid();
         //直推数量限制
         if (firstPid != null && firstPid != 0) {
@@ -280,46 +280,50 @@ public class AuthController {
      * @param inviteType
      * @param user
      */
-    public void setParent(String inviteCode, String inviteType, User user) {
-        //人人代
-        if (Constants.INVITE_TYPE_EVERYONE.equals(inviteType)) {
-            User parentUser = userService.findByInviteCode(inviteCode);
-            user.setFirstPid(parentUser.getId());
-            user.setSecondPid(parentUser.getFirstPid());
-            user.setThirdPid(parentUser.getSecondPid());
+    public void setParent(String inviteCode, String inviteType, User user, Integer source) {
+        //推广
+        if (source == 0) {
+            //人人代
+            if (Constants.INVITE_TYPE_EVERYONE.equals(inviteType)) {
+                User parentUser = userService.findByInviteCode(inviteCode);
+                user.setFirstPid(parentUser.getId());
+                user.setSecondPid(parentUser.getFirstPid());
+                user.setThirdPid(parentUser.getSecondPid());
+                user.setType(Constants.USER_TYPE0);
+                return;
+            }
+            //基层代理
+            if (Constants.INVITE_TYPE_PROXY.equals(inviteType)) {
+                ProxyUser parentProxy = proxyUserService.findByProxyCode(inviteCode);
+                user.setFirstProxy(parentProxy.getFirstProxy());
+                user.setSecondProxy(parentProxy.getSecondProxy());
+                user.setThirdProxy(parentProxy.getId());
+                user.setType(Constants.USER_TYPE1);
+                return;
+            }
+            //官方推广
+            if (Constants.INVITE_TYPE_COMPANY.equals(inviteType)) {
+                user.setType(Constants.USER_TYPE2);
+                return;
+            }
+            //官方链接渠道
+            if (ObjectUtils.isEmpty(inviteCode) && ObjectUtils.isEmpty(inviteType)) {
+                user.setType(Constants.USER_TYPE2);
+                return;
+            }
+            //前台自己注册
+        } else if (source == 1) {
             user.setType(Constants.USER_TYPE0);
-            return;
-        }
-        //基层代理
-        if (Constants.INVITE_TYPE_PROXY.equals(inviteType)) {
-            ProxyUser parentProxy = proxyUserService.findByProxyCode(inviteCode);
-            user.setFirstProxy(parentProxy.getFirstProxy());
-            user.setSecondProxy(parentProxy.getSecondProxy());
-            user.setThirdProxy(parentProxy.getId());
-            user.setType(Constants.USER_TYPE1);
-            return;
-        }
-        //官方推广
-        if (Constants.INVITE_TYPE_COMPANY.equals(inviteType)) {
-            user.setType(Constants.USER_TYPE2);
-            return;
-        }
-        //官方链接渠道
-        if (ObjectUtils.isEmpty(inviteCode) && ObjectUtils.isEmpty(inviteType)) {
-            user.setType(Constants.USER_TYPE2);
-            return;
-        }
-        //前台自己注册
-        user.setType(Constants.USER_TYPE0);
-        user.setFirstPid(0L);//默认公司级别
-        User parentUser = null;
-        if (!ObjectUtils.isEmpty(inviteCode)) {
-            parentUser = userService.findByInviteCode(inviteCode);
-        }
-        if (parentUser != null) {
-            user.setFirstPid(parentUser.getId());
-            user.setSecondPid(parentUser.getFirstPid());
-            user.setThirdPid(parentUser.getSecondPid());
+            user.setFirstPid(0L);//默认公司级别
+            User parentUser = null;
+            if (!ObjectUtils.isEmpty(inviteCode)) {
+                parentUser = userService.findByInviteCode(inviteCode);
+            }
+            if (parentUser != null) {
+                user.setFirstPid(parentUser.getId());
+                user.setSecondPid(parentUser.getFirstPid());
+                user.setThirdPid(parentUser.getSecondPid());
+            }
         }
     }
 
