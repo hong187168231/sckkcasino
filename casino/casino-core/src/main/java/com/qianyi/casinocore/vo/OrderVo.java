@@ -1,8 +1,10 @@
 package com.qianyi.casinocore.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.qianyi.casinocore.model.Order;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -21,6 +23,7 @@ public class OrderVo  implements Serializable {
     private String account;
     @ApiModelProperty("订单号")
     private String no;
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty("金额")
     private BigDecimal money;
     //1.未确认。 2.成功   3.失败

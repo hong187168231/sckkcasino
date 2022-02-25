@@ -1,6 +1,8 @@
 package com.qianyi.casinocore.vo;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -29,10 +31,13 @@ public class CompanyProxyReportVo implements Serializable {
     private Integer groupNewUsers = CommonConst.NUMBER_0;
     @ApiModelProperty(value = "活跃玩家数")
     private Integer activeUsers = CommonConst.NUMBER_0;
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "团队充值")
     private BigDecimal chargeAmount = BigDecimal.ZERO;
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "团队提款")
     private BigDecimal withdrawMoney = BigDecimal.ZERO;
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty("团队业绩(流水)")
     private BigDecimal groupPerformance = BigDecimal.ZERO;
     @ApiModelProperty("统计日期")
