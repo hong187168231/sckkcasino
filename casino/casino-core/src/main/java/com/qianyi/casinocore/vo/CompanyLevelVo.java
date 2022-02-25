@@ -1,5 +1,7 @@
 package com.qianyi.casinocore.vo;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,7 +15,9 @@ public class CompanyLevelVo {
     private String profitLevel;
 
     //返佣金额（每"返佣金额线"返多少）
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal profitAmount;
     //返佣金额线
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal profitAmountLine;
 }

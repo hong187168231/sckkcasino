@@ -65,7 +65,28 @@ public class NewPermissions {
                 sysPermissionService.save(sysPermission);
             }
         }
+        if(!collect.containsKey("/domain/findList")){
+            //域名管理
+            domainConfig(collect);
+        }
         sysPermissionService.saveAllList(sysPermissions);
+    }
+
+    private void domainConfig(Map<String, SysPermission> collect) {
+        Long pid = collect.get("/systemCenter").getId();
+        if (!collect.containsKey("/domain/findList")) {
+            SysPermission domainPlatform = new SysPermission("域名管理", "域名管理", "/domain/findList", pid, CommonConst.NUMBER_2, CommonConst.NUMBER_0);
+            sysPermissionService.save(domainPlatform);
+            List<SysPermission> sysPermissionList = new ArrayList<>();
+            SysPermission savePlatform = new SysPermission("新增或者修改域名", "新增或者修改域名", "/domain/saveDomain", domainPlatform.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+            SysPermission updatePlatform = new SysPermission("修改域名状态", "修改域名状态", "/domain/domainStatus", domainPlatform.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+            SysPermission deletePlatform = new SysPermission("删除域名", "删除域名", "/domain/deleteId", domainPlatform.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+            sysPermissionList.add(savePlatform);
+            sysPermissionList.add(updatePlatform);
+            sysPermissionList.add(deletePlatform);
+            sysPermissionService.saveAllList(sysPermissionList);
+        }
+
     }
 
     private void thirdGameMange() {

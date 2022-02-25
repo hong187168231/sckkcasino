@@ -2,6 +2,7 @@ package com.qianyi.casinocore.util;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import lombok.Data;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -56,6 +57,73 @@ public class DTOUtil {
         } catch (Exception e) {
         }
         return t;
+    }
+
+    /**
+     * map转dto
+     *
+     * @param <T>   目标泛型
+     * @param d     map
+     * @param clazz 需要转换的class
+     * @return {@link T} 目标对象
+     * @author lance
+     * @since 2022 -02-25 14:27:48
+     */
+    public static <T> T toDTO(Map<String, Object> d, Class<T> clazz) {
+        return toDTO(d, clazz, null);
+    }
+
+    /**
+     * map转dto
+     *
+     * @param <T>      目标泛型
+     * @param d        map
+     * @param clazz    需要转换的class
+     * @param consumer 进一步处理的方法
+     * @return {@link T} 目标
+     * @author lance
+     * @since 2022 -02-25 14:27:48
+     */
+    public static <T> T toDTO(Map<String, Object> d, Class<T> clazz, Consumer<T> consumer) {
+        T t = BeanUtil.mapToBean(d, clazz, true);
+        if (consumer != null) {
+            consumer.accept(t);
+        }
+        return t;
+    }
+
+    /**
+     * map列表转dto
+     *
+     * @param <T>      目标泛型
+     * @param dataList map列表
+     * @param clazz    需要转换的class
+     * @return {@link List} 目标列表
+     * @author lance
+     * @since 2022 -02-25 14:27:48
+     */
+    public static <T> List<T> map2DTO(List<Map<String,Object>> dataList, Class<T> clazz) {
+        return map2DTO(dataList, clazz, null);
+    }
+
+    /**
+     * map列表转dto
+     *
+     * @param <T>      目标泛型
+     * @param dataList map列表
+     * @param clazz    需要转换的class
+     * @param consumer 进一步处理的方法
+     * @return {@link List} 目标列表
+     * @author lance
+     * @since 2022 -02-25 14:27:48
+     */
+    public static <T> List<T> map2DTO(List<Map<String,Object>> dataList, Class<T> clazz, Consumer<T> consumer) {
+        List<T> list = new ArrayList<>();
+        for (Map<String,Object> d: dataList) {
+            T t = toDTO(d, clazz, consumer);
+            list.add(t);
+        }
+        return list;
     }
 
     /**

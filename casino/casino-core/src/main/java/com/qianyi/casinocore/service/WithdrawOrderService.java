@@ -287,4 +287,7 @@ public class WithdrawOrderService {
     public BigDecimal sumWithdrawMoney(){
         return withdrawOrderRepository.sumWithdrawMoney();
     }
+    public BigDecimal sumPracticalAmount(){
+        return withdrawOrderRepository.sumPracticalAmount();
+    }
 }

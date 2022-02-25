@@ -1,7 +1,9 @@
 package com.qianyi.casinocore.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.qianyi.casinocore.model.AccountChange;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -23,10 +25,13 @@ public class AccountChangeBackVo  implements Serializable {
     private String orderNo;
     @ApiModelProperty(value = "账变类型")
     private Integer type;
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "额度变化")
     private BigDecimal amount;
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "额度变化前")
     private BigDecimal amountBefore;
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "额度变化后")
     private BigDecimal amountAfter;
     @ApiModelProperty("创建时间")

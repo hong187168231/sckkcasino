@@ -1,7 +1,9 @@
 package com.qianyi.casinocore.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.qianyi.casinocore.model.ChargeOrder;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -30,12 +32,15 @@ public class ChargeOrderVo implements Serializable {
     @ApiModelProperty(value = "汇款方式 1银行卡 2支付宝 3微信 4人工操作")
     private Integer remitType;
     @ApiModelProperty(value = "汇款金额")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal chargeAmount;
     @ApiModelProperty(value = "实际充值金额")
     private BigDecimal realityAmount;
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "实际到账金额")
     private BigDecimal practicalAmount;
     @ApiModelProperty(value = "手续费")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal serviceCharge;
     @ApiModelProperty(value = "备注")
     private String remark;
