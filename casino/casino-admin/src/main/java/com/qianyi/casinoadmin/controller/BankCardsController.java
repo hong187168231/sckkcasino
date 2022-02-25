@@ -335,31 +335,6 @@ public class BankCardsController {
         return false;
     }
 
-    /**
-     * 银行卡绑定 同名只能绑定一个账号   默认开
-     * @param realName
-     * @param userId
-     * @return
-     */
-    private boolean checkBankcardRealNameSwitch(String realName, Long userId) {
-        PlatformConfig platformConfig = platformConfigService.findFirst();
-        boolean bankcardRealNameSwitch = PlatformConfig.checkBankcardRealNameSwitch(platformConfig);
-        if (!bankcardRealNameSwitch) {
-            return true;
-        }
-        List<Bankcards> checkRealNameList = bankcardsService.findByRealName(realName);
-        if (CollectionUtils.isEmpty(checkRealNameList)) {
-            return true;
-        }
-        //可能存在一个名字属于多个账号，只要有一个账号匹配的上就可以
-        for (Bankcards checkRealName : checkRealNameList) {
-            if (checkRealName.getUserId().equals(userId)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private String checkParamFroBound(String accountName,String bankId, String bankAccount,
                                       String address) {
         if(LoginUtil.checkNull(accountName)){

@@ -28,10 +28,6 @@ public class Order extends BaseEntity {
     @Column(columnDefinition = "varchar(16) default 'WM'")
     private String gamePlatformName;
 
-    @ApiModelProperty("平台名称: WM, PG/CQ9")
-    @Column(columnDefinition = "varchar(16) default 'WM'")
-    private String gamePlatformName;
-
     /**
      * 0.转入，1.转出
      */
