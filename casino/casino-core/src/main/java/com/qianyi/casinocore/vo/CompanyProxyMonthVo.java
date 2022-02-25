@@ -1,8 +1,10 @@
 package com.qianyi.casinocore.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.qianyi.casinocore.model.CompanyProxyMonth;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -27,17 +29,21 @@ public class CompanyProxyMonthVo implements Serializable {
     private String staticsTimes;
     @ApiModelProperty(value = "创造业绩的玩家数")
     private Integer playerNum = CommonConst.NUMBER_0;
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "团队业绩流水")
     private BigDecimal groupBetAmount = BigDecimal.ZERO;
     @ApiModelProperty(value = "返佣级别")
     private String profitLevel;
     @ApiModelProperty(value = "返佣比例")
     private String profitRate;
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "团队总返佣")
     private BigDecimal groupTotalprofit = BigDecimal.ZERO;
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "佣金分成比")
     private BigDecimal benefitRate;
     @ApiModelProperty(value = "个人结算佣金")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal profitAmount = BigDecimal.ZERO;
     @ApiModelProperty(value = "结清状态")
     private Integer settleStatus = CommonConst.NUMBER_0;

@@ -1,5 +1,7 @@
 package com.qianyi.casinocore.vo;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.id.IntegralDataTypeHolder;
@@ -15,8 +17,10 @@ public class ShareProfitBO {
     @ApiModelProperty(value = "用户ID")
     private Long userId;
     @ApiModelProperty(value = "投注金额")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal betAmount;
     @ApiModelProperty(value = "分润金额")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal profitAmount;
     @ApiModelProperty(value = "是否第一次下注")
     private boolean isFirst;

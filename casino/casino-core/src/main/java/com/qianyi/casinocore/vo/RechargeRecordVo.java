@@ -1,6 +1,8 @@
 package com.qianyi.casinocore.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -20,6 +22,7 @@ public class RechargeRecordVo  implements Serializable {
     @ApiModelProperty("是否首充 0 是 1 不是")
     private Integer isFirst;
     @ApiModelProperty(value = "充值金额")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal chargeAmount;
     @ApiModelProperty(value = "第一级用户")
     private Long firstUserId;
