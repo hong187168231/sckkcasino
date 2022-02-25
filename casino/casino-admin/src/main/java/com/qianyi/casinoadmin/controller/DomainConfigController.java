@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
-
 
 @RestController
 @RequestMapping("/domain")
@@ -30,7 +28,7 @@ public class DomainConfigController {
     private DomainConfigService domainConfigService;
 
     @GetMapping("/findList")
-    @ApiOperation("银行列表")
+    @ApiOperation("域名列表")
     @NoAuthorization
     public ResponseEntity<DomainConfig> findList() {
         return ResponseUtil.success(domainConfigService.findList());
@@ -65,7 +63,7 @@ public class DomainConfigController {
         return ResponseUtil.success(domainConfig);
     }
 
-    @ApiOperation("修改渔民状态")
+    @ApiOperation("修改域名状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id", required = true),
             @ApiImplicitParam(name = "domainStatus", value = "状态 0：禁用， 1：启用", required = true)
@@ -81,7 +79,7 @@ public class DomainConfigController {
         return ResponseUtil.success(domainConfig);
     }
 
-    @ApiOperation("修改银行状态")
+    @ApiOperation("删除域名")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id", required = true)
     })
