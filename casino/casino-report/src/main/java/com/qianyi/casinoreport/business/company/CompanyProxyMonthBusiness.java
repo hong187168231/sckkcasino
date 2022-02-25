@@ -50,6 +50,9 @@ public class CompanyProxyMonthBusiness {
     @Autowired
     private ProxyUserService proxyUserService;
 
+    @Autowired
+    private ExtractPointsChangeService extractPointsChangeService;
+
 
     @Autowired
     private MessageUtil messageUtil;
@@ -88,6 +91,26 @@ public class CompanyProxyMonthBusiness {
         List<CompanyProxyMonth> firstResultList = proxyList(firstList);
         List<CompanyProxyMonth> secondeResultList = proxyList(secondeList);
         List<CompanyProxyMonth> thirdResultList = proxyList(thirdList);
+
+        // 抽点记录
+        List<ExtractPointsChange> changes = extractPointsChangeService.findBetween(startTime, endTime);
+        // {代理id, 抽点记录总额}
+        Map<Long, BigDecimal> waters = new HashMap<>();
+        for (ExtractPointsChange c: changes) {
+            // 以代理id为维度累加抽水总额
+            waters.putIfAbsent(c.getPoxyId(), BigDecimal.ZERO);
+            BigDecimal water = waters.get(c.getPoxyId());
+            waters.put(c.getPoxyId(), water.add(c.getAmount()));
+        }
+
+        // 只有基层代有抽水
+        thirdResultList.forEach(res ->{
+            BigDecimal water = waters.get(res.getUserId());
+            if (null != water) {
+                // 设置抽点总额
+                res.setExtractPointsAmount(water);
+            }
+        });
 
         List<CompanyProxyMonth> resultList = processingData(firstResultList, secondeResultList, thirdResultList);
 
