@@ -66,6 +66,9 @@ public class CompanyProxyMonthBusiness {
         //删除月
         companyProxyMonthService.deleteAllMonth(getMonthTime(dayTime));
         log.info("processDailyReport start startTime:{} endTime:{}",startTime,endTime);
+
+        //根据不用的游戏拿取不同游戏的返佣比列进行计算
+
         //查询当天游戏记录(third_proxy is not null)
         List<CompanyOrderAmountVo> companyOrderAmountVoList = gameRecordService.getStatisticsResult(startTime,endTime);
         List<CompanyProxyMonth> firstList= new ArrayList<>();
@@ -88,6 +91,7 @@ public class CompanyProxyMonthBusiness {
         secondeList.addAll(secondeList1);
         thirdList.addAll(thirdList1);
 
+        //根据代理id合并不同游戏数据
         List<CompanyProxyMonth> firstResultList = proxyList(firstList);
         List<CompanyProxyMonth> secondeResultList = proxyList(secondeList);
         List<CompanyProxyMonth> thirdResultList = proxyList(thirdList);
@@ -106,6 +110,7 @@ public class CompanyProxyMonthBusiness {
             }
         });
 
+        //处理总返佣：总返佣group_totalprofit = 下级profit_amount总计
         List<CompanyProxyMonth> resultList = processingData(firstResultList, secondeResultList, thirdResultList);
 
         log.info("save all proxyDetail data");
@@ -122,8 +127,10 @@ public class CompanyProxyMonthBusiness {
     public   List<CompanyProxyMonth> proxyList(List<CompanyProxyMonth>  proxyInfoList){
         Map<Long, CompanyProxyMonth> proxyMap = new HashMap<>();
         proxyInfoList.forEach(info ->{
+            //判断代理id是否一直
             CompanyProxyMonth last = proxyMap.get(info.getUserId());
             if (null !=last ){
+                //用户id一致 ? playerNum : playerNum+1
                 if (last.getUserIdTemp().equals(info.getUserIdTemp())){
                     info.setPlayerNum(info.getPlayerNum());
                 }else {
@@ -205,7 +212,7 @@ public class CompanyProxyMonthBusiness {
      * @param thirdList
      */
     public void processOrder(CompanyOrderAmountVo companyOrderAmountVo,List<CompanyProxyMonth> firstList,List<CompanyProxyMonth> secondeList,List<CompanyProxyMonth> thirdList){
-        //返佣比例
+        //根据投注金额匹配推广返佣配置中对应的返佣比列
         CompanyLevelBO companyLevelBO = companyLevelProcessBusiness.getLevelData(new BigDecimal(companyOrderAmountVo.getValidbet()),companyOrderAmountVo.getFirstProxy(),companyOrderAmountVo.getGameType());
         //根据基层代查询代理佣金配置表
         ProxyCommission proxyCommission = proxyCommissionService.findByProxyUserId(companyOrderAmountVo.getThirdProxy());
@@ -214,6 +221,7 @@ public class CompanyProxyMonthBusiness {
         log.info("proxyCommission:{}",proxyCommission);
 
 
+        //组装各级代理层数据
         firstList.add(calculateDetail(companyLevelBO,companyOrderAmountVo,companyOrderAmountVo.getFirstProxy(),proxyCommission.getFirstCommission(),1));
         secondeList.add(calculateDetail(companyLevelBO,companyOrderAmountVo,companyOrderAmountVo.getSecondProxy(),proxyCommission.getSecondCommission(),2));
         thirdList.add(calculateDetail(companyLevelBO,companyOrderAmountVo,companyOrderAmountVo.getThirdProxy(),proxyCommission.getThirdCommission(),3));
