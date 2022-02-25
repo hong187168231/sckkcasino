@@ -65,30 +65,30 @@ public class PlatformConfigController {
         return ResponseUtil.success(peopleProportion);
     }
 
-    @GetMapping("checkPlatformMaintenanceSwitch")
-    @ApiOperation("检查平台维护开关")
-    @NoAuthentication
-    public ResponseEntity<PlatformMaintenanceSwitch> checkPlatformMaintenanceSwitch() {
-        PlatformMaintenanceSwitch vo = new PlatformMaintenanceSwitch();
-        PlatformConfig platformConfig = platformConfigService.findFirst();
-        if (platformConfig == null || platformConfig.getMaintenanceStart() == null || platformConfig.getMaintenanceEnd() == null) {
-            vo.setOnOff(false);
-            return ResponseUtil.success(vo);
-        }
-        Integer maintenance = platformConfig.getPlatformMaintenance();
-        boolean switchb = maintenance == Constants.open ? true : false;
-        //先判断开关是否是维护状态，在判断当前时间是否在维护时区间内
-        if (switchb) {
-            switchb = DateUtil.isEffectiveDate(new Date(), platformConfig.getMaintenanceStart(), platformConfig.getMaintenanceEnd());
-        }
-        vo.setOnOff(switchb);
-        //最后确定状态
-        if (switchb) {
-            vo.setStartTime(platformConfig.getMaintenanceStart());
-            vo.setEndTime(platformConfig.getMaintenanceEnd());
-        }
-        return ResponseUtil.success(vo);
-    }
+//    @GetMapping("checkPlatformMaintenanceSwitch")
+//    @ApiOperation("检查平台维护开关")
+//    @NoAuthentication
+//    public ResponseEntity<PlatformMaintenanceSwitch> checkPlatformMaintenanceSwitch() {
+//        PlatformMaintenanceSwitch vo = new PlatformMaintenanceSwitch();
+//        PlatformConfig platformConfig = platformConfigService.findFirst();
+//        if (platformConfig == null || platformConfig.getMaintenanceStart() == null || platformConfig.getMaintenanceEnd() == null) {
+//            vo.setOnOff(false);
+//            return ResponseUtil.success(vo);
+//        }
+//        Integer maintenance = platformConfig.getPlatformMaintenance();
+//        boolean switchb = maintenance == Constants.open ? true : false;
+//        //先判断开关是否是维护状态，在判断当前时间是否在维护时区间内
+//        if (switchb) {
+//            switchb = DateUtil.isEffectiveDate(new Date(), platformConfig.getMaintenanceStart(), platformConfig.getMaintenanceEnd());
+//        }
+//        vo.setOnOff(switchb);
+//        //最后确定状态
+//        if (switchb) {
+//            vo.setStartTime(platformConfig.getMaintenanceStart());
+//            vo.setEndTime(platformConfig.getMaintenanceEnd());
+//        }
+//        return ResponseUtil.success(vo);
+//    }
 
     @ApiOperation("增减平台总余额")
     @ApiImplicitParams({
