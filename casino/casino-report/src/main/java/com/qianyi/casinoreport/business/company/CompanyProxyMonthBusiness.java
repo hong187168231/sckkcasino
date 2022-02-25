@@ -94,19 +94,13 @@ public class CompanyProxyMonthBusiness {
 
         // 抽点记录
         List<ExtractPointsChange> changes = extractPointsChangeService.findBetween(startTime, endTime);
-        // {代理id, 抽点记录总额}
-        Map<Long, BigDecimal> waters = new HashMap<>();
-        for (ExtractPointsChange c: changes) {
-            // 以代理id为维度累加抽水总额
-            waters.putIfAbsent(c.getPoxyId(), BigDecimal.ZERO);
-            BigDecimal water = waters.get(c.getPoxyId());
-            waters.put(c.getPoxyId(), water.add(c.getAmount()));
-        }
+        Map<Long, List<ExtractPointsChange>> changeGroup = changes.stream().collect(Collectors.groupingBy(ExtractPointsChange::getPoxyId));
 
         // 只有基层代有抽水
         thirdResultList.forEach(res ->{
-            BigDecimal water = waters.get(res.getUserId());
-            if (null != water) {
+            List<ExtractPointsChange> group = changeGroup.get(res.getUserId());
+            if (null != group) {
+                BigDecimal water = group.stream().map(ExtractPointsChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
                 // 设置抽点总额
                 res.setExtractPointsAmount(water);
             }
