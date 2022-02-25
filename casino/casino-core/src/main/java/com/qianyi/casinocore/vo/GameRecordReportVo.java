@@ -1,5 +1,7 @@
 package com.qianyi.casinocore.vo;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -14,11 +16,15 @@ public class GameRecordReportVo implements Serializable {
     @ApiModelProperty("投注笔数")
     private Integer bettingNumber;
     @ApiModelProperty(value = "洗码金额")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal amount;
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "下注金额")
     private BigDecimal betAmount;
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "输赢金额")
     private BigDecimal winLossAmount;
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "有效下注")
     private BigDecimal validAmount;
 }

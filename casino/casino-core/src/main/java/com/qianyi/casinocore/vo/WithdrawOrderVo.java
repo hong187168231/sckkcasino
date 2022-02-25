@@ -27,6 +27,7 @@ public class WithdrawOrderVo implements Serializable {
     @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal withdrawMoney;
     @ApiModelProperty(value = "实际提现金额")
+    @Column(columnDefinition = "Decimal(10,2) default '0.00'")
     private BigDecimal practicalAmount;
     @ApiModelProperty(value = "手续费")
     private BigDecimal serviceCharge;
