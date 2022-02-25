@@ -48,7 +48,7 @@ public class UserThirdController {
         if (tag != CommonConst.NUMBER_0 && tag != CommonConst.NUMBER_1){
             return ResponseUtil.custom("参数不合法");
         }
-        User user = null;
+        User user;
         UserThird userThird;
         JSONArray json = new JSONArray();
         if (tag == CommonConst.NUMBER_0){
@@ -121,6 +121,10 @@ public class UserThirdController {
                 if (CasinoProxyUtil.checkNull(userThird)){
                     return ResponseUtil.success();
                 }
+                user = userService.findById(userThird.getUserId());
+                if (CasinoProxyUtil.checkNull(user)){
+                    return ResponseUtil.success();
+                }
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("account",user.getAccount());
                 jsonObject.put("thirdAccount",userThird.getAccount());
@@ -129,6 +133,10 @@ public class UserThirdController {
             }else {
                 userThird =  userThirdService.findByGoldenfAccount(userAccount);
                 if (CasinoProxyUtil.checkNull(userThird)){
+                    return ResponseUtil.success();
+                }
+                user = userService.findById(userThird.getUserId());
+                if (CasinoProxyUtil.checkNull(user)){
                     return ResponseUtil.success();
                 }
                 JSONObject jsonObject = new JSONObject();
