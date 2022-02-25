@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.qianyi.casinocore.util.BillThreadPool;
 import com.qianyi.casinocore.util.GenerateInviteCodeRunner;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
@@ -30,6 +31,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +41,9 @@ import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
@@ -87,6 +92,8 @@ public class UserController {
 
     @Autowired
     private MessageUtil messageUtil;
+
+    private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_10);
 
     @ApiOperation("查询代理下级的用户数据")
     @ApiImplicitParams({
@@ -390,17 +397,30 @@ public class UserController {
         if (LoginUtil.checkNull(allAcount) || allAcount.size() == CommonConst.NUMBER_0){
             return ResponseUtil.success(BigDecimal.ZERO);
         }
-        BigDecimal sum = BigDecimal.ZERO;
+        ReentrantLock reentrantLock = new ReentrantLock();
+        Condition condition = reentrantLock.newCondition();
+        AtomicInteger atomicInteger = new AtomicInteger(allAcount.size());
+        Vector<BigDecimal> list = new Vector<>();
         for (UserThird u:allAcount){
-            JSONObject jsonObject = userMoneyService.getWMonetUser(u);
-            if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
-                continue;
-            }
-            Integer code = (Integer) jsonObject.get("code");
-            if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
-                sum = sum.add(new BigDecimal(jsonObject.get("data").toString()));
-            }
+            threadPool.execute(() ->{
+                try {
+                    JSONObject jsonObject = userMoneyService.getWMonetUser(u);
+                    if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+                        list.add(BigDecimal.ZERO);
+                    }else {
+                        Integer code = (Integer) jsonObject.get("code");
+                        if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
+                            list.add(new BigDecimal(jsonObject.get("data").toString()));
+                        }
+                    }
+                }finally {
+                    atomicInteger.decrementAndGet();
+                    BillThreadPool.toResume(reentrantLock, condition);
+                }
+            });
         }
+        BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
+        BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         return ResponseUtil.success(sum);
     }
 
@@ -437,17 +457,30 @@ public class UserController {
         if (LoginUtil.checkNull(allGoldenfAccount) || allGoldenfAccount.size() == CommonConst.NUMBER_0){
             return ResponseUtil.success(BigDecimal.ZERO);
         }
-        BigDecimal sum = BigDecimal.ZERO;
+        ReentrantLock reentrantLock = new ReentrantLock();
+        Condition condition = reentrantLock.newCondition();
+        AtomicInteger atomicInteger = new AtomicInteger(allGoldenfAccount.size());
+        Vector<BigDecimal> list = new Vector<>();
         for (UserThird u:allGoldenfAccount){
-            JSONObject jsonObject = userMoneyService.refreshPGAndCQ9(u);
-            if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
-                continue;
-            }
-            Integer code = (Integer) jsonObject.get("code");
-            if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
-                sum = sum.add(new BigDecimal(jsonObject.get("data").toString()));
-            }
+            threadPool.execute(() ->{
+                try {
+                    JSONObject jsonObject = userMoneyService.refreshPGAndCQ9(u);
+                    if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+                        list.add(BigDecimal.ZERO);
+                    }else {
+                        Integer code = (Integer) jsonObject.get("code");
+                        if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
+                            list.add(new BigDecimal(jsonObject.get("data").toString()));
+                        }
+                    }
+                }finally {
+                    atomicInteger.decrementAndGet();
+                    BillThreadPool.toResume(reentrantLock, condition);
+                }
+            });
         }
+        BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
+        BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         return ResponseUtil.success(sum);
     }
 
@@ -457,11 +490,11 @@ public class UserController {
     })
     @GetMapping("refreshPGAndCQ9")
     public ResponseEntity refreshPGAndCQ9(Long id){
-        User user = userService.findById(id);
-        if (LoginUtil.checkNull(user)){
+        UserThird third = userThirdService.findByUserId(id);
+        if (LoginUtil.checkNull(third) || ObjectUtils.isEmpty(third.getGoldenfAccount())){
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
-        JSONObject jsonObject = userMoneyService.refreshPGAndCQ9(user);
+        JSONObject jsonObject = userMoneyService.refreshPGAndCQ9(third.getUserId());
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             return ResponseUtil.custom("查询PG/CQ9余额失败");
         }
