@@ -34,6 +34,9 @@ public class UserMoneyService {
     @Autowired
     private UserMoneyRepository userMoneyRepository;
 
+
+    @Autowired
+    private UserService userService;
     @Autowired
     private PlatformConfigService platformConfigService;
 
