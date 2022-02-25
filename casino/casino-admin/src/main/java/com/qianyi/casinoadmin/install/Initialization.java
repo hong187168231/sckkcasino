@@ -108,9 +108,12 @@ public class Initialization implements CommandLineRunner {
             BigDecimal renrenLoan = renrenLoanList.stream().map(AccountChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal add = charge.add(codeWashing).add(renrenLoan);
             amount= amount.subtract(add);
-            //提现/下分
+            //下分
             BigDecimal withdraw = withdrawOrderService.sumWithdrawMoney();
-            amount= amount.add(withdraw);
+            //提现
+            BigDecimal practicalAmount = withdrawOrderService.sumPracticalAmount();
+            amount= amount.add(withdraw).add(practicalAmount);
+
             platformConfig.setTotalPlatformQuota(amount);
             platformConfig.setHistoricalDataId(1);
            platformConfigService.save(platformConfig);
