@@ -256,9 +256,7 @@ public class ExtractPointsConfigBusiness {
 
         // 校验参数
         for (UserExtractPointsConfig config : configList) {
-            if (config.getPoxyId() == null) {
-                throw new BusinessException("必须指定代理id");
-            }
+
             if (config.getUserId() == null) {
                 throw new BusinessException("必须指定用户id");
             }
@@ -272,9 +270,12 @@ public class ExtractPointsConfigBusiness {
                     throw new BusinessException("倍率超过限制");
                 }
             }
+
         }
-        Long poxyId = configList.get(0).getPoxyId();
+
         Long userId = configList.get(0).getUserId();
+        User user = userService.findById(userId);
+        Long poxyId = user.getThirdProxy();
         List<UserExtractPointsConfig> userConfigs = userExtractPointsConfigRepository.findAllByUserIdAndPoxyId(userId, poxyId);
 
         // 第一次编辑，保存所有抽点配置
