@@ -48,7 +48,7 @@ public class UserThirdController {
         if (tag != CommonConst.NUMBER_0 && tag != CommonConst.NUMBER_1){
             return ResponseUtil.custom("参数不合法");
         }
-        User user;
+        User user = null;
         UserThird userThird;
         JSONArray json = new JSONArray();
         if (tag == CommonConst.NUMBER_0){
@@ -89,11 +89,23 @@ public class UserThirdController {
                 json.add(jsonObject);
             }
         }else{
-            userThird = userThirdService.findByAccount(userAccount);
-            if (LoginUtil.checkNull(userThird)){
-                userThird =  userThirdService.findByGoldenfAccount(userAccount);
+            if (LoginUtil.checkNull(platform)){
+                userThird = userThirdService.findByAccount(userAccount);
                 if (LoginUtil.checkNull(userThird)){
-                    return ResponseUtil.success();
+                    userThird =  userThirdService.findByGoldenfAccount(userAccount);
+                    if (LoginUtil.checkNull(userThird)){
+                        return ResponseUtil.success();
+                    }
+                    user = userService.findById(userThird.getUserId());
+                    if (LoginUtil.checkNull(user)){
+                        return ResponseUtil.success();
+                    }
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("account",user.getAccount());
+                    jsonObject.put("thirdAccount",userThird.getGoldenfAccount());
+                    jsonObject.put("platform","PG/CQ9");
+                    json.add(jsonObject);
+                    return ResponseUtil.success(json);
                 }
                 user = userService.findById(userThird.getUserId());
                 if (LoginUtil.checkNull(user)){
@@ -101,23 +113,33 @@ public class UserThirdController {
                 }
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("account",user.getAccount());
+                jsonObject.put("thirdAccount",userThird.getAccount());
+                jsonObject.put("platform","WM");
+                json.add(jsonObject);
+            }else if (platform.equals("WM")){
+                userThird = userThirdService.findByAccount(userAccount);
+                if (LoginUtil.checkNull(userThird)){
+                    return ResponseUtil.success();
+                }
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("account",user.getAccount());
+                jsonObject.put("thirdAccount",userThird.getAccount());
+                jsonObject.put("platform","WM");
+                json.add(jsonObject);
+            }else {
+                userThird =  userThirdService.findByGoldenfAccount(userAccount);
+                if (LoginUtil.checkNull(userThird)){
+                    return ResponseUtil.success();
+                }
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("account",user.getAccount());
                 jsonObject.put("thirdAccount",userThird.getGoldenfAccount());
                 jsonObject.put("platform","PG/CQ9");
                 json.add(jsonObject);
-                return ResponseUtil.success(json);
             }
-            user = userService.findById(userThird.getUserId());
-            if (LoginUtil.checkNull(user)){
-                return ResponseUtil.success();
-            }
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("account",user.getAccount());
-            jsonObject.put("thirdAccount",userThird.getAccount());
-            jsonObject.put("platform","WM");
-            json.add(jsonObject);
+
         }
         return ResponseUtil.success(json);
     }
-
 
 }
