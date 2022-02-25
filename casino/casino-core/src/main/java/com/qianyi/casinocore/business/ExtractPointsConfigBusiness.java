@@ -279,6 +279,9 @@ public class ExtractPointsConfigBusiness {
             throw new BusinessException("用户不存在");
         }
         Long poxyId = user.getThirdProxy();
+        if (null == poxyId) {
+            throw new BusinessException("只允许设置基础代理下的用户");
+        }
         List<UserExtractPointsConfig> userConfigs = userExtractPointsConfigRepository.findAllByUserIdAndPoxyId(userId, poxyId);
 
         // 第一次编辑，保存所有抽点配置
