@@ -275,6 +275,9 @@ public class ExtractPointsConfigBusiness {
 
         Long userId = configList.get(0).getUserId();
         User user = userService.findById(userId);
+        if (null == user) {
+            throw new BusinessException("用户不存在");
+        }
         Long poxyId = user.getThirdProxy();
         List<UserExtractPointsConfig> userConfigs = userExtractPointsConfigRepository.findAllByUserIdAndPoxyId(userId, poxyId);
 
