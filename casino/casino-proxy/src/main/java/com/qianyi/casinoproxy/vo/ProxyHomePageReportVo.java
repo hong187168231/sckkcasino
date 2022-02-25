@@ -1,7 +1,9 @@
 package com.qianyi.casinoproxy.vo;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.qianyi.casinocore.model.ProxyHomePageReport;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -42,30 +44,37 @@ public class ProxyHomePageReportVo  implements Serializable {
     private String time ;
 
     @ApiModelProperty(value = "汇款金额")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal chargeAmount;
 
     @ApiModelProperty(value = "汇款笔数")
     private Integer chargeNums;
 
     @ApiModelProperty(value = "提款金额")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal withdrawMoney;
 
     @ApiModelProperty(value = "提款笔数")
     private Integer withdrawNums;
 
     @ApiModelProperty(value = "有效下注金额")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal validbetAmount;
 
     @ApiModelProperty(value = "输赢金额")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal winLossAmount;
 
     @ApiModelProperty(value = "团队结算佣金")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal groupTotalProfit = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "本人佣金")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal totalProfit = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "充投比")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal oddsRatio;
 
     private Set<Long> userIdSet;
