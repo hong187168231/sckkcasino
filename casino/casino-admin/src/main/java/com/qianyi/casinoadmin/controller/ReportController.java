@@ -11,6 +11,7 @@ import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.DTOUtil;
 import com.qianyi.casinocore.vo.CompanyProxyReportVo;
 import com.qianyi.casinocore.vo.PageResultVO;
+import com.qianyi.casinocore.vo.PersonReportTotalVo;
 import com.qianyi.casinocore.vo.PersonReportVo;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -171,8 +172,8 @@ public class ReportController {
         @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
         @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
-    public ResponseEntity<Map<String,Object>> queryTotal(String userName,String platform,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+    public ResponseEntity<PersonReportTotalVo> queryTotal(String userName, String platform, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+                                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(startDate,endDate)){
             return ResponseUtil.custom("参数不合法");
         }
@@ -186,22 +187,22 @@ public class ReportController {
         endDate = calendar.getTime();
         String endTime = DateUtil.dateToPatten(endDate);
         Long userId=null;
-        HistoryTotal itemObject = null;
+        PersonReportTotalVo itemObject = null;
         if(StringUtils.hasLength(userName)){
             User user = userService.findByAccount(userName);
             if(user != null){
                 userId=user.getId();
                 List<Map<String, Object>> map = userService.findMap(platform, startTime, endTime, userId);
-                itemObject = getHistoryItem(map.get(0));
+                itemObject = DTOUtil.toDTO(map.get(0), PersonReportTotalVo.class);
             }
         }else {
             Map<String,Object> result = userService.findMap(platform,startTime,endTime);
-            itemObject = getHistoryItem(result);
+            itemObject = DTOUtil.toDTO(result, PersonReportTotalVo.class);
         }
         return ResponseUtil.success(itemObject);
     }
 
-    private HistoryTotal getHistoryItem(Map<String,Object> result){
+    /*private HistoryTotal getHistoryItem(Map<String,Object> result){
         HistoryTotal historyTotal = new HistoryTotal();
         historyTotal.setAll_profit_amount(new BigDecimal(result.get("all_profit_amount").toString()).setScale(2, RoundingMode.HALF_UP));
         historyTotal.setService_charge(new BigDecimal(result.get("service_charge").toString()).setScale(2, RoundingMode.HALF_UP));
@@ -213,5 +214,5 @@ public class ReportController {
         historyTotal.setWash_amount(new BigDecimal(result.get("wash_amount").toString()).setScale(2, RoundingMode.HALF_UP));
         historyTotal.setAvg_benefit(new BigDecimal(result.get("avg_benefit").toString()).setScale(2, RoundingMode.HALF_UP));
         return historyTotal;
-    }
+    }*/
 }

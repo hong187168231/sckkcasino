@@ -295,7 +295,10 @@ public class UserService {
         }else {
             sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"'CQ9'");
         }
-        System.out.println(sql);
+//        log.info("\n" + sql);
+//        log.info("\n" + SqlConst.seleOneTotal);
+//        log.info("\n" + SqlConst.seleOneWm);
+//        log.info("\n" + SqlConst.seleOnePgOrCq9Sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List resultList = countQuery.getResultList();
         return getList(resultList);
@@ -315,7 +318,10 @@ public class UserService {
         }else {
             sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime,endTime,"'CQ9'");
         }
-        System.out.println(sql);
+//        log.info("\n" + sql);
+//        log.info("\n" + SqlConst.sumSql);
+//        log.info("\n" + SqlConst.WMSumSql);
+//        log.info("\n" + SqlConst.PGAndCQ9SumSql);
         Query countQuery = entityManager.createNativeQuery(sql);
         Object result = countQuery.getSingleResult();
         Map<String,Object> map = new HashMap();
@@ -329,6 +335,7 @@ public class UserService {
         map.put("all_profit_amount",obj[6]);
         map.put("avg_benefit",obj[7]);
         map.put("total_amount",obj[8]);
+        map.put("all_water", obj[9]);
         return map;
     }
 
