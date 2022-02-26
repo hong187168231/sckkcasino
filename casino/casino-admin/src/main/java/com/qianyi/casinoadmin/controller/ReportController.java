@@ -87,7 +87,9 @@ public class ReportController {
         if(StringUtils.hasLength(userName)){
             User user = userService.findByAccount(userName);
             if(user != null){
-                List<PersonReportVo> reportResult = DTOUtil.map2DTO(userService.findMap(platform,startTime,endTime,user.getId()), PersonReportVo.class);
+                List<PersonReportVo> reportResult = DTOUtil.map2DTO(
+                        userService.findMap(platform,startTime,endTime,user.getId()),
+                        PersonReportVo.class);
                 PageResultVO<PersonReportVo> mapPageResultVO = combinePage(reportResult, 1, pageCode, pageSize);
                 return ResponseUtil.success(getMap(mapPageResultVO));
             }
@@ -99,7 +101,9 @@ public class ReportController {
         List<PersonReportVo> reportResult = null;
         try {
         if (LoginUtil.checkNull(tag)){
-            reportResult = DTOUtil.map2DTO(userService.findMap(platform, startTime, endTime, page, pageSize, ""), PersonReportVo.class);
+            reportResult = DTOUtil.map2DTO(
+                    userService.findMap(platform, startTime, endTime, page, pageSize, ""),
+                    PersonReportVo.class);
         }else {
             String str = "ORDER BY {0} ";
             switch (tag) {
@@ -126,7 +130,9 @@ public class ReportController {
             }else {
                 str = str + "DESC";
             }
-            reportResult = DTOUtil.map2DTO(userService.findMap(platform,startTime, endTime, page, pageSize, str), PersonReportVo.class);
+            reportResult = DTOUtil.map2DTO(
+                    userService.findMap(platform,startTime, endTime, page, pageSize, str),
+                    PersonReportVo.class);
         }
         } catch (Exception e) {
             return ResponseUtil.custom("查询失败");
