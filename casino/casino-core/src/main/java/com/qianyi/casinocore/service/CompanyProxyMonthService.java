@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.model.CompanyProxyDetail;
 import com.qianyi.casinocore.model.CompanyProxyMonth;
 import com.qianyi.casinocore.repository.CompanyProxyMonthRepository;
+import com.qianyi.casinocore.util.DTOUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -28,6 +29,10 @@ public class CompanyProxyMonthService {
         companyProxyMonthRepository.deleteByStaticsTimes(monthTime);
     }
 
+    public List<CompanyProxyMonth> findAllByStaticsTimesAndProxyRole(String staticsTimes, Integer proxyRole) {
+        return companyProxyMonthRepository.findAllByStaticsTimesAndProxyRole(staticsTimes, proxyRole);
+    }
+
     public List<CompanyProxyMonth> saveAll(List<CompanyProxyMonth> companyProxyMonthList){
         return companyProxyMonthRepository.saveAll(companyProxyMonthList);
     }
@@ -38,9 +43,9 @@ public class CompanyProxyMonthService {
 
     public List<CompanyProxyMonth> queryMonthByDay(String startDate,String endDate){
         List<Map<String,Object>> mapList = companyProxyMonthRepository.queryMonthData(startDate,endDate);
-        String jsonString = JSON.toJSONString(mapList);
-        return JSON.parseArray(jsonString,CompanyProxyMonth.class);
-
+        /*String jsonString = JSON.toJSONString(mapList);
+        return JSON.parseArray(jsonString,CompanyProxyMonth.class);*/
+        return DTOUtil.map2DTO(mapList, CompanyProxyMonth.class);
     }
     public CompanyProxyMonth findById(Long id){
         Optional<CompanyProxyMonth> byId = companyProxyMonthRepository.findById(id);

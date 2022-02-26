@@ -39,4 +39,15 @@ public class CompanyProxyTask {
         log.info(dayTime);
         companyProxyMonthBusiness.processMonthReport(dayTime);
     }
+
+    // 每天凌晨08分开始启动
+    @Scheduled(cron = "0 8 * * * ?")
+    public void setCompanyProxyMonthExtractPoint(){
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String dayTime = df.format(LocalDateTime.now());
+        dayTime = dayTime.substring(0,10);
+        log.info(dayTime);
+        companyProxyMonthBusiness.updateCompanyProxyMonthReport(dayTime);
+    }
+
 }

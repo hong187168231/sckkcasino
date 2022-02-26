@@ -136,6 +136,15 @@ public class CompanyProxyMonthController {
                     companyProxyMonthVo.setGroupBetAmount(proxyHomes.stream().map(CompanyProxyMonth::getGroupBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add));
                     companyProxyMonthVo.setGroupTotalprofit(proxyHomes.stream().map(CompanyProxyMonth::getGroupTotalprofit).reduce(BigDecimal.ZERO, BigDecimal::add));
                     companyProxyMonthVo.setProfitAmount(proxyHomes.stream().map(CompanyProxyMonth::getProfitAmount).reduce(BigDecimal.ZERO, BigDecimal::add));
+                    // 抽点金额
+                    if (proxy.getProxyRole().equals(CommonConst.NUMBER_3)) {
+                        companyProxyMonthVo.setExtractPointsAmount(proxyHomes.stream()
+                                .map(CompanyProxyMonth::getExtractPointsAmount)
+                                // 过滤空值
+                                .filter(Objects::nonNull)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add));
+                    }
+
                     List<Integer> collect = proxyHomes.stream().map(CompanyProxyMonth::getSettleStatus).collect(Collectors.toList());
                     companyProxyMonthVo.setSettleStatus(Collections.min(collect));
                     CompanyProxyMonth proxyDetail = proxyHomes.get(CommonConst.NUMBER_0);
@@ -179,6 +188,14 @@ public class CompanyProxyMonthController {
                     companyProxyMonthVo.setGroupBetAmount(proxyHomes.stream().map(CompanyProxyMonth::getGroupBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add));
                     companyProxyMonthVo.setGroupTotalprofit(proxyHomes.stream().map(CompanyProxyMonth::getGroupTotalprofit).reduce(BigDecimal.ZERO, BigDecimal::add));
                     companyProxyMonthVo.setProfitAmount(proxyHomes.stream().map(CompanyProxyMonth::getProfitAmount).reduce(BigDecimal.ZERO, BigDecimal::add));
+                    // 抽点金额
+                    if (proxy.getProxyRole().equals(CommonConst.NUMBER_3)) {
+                        companyProxyMonthVo.setExtractPointsAmount(proxyHomes.stream()
+                                .map(CompanyProxyMonth::getExtractPointsAmount)
+                                // 过滤空值
+                                .filter(Objects::nonNull)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add));
+                    }
                     List<Integer> collect = proxyHomes.stream().map(CompanyProxyMonth::getSettleStatus).collect(Collectors.toList());
                     companyProxyMonthVo.setSettleStatus(Collections.min(collect));
                 }

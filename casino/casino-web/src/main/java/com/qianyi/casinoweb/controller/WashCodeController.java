@@ -45,7 +45,7 @@ public class WashCodeController {
     @Autowired
     private WashCodeChangeService washCodeChangeService;
     @Autowired
-    private PlatformConfigController platformConfigController;
+    private PlatformConfigService platformConfigService;
     @Autowired
     @Qualifier("accountChangeJob")
     AsyncService asyncService;
@@ -174,8 +174,8 @@ public class WashCodeController {
         vo.setAmountBefore(userMoney.getMoney());
         vo.setAmountAfter(userMoney.getMoney().add(washCode));
         asyncService.executeAsync(vo);
-        //增减平台总余额
-        platformConfigController.updateTotalPlatformQuota (CommonConst.NUMBER_0,washCode.stripTrailingZeros());
+        //后台异步增减平台总余额
+        platformConfigService.reception(CommonConst.NUMBER_0,washCode.stripTrailingZeros());
         return ResponseUtil.success("成功领取金额", washCode.stripTrailingZeros().toPlainString());
     }
 

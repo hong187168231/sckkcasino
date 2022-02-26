@@ -2,11 +2,14 @@ package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.ExtractPointsChange;
 import com.qianyi.casinocore.repository.ExtractPointsChangeRepository;
+import com.qianyi.modulecommon.util.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,10 +21,24 @@ import java.util.List;
  * @since 2022 -02-22 19:27:40
  */
 @Service
+@Slf4j
 public class ExtractPointsChangeService {
 
     @Autowired
     private ExtractPointsChangeRepository repository;
+
+    public List<ExtractPointsChange> findBetween(String startTime, String endTime) {
+        Date startDate = null;
+        Date endDate = null;
+        try {
+            startDate = DateUtil.getSimpleDateFormat().parse(startTime);
+            endDate = DateUtil.getSimpleDateFormat().parse(endTime);
+        } catch (ParseException e) {
+            log.error("日期格式化异常", e);
+        }
+
+        return findBetween(startDate, endDate);
+    }
 
     /**
      * 查询开始时间和结束时间之间的抽点记录

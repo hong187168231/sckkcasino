@@ -57,7 +57,7 @@ public class WithdrawOrderController {
     private SysUserService sysUserService;
 
     @Autowired
-    PlatformConfigController platformConfigController;
+    PlatformConfigService platformConfigService;
 
     @ApiOperation("提现列表")
     @ApiImplicitParams({
@@ -167,7 +167,7 @@ public class WithdrawOrderController {
         ResponseEntity responseEntity = withdrawBusiness.updateWithdrawAndUser(id, status, lastModifier, remark);
         if (responseEntity.getCode() == CommonConst.NUMBER_0 && status == CommonConst.NUMBER_1) {
             Object data = responseEntity.getData();
-            platformConfigController.updateTotalPlatformQuota(CommonConst.NUMBER_1, new BigDecimal(String.valueOf(data)));
+            platformConfigService.backstage(CommonConst.NUMBER_1, new BigDecimal(String.valueOf(data)));
         }
         return responseEntity;
     }

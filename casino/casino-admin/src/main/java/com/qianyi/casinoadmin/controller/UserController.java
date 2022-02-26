@@ -88,7 +88,7 @@ public class UserController {
     @Autowired
     GenerateInviteCodeRunner generateInviteCodeRunner;
     @Autowired
-    PlatformConfigController platformConfigController;
+    PlatformConfigService platformConfigService;
 
     @Autowired
     private MessageUtil messageUtil;
@@ -792,13 +792,13 @@ public class UserController {
         chargeOrder.setLastModifier(lastModifier);
         chargeOrder.setType(user.getType());
         //        chargeOrder.setRealityAmount(money);
-        ResponseEntity  queryTotalPlatformQuota = platformConfigController.queryTotalPlatformQuota("上分失败,平台额度不足");
-        if (queryTotalPlatformQuota.getCode()!=CommonConst.NUMBER_0){
-            return queryTotalPlatformQuota;
+        Boolean aBoolean = platformConfigService.queryTotalPlatformQuota();
+        if (!aBoolean){
+            return ResponseUtil.custom("上分失败,平台额度不足");
         }
         ResponseEntity responseEntity = chargeOrderBusiness.saveOrderSuccess(user, chargeOrder, Constants.chargeOrder_masterControl, Constants.remitType_general, Constants.CODENUMCHANGE_MASTERCONTROL);
         if(responseEntity.getCode()==CommonConst.NUMBER_0){
-            platformConfigController.updateTotalPlatformQuota(CommonConst.NUMBER_0, new BigDecimal(chargeAmount));
+            platformConfigService.backstage(CommonConst.NUMBER_0, new BigDecimal(chargeAmount));
         }
         return responseEntity;
     }
@@ -841,7 +841,7 @@ public class UserController {
         String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
         ResponseEntity responseEntity = withdrawBusiness.updateWithdrawAndUser(user, id, money, bankId, Constants.withdrawOrder_masterControl, lastModifier, remark);
         if (responseEntity.getCode()==CommonConst.NUMBER_0){
-            platformConfigController.updateTotalPlatformQuota(CommonConst.NUMBER_1,new BigDecimal(withdrawMoney));
+            platformConfigService.backstage(CommonConst.NUMBER_1,new BigDecimal(withdrawMoney));
         }
         return responseEntity;
     }
