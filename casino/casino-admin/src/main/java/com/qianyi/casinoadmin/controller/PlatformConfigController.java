@@ -724,39 +724,6 @@ public class PlatformConfigController {
 
     }
 
-    /**
-     * 增减平台总余额
-     * @param type
-     * @param amount
-     * @return
-     */
-    @ApiOperation("增减平台总余额")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "type", value = "0:减 1:加", required = true),
-            @ApiImplicitParam(name = "amount", value = "操作金额", required = true),
-    })
-    @GetMapping("/updateTotalPlatformQuota")
-    public  synchronized ResponseEntity updateTotalPlatformQuota(Integer type,BigDecimal amount){
-        PlatformConfig platformConfig = platformConfigService.findFirst();
-        if (type.equals( CommonConst.NUMBER_0)){
-            platformConfig.setTotalPlatformQuota(platformConfig.getTotalPlatformQuota().subtract(amount));
-        }else {
-            platformConfig.setTotalPlatformQuota(platformConfig.getTotalPlatformQuota().add(amount));
-        }
-        platformConfigService.save(platformConfig);
-        return ResponseUtil.success();
-    }
-    @ApiOperation("校验平台总余额")
-    @GetMapping("/queryTotalPlatformQuota")
-    public  ResponseEntity queryTotalPlatformQuota(String cistomName){
-        PlatformConfig platformConfig = platformConfigService.findFirst();
-        if ( platformConfig.getTotalPlatformQuota().compareTo(BigDecimal.ZERO)<=0){
-            return ResponseUtil.custom(cistomName);
-        }
-        return ResponseUtil.success();
-    }
-
-
     @ApiOperation("后台查询平台总余额")
     @GetMapping("/queryTotalPlatformQuotaInfo")
     @NoAuthorization

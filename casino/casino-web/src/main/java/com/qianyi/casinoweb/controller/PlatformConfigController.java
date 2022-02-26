@@ -89,25 +89,6 @@ public class PlatformConfigController {
         }
         return ResponseUtil.success(vo);
     }
-
-    @ApiOperation("增减平台总余额")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "type", value = "0:减 1:加", required = true),
-            @ApiImplicitParam(name = "amount", value = "操作金额", required = true),
-    })
-    @GetMapping("/updateTotalPlatformQuota")
-    @Async("asyncExecutor")
-    public  synchronized ResponseEntity updateTotalPlatformQuota(Integer type,BigDecimal amount){
-        PlatformConfig platformConfig = platformConfigService.findFirst();
-        if (type.equals( CommonConst.NUMBER_0)){
-            platformConfig.setTotalPlatformQuota(platformConfig.getTotalPlatformQuota().subtract(amount));
-        }else {
-            platformConfig.setTotalPlatformQuota(platformConfig.getTotalPlatformQuota().add(amount));
-        }
-        platformConfigService.save(platformConfig);
-        return ResponseUtil.success();
-    }
-
     @Data
     @ApiModel("人人代三级分佣比例")
     class PeopleProportion{

@@ -53,8 +53,6 @@ public class ProxyCentreController {
     @Autowired
     @Qualifier("asyncExecutor")
     private Executor executor;
-    @Autowired
-    private PlatformConfigController platformConfigController;
 
 
     @ApiOperation("查询今日，昨日，本周佣金")
@@ -269,8 +267,8 @@ public class ProxyCentreController {
         vo.setAmountBefore(userMoney.getMoney());
         vo.setAmountAfter(userMoney.getMoney().add(shareProfit));
         asyncService.executeAsync(vo);
-        //增减平台总余额
-        platformConfigController.updateTotalPlatformQuota (CommonConst.NUMBER_0,shareProfit.stripTrailingZeros());
+        //后台异步增减平台总余额
+        platformConfigService.reception(CommonConst.NUMBER_0,shareProfit.stripTrailingZeros());
         return ResponseUtil.success("成功领取金额" , shareProfit.stripTrailingZeros().toPlainString());
     }
 
