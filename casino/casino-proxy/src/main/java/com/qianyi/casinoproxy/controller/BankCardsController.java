@@ -115,50 +115,50 @@ public class BankCardsController {
      * @param realName
      * @return
      */
-    @PostMapping("/bound")
-    @ApiOperation("用户增加银行卡")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "用户id", required = true),
-            @ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
-            @ApiImplicitParam(name = "bankAccount", value = "银行账号", required = true),
-            @ApiImplicitParam(name = "address", value = "开户地址", required = true),
-            @ApiImplicitParam(name = "realName", value = "持卡人姓名",required = true)})
-    public ResponseEntity bound(Long userId, String bankId, String bankAccount, String address, String realName){
-        String checkParamFroBound = this.checkParamFroBound(realName, bankId, bankAccount, address);
-        if (!CasinoProxyUtil.checkNull(checkParamFroBound)) {
-            return ResponseUtil.custom(checkParamFroBound);
-        }
-        if (!realName.matches(RegexEnum.NAME.getRegex())){
-            return ResponseUtil.custom("持卡人请输入中文或字母");
-        }
-        //判断是否存在该用户
-        User user = userService.findById(userId);
-        if(user == null){
-            return ResponseUtil.custom("不存在该会员");
-        }
-        //判断用户输入的姓名是否一致
-        if (CasinoProxyUtil.checkNull(user.getRealName())){
-            user.setRealName(realName);
-            userService.save(user);
-        }else {
-            if (!realName.equals(user.getRealName())){
-                return ResponseUtil.custom("持卡人姓名错误");
-            }
-        }
-
-        List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(userId);
-        if(bankcardsList.size() >= Constants.MAX_BANK_NUM){
-            return ResponseUtil.custom("最多只能绑定6张银行卡");
-        }
-        bankcardsList=bankcardsList.stream().filter(v ->v.getBankAccount().equals(bankAccount)).collect(Collectors.toList());
-        if(bankcardsList.size() > CommonConst.NUMBER_0){
-            return ResponseUtil.custom("已经绑定这张卡了");
-        }
-
-        Bankcards bankcards = boundCard(userId, bankId,bankAccount,address,realName);
-        boolean isSuccess= bankcardsService.boundCard(bankcards)==null?true:false;
-        return ResponseUtil.success(isSuccess);
-    }
+//    @PostMapping("/bound")
+//    @ApiOperation("用户增加银行卡")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "userId", value = "用户id", required = true),
+//            @ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
+//            @ApiImplicitParam(name = "bankAccount", value = "银行账号", required = true),
+//            @ApiImplicitParam(name = "address", value = "开户地址", required = true),
+//            @ApiImplicitParam(name = "realName", value = "持卡人姓名",required = true)})
+//    public ResponseEntity bound(Long userId, String bankId, String bankAccount, String address, String realName){
+//        String checkParamFroBound = this.checkParamFroBound(realName, bankId, bankAccount, address);
+//        if (!CasinoProxyUtil.checkNull(checkParamFroBound)) {
+//            return ResponseUtil.custom(checkParamFroBound);
+//        }
+//        if (!realName.matches(RegexEnum.NAME.getRegex())){
+//            return ResponseUtil.custom("持卡人请输入中文或字母");
+//        }
+//        //判断是否存在该用户
+//        User user = userService.findById(userId);
+//        if(user == null){
+//            return ResponseUtil.custom("不存在该会员");
+//        }
+//        //判断用户输入的姓名是否一致
+//        if (CasinoProxyUtil.checkNull(user.getRealName())){
+//            user.setRealName(realName);
+//            userService.save(user);
+//        }else {
+//            if (!realName.equals(user.getRealName())){
+//                return ResponseUtil.custom("持卡人姓名错误");
+//            }
+//        }
+//
+//        List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(userId);
+//        if(bankcardsList.size() >= Constants.MAX_BANK_NUM){
+//            return ResponseUtil.custom("最多只能绑定6张银行卡");
+//        }
+//        bankcardsList=bankcardsList.stream().filter(v ->v.getBankAccount().equals(bankAccount)).collect(Collectors.toList());
+//        if(bankcardsList.size() > CommonConst.NUMBER_0){
+//            return ResponseUtil.custom("已经绑定这张卡了");
+//        }
+//
+//        Bankcards bankcards = boundCard(userId, bankId,bankAccount,address,realName);
+//        boolean isSuccess= bankcardsService.boundCard(bankcards)==null?true:false;
+//        return ResponseUtil.success(isSuccess);
+//    }
 
     private String checkParamFroBound(String accountName,String bankId, String bankAccount,
                                       String address) {
