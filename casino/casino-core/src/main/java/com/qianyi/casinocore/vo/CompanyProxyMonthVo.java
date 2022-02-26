@@ -45,6 +45,11 @@ public class CompanyProxyMonthVo implements Serializable {
     @ApiModelProperty(value = "个人结算佣金")
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal profitAmount = BigDecimal.ZERO;
+
+    @ApiModelProperty(value = "抽点金额")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    private BigDecimal extractPointsAmount;
+
     @ApiModelProperty(value = "结清状态")
     private Integer settleStatus = CommonConst.NUMBER_0;
     @ApiModelProperty("创建时间")
