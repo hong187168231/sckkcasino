@@ -2,7 +2,6 @@ package com.qianyi.casinocore.util;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import lombok.Data;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;

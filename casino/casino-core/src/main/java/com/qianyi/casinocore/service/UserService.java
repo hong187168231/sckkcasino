@@ -10,6 +10,7 @@ import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.SqlConst;
 import com.qianyi.modulecommon.util.CommonUtil;
 import io.netty.util.internal.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.Page;
@@ -36,6 +37,7 @@ import java.util.*;
 @Service
 @Transactional
 @CacheConfig(cacheNames = {"user"})
+@Slf4j
 public class UserService {
 
     @Autowired
@@ -274,6 +276,7 @@ public class UserService {
         }else {
             sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime,endTime,sort,page.toString(),pageSize.toString(),"'CQ9'");
         }
+        log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List resultList = countQuery.getResultList();
         return getList(resultList);
@@ -348,6 +351,7 @@ public class UserService {
                 map.put("all_profit_amount",obj[9]);
                 map.put("avg_benefit",obj[10]);
                 map.put("total_amount",obj[11]);
+                map.put("all_water", obj[12]);
                 list.add(map);
             }
         }
