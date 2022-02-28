@@ -383,6 +383,10 @@ public class ExtractPointsConfigBusiness {
         BigDecimal validBet = new BigDecimal(gameRecord.getValidbet());
         // 基础代理id
         Long poxyId = gameRecord.getThirdProxy();
+        if (null == poxyId) {
+            log.warn("数据异常: {}", gameRecord);
+            return;
+        }
         // 玩家id
         Long userId = gameRecord.getUserId();
 
