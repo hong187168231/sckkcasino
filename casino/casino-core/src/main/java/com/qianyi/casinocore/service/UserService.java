@@ -268,13 +268,13 @@ public class UserService {
         endTime = "'"+endTime+"'";
         String sql = "";
         if(StringUtils.isNullOrEmpty(platform)){
-            sql = MessageFormat.format(SqlConst.totalSql,startTime,endTime,sort,page.toString(),pageSize.toString());
+            sql = MessageFormat.format(SqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString());
         }else if (platform.equals("WM")){
-            sql = MessageFormat.format(SqlConst.wmSql,startTime,endTime,sort,page.toString(),pageSize.toString());
+            sql = MessageFormat.format(SqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'wm'");
         }else if (platform.equals("PG")){
-            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime,endTime,sort,page.toString(),pageSize.toString(),"'PG'");
+            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'PG'");
         }else {
-            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime,endTime,sort,page.toString(),pageSize.toString(),"'CQ9'");
+            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'CQ9'");
         }
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
@@ -289,9 +289,9 @@ public class UserService {
         if(StringUtils.isNullOrEmpty(platform)){
             sql = MessageFormat.format(SqlConst.seleOneTotal,startTime,endTime,userId.toString());
         }else if (platform.equals("WM")){
-            sql = MessageFormat.format(SqlConst.seleOneWm,startTime,endTime,userId.toString(),"'WM'");
+            sql = MessageFormat.format(SqlConst.seleOneWm, startTime, endTime, userId.toString(), "'wm'");
         }else if (platform.equals("PG")){
-            sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"'PG'");
+            sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(), "'PG'");
         }else {
             sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"'CQ9'");
         }
@@ -312,11 +312,11 @@ public class UserService {
         if(StringUtils.isNullOrEmpty(platform)){
             sql = MessageFormat.format(SqlConst.sumSql,startTime,endTime);
         }else if (platform.equals("WM")){
-            sql = MessageFormat.format(SqlConst.WMSumSql,startTime,endTime,"'wm'");
+            sql = MessageFormat.format(SqlConst.WMSumSql,startTime, endTime, "'wm'");
         }else if (platform.equals("PG")){
-            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime,endTime,"'PG'");
+            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime, endTime, "'PG'");
         }else {
-            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime,endTime,"'CQ9'");
+            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime, endTime, "'CQ9'");
         }
 //        log.info("\n" + sql);
 //        log.info("\n" + SqlConst.sumSql);
