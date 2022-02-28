@@ -3,6 +3,7 @@ package com.qianyi.casinoweb.config;
 import com.qianyi.casinoweb.inteceptor.AuthenticationInteceptor;
 import com.qianyi.casinoweb.inteceptor.IpBlackCheckInteceptor;
 import com.qianyi.casinoweb.inteceptor.IpLimitInteceptor;
+import com.qianyi.casinoweb.inteceptor.PlatformMaintainInteceptor;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -37,10 +38,13 @@ public class GloabConfig implements WebMvcConfigurer {
     IpBlackCheckInteceptor ipBlackCheckInteceptor;
     @Autowired
     IpLimitInteceptor ipLimitInteceptor;
+    @Autowired
+    PlatformMaintainInteceptor platformMaintainInteceptor;
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(ipBlackCheckInteceptor).addPathPatterns("/**");
         registry.addInterceptor(ipLimitInteceptor).addPathPatterns("/**");
+        registry.addInterceptor(platformMaintainInteceptor).addPathPatterns("/**");
         registry.addInterceptor(authenticationInteceptor).addPathPatterns("/**")
                 .excludePathPatterns("/js/**")
                 .excludePathPatterns("/swagger**/**")
