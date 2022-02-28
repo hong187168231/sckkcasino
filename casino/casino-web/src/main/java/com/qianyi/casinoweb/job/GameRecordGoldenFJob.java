@@ -192,6 +192,9 @@ public class GameRecordGoldenFJob {
                 gameRecordGoldenFService.save(item);
             }
             GameRecord gameRecord = combineGameRecord(gameRecordGoldenF==null?item:gameRecordGoldenF);
+            gameRecord.setFirstProxy(item.getFirstProxy());
+            gameRecord.setSecondProxy(item.getSecondProxy());
+            gameRecord.setThirdProxy(item.getThirdProxy());
             processBusiness(item,gameRecord,platformConfig);
         }catch (Exception e){
             log.error("",e);
