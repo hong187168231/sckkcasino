@@ -23,7 +23,7 @@ public abstract class AbstractPlatformMaintainInteceptor implements HandlerInter
         PlatformMaintenanceSwitch maintain = platformMaintainCheck();
         Boolean onOff = maintain.getOnOff();
         if (onOff) {
-            log.error("KK平台维护中,维护时间{} ~ {}", maintain.getStartTime(), maintain.getEndTime());
+//            log.error("KK平台维护中,维护时间{} ~ {}", maintain.getStartTime(), maintain.getEndTime());
             response.sendRedirect(request.getContextPath() + "/authenticationPlatformMaintain?onOff=" + onOff + "&startTime=" + maintain.getStartTime() + "&endTime=" + maintain.getEndTime());
             return false;
         }
