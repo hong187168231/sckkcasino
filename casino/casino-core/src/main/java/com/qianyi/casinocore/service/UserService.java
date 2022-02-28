@@ -289,7 +289,7 @@ public class UserService {
         if(StringUtils.isNullOrEmpty(platform)){
             sql = MessageFormat.format(SqlConst.seleOneTotal,startTime,endTime,userId.toString());
         }else if (platform.equals("WM")){
-            sql = MessageFormat.format(SqlConst.seleOneWm,startTime,endTime,userId.toString());
+            sql = MessageFormat.format(SqlConst.seleOneWm,startTime,endTime,userId.toString(),"'WM'");
         }else if (platform.equals("PG")){
             sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"'PG'");
         }else {

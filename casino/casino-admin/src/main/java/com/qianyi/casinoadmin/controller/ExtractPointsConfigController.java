@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinocore.business.ExtractPointsConfigBusiness;
+import com.qianyi.casinocore.business.ExtractPointsTestBusiness;
 import com.qianyi.casinocore.co.extractpoints.ExtractPointsConfigCo;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.ExtractPointsConfigService;
@@ -76,37 +77,21 @@ public class ExtractPointsConfigController {
         return ResponseUtil.success(business.updateUserExtractPointsConfigs(configList));
     }
 
-    /*@Autowired
-    private ExtractPointsConfigBusiness extractPointsConfigBusiness;
-
     @Autowired
-    GameRecordAsyncOper gameRecordAsyncOper;
-
-    @Autowired
-    UserService userService;
-
-    @Autowired
-    UserThirdService userThirdService;
+    private ExtractPointsTestBusiness testBusiness;
 
     @NoAuthorization
-    @GetMapping("/test")
-    public ResponseEntity<String> test(){
-        String result = "[{\"user\":\"9032e2ccd0164a6cb5adcef53d9385\",\"betId\":\"179122069\",\"betTime\":\"2022-02-28 12:57:47\",\"beforeCash\":\"4064.0000\",\"bet\":\"50.0000\",\"validbet\":\"50.0000\",\"water\":\"0.0000\",\"result\":\"50.0000\",\"betCode\":\"Player\",\"waterbet\":\"50.0000\",\"winLoss\":\"50.0000\",\"ip\":\"116.212.142.251\",\"gid\":\"101\",\"event\":\"112929592\",\"eventChild\":\"31\",\"round\":\"112929592\",\"subround\":\"31\",\"tableId\":\"206\",\"commission\":\"0\",\"settime\":\"2022-02-28 13:00:30\",\"reset\":\"N\",\"betResult\":\"闲\",\"gameResult\":\"庄:♠3♦K♣3 闲:♦3♥4\",\"gname\":\"百家乐\"}]";
-        List<GameRecord> gameRecords = JSON.parseArray(result, GameRecord.class);
-        for (GameRecord record : gameRecords) {
-            record.setId(203166L);
-            UserThird account = userThirdService.findByAccount(record.getUser());
-            record.setUserId(account.getUserId());
-            User user = userService.findById(record.getUserId());
-            if (user != null) {
-                record.setFirstProxy(user.getFirstProxy());
-                record.setSecondProxy(user.getSecondProxy());
-                record.setThirdProxy(user.getThirdProxy());
-            }
-            // 抽点
-            gameRecordAsyncOper.extractPoints(Constants.PLATFORM_WM, record);
-        }
+    //@GetMapping("/wm/test")
+    public ResponseEntity<String> testWM(){
+        testBusiness.testWM();
         return ResponseUtil.success();
-    }*/
+    }
+
+    @NoAuthorization
+    //@GetMapping("/pg/test")
+    public ResponseEntity<String> testPG(){
+        testBusiness.testPG();
+        return ResponseUtil.success();
+    }
 
 }

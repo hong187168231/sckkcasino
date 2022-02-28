@@ -318,6 +318,15 @@ public class ExtractPointsConfigBusiness {
     }
 
 
+    /**
+     * 获取代理抽点配置
+     *
+     * @param gameId 入参释义
+     * @param poxyId 入参释义
+     * @return {@link PoxyExtractPointsConfig} 出参释义
+     * @author lance
+     * @since 2022 -02-28 18:51:45
+     */
     public PoxyExtractPointsConfig getPoxyExtractPointsConfig(String gameId, Long poxyId) {
         PoxyExtractPointsConfig poxyConfig = poxyExtractPointsConfigRepository.findFirstByGameIdAndPoxyId(gameId, poxyId);
         if (null == poxyConfig) {
@@ -330,11 +339,29 @@ public class ExtractPointsConfigBusiness {
         return poxyConfig;
     }
 
+    /**
+     * 获取用户抽点配置
+     * 先获取代理抽点配置，如果对应的抽点配置为关闭状态，则以代理抽点配置为主，否则取用户的抽点配置
+     *
+     * @param gameId 入参释义
+     * @param poxyId 入参释义
+     * @param userId 入参释义
+     * @return {@link UserExtractPointsConfig} 出参释义
+     * @author lance
+     * @since 2022 -02-28 18:51:45
+     */
     public UserExtractPointsConfig getUserExtractPointsConfig(String gameId, Long poxyId, Long userId) {
+        // 取代理配置
+        PoxyExtractPointsConfig poxyConfig = getPoxyExtractPointsConfig(gameId, poxyId);
+        if (Constants.no.equals(poxyConfig.getState())) {
+            return DTOUtil.toDTO(poxyConfig, UserExtractPointsConfig.class, c-> {
+                c.setUserId(userId);
+            });
+        }
+
         UserExtractPointsConfig userConfig = userExtractPointsConfigRepository.findFirstByGameIdAndPoxyIdAndUserId(gameId, poxyId, userId);
+        // 如果没有用户配置，则取代理配置
         if (null == userConfig) {
-            // 取代理配置
-            PoxyExtractPointsConfig poxyConfig = getPoxyExtractPointsConfig(gameId, poxyId);
             return DTOUtil.toDTO(poxyConfig, UserExtractPointsConfig.class, c-> {
                 c.setUserId(userId);
             });
@@ -356,6 +383,10 @@ public class ExtractPointsConfigBusiness {
         BigDecimal validBet = new BigDecimal(gameRecord.getValidbet());
         // 基础代理id
         Long poxyId = gameRecord.getThirdProxy();
+        if (null == poxyId) {
+            log.warn("数据异常: {}", gameRecord);
+            return;
+        }
         // 玩家id
         Long userId = gameRecord.getUserId();
 
@@ -374,6 +405,10 @@ public class ExtractPointsConfigBusiness {
             return ;
         }
         log.info("代理抽点配置: {}", config);
+        if (Constants.no.equals(config.getState())) {
+            log.info("禁用抽点配置：gameId[{}], poxyId[{}], userId[{}]", gameId, poxyId, userId);
+            return ;
+        }
         //数据库存的10是代表百分之10
         BigDecimal rate = config.getRate().divide(new BigDecimal(100));//转换百分比
         // 抽水
