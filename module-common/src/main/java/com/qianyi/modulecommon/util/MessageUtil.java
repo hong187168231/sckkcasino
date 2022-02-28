@@ -31,8 +31,12 @@ public class MessageUtil {
             String language = request.getHeader(Constants.LANGUAGE);
             //默认中文
             Locale locale = Locale.CHINA;
+            //柬埔寨语
+            Locale km_kh = new Locale("km", "KH");
             if (Locale.US.toString().equals(language)) {
                 locale = Locale.US;
+            } else if (km_kh.toString().equals(language)) {
+                locale = km_kh;
             }
 //            Locale locale = LocaleContextHolder.getLocale();
             //以中文为key,中文翻译可以不配，直接取key
