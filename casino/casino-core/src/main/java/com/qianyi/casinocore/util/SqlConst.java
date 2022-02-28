@@ -13,7 +13,7 @@ public class SqlConst {
             " ifnull(withdraw_t.service_charge,0) service_charge, \n" +
             " ifnull(pr.amount,0) all_profit_amount, \n" +
             " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water, 0)) avg_benefit, \n" +
-            " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0) total_amount,\n" +
+            " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0) total_amount,\n" +
             "  ifnull(ec.water, 0) all_water\n" +
             "from user u\n" +
             "left join ( \n" +
@@ -63,7 +63,7 @@ public class SqlConst {
             " ifnull(withdraw_t.service_charge,0) service_charge, \n" +
             " ifnull(pr.amount,0) all_profit_amount, \n" +
             " -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0)) avg_benefit, \n" +
-            " -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0) +ifnull(withdraw_t.service_charge,0) total_amount,\n" +
+            " -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0) -ifnull(ec.water,0) +ifnull(withdraw_t.service_charge,0) total_amount,\n" +
             " ifnull(ec.water, 0) all_water\n" +
             "from user u\n" +
             "left join ( \n" +
@@ -122,7 +122,7 @@ public class SqlConst {
             " ifnull(withdraw_t.service_charge,0) service_charge, \n" +
             " ifnull(pr.amount,0) all_profit_amount, \n" +
             " -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water, 0)) avg_benefit, \n" +
-            " -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0) total_amount,\n" +
+            " -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0) total_amount,\n" +
             " ifnull(ec.water, 0) all_water\n" +
             "from user u\n" +
             "left join ( \n" +
@@ -172,7 +172,7 @@ public class SqlConst {
             " ifnull(withdraw_t.service_charge,0) service_charge, \n" +
             " ifnull(pr.amount,0) all_profit_amount, \n" +
             " -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0)) avg_benefit, \n" +
-            " -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0) total_amount,\n" +
+            " -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0) total_amount,\n" +
             " sum(ifnull(ec.water, 0)) all_water\n" +
             "from user u\n" +
             "left join ( \n" +
@@ -231,7 +231,7 @@ public class SqlConst {
             " ifnull(withdraw_t.service_charge,0) service_charge, \n" +
             " ifnull(pr.amount,0) all_profit_amount, \n" +
             " -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0)) avg_benefit, \n" +
-            " -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0) total_amount,\n" +
+            " -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0) total_amount,\n" +
             " sum(ifnull(ec.water, 0)) all_water\n" +
             "from user u\n" +
             " left join ( \n" +
@@ -279,7 +279,7 @@ public class SqlConst {
             " ifnull(withdraw_t.service_charge,0) service_charge, \n" +
             " ifnull(pr.amount,0) all_profit_amount, \n" +
             " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0)) avg_benefit, \n" +
-            " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0) total_amount,\n" +
+            " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0) total_amount,\n" +
             " sum(ifnull(ec.water, 0)) all_water\n" +
             "from user u\n" +
             "left join ( \n" +
@@ -325,7 +325,7 @@ public class SqlConst {
             " sum(ifnull(withdraw_t.service_charge,0)) service_charge, \n" +
             " sum(ifnull(pr.amount,0)) all_profit_amount, \n" +
             " sum(-(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0))) avg_benefit,\n" +
-            " sum(-(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0)) total_amount,\n" +
+            " sum(-(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,\n" +
             " sum(ifnull(ec.water, 0)) all_water\n" +
             "from user u\n" +
             "left join ( \n" +
@@ -379,7 +379,7 @@ public class SqlConst {
             " sum(ifnull(withdraw_t.service_charge,0)) service_charge, \n" +
             " sum(ifnull(pr.amount,0)) all_profit_amount, \n" +
             " sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water, 0))) avg_benefit, \n" +
-            " sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0) +ifnull(withdraw_t.service_charge,0)) total_amount,\n" +
+            " sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0) +ifnull(withdraw_t.service_charge,0)) total_amount,\n" +
             " ifnull(ec.water, 0) all_water\n" +
             "from user u\n" +
             "left join ( \n" +
@@ -424,7 +424,7 @@ public class SqlConst {
             " sum(ifnull(withdraw_t.service_charge,0)) service_charge, \n" +
             " sum(ifnull(pr.amount,0)) all_profit_amount, \n" +
             " sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water, 0))) avg_benefit, \n" +
-            " sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)+ifnull(withdraw_t.service_charge,0)) total_amount,\n" +
+            " sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,\n" +
             "sum(ifnull(ec.water, 0)) all_water\n" +
             "from user u\n" +
             " left join ( \n" +
