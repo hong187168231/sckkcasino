@@ -47,6 +47,11 @@ public class CompanyProxyMonth extends BaseEntity implements Cloneable{
     @ApiModelProperty(value = "个人结算佣金")
     @Column(columnDefinition = "Decimal(19,6) default '0.000000'")
     private BigDecimal profitAmount;
+
+    @ApiModelProperty(value = "抽点金额")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    private BigDecimal extractPointsAmount;
+
     @ApiModelProperty(value = "结清状态 0 未结清 1已结清")
     private Integer settleStatus;
 

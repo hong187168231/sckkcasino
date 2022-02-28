@@ -81,9 +81,11 @@ public class NewPermissions {
             SysPermission savePlatform = new SysPermission("新增或者修改域名", "新增或者修改域名", "/domain/saveDomain", domainPlatform.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
             SysPermission updatePlatform = new SysPermission("修改域名状态", "修改域名状态", "/domain/domainStatus", domainPlatform.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
             SysPermission deletePlatform = new SysPermission("删除域名", "删除域名", "/domain/deleteId", domainPlatform.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
+            SysPermission visitsPlatform = new SysPermission("域名访问量统计", "域名访问量统计", "/domain/visitsFindList", domainPlatform.getId(), CommonConst.NUMBER_3, CommonConst.NUMBER_0);
             sysPermissionList.add(savePlatform);
             sysPermissionList.add(updatePlatform);
             sysPermissionList.add(deletePlatform);
+            sysPermissionList.add(visitsPlatform);
             sysPermissionService.saveAllList(sysPermissionList);
         }
 

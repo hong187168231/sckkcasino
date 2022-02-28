@@ -152,5 +152,9 @@ public class BankcardsService {
     public List<Bankcards> findByBankAccount(String bankAccount) {
         return bankcardsRepository.findByBankAccount(bankAccount);
     }
+
+    public List<Bankcards> findByBankId(String bankId) {
+        return bankcardsRepository.findByBankId(bankId);
+    }
 }
 

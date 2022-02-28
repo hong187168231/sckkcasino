@@ -37,6 +37,10 @@ public class BankInfoService {
         return bankInfoRepository.findAll(condition,sort);
     }
 
+    public BankInfo findByBankName(String bankName){
+        return bankInfoRepository.findByBankName(bankName);
+    }
+
     @CachePut(key="#result.id",condition = "#result != null")
     public BankInfo saveBankInfo(BankInfo bankInfo){
         return bankInfoRepository.save(bankInfo);

@@ -1,10 +1,13 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.model.BankInfo;
+import com.qianyi.casinoadmin.vo.VisitsSum;
 import com.qianyi.casinocore.model.DomainConfig;
 import com.qianyi.casinocore.service.DomainConfigService;
+import com.qianyi.casinocore.service.VisitsService;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinoadmin.vo.VisitsVo;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -18,6 +21,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.IntSummaryStatistics;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/domain")
@@ -27,9 +36,45 @@ public class DomainConfigController {
     @Autowired
     private DomainConfigService domainConfigService;
 
+    @Autowired
+    private VisitsService visitsService;
+
+    @GetMapping("/visitsFindList")
+    @ApiOperation("域名访问量统计")
+    @NoAuthorization
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "domainName", value = "域名名称", required = false),
+            @ApiImplicitParam(name = "StartTime", value = "开始时间", required = true),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true),
+    })
+    public ResponseEntity<VisitsVo> visitsFindList(String domainName, String ip, String StartTime, String endTime) {
+        List<Map<String, Object>> list = visitsService.findListSum(domainName, ip, StartTime, endTime);
+        List<VisitsVo> visitsVoList = new ArrayList<>();
+        List<VisitsSum> visitsSumList = new ArrayList<>();
+        for (Map<String, Object> stringObjectMap : list) {
+            String dataStr = JSON.toJSONString(stringObjectMap);
+            VisitsSum visitsSum = JSON.parseObject(dataStr, VisitsSum.class);
+            visitsSumList.add(visitsSum);
+        }
+
+        if(visitsSumList== null || visitsSumList.isEmpty()){
+            return ResponseUtil.success();
+        }
+        Map<String, List<VisitsSum>> collect = visitsSumList.stream().collect(Collectors.groupingBy(VisitsSum::getDomainName));
+        for (String s : collect.keySet()) {
+            VisitsVo visitsVo = new VisitsVo();
+            visitsVo.setDomainName(s);
+            List<VisitsSum> visitss = collect.get(s);
+            visitsVo.setDomainIpCount(visitss.size());
+            Integer sumDomainCount = visitss.stream().collect(Collectors.summingInt(VisitsSum::getDomainCount));
+            visitsVo.setDomainCount(sumDomainCount);
+            visitsVoList.add(visitsVo);
+        }
+        return ResponseUtil.success(visitsVoList);
+    }
+
     @GetMapping("/findList")
     @ApiOperation("域名列表")
-    @NoAuthorization
     public ResponseEntity<DomainConfig> findList() {
         return ResponseUtil.success(domainConfigService.findList());
     }
