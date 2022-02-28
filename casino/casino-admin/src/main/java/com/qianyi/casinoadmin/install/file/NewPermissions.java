@@ -316,7 +316,7 @@ public class NewPermissions {
         }
 
         // 代理抽点配置
-        if (!collect.containsKey("/extractPointsConfig/findAll")) {
+        /*if (!collect.containsKey("/extractPointsConfig/findAll")) {
             Long pid = collect.get("/operateCenter").getId();
             SysPermission sysConfigPermission = new SysPermission("代理抽点配置", "代理抽点配置", "/extractPointsConfig/findAll", pid, CommonConst.NUMBER_2, CommonConst.NUMBER_0);
             save = sysPermissionService.save(sysConfigPermission);
@@ -326,7 +326,7 @@ public class NewPermissions {
                 SysPermission sysPermission = new SysPermission("更新默认的抽点配置", "更新默认的抽点配置", "/extractPointsConfig/update", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
-        }
+        }*/
     }
     private void setSystemConfig(Map<String, SysPermission> collect) {
         if(!collect.containsKey("/systemMessage/systemConfig")){
