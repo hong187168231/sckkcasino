@@ -24,7 +24,7 @@ public class PersonReportVo {
     private BigDecimal betAmount;
 
     @JsonProperty("third_proxy")
-    @ApiModelProperty(value = "thirdProxy")
+    @ApiModelProperty(value = "基础id")
     private String thirdProxy;
 
     public String getThirdProxy(){
@@ -39,7 +39,7 @@ public class PersonReportVo {
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @JsonProperty("all_profit_amount")
-    @ApiModelProperty(value = "allProfitAmount")
+    @ApiModelProperty(value = "用户输赢金额")
     private BigDecimal allProfitAmount;
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
@@ -49,12 +49,12 @@ public class PersonReportVo {
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @JsonProperty("total_amount")
-    @ApiModelProperty(value = "totalAmount")
+    @ApiModelProperty(value = "总结算(毛利2)")
     private BigDecimal totalAmount;
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @JsonProperty("avg_benefit")
-    @ApiModelProperty(value = "avgBenefit")
+    @ApiModelProperty(value = "毛利1")
     private BigDecimal avgBenefit;
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
