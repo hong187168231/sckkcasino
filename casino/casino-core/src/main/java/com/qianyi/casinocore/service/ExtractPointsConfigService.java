@@ -11,7 +11,9 @@ import org.springframework.util.StringUtils;
 
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 代理抽点默认配置服务类
@@ -41,7 +43,9 @@ public class ExtractPointsConfigService {
             }
             return cb.and(list.toArray(new Predicate[list.size()]));
         };
-        return repository.findAll(condition);
+        List<ExtractPointsConfig> list = repository.findAll(condition);
+
+        return list.stream().sorted(Comparator.comparing(ExtractPointsConfig::getGameEnName)).collect(Collectors.toList());
     }
 
 }
