@@ -357,7 +357,6 @@ public class SqlConst {
             "  select user_id , sum(amount) wash_amount  \n" +
             "  from wash_code_change wcc  \n" +
             "  where create_time >= {0} and create_time <= {1}\n" +
-            " and platform = {3} " +
             "  group by user_id \n" +
             " ) wash_t on u.id = wash_t.user_id\n" +
             " left join ( \n" +
