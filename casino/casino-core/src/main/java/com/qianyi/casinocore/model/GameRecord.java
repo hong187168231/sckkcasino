@@ -164,6 +164,9 @@ public class GameRecord extends BaseEntity{
     @ApiModelProperty(value = "洗码状态：1：成功")
     private Integer washCodeStatus;
 
+    @ApiModelProperty(value = "抽点状态: 0: 否 1: 是")
+    private Integer extractStatus;
+
     @ApiModelProperty(value = "打码状态：1：成功")
     private Integer codeNumStatus;
 

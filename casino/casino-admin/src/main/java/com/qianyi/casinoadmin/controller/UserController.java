@@ -88,7 +88,7 @@ public class UserController {
     @Autowired
     GenerateInviteCodeRunner generateInviteCodeRunner;
     @Autowired
-    PlatformConfigController platformConfigController;
+    PlatformConfigService platformConfigService;
 
     @Autowired
     private MessageUtil messageUtil;
@@ -97,7 +97,7 @@ public class UserController {
 
     @ApiOperation("查询代理下级的用户数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+        @ApiImplicitParam(name = "id", value = "客户id", required = true),
     })
     @GetMapping("getProxyUser")
     public ResponseEntity<UserVo> getProxyUser(Long id){
@@ -200,11 +200,11 @@ public class UserController {
 
 
 
-    /**
-     * 查询操作
-     * 注意：jpa 是从第0页开始的
-     * @return
-     */
+        /**
+         * 查询操作
+         * 注意：jpa 是从第0页开始的
+         * @return
+         */
     @ApiOperation("用户列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
@@ -218,8 +218,8 @@ public class UserController {
     })
     @GetMapping("findUserList")
     public ResponseEntity<UserVo> findUserList(Integer pageSize, Integer pageCode, String account,String proxyAccount,Integer state,
-                                               @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
-                                               @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate, Integer sortType){
+                                       @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
+                                       @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate, Integer sortType){
 
         //后续扩展加参数。
         User user = new User();
@@ -578,9 +578,9 @@ public class UserController {
 
     @ApiOperation("添加用户")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "account", value = "用户名", required = true),
-            @ApiImplicitParam(name = "name", value = "用户昵称", required = false),
-            @ApiImplicitParam(name = "phone", value = "电话号码", required = false),
+        @ApiImplicitParam(name = "account", value = "用户名", required = true),
+        @ApiImplicitParam(name = "name", value = "用户昵称", required = false),
+        @ApiImplicitParam(name = "phone", value = "电话号码", required = false),
     })
     @PostMapping("saveUser")
     @Transactional
@@ -617,7 +617,7 @@ public class UserController {
         }
 
         //默认中文
-//        user.setLanguage(Constants.USER_LANGUAGE_CH);
+        //        user.setLanguage(Constants.USER_LANGUAGE_CH);
         //来源 公司会员
         user.setType(Constants.USER_TYPE2);
         //随机生成
@@ -654,8 +654,8 @@ public class UserController {
      */
     @ApiOperation("修改用户电话")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
-            @ApiImplicitParam(name = "phone", value = "电话号码", required = true),
+        @ApiImplicitParam(name = "id", value = "用户id", required = true),
+        @ApiImplicitParam(name = "phone", value = "电话号码", required = true),
 
     })
     @PostMapping("updateUser")
@@ -676,23 +676,9 @@ public class UserController {
         return ResponseUtil.success();
     }
 
-//    @ApiOperation("删除用户")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "id", value = "用户id", required = true),
-//    })
-//    @PostMapping("deteleUser")
-//    public ResponseEntity deteleUser(Long id){
-//        User user = userService.findById(id);
-//        if(user == null){
-//            return ResponseUtil.custom("账户不存在");
-//        }
-//        userService.deleteById(id);
-//        return ResponseUtil.success();
-//    }
-
     @ApiOperation("修改用户状态")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+        @ApiImplicitParam(name = "id", value = "用户id", required = true),
     })
     @PostMapping("updateUserStatus")
     public ResponseEntity updateUserStatus(Long id){
@@ -712,7 +698,7 @@ public class UserController {
 
     @ApiOperation("重置用户提现密码")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+        @ApiImplicitParam(name = "id", value = "用户id", required = true),
     })
     @PostMapping("withdrawPassword")
     public ResponseEntity withdrawPassword(Long id){
@@ -733,7 +719,7 @@ public class UserController {
 
     @ApiOperation("重置用户密码")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+        @ApiImplicitParam(name = "id", value = "用户id", required = true),
     })
     @PostMapping("resetPassword")
     public ResponseEntity resetPassword(Long id){
@@ -767,10 +753,10 @@ public class UserController {
      */
     @ApiOperation("后台新增充值订单 上分")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "会员id", required = true),
-            @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = false),
-            @ApiImplicitParam(name = "chargeAmount", value = "汇款金额", required = true),
-            @ApiImplicitParam(name = "remark", value = "汇款备注", required = false),
+        @ApiImplicitParam(name = "id", value = "会员id", required = true),
+        @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = false),
+        @ApiImplicitParam(name = "chargeAmount", value = "汇款金额", required = true),
+        @ApiImplicitParam(name = "remark", value = "汇款备注", required = false),
     })
     @PostMapping("/saveChargeOrder")
     public ResponseEntity saveChargeOrder(Long id,String remitter,String remark, String chargeAmount){
@@ -784,16 +770,16 @@ public class UserController {
         if (money.compareTo(new BigDecimal(CommonConst.NUMBER_99999999)) >= CommonConst.NUMBER_1){
             return ResponseUtil.custom("金额不能大于99999999");
         }
-//        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
-//            return ResponseUtil.custom("测试环境加钱不能超过100RMB");
-//        }
+        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
+            return ResponseUtil.custom("测试环境加钱不能超过100RMB");
+        }
         User user = userService.findById(id);
         if (LoginUtil.checkNull(user)){
             return ResponseUtil.custom("账户不存在");
         }
-//        if (user.getThirdProxy() != null && user.getThirdProxy() >= CommonConst.LONG_1){
-//            return ResponseUtil.custom("代理会员不能操作");
-//        }
+        //        if (user.getThirdProxy() != null && user.getThirdProxy() >= CommonConst.LONG_1){
+        //            return ResponseUtil.custom("代理会员不能操作");
+        //        }
         Long userId = LoginUtil.getLoginUserId();
         SysUser sysUser = sysUserService.findById(userId);
         String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
@@ -806,13 +792,13 @@ public class UserController {
         chargeOrder.setLastModifier(lastModifier);
         chargeOrder.setType(user.getType());
         //        chargeOrder.setRealityAmount(money);
-        ResponseEntity  queryTotalPlatformQuota = platformConfigController.queryTotalPlatformQuota("上分失败,平台额度不足");
-        if (queryTotalPlatformQuota.getCode()!=CommonConst.NUMBER_0){
-            return queryTotalPlatformQuota;
+        Boolean aBoolean = platformConfigService.queryTotalPlatformQuota();
+        if (!aBoolean){
+            return ResponseUtil.custom("上分失败,平台额度不足");
         }
         ResponseEntity responseEntity = chargeOrderBusiness.saveOrderSuccess(user, chargeOrder, Constants.chargeOrder_masterControl, Constants.remitType_general, Constants.CODENUMCHANGE_MASTERCONTROL);
         if(responseEntity.getCode()==CommonConst.NUMBER_0){
-            platformConfigController.updateTotalPlatformQuota(CommonConst.NUMBER_0, new BigDecimal(chargeAmount));
+            platformConfigService.backstage(CommonConst.NUMBER_0, new BigDecimal(chargeAmount));
         }
         return responseEntity;
     }
@@ -826,10 +812,10 @@ public class UserController {
      */
     @ApiOperation("后台新增提现订单 下分")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
-            @ApiImplicitParam(name = "withdrawMoney", value = "提现金额", required = true),
-            @ApiImplicitParam(name = "bankId", value = "银行id", required = false),
-            @ApiImplicitParam(name = "remark", value = "备注", required = false),
+        @ApiImplicitParam(name = "id", value = "用户id", required = true),
+        @ApiImplicitParam(name = "withdrawMoney", value = "提现金额", required = true),
+        @ApiImplicitParam(name = "bankId", value = "银行id", required = false),
+        @ApiImplicitParam(name = "remark", value = "备注", required = false),
     })
     @PostMapping("/saveWithdrawOrder")
     public ResponseEntity saveWithdrawOrder(Long id,String withdrawMoney,String bankId,String remark){
@@ -847,22 +833,22 @@ public class UserController {
         if (LoginUtil.checkNull(user)){
             return ResponseUtil.custom("找不到这个会员");
         }
-//        if (user.getThirdProxy() != null && user.getThirdProxy() >= CommonConst.LONG_1){
-//            return ResponseUtil.custom("代理会员不能操作");
-//        }
+        //        if (user.getThirdProxy() != null && user.getThirdProxy() >= CommonConst.LONG_1){
+        //            return ResponseUtil.custom("代理会员不能操作");
+        //        }
         Long userId = LoginUtil.getLoginUserId();
         SysUser sysUser = sysUserService.findById(userId);
         String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
         ResponseEntity responseEntity = withdrawBusiness.updateWithdrawAndUser(user, id, money, bankId, Constants.withdrawOrder_masterControl, lastModifier, remark);
         if (responseEntity.getCode()==CommonConst.NUMBER_0){
-            platformConfigController.updateTotalPlatformQuota(CommonConst.NUMBER_1,new BigDecimal(withdrawMoney));
+            platformConfigService.backstage(CommonConst.NUMBER_1,new BigDecimal(withdrawMoney));
         }
         return responseEntity;
     }
     @ApiOperation("后台下分检验可提款金额")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
-            @ApiImplicitParam(name = "withdrawMoney", value = "提现金额", required = true),
+        @ApiImplicitParam(name = "id", value = "用户id", required = true),
+        @ApiImplicitParam(name = "withdrawMoney", value = "提现金额", required = true),
     })
     @NoAuthorization
     @GetMapping("/checkoutWithdrawMoney")
@@ -894,9 +880,9 @@ public class UserController {
      */
     @ApiOperation("后台配置会员收款卡修改")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
-            @ApiImplicitParam(name = "creditCard", value = "收款卡张数", required = true),
-            @ApiImplicitParam(name = "cardLevel", value = "配置收款卡等级", required = false),
+        @ApiImplicitParam(name = "id", value = "用户id", required = true),
+        @ApiImplicitParam(name = "creditCard", value = "收款卡张数", required = true),
+        @ApiImplicitParam(name = "cardLevel", value = "配置收款卡等级", required = false),
     })
     @PostMapping("/saveCollectionBankcard")
     public ResponseEntity saveCollectionBankcard(Long id,Integer creditCard,String cardLevel){
@@ -932,9 +918,9 @@ public class UserController {
      */
     @ApiOperation("根据id查询用户登录注册ip")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
-            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+        @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "id", value = "用户id", required = true),
     })
     @GetMapping("/findIp")
     public ResponseEntity<LoginLog> findIp(Integer pageSize, Integer pageCode,Long id){
@@ -956,7 +942,7 @@ public class UserController {
      */
     @ApiOperation("根据id查询推广数据")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+        @ApiImplicitParam(name = "id", value = "用户id", required = true),
     })
     @NoAuthorization
     @GetMapping("/findProxyReport")
@@ -975,7 +961,7 @@ public class UserController {
      */
     @ApiOperation("根据id查询上下三级代理线")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+        @ApiImplicitParam(name = "id", value = "用户id", required = true),
     })
     @NoAuthorization
     @GetMapping("/findAgency")

@@ -183,16 +183,15 @@ public class BankCardsController {
         return null;
     }
 
-    @PostMapping("/disable")
-    @ApiOperation("移除")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "用户id", required = true),
-            @ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
-
-    })
-    @Transactional
-    public ResponseEntity disable(Long userId, Long bankId){
-        return ResponseUtil.custom("代理不能解绑");
+//    @PostMapping("/disable")
+//    @ApiOperation("移除")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "userId", value = "用户id", required = true),
+//            @ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
+//
+//    })
+//    @Transactional
+//    public ResponseEntity disable(Long userId, Long bankId){
 //        if(CasinoProxyUtil.checkNull(userId,bankId)){
 //            return ResponseUtil.custom("参数错误");
 //        }
@@ -205,7 +204,7 @@ public class BankCardsController {
 //        bankcardsDelService.save(bankcardsDel);
 //        bankcardsService.delBankcards(bank);
 //        return ResponseUtil.success();
-    }
+//    }
 
 
     private Bankcards boundCard(Long userId, String bankId, String bankAccount, String address, String realName){

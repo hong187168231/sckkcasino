@@ -3,6 +3,8 @@ package com.qianyi.casinocore.service;
 import com.qianyi.casinocore.model.GameRecordEndIndex;
 import com.qianyi.casinocore.repository.GameRecordEndIndexRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 

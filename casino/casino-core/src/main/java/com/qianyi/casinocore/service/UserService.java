@@ -1,5 +1,7 @@
 package com.qianyi.casinocore.service;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.mysql.cj.util.StringUtils;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
@@ -7,6 +9,8 @@ import com.qianyi.casinocore.repository.UserRepository;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.SqlConst;
 import com.qianyi.modulecommon.util.CommonUtil;
+import io.netty.util.internal.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.Page;
@@ -19,6 +23,13 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.*;
@@ -26,6 +37,7 @@ import java.util.*;
 @Service
 @Transactional
 @CacheConfig(cacheNames = {"user"})
+@Slf4j
 public class UserService {
 
     @Autowired
@@ -84,6 +96,9 @@ public class UserService {
         return userRepository.findUserByUserIdUseLock(userId);
     }
 
+    public User findUserByUserIdUse(Long userId) {
+        return userRepository.findUserByUserIdUse(userId);
+    }
     public void updateIsFirstBet(Long userId,Integer isFirstBet){
         userRepository.updateIsFirstBet(userId,isFirstBet);
     }
@@ -253,14 +268,15 @@ public class UserService {
         endTime = "'"+endTime+"'";
         String sql = "";
         if(StringUtils.isNullOrEmpty(platform)){
-            sql = MessageFormat.format(SqlConst.totalSql,startTime,endTime,sort,page.toString(),pageSize.toString());
+            sql = MessageFormat.format(SqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString());
         }else if (platform.equals("WM")){
-            sql = MessageFormat.format(SqlConst.wmSql,startTime,endTime,sort,page.toString(),pageSize.toString());
+            sql = MessageFormat.format(SqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'wm'");
         }else if (platform.equals("PG")){
-            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime,endTime,sort,page.toString(),pageSize.toString(),"'PG'");
+            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'PG'");
         }else {
-            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime,endTime,sort,page.toString(),pageSize.toString(),"'CQ9'");
+            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'CQ9'");
         }
+        log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List resultList = countQuery.getResultList();
         return getList(resultList);
@@ -273,13 +289,16 @@ public class UserService {
         if(StringUtils.isNullOrEmpty(platform)){
             sql = MessageFormat.format(SqlConst.seleOneTotal,startTime,endTime,userId.toString());
         }else if (platform.equals("WM")){
-            sql = MessageFormat.format(SqlConst.seleOneWm,startTime,endTime,userId.toString());
+            sql = MessageFormat.format(SqlConst.seleOneWm, startTime, endTime, userId.toString(), "'wm'");
         }else if (platform.equals("PG")){
-            sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"'PG'");
+            sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(), "'PG'");
         }else {
             sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"'CQ9'");
         }
-        System.out.println(sql);
+//        log.info("\n" + sql);
+//        log.info("\n" + SqlConst.seleOneTotal);
+//        log.info("\n" + SqlConst.seleOneWm);
+//        log.info("\n" + SqlConst.seleOnePgOrCq9Sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List resultList = countQuery.getResultList();
         return getList(resultList);
@@ -293,13 +312,16 @@ public class UserService {
         if(StringUtils.isNullOrEmpty(platform)){
             sql = MessageFormat.format(SqlConst.sumSql,startTime,endTime);
         }else if (platform.equals("WM")){
-            sql = MessageFormat.format(SqlConst.WMSumSql,startTime,endTime,"'wm'");
+            sql = MessageFormat.format(SqlConst.WMSumSql,startTime, endTime, "'wm'");
         }else if (platform.equals("PG")){
-            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime,endTime,"'PG'");
+            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime, endTime, "'PG'");
         }else {
-            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime,endTime,"'CQ9'");
+            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime, endTime, "'CQ9'");
         }
-        System.out.println(sql);
+//        log.info("\n" + sql);
+//        log.info("\n" + SqlConst.sumSql);
+//        log.info("\n" + SqlConst.WMSumSql);
+//        log.info("\n" + SqlConst.PGAndCQ9SumSql);
         Query countQuery = entityManager.createNativeQuery(sql);
         Object result = countQuery.getSingleResult();
         Map<String,Object> map = new HashMap();
@@ -313,6 +335,7 @@ public class UserService {
         map.put("all_profit_amount",obj[6]);
         map.put("avg_benefit",obj[7]);
         map.put("total_amount",obj[8]);
+        map.put("all_water", obj[9]);
         return map;
     }
 
@@ -335,6 +358,7 @@ public class UserService {
                 map.put("all_profit_amount",obj[9]);
                 map.put("avg_benefit",obj[10]);
                 map.put("total_amount",obj[11]);
+                map.put("all_water", obj[12]);
                 list.add(map);
             }
         }

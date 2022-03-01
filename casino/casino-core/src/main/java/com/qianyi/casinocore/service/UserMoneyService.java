@@ -40,6 +40,9 @@ public class UserMoneyService {
     @Autowired
     private PlatformConfigService platformConfigService;
 
+    @Autowired
+    private UserService userService;
+
     private String refreshUrl = "/wm/getWmBalanceApi?";
 
     private String recycleUrl = "/wm/oneKeyRecoverApi?";

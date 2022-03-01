@@ -93,8 +93,8 @@ public class ProxyUserController {
     })
     public ResponseEntity<ProxyUserVo> findProxyUser(Integer pageSize, Integer pageCode,Integer proxyRole,Integer userFlag,Integer tag,String userName,
                                                      Integer isDelete,
-                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
-                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
+                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (CasinoProxyUtil.checkNull(tag)){
             return ResponseUtil.custom("参数不合法");
         }
@@ -441,7 +441,7 @@ public class ProxyUserController {
         proxyUserService.save(byId);
         return ResponseUtil.success();
     }
-    //    @ApiOperation("升级")
+//    @ApiOperation("升级")
 //    @ApiImplicitParams({
 //            @ApiImplicitParam(name = "id", value = "id", required = true),
 //    })

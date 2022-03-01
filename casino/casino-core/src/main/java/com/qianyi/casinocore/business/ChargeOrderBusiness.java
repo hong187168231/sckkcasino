@@ -160,7 +160,6 @@ public class ChargeOrderBusiness {
         change.setThirdProxy(chargeOrder.getThirdProxy());
         accountChangeService.save(change);
     }
-
     public String getOrderNo(AccountChangeEnum changeEnum) {
         String orderNo = changeEnum.getCode();
         String today = DateUtil.today("yyyyMMddHHmmssSSS");
@@ -168,7 +167,6 @@ public class ChargeOrderBusiness {
         orderNo = orderNo + today + randNum;
         return orderNo;
     }
-
     private RechargeTurnover getRechargeTurnover(ChargeOrder order,UserMoney user, BigDecimal codeNum, BigDecimal codeTimes) {
         RechargeTurnover rechargeTurnover = new RechargeTurnover();
         rechargeTurnover.setCodeNum(codeNum);

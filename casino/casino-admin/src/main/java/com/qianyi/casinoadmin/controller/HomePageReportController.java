@@ -85,22 +85,39 @@ public class HomePageReportController {
         HomePageReportVo homePageReportVo = null;
         try {
             homePageReportVo = this.assemble();
+
+            // yyyy-MM-dd
             String startTime = startDate==null? null:DateUtil.getSimpleDateFormat1().format(startDate);
             String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
+
+            // home_page_report
             List<HomePageReport> homePageReports = homePageReportService.findHomePageReports(startTime,endTime);
             if (LoginUtil.checkNull(homePageReports) || homePageReports.size() == CommonConst.NUMBER_0){
                 return ResponseUtil.success(this.getHomePageReportVo(homePageReportVo));
             }
+
+            // 充值金额
             BigDecimal chargeAmount = homePageReports.stream().map(HomePageReport::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            // 充值单数
             Integer chargeNums = homePageReports.stream().mapToInt(HomePageReport::getChargeNums).sum();
+            // 提款金额
             BigDecimal withdrawMoney = homePageReports.stream().map(HomePageReport::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
+            // 提款单数
             Integer withdrawNums = homePageReports.stream().mapToInt(HomePageReport::getWithdrawNums).sum();
+            // 派发洗码
             BigDecimal washCodeAmount = homePageReports.stream().map(HomePageReport::getWashCodeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            // 投注金额
             BigDecimal validbetAmount = homePageReports.stream().map(HomePageReport::getValidbetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            // 平台输赢
             BigDecimal winLossAmount = homePageReports.stream().map(HomePageReport::getWinLossAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            // 人人代佣金
             BigDecimal shareAmount = homePageReports.stream().map(HomePageReport::getShareAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal bonusAmount = homePageReports.stream().map(HomePageReport::getBonusAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            // 抽取提款手续费
             BigDecimal serviceCharge = homePageReports.stream().map(HomePageReport::getServiceCharge).reduce(BigDecimal.ZERO, BigDecimal::add);
+            // 抽点总额
+            BigDecimal extractPointsAmount = homePageReports.stream().map(HomePageReport::getExtractPointsAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+
             Integer newUsers = homePageReports.stream().mapToInt(HomePageReport::getNewUsers).sum();
             homePageReportVo.setChargeAmount(homePageReportVo.getChargeAmount().add(chargeAmount));
             homePageReportVo.setWithdrawMoney(homePageReportVo.getWithdrawMoney().add(withdrawMoney));
@@ -113,6 +130,9 @@ public class HomePageReportController {
             homePageReportVo.setChargeNums(chargeNums + homePageReportVo.getChargeNums());
             homePageReportVo.setWithdrawNums(withdrawNums + homePageReportVo.getWithdrawNums());
             homePageReportVo.setNewUsers(newUsers + homePageReportVo.getNewUsers());
+            // 设置抽点总额
+            homePageReportVo.setExtractPointsAmount(extractPointsAmount);
+
             UserRunningWater userRunningWater = new UserRunningWater();
             List<UserRunningWater> userRunningWaterList = userRunningWaterService.findUserRunningWaterList(userRunningWater, startTime, endTime);
             Set<Long> userIdSet = homePageReportVo.getUserIdSet();
@@ -122,6 +142,7 @@ public class HomePageReportController {
             for (UserRunningWater u : userRunningWaterList){
                 userIdSet.add(u.getUserId());
             }
+            // 活跃用户
             homePageReportVo.setActiveUsers(userIdSet.size());
             userIdSet.clear();
             this.findCompanyProxyDetails(new CompanyProxyMonth(),startTime,endTime,homePageReportVo);
@@ -254,19 +275,20 @@ public class HomePageReportController {
         Date end = DateUtil.getSimpleDateFormat().parse(endTime);
         HomePageReport homePageReport = new HomePageReport();
         homePageReport.setStaticsTimes(format);
-        homePageReport.setStaticsYear(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4));
-        homePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
-        homePageReportTask.chargeOrder(start,end,homePageReport);
-        homePageReportTask.withdrawOrder(start,end,homePageReport);
-        Set<Long> set = this.gameRecord(startTime,endTime,homePageReport);
-        homePageReportTask.shareProfitChange(start,end,homePageReport);
-        homePageReportTask.getNewUsers(start,end,homePageReport);
-        homePageReportTask.bonusAmount(start,end,homePageReport);
-        homePageReportTask.washCodeAmount(start,end,homePageReport);
+        homePageReport.setStaticsYear(format.substring(CommonConst.NUMBER_0, CommonConst.NUMBER_4));
+        homePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0, CommonConst.NUMBER_7));
+        homePageReportTask.chargeOrder(start, end, homePageReport);
+        homePageReportTask.withdrawOrder(start, end, homePageReport);
+        Set<Long> set = this.gameRecord(startTime, endTime, homePageReport);
+        homePageReportTask.shareProfitChange(start, end, homePageReport);
+        homePageReportTask.getNewUsers(start, end, homePageReport);
+        homePageReportTask.bonusAmount(start, end, homePageReport);
+        homePageReportTask.washCodeAmount(start, end, homePageReport);
+        homePageReportTask.extractPointsAmount(start, end, homePageReport);
         HomePageReportVo homePageReportVo = new HomePageReportVo(homePageReport,set);
         return homePageReportVo;
     }
-    private Set<Long>  gameRecord(String startTime,String endTime,HomePageReport homePageReport){
+    private Set<Long>  gameRecord(String startTime, String endTime, HomePageReport homePageReport){
         try {
             Map<String, Object> gameRecordSum = gameRecordService.findSumBetAndWinLoss(startTime, endTime);
             BigDecimal gameRecordValidbet = gameRecordSum.get("validbet") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("validbet").toString());
@@ -288,8 +310,11 @@ public class HomePageReportController {
         return null;
     }
 
+    // 计算毛利
     private HomePageReportVo getHomePageReportVo(HomePageReportVo homePageReportVo){
-        homePageReportVo.setGrossMargin1(homePageReportVo.getWinLossAmount().subtract(homePageReportVo.getWashCodeAmount()));
+        // 毛利1需要修改:
+        // 毛利1 = 平台输赢金额 - 洗码 - 代理抽点
+        homePageReportVo.setGrossMargin1(homePageReportVo.getWinLossAmount().subtract(homePageReportVo.getWashCodeAmount()).subtract(homePageReportVo.getExtractPointsAmount()));
         homePageReportVo.setGrossMargin2(homePageReportVo.getGrossMargin1().subtract(homePageReportVo.getShareAmount()).subtract(homePageReportVo.getBonusAmount()).add(homePageReportVo.getServiceCharge()));
         homePageReportVo.setGrossMargin3(homePageReportVo.getGrossMargin2().subtract(homePageReportVo.getProxyProfit()));
         return homePageReportVo;

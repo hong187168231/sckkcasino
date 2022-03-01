@@ -18,6 +18,7 @@ public enum ResponseCode {
     RISK(6, "风险操作"),
     EMPTY_TWITHDRAWMONEY(7, "未设置交易密码"),
     MULTIDEVICE(8, "帐号已在其他设备登录,请重新登录"),
+    PLATFORM_MAINTAIN(9, "平台维护中"),
 
     //业务级代码（101-999）
     PARAMETER_NOTNULLL(101, "参数必填"),

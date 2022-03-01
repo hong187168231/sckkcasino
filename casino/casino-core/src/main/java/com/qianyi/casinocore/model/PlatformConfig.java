@@ -143,7 +143,7 @@ public class PlatformConfig {
     @ApiModelProperty("银行卡绑定同名只能绑定一个账号校验开关 0:关闭，1:开启")
     private Integer bankcardRealNameSwitch;
 
-    @ApiModelProperty("平台维护开关 0:维护 1:开启")
+    @ApiModelProperty("平台维护开关 0:关闭维护 1:开启维护")
     private Integer platformMaintenance;
 
     @ApiModelProperty("维护起始时间")
@@ -158,7 +158,6 @@ public class PlatformConfig {
 
     @ApiModelProperty("平台总额度初始化标识")
     private Integer historicalDataId;
-
 
 
 

@@ -1,6 +1,7 @@
 package com.qianyi.casinoreport.business;
 
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.util.BTimeUtil;
 import com.qianyi.casinoreport.business.company.CompanyLevelProcessBusiness;
 import com.qianyi.casinoreport.business.company.CompanyProxyDailyBusiness;
 import com.qianyi.casinoreport.business.company.CompanyProxyMonthBusiness;
@@ -68,25 +69,22 @@ public class CompanyProxyBusinessTest {
 
     @Test
     public void should_get_month_correct_local_time() {
-        CompanyProxyMonthBusiness companyProxyBusiness = new CompanyProxyMonthBusiness();
         String dayTime = "2021-10-28";
-        String startTime = companyProxyBusiness.getMonthTime(dayTime);
+        String startTime = BTimeUtil.getMonthTime(dayTime);
         System.out.println(dayTime+":"+startTime);
     }
 
     @Test
     public void should_get_month_correct_start_time() {
-        CompanyProxyMonthBusiness companyProxyBusiness = new CompanyProxyMonthBusiness();
         String dayTime = "2021-10-28";
-        String startTime = companyProxyBusiness.getStartTime(dayTime);
+        String startTime = BTimeUtil.getStartTime(dayTime);
         System.out.println(dayTime+":"+startTime);
     }
 
     @Test
     public void should_get_month_correct_end_time() {
-        CompanyProxyMonthBusiness companyProxyBusiness = new CompanyProxyMonthBusiness();
         String dayTime = "2021-10-28";
-        String endTime = companyProxyBusiness.getEndTime(dayTime);
+        String endTime = BTimeUtil.getEndTime(dayTime);
         System.out.println(dayTime+":"+endTime);
     }
 

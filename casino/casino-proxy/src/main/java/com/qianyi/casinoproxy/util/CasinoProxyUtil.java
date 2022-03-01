@@ -51,7 +51,7 @@ public class CasinoProxyUtil {
     //获取当前操作者的身份
     public static Long getAuthId(String token) {
         JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
-        if (subject == null) {
+        if(subject == null){
             return null;
         }
         String userIds = subject.getUserId();

@@ -22,15 +22,6 @@ public class CustomerConfigureService {
         return customerConfigureRepository.findAll();
     }
 
-    @Cacheable(cacheNames = "customerConfigure")
-    public CustomerConfigure findFirst() {
-        List<CustomerConfigure> all = customerConfigureRepository.findAll();
-        if (all == null || all.size() == 0) {
-            return null;
-        }
-        return all.get(0);
-    }
-
     @CacheEvict(cacheNames = "customerConfigure", allEntries = true)
     public CustomerConfigure save(CustomerConfigure customerConfigure){
         return customerConfigureRepository.save(customerConfigure);

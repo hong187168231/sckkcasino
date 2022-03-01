@@ -86,9 +86,9 @@ public class ProxyUserController {
             @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false),
     })
     public ResponseEntity<ProxyUserVo> findProxyUser(Integer pageSize, Integer pageCode,Integer proxyRole,Integer userFlag,Integer tag,String userName,
-                                                     Integer isDelete,
-                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
-                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+                                        Integer isDelete,
+                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
+                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         ProxyUser proxyUser = new ProxyUser();
         Sort sort=Sort.by("proxyRole").ascending();
         sort = sort.and(Sort.by("id").descending());
@@ -400,7 +400,7 @@ public class ProxyUserController {
         proxyUserService.save(byId);
         return ResponseUtil.success();
     }
-    //    @ApiOperation("转移下级")
+//    @ApiOperation("转移下级")
 //    @ApiImplicitParams({
 //            @ApiImplicitParam(name = "passivityId", value = "被转移的id", required = true),
 //            @ApiImplicitParam(name = "id", value = "接受id", required = true),

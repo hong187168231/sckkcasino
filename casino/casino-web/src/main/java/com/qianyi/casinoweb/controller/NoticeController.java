@@ -44,7 +44,7 @@ public class NoticeController {
         for (Notice notice : list) {
             vo = new NoticeVo();
             BeanUtils.copyProperties(notice, vo);
-            if (Locale.US.toString().equals(language)) {
+            if (!Locale.CHINA.toString().equals(language)) {
                 vo.setTitle(notice.getEnTitle());
                 vo.setIntroduction(notice.getEnIntroduction());
             }

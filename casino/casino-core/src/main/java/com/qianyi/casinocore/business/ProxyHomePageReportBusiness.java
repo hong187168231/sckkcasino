@@ -35,7 +35,7 @@ public class ProxyHomePageReportBusiness {
     @Autowired
     private UserRunningWaterService userRunningWaterService;
     @Transactional
-    public ResponseEntity transferUser(Long id, Long acceptId, ProxyUser accept){
+    public ResponseEntity transferUser(Long id,Long acceptId,ProxyUser accept){
         //加锁
         ProxyUser byId = proxyUserService.findProxyUserById(id);
         if (check(id,accept)){
@@ -50,7 +50,7 @@ public class ProxyHomePageReportBusiness {
         }
         log.info("转移会员有效报表{}被转移者id{}",homePageReports.size(),id);
         //转移基层
-        this.transferAdd(homePageReports,acceptId, CommonConst.NUMBER_3,accept);
+        this.transferAdd(homePageReports,acceptId,CommonConst.NUMBER_3,accept);
         //转移区域
 //        if (!byId.getSecondProxy().equals(accept.getSecondProxy())){
 //            this.transferAdd(homePageReports,accept.getSecondProxy(),CommonConst.NUMBER_2,accept);
@@ -84,7 +84,7 @@ public class ProxyHomePageReportBusiness {
         });
     }
 
-    private void transferSub(List<ProxyHomePageReport> homePageReports, Long proxyId){
+    private void transferSub(List<ProxyHomePageReport> homePageReports,Long proxyId){
         homePageReports.forEach(proxyHomePageReport1 -> {
             ProxyHomePageReport proxyHome = proxyHomePageReportService.findByProxyUserIdAndStaticsTimes(proxyId, proxyHomePageReport1.getStaticsTimes());
             if (proxyHome != null){
@@ -94,7 +94,7 @@ public class ProxyHomePageReportBusiness {
         });
     }
 
-    private  Boolean check(Long id, ProxyUser accept){
+    private  Boolean check(Long id,ProxyUser accept){
         User user = new User();
         user.setThirdProxy(id);
         List<User> userList = userService.findUserList(user, null, null);
@@ -114,7 +114,7 @@ public class ProxyHomePageReportBusiness {
         return false;
     }
 
-    private  List<ProxyUser> checkFirstProxy(ProxyUser proxyUser, List<ProxyUser> proxyUserList, ProxyUser accept){
+    private  List<ProxyUser> checkFirstProxy(ProxyUser proxyUser,List<ProxyUser> proxyUserList,ProxyUser accept){
         List<ProxyUser> proxyUsers = proxyUserService.findProxyUserList(proxyUser);
         proxyUsers = proxyUsers.stream().filter(proxy -> proxy.getProxyRole() != CommonConst.NUMBER_1).collect(Collectors.toList());
         if(proxyUsers == null || proxyUsers.size() == CommonConst.NUMBER_0){
@@ -130,7 +130,7 @@ public class ProxyHomePageReportBusiness {
         return proxyUserList;
     }
 
-    private  List<ProxyUser> checkSecondProxy(ProxyUser proxyUser, List<ProxyUser> proxyUserList, ProxyUser accept){
+    private  List<ProxyUser> checkSecondProxy(ProxyUser proxyUser,List<ProxyUser> proxyUserList,ProxyUser accept){
         List<ProxyUser> proxyUsers = proxyUserService.findProxyUserList(proxyUser);
         if(proxyUsers == null || proxyUsers.size() == CommonConst.NUMBER_0){
             log.info("转移代理被转移者id{}无下级",proxyUser.getSecondProxy());
@@ -163,7 +163,7 @@ public class ProxyHomePageReportBusiness {
         });
     }
 
-    private void transferProxySub(List<ProxyHomePageReport> homePageReports, Long proxyId){
+    private void transferProxySub(List<ProxyHomePageReport> homePageReports,Long proxyId){
         homePageReports.forEach(proxyHomePageReport1 -> {
             ProxyHomePageReport proxyHome = proxyHomePageReportService.findByProxyUserIdAndStaticsTimes(proxyId, proxyHomePageReport1.getStaticsTimes());
             if (proxyHome != null){
@@ -175,7 +175,7 @@ public class ProxyHomePageReportBusiness {
     }
 
     @Transactional
-    public ResponseEntity transferProxy(ProxyUser byId, ProxyUser accept){
+    public ResponseEntity transferProxy(ProxyUser byId,ProxyUser accept){
         //加锁
         ProxyUser proxyUserById = proxyUserService.findProxyUserById(byId.getId());
         ProxyUser proxyUser = new ProxyUser();
@@ -190,7 +190,7 @@ public class ProxyHomePageReportBusiness {
             return ResponseUtil.custom("参数不合法");
         }
     }
-    private ResponseEntity transferFirstProxy(ProxyUser byId, ProxyUser accept, ProxyUser proxyUser, List<ProxyUser> proxyUserList){
+    private ResponseEntity transferFirstProxy(ProxyUser byId,ProxyUser accept,ProxyUser proxyUser,List<ProxyUser> proxyUserList){
         proxyUser.setFirstProxy(byId.getId());
         //转移代理
         proxyUserList = checkFirstProxy(proxyUser,proxyUserList,accept);
@@ -212,7 +212,7 @@ public class ProxyHomePageReportBusiness {
         }
 
         proxyUserService.makeZero(byId.getId());
-        List<ProxyUser> proxyUsers = proxyUserList.stream().filter(proxy -> proxy.getIsDelete()== CommonConst.NUMBER_1).collect(Collectors.toList());
+        List<ProxyUser> proxyUsers = proxyUserList.stream().filter(proxy -> proxy.getIsDelete()==CommonConst.NUMBER_1).collect(Collectors.toList());
         proxyUserService.addProxyUsersNum(accept.getId(),proxyUsers.size());
 
         //查询报表并转移、转移下级、转移自己
@@ -239,7 +239,7 @@ public class ProxyHomePageReportBusiness {
         return ResponseUtil.success();
     }
 
-    private ResponseEntity transferSecondProxy(ProxyUser byId, ProxyUser accept, ProxyUser proxyUser, List<ProxyUser> proxyUserList){
+    private ResponseEntity transferSecondProxy(ProxyUser byId,ProxyUser accept,ProxyUser proxyUser,List<ProxyUser> proxyUserList){
         if (!byId.getFirstProxy().equals(accept.getFirstProxy())){
             return ResponseUtil.custom("不能跨总代理转移");
         }
@@ -265,7 +265,7 @@ public class ProxyHomePageReportBusiness {
         }
 
         proxyUserService.makeZero(byId.getId());
-        List<ProxyUser> proxyUsers = proxyUserList.stream().filter(proxy -> proxy.getIsDelete()== CommonConst.NUMBER_1).collect(Collectors.toList());
+        List<ProxyUser> proxyUsers = proxyUserList.stream().filter(proxy -> proxy.getIsDelete()==CommonConst.NUMBER_1).collect(Collectors.toList());
         proxyUserService.addProxyUsersNum(accept.getId(),proxyUsers.size());
 
         //查询报表并转移、转移下级、转移自己

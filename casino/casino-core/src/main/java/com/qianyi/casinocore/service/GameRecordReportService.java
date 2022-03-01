@@ -1,12 +1,12 @@
 package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.GameRecordReport;
+import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.repository.GameRecordReportRepository;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -39,7 +39,7 @@ public class GameRecordReportService {
     /**
        * 分组分页
       */
-    public Page<GameRecordReport> findGameRecordReportPage(Pageable page, GameRecordReport gameRecordReport, String startSetTime, String endSetTime, Long proxyId, Integer proxyRole){
+    public Page<GameRecordReport> findGameRecordReportPage(Pageable page, GameRecordReport gameRecordReport, String startSetTime, String endSetTime,Long proxyId,Integer proxyRole){
         //criteriaBuilder用于构建CriteriaQuery的构建器对象
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         //criteriaQuery包含查询语句的各个部分，如where、max、sum、groupBy、orderBy等
@@ -99,7 +99,7 @@ public class GameRecordReportService {
         return new PageImpl<GameRecordReport>(createQuery.getResultList(), page, counts.size());
     }
 
-    public GameRecordReport findRecordRecordSum(GameRecordReport gameRecordReport, String startSetTime, String endSetTime, Long proxyId, Integer proxyRole) {
+    public  GameRecordReport  findRecordRecordSum(GameRecordReport gameRecordReport,String startSetTime,String endSetTime,Long proxyId,Integer proxyRole) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<GameRecordReport> query = builder.createQuery(GameRecordReport.class);
         Root<GameRecordReport> root = query.from(GameRecordReport.class);
@@ -146,7 +146,7 @@ public class GameRecordReportService {
         return singleResult;
     }
 
-    public GameRecordReport findRecordRecordSum(GameRecordReport gameRecordReport, String startSetTime, String endSetTime) {
+    public  GameRecordReport  findRecordRecordSum(GameRecordReport gameRecordReport,String startSetTime,String endSetTime) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<GameRecordReport> query = builder.createQuery(GameRecordReport.class);
         Root<GameRecordReport> root = query.from(GameRecordReport.class);

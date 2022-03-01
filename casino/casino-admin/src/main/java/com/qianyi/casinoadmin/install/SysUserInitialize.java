@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.install;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.model.SysConfig;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.casinocore.util.CommonConst;
@@ -18,7 +19,7 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(3)
-public class SysUserInitialize implements CommandLineRunner {
+public class SysUserInitialize   implements CommandLineRunner {
     @Autowired
     private SysUserService sysUserService;
     @Override

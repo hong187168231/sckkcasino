@@ -23,6 +23,21 @@ public class CommonConst {
      * 连字符号("_")
      */
     public static final String UNDERLINE_SYMBOL = "_";
+
+    /**
+     * 空格连字符号(" - ")
+     */
+    public static final String BLANK_HYPHEN = " - ";
+
+    /**
+     * 左夸号("(")
+     */
+    public static final String LEFT_KUA = "(";
+
+    /**
+     * 右夸号(")")
+     */
+    public static final String RIGHT_KUA = ")";
     /**
      * 点分割符
      */

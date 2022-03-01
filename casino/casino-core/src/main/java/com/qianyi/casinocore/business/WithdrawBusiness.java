@@ -44,11 +44,11 @@ public class WithdrawBusiness {
     private PlatformConfigService platformConfigService;
 
     @Autowired
-    private AccountChangeService accountChangeService;
-
-    @Autowired
     @Qualifier("accountChangeJob")
     private AsyncService asyncService;
+
+    @Autowired
+    private AccountChangeService accountChangeService;
 
     public User getUserById(Long userId){
         return userService.findById(userId);
@@ -280,8 +280,19 @@ public class WithdrawBusiness {
         log.info("拒绝提现userId {} 订单号 {} withdrawMoney is {}, money is {}",userMoney.getUserId(),withdrawOrder.getNo(),money, userMoney.getMoney());
         return ResponseUtil.success();
     }
+//    private void saveAccountChang(AccountChangeEnum changeEnum, Long userId, BigDecimal amount, BigDecimal amountBefore,
+//                                  BigDecimal amountAfter,String orderNo){
+//        AccountChangeVo vo=new AccountChangeVo();
+//        vo.setUserId(userId);
+//        vo.setOrderNo(orderNo);
+//        vo.setChangeEnum(changeEnum);
+//        vo.setAmount(amount);
+//        vo.setAmountBefore(amountBefore);
+//        vo.setAmountAfter(amountAfter);
+//        asyncService.executeAsync(vo);
+//    }
     private void saveAccountChang(AccountChangeEnum changeEnum, Long userId, WithdrawOrder withdrawOrder,BigDecimal amountBefore,
-                                  BigDecimal amountAfter){
+                              BigDecimal amountAfter){
         AccountChange change=new AccountChange();
         change.setUserId(userId);
         change.setOrderNo(getOrderNo(changeEnum));
@@ -293,7 +304,7 @@ public class WithdrawBusiness {
         change.setSecondProxy(withdrawOrder.getSecondProxy());
         change.setThirdProxy(withdrawOrder.getThirdProxy());
         accountChangeService.save(change);
-    }
+}
     public String getOrderNo(AccountChangeEnum changeEnum) {
         String orderNo = changeEnum.getCode();
         String today = DateUtil.today("yyyyMMddHHmmssSSS");

@@ -19,17 +19,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j @Component public class UserRunningWaterTask {
-    //    public final static String start = ":00:00";
-    //
-    //    public final static String end = ":59:59";
+//    public final static String start = ":00:00";
+//
+//    public final static String end = ":59:59";
 
     public final static String start = " 00:00:00";
 
     public final static String end = " 23:59:59";
 
-    //    public final static Integer startHour = 0;
-    //
-    //    public final static Integer endHour = 23;
+//    public final static Integer startHour = 0;
+//
+//    public final static Integer endHour = 23;
 
     @Autowired
     private UserRunningWaterService userRunningWaterService;
@@ -55,16 +55,16 @@ import java.util.stream.Collectors;
         if (!LoginUtil.checkNull(byStaticsTimes) && byStaticsTimes.size() > CommonConst.NUMBER_0)
             return;
         try {
-            //            for (int i = startHour; i <= endHour; i++) {
-            //                String s = i < CommonConst.NUMBER_10 ? " 0" + i : " " + i;
-            //                String startTime = format + s + start;
-            //                String endTime = format + s + end;
-            //                    Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
-            //                    Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
-            //                this.gameRecord(startTime, endTime, format);
-            //                this.findSumBetAmount(startTime, endTime, format);
-            //                this.shareProfitChange(format, startTime, endTime);
-            //            }
+//            for (int i = startHour; i <= endHour; i++) {
+//                String s = i < CommonConst.NUMBER_10 ? " 0" + i : " " + i;
+//                String startTime = format + s + start;
+//                String endTime = format + s + end;
+                //                    Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
+                //                    Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
+//                this.gameRecord(startTime, endTime, format);
+//                this.findSumBetAmount(startTime, endTime, format);
+//                this.shareProfitChange(format, startTime, endTime);
+//            }
             String startTime = format + start;
             String endTime = format + end;
             this.gameRecord(startTime, endTime, format);

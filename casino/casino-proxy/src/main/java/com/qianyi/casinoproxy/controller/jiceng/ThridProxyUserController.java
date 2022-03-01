@@ -87,8 +87,8 @@ public class ThridProxyUserController {
     })
     public ResponseEntity<ProxyUserVo> findProxyUser(Integer pageSize, Integer pageCode,Integer proxyRole,Integer userFlag,Integer tag,String userName,
                                                      Integer isDelete,
-                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
-                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
+                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         ProxyUser proxyUser = new ProxyUser();
         Sort sort=Sort.by("proxyRole").ascending();
         sort = sort.and(Sort.by("id").descending());
@@ -197,7 +197,7 @@ public class ThridProxyUserController {
         }
         return ResponseUtil.success(userCount);
     }
-    //    @ApiOperation("添加代理")
+//    @ApiOperation("添加代理")
 //    @ApiImplicitParams({
 //            @ApiImplicitParam(name = "userName", value = "账号", required = true),
 //            @ApiImplicitParam(name = "nickName", value = "用户昵称", required = true),
@@ -312,7 +312,7 @@ public class ThridProxyUserController {
         proxyUserService.save(byId);
         return ResponseUtil.success();
     }
-    //    @ApiOperation("升级")
+//    @ApiOperation("升级")
 //    @ApiImplicitParams({
 //            @ApiImplicitParam(name = "id", value = "id", required = true),
 //    })

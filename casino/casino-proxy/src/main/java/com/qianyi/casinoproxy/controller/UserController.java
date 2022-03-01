@@ -255,7 +255,7 @@ public class UserController {
 
     @ApiOperation("刷新WM余额")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "id", value = "客户id", required = true),
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
     })
     @GetMapping("refreshWM")
     public ResponseEntity getWMMoney(Long id){
@@ -314,6 +314,40 @@ public class UserController {
             return ResponseUtil.custom("查询PG/CQ9余额失败");
         }
     }
+
+    /**
+     * 修改用户
+     * 只有修改电话功能，那电话不能为空
+     *
+     * @param id
+     * @param state
+     * @param phone
+     * @return
+     */
+    @ApiOperation("修改用户电话")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "用户id", required = true),
+            @ApiImplicitParam(name = "phone", value = "电话号码", required = true),
+
+    })
+    @PostMapping("updateUser")
+    public ResponseEntity updateUser(Long id, Integer state, String phone){
+        if(CasinoProxyUtil.checkNull(id,phone)){
+            return ResponseUtil.custom("参数错误");
+        }
+        //查询用户信息
+        User user = userService.findById(id);
+        if(user == null){
+            return ResponseUtil.custom("账户不存在");
+        }
+        if (!phone.matches(RegexEnum.PHONE.getRegex())) {
+            return ResponseUtil.custom("手机号格式错误");
+        }
+        user.setPhone(phone);
+        userService.save(user);
+        return ResponseUtil.success();
+    }
+
 //    @ApiOperation("删除用户")
 //    @ApiImplicitParams({
 //            @ApiImplicitParam(name = "id", value = "用户id", required = true),

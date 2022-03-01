@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.qianyi.casinocore.model.CompanyProxyMonth;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.modulecommon.config.Decimal2AndNullSerializer;
 import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -45,6 +46,19 @@ public class CompanyProxyMonthVo implements Serializable {
     @ApiModelProperty(value = "个人结算佣金")
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal profitAmount = BigDecimal.ZERO;
+
+    @ApiModelProperty(value = "抽点金额")
+    @JsonSerialize(using = Decimal2AndNullSerializer.class, nullsUsing = Decimal2AndNullSerializer.class)
+    private BigDecimal extractPointsAmount;
+
+    @ApiModelProperty(value = "代理所得总额")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    public BigDecimal getGotAmount(){
+        // 代理所得总额 = 个人结算佣金 + 代理抽点
+        if (null == extractPointsAmount) return profitAmount;
+        return profitAmount.add(extractPointsAmount);
+    }
+
     @ApiModelProperty(value = "结清状态")
     private Integer settleStatus = CommonConst.NUMBER_0;
     @ApiModelProperty("创建时间")

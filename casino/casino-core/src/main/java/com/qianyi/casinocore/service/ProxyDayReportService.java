@@ -3,6 +3,7 @@ package com.qianyi.casinocore.service;
 import com.qianyi.casinocore.model.ProxyDayReport;
 import com.qianyi.casinocore.repository.ProxyDayReportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -12,11 +13,12 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Transactional
+/*@Transactional*/
 public class ProxyDayReportService {
     @Autowired
     private ProxyDayReportRepository proxyDayReportRepository;
@@ -41,6 +43,13 @@ public class ProxyDayReportService {
         Specification<ProxyDayReport> condition = this.getCondition(userId, startTime, endTime);
         return proxyDayReportRepository.findAll(condition);
     }
+    //@CacheEvict(key = "#userId")
+/*    @Transactional*/
+    public void updateProxyDayReport(Long userId,BigDecimal profitAmount, BigDecimal betAmount,String dayTime){
+        proxyDayReportRepository.updateProxyDayReport(profitAmount,betAmount,userId,dayTime);
+    }
+
+
 
     private Specification<ProxyDayReport> getCondition(Long userId, String startTime, String endTime) {
         Specification<ProxyDayReport> specification = new Specification<ProxyDayReport>() {

@@ -110,11 +110,9 @@ public class SysPermissionService {
     public SysPermission findByUrl(String url) {
         return sysPermissionRepository.findByUrl(url);
     }
-
     public SysPermission findByName(String name) {
         return sysPermissionRepository.findByName(name);
     }
-
     public void deleteById(Long id ) {
         sysPermissionRepository.deleteById(id);
     }

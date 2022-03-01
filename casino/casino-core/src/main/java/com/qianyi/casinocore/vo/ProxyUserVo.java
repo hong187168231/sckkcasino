@@ -70,6 +70,7 @@ public class ProxyUserVo  implements Serializable {
         this.secondProxy = proxyUser.getSecondProxy();
         this.firstProxy = proxyUser.getFirstProxy();
         this.userFlag = proxyUser.getUserFlag();
+        this.isDelete = proxyUser.getIsDelete();
         this.proxyUsersNum = proxyUser.getProxyUsersNum();
         this.createTime = proxyUser.getCreateTime();
         this.createBy = proxyUser.getCreateBy();

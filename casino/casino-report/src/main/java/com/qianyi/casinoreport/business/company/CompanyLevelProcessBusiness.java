@@ -26,14 +26,18 @@ public class CompanyLevelProcessBusiness {
 
     public CompanyLevelBO getLevelData(BigDecimal amount,Long firstProxy,Integer gameType){
         RebateConfig rebateConfig=null;
+        //查询个人推广返佣配置
         ProxyRebateConfig proxyRebateConfig = proxyRebateConfigService.findByProxyUserIdAndGameType(firstProxy,gameType);
         if (proxyRebateConfig!=null){
             rebateConfig=queryProxyRebateConfig(proxyRebateConfig);
         }else {
+            //全局推广返佣配置
             rebateConfig=rebateConfigService.findGameType(gameType);
         }
         log.info("rebateConfig:{}",rebateConfig);
+        //根据业绩额度匹配对应的返佣线
         Map<Integer,Integer> profitLevelList = getProfitLevelList(rebateConfig);
+        //根据业绩额度匹配对应的返佣金额
         Map<Integer,BigDecimal> profitLevelMap = getProfitLevelMap(rebateConfig);
         return getProfitLevel(amount,profitLevelList,profitLevelMap);
     }
@@ -77,7 +81,7 @@ public class CompanyLevelProcessBusiness {
 
 
     public CompanyLevelBO getProfitLevel(BigDecimal amount,  Map<Integer,Integer> profitLevelList,Map<Integer,BigDecimal> profitLevelMap) {
-        //取代理推广返佣配置里的比例
+        //当前投注的金额
         BigDecimal result = amount;
         Map<String,Integer> level = getLevel(result.intValue(),profitLevelList);
         log.info("level:{},amount:{}",level,amount);
@@ -85,11 +89,13 @@ public class CompanyLevelProcessBusiness {
         //金额线
         BigDecimal profitAmountLine = BigDecimal.valueOf(level.get("key"));
 
-        //返佣金额
+        //返佣金额：根据业绩额度匹配返佣比例（每 *** 返多少）
         BigDecimal  profitAmount = profitLevelMap.containsKey(level.get("level"))?profitLevelMap.get(level.get("level")):BigDecimal.valueOf(0);
 
         return CompanyLevelBO.builder().profitLevel(level.get("level")).profitAmount(profitAmount).profitActTimes(level.get("profitActTimes") ).profitAmountLine(profitAmountLine).build();
     }
+
+    //根据投资金额匹配业绩额度
     private  Map<String,Integer> getLevel(int compareInt, Map<Integer,Integer> profitLevelList){
         Map<String,Integer> ms=new HashMap<>();
         Integer level = 0;
@@ -99,6 +105,7 @@ public class CompanyLevelProcessBusiness {
             if(compareInt>item){
                 level=item;
                 if (profitLevelList.get(item).intValue()>0){
+                    //倍数： 投注金额 / 金额线(返佣线)
                     profitActTimes=compareInt/profitLevelList.get(item).intValue();
                 }
                 key=profitLevelList.get(item).intValue();
@@ -129,15 +136,6 @@ public class CompanyLevelProcessBusiness {
 
     private  Map<Integer,Integer> getProfitLevelList(RebateConfig RebateConfig){
         Map<Integer,Integer> profitLevelList =   new TreeMap<Integer, Integer>();
-/*        profitLevelList.add(RebateConfig.getFirstMoney());
-        profitLevelList.add(RebateConfig.getSecondMoney());
-        profitLevelList.add(RebateConfig.getThirdMoney());
-        profitLevelList.add(RebateConfig.getFourMoney());
-        profitLevelList.add(RebateConfig.getFiveMoney());
-        profitLevelList.add(RebateConfig.getSixMoney());
-        profitLevelList.add(RebateConfig.getSevenMoney());
-        profitLevelList.add(RebateConfig.getEightMoney());*/
-
         profitLevelList.put(RebateConfig.getFirstMoney(),RebateConfig.getFirstAmountLine()==null ? 0:RebateConfig.getFirstAmountLine().intValue());
         profitLevelList.put(RebateConfig.getSecondMoney(),RebateConfig.getSecondAmountLine()==null ? 0:RebateConfig.getSecondAmountLine().intValue());
         profitLevelList.put(RebateConfig.getThirdMoney(),RebateConfig.getThirdAmountLine()==null ? 0:RebateConfig.getThirdAmountLine().intValue());

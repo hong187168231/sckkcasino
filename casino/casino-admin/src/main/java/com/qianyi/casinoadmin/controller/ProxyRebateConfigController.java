@@ -173,7 +173,7 @@ public class ProxyRebateConfigController {
         return false;
     }
     private Boolean verifySize(ProxyRebateConfig rebateConfig){
-        if ( rebateConfig.getFirstMoney() >= rebateConfig.getSecondMoney() ){
+        if (rebateConfig.getFirstMoney() >= rebateConfig.getSecondMoney() ){
             return true;
         }
         if ( rebateConfig.getSecondMoney() >= rebateConfig.getThirdMoney() ){
@@ -182,16 +182,16 @@ public class ProxyRebateConfigController {
         if (rebateConfig.getThirdMoney() >= rebateConfig.getFourMoney() ){
             return true;
         }
-        if (rebateConfig.getFourMoney() >= rebateConfig.getFiveMoney() ){
+        if ( rebateConfig.getFourMoney() >= rebateConfig.getFiveMoney() ){
             return true;
         }
-        if (rebateConfig.getFiveMoney() >= rebateConfig.getSixMoney() ){
+        if ( rebateConfig.getFiveMoney() >= rebateConfig.getSixMoney() ){
             return true;
         }
-        if ( rebateConfig.getSixMoney() >= rebateConfig.getSevenMoney() ){
+        if (rebateConfig.getSixMoney() >= rebateConfig.getSevenMoney() ){
             return true;
         }
-        if (rebateConfig.getSevenMoney() >= rebateConfig.getEightMoney() ){
+        if ( rebateConfig.getSevenMoney() >= rebateConfig.getEightMoney() ){
             return true;
         }
         return false;

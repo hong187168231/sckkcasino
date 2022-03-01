@@ -192,6 +192,7 @@ public class GameRecordGoldenFJob {
                 gameRecordGoldenFService.save(item);
             }
             GameRecord gameRecord = combineGameRecord(gameRecordGoldenF==null?item:gameRecordGoldenF);
+
             processBusiness(item,gameRecord,platformConfig);
         }catch (Exception e){
             log.error("",e);
@@ -207,6 +208,8 @@ public class GameRecordGoldenFJob {
             return;
         //洗码
         gameRecordAsyncOper.washCode(gameRecordGoldenF.getVendorCode(), gameRecord);
+        // 抽点
+        gameRecordAsyncOper.extractPoints(gameRecordGoldenF.getVendorCode(), gameRecord);
         //扣减打码量
         gameRecordAsyncOper.subCodeNum(gameRecordGoldenF.getVendorCode(),platformConfig, gameRecord);
         //代理分润
@@ -224,6 +227,9 @@ public class GameRecordGoldenFJob {
         gameRecord.setGname(adGame.getGameName());
         gameRecord.setBetTime(item.getCreateAtStr());
         gameRecord.setId(item.getId());
+        gameRecord.setFirstProxy(item.getFirstProxy());
+        gameRecord.setSecondProxy(item.getSecondProxy());
+        gameRecord.setThirdProxy(item.getThirdProxy());
         return gameRecord;
     }
 

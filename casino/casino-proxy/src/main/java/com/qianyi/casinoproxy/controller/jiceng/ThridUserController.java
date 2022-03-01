@@ -243,7 +243,7 @@ public class ThridUserController {
 
     @ApiOperation("刷新WM余额")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "id", value = "客户id", required = true),
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
     })
     @GetMapping("refreshWM")
     public ResponseEntity getWMMoney(Long id){
@@ -448,20 +448,6 @@ public class ThridUserController {
         return ResponseUtil.success();
     }
 
-//    @ApiOperation("删除用户")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "id", value = "用户id", required = true),
-//    })
-//    @PostMapping("deteleUser")
-//    public ResponseEntity deteleUser(Long id){
-//        User user = userService.findById(id);
-//        if(user == null){
-//            return ResponseUtil.custom("账户不存在");
-//        }
-//        userService.deleteById(id);
-//        return ResponseUtil.success();
-//    }
-
     @ApiOperation("修改用户状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "用户id", required = true),
@@ -530,15 +516,15 @@ public class ThridUserController {
         return ResponseUtil.success(jsonObject);
     }
 
-//    /**
-//     * 后台新增充值订单
-//     *
-//     * @param id 会员id
-//     * @param remitter 汇款人姓名
-//     * @param chargeAmount 汇款金额
-//     * @param remark 汇款备注
-//     * @return
-//     */
+    /**
+     * 后台新增充值订单
+     *
+     * @param id 会员id
+     * @param remitter 汇款人姓名
+     * @param chargeAmount 汇款金额
+     * @param remark 汇款备注
+     * @return
+     */
 //    @ApiOperation("后台新增充值订单 上分")
 //    @ApiImplicitParams({
 //            @ApiImplicitParam(name = "id", value = "会员id", required = true),
@@ -558,9 +544,9 @@ public class ThridUserController {
 //        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_99999999)) >= CommonConst.NUMBER_1){
 //            return ResponseUtil.custom("金额不能大于99999999");
 //        }
-////        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
-////            return ResponseUtil.custom("测试环境加钱不能超过100RMB");
-////        }
+//        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
+//            return ResponseUtil.custom("测试环境加钱不能超过100RMB");
+//        }
 //        User user = userService.findById(id);
 //        if (CasinoProxyUtil.checkNull(user)){
 //            return ResponseUtil.custom("账户不存在");
@@ -576,17 +562,16 @@ public class ThridUserController {
 //        chargeOrder.setChargeAmount(money);
 //        chargeOrder.setLastModifier(lastModifier);
 //        chargeOrder.setType(user.getType());
-////        chargeOrder.setRealityAmount(money);
 //        return chargeOrderBusiness.saveOrderSuccess(user,chargeOrder,Constants.chargeOrder_proxy,Constants.remitType_proxy,Constants.CODENUMCHANGE_PROXY);
 //    }
-//    /**
-//     * 后台新增提现订单
-//     *
-//     * @param id 会员id
-//     * @param withdrawMoney 提现金额
-//     * @param bankId 银行id
-//     * @return
-//     */
+    /**
+     * 后台新增提现订单
+     *
+     * @param id 会员id
+     * @param withdrawMoney 提现金额
+     * @param bankId 银行id
+     * @return
+     */
 //    @ApiOperation("后台新增提现订单 下分")
 //    @ApiImplicitParams({
 //            @ApiImplicitParam(name = "id", value = "用户id", required = true),

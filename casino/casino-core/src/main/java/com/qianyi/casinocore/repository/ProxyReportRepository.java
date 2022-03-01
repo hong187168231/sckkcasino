@@ -1,11 +1,10 @@
 package com.qianyi.casinocore.repository;
 
 import com.qianyi.casinocore.model.ProxyReport;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.*;
 
 import javax.persistence.LockModeType;
+import java.math.BigDecimal;
 
 public interface ProxyReportRepository extends JpaRepository<ProxyReport,Long>, JpaSpecificationExecutor<ProxyReport> {
 

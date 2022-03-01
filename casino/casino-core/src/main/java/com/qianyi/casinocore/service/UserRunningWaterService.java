@@ -39,6 +39,21 @@ public class UserRunningWaterService {
         return userRunningWaterRepository.findByStaticsTimes(staticsTimes);
     }
 
+    @Transactional
+    public void updateFirstProxy(Long userId, Long firstProxy){
+        userRunningWaterRepository.updateFirstProxy(userId,firstProxy);
+    }
+
+    @Transactional
+    public void updateSecondProxy(Long userId, Long firstProxy){
+        userRunningWaterRepository.updateSecondProxy(userId,firstProxy);
+    }
+
+    @Transactional
+    public void updatetThirdProxy(Long userId, Long firstProxy){
+        userRunningWaterRepository.updatetThirdProxy(userId,firstProxy);
+    }
+
     public Page<UserRunningWater> findUserPage(Pageable pageable, UserRunningWater userRunningWater, String startTime, String endTime){
         Specification<UserRunningWater> condition = this.getCondition(userRunningWater,startTime,endTime);
         return userRunningWaterRepository.findAll(condition,pageable);
@@ -57,12 +72,12 @@ public class UserRunningWaterService {
                 if (userRunningWater.getUserId() != null) {
                     list.add(cb.equal(root.get("userId").as(Long.class), userRunningWater.getUserId()));
                 }
-                //                if (startDate != null) {
-                //                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
-                //                }
-                //                if (endDate != null) {
-                //                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
-                //                }
+//                if (startDate != null) {
+//                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+//                }
+//                if (endDate != null) {
+//                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
+//                }
                 if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
                     list.add(
                         cb.between(root.get("staticsTimes").as(String.class), startTime, endTime)
@@ -78,7 +93,7 @@ public class UserRunningWaterService {
         CriteriaQuery<UserRunningWater> query = builder.createQuery(UserRunningWater.class);
         Root<UserRunningWater> root = query.from(UserRunningWater.class);
         query.multiselect(
-            root.get("userId").as(Long.class)
+                root.get("userId").as(Long.class)
         );
 
         List<Predicate> predicates = new ArrayList();

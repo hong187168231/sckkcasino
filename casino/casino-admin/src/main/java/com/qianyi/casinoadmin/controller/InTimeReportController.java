@@ -48,16 +48,16 @@ public class InTimeReportController {
     @ApiOperation("查询代理报表")
     @GetMapping("/find")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
-        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-        @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
-        //            @ApiImplicitParam(name = "gid", value = "游戏类别编号 百家乐:101 龙虎:102 轮盘:103 骰宝:104 牛牛:105 番摊:107 色碟:108 鱼虾蟹:110 炸金花:111 安达巴哈:128", required = false),
-        @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
-        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
-        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
+            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+            @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
+//            @ApiImplicitParam(name = "gid", value = "游戏类别编号 百家乐:101 龙虎:102 轮盘:103 骰宝:104 牛牛:105 番摊:107 色碟:108 鱼虾蟹:110 炸金花:111 安达巴哈:128", required = false),
+            @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
+            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
     public ResponseEntity<GameRecordReportVo> find(Integer pageSize, Integer pageCode, String userName, String platform, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+                                                   @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(startDate) ||  LoginUtil.checkNull(endDate)){
             return ResponseUtil.custom("参数不合法");
         }
@@ -95,9 +95,9 @@ public class InTimeReportController {
                 GameRecordReportVo vo = new GameRecordReportVo();
                 BeanUtils.copyProperties(gameRecordReport1,vo);
                 vo.setAmount(vo.getAmount().setScale(2, RoundingMode.HALF_UP));
-                //                if (gameRecordReport1.getFirstProxy().equals(CommonConst.LONG_0)){
-                //                    vo.setAccount(messageUtil.get("公司"));
-                //                }
+//                if (gameRecordReport1.getFirstProxy().equals(CommonConst.LONG_0)){
+//                    vo.setAccount(messageUtil.get("公司"));
+//                }
                 proxyUsers.stream().forEach(proxyUser -> {
                     if (gameRecordReport1.getFirstProxy().equals(proxyUser.getId())){
                         vo.setAccount(proxyUser.getUserName());
@@ -108,20 +108,20 @@ public class InTimeReportController {
             pageResultVO.setContent(gameRecordReportVos);
         }
         return ResponseUtil.success(pageResultVO);
-    }
+        }
 
     @ApiOperation("查询代理报表统计")
     @GetMapping("/findSum")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
+            @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
         //            @ApiImplicitParam(name = "gid", value = "游戏类别编号 百家乐:101 龙虎:102 轮盘:103 骰宝:104 牛牛:105 番摊:107 色碟:108 鱼虾蟹:110 炸金花:111 安达巴哈:128", required = false),
         @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
         @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
-        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
     @NoAuthentication
     public ResponseEntity findSum( String userName,String platform,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+                                @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(startDate) ||  LoginUtil.checkNull(endDate)){
             return ResponseUtil.custom("参数不合法");
         }

@@ -28,4 +28,24 @@ public class ReportService {
     public Map<String,Object> queryAllTotal(String startTime,String endTime){
         return companyProxyMonthRepository.queryAllTotal(startTime, endTime);
     }
+
+    public Map<String,Object> queryReportByThird(long proxyUserId ,String startTime,String endTime){
+        return companyProxyMonthRepository.queryReportByThird(proxyUserId, startTime, endTime);
+    }
+
+    public Map<String,Object> queryReportByCompany(String startTime,String endTime){
+        return companyProxyMonthRepository.queryReportByCompany(startTime, endTime);
+    }
+
+    public Map<String,Object> queryReportBySecond(long proxyUserId ,String startTime,String endTime){
+        return companyProxyMonthRepository.queryReportBySecond(proxyUserId, startTime, endTime);
+    }
+
+    public Map<String,Object> queryReportByFirst(long proxyUserId ,String startTime,String endTime){
+        return companyProxyMonthRepository.queryReportByFirst(proxyUserId, startTime, endTime);
+    }
+
+    public Map<String,Object> queryReportAll(String startTime,String endTime){
+        return companyProxyMonthRepository.queryReportAll(startTime, endTime);
+    }
 }

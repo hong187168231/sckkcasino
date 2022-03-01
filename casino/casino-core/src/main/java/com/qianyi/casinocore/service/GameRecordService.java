@@ -5,6 +5,7 @@ import com.qianyi.casinocore.model.ConsumerError;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.repository.GameRecordRepository;
+import com.qianyi.casinocore.util.DTOUtil;
 import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -272,8 +273,9 @@ public class GameRecordService {
     }
     public List<CompanyOrderAmountVo> getStatisticsResult(String startTime, String endTime){
         List<Map<String,Object>> orderAmountVoList = gameRecordRepository.getStatisticsResult(startTime,endTime);
-        String json = JSON.toJSONString(orderAmountVoList);
-        return JSON.parseArray(json,CompanyOrderAmountVo.class);
+        // String json = JSON.toJSONString(orderAmountVoList);
+        // return JSON.parseArray(json,CompanyOrderAmountVo.class);
+        return DTOUtil.map2DTO(orderAmountVoList, CompanyOrderAmountVo.class);
     }
 
     public List<GameRecord> findGameRecordIdAll(List<Long> recordIdList) {

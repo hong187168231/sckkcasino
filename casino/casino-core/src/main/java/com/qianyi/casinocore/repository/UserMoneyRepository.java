@@ -17,7 +17,7 @@ public interface UserMoneyRepository extends JpaRepository<UserMoney,Long>, JpaS
     UserMoney findUserMoneyByUserId(Long userId);
 
     @Modifying
-    @Query("update UserMoney u set u.shareProfit=?2 where u.userId=?1")
+    @Query("update UserMoney u set u.shareProfit= u.shareProfit+?2 where u.userId=?1")
     void changeProfit(Long userId, BigDecimal profit);
 
     @Modifying

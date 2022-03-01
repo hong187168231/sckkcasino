@@ -111,6 +111,7 @@ public class HomePageReportVo implements Serializable {
         this.validbetAmount = homePageReport.getValidbetAmount();
         this.winLossAmount = homePageReport.getWinLossAmount();
         this.washCodeAmount = homePageReport.getWashCodeAmount();
+        this.extractPointsAmount = homePageReport.getExtractPointsAmount();
         this.shareAmount = homePageReport.getShareAmount();
         this.bonusAmount = homePageReport.getBonusAmount();
         this.serviceCharge = homePageReport.getServiceCharge();
@@ -135,6 +136,7 @@ public class HomePageReportVo implements Serializable {
         this.validbetAmount = homePageReport.getValidbetAmount();
         this.winLossAmount = homePageReport.getWinLossAmount();
         this.washCodeAmount = homePageReport.getWashCodeAmount();
+        this.extractPointsAmount = homePageReport.getExtractPointsAmount();
         this.shareAmount = homePageReport.getShareAmount();
         this.bonusAmount = homePageReport.getBonusAmount();
         this.serviceCharge = homePageReport.getServiceCharge();

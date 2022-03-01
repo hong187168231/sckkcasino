@@ -9,5 +9,4 @@ public interface SysPermissionRepository extends JpaRepository<SysPermission, Lo
 
     public SysPermission findByUrl(String url);
     SysPermission findByName(String name);
-
 }

@@ -49,6 +49,9 @@ public class HomePageReportTask {
     @Autowired
     private GameRecordGoldenFService gameRecordGoldenFService;
 
+    @Autowired
+    private ExtractPointsChangeService extractPointsChangeService;
+
     @Scheduled(cron = TaskConst.HOME_PAGE_REPORT)
     public void create(){
         log.info("每日首页报表统计开始start=============================================》");
@@ -74,6 +77,7 @@ public class HomePageReportTask {
             this.getNewUsers(startDate,endDate,homePageReport);
             this.bonusAmount(startDate,endDate,homePageReport);
             this.washCodeAmount(startDate,endDate,homePageReport);
+            this.extractPointsAmount(startDate, endDate, homePageReport);
             homePageReportService.save(homePageReport);
             log.info("每日首页报表统计结束end=============================================》");
         }catch (Exception ex){
@@ -93,10 +97,10 @@ public class HomePageReportTask {
                 return;
             }
             BigDecimal chargeAmount = chargeOrders.stream().map(ChargeOrder::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-            //            BigDecimal serviceCharge = chargeOrders.stream().map(ChargeOrder::getServiceCharge).reduce(BigDecimal.ZERO, BigDecimal::add);
+//            BigDecimal serviceCharge = chargeOrders.stream().map(ChargeOrder::getServiceCharge).reduce(BigDecimal.ZERO, BigDecimal::add);
             homePageReport.setChargeAmount(chargeAmount);
             homePageReport.setChargeNums(chargeOrders.size());
-            //            homePageReport.setServiceCharge(serviceCharge);
+//            homePageReport.setServiceCharge(serviceCharge);
             chargeOrders.clear();
         }catch (Exception ex){
             log.error("统计充值订单失败",ex);
@@ -183,6 +187,32 @@ public class HomePageReportTask {
             washCodeChanges.clear();
         }catch (Exception ex){
             log.error("统计洗码金额失败",ex);
+        }
+    }
+
+    /**
+     * 统计抽点金额
+     *
+     * @param startDate      入参释义
+     * @param endDate        入参释义
+     * @param homePageReport 入参释义
+     * @author lance
+     * @since 2022 -02-22 19:29:31
+     */
+    public void extractPointsAmount(Date startDate, Date endDate, HomePageReport homePageReport) {
+        try {
+            List<ExtractPointsChange> changes = extractPointsChangeService.findBetween(startDate, endDate);
+            if (changes.isEmpty()) {
+                // 设置抽点总额
+                homePageReport.setExtractPointsAmount(BigDecimal.ZERO);
+                return ;
+            }
+            BigDecimal amount = changes.stream().map(ExtractPointsChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            // 设置抽点总额
+            homePageReport.setExtractPointsAmount(amount);
+            changes.clear();
+        } catch (Exception ex) {
+            log.error("统计抽点金额失败", ex);
         }
     }
 }

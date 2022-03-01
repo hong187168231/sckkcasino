@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @ApiModel("游戏记录报表")
 @Table(indexes = {@Index(columnList = "firstProxy"),
         @Index(columnList = "secondProxy"),@Index(name="identity_index",columnList = "gameRecordReportId",unique=true)})
-public class GameRecordReportNew extends BaseEntity {
+public class GameRecordReportNew extends BaseEntity{
 
     @ApiModelProperty("唯一标识")
     private Long gameRecordReportId;

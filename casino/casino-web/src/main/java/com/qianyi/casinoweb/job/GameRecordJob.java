@@ -175,11 +175,12 @@ public class GameRecordJob {
                 }
                 gameRecord.setUserId(account.getUserId());
                 BigDecimal validbet = ObjectUtils.isEmpty(gameRecord.getValidbet()) ? BigDecimal.ZERO : new BigDecimal(gameRecord.getValidbet());
-                //有效投注额为0不参与洗码,打码,分润
+                //有效投注额为0不参与洗码,打码,分润,抽點
                 if (validbet.compareTo(BigDecimal.ZERO) == 0) {
                     gameRecord.setWashCodeStatus(Constants.yes);
                     gameRecord.setCodeNumStatus(Constants.yes);
                     gameRecord.setShareProfitStatus(Constants.yes);
+                    gameRecord.setExtractStatus(Constants.yes);
                 }
                 //有数据会重复注单id唯一约束会报错，所以一条一条保存，避免影响后面的
                 GameRecord record = save(gameRecord);
@@ -188,6 +189,8 @@ public class GameRecordJob {
                 }
                 //洗码
                 gameRecordAsyncOper.washCode(Constants.PLATFORM_WM, record);
+                // 抽点
+                gameRecordAsyncOper.extractPoints(Constants.PLATFORM_WM, record);
                 //扣减打码量
                 gameRecordAsyncOper.subCodeNum(Constants.PLATFORM_WM,platformConfig, record);
                 //代理分润

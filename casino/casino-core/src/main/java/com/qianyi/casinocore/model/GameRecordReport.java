@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @ApiModel("游戏记录报表")
 @Table(indexes = {@Index(name="identity_index",columnList = "staticsTimes",unique=true),@Index(columnList = "firstProxy"),
         @Index(columnList = "secondProxy"),@Index(name="identity_index",columnList = "thirdProxy",unique=true),@Index(name="identity_index",columnList = "gid",unique=true)})
-public class GameRecordReport extends BaseEntity {
+public class GameRecordReport extends BaseEntity{
 
     @ApiModelProperty("投注笔数")
     private Integer bettingNumber;
@@ -62,7 +62,7 @@ public class GameRecordReport extends BaseEntity {
     public GameRecordReport(){
 
     }
-    public GameRecordReport(Long firstProxy, Long bettingNumber, BigDecimal amount, BigDecimal betAmount, BigDecimal validAmount, BigDecimal winLossAmount){
+    public GameRecordReport(Long firstProxy,Long bettingNumber,BigDecimal amount,BigDecimal betAmount,BigDecimal validAmount,BigDecimal winLossAmount){
         this.firstProxy = firstProxy;
         this.bettingNumber = bettingNumber==null?0:bettingNumber .intValue();
         this.amount = amount;
@@ -70,7 +70,7 @@ public class GameRecordReport extends BaseEntity {
         this.validAmount = validAmount;
         this.winLossAmount = winLossAmount;
     }
-    public GameRecordReport(Long bettingNumber, BigDecimal amount, BigDecimal betAmount, BigDecimal validAmount, BigDecimal winLossAmount){
+    public GameRecordReport(Long bettingNumber,BigDecimal amount,BigDecimal betAmount,BigDecimal validAmount,BigDecimal winLossAmount){
         this.bettingNumber = bettingNumber==null?0:bettingNumber .intValue();
         this.amount = amount;
         this.betAmount = betAmount;

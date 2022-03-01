@@ -62,15 +62,15 @@ public class UserRunningWaterController {
     @ApiOperation("查询会员流水报表")
     @GetMapping("/find")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
-        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-        @ApiImplicitParam(name = "userId", value = "会员id", required = true),
-        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
-        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
+            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+            @ApiImplicitParam(name = "userId", value = "会员id", required = true),
+            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<UserRunningWater> find(Integer pageSize, Integer pageCode, Long userId,
-        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+                                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+                                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(userId)){
             return ResponseUtil.custom("参数必填");
         }
@@ -98,7 +98,7 @@ public class UserRunningWaterController {
             list.addAll(userRunningWaters);
             PageVo pageVO = new PageVo(pageCode,pageSize);
             PageResultVO<UserRunningWater> pageResultVO = (PageResultVO<UserRunningWater>) CommonUtil.handlePageResult(list, pageVO);
-            //            list.clear();
+//            list.clear();
             userRunningWaters.clear();
             return ResponseUtil.success(pageResultVO);
         }

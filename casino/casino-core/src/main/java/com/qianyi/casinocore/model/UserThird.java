@@ -16,6 +16,7 @@ import javax.persistence.Entity;
 public class UserThird extends BaseEntity{
 
     @ApiModelProperty(value = "我方用户id")
+    @Column(unique = true)
     private Long userId;
     @Column(unique = true)
     private String account;

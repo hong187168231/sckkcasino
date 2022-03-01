@@ -74,8 +74,7 @@ public class GameRecordReportNewService {
                 gameRecordReport.setFirstProxy(Long.parseLong(map.get("first_proxy").toString()));
                 gameRecordReport.setSecondProxy(Long.parseLong(map.get("second_proxy").toString()));
                 gameRecordReport.setThirdProxy(Long.parseLong(map.get("third_proxy").toString()));
-                gameRecordReport.setGameRecordReportId(
-                    CommonUtil.toHash(gameRecordReport.getStaticsTimes()+gameRecordReport.getThirdProxy()+gameRecordReport.getPlatform()));
+                gameRecordReport.setGameRecordReportId(CommonUtil.toHash(gameRecordReport.getStaticsTimes()+gameRecordReport.getThirdProxy()+gameRecordReport.getPlatform()));
                 gameRecordReport01Repository.updateKey(gameRecordReport.getGameRecordReportId(),gameRecordReport.getStaticsTimes(),
                     gameRecordReport.getBetAmount(),gameRecordReport.getValidAmount(),gameRecordReport.getWinLossAmount(),gameRecordReport.getAmount(),
                     gameRecordReport.getBettingNumber(),gameRecordReport.getFirstProxy(),gameRecordReport.getSecondProxy(),gameRecordReport.getThirdProxy(),gameRecordReport.getPlatform());
@@ -118,8 +117,7 @@ public class GameRecordReportNewService {
                 gameRecordReport.setFirstProxy(Long.parseLong(map.get("first_proxy").toString()));
                 gameRecordReport.setSecondProxy(Long.parseLong(map.get("second_proxy").toString()));
                 gameRecordReport.setThirdProxy(Long.parseLong(map.get("third_proxy").toString()));
-                gameRecordReport.setGameRecordReportId(
-                    CommonUtil.toHash(gameRecordReport.getStaticsTimes()+gameRecordReport.getThirdProxy()+gameRecordReport.getPlatform()));
+                gameRecordReport.setGameRecordReportId(CommonUtil.toHash(gameRecordReport.getStaticsTimes()+gameRecordReport.getThirdProxy()+gameRecordReport.getPlatform()));
                 gameRecordReport01Repository.updateKey(gameRecordReport.getGameRecordReportId(),gameRecordReport.getStaticsTimes(),
                     gameRecordReport.getBetAmount(),gameRecordReport.getValidAmount(),gameRecordReport.getWinLossAmount(),gameRecordReport.getAmount(),
                     gameRecordReport.getBettingNumber(),gameRecordReport.getFirstProxy(),gameRecordReport.getSecondProxy(),gameRecordReport.getThirdProxy(),gameRecordReport.getPlatform());
@@ -162,8 +160,7 @@ public class GameRecordReportNewService {
                 gameRecordReport.setFirstProxy(Long.parseLong(map.get("first_proxy").toString()));
                 gameRecordReport.setSecondProxy(Long.parseLong(map.get("second_proxy").toString()));
                 gameRecordReport.setThirdProxy(Long.parseLong(map.get("third_proxy").toString()));
-                gameRecordReport.setGameRecordReportId(
-                    CommonUtil.toHash(gameRecordReport.getStaticsTimes()+gameRecordReport.getThirdProxy()+gameRecordReport.getPlatform()));
+                gameRecordReport.setGameRecordReportId(CommonUtil.toHash(gameRecordReport.getStaticsTimes()+gameRecordReport.getThirdProxy()+gameRecordReport.getPlatform()));
                 gameRecordReport01Repository.updateKey(gameRecordReport.getGameRecordReportId(),gameRecordReport.getStaticsTimes(),
                     gameRecordReport.getBetAmount(),gameRecordReport.getValidAmount(),gameRecordReport.getWinLossAmount(),gameRecordReport.getAmount(),
                     gameRecordReport.getBettingNumber(),gameRecordReport.getFirstProxy(),gameRecordReport.getSecondProxy(),gameRecordReport.getThirdProxy(),gameRecordReport.getPlatform());
@@ -239,7 +236,7 @@ public class GameRecordReportNewService {
         return new PageImpl<GameRecordReportNew>(createQuery.getResultList(), page, counts.size());
     }
 
-    public GameRecordReportNew findRecordRecordSum(GameRecordReportNew gameRecordReport,String startSetTime,String endSetTime,Long proxyId,Integer proxyRole) {
+    public  GameRecordReportNew  findRecordRecordSum(GameRecordReportNew gameRecordReport,String startSetTime,String endSetTime,Long proxyId,Integer proxyRole) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<GameRecordReportNew> query = builder.createQuery(GameRecordReportNew.class);
         Root<GameRecordReportNew> root = query.from(GameRecordReportNew.class);
@@ -286,7 +283,7 @@ public class GameRecordReportNewService {
         return singleResult;
     }
 
-    public GameRecordReportNew findRecordRecordSum(GameRecordReportNew gameRecordReport,String startSetTime,String endSetTime) {
+    public  GameRecordReportNew  findRecordRecordSum(GameRecordReportNew gameRecordReport,String startSetTime,String endSetTime) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<GameRecordReportNew> query = builder.createQuery(GameRecordReportNew.class);
         Root<GameRecordReportNew> root = query.from(GameRecordReportNew.class);
