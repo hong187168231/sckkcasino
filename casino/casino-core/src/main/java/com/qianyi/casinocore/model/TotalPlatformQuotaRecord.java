@@ -2,6 +2,8 @@ package com.qianyi.casinocore.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -18,6 +20,7 @@ public class TotalPlatformQuotaRecord extends BaseEntity {
 
     @ApiModelProperty("平台总额度")
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal totalPlatformQuota;
 
 
