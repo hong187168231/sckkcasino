@@ -59,7 +59,7 @@ public class PlatformConfigService {
         }else {
             platformConfig.setTotalPlatformQuota(platformConfig.getTotalPlatformQuota().add(amount));
         }
-        platformConfigRepository.save(platformConfig);
+        save(platformConfig);
     }
 
     public  Boolean queryTotalPlatformQuota(){
