@@ -39,10 +39,12 @@ public class PlatformConfigService {
     }
 
     @Async("asyncExecutor")
+    @CacheEvict(cacheNames = "platformConfig", allEntries = true)
     public  void reception(Integer type, BigDecimal amount){
         updateTotalPlatformQuota(type,amount);
     }
 
+    @CacheEvict(cacheNames = "platformConfig", allEntries = true)
     public  void backstage(Integer type, BigDecimal amount){
         updateTotalPlatformQuota(type,amount);
     }
@@ -59,7 +61,7 @@ public class PlatformConfigService {
         }else {
             platformConfig.setTotalPlatformQuota(platformConfig.getTotalPlatformQuota().add(amount));
         }
-        save(platformConfig);
+        platformConfigRepository.save(platformConfig);
     }
 
     public  Boolean queryTotalPlatformQuota(){

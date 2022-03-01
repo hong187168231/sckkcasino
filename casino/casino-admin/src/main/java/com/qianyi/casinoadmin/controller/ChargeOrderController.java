@@ -192,7 +192,7 @@ public class ChargeOrderController {
         if (status == CommonConst.NUMBER_1){
             Boolean aBoolean = platformConfigService.queryTotalPlatformQuota();
             if (!aBoolean){
-                ResponseUtil.custom("审核通过失败,平台额度不足");
+                return  ResponseUtil.custom("审核通过失败,平台额度不足");
             }
         }
         ResponseEntity responseEntity = chargeOrderBusiness.checkOrderSuccess(id, status, remark, lastModifier);
