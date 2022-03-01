@@ -9,9 +9,9 @@ public class VisitsVo {
     @ApiModelProperty("域名")
     private String domainName;
 
-    @ApiModelProperty("域名去重Ip访问量")
+    @ApiModelProperty("访问IP数")
     private Integer domainIpCount;
 
-    @ApiModelProperty("访问总数量")
+    @ApiModelProperty("总访问量")
     private Integer domainCount;
 }

@@ -3,8 +3,11 @@ package com.qianyi.casinoadmin.controller;
 import com.alibaba.fastjson.JSON;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.VisitsSum;
+import com.qianyi.casinocore.model.DepositSendActivity;
 import com.qianyi.casinocore.model.DomainConfig;
+import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.DomainConfigService;
+import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.casinocore.service.VisitsService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoadmin.vo.VisitsVo;
@@ -38,6 +41,9 @@ public class DomainConfigController {
 
     @Autowired
     private VisitsService visitsService;
+
+    @Autowired
+    private SysUserService sysUserService;
 
     @GetMapping("/visitsFindList")
     @ApiOperation("域名访问量统计")
@@ -76,7 +82,20 @@ public class DomainConfigController {
     @GetMapping("/findList")
     @ApiOperation("域名列表")
     public ResponseEntity<DomainConfig> findList() {
-        return ResponseUtil.success(domainConfigService.findList());
+        List<DomainConfig> domainConfigList = domainConfigService.findList();
+        if(domainConfigList != null && !domainConfigList.isEmpty()){
+            List<String> createBy = domainConfigList.stream().map(DomainConfig::getUpdateBy).collect(Collectors.toList());
+            List<SysUser> sysUsers = sysUserService.findAll(createBy);
+            domainConfigList.stream().forEach(domainConfig -> {
+                sysUsers.stream().forEach(sysUser -> {
+                    if (sysUser.getId().toString().equals(domainConfig.getUpdateBy() == null ? "" : domainConfig.getCreateBy())) {
+                        domainConfig.setUpdateBy(sysUser.getUserName());
+                    }
+                });
+            });
+        }
+
+        return ResponseUtil.success(domainConfigList);
     }
 
     @ApiOperation("新增或者修改域名")
