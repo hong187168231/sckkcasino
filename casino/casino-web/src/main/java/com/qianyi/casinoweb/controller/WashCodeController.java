@@ -143,7 +143,7 @@ public class WashCodeController {
     private void setGameName(HttpServletRequest request, WashCodeVo washCodeVo, WashCodeConfig config) {
         //语言切换
         String language = request.getHeader(Constants.LANGUAGE);
-        if (Locale.US.toString().equals(language)) {
+        if (!Locale.CHINA.toString().equals(language)) {
             washCodeVo.setGameName(config.getGameEnName());
         } else {
             washCodeVo.setGameName(config.getGameName());
