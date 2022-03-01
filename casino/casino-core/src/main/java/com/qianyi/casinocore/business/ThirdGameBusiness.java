@@ -61,7 +61,7 @@ public class ThirdGameBusiness {
         if (responseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
             return responseEntity;
         }
-        BigDecimal balance = new BigDecimal(responseEntity.getData().doubleValue());
+        BigDecimal balance = responseEntity.getData();
         if (balance.compareTo(BigDecimal.ONE) == -1) {
             log.error("userId:{},balance={},PG/CQ9金额小于1，不可回收", userId, balance);
             return ResponseUtil.custom("PG/CQ9余额小于1,不可回收");
@@ -183,7 +183,7 @@ public class ThirdGameBusiness {
         }
         JSONObject jsonData = JSONObject.parseObject(playerBalance.getData());
         BigDecimal balance = new BigDecimal(jsonData.getDouble("balance"));
-        return ResponseUtil.success(balance.setScale(2, BigDecimal.ROUND_HALF_UP));
+        return ResponseUtil.success(balance);
     }
 
     public void saveAccountChange(String gamePlatformName,Long userId, BigDecimal amount, BigDecimal amountBefore, BigDecimal amountAfter, Integer type, String orderNo,AccountChangeEnum changeEnum, String remark, User user) {
