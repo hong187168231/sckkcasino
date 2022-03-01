@@ -262,6 +262,9 @@ public class GoldenFController {
             return ResponseUtil.success(BigDecimal.ZERO);
         }
         ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getBalanceGoldenF(third.getGoldenfAccount(), authId);
+        if (responseEntity.getData() != null) {
+            responseEntity.setData(responseEntity.getData().setScale(2, BigDecimal.ROUND_HALF_UP));
+        }
         return responseEntity;
     }
 
