@@ -67,11 +67,13 @@ public class WithdrawOrderController {
             @ApiImplicitParam(name = "no", value = "订单号", required = false),
             @ApiImplicitParam(name = "bankId", value = "银行卡Id", required = false),
             @ApiImplicitParam(name = "account", value = "用户账号", required = false),
+            @ApiImplicitParam(name = "realName", value = "开户名", required = false),
+            @ApiImplicitParam(name = "bankName", value = "银行名称", required = false),
             @ApiImplicitParam(name = "type", value = "会员类型:0、公司会员，1、渠道会员", required = false),
     })
     @GetMapping("/withdrawList")
     public ResponseEntity<WithdrawOrderVo> withdrawList(Integer pageSize,Integer pageCode, Integer status, String account,
-                                                        String no, String bankId,Integer type,
+                                                        String no, String bankId,Integer type,String realName,String bankName,
                                                         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         WithdrawOrder withdrawOrder = new WithdrawOrder();
@@ -82,13 +84,36 @@ public class WithdrawOrderController {
             }
             withdrawOrder.setUserId(user.getId());
         }
+        List<Long> bankcardIds = null;
+        if (!LoginUtil.checkNull(realName)){
+            List<Bankcards> bankcards = bankcardsService.findByRealName(realName);
+            if (LoginUtil.checkNull(bankcards) || bankcards.size() == CommonConst.NUMBER_0){
+                return ResponseUtil.success();
+            }
+            bankcardIds = bankcards.stream().map(Bankcards::getId).collect(Collectors.toList());
+        }
+        if (!LoginUtil.checkNull(bankName)){
+            BankInfo byBankName = bankInfoService.findByBankName(bankName);
+            if (LoginUtil.checkNull(byBankName)){
+                return ResponseUtil.success();
+            }
+            List<Bankcards> bankcardList = bankcardsService.findByBankId(byBankName.getId().toString());
+            if (LoginUtil.checkNull(bankcardList) || bankcardList.size() == CommonConst.NUMBER_0){
+                return ResponseUtil.success();
+            }
+            if (LoginUtil.checkNull(bankcardIds)){
+                bankcardIds = bankcardList.stream().map(Bankcards::getId).collect(Collectors.toList());
+            }else {
+                bankcardIds.retainAll(bankcardList.stream().map(Bankcards::getId).collect(Collectors.toList()));
+            }
+        }
         withdrawOrder.setStatus(status);
         withdrawOrder.setNo(no);
         withdrawOrder.setBankId(bankId);
         withdrawOrder.setType(type);
         Sort sort=Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
-        Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, withdrawOrder,startDate,endDate);
+        Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, withdrawOrder,startDate,endDate,bankcardIds);
         PageResultVO<WithdrawOrderVo> pageResultVO = new PageResultVO(withdrawOrderPage);
         List<WithdrawOrder> content = withdrawOrderPage.getContent();
         if(content != null && content.size() > 0){

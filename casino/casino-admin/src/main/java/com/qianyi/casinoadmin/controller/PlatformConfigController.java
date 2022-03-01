@@ -712,9 +712,9 @@ public class PlatformConfigController {
                 return ResponseUtil.custom("参数不合法");
             }
             platformConfig.setPlatformMaintenance(platformMaintenance);
+        }else if (platformMaintenance == CommonConst.NUMBER_1){
             platformConfig.setMaintenanceStart(maintenanceStart);
             platformConfig.setMaintenanceEnd(maintenanceEnd);
-        }else if (platformMaintenance == CommonConst.NUMBER_1){
             platformConfig.setPlatformMaintenance(platformMaintenance);
         }else {
             return ResponseUtil.custom("参数不合法");

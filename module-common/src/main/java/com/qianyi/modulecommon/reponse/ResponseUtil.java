@@ -81,4 +81,8 @@ public class ResponseUtil {
     public static ResponseEntity multiDevice() {
         return new ResponseEntity(ResponseCode.MULTIDEVICE,messageUtil.get(ResponseCode.MULTIDEVICE.getMsg()));
     }
+
+    public static ResponseEntity platformMaintain() {
+        return new ResponseEntity(ResponseCode.PLATFORM_MAINTAIN,messageUtil.get(ResponseCode.PLATFORM_MAINTAIN.getMsg()));
+    }
 }

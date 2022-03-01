@@ -12,8 +12,8 @@ public class SqlConst {
             " ifnull(wash_t.wash_amount,0) wash_amount, \n" +
             " ifnull(withdraw_t.service_charge,0) service_charge, \n" +
             " ifnull(pr.amount,0) all_profit_amount, \n" +
-            " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)) avg_benefit, \n" +
-            " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0) -ifnull(ec.water, 0)+ifnull(withdraw_t.service_charge,0) total_amount,\n" +
+            " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water, 0)) avg_benefit, \n" +
+            " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0) total_amount,\n" +
             "  ifnull(ec.water, 0) all_water\n" +
             "from user u\n" +
             "left join ( \n" +
@@ -30,6 +30,7 @@ public class SqlConst {
             "  select user_id , sum(amount) wash_amount  \n" +
             "  from wash_code_change wcc  \n" +
             "  where create_time >= {0} and create_time <= {1}\n" +
+            "  and platform = {5} " +
             "  group by user_id \n" +
             " ) wash_t on u.id = wash_t.user_id\n" +
             " left join ( \n" +
@@ -46,6 +47,7 @@ public class SqlConst {
             "  left join (\n" +
             "\tSELECT user_id, SUM(amount) as water FROM extract_points_change \n" +
             "  where create_time >= {0} and create_time <= {1}\n" +
+            "  and platform = {5}"+
             "\tgroup by user_id \n" +
             " ) ec on u.id = ec.user_id\n" +
             " where 1=1 {2} \n" +
@@ -62,8 +64,8 @@ public class SqlConst {
             " ifnull(wash_t.wash_amount,0) wash_amount, \n" +
             " ifnull(withdraw_t.service_charge,0) service_charge, \n" +
             " ifnull(pr.amount,0) all_profit_amount, \n" +
-            " -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)) avg_benefit, \n" +
-            " -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0) -ifnull(ec.water, 0) +ifnull(withdraw_t.service_charge,0) total_amount,\n" +
+            " -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0)) avg_benefit, \n" +
+            " -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0) -ifnull(ec.water,0) +ifnull(withdraw_t.service_charge,0) total_amount,\n" +
             " ifnull(ec.water, 0) all_water\n" +
             "from user u\n" +
             "left join ( \n" +
@@ -121,8 +123,8 @@ public class SqlConst {
             " ifnull(wash_t.wash_amount,0) wash_amount, \n" +
             " ifnull(withdraw_t.service_charge,0) service_charge, \n" +
             " ifnull(pr.amount,0) all_profit_amount, \n" +
-            " -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)) avg_benefit, \n" +
-            " -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0) -ifnull(ec.water, 0) +ifnull(withdraw_t.service_charge,0) total_amount,\n" +
+            " -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water, 0)) avg_benefit, \n" +
+            " -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0) total_amount,\n" +
             " ifnull(ec.water, 0) all_water\n" +
             "from user u\n" +
             "left join ( \n" +
@@ -139,6 +141,7 @@ public class SqlConst {
             "  select user_id , sum(amount) wash_amount  \n" +
             "  from wash_code_change wcc  \n" +
             "  where create_time >= {0} and create_time <= {1}\n" +
+            "  and platform = {5} "+
             "  group by user_id \n" +
             " ) wash_t on u.id = wash_t.user_id\n" +
             " left join ( \n" +
@@ -155,6 +158,7 @@ public class SqlConst {
             "  left join (\n" +
             "\tSELECT user_id, SUM(amount) as water FROM extract_points_change \n" +
             "\twhere create_time >= {0} and create_time <= {1}\n" +
+            "  and platform = {5}"+
             "\tgroup by user_id \n" +
             " ) ec on u.id = ec.user_id\n" +
             " where  1=1 {2} \n" +
@@ -171,7 +175,7 @@ public class SqlConst {
             " ifnull(wash_t.wash_amount,0) wash_amount, \n" +
             " ifnull(withdraw_t.service_charge,0) service_charge, \n" +
             " ifnull(pr.amount,0) all_profit_amount, \n" +
-            " -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)) avg_benefit, \n" +
+            " -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0)) avg_benefit, \n" +
             " -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0) total_amount,\n" +
             " sum(ifnull(ec.water, 0)) all_water\n" +
             "from user u\n" +
@@ -230,7 +234,7 @@ public class SqlConst {
             " ifnull(wash_t.wash_amount,0) wash_amount, \n" +
             " ifnull(withdraw_t.service_charge,0) service_charge, \n" +
             " ifnull(pr.amount,0) all_profit_amount, \n" +
-            " -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)) avg_benefit, \n" +
+            " -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0)) avg_benefit, \n" +
             " -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0) total_amount,\n" +
             " sum(ifnull(ec.water, 0)) all_water\n" +
             "from user u\n" +
@@ -246,7 +250,7 @@ public class SqlConst {
             " left join ( \n" +
             "  select user_id , sum(amount) wash_amount  \n" +
             "  from wash_code_change wcc  \n" +
-            "  where create_time >= {0} and create_time <= {1}\n" +
+            "  where platform = {3} and  create_time >= {0} and create_time <= {1}\n" +
             "  group by user_id \n" +
             " ) wash_t on u.id = wash_t.user_id\n" +
             " left join ( \n" +
@@ -263,6 +267,7 @@ public class SqlConst {
             "   left join (\n" +
             "\tSELECT user_id, SUM(amount) as water FROM extract_points_change \n" +
             "\twhere create_time >= {0} and create_time <= {1}\n" +
+            " and platform = {3} "+
             "\tgroup by user_id \n" +
             " ) ec on u.id = ec.user_id\n" +
             " where 1=1 and u.id = {2}";
@@ -278,7 +283,7 @@ public class SqlConst {
             " ifnull(wash_t.wash_amount,0) wash_amount, \n" +
             " ifnull(withdraw_t.service_charge,0) service_charge, \n" +
             " ifnull(pr.amount,0) all_profit_amount, \n" +
-            " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)) avg_benefit, \n" +
+            " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0)) avg_benefit, \n" +
             " -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0) total_amount,\n" +
             " sum(ifnull(ec.water, 0)) all_water\n" +
             "from user u\n" +
@@ -295,7 +300,7 @@ public class SqlConst {
             " left join ( \n" +
             "  select user_id , sum(amount) wash_amount  \n" +
             "  from wash_code_change wcc  \n" +
-            "  where create_time >= {0} and create_time <= {1}\n" +
+            "  where platform = {3} and create_time >= {0} and create_time <= {1}\n" +
             "  group by user_id \n" +
             " ) wash_t on u.id = wash_t.user_id\n" +
             " left join ( \n" +
@@ -312,6 +317,7 @@ public class SqlConst {
             "   left join (\n" +
             "\tSELECT user_id, SUM(amount) as water FROM extract_points_change \n" +
             "\twhere create_time >= {0} and create_time <= {1}\n" +
+            " and platform = {3} " +
             "\tgroup by user_id \n" +
             " ) ec on u.id = ec.user_id\n" +
             " where 1=1 and u.id = {2}";
@@ -324,7 +330,7 @@ public class SqlConst {
             " sum(ifnull(wash_t.wash_amount,0)) wash_amount, \n" +
             " sum(ifnull(withdraw_t.service_charge,0)) service_charge, \n" +
             " sum(ifnull(pr.amount,0)) all_profit_amount, \n" +
-            " sum(-(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))) avg_benefit,\n" +
+            " sum(-(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0))) avg_benefit,\n" +
             " sum(-(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,\n" +
             " sum(ifnull(ec.water, 0)) all_water\n" +
             "from user u\n" +
@@ -378,8 +384,8 @@ public class SqlConst {
             " sum(ifnull(wash_t.wash_amount,0)) wash_amount, \n" +
             " sum(ifnull(withdraw_t.service_charge,0)) service_charge, \n" +
             " sum(ifnull(pr.amount,0)) all_profit_amount, \n" +
-            " sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))) avg_benefit, \n" +
-            " sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0) -ifnull(ec.water, 0) +ifnull(withdraw_t.service_charge,0)) total_amount,\n" +
+            " sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water, 0))) avg_benefit, \n" +
+            " sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0) +ifnull(withdraw_t.service_charge,0)) total_amount,\n" +
             " ifnull(ec.water, 0) all_water\n" +
             "from user u\n" +
             "left join ( \n" +
@@ -412,6 +418,7 @@ public class SqlConst {
             "   left join (\n" +
             "\tSELECT user_id, SUM(amount) as water FROM extract_points_change \n" +
             "\twhere create_time >= {0} and create_time <= {1}\n" +
+            " and platform = {2} "+
             "\tgroup by user_id \n" +
             " ) ec on u.id = ec.user_id";
 
@@ -423,8 +430,8 @@ public class SqlConst {
             " sum(ifnull(wash_t.wash_amount,0)) wash_amount, \n" +
             " sum(ifnull(withdraw_t.service_charge,0)) service_charge, \n" +
             " sum(ifnull(pr.amount,0)) all_profit_amount, \n" +
-            " sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))) avg_benefit, \n" +
-            " sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water, 0)+ifnull(withdraw_t.service_charge,0)) total_amount,\n" +
+            " sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water, 0))) avg_benefit, \n" +
+            " sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,\n" +
             "sum(ifnull(ec.water, 0)) all_water\n" +
             "from user u\n" +
             " left join ( \n" +
@@ -456,6 +463,7 @@ public class SqlConst {
             "   left join (\n" +
             "\tSELECT user_id, SUM(amount) as water FROM extract_points_change \n" +
             "\twhere create_time >= {0} and create_time <= {1}\n" +
+            " and platform = {2} " +
             "\tgroup by user_id \n" +
             " ) ec on u.id = ec.user_id";
 }

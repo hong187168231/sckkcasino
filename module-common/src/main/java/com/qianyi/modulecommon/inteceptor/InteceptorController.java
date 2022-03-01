@@ -54,4 +54,16 @@ public class InteceptorController implements ErrorController {
     public ResponseEntity authenticationMultiDevice() {
         return ResponseUtil.multiDevice();
     }
+
+    @NoAuthentication
+    @RequestMapping("authenticationPlatformMaintain")
+    public ResponseEntity authenticationPlatformMaintain(Boolean onOff, String startTime, String endTime) {
+        ResponseEntity response = ResponseUtil.platformMaintain();
+        AbstractPlatformMaintainInteceptor.PlatformMaintenanceSwitch data = new AbstractPlatformMaintainInteceptor.PlatformMaintenanceSwitch();
+        data.setOnOff(onOff);
+        data.setStartTime(startTime);
+        data.setEndTime(endTime);
+        response.setData(data);
+        return response;
+    }
 }

@@ -1,10 +1,9 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinocore.business.ExtractPointsConfigBusiness;
+import com.qianyi.casinocore.business.ExtractPointsTestBusiness;
 import com.qianyi.casinocore.co.extractpoints.ExtractPointsConfigCo;
-import com.qianyi.casinocore.model.ExtractPointsConfig;
-import com.qianyi.casinocore.model.PoxyExtractPointsConfig;
-import com.qianyi.casinocore.model.UserExtractPointsConfig;
+import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.ExtractPointsConfigService;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -76,6 +75,23 @@ public class ExtractPointsConfigController {
             @RequestBody List<UserExtractPointsConfig> configList
     ) {
         return ResponseUtil.success(business.updateUserExtractPointsConfigs(configList));
+    }
+
+    @Autowired
+    private ExtractPointsTestBusiness testBusiness;
+
+    @NoAuthorization
+    //@GetMapping("/wm/test")
+    public ResponseEntity<String> testWM(){
+        testBusiness.testWM();
+        return ResponseUtil.success();
+    }
+
+    @NoAuthorization
+    //@GetMapping("/pg/test")
+    public ResponseEntity<String> testPG(){
+        testBusiness.testPG();
+        return ResponseUtil.success();
     }
 
 }
