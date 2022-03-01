@@ -30,6 +30,7 @@ public class SqlConst {
             "  select user_id , sum(amount) wash_amount  \n" +
             "  from wash_code_change wcc  \n" +
             "  where create_time >= {0} and create_time <= {1}\n" +
+            "  and platform = {5} " +
             "  group by user_id \n" +
             " ) wash_t on u.id = wash_t.user_id\n" +
             " left join ( \n" +
@@ -46,6 +47,7 @@ public class SqlConst {
             "  left join (\n" +
             "\tSELECT user_id, SUM(amount) as water FROM extract_points_change \n" +
             "  where create_time >= {0} and create_time <= {1}\n" +
+            "  and platform = {5}"+
             "\tgroup by user_id \n" +
             " ) ec on u.id = ec.user_id\n" +
             " where 1=1 {2} \n" +
@@ -139,6 +141,7 @@ public class SqlConst {
             "  select user_id , sum(amount) wash_amount  \n" +
             "  from wash_code_change wcc  \n" +
             "  where create_time >= {0} and create_time <= {1}\n" +
+            "  and platform = {5} "+
             "  group by user_id \n" +
             " ) wash_t on u.id = wash_t.user_id\n" +
             " left join ( \n" +
@@ -155,6 +158,7 @@ public class SqlConst {
             "  left join (\n" +
             "\tSELECT user_id, SUM(amount) as water FROM extract_points_change \n" +
             "\twhere create_time >= {0} and create_time <= {1}\n" +
+            "  and platform = {5}"+
             "\tgroup by user_id \n" +
             " ) ec on u.id = ec.user_id\n" +
             " where  1=1 {2} \n" +
@@ -263,6 +267,7 @@ public class SqlConst {
             "   left join (\n" +
             "\tSELECT user_id, SUM(amount) as water FROM extract_points_change \n" +
             "\twhere create_time >= {0} and create_time <= {1}\n" +
+            " and platform = {3} "+
             "\tgroup by user_id \n" +
             " ) ec on u.id = ec.user_id\n" +
             " where 1=1 and u.id = {2}";
@@ -312,6 +317,7 @@ public class SqlConst {
             "   left join (\n" +
             "\tSELECT user_id, SUM(amount) as water FROM extract_points_change \n" +
             "\twhere create_time >= {0} and create_time <= {1}\n" +
+            " and platform = {3} " +
             "\tgroup by user_id \n" +
             " ) ec on u.id = ec.user_id\n" +
             " where 1=1 and u.id = {2}";
@@ -412,6 +418,7 @@ public class SqlConst {
             "   left join (\n" +
             "\tSELECT user_id, SUM(amount) as water FROM extract_points_change \n" +
             "\twhere create_time >= {0} and create_time <= {1}\n" +
+            " and platform = {2} "+
             "\tgroup by user_id \n" +
             " ) ec on u.id = ec.user_id";
 
@@ -456,6 +463,7 @@ public class SqlConst {
             "   left join (\n" +
             "\tSELECT user_id, SUM(amount) as water FROM extract_points_change \n" +
             "\twhere create_time >= {0} and create_time <= {1}\n" +
+            " and platform = {2} " +
             "\tgroup by user_id \n" +
             " ) ec on u.id = ec.user_id";
 }
