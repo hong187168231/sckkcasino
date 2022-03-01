@@ -8,9 +8,9 @@ import com.qianyi.casinoadmin.model.HomePageReport;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
-import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.DateUtil;
@@ -335,6 +335,8 @@ public class HomePageReportController {
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<TotalPlatformQuotaRecord> totalPlatformQuotaRecordPage = totalPlatformQuotaRecordService.findTotalPlatformQuotaRecordPage(pageable, startDate, endDate);
         List<TotalPlatformQuotaRecord> content = totalPlatformQuotaRecordPage.getContent();
-        return new ResponseEntity(ResponseCode.SUCCESS, content);
+        PageResultVO<TotalPlatformQuotaRecord> pageResultVO =new PageResultVO(totalPlatformQuotaRecordPage);
+        pageResultVO.setContent(content);
+        return ResponseUtil.success(pageResultVO);
     }
 }
