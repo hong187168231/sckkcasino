@@ -673,8 +673,8 @@ public class PlatformConfigController {
             platformConfig.setPlatformMaintenance(CommonConst.NUMBER_1);
         }
         if(!LoginUtil.checkNull(platformConfig.getMaintenanceEnd())){
-            if (new Date().compareTo(platformConfig.getMaintenanceEnd()) > CommonConst.NUMBER_0 && platformConfig.getPlatformMaintenance() == CommonConst.NUMBER_0){
-                platformConfig.setPlatformMaintenance(CommonConst.NUMBER_1);
+            if (new Date().compareTo(platformConfig.getMaintenanceEnd()) > CommonConst.NUMBER_0 && platformConfig.getPlatformMaintenance() == CommonConst.NUMBER_1){
+                platformConfig.setPlatformMaintenance(CommonConst.NUMBER_0);
                 platformConfigService.save(platformConfig);
             }
         }
