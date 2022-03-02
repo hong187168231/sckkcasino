@@ -23,7 +23,7 @@ public class PersonReportVo {
     @ApiModelProperty(value = "投注金额")
     private BigDecimal betAmount;
 
-    @JsonProperty("third_proxy")
+    //@JsonProperty("third_proxy")
     @ApiModelProperty(value = "基础id")
     private String thirdProxy;
 
