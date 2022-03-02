@@ -675,6 +675,8 @@ public class PlatformConfigController {
         if(!LoginUtil.checkNull(platformConfig.getMaintenanceEnd())){
             if (new Date().compareTo(platformConfig.getMaintenanceEnd()) > CommonConst.NUMBER_0 && platformConfig.getPlatformMaintenance() == CommonConst.NUMBER_1){
                 platformConfig.setPlatformMaintenance(CommonConst.NUMBER_0);
+                platformConfig.setMaintenanceStart(null);
+                platformConfig.setMaintenanceEnd(null);
                 platformConfigService.save(platformConfig);
             }
         }
@@ -705,14 +707,16 @@ public class PlatformConfigController {
             platformConfig = new PlatformConfig();
         }
         if (platformMaintenance == CommonConst.NUMBER_0){
+            platformConfig.setPlatformMaintenance(platformMaintenance);
+            platformConfig.setMaintenanceStart(null);
+            platformConfig.setMaintenanceEnd(null);
+        }else if (platformMaintenance == CommonConst.NUMBER_1){
             if (LoginUtil.checkNull(maintenanceStart,maintenanceEnd)){
                 return ResponseUtil.custom("参数不合法");
             }
             if (maintenanceStart.compareTo(maintenanceEnd) > CommonConst.NUMBER_0){
                 return ResponseUtil.custom("参数不合法");
             }
-            platformConfig.setPlatformMaintenance(platformMaintenance);
-        }else if (platformMaintenance == CommonConst.NUMBER_1){
             platformConfig.setMaintenanceStart(maintenanceStart);
             platformConfig.setMaintenanceEnd(maintenanceEnd);
             platformConfig.setPlatformMaintenance(platformMaintenance);
