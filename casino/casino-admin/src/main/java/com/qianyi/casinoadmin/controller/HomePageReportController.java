@@ -5,9 +5,7 @@ import com.qianyi.casinoadmin.task.HomePageReportTask;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.HomePageReportVo;
 import com.qianyi.casinoadmin.model.HomePageReport;
-import com.qianyi.casinoadmin.vo.UserCommissionVo;
 import com.qianyi.casinocore.model.*;
-import com.qianyi.casinocore.repository.TotalPlatformQuotaRecordRepository;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.Constants;
@@ -15,7 +13,6 @@ import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
-import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.DateUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
 import io.swagger.annotations.Api;
@@ -332,11 +329,12 @@ public class HomePageReportController {
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<TotalPlatformQuotaRecord> queryTotalPlatformQuotaRecordList(Integer pageSize, Integer pageCode,
-                                                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
-                                                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+                                                                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
+                                                                                        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<TotalPlatformQuotaRecord> totalPlatformQuotaRecordPage = totalPlatformQuotaRecordService.findTotalPlatformQuotaRecordPage(pageable, startDate, endDate);
-        return new ResponseEntity(ResponseCode.SUCCESS, totalPlatformQuotaRecordPage);
+        List<TotalPlatformQuotaRecord> content = totalPlatformQuotaRecordPage.getContent();
+        return new ResponseEntity(ResponseCode.SUCCESS, content);
     }
 }
