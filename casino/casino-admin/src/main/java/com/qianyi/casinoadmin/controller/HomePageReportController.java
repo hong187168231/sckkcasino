@@ -5,17 +5,14 @@ import com.qianyi.casinoadmin.task.HomePageReportTask;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.HomePageReportVo;
 import com.qianyi.casinoadmin.model.HomePageReport;
-import com.qianyi.casinocore.model.CompanyProxyDetail;
-import com.qianyi.casinocore.model.CompanyProxyMonth;
-import com.qianyi.casinocore.model.GameRecord;
-import com.qianyi.casinocore.model.UserRunningWater;
-import com.qianyi.casinocore.service.CompanyProxyMonthService;
-import com.qianyi.casinocore.service.GameRecordGoldenFService;
-import com.qianyi.casinocore.service.GameRecordService;
-import com.qianyi.casinocore.service.UserRunningWaterService;
+import com.qianyi.casinoadmin.vo.UserCommissionVo;
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.repository.TotalPlatformQuotaRecordRepository;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
+import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -27,6 +24,8 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -47,6 +46,9 @@ import java.util.stream.Collectors;
 public class HomePageReportController {
     @Autowired
     private HomePageReportService homePageReportService;
+
+    @Autowired
+    private TotalPlatformQuotaRecordService totalPlatformQuotaRecordService;
 
     @Autowired
     private HomePageReportTask homePageReportTask;
@@ -318,5 +320,23 @@ public class HomePageReportController {
         homePageReportVo.setGrossMargin2(homePageReportVo.getGrossMargin1().subtract(homePageReportVo.getShareAmount()).subtract(homePageReportVo.getBonusAmount()).add(homePageReportVo.getServiceCharge()));
         homePageReportVo.setGrossMargin3(homePageReportVo.getGrossMargin2().subtract(homePageReportVo.getProxyProfit()));
         return homePageReportVo;
+    }
+
+    @ApiOperation("平台总额度明细")
+    @GetMapping("/findCommission")
+    @NoAuthorization
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
+    })
+    public ResponseEntity<TotalPlatformQuotaRecord> queryTotalPlatformQuotaRecordList(Integer pageSize, Integer pageCode,
+                                                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
+                                                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        Page<TotalPlatformQuotaRecord> totalPlatformQuotaRecordPage = totalPlatformQuotaRecordService.findTotalPlatformQuotaRecordPage(pageable, startDate, endDate);
+        return new ResponseEntity(ResponseCode.SUCCESS, totalPlatformQuotaRecordPage);
     }
 }
