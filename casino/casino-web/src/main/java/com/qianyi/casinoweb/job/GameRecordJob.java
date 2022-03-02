@@ -123,15 +123,19 @@ public class GameRecordJob {
         long startTimeNum = startDate.getTime();
         long endTimeNum = nowDate.getTime();
         //第三方要求拉取数据时间范围不能大于1天，大于1天，取开始时间的后一天为结束时间
+        //重叠时间区间 -2代表重叠2分钟
+        int overlap = -2;
         if ((endTimeNum - startTimeNum) > 60 * 60 * 24 * 1000) {
             Calendar now = Calendar.getInstance();
             now.setTime(startDate);
             now.add(Calendar.DAY_OF_MONTH, 1);
             Date afterFiveMin = now.getTime();
             endTime = format.format(afterFiveMin);
+            //下面开始时间前移2分钟，结束时间也要前移2分钟
+            endTime = getBeforeDateTime(format,endTime,overlap);
         }
         //开始时间往前2分钟，重叠两分钟的时间区间
-        startTime = getBeforeDateTime(format,startTime,-2);
+        startTime = getBeforeDateTime(format,startTime,overlap);
 
         StartTimeAndEndTime startTimeAndEndTime = new StartTimeAndEndTime();
         startTimeAndEndTime.setStartTime(startTime);
