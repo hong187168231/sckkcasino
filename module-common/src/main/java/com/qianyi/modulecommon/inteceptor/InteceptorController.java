@@ -57,10 +57,11 @@ public class InteceptorController implements ErrorController {
 
     @NoAuthentication
     @RequestMapping("authenticationPlatformMaintain")
-    public ResponseEntity authenticationPlatformMaintain(Boolean onOff, String startTime, String endTime) {
+    public ResponseEntity authenticationPlatformMaintain(String startTime, String endTime) {
         ResponseEntity response = ResponseUtil.platformMaintain();
-        AbstractPlatformMaintainInteceptor.PlatformMaintenanceSwitch data = new AbstractPlatformMaintainInteceptor.PlatformMaintenanceSwitch();
-        data.setOnOff(onOff);
+        //因为不能依赖core模块所以参数改为从前面传递而不是直接查数据库
+        AbstractAuthenticationInteceptor.PlatformMaintenanceSwitch data = new AbstractAuthenticationInteceptor.PlatformMaintenanceSwitch();
+        data.setOnOff(true);
         data.setStartTime(startTime);
         data.setEndTime(endTime);
         response.setData(data);

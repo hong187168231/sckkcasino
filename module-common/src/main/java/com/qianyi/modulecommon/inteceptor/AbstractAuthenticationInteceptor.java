@@ -2,6 +2,7 @@ package com.qianyi.modulecommon.inteceptor;
 
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.util.IpUtil;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.util.ObjectUtils;
@@ -30,6 +31,17 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
         if (!(handler instanceof HandlerMethod)) {
             return true;
         }
+        String url = request.getServletPath();
+        if (url.contains("authenticationPlatformMaintain")) {
+            return true;
+        }
+        //平台维护开关校验
+        PlatformMaintenanceSwitch maintain = platformMaintainCheck();
+        Boolean onOff = maintain.getOnOff();
+        if (onOff) {
+            response.sendRedirect(request.getContextPath() + "/authenticationPlatformMaintain?startTime="+maintain.getStartTime()+"&endTime="+maintain.getEndTime());
+            return false;
+        }
         HandlerMethod handlerMethod = (HandlerMethod) handler;
         Method method = handlerMethod.getMethod();
         NoAuthentication annotation = method.getAnnotation(NoAuthentication.class);
@@ -37,7 +49,6 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
             if (hasPermission(request,response)) {
                 //帐号封号拦截
                 if(hasBan()){
-                    String url=request.getServletPath();
                     if(url.contains("authenticationBan")){
                         return true;
                     }
@@ -66,6 +77,10 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
 
     protected abstract boolean multiDeviceCheck();
 
+    protected PlatformMaintenanceSwitch platformMaintainCheck(){
+        return new PlatformMaintenanceSwitch();
+    };
+
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
@@ -74,6 +89,16 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
+    }
+
+    @Data
+    public static class PlatformMaintenanceSwitch {
+
+        private Boolean onOff = Boolean.FALSE;
+
+        private String startTime;
+
+        private String endTime;
     }
 
     /**
