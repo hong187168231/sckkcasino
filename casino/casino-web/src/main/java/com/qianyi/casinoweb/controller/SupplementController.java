@@ -96,15 +96,21 @@ public class SupplementController {
             Date endDate = df.parse(endTime);
             long startTimeNum = startDate.getTime();
             long endTimeNum = endDate.getTime();
+            //重叠时间区间 -2代表重叠2分钟
+            int overlap = -2;
             if ((endTimeNum - startTimeNum) > 60 * 60 * 24 * 1000) {
                 Calendar after = Calendar.getInstance();
                 after.setTime(startDate);
                 after.add(Calendar.DAY_OF_MONTH, 1);
                 Date afterDate = after.getTime();
                 endTimeNew = df.format(afterDate);
+                //下面开始时间前移2分钟，结束时间也要前移2分钟
+                endTimeNew = getBeforeDateTime(df,endTimeNew,overlap);
             } else {
                 endTimeNew = endTime;
             }
+            //开始时间往前2分钟，重叠两分钟的时间区间
+            startTime = getBeforeDateTime(df,startTime,overlap);
             timeMsg = startTime + "到" + endTimeNew;
             log.info("开始拉取{}的注单记录", timeMsg);
             String result = wmApi.getDateTimeReport(null, startTime, endTimeNew, 0, 1, 2, null, null);
@@ -138,5 +144,15 @@ public class SupplementController {
             getDateTimeReport(list, endTimeNew, endTime, df);
         }
         return list;
+    }
+
+    private String getBeforeDateTime(SimpleDateFormat format,String currentTime,int before) throws ParseException {
+        Date date = format.parse(currentTime);
+        Calendar now = Calendar.getInstance();
+        now.setTime(date);
+        now.add(Calendar.MINUTE, before);
+        Date afterFiveMin = now.getTime();
+        String dateTime = format.format(afterFiveMin);
+        return dateTime;
     }
 }
