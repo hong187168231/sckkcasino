@@ -3,6 +3,7 @@ package com.qianyi.casinoadmin.install.file;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.qianyi.casinoadmin.model.dto.SysPermissionDTO;
 import com.qianyi.casinoadmin.model.dto.SysPermissionDTONode;
 import com.qianyi.casinoadmin.util.FileUtils;
 import com.qianyi.casinoadmin.util.LoginUtil;
@@ -51,7 +52,7 @@ public class NewPermissions {
         Function<SysPermissionDTONode, String> nodeKeyFn = c-> c.getName() + ":" + c.getUrl() + ":" + c.getMenuLevel();
         Function<SysPermission, String> sysKeyFn = c-> c.getName() + ":" + c.getUrl() + ":" + c.getMenuLevel();
 
-        List<SysPermissionDTONode> nodes = FileUtils.readJsonFileAndParse("/permission/root2.json", SysPermissionDTONode.class);
+        List<SysPermissionDTONode> nodes = FileUtils.readJsonFileAndParse("/permission/root.json", SysPermissionDTONode.class);
 
         // 将树状结构展开，并且设置 子-父 对应关系
         Map<String, String> refs = new HashMap<>();
@@ -67,6 +68,14 @@ public class NewPermissions {
 
         // 数据库 权限映射 { `name:url:menuLevel` : SysPermission}
         Map<String, SysPermission> sysMaps = getSysPermissionMap(sysPermissionList, sysKeyFn);
+
+        // 待更新列表
+        List<SysPermissionDTONode> updateList = unwindList.stream().filter(c -> c.getUpdate() != null).collect(Collectors.toList());
+
+        if (CollUtil.isNotEmpty(updateList)) {
+            handleUpdateList(updateList, nodeKeyFn, sysMaps);
+            unwindList = unwindList.stream().filter(c -> c.getUpdate() == null).collect(Collectors.toList());
+        }
 
         // 本地json文件 权限映射 { `name:url:menuLevel` : SysPermissionDTONode}
         Map<String, SysPermissionDTONode> localMaps = unwindList.stream().collect(
@@ -91,6 +100,51 @@ public class NewPermissions {
         //log.info("roots: {}", roots);
         // 级联保存
         deepSave(0L, roots);
+    }
+
+    // 更新操作特殊处理, 只有已经保存在数据库的才可以更新，否则忽略
+    private void handleUpdateList(
+            List<SysPermissionDTONode> updateList,
+            Function<SysPermissionDTONode, String> nodeKeyFn,
+            Map<String, SysPermission> sysMaps
+    ) {
+        List<SysPermission> sysUpdateList = new ArrayList<>();
+        for (SysPermissionDTONode tobeUpdate: updateList) {
+            String tobeKey = nodeKeyFn.apply(tobeUpdate);
+            SysPermission has = sysMaps.get(tobeKey);
+            if (null != has) {
+                SysPermissionDTO update = tobeUpdate.getUpdate();
+
+                if (StrUtil.isNotBlank(update.getName())) {
+                    has.setName(update.getName());
+                }
+
+                if (StrUtil.isNotBlank(update.getEnglishName())) {
+                    has.setEnglishName(update.getEnglishName());
+                }
+
+                if (StrUtil.isNotBlank(update.getCambodianName())) {
+                    has.setCambodianName(update.getCambodianName());
+                }
+
+                if (StrUtil.isNotBlank(update.getDescritpion())) {
+                    has.setDescritpion(update.getDescritpion());
+                }
+
+                if (StrUtil.isNotBlank(update.getUrl())) {
+                    has.setUrl(update.getUrl());
+                }
+
+                if (update.getMenuLevel() != null) {
+                    has.setMenuLevel(update.getMenuLevel());
+                }
+
+                sysUpdateList.add(has);
+            }
+        }
+        if (CollUtil.isNotEmpty(sysUpdateList)) {
+            sysPermissionService.saveAllList(sysUpdateList);
+        }
     }
 
     // 删除

@@ -35,4 +35,7 @@ public class SysPermissionDTO {
     // 是否删除
     private Boolean delete;
 
+    // 更新
+    private SysPermissionDTO update;
+
 }
