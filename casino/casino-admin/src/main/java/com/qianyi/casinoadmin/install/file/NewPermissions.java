@@ -1,6 +1,8 @@
 package com.qianyi.casinoadmin.install.file;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.qianyi.casinoadmin.model.dto.SysPermissionDTONode;
 import com.qianyi.casinoadmin.util.FileUtils;
 import com.qianyi.casinoadmin.util.LoginUtil;
@@ -12,6 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -27,6 +32,12 @@ public class NewPermissions {
     @Autowired
     private SysPermissionService sysPermissionService;
 
+    // 调试方法，无实际意义
+    private String deserializeToRootJson(){
+        List<SysPermission> sysPermissionList = sysPermissionService.findAll();
+        List<SysPermissionDTONode> nodes = DTOUtil.toNodeTree(sysPermissionList, SysPermissionDTONode.class);
+        return JSON.toJSONString(nodes);
+    }
 
     /**
      * 初始化权限相关
@@ -40,6 +51,80 @@ public class NewPermissions {
         Function<SysPermissionDTONode, String> nodeKeyFn = c-> c.getName() + ":" + c.getUrl() + ":" + c.getMenuLevel();
         Function<SysPermission, String> sysKeyFn = c-> c.getName() + ":" + c.getUrl() + ":" + c.getMenuLevel();
 
+        List<SysPermissionDTONode> nodes = FileUtils.readJsonFileAndParse("/permission/root2.json", SysPermissionDTONode.class);
+
+        // 将树状结构展开，并且设置 子-父 对应关系
+        Map<String, String> refs = new HashMap<>();
+        List<SysPermissionDTONode> unwindList = DTOUtil.unwindRoot(nodes, nodeKeyFn , refs);
+
+        // 待删除列表
+        List<SysPermissionDTONode> dropList = unwindList.stream().filter(c-> c.getDelete() != null && c.getDelete()).collect(Collectors.toList());
+
+        if (CollUtil.isNotEmpty(dropList)) {
+            sysPermissionList = dropFilter(dropList, sysPermissionList, nodeKeyFn, sysKeyFn);
+            unwindList = unwindList.stream().filter(c -> c.getDelete() == null || !c.getDelete()).collect(Collectors.toList());
+        }
+
+        // 数据库 权限映射 { `name:url:menuLevel` : SysPermission}
+        Map<String, SysPermission> sysMaps = getSysPermissionMap(sysPermissionList, sysKeyFn);
+
+        // 本地json文件 权限映射 { `name:url:menuLevel` : SysPermissionDTONode}
+        Map<String, SysPermissionDTONode> localMaps = unwindList.stream().collect(
+                Collectors.toMap(nodeKeyFn, c -> c)
+        );
+
+        // 遍历本地权限列表，已存在的权限设置id这样会导致jpa执行更新操作
+        for (String key : localMaps.keySet()) {
+            // 保存数据库中没有对应的url权限记录
+            SysPermission sys = sysMaps.get(key);
+            if (null != sys) {
+                SysPermissionDTONode local = localMaps.get(key);
+                local.setId(sys.getId());
+                // 设置pid
+                local.setPid(sys.getPid());
+            }
+        }
+
+        // 保证每个子集都能获取到pid,因此需要按先后顺序去保存
+        List<SysPermissionDTONode> roots = DTOUtil.toNodeTree(unwindList, refs, nodeKeyFn);
+
+        //log.info("roots: {}", roots);
+        // 级联保存
+        deepSave(0L, roots);
+    }
+
+    // 删除
+    private List<SysPermission> dropFilter(
+            List<SysPermissionDTONode> dropList,
+            List<SysPermission> sysPermissionList,
+            Function<SysPermissionDTONode, String> nodeKeyFn,
+            Function<SysPermission, String> sysKeyFn
+    ){
+        List<SysPermission> list = new ArrayList<>();
+        Map<String, SysPermissionDTONode> dropMaps = dropList.stream().collect(
+                Collectors.toMap(nodeKeyFn, c -> c)
+        );
+
+        List<Long> deleteIdList = new ArrayList<>();
+
+        for (SysPermission sys: sysPermissionList) {
+            String sysKey = sysKeyFn.apply(sys);
+            if (null != dropMaps.get(sysKey)) {
+                deleteIdList.add(sys.getId());
+            } else {
+                list.add(sys);
+            }
+        }
+
+        if (CollUtil.isNotEmpty(deleteIdList)) {
+            sysPermissionService.deleteAllIds(deleteIdList);
+        }
+
+        return list;
+    }
+
+    // 获取数据库 权限映射
+    private Map<String, SysPermission> getSysPermissionMap(List<SysPermission> sysPermissionList, Function<SysPermission, String> sysKeyFn){
         // ！由于历史原因，数据库中存在相同的key, 在做映射之前需要先将重复的数据过滤掉
         List<Long> duplicateIdsList = new ArrayList<>();
         Map<String, List<SysPermission>> sysGroups = sysPermissionList.stream().collect(
@@ -66,35 +151,7 @@ public class NewPermissions {
             sysPermissionService.deleteAllIds(duplicateIdsList);
         }
 
-        List<SysPermissionDTONode> nodes = FileUtils.readJsonFileAndParse("/permission/root.json", SysPermissionDTONode.class);
-
-        // 将树状结构展开，并且设置 子-父 对应关系
-        Map<String, String> refs = new HashMap<>();
-        List<SysPermissionDTONode> unwindList = DTOUtil.unwindRoot(nodes, nodeKeyFn , refs);
-
-        // 本地json文件 权限映射 { `name:url:menuLevel` : SysPermissionDTONode}
-        Map<String, SysPermissionDTONode> localMaps = unwindList.stream().collect(
-                Collectors.toMap(nodeKeyFn, c -> c)
-        );
-
-        // 遍历本地权限列表，已存在的权限设置id这样会导致jpa执行更新操作
-        for (String key : localMaps.keySet()) {
-            // 保存数据库中没有对应的url权限记录
-            SysPermission sys = sysMaps.get(key);
-            if (null != sys) {
-                SysPermissionDTONode local = localMaps.get(key);
-                local.setId(sys.getId());
-                // 设置pid
-                local.setPid(sys.getPid());
-            }
-        }
-
-        // 保证每个子集都能获取到pid,因此需要按先后顺序去保存
-        List<SysPermissionDTONode> roots = DTOUtil.toNodeTree(unwindList, refs, nodeKeyFn);
-
-        //log.info("roots: {}", roots);
-        // 级联保存
-        deepSave(0L, roots);
+        return sysMaps;
     }
 
     // 递归保存(无法保证事务)

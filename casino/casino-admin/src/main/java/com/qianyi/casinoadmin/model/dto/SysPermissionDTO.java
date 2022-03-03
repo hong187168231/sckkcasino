@@ -31,4 +31,8 @@ public class SysPermissionDTO {
 
     //菜单层级
     private Integer menuLevel;
+
+    // 是否删除
+    private Boolean delete;
+
 }
