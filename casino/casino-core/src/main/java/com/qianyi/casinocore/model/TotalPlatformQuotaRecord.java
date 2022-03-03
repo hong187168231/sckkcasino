@@ -25,6 +25,7 @@ public class TotalPlatformQuotaRecord extends BaseEntity {
 
 
     @ApiModelProperty("时间")
+    @Column(unique = true)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date time;
 

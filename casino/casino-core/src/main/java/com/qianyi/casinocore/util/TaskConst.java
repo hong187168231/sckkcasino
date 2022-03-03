@@ -37,5 +37,5 @@ public final class TaskConst {
     /**
      * 每12小时跑一次
      */
-    public final static String TOTAL_PLATFORM_QUOTA_TASK = "0 0 0/12 * * ? ";
+    public final static String TOTAL_PLATFORM_QUOTA_TASK = "0 0 0/12 * * ?";
 }
