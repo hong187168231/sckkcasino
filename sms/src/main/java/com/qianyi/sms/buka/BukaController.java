@@ -27,10 +27,10 @@ public class BukaController {
     @ApiOperation("注册短信")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "merchant", value = "商户代号。找平台获取", required = true),
-            @ApiImplicitParam(name = "country", value = "86.中国（默认），855.柬埔寨", required = false),
+            @ApiImplicitParam(name = "country", value = "86.中国（默认），855.柬埔寨，60：马来。66，泰国 ", required = false),
             @ApiImplicitParam(name = "phone", value = "电话", required = true),
             @ApiImplicitParam(name = "code", value = "验证码", required = true),
-            @ApiImplicitParam(name = "language", value = "1. 中文（默认） 2. 英文。 3. 柬文", required = false),
+            @ApiImplicitParam(name = "language", value = "1. 中文（默认） 2. 英文。 3. 柬文. 4. 马来。 5.泰文", required = false),
     })
     public ResponseEntity sendRegister(String merchant, String country, String phone, String code, Integer language) {
         if (CommonUtil.checkNull(phone, code, merchant)) {
@@ -67,7 +67,7 @@ public class BukaController {
             Integer status = jsonObject.getInteger("status");
             if (status != 0) {
                 String message = jsonObject.getString("reason");
-                if(!ObjectUtils.isEmpty(message)){
+                if (!ObjectUtils.isEmpty(message)) {
                     return ResponseUtil.custom(message);
                 }
                 return ResponseUtil.custom(ResponseCode.getMsgByCode(status));
@@ -96,7 +96,7 @@ public class BukaController {
             Integer status = jsonObject.getInteger("status");
             if (status != 0) {
                 String message = jsonObject.getString("reason");
-                if(!ObjectUtils.isEmpty(message)){
+                if (!ObjectUtils.isEmpty(message)) {
                     return ResponseUtil.custom(message);
                 }
                 return ResponseUtil.custom(ResponseCode.getMsgByCode(status));
@@ -129,6 +129,13 @@ public class BukaController {
             case 3:
                 content = "【" + merchant + "】" + "កូដ ផ្ទៀង ផ្ទាត់ :" + code + ",មាន\u200Bសុពលភាព\u200Bក្នុង\u200B៥ នាទី";
                 break;
+            case 4:
+                content = "【" + merchant + "】" + "Kod pengesahan :" + code + ",sah selama 5 minit";
+                break;
+            //TODO
+            case 5:
+                content = "【" + merchant + "】" + "รหัสยืนยัน:" + code + ",จะมีอายุ 5 นาที";
+                break;
             default:
         }
         return content;
@@ -142,6 +149,8 @@ public class BukaController {
         switch (country) {
             case "86":
             case "855":
+            case "60":
+            case "66":
                 return true;
         }
 
@@ -157,6 +166,8 @@ public class BukaController {
             case 1:
             case 2:
             case 3:
+            case 4:
+            case 5:
                 return true;
         }
         return false;
@@ -169,7 +180,7 @@ public class BukaController {
 
     public static void main(String[] args) {
         BukaController controller = new BukaController();
-        ResponseEntity responseEntity = controller.sendRegister("js", "855", "963299406", "123456", 3);
+        ResponseEntity responseEntity = controller.sendRegister("js", "60", "1172692858", "123456", 4);
 //        ResponseEntity responseEntity = controller.balance();
         System.out.println(JSONObject.toJSONString(responseEntity));
     }
