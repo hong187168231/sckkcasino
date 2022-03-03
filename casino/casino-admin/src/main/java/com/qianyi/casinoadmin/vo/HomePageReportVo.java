@@ -34,11 +34,11 @@ public class HomePageReportVo implements Serializable {
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "有效下注金额")
-    private BigDecimal validbetAmount;
+    private BigDecimal validbetAmount = BigDecimal.ZERO;
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "输赢金额")
-    private BigDecimal winLossAmount;
+    private BigDecimal winLossAmount = BigDecimal.ZERO;
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "洗码金额")
@@ -91,65 +91,65 @@ public class HomePageReportVo implements Serializable {
     @ApiModelProperty(value = "预估净利")
     private BigDecimal grossMargin3;
 
-    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    //    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "充投比")
     private BigDecimal oddsRatio;
 
     @ApiModelProperty(value = "时间段")
     private String time ;
 
-    private Set<Long> userIdSet;
+    //    private Set<Long> userIdSet;
 
     public HomePageReportVo(){
 
     }
-    public HomePageReportVo(HomePageReport homePageReport,Set<Long> userIdSet){
-        this.chargeAmount = homePageReport.getChargeAmount();
-        this.chargeNums = homePageReport.getChargeNums();
-        this.withdrawMoney = homePageReport.getWithdrawMoney();
-        this.withdrawNums = homePageReport.getWithdrawNums();
-        this.validbetAmount = homePageReport.getValidbetAmount();
-        this.winLossAmount = homePageReport.getWinLossAmount();
-        this.washCodeAmount = homePageReport.getWashCodeAmount();
-        this.extractPointsAmount = homePageReport.getExtractPointsAmount();
-        this.shareAmount = homePageReport.getShareAmount();
-        this.bonusAmount = homePageReport.getBonusAmount();
-        this.serviceCharge = homePageReport.getServiceCharge();
-        this.staticsTimes = homePageReport.getStaticsTimes();
-        this.time = homePageReport.getStaticsTimes();
-        this.staticsYear = homePageReport.getStaticsYear();
-        this.staticsMonth = homePageReport.getStaticsMonth();
-        this.newUsers = homePageReport.getNewUsers();
-        this.userIdSet = userIdSet;
-        this.activeUsers = userIdSet == null ? CommonConst.NUMBER_0 : userIdSet.size();
-        if (homePageReport.getValidbetAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || homePageReport.getChargeAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
-            this.oddsRatio = homePageReport.getChargeAmount();
-        }else {
-            this.oddsRatio = homePageReport.getChargeAmount().divide(homePageReport.getValidbetAmount(), 2, RoundingMode.HALF_UP);
-        }
-    }
-    public HomePageReportVo(HomePageReport homePageReport){
-        this.chargeAmount = homePageReport.getChargeAmount();
-        this.chargeNums = homePageReport.getChargeNums();
-        this.withdrawMoney = homePageReport.getWithdrawMoney();
-        this.withdrawNums = homePageReport.getWithdrawNums();
-        this.validbetAmount = homePageReport.getValidbetAmount();
-        this.winLossAmount = homePageReport.getWinLossAmount();
-        this.washCodeAmount = homePageReport.getWashCodeAmount();
-        this.extractPointsAmount = homePageReport.getExtractPointsAmount();
-        this.shareAmount = homePageReport.getShareAmount();
-        this.bonusAmount = homePageReport.getBonusAmount();
-        this.serviceCharge = homePageReport.getServiceCharge();
-        this.staticsTimes = homePageReport.getStaticsTimes();
-        this.time = homePageReport.getStaticsTimes();
-        this.staticsYear = homePageReport.getStaticsYear();
-        this.staticsMonth = homePageReport.getStaticsMonth();
-        this.newUsers = homePageReport.getNewUsers();
-        this.activeUsers = homePageReport.getActiveUsers();
-        if (homePageReport.getValidbetAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || homePageReport.getChargeAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
-            this.oddsRatio = homePageReport.getChargeAmount();
-        }else {
-            this.oddsRatio = homePageReport.getChargeAmount().divide(homePageReport.getValidbetAmount(), 2, RoundingMode.HALF_UP);
-        }
-    }
+    //    public HomePageReportVo(HomePageReport homePageReport,Set<Long> userIdSet){
+    //        this.chargeAmount = homePageReport.getChargeAmount();
+    //        this.chargeNums = homePageReport.getChargeNums();
+    //        this.withdrawMoney = homePageReport.getWithdrawMoney();
+    //        this.withdrawNums = homePageReport.getWithdrawNums();
+    //        this.validbetAmount = homePageReport.getValidbetAmount();
+    //        this.winLossAmount = homePageReport.getWinLossAmount();
+    //        this.washCodeAmount = homePageReport.getWashCodeAmount();
+    //        this.extractPointsAmount = homePageReport.getExtractPointsAmount();
+    //        this.shareAmount = homePageReport.getShareAmount();
+    //        this.bonusAmount = homePageReport.getBonusAmount();
+    //        this.serviceCharge = homePageReport.getServiceCharge();
+    //        this.staticsTimes = homePageReport.getStaticsTimes();
+    //        this.time = homePageReport.getStaticsTimes();
+    //        this.staticsYear = homePageReport.getStaticsYear();
+    //        this.staticsMonth = homePageReport.getStaticsMonth();
+    //        this.newUsers = homePageReport.getNewUsers();
+    //        this.userIdSet = userIdSet;
+    //        this.activeUsers = userIdSet == null ? CommonConst.NUMBER_0 : userIdSet.size();
+    //        if (homePageReport.getValidbetAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || homePageReport.getChargeAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
+    //            this.oddsRatio = homePageReport.getChargeAmount();
+    //        }else {
+    //            this.oddsRatio = homePageReport.getChargeAmount().divide(homePageReport.getValidbetAmount(), 2, RoundingMode.HALF_UP);
+    //        }
+    //    }
+    //    public HomePageReportVo(HomePageReport homePageReport){
+    //        this.chargeAmount = homePageReport.getChargeAmount();
+    //        this.chargeNums = homePageReport.getChargeNums();
+    //        this.withdrawMoney = homePageReport.getWithdrawMoney();
+    //        this.withdrawNums = homePageReport.getWithdrawNums();
+    //        this.validbetAmount = homePageReport.getValidbetAmount();
+    //        this.winLossAmount = homePageReport.getWinLossAmount();
+    //        this.washCodeAmount = homePageReport.getWashCodeAmount();
+    //        this.extractPointsAmount = homePageReport.getExtractPointsAmount();
+    //        this.shareAmount = homePageReport.getShareAmount();
+    //        this.bonusAmount = homePageReport.getBonusAmount();
+    //        this.serviceCharge = homePageReport.getServiceCharge();
+    //        this.staticsTimes = homePageReport.getStaticsTimes();
+    //        this.time = homePageReport.getStaticsTimes();
+    //        this.staticsYear = homePageReport.getStaticsYear();
+    //        this.staticsMonth = homePageReport.getStaticsMonth();
+    //        this.newUsers = homePageReport.getNewUsers();
+    //        this.activeUsers = homePageReport.getActiveUsers();
+    //        if (homePageReport.getValidbetAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || homePageReport.getChargeAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
+    //            this.oddsRatio = homePageReport.getChargeAmount();
+    //        }else {
+    //            this.oddsRatio = homePageReport.getChargeAmount().divide(homePageReport.getValidbetAmount(), 2, RoundingMode.HALF_UP);
+    //        }
+    //    }
 }

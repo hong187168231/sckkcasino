@@ -31,13 +31,13 @@ public class HomePageReport extends BaseEntity {
     @ApiModelProperty(value = "提款笔数")
     private Integer withdrawNums;
 
-    @ApiModelProperty(value = "有效下注金额")
-    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
-    private BigDecimal validbetAmount;
-
-    @ApiModelProperty(value = "输赢金额")
-    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
-    private BigDecimal winLossAmount;
+    //    @ApiModelProperty(value = "有效下注金额")
+    //    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    //    private BigDecimal validbetAmount;
+    //
+    //    @ApiModelProperty(value = "输赢金额")
+    //    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    //    private BigDecimal winLossAmount;
 
     @ApiModelProperty(value = "洗码金额")
     @Column(columnDefinition = "Decimal(15,6) default '0.00'")
@@ -59,8 +59,8 @@ public class HomePageReport extends BaseEntity {
     @Column(columnDefinition = "Decimal(15,6) default '0.00'")
     private BigDecimal serviceCharge = BigDecimal.ZERO;
 
-    @ApiModelProperty(value = "活跃玩家数")
-    private Integer activeUsers;
+    //    @ApiModelProperty(value = "活跃玩家数")
+    //    private Integer activeUsers;
 
     @ApiModelProperty(value = "新增玩家数")
     private Integer newUsers;
