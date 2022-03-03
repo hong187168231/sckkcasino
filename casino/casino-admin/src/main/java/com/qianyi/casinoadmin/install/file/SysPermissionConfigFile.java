@@ -16,7 +16,7 @@ public class SysPermissionConfigFile {
     @Autowired
     private SysPermissionService sysPermissionService;
 
-    public List<SysPermission> getPermissionConfig() {
+    /*public List<SysPermission> getPermissionConfig() {
         List<SysPermission> all = sysPermissionService.findAll();
         if(!LoginUtil.checkNull(all)){
             return null;
@@ -295,7 +295,7 @@ public class SysPermissionConfigFile {
 
         sysPermissionService.saveAllList(thridPermissions);
         return null;
-    }
+    }*/
 
     private void getTemp() {
 

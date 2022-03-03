@@ -15,6 +15,7 @@ import com.qianyi.casinoadmin.model.SysUserLoginLog;
 import com.qianyi.casinocore.model.SysUserRole;
 import com.qianyi.casinocore.service.SysPermissionService;
 import com.qianyi.casinocore.service.SysUserService;
+import com.qianyi.casinocore.util.DTOUtil;
 import com.qianyi.moduleauthenticator.GoogleAuthUtil;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;
@@ -444,7 +445,16 @@ public class LoginController {
             if(null == sysPermissions || sysPermissions.size() <= 0){
                 return ResponseUtil.success(sysUserVo);
             }
-            List<SysPermissionVo> sysPermissionVos = JSON.parseArray(JSONObject.toJSONString(sysPermissions), SysPermissionVo.class);
+            List<SysPermissionVo> tree = DTOUtil.toNodeTree(
+                    sysPermissions,
+                    SysPermissionVo.class,
+                    DTOUtil.config()
+                            .setChildrenKey("sysPermissionVoList")
+                            .build()
+            );
+            sysUserVo.setSysPermissionVoList(tree);
+            return ResponseUtil.success(sysUserVo);
+            /*List<SysPermissionVo> sysPermissionVos = JSON.parseArray(JSONObject.toJSONString(sysPermissions), SysPermissionVo.class);
             //得到第三层权限数据
             List<SysPermissionVo> sysPermissionThird = sysPermissionVos.stream().filter(sysPermissionVo -> sysPermissionVo.getMenuLevel() == 3).collect(Collectors.toList());
             List<SysPermissionVo> sysPermissionTwo = sysPermissionVos.stream().filter(sysPermissionVo -> sysPermissionVo.getMenuLevel() == 2).collect(Collectors.toList());

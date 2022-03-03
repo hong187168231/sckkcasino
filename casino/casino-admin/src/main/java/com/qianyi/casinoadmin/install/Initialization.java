@@ -78,15 +78,17 @@ public class Initialization implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-       log.info("初始化数据开始============================================》");
+        log.info("初始化数据开始============================================》");
 //       this.saveBanner();
-       this.runPlatformConfig();
-       this.saveBankInfo();
-       this.runProxyRebateConfig();
-       this.runSysPermissionConfig();
-       this.addPermissionConfig();
-       this.runAddSysUser();
-       //客户中心配置初始化
+        this.runPlatformConfig();
+        this.saveBankInfo();
+        this.runProxyRebateConfig();
+        // 初始化权限相关。
+        this.initPermission();
+        // this.runSysPermissionConfig();
+        // this.addPermissionConfig();
+        this.runAddSysUser();
+        //客户中心配置初始化
         this.saveCustomerConfigureInfo();
         this.saveGameRecordEndIndex();
 
@@ -94,6 +96,9 @@ public class Initialization implements CommandLineRunner {
         this.initializationTotalPlatformQuota();
     }
 
+    public void initPermission(){
+        newPermissions.init();
+    }
 
     public  void initializationTotalPlatformQuota(){
         PlatformConfig platformConfig= platformConfigService.findFirst();
@@ -137,10 +142,10 @@ public class Initialization implements CommandLineRunner {
     /**
      * 添加新的权限脚本
      */
-    private void addPermissionConfig() {
+    /*private void addPermissionConfig() {
         sysPermissionConfigFile.addPermissionConfig();
-        newPermissions.addNewPermission();//新增加权限在此方法里面写
-    }
+        newPermissions.addNewPermission();//新增加权限在此方法里面写 (废弃)
+    }*/
 
     private void saveBanner(){
         List<LunboPic> PCLunboPics = pictureService.findByTheShowEnd(CommonConst.NUMBER_1);
@@ -363,9 +368,9 @@ public class Initialization implements CommandLineRunner {
         }
     }
 
-    private void runSysPermissionConfig() {
+    /*private void runSysPermissionConfig() {
         sysPermissionConfigFile.getPermissionConfig();
-    }
+    }*/
 
     private void runProxyRebateConfig(){
         List<RebateConfig> all = rebateConfigService.findAll();

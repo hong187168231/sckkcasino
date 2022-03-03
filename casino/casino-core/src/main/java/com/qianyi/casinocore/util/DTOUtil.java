@@ -6,6 +6,7 @@ import cn.hutool.core.collection.CollUtil;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -16,6 +17,25 @@ import java.util.stream.Collectors;
  * @since 2022 -02-21 13:44:24
  */
 public class DTOUtil {
+
+    /**
+     * Copy 函数释义.
+     *
+     * @param <T>    the type parameter
+     * @param target 入参释义
+     * @return {@link T} 出参释义
+     * @author lance
+     * @since 2022 -03-02 17:31:45
+     */
+    public static <T> T copy(T target) {
+        T t = null;
+        try {
+            t = (T) target.getClass().getConstructor().newInstance();
+            BeanUtil.copyProperties(target, t);
+        } catch (Exception e) {
+        }
+        return t;
+    }
 
     /**
      * 将目标转换为对应的实体
@@ -264,7 +284,7 @@ public class DTOUtil {
         //BeanUtil.getFieldValue()
         for (T dto: nodeList) {
             Long pid = (Long) BeanUtil.getFieldValue(dto, pidKey);
-            if (pid == -1L) {
+            if (pid == 0L) {
                 root.add(dto);
             }
         }
@@ -287,6 +307,115 @@ public class DTOUtil {
             if (children != null && CollUtil.isNotEmpty(children)) {
                 BeanUtil.setFieldValue(dto, "children", children);
                 deepTree(children, hash);
+            }
+        }
+    }
+
+    /**
+     * 展开根路径
+     *
+     * @param <T>  the type parameter
+     * @param tree 入参释义
+     * @return {@link List} 出参释义
+     * @author lance
+     * @since 2022 -03-02 17:36:55
+     */
+    public static <T> List<T> unwindRoot(List<T> tree) {
+        List<T> list = new ArrayList<>();
+        deepUnwind(tree, list);
+        return list;
+    }
+
+    /**
+     * 展开根路径
+     *
+     * @param <T>  the type parameter
+     * @param <B>  the type parameter
+     * @param tree 入参释义
+     * @param fn   入参释义
+     * @param refs 入参释义
+     * @return {@link List} 出参释义
+     * @author lance
+     * @since 2022 -03-02 17:31:45
+     */
+    public static <T, B> List<T> unwindRoot(List<T> tree, Function<T, B> fn, Map<B, B> refs) {
+        List<T> list = new ArrayList<>();
+        deepUnwind(tree, list, refs, fn);
+        return list;
+    }
+
+    private static <T> void deepUnwind(List<T> tree, List<T> list) {
+        for (T item: tree) {
+            Object fieldValue = BeanUtil.getFieldValue(item, "children");
+            T copy = copy(item);
+            BeanUtil.setFieldValue(copy, "children", null);
+            list.add(copy);
+
+            if (fieldValue != null) {
+                List<T> children = (List<T>) fieldValue;
+                if (CollUtil.isEmpty(children)) {
+                    continue;
+                }
+                deepUnwind(children, list);
+            }
+        }
+    }
+
+    private static <T, B> void deepUnwind(List<T> tree, List<T> list, Map<B, B> refs, Function<T, B> fn) {
+        for (T item: tree) {
+            Object fieldValue = BeanUtil.getFieldValue(item, "children");
+            T copy = copy(item);
+            BeanUtil.setFieldValue(copy, "children", null);
+            list.add(copy);
+
+            if (fieldValue != null) {
+                List<T> children = (List<T>) fieldValue;
+                if (CollUtil.isEmpty(children)) {
+                    continue;
+                }
+                for (T c : children) {
+                    B key = fn.apply(c);
+                    B value = fn.apply(item);
+                    refs.put(key, value);
+                }
+                deepUnwind(children, list, refs, fn);
+            }
+        }
+    }
+
+    public static <T, B> List<T> toNodeTree(List<T> list, Map<B, B> refs, Function<T, B> fn) {
+        // 最顶级的
+        List<T> roots = new ArrayList<>();
+        List<T> items = new ArrayList<>();
+        for (T node: list) {
+            B key = fn.apply(node);
+            if (null == refs.get(key)) {
+                roots.add(node);
+            } else {
+                items.add(node);
+            }
+        }
+
+        deepTree(roots, items, refs, fn);
+
+        return roots;
+    }
+
+    private static  <T, B> void deepTree(List<T> roots, List<T> items, Map<B, B> refs, Function<T, B> fn){
+        for (T root: roots) {
+            List<T> children = new ArrayList<>();
+            B rootKey = fn.apply(root);
+            for (T item: items) {
+                B ref = fn.apply(item);
+                B key = refs.get(ref);
+                if (rootKey.equals(key)) {
+                    children.add(item);
+                }
+            }
+            // 设置 children
+            BeanUtil.setFieldValue(root, "children", children);
+            if (CollUtil.isNotEmpty(children)) {
+                deepTree(children, items, refs, fn);
             }
         }
     }
