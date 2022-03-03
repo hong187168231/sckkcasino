@@ -33,11 +33,11 @@ public interface GameRecordGoldenFRepository extends JpaRepository<GameRecordGol
     void updateProfitStatus(Long id, Integer shareProfitStatus);
 
     @Query(value = "select max(first_proxy) first_proxy ,max(second_proxy) second_proxy ,third_proxy third_proxy,user_id as  userId,count(distinct user_id) player_num ,max(create_at_str) bet_time, sum(bet_amount) validbet ,(case WHEN vendor_code ='PG' THEN 2 ELSE 3 END) as gameType\n" +
-            "from game_record_goldenf gr\n" +
-            "where\n" +
-            "create_at_str between ?1 and ?2\n" +
-            "and third_proxy is not null \n" +
-            "group by third_proxy,user_id,vendor_code ",nativeQuery = true)
+        "from game_record_goldenf gr\n" +
+        "where\n" +
+        "create_at_str between ?1 and ?2\n" +
+        "and third_proxy is not null \n" +
+        "group by third_proxy,user_id,vendor_code ",nativeQuery = true)
     List<Map<String,Object>> getStatisticsResult(String startTime, String endTime);
 
     @Query(value = "select ifnull(sum(g.bet_amount),0) betAmount from game_record_goldenf g where g.create_at_str "
@@ -58,8 +58,14 @@ public interface GameRecordGoldenFRepository extends JpaRepository<GameRecordGol
     @Query(value = "select g.user_id from game_record_goldenf g where g.create_at_str BETWEEN ?1 and ?2 GROUP BY g.user_id;",nativeQuery = true)
     Set<Long> findGroupByUser(String startTime,String endTime);
 
+    @Query(value = "select g.user_id from game_record_goldenf g  GROUP BY g.user_id;",nativeQuery = true)
+    Set<Long> findGroupByUser();
+
     @Query(value = "select SUM(g.bet_amount) betAmount,SUM(g.win_amount-g.bet_amount) winAmount from game_record_goldenf g where g.create_at_str BETWEEN ?1 and ?2 ",nativeQuery = true)
     Map<String, Object> findSumBetAndWinLoss(String startTime,String endTime);
+
+    @Query(value = "select SUM(g.bet_amount) betAmount,SUM(g.win_amount-g.bet_amount) winAmount from game_record_goldenf g ",nativeQuery = true)
+    Map<String, Object> findSumBetAndWinLoss();
 
     @Query(value = "select g.user_id from game_record_goldenf g where g.create_at_str BETWEEN ?1 and ?2 and g.first_proxy = ?3 GROUP BY g.user_id;",nativeQuery = true)
     Set<Long> findGroupByFirst(String startTime,String endTime,Long firstProxy);

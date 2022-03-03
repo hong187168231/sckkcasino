@@ -18,6 +18,8 @@ public class DateUtil {
 
     private static String pattenMonth = "yyyy-MM";
 
+    private static String pattenYear = "yyyy";
+
     public static final String YYYYMM = "yyyyMM";
 
     public static final String YYYYMMDD = "yyyyMMdd";
@@ -31,10 +33,10 @@ public class DateUtil {
     public static SimpleDateFormat getSimpleDateFormat(String patten) {
         return new SimpleDateFormat(patten);
     }
-    
+
     public static SimpleDateFormat getSimpleDateFormat() {
-         return getSimpleDateFormat(patten);
-     }
+        return getSimpleDateFormat(patten);
+    }
 
     public static SimpleDateFormat getSimpleDateFormat1() {
         return getSimpleDateFormat(patten1);
@@ -46,6 +48,10 @@ public class DateUtil {
 
     public static SimpleDateFormat getSimpleDateFormatMonth() {
         return getSimpleDateFormat(pattenMonth);
+    }
+
+    public static SimpleDateFormat getSimpleDateFormatYear() {
+        return getSimpleDateFormat(pattenYear);
     }
 
     public static String today(String patten) {
@@ -80,7 +86,7 @@ public class DateUtil {
     }
     /**
      * 零点到一点不能修改代理返佣相关配置
-      * @return
+     * @return
      */
     public static boolean verifyTime(){
         String string = DateUtil.dateToHHmmss(new Date());
@@ -100,11 +106,11 @@ public class DateUtil {
      * @param nowTime
      @param startTime
      @param endTime
-     * @return
+      * @return
      */
     public static boolean isEffectiveDate(Date nowTime, Date startTime, Date endTime) {
         if (nowTime.getTime() == startTime.getTime()
-                || nowTime.getTime() == endTime.getTime()) {
+            || nowTime.getTime() == endTime.getTime()) {
             return true;
         }
 

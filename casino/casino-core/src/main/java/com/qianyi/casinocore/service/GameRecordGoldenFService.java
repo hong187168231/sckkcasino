@@ -32,8 +32,16 @@ public class GameRecordGoldenFService {
         return gameRecordGoldenFRepository.findGroupByUser(startTime,endTime);
     }
 
+    public Set<Long> findGroupByUser(){
+        return gameRecordGoldenFRepository.findGroupByUser();
+    }
+
     public Map<String, Object> findSumBetAndWinLoss(String startTime,String endTime){
         return gameRecordGoldenFRepository.findSumBetAndWinLoss(startTime,endTime);
+    }
+
+    public Map<String, Object> findSumBetAndWinLoss(){
+        return gameRecordGoldenFRepository.findSumBetAndWinLoss();
     }
 
     public void updateProfitStatus(Long id,Integer shareProfitStatus){

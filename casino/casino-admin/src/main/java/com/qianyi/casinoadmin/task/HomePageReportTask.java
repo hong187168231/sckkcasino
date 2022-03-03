@@ -21,9 +21,9 @@ import java.util.*;
 @Slf4j
 @Component
 public class HomePageReportTask {
-    public final static String start = " 00:00:00";
+    public final static String start = " 12:00:00";
 
-    public final static String end = " 23:59:59";
+    public final static String end = " 11:59:59";
 
     @Autowired
     private ChargeOrderService chargeOrderService;
@@ -52,27 +52,30 @@ public class HomePageReportTask {
     @Autowired
     private ExtractPointsChangeService extractPointsChangeService;
 
-    @Scheduled(cron = TaskConst.HOME_PAGE_REPORT)
+    @Scheduled(cron = TaskConst.HOME_PAGE_REPORT_NEW)
     public void create(){
         log.info("每日首页报表统计开始start=============================================》");
         Calendar nowTime = Calendar.getInstance();
+        String today = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
         nowTime.add(Calendar.DATE, -1);
-        String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
-        List<HomePageReport> byStaticsTimes = homePageReportService.findByStaticsTimes(format);
+        String yesterday = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
+        List<HomePageReport> byStaticsTimes = homePageReportService.findByStaticsTimes(yesterday);
         if (!LoginUtil.checkNull(byStaticsTimes) && byStaticsTimes.size() > CommonConst.NUMBER_0)
             return;
+        this.begin(yesterday,today);
+    }
+    public void begin(String yesterday,String today){
         try {
-            String startTime = format + start;
-            String endTime = format + end;
+            String startTime = yesterday + start;
+            String endTime = today + end;
             Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
             Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
             HomePageReport homePageReport = new HomePageReport();
-            homePageReport.setStaticsTimes(format);
-            homePageReport.setStaticsMonth(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
-            homePageReport.setStaticsYear(format.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4));
+            homePageReport.setStaticsTimes(yesterday);
+            homePageReport.setStaticsMonth(yesterday.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_7));
+            homePageReport.setStaticsYear(yesterday.substring(CommonConst.NUMBER_0,CommonConst.NUMBER_4));
             this.chargeOrder(startDate,endDate,homePageReport);
             this.withdrawOrder(startDate,endDate,homePageReport);
-            this.gameRecord(startTime,endTime,homePageReport);
             this.shareProfitChange(startDate,endDate,homePageReport);
             this.getNewUsers(startDate,endDate,homePageReport);
             this.bonusAmount(startDate,endDate,homePageReport);
@@ -83,7 +86,6 @@ public class HomePageReportTask {
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
         }
-
     }
     public void chargeOrder(Date startDate,Date endDate,HomePageReport homePageReport){
         try {
@@ -97,10 +99,8 @@ public class HomePageReportTask {
                 return;
             }
             BigDecimal chargeAmount = chargeOrders.stream().map(ChargeOrder::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-//            BigDecimal serviceCharge = chargeOrders.stream().map(ChargeOrder::getServiceCharge).reduce(BigDecimal.ZERO, BigDecimal::add);
             homePageReport.setChargeAmount(chargeAmount);
             homePageReport.setChargeNums(chargeOrders.size());
-//            homePageReport.setServiceCharge(serviceCharge);
             chargeOrders.clear();
         }catch (Exception ex){
             log.error("统计充值订单失败",ex);
@@ -127,24 +127,24 @@ public class HomePageReportTask {
             log.error("统计提现订单失败",ex);
         }
     }
-    public void gameRecord(String startTime,String endTime,HomePageReport homePageReport){
-        try {
-            Map<String, Object> gameRecordSum = gameRecordService.findSumBetAndWinLoss(startTime, endTime);
-            BigDecimal gameRecordValidbet = gameRecordSum.get("validbet") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("validbet").toString());
-            BigDecimal gameRecordWinLoss = gameRecordSum.get("winLoss") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("winLoss").toString());
-            Set<Long> gameRecordUser = gameRecordService.findGroupByUser(startTime, endTime);
-            Map<String, Object> gameRecordGoldenFSum = gameRecordGoldenFService.findSumBetAndWinLoss(startTime, endTime);
-            BigDecimal gameRecordGoldenFValidbet = gameRecordGoldenFSum.get("betAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("betAmount").toString());
-            BigDecimal gameRecordGoldenFWinLoss = gameRecordGoldenFSum.get("winAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("winAmount").toString());
-            Set<Long> gameRecordGoldenFUser = gameRecordGoldenFService.findGroupByUser(startTime,endTime);
-            homePageReport.setValidbetAmount(gameRecordValidbet.add(gameRecordGoldenFValidbet));
-            homePageReport.setWinLossAmount(gameRecordWinLoss.add(gameRecordGoldenFWinLoss));
-            gameRecordUser.addAll(gameRecordGoldenFUser);
-            homePageReport.setActiveUsers(gameRecordUser.size());
-        }catch (Exception ex){
-            log.error("统计三方游戏注单失败",ex);
-        }
-    }
+    //    public void gameRecord(String startTime,String endTime,HomePageReport homePageReport){
+    //        try {
+    //            Map<String, Object> gameRecordSum = gameRecordService.findSumBetAndWinLoss(startTime, endTime);
+    //            BigDecimal gameRecordValidbet = gameRecordSum.get("validbet") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("validbet").toString());
+    //            BigDecimal gameRecordWinLoss = gameRecordSum.get("winLoss") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("winLoss").toString());
+    //            Set<Long> gameRecordUser = gameRecordService.findGroupByUser(startTime, endTime);
+    //            Map<String, Object> gameRecordGoldenFSum = gameRecordGoldenFService.findSumBetAndWinLoss(startTime, endTime);
+    //            BigDecimal gameRecordGoldenFValidbet = gameRecordGoldenFSum.get("betAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("betAmount").toString());
+    //            BigDecimal gameRecordGoldenFWinLoss = gameRecordGoldenFSum.get("winAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("winAmount").toString());
+    //            Set<Long> gameRecordGoldenFUser = gameRecordGoldenFService.findGroupByUser(startTime,endTime);
+    //            homePageReport.setValidbetAmount(gameRecordValidbet.add(gameRecordGoldenFValidbet));
+    //            homePageReport.setWinLossAmount(gameRecordWinLoss.add(gameRecordGoldenFWinLoss));
+    //            gameRecordUser.addAll(gameRecordGoldenFUser);
+    //            homePageReport.setActiveUsers(gameRecordUser.size());
+    //        }catch (Exception ex){
+    //            log.error("统计三方游戏注单失败",ex);
+    //        }
+    //    }
     public void shareProfitChange(Date startDate,Date endDate,HomePageReport homePageReport){
         try {
             List<ShareProfitChange> shareProfitChanges = shareProfitChangeService.findAll(null,null, startDate, endDate);

@@ -83,6 +83,7 @@ public class CommonConst {
     public static final int NUMBER_8 = 8;
     public static final int NUMBER_9 = 9;
     public static final int NUMBER_10 = 10;
+    public static final int NUMBER_12 = 12;
     public static final int NUMBER_20 = 20;
     public static final int NUMBER_30 = 30;
     public static final int NUMBER_50 = 50;

@@ -15,11 +15,11 @@ import java.util.Set;
 public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, JpaSpecificationExecutor<GameRecord> {
 
     @Query(value = "select max(first_proxy) first_proxy ,max(second_proxy) second_proxy ,third_proxy third_proxy, user_id as  userId,count(distinct user_id) player_num ,max(bet_time) bet_time, sum(validbet) validbet,1 as gameType \n" +
-            "from game_record gr\n" +
-            "where\n" +
-            "bet_time between ?1 and ?2\n" +
-            "and third_proxy is not null \n" +
-            "group by third_proxy,user_id ",nativeQuery = true)
+        "from game_record gr\n" +
+        "where\n" +
+        "bet_time between ?1 and ?2\n" +
+        "and third_proxy is not null \n" +
+        "group by third_proxy,user_id ",nativeQuery = true)
     List<Map<String,Object>> getStatisticsResult(String startTime, String endTime);
 
     @Modifying
@@ -46,11 +46,11 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
     GameRecord findByBetId(String betId);
 
     @Query(value = "select ifnull(g.first_proxy,0) first_proxy," +
-            "ifnull(g.second_proxy,0) second_proxy,ifnull(g.third_proxy,0) third_proxy," +
-            "g.gid gid,COUNT(1) num,SUM(g.bet) bet,SUM(g.validbet) validbet,SUM(g.win_loss) win_loss," +
-            " ifnull(SUM(w.amount),0) amount from game_record g left join  " +
-            "wash_code_change w  on  w.game_record_id = g.id where g.bet_time >= ?1 " +
-            "and g.bet_time <= ?2 GROUP BY g.third_proxy,g.gid  ",nativeQuery = true)
+        "ifnull(g.second_proxy,0) second_proxy,ifnull(g.third_proxy,0) third_proxy," +
+        "g.gid gid,COUNT(1) num,SUM(g.bet) bet,SUM(g.validbet) validbet,SUM(g.win_loss) win_loss," +
+        " ifnull(SUM(w.amount),0) amount from game_record g left join  " +
+        "wash_code_change w  on  w.game_record_id = g.id where g.bet_time >= ?1 " +
+        "and g.bet_time <= ?2 GROUP BY g.third_proxy,g.gid  ",nativeQuery = true)
     List<Map<String,Object>> queryGameRecords(String startTime,String endTime);
 
     @Query(value = "select LEFT(g.bet_time,?3) set_time,ifnull(g.first_proxy,0) first_proxy," +
@@ -78,8 +78,14 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
     @Query(value = "select g.user_id  from game_record g where g.bet_time BETWEEN ?1 and ?2 GROUP BY g.user_id;",nativeQuery = true)
     Set<Long> findGroupByUser(String startTime,String endTime);
 
+    @Query(value = "select g.user_id  from game_record g  GROUP BY g.user_id;",nativeQuery = true)
+    Set<Long> findGroupByUser();
+
     @Query(value = "select SUM(g.validbet) validbet,SUM(g.win_loss) winLoss from game_record g where g.bet_time BETWEEN ?1 and ?2 ",nativeQuery = true)
     Map<String, Object> findSumBetAndWinLoss(String startTime,String endTime);
+
+    @Query(value = "select SUM(g.validbet) validbet,SUM(g.win_loss) winLoss from game_record g",nativeQuery = true)
+    Map<String, Object> findSumBetAndWinLoss();
 
     @Query(value = "select g.user_id  from game_record g where g.bet_time BETWEEN ?1 and ?2 and g.first_proxy = ?3 GROUP BY g.user_id;",nativeQuery = true)
     Set<Long> findGroupByFirst(String startTime,String endTime,Long firstProxy);

@@ -26,6 +26,10 @@ public class HomePageReportService {
         return homePageReportRepository.save(homePageReport);
     }
 
+    public List<HomePageReport> findAll() {
+        return homePageReportRepository.findAll();
+    }
+
     public List<HomePageReport> findHomePageReports(String startTime, String endTime) {
         Specification<HomePageReport> condition = this.getCondition(startTime,endTime);
         return homePageReportRepository.findAll(condition);

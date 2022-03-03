@@ -58,8 +58,16 @@ public class GameRecordService {
         return gameRecordRepository.findGroupByUser(startTime,endTime);
     }
 
+    public Set<Long> findGroupByUser(){
+        return gameRecordRepository.findGroupByUser();
+    }
+
     public Map<String, Object> findSumBetAndWinLoss(String startTime,String endTime){
         return gameRecordRepository.findSumBetAndWinLoss(startTime,endTime);
+    }
+
+    public Map<String, Object> findSumBetAndWinLoss(){
+        return gameRecordRepository.findSumBetAndWinLoss();
     }
 
     public Set<Long> findGroupByFirst(String startTime,String endTime,Long firstProxy){
@@ -92,64 +100,64 @@ public class GameRecordService {
         Root<GameRecord> root = query.from(GameRecord.class);
 
         query.multiselect(
-                builder.sum(root.get("bet").as(BigDecimal.class)).alias("bet"),
-                builder.sum(root.get("validbet").as(BigDecimal.class)).alias("validbet"),
-                builder.sum(root.get("water").as(BigDecimal.class)).alias("water"),
-                builder.sum(root.get("waterbet").as(BigDecimal.class)).alias("waterbet"),
-                builder.sum(root.get("winLoss").as(BigDecimal.class)).alias("winLoss")
+            builder.sum(root.get("bet").as(BigDecimal.class)).alias("bet"),
+            builder.sum(root.get("validbet").as(BigDecimal.class)).alias("validbet"),
+            builder.sum(root.get("water").as(BigDecimal.class)).alias("water"),
+            builder.sum(root.get("waterbet").as(BigDecimal.class)).alias("waterbet"),
+            builder.sum(root.get("winLoss").as(BigDecimal.class)).alias("winLoss")
         );
 
         List<Predicate> predicates = new ArrayList();
 
         if (!CommonUtil.checkNull(game.getBetId())) {
             predicates.add(
-                    builder.equal(root.get("betId").as(String.class), game.getBetId())
+                builder.equal(root.get("betId").as(String.class), game.getBetId())
             );
         }
         if (!CommonUtil.checkNull(game.getUser())) {
             predicates.add(
-                    builder.equal(root.get("user").as(String.class), game.getUser())
+                builder.equal(root.get("user").as(String.class), game.getUser())
             );
         }
         if (!CommonUtil.checkNull(game.getGname())) {
             predicates.add(
-                    builder.equal(root.get("gname").as(String.class), game.getGname())
+                builder.equal(root.get("gname").as(String.class), game.getGname())
             );
         }
         if (game.getGid() != null) {
             predicates.add(
-                    builder.equal(root.get("gid").as(Integer.class), game.getGid())
+                builder.equal(root.get("gid").as(Integer.class), game.getGid())
             );
         }
         if (game.getFirstProxy() != null) {
             predicates.add(
-                    builder.equal(root.get("firstProxy").as(Long.class), game.getFirstProxy())
+                builder.equal(root.get("firstProxy").as(Long.class), game.getFirstProxy())
             );
         }
         if (game.getSecondProxy() != null) {
             predicates.add(
-                    builder.equal(root.get("secondProxy").as(Long.class), game.getSecondProxy())
+                builder.equal(root.get("secondProxy").as(Long.class), game.getSecondProxy())
             );
         }
         if (game.getThirdProxy() != null) {
             predicates.add(
-                    builder.equal(root.get("thirdProxy").as(Long.class), game.getThirdProxy())
+                builder.equal(root.get("thirdProxy").as(Long.class), game.getThirdProxy())
             );
         }
         if (!ObjectUtils.isEmpty(startBetTime) && !ObjectUtils.isEmpty(endBetTime)) {
             predicates.add(
-                    builder.between(root.get("betTime").as(String.class), startBetTime, endBetTime)
+                builder.between(root.get("betTime").as(String.class), startBetTime, endBetTime)
             );
         }
         if (!ObjectUtils.isEmpty(startSetTime) && !ObjectUtils.isEmpty(endSetTime)) {
             predicates.add(
-                    builder.between(root.get("settime").as(String.class), startSetTime, endSetTime)
+                builder.between(root.get("settime").as(String.class), startSetTime, endSetTime)
             );
         }
         query
-                .where(predicates.toArray(new Predicate[predicates.size()]));
-//                .groupBy(root.get("conversionStepCode"))
-//                .orderBy(builder.desc(root.get("contactUserNums")));
+            .where(predicates.toArray(new Predicate[predicates.size()]));
+        //                .groupBy(root.get("conversionStepCode"))
+        //                .orderBy(builder.desc(root.get("contactUserNums")));
         GameRecord singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
     }
@@ -211,7 +219,7 @@ public class GameRecordService {
                 }
                 if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
                     list.add(
-                            cb.between(root.get("betTime").as(String.class), startTime, endTime)
+                        cb.between(root.get("betTime").as(String.class), startTime, endTime)
                     );
                 }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));
@@ -257,12 +265,12 @@ public class GameRecordService {
                 }
                 if (!ObjectUtils.isEmpty(startBetTime) && !ObjectUtils.isEmpty(endBetTime)) {
                     list.add(
-                            cb.between(root.get("betTime").as(String.class), startBetTime, endBetTime)
+                        cb.between(root.get("betTime").as(String.class), startBetTime, endBetTime)
                     );
                 }
                 if (!ObjectUtils.isEmpty(startSetTime) && !ObjectUtils.isEmpty(endSetTime)) {
                     list.add(
-                            cb.between(root.get("settime").as(String.class), startSetTime, endSetTime)
+                        cb.between(root.get("settime").as(String.class), startSetTime, endSetTime)
                     );
                 }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));
@@ -287,24 +295,24 @@ public class GameRecordService {
         Root<GameRecord> root = query.from(GameRecord.class);
 
         query.multiselect(
-                builder.sum(root.get("validbet").as(BigDecimal.class)).alias("validbet")
+            builder.sum(root.get("validbet").as(BigDecimal.class)).alias("validbet")
         );
 
         List<Predicate> predicates = new ArrayList();
         if (userId != null) {
             predicates.add(
-                    builder.equal(root.get("userId").as(Long.class), userId)
+                builder.equal(root.get("userId").as(Long.class), userId)
             );
         }
         if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
             predicates.add(
-                    builder.between(root.get("betTime").as(String.class), startTime, endTime)
+                builder.between(root.get("betTime").as(String.class), startTime, endTime)
             );
         }
         query
-                .where(predicates.toArray(new Predicate[predicates.size()]));
-//                .groupBy(root.get("conversionStepCode"))
-//                .orderBy(builder.desc(root.get("contactUserNums")));
+            .where(predicates.toArray(new Predicate[predicates.size()]));
+        //                .groupBy(root.get("conversionStepCode"))
+        //                .orderBy(builder.desc(root.get("contactUserNums")));
         GameRecord singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
     }
@@ -314,20 +322,20 @@ public class GameRecordService {
         Root<GameRecord> root = query.from(GameRecord.class);
 
         query.multiselect(
-                builder.sum(root.get("bet").as(BigDecimal.class)).alias("bet"),
-                builder.sum(root.get("winLoss").as(BigDecimal.class)).alias("winLoss")
+            builder.sum(root.get("bet").as(BigDecimal.class)).alias("bet"),
+            builder.sum(root.get("winLoss").as(BigDecimal.class)).alias("winLoss")
         );
 
         List<Predicate> predicates = new ArrayList();
         if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
             predicates.add(
-                    builder.between(root.get("betTime").as(String.class), startTime, endTime)
+                builder.between(root.get("betTime").as(String.class), startTime, endTime)
             );
         }
         query
-                .where(predicates.toArray(new Predicate[predicates.size()]));
-//                .groupBy(root.get("conversionStepCode"))
-//                .orderBy(builder.desc(root.get("contactUserNums")));
+            .where(predicates.toArray(new Predicate[predicates.size()]));
+        //                .groupBy(root.get("conversionStepCode"))
+        //                .orderBy(builder.desc(root.get("contactUserNums")));
         GameRecord singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
     }

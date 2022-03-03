@@ -10,9 +10,8 @@ import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Slf4j
 public class CommonUtil {
@@ -122,5 +121,33 @@ public class CommonUtil {
             return null;
         }
 
+    }
+
+    public static Map<Integer,String> findDates(String dateType, Date dBegin, Date dEnd){
+        Map<Integer,String> mapDate = new HashMap<>();
+        Calendar calBegin = Calendar.getInstance();
+        calBegin.setTime(dBegin);
+        Calendar calEnd = Calendar.getInstance();
+        calEnd.setTime(dEnd);
+        Integer count = CommonConst.NUMBER_0;
+        while (calEnd.after(calBegin)) {
+            count++;
+            if (calEnd.after(calBegin))
+                mapDate.put(count,new SimpleDateFormat("yyyy-MM-dd").format(calBegin.getTime()));
+            else
+                mapDate.put(count,new SimpleDateFormat("yyyy-MM-dd").format(calBegin.getTime()));
+            switch (dateType) {
+                case "M":
+                    calBegin.add(Calendar.MONTH, 1);
+                    break;
+                case "D":
+                    calBegin.add(Calendar.DAY_OF_YEAR, 1);break;
+                case "H":
+                    calBegin.add(Calendar.HOUR, 1);break;
+                case "N":
+                    calBegin.add(Calendar.SECOND, 1);break;
+            }
+        }
+        return mapDate;
     }
 }
