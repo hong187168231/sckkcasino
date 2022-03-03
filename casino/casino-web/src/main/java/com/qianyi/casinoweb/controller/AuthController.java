@@ -627,7 +627,7 @@ public class AuthController {
     @NoAuthentication
     @RequestLimit(limit = 1, timeout = 50)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "country", value = "区号，柬埔寨：855", required = true),
+            @ApiImplicitParam(name = "country", value = "区号，中国：86，柬埔寨：855，马来西亚：60，泰国：66", required = true),
             @ApiImplicitParam(name = "phone", value = "手机号", required = true)
     })
     public ResponseEntity getVerificationCode(String country, String phone) {
@@ -655,6 +655,10 @@ public class AuthController {
         Integer language = 1;
         if ("855".equals(country)) {
             language = 3;
+        } else if ("60".equals(country)) {
+            language = 4;
+        } else if ("66".equals(country)) {
+            language = 5;
         }
         paramMap.put("language", language);
         String code = InviteCodeUtil.randomNumCode(6);
@@ -665,7 +669,7 @@ public class AuthController {
         }
         ResponseEntity responseEntity = JSONObject.parseObject(response, ResponseEntity.class);
         if (responseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
-            log.error("merchant:{},country:{},phone:{},msg：{}", merchant, country,phone, responseEntity.getMsg());
+            log.error("merchant:{},country:{},phone:{},msg：{}", merchant, country, phone, responseEntity.getMsg());
             return ResponseUtil.custom("获取验证码失败,请重新操作");
         }
         //验证码有效期为5分钟
