@@ -74,7 +74,7 @@ public class WMController {
     @Transactional
     @PostMapping("openGame")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "gameType", value = "默认：大厅。1.百家乐。2.龙虎 3. 轮盘 4. 骰宝 " +
+            @ApiImplicitParam(name = "gameType", value = "空：大厅。1.百家乐。2.龙虎 3. 轮盘 4. 骰宝 " +
                     "5. 牛牛  6. 三公  7. 番摊  8. 色碟 9. 鱼虾蟹 10. 炸金花 11. 牌九 12. 二八杠 13.安達巴哈", required = false),
     })
     public ResponseEntity openGame(Integer gameType, HttpServletRequest request) {
