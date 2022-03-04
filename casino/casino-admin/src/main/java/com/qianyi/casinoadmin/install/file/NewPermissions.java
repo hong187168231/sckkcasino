@@ -212,17 +212,22 @@ public class NewPermissions {
     private void deepSave(Long pid, List<SysPermissionDTONode> roots) {
         for (SysPermissionDTONode node : roots) {
             SysPermission sysPermission = DTOUtil.toDTO(node, SysPermission.class);
-            if (sysPermission.getId() != null) {
-                continue;
-            }
+
             if (null == node.getPid()) {
                 sysPermission.setPid(pid);
             }
             sysPermission.setIsDetele(0);
             sysPermission.setCreateBy("system");
-            SysPermission save = sysPermissionService.save(sysPermission);
-            if (CollUtil.isNotEmpty(node.getChildren())) {
-                deepSave(save.getId(), node.getChildren());
+
+            if (sysPermission.getId() == null) {
+                SysPermission save = sysPermissionService.save(sysPermission);
+                if (CollUtil.isNotEmpty(node.getChildren())) {
+                    deepSave(save.getId(), node.getChildren());
+                }
+            } else {
+                if (CollUtil.isNotEmpty(node.getChildren())) {
+                    deepSave(sysPermission.getId(), node.getChildren());
+                }
             }
         }
     }
