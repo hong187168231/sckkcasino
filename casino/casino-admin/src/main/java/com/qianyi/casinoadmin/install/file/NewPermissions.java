@@ -212,6 +212,9 @@ public class NewPermissions {
     private void deepSave(Long pid, List<SysPermissionDTONode> roots) {
         for (SysPermissionDTONode node : roots) {
             SysPermission sysPermission = DTOUtil.toDTO(node, SysPermission.class);
+            if (sysPermission.getId() != null) {
+                continue;
+            }
             if (null == node.getPid()) {
                 sysPermission.setPid(pid);
             }
