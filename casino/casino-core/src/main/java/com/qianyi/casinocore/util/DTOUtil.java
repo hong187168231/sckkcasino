@@ -219,7 +219,7 @@ public class DTOUtil {
     }
 
     /**
-     * 列表转列表树
+     * 集合转树形结构集合
      *
      * @param <T>   目标泛型
      * @param <D>   当前泛型
@@ -233,14 +233,41 @@ public class DTOUtil {
         return toNodeTree(list, clazz, null, config().build());
     }
 
+    /**
+     * 集合转树形结构集合
+     *
+     * @param <T>      the type parameter
+     * @param <D>      the type parameter
+     * @param list     入参释义
+     * @param clazz    入参释义
+     * @param consumer 入参释义
+     * @return {@link List} 出参释义
+     * @author lance
+     * @since 2022 -03-04 15:30:58
+     */
     public static <T, D> List<T> toNodeTree(List<D> list, Class<T> clazz, Consumer<T> consumer) {
         return toNodeTree(list, clazz, consumer, config().build());
     }
 
+    /**
+     * 集合转树形结构集合
+     *
+     * @param <T>    the type parameter
+     * @param <D>    the type parameter
+     * @param list   入参释义
+     * @param clazz  入参释义
+     * @param config 入参释义
+     * @return {@link List} 出参释义
+     * @author lance
+     * @since 2022 -03-04 15:30:58
+     */
     public static <T, D> List<T> toNodeTree(List<D> list, Class<T> clazz, NodeConfig config) {
         return toNodeTree(list, clazz, null, config);
     }
 
+    /**
+     * 节点配置
+     */
     @Data
     private static class NodeConfig {
         private static final String DEFAULT_ID_KEY = "id";
@@ -248,44 +275,100 @@ public class DTOUtil {
         private static final String DEFAULT_CHILDREN_KEY = "children";
         private static final Long DEFAULT_EQUAL_CONDITION = 0L;
 
+        // 主键字段名称
         private String idKey = DEFAULT_ID_KEY;
 
+        // 关联的父级主键字段名称
         private String pidKey = DEFAULT_PID_KEY;
 
+        // 树形结构的子集字段名称
         private String childrenKey = DEFAULT_CHILDREN_KEY;
 
+        // 主键成为根级的条件。
         private Object rootCondition = DEFAULT_EQUAL_CONDITION;
 
+        /**
+         * Builder 函数释义.
+         *
+         * @return {@link Builder} 出参释义
+         * @author lance
+         * @since 2022 -03-04 15:30:58
+         */
         public Builder builder () {
             return new Builder(this);
         }
 
+        /**
+         * 注释
+         *
+         * @author lance
+         * @since 2022 -03-04 15:30:58
+         */
         public static class Builder {
             private NodeConfig config;
             public Builder(NodeConfig config) {
                 this.config = config;
             }
 
+            /**
+             * Set id key 函数释义.
+             *
+             * @param idKey 入参释义
+             * @return {@link Builder} 出参释义
+             * @author lance
+             * @since 2022 -03-04 15:30:59
+             */
             public Builder setIdKey(String idKey) {
                 this.config.setIdKey(idKey);
                 return this;
             }
 
+            /**
+             * Set pid key 函数释义.
+             *
+             * @param pidKey 入参释义
+             * @return {@link Builder} 出参释义
+             * @author lance
+             * @since 2022 -03-04 15:30:59
+             */
             public Builder setPidKey(String pidKey) {
                 this.config.setPidKey(pidKey);
                 return this;
             }
 
+            /**
+             * Set children key 函数释义.
+             *
+             * @param childrenKey 入参释义
+             * @return {@link Builder} 出参释义
+             * @author lance
+             * @since 2022 -03-04 15:31:00
+             */
             public Builder setChildrenKey(String childrenKey) {
                 this.config.setChildrenKey(childrenKey);
                 return this;
             }
 
+            /**
+             * Set root condition 函数释义.
+             *
+             * @param rootCondition 入参释义
+             * @return {@link Builder} 出参释义
+             * @author lance
+             * @since 2022 -03-04 15:31:00
+             */
             public Builder setRootCondition(Object rootCondition) {
                 this.config.setRootCondition(rootCondition);
                 return this;
             }
 
+            /**
+             * Build 函数释义.
+             *
+             * @return {@link NodeConfig} 出参释义
+             * @author lance
+             * @since 2022 -03-04 15:31:00
+             */
             public NodeConfig build(){
                 return this.config;
             }
@@ -293,10 +376,30 @@ public class DTOUtil {
 
     }
 
+    /**
+     * Config 函数释义.
+     *
+     * @return {@link NodeConfig} 出参释义
+     * @author lance
+     * @since 2022 -03-04 15:30:58
+     */
     public static NodeConfig.Builder config(){
         return new NodeConfig().builder();
     }
 
+    /**
+     * 集合转树形结构集合
+     *
+     * @param <T>      the type parameter
+     * @param <D>      the type parameter
+     * @param list     入参释义
+     * @param clazz    入参释义
+     * @param consumer 入参释义
+     * @param config   入参释义
+     * @return {@link List} 出参释义
+     * @author lance
+     * @since 2022 -03-04 15:30:58
+     */
     public static <T, D> List<T> toNodeTree(List<D> list, Class<T> clazz, Consumer<T> consumer, NodeConfig config) {
         List<T> nodeList = toDTO(list, clazz, consumer);
         List<T> root = new ArrayList<>();
@@ -330,7 +433,7 @@ public class DTOUtil {
     }
 
     /**
-     * 展开根路径
+     * 展开树型结构集合
      *
      * @param <T>  the type parameter
      * @param tree 入参释义
@@ -339,13 +442,27 @@ public class DTOUtil {
      * @since 2022 -03-02 17:36:55
      */
     public static <T> List<T> unwindRoot(List<T> tree) {
+        return unwindRoot(tree, config().build());
+    }
+
+    /**
+     * 展开树型结构集合
+     *
+     * @param <T>    the type parameter
+     * @param tree   入参释义
+     * @param config 入参释义
+     * @return {@link List} 出参释义
+     * @author lance
+     * @since 2022 -03-04 15:30:58
+     */
+    public static <T> List<T> unwindRoot(List<T> tree, NodeConfig config) {
         List<T> list = new ArrayList<>();
-        deepUnwind(tree, list);
+        deepUnwind(tree, list, config);
         return list;
     }
 
     /**
-     * 展开根路径
+     * 展开树型结构集合
      *
      * @param <T>  the type parameter
      * @param <B>  the type parameter
@@ -357,16 +474,33 @@ public class DTOUtil {
      * @since 2022 -03-02 17:31:45
      */
     public static <T, B> List<T> unwindRoot(List<T> tree, Function<T, B> fn, Map<B, B> refs) {
+        return unwindRoot(tree, fn, refs, config().build());
+    }
+
+    /**
+     * 展开树型结构集合
+     *
+     * @param <T>    the type parameter
+     * @param <B>    the type parameter
+     * @param tree   入参释义
+     * @param fn     入参释义
+     * @param refs   入参释义
+     * @param config 入参释义
+     * @return {@link List} 出参释义
+     * @author lance
+     * @since 2022 -03-04 15:30:58
+     */
+    public static <T, B> List<T> unwindRoot(List<T> tree, Function<T, B> fn, Map<B, B> refs, NodeConfig config) {
         List<T> list = new ArrayList<>();
-        deepUnwind(tree, list, refs, fn);
+        deepUnwind(tree, list, refs, fn, config);
         return list;
     }
 
-    private static <T> void deepUnwind(List<T> tree, List<T> list) {
+    private static <T> void deepUnwind(List<T> tree, List<T> list, NodeConfig config) {
         for (T item: tree) {
-            Object fieldValue = BeanUtil.getFieldValue(item, "children");
+            Object fieldValue = BeanUtil.getFieldValue(item, config.childrenKey);
             T copy = copy(item);
-            BeanUtil.setFieldValue(copy, "children", null);
+            BeanUtil.setFieldValue(copy, config.childrenKey, null);
             list.add(copy);
 
             if (fieldValue != null) {
@@ -374,16 +508,16 @@ public class DTOUtil {
                 if (CollUtil.isEmpty(children)) {
                     continue;
                 }
-                deepUnwind(children, list);
+                deepUnwind(children, list, config);
             }
         }
     }
 
-    private static <T, B> void deepUnwind(List<T> tree, List<T> list, Map<B, B> refs, Function<T, B> fn) {
+    private static <T, B> void deepUnwind(List<T> tree, List<T> list, Map<B, B> refs, Function<T, B> fn, NodeConfig config) {
         for (T item: tree) {
-            Object fieldValue = BeanUtil.getFieldValue(item, "children");
+            Object fieldValue = BeanUtil.getFieldValue(item, config.childrenKey);
             T copy = copy(item);
-            BeanUtil.setFieldValue(copy, "children", null);
+            BeanUtil.setFieldValue(copy, config.childrenKey, null);
             list.add(copy);
 
             if (fieldValue != null) {
@@ -396,12 +530,41 @@ public class DTOUtil {
                     B value = fn.apply(item);
                     refs.put(key, value);
                 }
-                deepUnwind(children, list, refs, fn);
+                deepUnwind(children, list, refs, fn, config);
             }
         }
     }
 
+    /**
+     * 集合转树形结构集合 (可以与unwindRoot方法配合使用)
+     *
+     * @param <T>  the type parameter
+     * @param <B>  the type parameter
+     * @param list 入参释义
+     * @param refs 入参释义
+     * @param fn   入参释义
+     * @return {@link List} 出参释义
+     * @author lance
+     * @since 2022 -03-04 15:30:58
+     */
     public static <T, B> List<T> toNodeTree(List<T> list, Map<B, B> refs, Function<T, B> fn) {
+        return toNodeTree(list, refs, fn, config().build());
+    }
+
+    /**
+     * 集合转树形结构集合 (可以与unwindRoot方法配合使用)
+     *
+     * @param <T>    the type parameter
+     * @param <B>    the type parameter
+     * @param list   入参释义
+     * @param refs   入参释义
+     * @param fn     入参释义
+     * @param config 入参释义
+     * @return {@link List} 出参释义
+     * @author lance
+     * @since 2022 -03-04 15:30:58
+     */
+    public static <T, B> List<T> toNodeTree(List<T> list, Map<B, B> refs, Function<T, B> fn, NodeConfig config) {
         // 最顶级的
         List<T> roots = new ArrayList<>();
         List<T> items = new ArrayList<>();
@@ -414,12 +577,12 @@ public class DTOUtil {
             }
         }
 
-        deepTree(roots, items, refs, fn);
+        deepTree(roots, items, refs, fn, config);
 
         return roots;
     }
 
-    private static  <T, B> void deepTree(List<T> roots, List<T> items, Map<B, B> refs, Function<T, B> fn){
+    private static  <T, B> void deepTree(List<T> roots, List<T> items, Map<B, B> refs, Function<T, B> fn , NodeConfig config){
         for (T root: roots) {
             List<T> children = new ArrayList<>();
             B rootKey = fn.apply(root);
@@ -431,9 +594,9 @@ public class DTOUtil {
                 }
             }
             // 设置 children
-            BeanUtil.setFieldValue(root, "children", children);
+            BeanUtil.setFieldValue(root, config.childrenKey, children);
             if (CollUtil.isNotEmpty(children)) {
-                deepTree(children, items, refs, fn);
+                deepTree(children, items, refs, fn, config);
             }
         }
     }
