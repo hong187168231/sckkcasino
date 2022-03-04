@@ -34,7 +34,7 @@ public class SysPermissionVo implements Serializable {
 
     //父节点id
     @ApiModelProperty(value = "父节点id")
-    private Integer pid;
+    private Long pid;
 
     //菜单层级
     @ApiModelProperty(value = "菜单层级")

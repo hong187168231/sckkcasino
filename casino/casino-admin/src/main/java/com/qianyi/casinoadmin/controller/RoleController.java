@@ -12,6 +12,7 @@ import com.qianyi.casinocore.service.SysPermissionService;
 import com.qianyi.casinocore.service.SysRoleService;
 import com.qianyi.casinocore.service.SysUserRoleService;
 import com.qianyi.casinocore.service.SysUserService;
+import com.qianyi.casinocore.util.DTOUtil;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -237,7 +238,17 @@ public class RoleController {
         if(null == sysPermissions || sysPermissions.size() <= 0){
             return ResponseUtil.success();
         }
-        List<SysPermissionVo> sysPermissionVos = JSON.parseArray(JSONObject.toJSONString(sysPermissions), SysPermissionVo.class);
+
+        List<SysPermissionVo> tree = DTOUtil.toNodeTree(
+                sysPermissions,
+                SysPermissionVo.class,
+                DTOUtil.config()
+                        .setChildrenKey("sysPermissionVoList")
+                        .build()
+        );
+        return ResponseUtil.success(tree);
+        /*List<SysPermissionVo> sysPermissionVos = JSON.parseArray(JSONObject.toJSONString(sysPermissions), SysPermissionVo.class);
+
         //得到第三层权限数据
         List<SysPermissionVo> sysPermissionThird = sysPermissionVos.stream().filter(sysPermissionVo -> sysPermissionVo.getMenuLevel() == 3).collect(Collectors.toList());
         List<SysPermissionVo> sysPermissionTwo = sysPermissionVos.stream().filter(sysPermissionVo -> sysPermissionVo.getMenuLevel() == 2).collect(Collectors.toList());
@@ -261,7 +272,7 @@ public class RoleController {
             });
         });
 
-        return ResponseUtil.success(sysPermissionOne);
+        return ResponseUtil.success(sysPermissionOne);*/
     }
 
 

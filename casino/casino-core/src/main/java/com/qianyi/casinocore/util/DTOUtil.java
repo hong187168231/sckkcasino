@@ -2,6 +2,7 @@ package com.qianyi.casinocore.util;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import lombok.Data;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -229,84 +230,101 @@ public class DTOUtil {
      * @since 2022 -02-24 13:06:04
      */
     public static <T, D> List<T> toNodeTree(List<D> list, Class<T> clazz){
-        return toNodeTree(list, clazz, null, "pid");
+        return toNodeTree(list, clazz, null, config().build());
     }
 
-    /**
-     * 列表转列表树
-     *
-     * @param <T>    目标泛型
-     * @param <D>    当前泛型
-     * @param list   待转换列表
-     * @param clazz  目标类型class
-     * @param pidKey pid 对应的属性字段名称
-     * @return {@link List} 目标列表
-     * @author lance
-     * @since 2022 -02-24 13:06:04
-     */
-    public static <T, D> List<T> toNodeTree(List<D> list, Class<T> clazz, String pidKey){
-        return toNodeTree(list, clazz, null, pidKey);
-    }
-
-
-    /**
-     * 列表转列表树
-     *
-     * @param <T>      目标泛型
-     * @param <D>      当前泛型
-     * @param list     待转换列表
-     * @param clazz    目标类型class
-     * @param consumer 对结果做进一步处理
-     * @return {@link List} 出参释义
-     * @author lance
-     * @since 2022 -02-24 13:06:04
-     */
     public static <T, D> List<T> toNodeTree(List<D> list, Class<T> clazz, Consumer<T> consumer) {
-        return toNodeTree(list, clazz, consumer, "pid");
+        return toNodeTree(list, clazz, consumer, config().build());
     }
 
-    /**
-     * 列表转列表树
-     *
-     * @param <T>      目标泛型
-     * @param <D>      当前泛型
-     * @param list     待转换列表
-     * @param clazz    目标类型class
-     * @param consumer 对结果做进一步处理
-     * @param pidKey   pid 对应的属性字段名称
-     * @return {@link List} 目标列表
-     * @author lance
-     * @since 2022 -02-24 13:06:04
-     */
-    public static <T, D> List<T> toNodeTree(List<D> list, Class<T> clazz, Consumer<T> consumer, String pidKey) {
+    public static <T, D> List<T> toNodeTree(List<D> list, Class<T> clazz, NodeConfig config) {
+        return toNodeTree(list, clazz, null, config);
+    }
+
+    @Data
+    private static class NodeConfig {
+        private static final String DEFAULT_ID_KEY = "id";
+        private static final String DEFAULT_PID_KEY = "pid";
+        private static final String DEFAULT_CHILDREN_KEY = "children";
+        private static final Long DEFAULT_EQUAL_CONDITION = 0L;
+
+        private String idKey = DEFAULT_ID_KEY;
+
+        private String pidKey = DEFAULT_PID_KEY;
+
+        private String childrenKey = DEFAULT_CHILDREN_KEY;
+
+        private Object rootCondition = DEFAULT_EQUAL_CONDITION;
+
+        public Builder builder () {
+            return new Builder(this);
+        }
+
+        public static class Builder {
+            private NodeConfig config;
+            public Builder(NodeConfig config) {
+                this.config = config;
+            }
+
+            public Builder setIdKey(String idKey) {
+                this.config.setIdKey(idKey);
+                return this;
+            }
+
+            public Builder setPidKey(String pidKey) {
+                this.config.setPidKey(pidKey);
+                return this;
+            }
+
+            public Builder setChildrenKey(String childrenKey) {
+                this.config.setChildrenKey(childrenKey);
+                return this;
+            }
+
+            public Builder setRootCondition(Object rootCondition) {
+                this.config.setRootCondition(rootCondition);
+                return this;
+            }
+
+            public NodeConfig build(){
+                return this.config;
+            }
+        }
+
+    }
+
+    public static NodeConfig.Builder config(){
+        return new NodeConfig().builder();
+    }
+
+    public static <T, D> List<T> toNodeTree(List<D> list, Class<T> clazz, Consumer<T> consumer, NodeConfig config) {
         List<T> nodeList = toDTO(list, clazz, consumer);
         List<T> root = new ArrayList<>();
         //BeanUtil.getFieldValue()
         for (T dto: nodeList) {
-            Long pid = (Long) BeanUtil.getFieldValue(dto, pidKey);
-            if (pid == 0L) {
+            Object pid = BeanUtil.getFieldValue(dto, config.pidKey);
+            if ((null == config.rootCondition && null == pid) || (null != config.rootCondition && config.rootCondition.equals(pid))) {
                 root.add(dto);
             }
         }
-        Map<Long, List<T>> hash = new HashMap<>();
-        for (T dto: nodeList) {
-            Long pid = (Long) BeanUtil.getFieldValue(dto, pidKey);
-            hash.putIfAbsent(pid, new ArrayList<>());
-            hash.get(pid).add(dto);
-        }
 
-        deepTree(root, hash);
+        // 根据pid分组
+        Map<Object, List<T>> hash = nodeList.stream().collect(
+                Collectors.groupingBy(dto -> BeanUtil.getFieldValue(dto, config.pidKey))
+        );
+
+        deepTree(root, hash, config);
 
         return root;
     }
 
-    private static <T> void deepTree(List<T> root, Map<Long, List<T>> hash) {
+    private static <T> void deepTree(List<T> root, Map<Object, List<T>> hash, NodeConfig config) {
         for (T dto: root) {
-            Long id = (Long) BeanUtil.getFieldValue(dto, "id");
+            Object id = BeanUtil.getFieldValue(dto, config.idKey);
             List<T> children = hash.get(id);
             if (children != null && CollUtil.isNotEmpty(children)) {
-                BeanUtil.setFieldValue(dto, "children", children);
-                deepTree(children, hash);
+                BeanUtil.setFieldValue(dto, config.childrenKey, children);
+                deepTree(children, hash, config);
             }
         }
     }
