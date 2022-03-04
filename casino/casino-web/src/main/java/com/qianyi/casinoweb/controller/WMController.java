@@ -79,7 +79,7 @@ public class WMController {
     })
     public ResponseEntity openGame(Integer gameType, HttpServletRequest request) {
         //判断平台和游戏状态
-        if (gameType == null) {
+        if (gameType == null || gameType == -1) {
             ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
             if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
                 return response;
