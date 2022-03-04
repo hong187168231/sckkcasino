@@ -213,13 +213,12 @@ public class NewPermissions {
         for (SysPermissionDTONode node : roots) {
             SysPermission sysPermission = DTOUtil.toDTO(node, SysPermission.class);
 
-            if (null == node.getPid()) {
-                sysPermission.setPid(pid);
-            }
-            sysPermission.setIsDetele(0);
-            sysPermission.setCreateBy("system");
-
             if (sysPermission.getId() == null) {
+                if (null == node.getPid()) {
+                    sysPermission.setPid(pid);
+                }
+                sysPermission.setIsDetele(0);
+                sysPermission.setCreateBy("system");
                 SysPermission save = sysPermissionService.save(sysPermission);
                 if (CollUtil.isNotEmpty(node.getChildren())) {
                     deepSave(save.getId(), node.getChildren());
