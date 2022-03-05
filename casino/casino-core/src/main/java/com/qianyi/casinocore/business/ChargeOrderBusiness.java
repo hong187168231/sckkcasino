@@ -109,15 +109,10 @@ public class ChargeOrderBusiness {
 //        }
 //        chargeOrder.setPracticalAmount(subtract);
 //        chargeOrder.setServiceCharge(serviceCharge);
-        BigDecimal codeTimes =new BigDecimal(CommonConst.NUMBER_2);
-        if(type==2){
-            PlatformConfig platformConfig = platformConfigService.findFirst();
-            //计算打码量 默认2倍
-            codeTimes= (platformConfig == null || platformConfig.getBetRate() == null) ? new BigDecimal(CommonConst.NUMBER_2) : platformConfig.getBetRate();
-        }else {
-            //输入打码倍率
-            codeTimes=chargeOrder.getBetRate()==null ? new BigDecimal(CommonConst.NUMBER_2) :chargeOrder.getBetRate();
-        }
+
+        //输入打码倍率
+        BigDecimal codeTimes=chargeOrder.getBetRate()==null ? new BigDecimal(CommonConst.NUMBER_2) :chargeOrder.getBetRate();
+
         chargeOrder.setStatus(status);
         chargeOrder.setBetRate(codeTimes);
         chargeOrder = chargeOrderService.saveOrder(chargeOrder);
