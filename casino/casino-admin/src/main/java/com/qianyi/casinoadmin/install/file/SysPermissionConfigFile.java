@@ -16,7 +16,7 @@ public class SysPermissionConfigFile {
     @Autowired
     private SysPermissionService sysPermissionService;
 
-    public List<SysPermission> getPermissionConfig() {
+    /*public List<SysPermission> getPermissionConfig() {
         List<SysPermission> all = sysPermissionService.findAll();
         if(!LoginUtil.checkNull(all)){
             return null;
@@ -295,7 +295,7 @@ public class SysPermissionConfigFile {
 
         sysPermissionService.saveAllList(thridPermissions);
         return null;
-    }
+    }*/
 
     private void getTemp() {
 
@@ -304,7 +304,7 @@ public class SysPermissionConfigFile {
     /**
      * 新加接口权限脚本
      */
-    public void addPermissionConfig() {
+    /*public void addPermissionConfig() {
         List<SysPermission> sysPermissionList = sysPermissionService.findAll();
         SysPermission systemPermission = null; //系统管理
         SysPermission resetPassword = null;
@@ -529,5 +529,5 @@ public class SysPermissionConfigFile {
             sysPermissionService.saveAllList(sysPermList);
         }
 
-    }
+    }*/
 }

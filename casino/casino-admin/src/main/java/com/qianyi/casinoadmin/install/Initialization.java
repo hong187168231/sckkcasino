@@ -84,9 +84,9 @@ public class Initialization implements CommandLineRunner {
         this.saveBankInfo();
         this.runProxyRebateConfig();
         // 初始化权限相关。
-//        this.initPermission();
-         this.runSysPermissionConfig();
-         this.addPermissionConfig();
+        this.initPermission();
+        // this.runSysPermissionConfig();
+        // this.addPermissionConfig();
         this.runAddSysUser();
         //客户中心配置初始化
         this.saveCustomerConfigureInfo();
@@ -142,10 +142,10 @@ public class Initialization implements CommandLineRunner {
     /**
      * 添加新的权限脚本
      */
-    private void addPermissionConfig() {
+    /*private void addPermissionConfig() {
         sysPermissionConfigFile.addPermissionConfig();
         newPermissions.addNewPermission();//新增加权限在此方法里面写 (废弃)
-    }
+    }*/
 
     private void saveBanner(){
         List<LunboPic> PCLunboPics = pictureService.findByTheShowEnd(CommonConst.NUMBER_1);
@@ -368,9 +368,9 @@ public class Initialization implements CommandLineRunner {
         }
     }
 
-    private void runSysPermissionConfig() {
+    /*private void runSysPermissionConfig() {
         sysPermissionConfigFile.getPermissionConfig();
-    }
+    }*/
 
     private void runProxyRebateConfig(){
         List<RebateConfig> all = rebateConfigService.findAll();
