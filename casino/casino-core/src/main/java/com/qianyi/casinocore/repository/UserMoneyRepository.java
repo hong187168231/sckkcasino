@@ -53,4 +53,12 @@ public interface UserMoneyRepository extends JpaRepository<UserMoney,Long>, JpaS
     @Modifying
     @Query("update UserMoney u set u.shareProfit=u.shareProfit-?2 where u.userId=?1")
     void subShareProfit(Long userId, BigDecimal shareProfit);
+
+    @Modifying
+    @Query("update UserMoney u set u.balance=u.balance+?2 where u.userId=?1")
+    void addBalance(Long userId, BigDecimal balance);
+
+    @Modifying
+    @Query("update UserMoney u set u.balance=u.balance-?2 where u.userId=?1")
+    void subBalance(Long userId, BigDecimal balance);
 }

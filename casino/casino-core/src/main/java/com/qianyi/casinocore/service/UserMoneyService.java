@@ -175,6 +175,33 @@ public class UserMoneyService {
         }
     }
 
+    /**
+     * 增加实时余额
+     * @param userId 用户id
+     * @param balance 实时余额
+     */
+    @CacheEvict(key = "#userId")
+    @Transactional
+    public void addBalance(Long userId, BigDecimal balance) {
+        synchronized (userId) {
+            userMoneyRepository.addBalance(userId, balance);
+        }
+    }
+
+
+    /**
+     * 扣减实时余额
+     * @param userId 用户id
+     * @param balance 实时余额
+     */
+    @CacheEvict(key = "#userId")
+    @Transactional
+    public void subBalance(Long userId, BigDecimal balance) {
+        synchronized (userId) {
+            userMoneyRepository.subBalance(userId, balance);
+        }
+    }
+
     @Cacheable(key = "#userId")
     public UserMoney findByUserId(Long userId) {
         UserMoney userMoney = userMoneyRepository.findByUserId(userId);
