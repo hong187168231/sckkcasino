@@ -941,6 +941,7 @@
         "menuLevel": 2,
         "name": "会员报表",
         "url": "/report/queryPersonReport",
+        "delete": true,
         "children": [
           {
             "descritpion": "盈亏报表总计",
