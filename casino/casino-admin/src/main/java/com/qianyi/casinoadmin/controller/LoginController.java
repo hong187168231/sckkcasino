@@ -445,7 +445,7 @@ public class LoginController {
             if(null == sysPermissions || sysPermissions.size() <= 0){
                 return ResponseUtil.success(sysUserVo);
             }
-            /*List<SysPermissionVo> tree = DTOUtil.toNodeTree(
+            List<SysPermissionVo> tree = DTOUtil.toNodeTree(
                     sysPermissions,
                     SysPermissionVo.class,
                     DTOUtil.config()
@@ -453,8 +453,8 @@ public class LoginController {
                             .build()
             );
             sysUserVo.setSysPermissionVoList(tree);
-            return ResponseUtil.success(sysUserVo);*/
-            List<SysPermissionVo> sysPermissionVos = JSON.parseArray(JSONObject.toJSONString(sysPermissions), SysPermissionVo.class);
+            return ResponseUtil.success(sysUserVo);
+            /*List<SysPermissionVo> sysPermissionVos = JSON.parseArray(JSONObject.toJSONString(sysPermissions), SysPermissionVo.class);
             //得到第三层权限数据
             List<SysPermissionVo> sysPermissionThird = sysPermissionVos.stream().filter(sysPermissionVo -> sysPermissionVo.getMenuLevel() == 3).collect(Collectors.toList());
             List<SysPermissionVo> sysPermissionTwo = sysPermissionVos.stream().filter(sysPermissionVo -> sysPermissionVo.getMenuLevel() == 2).collect(Collectors.toList());
@@ -478,7 +478,7 @@ public class LoginController {
                 });
             });
             sysUserVo.setSysPermissionVoList(sysPermissionOne);
-            return ResponseUtil.success(sysUserVo);
+            return ResponseUtil.success(sysUserVo);*/
         }
     }
 
