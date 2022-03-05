@@ -231,7 +231,7 @@ public class NewPermissions {
         }
     }
 
-    /*public void addNewPermission() {
+    public void addNewPermission() {
         List<SysPermission> sysPermissionList = sysPermissionService.findAll();
         if(LoginUtil.checkNull(sysPermissionList)){
             return;
@@ -281,9 +281,9 @@ public class NewPermissions {
             domainConfig(collect);
         }
         sysPermissionService.saveAllList(sysPermissions);
-    }*/
+    }
 
-    /*private void domainConfig(Map<String, SysPermission> collect) {
+    private void domainConfig(Map<String, SysPermission> collect) {
         Long pid = collect.get("/systemCenter").getId();
         if (!collect.containsKey("/domain/findList")) {
             SysPermission domainPlatform = new SysPermission("域名管理", "域名管理", "/domain/findList", pid, CommonConst.NUMBER_2, CommonConst.NUMBER_0);
@@ -300,9 +300,9 @@ public class NewPermissions {
             sysPermissionService.saveAllList(sysPermissionList);
         }
 
-    }*/
+    }
 
-    /*private void thirdGameMange() {
+    private void thirdGameMange() {
         SysPermission sysPermission = new SysPermission("第三方游戏管理", "第三方游戏管理", "/thirdGameMange", 0l, CommonConst.NUMBER_1, CommonConst.NUMBER_0);
         sysPermissionService.save(sysPermission);
         List<SysPermission> sysPermissions = new ArrayList<>();
@@ -340,9 +340,9 @@ public class NewPermissions {
         wmPermissions.add(wm9PlatformUpdate);
         wmPermissions.add(wm9AdGameUpdate);
         sysPermissionService.saveAllList(wmPermissions);
-    }*/
+    }
 
-    /*private static ArrayList<SysPermission> removeSysPermission( List<SysPermission> sysPermissionList){
+    private static ArrayList<SysPermission> removeSysPermission( List<SysPermission> sysPermissionList){
         Set<SysPermission> set = new TreeSet<SysPermission>(new Comparator<SysPermission>() {
             @Override
             public int compare(SysPermission o1, SysPermission o2) {
@@ -351,9 +351,9 @@ public class NewPermissions {
         });
         set.addAll(sysPermissionList);
         return new ArrayList<>(set);
-    }*/
+    }
 
-    /*private void setMemberCenter(Map<String, SysPermission> collect){
+    private void setMemberCenter(Map<String, SysPermission> collect){
         if (collect.containsKey("/user/findUserList")) {
             Long pid = collect.get("/user/findUserList").getId();
             if (!collect.containsKey("/user/refreshPGAndCQ9")) {
@@ -389,12 +389,12 @@ public class NewPermissions {
                 sysPermissionService.save(sysPermission);
             }
         }
-    }*/
+    }
     /**
      * 报表管理
      * @param collect
      */
-    /*private void setReportCenter(Map<String, SysPermission> collect) {
+    private void setReportCenter(Map<String, SysPermission> collect) {
         if (collect.containsKey("/reportCenter")) {
             Long pid = collect.get("/reportCenter").getId();
             if (!collect.containsKey("/report/queryPersonReport")) {
@@ -414,14 +414,14 @@ public class NewPermissions {
                 sysPermissionService.save(sysPermission);
             }
         }
-    }*/
+    }
 
 
     /**
      * 设置订单中心
      * @param collect
      */
-    /*private void setOrderCenter(Map<String, SysPermission> collect) {
+    private void setOrderCenter(Map<String, SysPermission> collect) {
         if (collect.containsKey("/chargeOrder/chargeOrderList")) {
             Long pid = collect.get("/chargeOrder/chargeOrderList").getId();
             if (!collect.containsKey("/chargeOrder/updateChargeOrdersRemark")) {
@@ -438,12 +438,12 @@ public class NewPermissions {
             }
 
         }
-    }*/
+    }
     /**
      * 设置代理中心
      * @param collect
      */
-    /*private void setAgentCenter(Map<String, SysPermission> collect) {
+    private void setAgentCenter(Map<String, SysPermission> collect) {
         if(collect.containsKey("/proxyUser/findProxyUser")){
             Long pid = collect.get("/proxyUser/findProxyUser").getId();
             if (!collect.containsKey("/proxyUser/transferUser")){
@@ -467,13 +467,13 @@ public class NewPermissions {
                 sysPermissionService.save(sysPermission);
             }
         }
-    }*/
+    }
 
     /**
      * 运营中心 - 客服中心配置
      * @param collect
      */
-    /*private void setCustomerConfigure(Map<String, SysPermission> collect) {
+    private void setCustomerConfigure(Map<String, SysPermission> collect) {
         SysPermission save =new SysPermission();
         if(!collect.containsKey("/customer/findCustomerList")){
             //先删除之前的菜单
@@ -527,7 +527,7 @@ public class NewPermissions {
         }
 
         // 代理抽点配置
-        *//*if (!collect.containsKey("/extractPointsConfig/findAll")) {
+        if (!collect.containsKey("/extractPointsConfig/findAll")) {
             Long pid = collect.get("/operateCenter").getId();
             SysPermission sysConfigPermission = new SysPermission("代理抽点配置", "代理抽点配置", "/extractPointsConfig/findAll", pid, CommonConst.NUMBER_2, CommonConst.NUMBER_0);
             save = sysPermissionService.save(sysConfigPermission);
@@ -537,9 +537,9 @@ public class NewPermissions {
                 SysPermission sysPermission = new SysPermission("更新默认的抽点配置", "更新默认的抽点配置", "/extractPointsConfig/update", pid, CommonConst.NUMBER_3, CommonConst.NUMBER_0);
                 sysPermissionService.save(sysPermission);
             }
-        }*//*
-    }*/
-    /*private void setSystemConfig(Map<String, SysPermission> collect) {
+        }
+    }
+    private void setSystemConfig(Map<String, SysPermission> collect) {
         if(!collect.containsKey("/systemMessage/systemConfig")){
             Long pid = collect.get("/systemCenter").getId();
             SysPermission sysConfigPermission = new SysPermission("系统配置", "系统配置", "/systemMessage/systemConfig", pid, 2, 0);
@@ -621,5 +621,5 @@ public class NewPermissions {
             }
         }
 
-    }*/
+    }
 }
