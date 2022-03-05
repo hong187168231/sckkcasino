@@ -96,7 +96,9 @@ public class UserMoneyBusiness {
         }
         //余额小于等于最小清零打码量时 直接清0
         if (balance.compareTo(minCodeNumVal) < 1) {
+            //打码量和实时余额都清0
             userMoneyService.subCodeNum(userId, user.getCodeNum());
+            userMoneyService.subBalance(userId, user.getBalance());
             CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, null, null, user.getCodeNum(), BigDecimal.ZERO);
             codeNumChange.setType(1);
             codeNumChange.setClearCodeNum(minCodeNumVal);
@@ -189,8 +191,14 @@ public class UserMoneyBusiness {
     @Transactional
     public void subBalance(Long userId, BigDecimal balance) {
         if (balance != null && balance.compareTo(BigDecimal.ZERO) == 1) {
-            userMoneyService.findUserByUserIdUse(userId);
-            userMoneyService.subBalance(userId, balance);
+            UserMoney userMoney = userMoneyService.findUserByUserIdUse(userId);
+            //剩余的小于扣减的
+            if (userMoney.getBalance().compareTo(balance) == -1) {
+                balance = userMoney.getBalance();
+            }
+            if (balance.compareTo(BigDecimal.ZERO) == 1) {
+                userMoneyService.subBalance(userId, balance);
+            }
         }
     }
 }
