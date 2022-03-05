@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.qianyi.casinocore.co.user.UserCleanMudCo;
 import com.qianyi.casinocore.util.BillThreadPool;
 import com.qianyi.casinocore.util.GenerateInviteCodeRunner;
 import com.qianyi.casinocore.util.CommonConst;
@@ -32,10 +33,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
@@ -851,6 +849,7 @@ public class UserController {
         }
         return responseEntity;
     }
+
     @ApiOperation("后台下分检验可提款金额")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "id", value = "用户id", required = true),
@@ -876,6 +875,14 @@ public class UserController {
         }
         return ResponseUtil.success(true);
     }
+
+    @ApiOperation("打码量清零")
+    @PostMapping("/cleanMud")
+    public ResponseEntity<String> cleanMud(@RequestBody UserCleanMudCo co) {
+        chargeOrderBusiness.cleanUserMud(co.getUserId());
+        return ResponseUtil.success();
+    }
+
     /**
      * 后台配置会员收款卡修改
      *

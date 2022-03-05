@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.business;
 
 import com.qianyi.casinocore.enums.AccountChangeEnum;
+import com.qianyi.casinocore.exception.BusinessException;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
@@ -205,4 +206,35 @@ public class ChargeOrderBusiness {
         }
 
     }
+
+    @Transactional
+    public void cleanUserMud(Long userId) {
+        User user = userService.findById(userId);
+        if (null == user) {
+            throw new BusinessException("账户不存在");
+        }
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        if (null == userMoney) {
+            throw new BusinessException("用户钱包不存在");
+        }
+        // 打码量
+        BigDecimal mud = userMoney.getCodeNum();
+        if (mud.compareTo(BigDecimal.ZERO) < 1) {
+            throw new BusinessException("打码量不能低于0");
+        }
+        // 清空打码量
+        userMoney.setCodeNum(BigDecimal.ZERO);
+        userMoneyService.save(userMoney);
+
+        // 打码记录
+        CodeNumChange change = new CodeNumChange();
+        change.setUserId(userId);
+        change.setAmountBefore(mud);
+        change.setAmount(mud.negate());
+        change.setAmountAfter(BigDecimal.ZERO);
+        // 5=>总控人工清零
+        change.setType(5);
+        codeNumChangeService.save(change);
+    }
+
 }
