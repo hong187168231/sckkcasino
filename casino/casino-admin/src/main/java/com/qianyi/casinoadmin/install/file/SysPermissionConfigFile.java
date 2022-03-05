@@ -304,7 +304,7 @@ public class SysPermissionConfigFile {
     /**
      * 新加接口权限脚本
      */
-    /*public void addPermissionConfig() {
+    public void addPermissionConfig() {
         List<SysPermission> sysPermissionList = sysPermissionService.findAll();
         SysPermission systemPermission = null; //系统管理
         SysPermission resetPassword = null;
@@ -529,5 +529,5 @@ public class SysPermissionConfigFile {
             sysPermissionService.saveAllList(sysPermList);
         }
 
-    }*/
+    }
 }
