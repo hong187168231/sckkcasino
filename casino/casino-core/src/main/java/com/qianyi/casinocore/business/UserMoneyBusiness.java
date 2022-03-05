@@ -89,15 +89,15 @@ public class UserMoneyBusiness {
      * @return
      */
     public void checkClearCodeNum(PlatformConfig platformConfig, Long userId, GameRecord record, UserMoney user) {
-        BigDecimal codeNum = user.getCodeNum();
+        BigDecimal balance = user.getBalance();
         BigDecimal minCodeNumVal = DEFAULT_CLEAR;
         if (platformConfig != null && platformConfig.getClearCodeNum() != null) {
             minCodeNumVal = platformConfig.getClearCodeNum();
         }
-        //剩余打码量小于等于最小清零打码量时 直接清0
-        if (codeNum.compareTo(minCodeNumVal) < 1) {
-            userMoneyService.subCodeNum(userId, codeNum);
-            CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, null, null, user.getCodeNum(), user.getCodeNum().subtract(codeNum));
+        //余额小于等于最小清零打码量时 直接清0
+        if (balance.compareTo(minCodeNumVal) < 1) {
+            userMoneyService.subCodeNum(userId, user.getCodeNum());
+            CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, null, null, user.getCodeNum(), BigDecimal.ZERO);
             codeNumChange.setType(1);
             codeNumChange.setClearCodeNum(minCodeNumVal);
             codeNumChangeService.save(codeNumChange);
@@ -166,5 +166,31 @@ public class UserMoneyBusiness {
         shareProfitMqVo.setBetTime(record.getBetTime());
         rabbitTemplate.convertAndSend(RabbitMqConstants.SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.SHAREPROFIT_DIRECT, shareProfitMqVo, new CorrelationData(UUID.randomUUID().toString()));
         log.info("分润消息发送成功,平台={},注单ID={},消息明细={}",platform, record.getBetId(), shareProfitMqVo);
+    }
+
+    /**
+     * 增加账号实时余额
+     * @param userId
+     * @param balance
+     */
+    @Transactional
+    public void addBalance(Long userId, BigDecimal balance) {
+        if (balance != null && balance.compareTo(BigDecimal.ZERO) == 1) {
+            userMoneyService.findUserByUserIdUse(userId);
+            userMoneyService.addBalance(userId, balance);
+        }
+    }
+
+    /**
+     * 扣减账号实时余额
+     * @param userId
+     * @param balance
+     */
+    @Transactional
+    public void subBalance(Long userId, BigDecimal balance) {
+        if (balance != null && balance.compareTo(BigDecimal.ZERO) == 1) {
+            userMoneyService.findUserByUserIdUse(userId);
+            userMoneyService.subBalance(userId, balance);
+        }
     }
 }

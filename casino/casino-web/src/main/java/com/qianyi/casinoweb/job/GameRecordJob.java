@@ -2,6 +2,7 @@ package com.qianyi.casinoweb.job;
 
 import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.business.ThirdGameBusiness;
+import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.livewm.api.PublicWMApi;
@@ -50,6 +51,8 @@ public class GameRecordJob {
     PlatformConfigService platformConfigService;
     @Autowired
     GameRecordAsyncOper gameRecordAsyncOper;
+    @Autowired
+    UserMoneyBusiness userMoneyBusiness;
     @Value("${spring.profiles.active}")
     String active;
 
@@ -188,6 +191,8 @@ public class GameRecordJob {
                 }
                 //有数据会重复注单id唯一约束会报错，所以一条一条保存，避免影响后面的
                 GameRecord record = save(gameRecord);
+                //计算用户账号实时余额
+                changeUserBalance(account.getUserId(),gameRecord.getResult());
                 if (validbet.compareTo(BigDecimal.ZERO) == 0) {
                     continue;
                 }
@@ -203,6 +208,27 @@ public class GameRecordJob {
                 e.printStackTrace();
                 log.error("保存游戏记录时报错,message={}", e.getMessage());
             }
+        }
+    }
+
+    /**
+     * 改变用户实时余额
+     * @param userId
+     * @param result
+     */
+    private void changeUserBalance(Long userId, String result) {
+        if (ObjectUtils.isEmpty(result)) {
+            return;
+        }
+        BigDecimal amount = new BigDecimal(result);
+        if (amount.compareTo(BigDecimal.ZERO) == 0) {
+            return;
+        }
+        //大于0加钱
+        if (amount.compareTo(BigDecimal.ZERO) == 1) {
+            userMoneyBusiness.addBalance(userId, amount);
+        } else {
+            userMoneyBusiness.subBalance(userId, amount.abs());
         }
     }
 
