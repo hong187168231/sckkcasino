@@ -7,6 +7,7 @@ import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -64,6 +65,11 @@ public class ChargeOrderVo implements Serializable {
     private Date updateTime;
     @ApiModelProperty("最后修改人")
     private String updateBy;
+
+    @ApiModelProperty("打码倍率")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    private BigDecimal betRate;
+
     public ChargeOrderVo(ChargeOrder chargeOrder){
         this.id = chargeOrder.getId();
         this.userId = chargeOrder.getUserId();
@@ -82,6 +88,7 @@ public class ChargeOrderVo implements Serializable {
         this.updateTime = chargeOrder.getUpdateTime();
         this.createBy = chargeOrder.getCreateBy();
         this.updateBy = chargeOrder.getLastModifier();
+        this.betRate=chargeOrder.getBetRate();
     }
     public ChargeOrderVo(){
 

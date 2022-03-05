@@ -95,7 +95,7 @@ public class ChargeOrderBusiness {
         if(userMoney == null){
             return ResponseUtil.custom("用户钱包不存在");
         }
-        PlatformConfig platformConfig = platformConfigService.findFirst();
+        //PlatformConfig platformConfig = platformConfigService.findFirst();
 //        BigDecimal serviceCharge = BigDecimal.ZERO;
 //        if (platformConfig != null){
 //            //得到手续费
@@ -113,7 +113,11 @@ public class ChargeOrderBusiness {
         chargeOrder = chargeOrderService.saveOrder(chargeOrder);
         userMoney.setMoney(userMoney.getMoney().add(chargeOrder.getChargeAmount()));
         //计算打码量 默认2倍
-        BigDecimal codeTimes = (platformConfig == null || platformConfig.getBetRate() == null) ? new BigDecimal(CommonConst.NUMBER_2) : platformConfig.getBetRate();
+       // BigDecimal codeTimes = (platformConfig == null || platformConfig.getBetRate() == null) ? new BigDecimal(CommonConst.NUMBER_2) : platformConfig.getBetRate();
+
+        //输入打码倍率
+        BigDecimal codeTimes=chargeOrder.getBetRate()==null ? new BigDecimal(CommonConst.NUMBER_2) :chargeOrder.getBetRate();
+
         BigDecimal codeNum = chargeOrder.getChargeAmount().multiply(codeTimes);
         userMoney.setCodeNum(userMoney.getCodeNum().add(codeNum));
         Integer isFirst = userMoney.getIsFirst() == null ? 0 : userMoney.getIsFirst();

@@ -37,6 +37,12 @@ public class ChargeOrder extends BaseEntity{
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal chargeAmount;
 
+
+    @ApiModelProperty("打码倍率")
+    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    private BigDecimal betRate;
+
+
 //    @ApiModelProperty(value = "实际充值金额")
 //    private BigDecimal realityAmount;
 

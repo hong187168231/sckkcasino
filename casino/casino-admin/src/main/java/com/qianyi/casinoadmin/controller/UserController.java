@@ -757,13 +757,17 @@ public class UserController {
         @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = false),
         @ApiImplicitParam(name = "chargeAmount", value = "汇款金额", required = true),
         @ApiImplicitParam(name = "remark", value = "汇款备注", required = false),
+        @ApiImplicitParam(name = "betRate", value = "打码倍率", required = true),
     })
     @PostMapping("/saveChargeOrder")
-    public ResponseEntity saveChargeOrder(Long id,String remitter,String remark, String chargeAmount){
-        if (LoginUtil.checkNull(id,chargeAmount)){
+    public ResponseEntity saveChargeOrder(Long id,String remitter,String remark, String chargeAmount,BigDecimal betRate){
+        if (LoginUtil.checkNull(id,chargeAmount,betRate)){
             return ResponseUtil.custom("参数不合法");
         }
         BigDecimal money = CommonUtil.checkMoney(chargeAmount);
+        if(betRate.compareTo(BigDecimal.ZERO)<0){
+            return ResponseUtil.custom("打码倍率错误");
+        }
         if(money.compareTo(BigDecimal.ZERO)<1){
             return ResponseUtil.custom("金额类型错误");
         }
@@ -785,6 +789,8 @@ public class UserController {
         String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
         ChargeOrder chargeOrder = new ChargeOrder();
         chargeOrder.setUserId(id);
+        //打码倍率
+        chargeOrder.setBetRate(betRate);
         chargeOrder.setRemitter(remitter);
         chargeOrder.setRemark(remark);
         chargeOrder.setOrderNo(orderService.getOrderNo());
