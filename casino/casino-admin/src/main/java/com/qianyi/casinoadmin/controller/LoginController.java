@@ -478,7 +478,7 @@ public class LoginController {
                 });
             });
             sysUserVo.setSysPermissionVoList(sysPermissionOne);
-            return ResponseUtil.success(sysUserVo);
+            return ResponseUtil.success(sysUserVo);*/
         }
     }
 
