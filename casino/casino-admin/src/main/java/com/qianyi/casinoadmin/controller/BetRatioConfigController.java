@@ -9,6 +9,7 @@ import com.qianyi.casinocore.model.SysConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.SysConfigService;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -41,6 +42,7 @@ public class BetRatioConfigController {
 
     @ApiOperation("打码设置查询")
     @GetMapping("/findAll")
+    @NoAuthorization
     public ResponseEntity<BetRatioConfigVo> findAll(){
         List<PlatformConfig> platformConfigList = platformConfigService.findAll();
         BetRatioConfigVo betRatioConfigVo = new BetRatioConfigVo();
