@@ -94,6 +94,11 @@ public class ChargeBusiness {
         chargeOrder.setRemitType(remitType);
         chargeOrder.setRemark("");
         chargeOrder.setBankcardId(bankcardId);
+        //查询打码倍率
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig != null) {
+            chargeOrder.setBetRate(platformConfig.getBetRate());
+        }
         User user = userService.findById(userId);
         if (user != null) {
             chargeOrder.setFirstProxy(user.getFirstProxy());
