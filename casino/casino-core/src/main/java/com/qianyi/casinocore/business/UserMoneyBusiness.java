@@ -89,6 +89,11 @@ public class UserMoneyBusiness {
      * @return
      */
     public void checkClearCodeNum(PlatformConfig platformConfig, Long userId, GameRecord record, UserMoney user) {
+        //打码已经归0，实时余额直接归0
+        if (user.getCodeNum().compareTo(BigDecimal.ZERO) == 0) {
+            userMoneyService.subBalance(userId, user.getBalance());
+            return;
+        }
         BigDecimal balance = user.getBalance();
         BigDecimal minCodeNumVal = DEFAULT_CLEAR;
         if (platformConfig != null && platformConfig.getClearCodeNum() != null) {
