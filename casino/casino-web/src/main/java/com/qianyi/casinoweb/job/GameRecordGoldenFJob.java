@@ -213,7 +213,7 @@ public class GameRecordGoldenFJob {
     private void changeUserBalance(GameRecordGoldenF gameRecordGoldenF) {
         BigDecimal betAmount = gameRecordGoldenF.getBetAmount();
         BigDecimal winAmount = gameRecordGoldenF.getWinAmount();
-        if (betAmount == null || winAmount == null || betAmount.compareTo(BigDecimal.ZERO) == 0 || winAmount.compareTo(BigDecimal.ZERO) == 0) {
+        if (betAmount == null || winAmount == null) {
             return;
         }
         Long userId = gameRecordGoldenF.getUserId();
