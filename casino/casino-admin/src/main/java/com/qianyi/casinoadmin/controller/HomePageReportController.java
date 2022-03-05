@@ -70,6 +70,15 @@ public class HomePageReportController {
 
     @Autowired
     private GameRecordGoldenFService gameRecordGoldenFService;
+
+    @Autowired
+    private ExtractPointsChangeService extractPointsChangeService;
+
+    @Autowired
+    private ShareProfitChangeService shareProfitChangeService;
+
+    @Autowired
+    private WashCodeChangeService washCodeChangeService;
     @ApiOperation("查询首页报表")
     @GetMapping("/find")
     @ApiImplicitParams({
@@ -126,27 +135,27 @@ public class HomePageReportController {
             // 提款单数
             Integer withdrawNums = homePageReports.stream().mapToInt(HomePageReport::getWithdrawNums).sum();
             // 派发洗码
-            BigDecimal washCodeAmount = homePageReports.stream().map(HomePageReport::getWashCodeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            //            BigDecimal washCodeAmount = homePageReports.stream().map(HomePageReport::getWashCodeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             // 人人代佣金
-            BigDecimal shareAmount = homePageReports.stream().map(HomePageReport::getShareAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            //            BigDecimal shareAmount = homePageReports.stream().map(HomePageReport::getShareAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             BigDecimal bonusAmount = homePageReports.stream().map(HomePageReport::getBonusAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
             // 抽取提款手续费
             BigDecimal serviceCharge = homePageReports.stream().map(HomePageReport::getServiceCharge).reduce(BigDecimal.ZERO, BigDecimal::add);
             // 抽点总额
-            BigDecimal extractPointsAmount = homePageReports.stream().map(HomePageReport::getExtractPointsAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            //            BigDecimal extractPointsAmount = homePageReports.stream().map(HomePageReport::getExtractPointsAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
 
             Integer newUsers = homePageReports.stream().mapToInt(HomePageReport::getNewUsers).sum();
             homePageReportVo.setChargeAmount(homePageReportVo.getChargeAmount().add(chargeAmount));
             homePageReportVo.setWithdrawMoney(homePageReportVo.getWithdrawMoney().add(withdrawMoney));
-            homePageReportVo.setWashCodeAmount(homePageReportVo.getWashCodeAmount().add(washCodeAmount));
-            homePageReportVo.setShareAmount(homePageReportVo.getShareAmount().add(shareAmount));
+            //            homePageReportVo.setWashCodeAmount(homePageReportVo.getWashCodeAmount().add(washCodeAmount));
+            //            homePageReportVo.setShareAmount(homePageReportVo.getShareAmount().add(shareAmount));
             homePageReportVo.setBonusAmount(homePageReportVo.getBonusAmount().add(bonusAmount));
             homePageReportVo.setServiceCharge(homePageReportVo.getServiceCharge().add(serviceCharge));
             homePageReportVo.setChargeNums(chargeNums + homePageReportVo.getChargeNums());
             homePageReportVo.setWithdrawNums(withdrawNums + homePageReportVo.getWithdrawNums());
             homePageReportVo.setNewUsers(newUsers + homePageReportVo.getNewUsers());
             // 设置抽点总额
-            homePageReportVo.setExtractPointsAmount(extractPointsAmount.add(homePageReportVo.getExtractPointsAmount()));
+            //            homePageReportVo.setExtractPointsAmount(extractPointsAmount.add(homePageReportVo.getExtractPointsAmount()));
 
             this.findCompanyProxyDetails(new CompanyProxyMonth(),startTime,endTime,homePageReportVo);
         }catch (Exception ex){
@@ -327,8 +336,8 @@ public class HomePageReportController {
 
         BigDecimal validbetAmount = vo.getValidbetAmount();
 
-        BigDecimal shareAmount = list.stream().map(HomePageReportVo::getShareAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-        vo.setShareAmount(shareAmount);
+        //        BigDecimal shareAmount = list.stream().map(HomePageReportVo::getShareAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        //        vo.setShareAmount(shareAmount);
 
         BigDecimal bonusAmount = list.stream().map(HomePageReportVo::getBonusAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         vo.setBonusAmount(bonusAmount);
@@ -339,11 +348,11 @@ public class HomePageReportController {
         BigDecimal proxyProfit = list.stream().map(HomePageReportVo::getProxyProfit).reduce(BigDecimal.ZERO, BigDecimal::add);
         vo.setProxyProfit(proxyProfit);
 
-        BigDecimal washCodeAmount = list.stream().map(HomePageReportVo::getWashCodeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-        vo.setWashCodeAmount(washCodeAmount);
+        //        BigDecimal washCodeAmount = list.stream().map(HomePageReportVo::getWashCodeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        //        vo.setWashCodeAmount(washCodeAmount);
 
-        BigDecimal extractPointsAmount = list.stream().map(HomePageReportVo::getExtractPointsAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-        vo.setExtractPointsAmount(extractPointsAmount);
+        //        BigDecimal extractPointsAmount = list.stream().map(HomePageReportVo::getExtractPointsAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        //        vo.setExtractPointsAmount(extractPointsAmount);
 
         vo = this.getHomePageReportVo(vo);
 
@@ -379,11 +388,11 @@ public class HomePageReportController {
         homePageReport.setStaticsMonth(startStr.substring(CommonConst.NUMBER_0, CommonConst.NUMBER_7));
         homePageReportTask.chargeOrder(startDate, endDate, homePageReport);
         homePageReportTask.withdrawOrder(startDate, endDate, homePageReport);
-        homePageReportTask.shareProfitChange(startDate, endDate, homePageReport);
+        //        homePageReportTask.shareProfitChange(startDate, endDate, homePageReport);
         homePageReportTask.getNewUsers(startDate, endDate, homePageReport);
         homePageReportTask.bonusAmount(startDate, endDate, homePageReport);
-        homePageReportTask.washCodeAmount(startDate, endDate, homePageReport);
-        homePageReportTask.extractPointsAmount(startDate, endDate, homePageReport);
+        //        homePageReportTask.washCodeAmount(startDate, endDate, homePageReport);
+        //        homePageReportTask.extractPointsAmount(startDate, endDate, homePageReport);
         HomePageReportVo homePageReportVo = new HomePageReportVo();
         BeanUtils.copyProperties(homePageReport, homePageReportVo);
         return homePageReportVo;
@@ -400,6 +409,15 @@ public class HomePageReportController {
 
             homePageReportVo.setValidbetAmount(gameRecordValidbet.add(gameRecordGoldenFValidbet));
             homePageReportVo.setWinLossAmount(BigDecimal.ZERO.subtract(gameRecordWinLoss).subtract(gameRecordGoldenFWinLoss));
+
+            BigDecimal extractPointsAmount = extractPointsChangeService.sumAmount(startTime, endTime);
+            homePageReportVo.setExtractPointsAmount(extractPointsAmount);
+
+            BigDecimal shareAmount = shareProfitChangeService.sumAmount(startTime, endTime);
+            homePageReportVo.setShareAmount(shareAmount);
+
+            BigDecimal washCodeAmount = washCodeChangeService.sumAmount(startTime, endTime);
+            homePageReportVo.setWashCodeAmount(washCodeAmount);
             return homePageReportVo;
         }catch (Exception ex){
             log.error("统计三方游戏注单失败",ex);
@@ -425,8 +443,18 @@ public class HomePageReportController {
             }else {
                 homePageReportVo.setOddsRatio(homePageReportVo.getChargeAmount().divide(homePageReportVo.getValidbetAmount(), 2, RoundingMode.HALF_UP));
             }
+            BigDecimal extractPointsAmount = extractPointsChangeService.sumAmount();
+            homePageReportVo.setExtractPointsAmount(extractPointsAmount);
+
+            BigDecimal shareAmount = shareProfitChangeService.sumAmount();
+            homePageReportVo.setShareAmount(shareAmount);
+
+            BigDecimal washCodeAmount = washCodeChangeService.sumAmount();
+            homePageReportVo.setWashCodeAmount(washCodeAmount);
+
             Set<Long> gameRecordGoldenFUser = gameRecordGoldenFService.findGroupByUser();
             Set<Long> gameRecordUser = gameRecordService.findGroupByUser();
+
             gameRecordGoldenFUser.addAll(gameRecordUser);
             homePageReportVo.setActiveUsers(gameRecordGoldenFUser.size());
             gameRecordGoldenFUser.clear();
@@ -457,6 +485,16 @@ public class HomePageReportController {
             }
             Set<Long> gameRecordGoldenFUser = gameRecordGoldenFService.findGroupByUser(startTime, endTime);
             Set<Long> gameRecordUser = gameRecordService.findGroupByUser(startTime, endTime);
+
+            BigDecimal extractPointsAmount = extractPointsChangeService.sumAmount(startTime, endTime);
+            homePageReportVo.setExtractPointsAmount(extractPointsAmount);
+
+            BigDecimal shareAmount = shareProfitChangeService.sumAmount(startTime, endTime);
+            homePageReportVo.setShareAmount(shareAmount);
+
+            BigDecimal washCodeAmount = washCodeChangeService.sumAmount(startTime, endTime);
+            homePageReportVo.setWashCodeAmount(washCodeAmount);
+
             gameRecordGoldenFUser.addAll(gameRecordUser);
             homePageReportVo.setActiveUsers(gameRecordGoldenFUser.size());
             gameRecordGoldenFUser.clear();

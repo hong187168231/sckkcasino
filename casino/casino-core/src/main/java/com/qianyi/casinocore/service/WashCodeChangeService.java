@@ -47,11 +47,11 @@ public class WashCodeChangeService {
         CriteriaQuery<WashCodeChange> query = builder.createQuery(WashCodeChange.class);
         Root<WashCodeChange> root = query.from(WashCodeChange.class);
         query.multiselect(
-                root.get("platform").as(String.class),
-                root.get("gameId").as(String.class),
-                root.get("gameName").as(String.class),
-                builder.sum(root.get("amount").as(BigDecimal.class)).alias("amount"),
-                builder.sum(root.get("validbet").as(BigDecimal.class)).alias("validbet")
+            root.get("platform").as(String.class),
+            root.get("gameId").as(String.class),
+            root.get("gameName").as(String.class),
+            builder.sum(root.get("amount").as(BigDecimal.class)).alias("amount"),
+            builder.sum(root.get("validbet").as(BigDecimal.class)).alias("validbet")
         );
 
         List<Predicate> predicates = new ArrayList();
@@ -74,8 +74,12 @@ public class WashCodeChangeService {
         return washCodeChangeRepository.findAll(condition);
     }
 
-    public BigDecimal queryWashCodeChangeAll(String startTime, String endTime){
-        return washCodeChangeRepository.queryWashCodeChangeAll(startTime,endTime);
+    public BigDecimal sumAmount(String startTime, String endTime){
+        return washCodeChangeRepository.sumAmount(startTime,endTime);
+    }
+
+    public BigDecimal sumAmount(){
+        return washCodeChangeRepository.sumAmount();
     }
 
     private Specification<WashCodeChange> getCondition(Date startDate,Date endDate) {

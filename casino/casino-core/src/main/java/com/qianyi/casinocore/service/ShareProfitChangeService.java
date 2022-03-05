@@ -51,6 +51,13 @@ public class ShareProfitChangeService {
         return shareProfitChangeRepository.findByUserIdAndOrderNo(userId,orderNo);
     }
 
+    public BigDecimal sumAmount(String startTime, String endTime){
+        return shareProfitChangeRepository.sumAmount(startTime,endTime);
+    }
+
+    public BigDecimal sumAmount(){
+        return shareProfitChangeRepository.sumAmount();
+    }
     /**
      * 查询条件拼接，灵活添加条件
      *

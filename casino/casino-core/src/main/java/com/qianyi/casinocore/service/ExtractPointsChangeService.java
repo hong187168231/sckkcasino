@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,16 +55,16 @@ public class ExtractPointsChangeService {
             List<Predicate> list = new ArrayList<>();
             if (startDate != null) {
                 list.add(
-                        cb.greaterThanOrEqualTo(
-                                root.get("createTime").as(Date.class), startDate
-                        )
+                    cb.greaterThanOrEqualTo(
+                        root.get("createTime").as(Date.class), startDate
+                    )
                 );
             }
             if (endDate != null) {
                 list.add(
-                        cb.lessThanOrEqualTo(
-                                root.get("createTime").as(Date.class), endDate
-                        )
+                    cb.lessThanOrEqualTo(
+                        root.get("createTime").as(Date.class), endDate
+                    )
                 );
             }
             return cb.and(list.toArray(new Predicate[list.size()]));
@@ -71,4 +72,11 @@ public class ExtractPointsChangeService {
         return repository.findAll(condition);
     }
 
+    public BigDecimal sumAmount(String startTime, String endTime){
+        return repository.sumAmount(startTime,endTime);
+    }
+
+    public BigDecimal sumAmount(){
+        return repository.sumAmount();
+    }
 }

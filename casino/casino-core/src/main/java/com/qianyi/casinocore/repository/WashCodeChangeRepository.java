@@ -10,9 +10,15 @@ import java.util.Map;
 
 public interface WashCodeChangeRepository extends JpaRepository<WashCodeChange,Long>, JpaSpecificationExecutor<WashCodeChange> {
     @Query(value = "  select \n" +
-            "  sum(amount) wash_amount  \n" +
-            "  from wash_code_change w \n" +
-            "  where create_time >= ?1 and create_time <= ?2\n"
-            ,nativeQuery = true)
-    BigDecimal queryWashCodeChangeAll(String startTime, String endTime);
+        "  ifnull(sum(amount),0) wash_amount  \n" +
+        "  from wash_code_change w \n" +
+        "  where create_time >= ?1 and create_time <= ?2\n"
+        ,nativeQuery = true)
+    BigDecimal sumAmount(String startTime, String endTime);
+
+    @Query(value = "  select \n" +
+        "  ifnull(sum(amount),0) wash_amount  \n" +
+        "  from wash_code_change w \n"
+        ,nativeQuery = true)
+    BigDecimal sumAmount();
 }
