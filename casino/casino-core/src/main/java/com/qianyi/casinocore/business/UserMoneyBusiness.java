@@ -10,6 +10,7 @@ import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -184,7 +185,7 @@ public class UserMoneyBusiness {
      * @param userId
      * @param balance
      */
-    @Transactional
+    @Transactional(propagation= Propagation.REQUIRES_NEW)
     public void addBalance(Long userId, BigDecimal balance) {
         UserMoney userMoney = userMoneyService.findUserByUserIdUse(userId);
         if (userMoney.getBalance().compareTo(BigDecimal.ZERO) == 0) {
@@ -206,7 +207,7 @@ public class UserMoneyBusiness {
      * @param userId
      * @param balance
      */
-    @Transactional
+    @Transactional(propagation= Propagation.REQUIRES_NEW)
     public void subBalance(Long userId, BigDecimal balance) {
         UserMoney userMoney = userMoneyService.findUserByUserIdUse(userId);
         if (userMoney.getBalance().compareTo(BigDecimal.ZERO) == 0) {
