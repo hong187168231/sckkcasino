@@ -43,10 +43,6 @@ public class GameRecordVo implements Serializable {
     private String ip;
     @ApiModelProperty(value = "游戏类别编号")
     private Integer gid;
-    @ApiModelProperty(value = "场次编号")
-    private String eventAndRound;
-    @ApiModelProperty(value = "子场次编号")
-    private String eventChildAndSubround;
     @ApiModelProperty(value = "桌台编号")
     private String tableId;
     @ApiModelProperty(value = "牌型ex:庄:♦3♦3 闲:♥9♣10")
