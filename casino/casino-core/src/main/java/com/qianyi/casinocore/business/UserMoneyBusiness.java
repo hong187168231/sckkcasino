@@ -70,7 +70,9 @@ public class UserMoneyBusiness {
             codeNumChangeService.save(codeNumChange);
             userMoney.setCodeNum(codeNumAfter);
             //检查最小清零打码量
-            checkClearCodeNum(platformConfig, userId, userMoney);
+            if (userMoney.getBalance().compareTo(BigDecimal.ZERO) == 1) {
+                checkClearCodeNum(platformConfig, userId, userMoney);
+            }
         }
         if (Constants.PLATFORM_WM.equals(platform)) {
             gameRecordService.updateCodeNumStatus(record.getId(), Constants.yes);
@@ -94,17 +96,12 @@ public class UserMoneyBusiness {
             userMoneyService.subBalance(userId, user.getBalance());
             return;
         }
-        //已经等于0的不处理
-        BigDecimal balance = user.getBalance();
-        if (balance.compareTo(BigDecimal.ZERO) == 0) {
-            return;
-        }
         BigDecimal minCodeNumVal = DEFAULT_CLEAR;
         if (platformConfig != null && platformConfig.getClearCodeNum() != null) {
             minCodeNumVal = platformConfig.getClearCodeNum();
         }
         //余额小于等于最小清零打码量时 直接清0
-        if (balance.compareTo(minCodeNumVal) < 1) {
+        if (user.getBalance().compareTo(minCodeNumVal) < 1) {
             //打码量和实时余额都清0
             userMoneyService.subCodeNum(userId, user.getCodeNum());
             userMoneyService.subBalance(userId, user.getBalance());
