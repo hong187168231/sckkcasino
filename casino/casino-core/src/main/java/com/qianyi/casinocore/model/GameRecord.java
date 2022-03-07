@@ -111,13 +111,25 @@ public class GameRecord extends BaseEntity{
      * 场次编号
      */
     @ApiModelProperty(value = "场次编号")
-    private String eventAndRound;
+    private String event;
+
+    /**
+     * 场次编号
+     */
+    @ApiModelProperty(value = "场次编号")
+    private String round;
 
     /**
      * 子场次编号
      */
     @ApiModelProperty(value = "子场次编号")
-    private String eventChildAndSubround;
+    private String eventChild;
+
+    /**
+     * 子场次编号
+     */
+    @ApiModelProperty(value = "子场次编号")
+    private String subround;
 
     /**
      * 桌台编号
