@@ -14,6 +14,7 @@ import com.qianyi.modulecommon.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -42,6 +43,12 @@ public class WithdrawBusiness {
 
     @Autowired
     private PlatformConfigService platformConfigService;
+
+    @Autowired
+    private CodeNumChangeService codeNumChangeService;
+
+    @Autowired
+    private UserMoneyBusiness userMoneyBusiness;
 
     @Autowired
     @Qualifier("accountChangeJob")
@@ -226,10 +233,21 @@ public class WithdrawBusiness {
         BigDecimal money = amountBefore.subtract(withdrawMoney);
         userMoney.setMoney(money);
         userMoneyService.save(userMoney);
+        //清零点方法
+        checkClearBalance(userId, withdrawOrder.getWithdrawMoney());
+
         log.info("后台直接下分userId {} 订单号 {} withdrawMoney is {}, money is {}",userMoney.getUserId(),withdrawOrder.getNo(),withdrawMoney, money);
         //记录用户账变
         this.saveAccountChang(AccountChangeEnum.SUB_CODE,userMoney.getUserId(),withdrawOrder,amountBefore,userMoney.getMoney());
         return ResponseUtil.success(userMoney);
+    }
+
+    @Async
+    private void checkClearBalance(Long userId, BigDecimal withdrawMoney) {
+        userMoneyBusiness.subBalanceAdmin(userId, withdrawMoney);
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        userMoneyBusiness.checkClearCodeNum(platformConfig, userId, userMoney);
     }
 
     @Transactional
