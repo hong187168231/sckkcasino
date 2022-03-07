@@ -188,8 +188,8 @@ public class UserMoneyBusiness {
     public void addBalance(Long userId, BigDecimal balance) {
         if (balance != null && balance.compareTo(BigDecimal.ZERO) == 1) {
             UserMoney userMoney = userMoneyService.findUserByUserIdUse(userId);
-            //打码量清0后不再累加
-            if (userMoney.getCodeNum().compareTo(BigDecimal.ZERO) == 1) {
+            //打码量和balance清0后不再累加
+            if (userMoney.getCodeNum().compareTo(BigDecimal.ZERO) == 1 && userMoney.getBalance().compareTo(BigDecimal.ZERO) == 1) {
                 userMoneyService.addBalance(userId, balance);
             }
         }
