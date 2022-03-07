@@ -1,7 +1,8 @@
 package com.qianyi.casinoadmin.controller;
 
+import cn.hutool.core.date.DateUtil;
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinoadmin.vo.HistoryTotal;
+import com.qianyi.casinocore.exception.BusinessException;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.ProxyUserService;
@@ -9,14 +10,11 @@ import com.qianyi.casinocore.service.ReportService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.DTOUtil;
-import com.qianyi.casinocore.vo.CompanyProxyReportVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.PersonReportTotalVo;
 import com.qianyi.casinocore.vo.PersonReportVo;
-import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
-import com.qianyi.modulecommon.util.DateUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -64,33 +62,28 @@ public class ReportController {
             @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
             @ApiImplicitParam(name = "tag", value = "1：投注笔数 2：投注金额 3：有效投注 4：洗码发放 5：用户输赢金额", required = false),
     })
-    public ResponseEntity<PersonReportVo> queryPersonReport(Integer pageSize, Integer pageCode, String userName,
-                                                     String startTime, String endTime,String platform,Integer sort,Integer tag){
-        if (LoginUtil.checkNull(startTime,endTime,pageSize,pageCode)){
+    public ResponseEntity<PersonReportVo> queryPersonReport(
+            Integer pageSize,
+            Integer pageCode,
+            String userName,
+            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startTime,
+            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endTime,
+            String platform,
+            Integer sort,
+            Integer tag){
+        if (LoginUtil.checkNull(startTime, endTime, pageSize, pageCode)){
             return ResponseUtil.custom("参数不合法");
         }
-        try {
-            Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
-            Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(startDate);
-            calendar.add(Calendar.HOUR, 12);
-            startDate = calendar.getTime();
-            startTime = DateUtil.dateToPatten(startDate);
-            calendar.setTime(endDate);
-            calendar.add(Calendar.HOUR, 12);
-            endDate = calendar.getTime();
-            endTime = DateUtil.dateToPatten(endDate);
-        } catch (ParseException e) {
-            return ResponseUtil.custom("参数不合法");
-        }
+        // 向后偏移12小时
+        startTime = DateUtil.offsetHour(startTime, 12);
+        endTime = DateUtil.offsetHour(endTime, 12);
+        String startTimeStr = DateUtil.formatDateTime(startTime);
+        String endTimeStr = DateUtil.formatDateTime(endTime);
 
         if(StringUtils.hasLength(userName)){
             User user = userService.findByAccount(userName);
             if(user != null){
-                List<PersonReportVo> reportResult = DTOUtil.map2DTO(
-                        userService.findMap(platform,startTime,endTime,user.getId()),
-                        PersonReportVo.class);
+                List<PersonReportVo> reportResult = userService.findMap(platform,startTimeStr,endTimeStr,user.getId());
                 PageResultVO<PersonReportVo> mapPageResultVO = combinePage(reportResult, 1, pageCode, pageSize);
                 return ResponseUtil.success(getMap(mapPageResultVO));
             }
@@ -100,47 +93,50 @@ public class ReportController {
 
         int page = (pageCode-1)*pageSize;
         List<PersonReportVo> reportResult = null;
+
         try {
-        if (LoginUtil.checkNull(tag)){
-            reportResult = DTOUtil.map2DTO(
-                    userService.findMap(platform, startTime, endTime, page, pageSize, ""),
-                    PersonReportVo.class);
-        }else {
-            String str = "ORDER BY {0} ";
-            switch (tag) {
-                case 1:
-                    str = MessageFormat.format(str,"num");
-                    break;
-                case 2:
-                    str = MessageFormat.format(str,"bet_amount");
-                    break;
-                case 3:
-                    str = MessageFormat.format(str,"validbet");
-                    break;
-                case 4:
-                    str = MessageFormat.format(str,"wash_amount");
-                    break;
-                case 5:
-                    str = MessageFormat.format(str,"win_loss");
-                    break;
-                default:
-                    return ResponseUtil.custom("参数不合法");
-            }
-            if (LoginUtil.checkNull(sort) || sort == CommonConst.NUMBER_1){
-                str = str + "ASC";
-            }else {
-                str = str + "DESC";
-            }
-            reportResult = DTOUtil.map2DTO(
-                    userService.findMap(platform,startTime, endTime, page, pageSize, str),
-                    PersonReportVo.class);
-        }
+            String statement = getOrderByStatement(tag, sort);
+            reportResult = userService.findMap(platform, startTimeStr, endTimeStr, page, pageSize, statement);
         } catch (Exception e) {
             return ResponseUtil.custom("查询失败");
         }
-        int totalElement = reportService.queryTotalElement(startTime,endTime);
+
+        int totalElement = reportService.queryTotalElement(startTimeStr, endTimeStr);
         PageResultVO<PersonReportVo> mapPageResultVO = combinePage(reportResult, totalElement, pageCode, pageSize);
         return ResponseUtil.success(getMap(mapPageResultVO));
+    }
+
+    // 获取 order by 语句
+    private String getOrderByStatement(Integer tag, Integer sort){
+        if (LoginUtil.checkNull(tag)) {
+            return "";
+        }
+        String str = "ORDER BY {0} ";
+        switch (tag) {
+            case 1:
+                str = MessageFormat.format(str,"num");
+                break;
+            case 2:
+                str = MessageFormat.format(str,"bet_amount");
+                break;
+            case 3:
+                str = MessageFormat.format(str,"validbet");
+                break;
+            case 4:
+                str = MessageFormat.format(str,"wash_amount");
+                break;
+            case 5:
+                str = MessageFormat.format(str,"win_loss");
+                break;
+            default:
+                throw new BusinessException("参数不合法");
+        }
+        if (LoginUtil.checkNull(sort) || sort == CommonConst.NUMBER_1){
+            str = str + "ASC";
+        }else {
+            str = str + "DESC";
+        }
+        return str;
     }
 
     private PageResultVO<PersonReportVo> getMap(PageResultVO<PersonReportVo> mapPageResultVO){
@@ -172,28 +168,30 @@ public class ReportController {
         @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
         @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
-    public ResponseEntity<PersonReportTotalVo> queryTotal(String userName, String platform, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+    public ResponseEntity<PersonReportTotalVo> queryTotal(
+            String userName,
+            String platform,
+            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(startDate,endDate)){
             return ResponseUtil.custom("参数不合法");
         }
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(startDate);
-        calendar.add(Calendar.HOUR, 12);
-        startDate = calendar.getTime();
-        String startTime = DateUtil.dateToPatten(startDate);
-        calendar.setTime(endDate);
-        calendar.add(Calendar.HOUR, 12);
-        endDate = calendar.getTime();
-        String endTime = DateUtil.dateToPatten(endDate);
+
+        // 向后偏移12小时
+        startDate = DateUtil.offsetHour(startDate, 12);
+        endDate = DateUtil.offsetHour(endDate, 12);
+
+        String startTime = DateUtil.formatDateTime(startDate);
+        String endTime = DateUtil.formatDateTime(endDate);
+
         Long userId=null;
         PersonReportTotalVo itemObject = null;
         if(StringUtils.hasLength(userName)){
             User user = userService.findByAccount(userName);
             if(user != null){
                 userId=user.getId();
-                List<Map<String, Object>> map = userService.findMap(platform, startTime, endTime, userId);
-                itemObject = DTOUtil.toDTO(map.get(0), PersonReportTotalVo.class);
+                List<PersonReportVo> maps = userService.findMap(platform, startTime, endTime, userId);
+                itemObject = DTOUtil.toDTO(maps.get(0), PersonReportTotalVo.class);
             }
         }else {
             Map<String,Object> result = userService.findMap(platform,startTime,endTime);

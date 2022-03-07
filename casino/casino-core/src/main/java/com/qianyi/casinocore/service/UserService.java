@@ -1,15 +1,13 @@
 package com.qianyi.casinocore.service;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.mysql.cj.util.StringUtils;
 import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.repository.UserRepository;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.util.DTOUtil;
 import com.qianyi.casinocore.util.SqlConst;
+import com.qianyi.casinocore.vo.PersonReportVo;
 import com.qianyi.modulecommon.util.CommonUtil;
-import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.*;
@@ -23,14 +21,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -262,7 +252,7 @@ public class UserService {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Map<String,Object>> findMap(String platform,String startTime,String endTime,Integer page,Integer pageSize,String sort)
+    public List<PersonReportVo> findMap(String platform,String startTime,String endTime,Integer page,Integer pageSize,String sort)
         throws Exception {
         startTime = "'"+startTime+"'";
         endTime = "'"+endTime+"'";
@@ -278,11 +268,12 @@ public class UserService {
         }
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
-        List resultList = countQuery.getResultList();
-        return getList(resultList);
+        List<Object> resultList = countQuery.getResultList();
+        List<Map<String, Object>> mapList = parsePersonReportMapList(resultList);
+        return DTOUtil.map2DTO(mapList, PersonReportVo.class);
     }
     @SuppressWarnings("unchecked")
-    public List<Map<String,Object>> findMap(String platform,String startTime,String endTime,Long userId){
+    public List<PersonReportVo> findMap(String platform, String startTime, String endTime, Long userId){
         startTime = "'"+startTime+"'";
         endTime = "'"+endTime+"'";
         String sql = "";
@@ -300,9 +291,23 @@ public class UserService {
 //        log.info("\n" + SqlConst.seleOneWm);
 //        log.info("\n" + SqlConst.seleOnePgOrCq9Sql);
         Query countQuery = entityManager.createNativeQuery(sql);
-        List resultList = countQuery.getResultList();
-        return getList(resultList);
+        List<Object> resultList = countQuery.getResultList();
+        List<Map<String, Object>> mapList = parsePersonReportMapList(resultList);
+        return DTOUtil.map2DTO(mapList, PersonReportVo.class);
     }
+
+    private static final List<String> PERSON_REPORT_TOTAL_FIELD_LIST = Arrays.asList(
+            "num",
+            "bet_amount",
+            "validbet",
+            "win_loss",
+            "wash_amount",
+            "service_charge",
+            "all_profit_amount",
+            "avg_benefit",
+            "total_amount",
+            "all_water"
+    );
 
     @SuppressWarnings("unchecked")
     public Map<String,Object> findMap(String platform,String startTime,String endTime){
@@ -324,41 +329,46 @@ public class UserService {
 //        log.info("\n" + SqlConst.PGAndCQ9SumSql);
         Query countQuery = entityManager.createNativeQuery(sql);
         Object result = countQuery.getSingleResult();
-        Map<String,Object> map = new HashMap();
+        Map<String,Object> map = new HashMap<>();
         Object[] obj = (Object[]) result;
-        map.put("num",obj[0]);
-        map.put("bet_amount",obj[1]);
-        map.put("validbet",obj[2]);
-        map.put("win_loss",obj[3]);
-        map.put("wash_amount",obj[4]);
-        map.put("service_charge",obj[5]);
-        map.put("all_profit_amount",obj[6]);
-        map.put("avg_benefit",obj[7]);
-        map.put("total_amount",obj[8]);
-        map.put("all_water", obj[9]);
+        for (int i=0; i< PERSON_REPORT_TOTAL_FIELD_LIST.size(); i++) {
+            String field = PERSON_REPORT_TOTAL_FIELD_LIST.get(i);
+            Object value = obj[i];
+            map.put(field, value);
+        }
+
         return map;
     }
 
-    private List<Map<String,Object>> getList(List resultList){
+    private static final List<String> PERSON_REPORT_VO_FIELD_LIST = Arrays.asList(
+            "account",
+            "third_proxy",
+            "id",
+            "num",
+            "bet_amount",
+            "validbet",
+            "win_loss",
+            "wash_amount",
+            "service_charge",
+            "all_profit_amount",
+            "avg_benefit",
+            "total_amount",
+            "all_water"
+    );
+
+    private List<Map<String,Object>> parsePersonReportMapList(List<Object> resultList) {
         List<Map<String,Object>> list = null;
         if (resultList != null && resultList.size() > CommonConst.NUMBER_0){
-            list = new LinkedList();
+            list = new LinkedList<>();
+
             for (Object result:resultList){
-                Map<String,Object> map = new HashMap();
+                Map<String,Object> map = new HashMap<>();
                 Object[] obj = (Object[]) result;
-                map.put("account",obj[0]);
-                map.put("third_proxy",obj[1]);
-                map.put("id",obj[2]);
-                map.put("num",obj[3]);
-                map.put("bet_amount",obj[4]);
-                map.put("validbet",obj[5]);
-                map.put("win_loss",obj[6]);
-                map.put("wash_amount",obj[7]);
-                map.put("service_charge",obj[8]);
-                map.put("all_profit_amount",obj[9]);
-                map.put("avg_benefit",obj[10]);
-                map.put("total_amount",obj[11]);
-                map.put("all_water", obj[12]);
+                for (int i=0; i< PERSON_REPORT_VO_FIELD_LIST.size(); i++) {
+                    String field = PERSON_REPORT_VO_FIELD_LIST.get(i);
+                    Object value = obj[i];
+                    map.put(field, value);
+                }
                 list.add(map);
             }
         }
