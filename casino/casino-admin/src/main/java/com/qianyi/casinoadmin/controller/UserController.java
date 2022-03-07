@@ -2,11 +2,8 @@ package com.qianyi.casinoadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.co.user.UserCleanMudCo;
-import com.qianyi.casinocore.util.BillThreadPool;
-import com.qianyi.casinocore.util.GenerateInviteCodeRunner;
-import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.util.*;
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.util.PasswordUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.UserTotalVo;
 import com.qianyi.casinocore.vo.UserVo;
@@ -269,7 +266,8 @@ public class UserController {
             if(userMoneyList != null){
                 List<UserMoney> finalUserMoneyList = userMoneyList;
                 userList.stream().forEach(u -> {
-                    UserVo userVo = new UserVo(u);
+                    // UserVo userVo = new UserVo(u);
+                    UserVo userVo = DTOUtil.toDTO(u, UserVo.class);
                     finalUserMoneyList.stream().forEach(userMoney -> {
                         if(u.getId().equals(userMoney.getUserId())){
                             userVo.setMoney(userMoney.getMoney());
