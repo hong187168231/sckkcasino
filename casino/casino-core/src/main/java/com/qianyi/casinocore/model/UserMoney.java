@@ -33,7 +33,7 @@ public class UserMoney extends BaseEntity{
     @Column(columnDefinition = "Decimal(19,6) default '0.000000'")
     private BigDecimal shareProfit = BigDecimal.ZERO;
 
-    @ApiModelProperty("实时余额")
+    @ApiModelProperty("实时余额仅用于打码量清零点计算")
     @Column(columnDefinition = "Decimal(19,6) default '0.000000'")
     private BigDecimal balance = BigDecimal.ZERO;
 

@@ -94,7 +94,11 @@ public class UserMoneyBusiness {
             userMoneyService.subBalance(userId, user.getBalance());
             return;
         }
+        //已经等于0的不处理
         BigDecimal balance = user.getBalance();
+        if(balance.compareTo(BigDecimal.ZERO) == 0){
+            return;
+        }
         BigDecimal minCodeNumVal = DEFAULT_CLEAR;
         if (platformConfig != null && platformConfig.getClearCodeNum() != null) {
             minCodeNumVal = platformConfig.getClearCodeNum();
