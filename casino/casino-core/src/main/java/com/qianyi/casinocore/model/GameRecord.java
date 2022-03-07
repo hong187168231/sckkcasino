@@ -149,6 +149,12 @@ public class GameRecord extends BaseEntity{
     @ApiModelProperty(value = "游戏名称ex:百家乐")
     private String gname;
 
+    @ApiModelProperty(value = "下注的dealid 如該場次下注多筆則用','分開")
+    private String betwalletid;
+
+    @ApiModelProperty(value = "派彩的dealid")
+    private String resultwalletid;
+
     /**
      * 0:一般, 1:免佣
      */
