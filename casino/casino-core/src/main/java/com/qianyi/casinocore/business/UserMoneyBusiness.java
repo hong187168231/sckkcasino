@@ -49,7 +49,7 @@ public class UserMoneyBusiness {
      */
     @Transactional
     public void subCodeNum(String platform, PlatformConfig platformConfig, GameRecord record) {
-        log.info("开始打码,平台={}，注单ID={},注单明细={}",platform,record.getBetId(), record.toString());
+        log.info("开始打码,平台={}，注单ID={},注单明细={}", platform, record.getBetId(), record.toString());
         BigDecimal validbet = new BigDecimal(record.getValidbet());
         Long userId = record.getUserId();
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
@@ -70,14 +70,14 @@ public class UserMoneyBusiness {
             codeNumChangeService.save(codeNumChange);
             userMoney.setCodeNum(codeNumAfter);
             //检查最小清零打码量
-            checkClearCodeNum(platformConfig, userId, record, userMoney);
+            checkClearCodeNum(platformConfig, userId, userMoney);
         }
-        if(Constants.PLATFORM_WM.equals(platform)){
+        if (Constants.PLATFORM_WM.equals(platform)) {
             gameRecordService.updateCodeNumStatus(record.getId(), Constants.yes);
-        }else if(Constants.PLATFORM_PG.equals(platform)||Constants.PLATFORM_CQ9.equals(platform)){
+        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
             gameRecordGoldenFService.updateCodeNumStatus(record.getId(), Constants.yes);
         }
-        log.info("打码结束,平台={},注单ID={}",platform, record.getBetId());
+        log.info("打码结束,平台={},注单ID={}", platform, record.getBetId());
     }
 
     /**
@@ -85,11 +85,10 @@ public class UserMoneyBusiness {
      *
      * @param platformConfig
      * @param userId
-     * @param record
      * @param user
      * @return
      */
-    public void checkClearCodeNum(PlatformConfig platformConfig, Long userId, GameRecord record, UserMoney user) {
+    public void checkClearCodeNum(PlatformConfig platformConfig, Long userId, UserMoney user) {
         //打码已经归0，实时余额直接归0
         if (user.getCodeNum().compareTo(BigDecimal.ZERO) == 0) {
             userMoneyService.subBalance(userId, user.getBalance());
@@ -97,7 +96,7 @@ public class UserMoneyBusiness {
         }
         //已经等于0的不处理
         BigDecimal balance = user.getBalance();
-        if(balance.compareTo(BigDecimal.ZERO) == 0){
+        if (balance.compareTo(BigDecimal.ZERO) == 0) {
             return;
         }
         BigDecimal minCodeNumVal = DEFAULT_CLEAR;
@@ -113,7 +112,7 @@ public class UserMoneyBusiness {
             codeNumChange.setType(1);
             codeNumChange.setClearCodeNum(minCodeNumVal);
             codeNumChangeService.save(codeNumChange);
-            log.info("触发最小清零打码量，打码量清0,最小清0点={},注单ID={},UserId={}",minCodeNumVal,record.getBetId(),userId);
+            log.info("触发最小清零打码量，打码量清0,最小清0点={},UserId={}", minCodeNumVal, userId);
         }
     }
 
@@ -128,7 +127,7 @@ public class UserMoneyBusiness {
             //PG和CQ9的洗码配置是以平台配置的不是以里面的游戏
             washGameId = platform;
         }
-        log.info("开始洗码,平台={},注单ID={},注单明细={}",platform, gameRecord.getBetId(), gameRecord.toString());
+        log.info("开始洗码,平台={},注单ID={},注单明细={}", platform, gameRecord.getBetId(), gameRecord.toString());
         WashCodeConfig config = userWashCodeConfigService.getWashCodeConfigByUserIdAndGameId(platform, userId, washGameId);
         if (config != null && config.getRate() != null && config.getRate().compareTo(BigDecimal.ZERO) == 1) {
             log.info("游戏洗码配置={}", config.toString());
@@ -152,12 +151,12 @@ public class UserMoneyBusiness {
             userMoneyService.findUserByUserIdUseLock(userId);
             userMoneyService.addWashCode(userId, washCodeVal);
         }
-        if(Constants.PLATFORM_WM.equals(platform)) {
+        if (Constants.PLATFORM_WM.equals(platform)) {
             gameRecordService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
-        }else if(Constants.PLATFORM_PG.equals(platform)||Constants.PLATFORM_CQ9.equals(platform)){
+        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
             gameRecordGoldenFService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
         }
-        log.info("洗码完成,平台={},注单ID={}",platform, gameRecord.getBetId());
+        log.info("洗码完成,平台={},注单ID={}", platform, gameRecord.getBetId());
     }
 
     /**
@@ -166,26 +165,27 @@ public class UserMoneyBusiness {
      * @param record
      */
     @Transactional
-    public void shareProfit(String platform,GameRecord record) {
-        log.info("开始三级分润,平台={},注单ID={},注单明细={}",platform,record.getBetId(), record.toString());
+    public void shareProfit(String platform, GameRecord record) {
+        log.info("开始三级分润,平台={},注单ID={},注单明细={}", platform, record.getBetId(), record.toString());
         BigDecimal validbet = new BigDecimal(record.getValidbet());
         Long userId = record.getUserId();
-        ShareProfitMqVo shareProfitMqVo=new ShareProfitMqVo();
+        ShareProfitMqVo shareProfitMqVo = new ShareProfitMqVo();
         shareProfitMqVo.setPlatform(platform);
         shareProfitMqVo.setUserId(userId);
         shareProfitMqVo.setValidbet(validbet);
         shareProfitMqVo.setGameRecordId(record.getId());
         shareProfitMqVo.setBetTime(record.getBetTime());
         rabbitTemplate.convertAndSend(RabbitMqConstants.SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.SHAREPROFIT_DIRECT, shareProfitMqVo, new CorrelationData(UUID.randomUUID().toString()));
-        log.info("分润消息发送成功,平台={},注单ID={},消息明细={}",platform, record.getBetId(), shareProfitMqVo);
+        log.info("分润消息发送成功,平台={},注单ID={},消息明细={}", platform, record.getBetId(), shareProfitMqVo);
     }
 
     /**
      * 增加账号实时余额
+     *
      * @param userId
      * @param balance
      */
-    @Transactional(propagation= Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void addBalance(Long userId, BigDecimal balance) {
         UserMoney userMoney = userMoneyService.findUserByUserIdUse(userId);
         if (userMoney.getBalance().compareTo(BigDecimal.ZERO) == 0) {
@@ -204,10 +204,11 @@ public class UserMoneyBusiness {
 
     /**
      * 扣减账号实时余额
+     *
      * @param userId
      * @param balance
      */
-    @Transactional(propagation= Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void subBalance(Long userId, BigDecimal balance) {
         UserMoney userMoney = userMoneyService.findUserByUserIdUse(userId);
         if (userMoney.getBalance().compareTo(BigDecimal.ZERO) == 0) {
@@ -219,6 +220,39 @@ public class UserMoneyBusiness {
             return;
         }
         if (balance != null && balance.compareTo(BigDecimal.ZERO) == 1) {
+            //剩余的小于扣减的
+            if (userMoney.getBalance().compareTo(balance) == -1) {
+                balance = userMoney.getBalance();
+            }
+            if (balance.compareTo(BigDecimal.ZERO) == 1) {
+                userMoneyService.subBalance(userId, balance);
+            }
+        }
+    }
+
+    /**
+     * 增加账号实时余额
+     *
+     * @param userId
+     * @param balance
+     */
+    @Transactional
+    public void addBalanceAdmin(Long userId, BigDecimal balance) {
+        if (balance != null && balance.compareTo(BigDecimal.ZERO) == 1) {
+            userMoneyService.addBalance(userId, balance);
+        }
+    }
+
+    /**
+     * 扣减账号实时余额
+     *
+     * @param userId
+     * @param balance
+     */
+    @Transactional
+    public void subBalanceAdmin(Long userId, BigDecimal balance) {
+        if (balance != null && balance.compareTo(BigDecimal.ZERO) == 1) {
+            UserMoney userMoney = userMoneyService.findUserByUserIdUse(userId);
             //剩余的小于扣减的
             if (userMoney.getBalance().compareTo(balance) == -1) {
                 balance = userMoney.getBalance();
