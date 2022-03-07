@@ -43,10 +43,6 @@ public class GameRecordVo implements Serializable {
     private String ip;
     @ApiModelProperty(value = "游戏类别编号")
     private Integer gid;
-    @ApiModelProperty(value = "场次编号")
-    private String eventAndRound;
-    @ApiModelProperty(value = "子场次编号")
-    private String eventChildAndSubround;
     @ApiModelProperty(value = "桌台编号")
     private String tableId;
     @ApiModelProperty(value = "牌型ex:庄:♦3♦3 闲:♥9♣10")
@@ -90,8 +86,6 @@ public class GameRecordVo implements Serializable {
         this.winLoss = gameRecord.getWinLoss();
         this.ip = gameRecord.getIp();
         this.gid = gameRecord.getGid();
-        this.eventAndRound = gameRecord.getEventAndRound();
-        this.eventChildAndSubround = gameRecord.getEventChildAndSubround();
         this.tableId = gameRecord.getTableId();
         this.gameResult = gameRecord.getGameResult();
         this.gname = gameRecord.getGname();
