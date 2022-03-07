@@ -187,8 +187,12 @@ public class UserMoneyBusiness {
     @Transactional
     public void addBalance(Long userId, BigDecimal balance) {
         UserMoney userMoney = userMoneyService.findUserByUserIdUse(userId);
+        if (userMoney.getBalance().compareTo(BigDecimal.ZERO) == 0) {
+            return;
+        }
         //打码量清0或者balance已经归0后不再累加
-        if (userMoney.getCodeNum().compareTo(BigDecimal.ZERO) == 0 || userMoney.getBalance().compareTo(BigDecimal.ZERO) == 0) {
+        if (userMoney.getCodeNum().compareTo(BigDecimal.ZERO) == 0) {
+            userMoneyService.subBalance(userId, userMoney.getBalance());
             return;
         }
         //打码量和balance清0后不再累加
