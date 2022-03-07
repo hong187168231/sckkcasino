@@ -49,7 +49,7 @@ public class UserMoneyBusiness {
      */
     @Transactional
     public void subCodeNum(String platform, PlatformConfig platformConfig, GameRecord record) {
-        log.info("开始打码,平台={}，注单ID={},注单明细={}", platform, record.getBetId(), record.toString());
+        log.info("开始打码,平台={}，注单ID={},注单明细={}",platform,record.getBetId(), record.toString());
         BigDecimal validbet = new BigDecimal(record.getValidbet());
         Long userId = record.getUserId();
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
@@ -229,7 +229,6 @@ public class UserMoneyBusiness {
 
     /**
      * 增加账号实时余额
-     *
      * @param userId
      * @param balance
      */
@@ -242,7 +241,6 @@ public class UserMoneyBusiness {
 
     /**
      * 扣减账号实时余额
-     *
      * @param userId
      * @param balance
      */

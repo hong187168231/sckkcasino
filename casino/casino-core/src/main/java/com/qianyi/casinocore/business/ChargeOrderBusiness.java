@@ -131,7 +131,7 @@ public class ChargeOrderBusiness {
             userMoney.setIsFirst(1);
         }
         userMoneyService.save(userMoney);
-        userMoneyBusiness.addBalance(userMoney.getUserId(), chargeOrder.getChargeAmount());
+        userMoneyBusiness.addBalanceAdmin(userMoney.getUserId(), chargeOrder.getChargeAmount());
         //流水表记录
         RechargeTurnover turnover = getRechargeTurnover(chargeOrder,userMoney, codeNum, codeTimes);
         rechargeTurnoverService.save(turnover);
@@ -238,7 +238,7 @@ public class ChargeOrderBusiness {
         change.setAmountAfter(BigDecimal.ZERO);
         // 5=>总控人工清零
         change.setType(5);
-        userMoneyBusiness.subBalance(userId, userMoney.getBalance());
+        userMoneyBusiness.subBalanceAdmin(userId, userMoney.getBalance());
         codeNumChangeService.save(change);
     }
 
