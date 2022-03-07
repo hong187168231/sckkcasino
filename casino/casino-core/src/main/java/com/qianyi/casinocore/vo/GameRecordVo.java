@@ -90,8 +90,6 @@ public class GameRecordVo implements Serializable {
         this.winLoss = gameRecord.getWinLoss();
         this.ip = gameRecord.getIp();
         this.gid = gameRecord.getGid();
-        this.eventAndRound = gameRecord.getEventAndRound();
-        this.eventChildAndSubround = gameRecord.getEventChildAndSubround();
         this.tableId = gameRecord.getTableId();
         this.gameResult = gameRecord.getGameResult();
         this.gname = gameRecord.getGname();
