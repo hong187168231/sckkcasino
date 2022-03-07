@@ -84,9 +84,9 @@ public class Initialization implements CommandLineRunner {
         this.saveBankInfo();
         this.runProxyRebateConfig();
         // 初始化权限相关。
-//        this.initPermission();
-         this.runSysPermissionConfig();
-         this.addPermissionConfig();
+        this.initPermission();
+        // this.runSysPermissionConfig();
+        // this.addPermissionConfig();
         this.runAddSysUser();
         //客户中心配置初始化
         this.saveCustomerConfigureInfo();
