@@ -186,12 +186,14 @@ public class UserMoneyBusiness {
      */
     @Transactional
     public void addBalance(Long userId, BigDecimal balance) {
+        UserMoney userMoney = userMoneyService.findUserByUserIdUse(userId);
+        //打码量清0或者balance已经归0后不再累加
+        if (userMoney.getCodeNum().compareTo(BigDecimal.ZERO) == 0 || userMoney.getBalance().compareTo(BigDecimal.ZERO) == 0) {
+            return;
+        }
+        //打码量和balance清0后不再累加
         if (balance != null && balance.compareTo(BigDecimal.ZERO) == 1) {
-            UserMoney userMoney = userMoneyService.findUserByUserIdUse(userId);
-            //打码量和balance清0后不再累加
-            if (userMoney.getCodeNum().compareTo(BigDecimal.ZERO) == 1 && userMoney.getBalance().compareTo(BigDecimal.ZERO) == 1) {
-                userMoneyService.addBalance(userId, balance);
-            }
+            userMoneyService.addBalance(userId, balance);
         }
     }
 
@@ -202,8 +204,16 @@ public class UserMoneyBusiness {
      */
     @Transactional
     public void subBalance(Long userId, BigDecimal balance) {
+        UserMoney userMoney = userMoneyService.findUserByUserIdUse(userId);
+        if (userMoney.getBalance().compareTo(BigDecimal.ZERO) == 0) {
+            return;
+        }
+        //打码量等于0时，balance也要清0
+        if (userMoney.getCodeNum().compareTo(BigDecimal.ZERO) == 0) {
+            userMoneyService.subBalance(userId, userMoney.getBalance());
+            return;
+        }
         if (balance != null && balance.compareTo(BigDecimal.ZERO) == 1) {
-            UserMoney userMoney = userMoneyService.findUserByUserIdUse(userId);
             //剩余的小于扣减的
             if (userMoney.getBalance().compareTo(balance) == -1) {
                 balance = userMoney.getBalance();
