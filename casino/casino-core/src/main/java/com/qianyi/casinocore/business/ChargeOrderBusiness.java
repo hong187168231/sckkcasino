@@ -57,6 +57,9 @@ public class ChargeOrderBusiness {
     @Autowired
     private AccountChangeService accountChangeService;
 
+    @Autowired
+    private UserMoneyBusiness userMoneyBusiness;
+
     /**
      * 成功订单确认
      * @param id 充值订单id
@@ -128,6 +131,7 @@ public class ChargeOrderBusiness {
             userMoney.setIsFirst(1);
         }
         userMoneyService.save(userMoney);
+        userMoneyBusiness.addBalance(userMoney.getUserId(), chargeOrder.getChargeAmount());
         //流水表记录
         RechargeTurnover turnover = getRechargeTurnover(chargeOrder,userMoney, codeNum, codeTimes);
         rechargeTurnoverService.save(turnover);
@@ -234,6 +238,7 @@ public class ChargeOrderBusiness {
         change.setAmountAfter(BigDecimal.ZERO);
         // 5=>总控人工清零
         change.setType(5);
+        userMoneyBusiness.subBalance(userId, userMoney.getBalance());
         codeNumChangeService.save(change);
     }
 
