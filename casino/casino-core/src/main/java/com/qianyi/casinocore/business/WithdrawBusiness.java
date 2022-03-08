@@ -50,6 +50,9 @@ public class WithdrawBusiness {
     @Autowired
     private UserMoneyBusiness userMoneyBusiness;
 
+    //默认最小清零打码量
+    private static final BigDecimal DEFAULT_CLEAR = new BigDecimal("10");
+
     @Autowired
     @Qualifier("accountChangeJob")
     private AsyncService asyncService;
@@ -234,8 +237,7 @@ public class WithdrawBusiness {
         userMoney.setMoney(money);
         userMoneyService.save(userMoney);
         //清零点方法
-        checkClearBalance(userId, withdrawOrder.getWithdrawMoney());
-
+        checkClearBalance(userId, withdrawOrder.getWithdrawMoney(), userMoney);
         log.info("后台直接下分userId {} 订单号 {} withdrawMoney is {}, money is {}",userMoney.getUserId(),withdrawOrder.getNo(),withdrawMoney, money);
         //记录用户账变
         this.saveAccountChang(AccountChangeEnum.SUB_CODE,userMoney.getUserId(),withdrawOrder,amountBefore,userMoney.getMoney());
@@ -243,11 +245,38 @@ public class WithdrawBusiness {
     }
 
     @Async
-    private void checkClearBalance(Long userId, BigDecimal withdrawMoney) {
-        userMoneyBusiness.subBalanceAdmin(userId, withdrawMoney);
+    private void checkClearBalance(Long userId, BigDecimal withdrawMoney, UserMoney user) {
+
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
-        userMoneyBusiness.checkClearCodeNum(platformConfig, userId, userMoney);
+        BigDecimal minCodeNumVal = DEFAULT_CLEAR;
+        if (platformConfig != null && platformConfig.getClearCodeNum() != null) {
+            minCodeNumVal = platformConfig.getClearCodeNum();
+        }
+        //余额小于等于最小清零打码量时 直接清0
+        BigDecimal beforeBalance = user.getBalance().subtract(withdrawMoney);
+        if (beforeBalance.compareTo(minCodeNumVal) < 1) {
+            this.checkClearCodeNum(userId, user, minCodeNumVal);
+        }else{
+            userMoneyBusiness.subBalanceAdmin(userId, withdrawMoney);
+        }
+    }
+
+    public void checkClearCodeNum(Long userId, UserMoney user, BigDecimal minCodeNumVal) {
+        //打码已经归0，实时余额直接归0
+        if (user.getCodeNum().compareTo(BigDecimal.ZERO) == 0) {
+            userMoneyService.subBalance(userId, user.getBalance());
+            return;
+        }
+
+        //余额小于等于最小清零打码量时 直接清0
+        //打码量和实时余额都清0
+        userMoneyService.subCodeNum(userId, user.getCodeNum());
+        userMoneyService.subBalance(userId, user.getBalance());
+        CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, null, null, user.getCodeNum(), BigDecimal.ZERO);
+        codeNumChange.setType(1);
+        codeNumChange.setClearCodeNum(minCodeNumVal);
+        codeNumChangeService.save(codeNumChange);
+        log.info("触发最小清零打码量，打码量清0,最小清0点={},UserId={}", minCodeNumVal, userId);
     }
 
     @Transactional
