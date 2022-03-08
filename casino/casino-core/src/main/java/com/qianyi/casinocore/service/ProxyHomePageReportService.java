@@ -58,34 +58,34 @@ public class ProxyHomePageReportService {
         return proxyHomePageReportRepository.findByProxyUserId(proxyUserId);
     }
 
-    @Transactional
-    public void updateFirstProxy(Long proxyUserId, Long firstProxy){
-        proxyHomePageReportRepository.updateFirstProxy(proxyUserId,firstProxy);
-    }
-
-    @Transactional
-    public void updateSecondProxy(Long proxyUserId, Long secondProxy){
-        proxyHomePageReportRepository.updateSecondProxy(proxyUserId,secondProxy);
-    }
-
-    public ProxyHomePageReport findByProxyUserIdAndStaticsTimes(Long proxyUserId,String staticsTimes){
-        return proxyHomePageReportRepository.findByProxyUserIdAndStaticsTimes(proxyUserId,staticsTimes);
-    }
-
-    public List<ProxyHomePageReport> findHomePageReports(ProxyHomePageReport proxyHomePageReport,String startTime, String endTime) {
-        Specification<ProxyHomePageReport> condition = this.getCondition(proxyHomePageReport,startTime,endTime);
-        return proxyHomePageReportRepository.findAll(condition);
-    }
-
-    public List<ProxyHomePageReport> findHomePageReports(List<Long> proxyUserId,ProxyHomePageReport proxyHomePageReport,String startTime, String endTime) {
-        Specification<ProxyHomePageReport> condition = this.getCondition(proxyUserId,proxyHomePageReport,startTime,endTime);
-        return proxyHomePageReportRepository.findAll(condition);
-    }
-
-    public List<ProxyHomePageReport> findHomePageReports(ProxyHomePageReport proxyHomePageReport,String startTime, String endTime, Sort sort) {
-        Specification<ProxyHomePageReport> condition = this.getCondition(proxyHomePageReport,startTime,endTime);
-        return proxyHomePageReportRepository.findAll(condition,sort);
-    }
+//    @Transactional
+//    public void updateFirstProxy(Long proxyUserId, Long firstProxy){
+//        proxyHomePageReportRepository.updateFirstProxy(proxyUserId,firstProxy);
+//    }
+//
+//    @Transactional
+//    public void updateSecondProxy(Long proxyUserId, Long secondProxy){
+//        proxyHomePageReportRepository.updateSecondProxy(proxyUserId,secondProxy);
+//    }
+//
+//    public ProxyHomePageReport findByProxyUserIdAndStaticsTimes(Long proxyUserId,String staticsTimes){
+//        return proxyHomePageReportRepository.findByProxyUserIdAndStaticsTimes(proxyUserId,staticsTimes);
+//    }
+//
+//    public List<ProxyHomePageReport> findHomePageReports(ProxyHomePageReport proxyHomePageReport,String startTime, String endTime) {
+//        Specification<ProxyHomePageReport> condition = this.getCondition(proxyHomePageReport,startTime,endTime);
+//        return proxyHomePageReportRepository.findAll(condition);
+//    }
+//
+//    public List<ProxyHomePageReport> findHomePageReports(List<Long> proxyUserId,ProxyHomePageReport proxyHomePageReport,String startTime, String endTime) {
+//        Specification<ProxyHomePageReport> condition = this.getCondition(proxyUserId,proxyHomePageReport,startTime,endTime);
+//        return proxyHomePageReportRepository.findAll(condition);
+//    }
+//
+//    public List<ProxyHomePageReport> findHomePageReports(ProxyHomePageReport proxyHomePageReport,String startTime, String endTime, Sort sort) {
+//        Specification<ProxyHomePageReport> condition = this.getCondition(proxyHomePageReport,startTime,endTime);
+//        return proxyHomePageReportRepository.findAll(condition,sort);
+//    }
 
     private Specification<ProxyHomePageReport> getCondition(ProxyHomePageReport proxyHomePageReport,String startTime, String endTime) {
         Specification<ProxyHomePageReport> specification = new Specification<ProxyHomePageReport>() {

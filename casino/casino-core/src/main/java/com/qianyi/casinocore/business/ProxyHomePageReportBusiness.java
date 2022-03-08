@@ -1,11 +1,8 @@
 package com.qianyi.casinocore.business;
 
-import com.qianyi.casinocore.model.ProxyHomePageReport;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.service.ProxyHomePageReportService;
 import com.qianyi.casinocore.service.ProxyUserService;
-import com.qianyi.casinocore.service.UserRunningWaterService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -24,16 +21,10 @@ import java.util.stream.Collectors;
 public class ProxyHomePageReportBusiness {
 
     @Autowired
-    private ProxyHomePageReportService proxyHomePageReportService;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
     private ProxyUserService proxyUserService;
-
-    @Autowired
-    private UserRunningWaterService userRunningWaterService;
     @Transactional
     public ResponseEntity transferUser(Long id,Long acceptId,ProxyUser accept){
         //加锁
@@ -70,29 +61,29 @@ public class ProxyHomePageReportBusiness {
         return ResponseUtil.success();
     }
 
-    private void transferAdd(List<ProxyHomePageReport> homePageReports, Long acceptId, Integer proxyRole, ProxyUser accept){
-        homePageReports.forEach(proxyHomePageReport1 -> {
-            ProxyHomePageReport proxyHome = proxyHomePageReportService.findByProxyUserIdAndStaticsTimes(acceptId, proxyHomePageReport1.getStaticsTimes());
-            if (proxyHome == null){
-                proxyHome = new ProxyHomePageReport(acceptId,proxyHomePageReport1.getStaticsTimes(),proxyHomePageReport1.getStaticsMonth(),proxyHomePageReport1.getStaticsYear(),accept.getFirstProxy(),proxyRole);
-                if (proxyRole != CommonConst.NUMBER_1){
-                    proxyHome.setSecondProxy(accept.getSecondProxy());
-                }
-            }
-            proxyHome.setNewUsers(proxyHome.getNewUsers() + proxyHomePageReport1.getNewUsers());
-            proxyHomePageReportService.save(proxyHome);
-        });
-    }
+//    private void transferAdd(List<ProxyHomePageReport> homePageReports, Long acceptId, Integer proxyRole, ProxyUser accept){
+//        homePageReports.forEach(proxyHomePageReport1 -> {
+//            ProxyHomePageReport proxyHome = proxyHomePageReportService.findByProxyUserIdAndStaticsTimes(acceptId, proxyHomePageReport1.getStaticsTimes());
+//            if (proxyHome == null){
+//                proxyHome = new ProxyHomePageReport(acceptId,proxyHomePageReport1.getStaticsTimes(),proxyHomePageReport1.getStaticsMonth(),proxyHomePageReport1.getStaticsYear(),accept.getFirstProxy(),proxyRole);
+//                if (proxyRole != CommonConst.NUMBER_1){
+//                    proxyHome.setSecondProxy(accept.getSecondProxy());
+//                }
+//            }
+//            proxyHome.setNewUsers(proxyHome.getNewUsers() + proxyHomePageReport1.getNewUsers());
+//            proxyHomePageReportService.save(proxyHome);
+//        });
+//    }
 
-    private void transferSub(List<ProxyHomePageReport> homePageReports,Long proxyId){
-        homePageReports.forEach(proxyHomePageReport1 -> {
-            ProxyHomePageReport proxyHome = proxyHomePageReportService.findByProxyUserIdAndStaticsTimes(proxyId, proxyHomePageReport1.getStaticsTimes());
-            if (proxyHome != null){
-                proxyHome.setNewUsers(proxyHome.getNewUsers() - proxyHomePageReport1.getNewUsers());
-                proxyHomePageReportService.save(proxyHome);
-            }
-        });
-    }
+//    private void transferSub(List<ProxyHomePageReport> homePageReports,Long proxyId){
+//        homePageReports.forEach(proxyHomePageReport1 -> {
+//            ProxyHomePageReport proxyHome = proxyHomePageReportService.findByProxyUserIdAndStaticsTimes(proxyId, proxyHomePageReport1.getStaticsTimes());
+//            if (proxyHome != null){
+//                proxyHome.setNewUsers(proxyHome.getNewUsers() - proxyHomePageReport1.getNewUsers());
+//                proxyHomePageReportService.save(proxyHome);
+//            }
+//        });
+//    }
 
     private  Boolean check(Long id,ProxyUser accept){
         User user = new User();
@@ -146,32 +137,32 @@ public class ProxyHomePageReportBusiness {
     }
 
 
-    private void transferProxyAdd(List<ProxyHomePageReport> homePageReports, Long acceptId, Integer proxyRole, ProxyUser accept){
-        homePageReports.forEach(proxyHomePageReport1 -> {
-            ProxyHomePageReport proxyHome = proxyHomePageReportService.findByProxyUserIdAndStaticsTimes(acceptId, proxyHomePageReport1.getStaticsTimes());
-            if (proxyHome == null){
-                proxyHome = new ProxyHomePageReport(acceptId,proxyHomePageReport1.getStaticsTimes(),proxyHomePageReport1.getStaticsMonth(),proxyHomePageReport1.getStaticsYear(),accept.getFirstProxy(),proxyRole);
-                if (proxyRole != CommonConst.NUMBER_1){
-                    proxyHome.setSecondProxy(accept.getId());
-                }
-            }
-            proxyHome.setNewUsers(proxyHome.getNewUsers() + proxyHomePageReport1.getNewUsers());
-            proxyHome.setNewSecondProxys(proxyHome.getNewSecondProxys() + proxyHomePageReport1.getNewSecondProxys());
-            proxyHome.setNewThirdProxys(proxyHome.getNewThirdProxys() + proxyHomePageReport1.getNewThirdProxys());
-            proxyHomePageReportService.save(proxyHome);
-        });
-    }
+//    private void transferProxyAdd(List<ProxyHomePageReport> homePageReports, Long acceptId, Integer proxyRole, ProxyUser accept){
+//        homePageReports.forEach(proxyHomePageReport1 -> {
+//            ProxyHomePageReport proxyHome = proxyHomePageReportService.findByProxyUserIdAndStaticsTimes(acceptId, proxyHomePageReport1.getStaticsTimes());
+//            if (proxyHome == null){
+//                proxyHome = new ProxyHomePageReport(acceptId,proxyHomePageReport1.getStaticsTimes(),proxyHomePageReport1.getStaticsMonth(),proxyHomePageReport1.getStaticsYear(),accept.getFirstProxy(),proxyRole);
+//                if (proxyRole != CommonConst.NUMBER_1){
+//                    proxyHome.setSecondProxy(accept.getId());
+//                }
+//            }
+//            proxyHome.setNewUsers(proxyHome.getNewUsers() + proxyHomePageReport1.getNewUsers());
+//            proxyHome.setNewSecondProxys(proxyHome.getNewSecondProxys() + proxyHomePageReport1.getNewSecondProxys());
+//            proxyHome.setNewThirdProxys(proxyHome.getNewThirdProxys() + proxyHomePageReport1.getNewThirdProxys());
+//            proxyHomePageReportService.save(proxyHome);
+//        });
+//    }
 
-    private void transferProxySub(List<ProxyHomePageReport> homePageReports,Long proxyId){
-        homePageReports.forEach(proxyHomePageReport1 -> {
-            ProxyHomePageReport proxyHome = proxyHomePageReportService.findByProxyUserIdAndStaticsTimes(proxyId, proxyHomePageReport1.getStaticsTimes());
-            if (proxyHome != null){
-                proxyHome.setNewUsers(proxyHome.getNewUsers() - proxyHomePageReport1.getNewUsers());
-                proxyHome.setNewThirdProxys(proxyHome.getNewThirdProxys() - proxyHomePageReport1.getNewThirdProxys());
-                proxyHomePageReportService.save(proxyHome);
-            }
-        });
-    }
+//    private void transferProxySub(List<ProxyHomePageReport> homePageReports,Long proxyId){
+//        homePageReports.forEach(proxyHomePageReport1 -> {
+//            ProxyHomePageReport proxyHome = proxyHomePageReportService.findByProxyUserIdAndStaticsTimes(proxyId, proxyHomePageReport1.getStaticsTimes());
+//            if (proxyHome != null){
+//                proxyHome.setNewUsers(proxyHome.getNewUsers() - proxyHomePageReport1.getNewUsers());
+//                proxyHome.setNewThirdProxys(proxyHome.getNewThirdProxys() - proxyHomePageReport1.getNewThirdProxys());
+//                proxyHomePageReportService.save(proxyHome);
+//            }
+//        });
+//    }
 
     @Transactional
     public ResponseEntity transferProxy(ProxyUser byId,ProxyUser accept){
