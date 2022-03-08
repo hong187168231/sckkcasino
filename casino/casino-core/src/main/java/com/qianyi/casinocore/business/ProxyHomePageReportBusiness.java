@@ -1,7 +1,9 @@
 package com.qianyi.casinocore.business;
 
+import com.qianyi.casinocore.model.ProxyCommission;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.service.ProxyCommissionService;
 import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.util.CommonConst;
@@ -25,6 +27,9 @@ public class ProxyHomePageReportBusiness {
 
     @Autowired
     private ProxyUserService proxyUserService;
+
+    @Autowired
+    private ProxyCommissionService proxyCommissionService;
     @Transactional
     public ResponseEntity transferUser(Long id,Long acceptId,ProxyUser accept){
         //加锁
@@ -131,6 +136,10 @@ public class ProxyHomePageReportBusiness {
         proxyUsers.forEach(proxyUser1 -> {
             proxyUser1.setSecondProxy(accept.getId());
             proxyUserService.save(proxyUser1);
+
+            ProxyCommission byProxyUserId = proxyCommissionService.findByProxyUserId(proxyUser1.getId());
+            byProxyUserId.setSecondProxy(accept.getId());
+            proxyCommissionService.save(byProxyUserId);
         });
         proxyUserList.addAll(proxyUsers);
         return proxyUserList;
@@ -291,6 +300,10 @@ public class ProxyHomePageReportBusiness {
         //修改被转移代理区域代理id
         proxyUserById.setSecondProxy(accept.getId());
         proxyUserService.save(proxyUserById);
+
+        ProxyCommission byProxyUserId = proxyCommissionService.findByProxyUserId(byId.getId());
+        byProxyUserId.setSecondProxy(accept.getId());
+        proxyCommissionService.save(byProxyUserId);
         log.info("向上转移基层代理数据结束");
         return ResponseUtil.success();
     }
