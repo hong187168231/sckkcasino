@@ -254,7 +254,7 @@ public class PublicGoldenFApi {
     }
 
     private static ResponseEntity entity(String result) {
-        if (result == null) {
+        if (ObjectUtils.isEmpty(result)) {
             return null;
         }
         ResponseEntity entity = new ResponseEntity();
@@ -265,6 +265,9 @@ public class PublicGoldenFApi {
             entity.setErrorCode("500");
             entity.setErrorMessage("服务器异常,请重新操作");
             return entity;
+        }
+        if (ObjectUtils.isEmpty(jsonObject)) {
+            return null;
         }
         JSONObject error = jsonObject.getJSONObject("error");
         if (error != null) {
