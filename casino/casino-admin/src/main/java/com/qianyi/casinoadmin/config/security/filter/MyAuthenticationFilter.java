@@ -125,10 +125,4 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    @Bean
-    public HttpFirewall allowUrlEncodeSlashHttpFirewall(){
-        StrictHttpFirewall firewall = new StrictHttpFirewall();
-        firewall.setAllowUrlEncodedDoubleSlash(true);
-        return firewall;
-    }
 }
