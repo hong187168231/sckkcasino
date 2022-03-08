@@ -41,31 +41,31 @@ public class ProxyHomePageReportBusiness {
         if (check(id,accept)){
             return ResponseUtil.success();
         }
-        ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
-        proxyHomePageReport.setProxyUserId(id);
-        List<ProxyHomePageReport> homePageReports = proxyHomePageReportService.findHomePageReports(proxyHomePageReport, null, null);
-        homePageReports = homePageReports.stream().filter(homePageReport ->homePageReport.getNewUsers() != CommonConst.NUMBER_0).collect(Collectors.toList());
-        if (homePageReports.size() == CommonConst.NUMBER_0){
-            return ResponseUtil.success();
-        }
-        log.info("转移会员有效报表{}被转移者id{}",homePageReports.size(),id);
+        //        ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
+        //        proxyHomePageReport.setProxyUserId(id);
+        //        List<ProxyHomePageReport> homePageReports = proxyHomePageReportService.findHomePageReports(proxyHomePageReport, null, null);
+        //        homePageReports = homePageReports.stream().filter(homePageReport ->homePageReport.getNewUsers() != CommonConst.NUMBER_0).collect(Collectors.toList());
+        //        if (homePageReports.size() == CommonConst.NUMBER_0){
+        //            return ResponseUtil.success();
+        //        }
+        //        log.info("转移会员有效报表{}被转移者id{}",homePageReports.size(),id);
         //转移基层
-        this.transferAdd(homePageReports,acceptId,CommonConst.NUMBER_3,accept);
+        //        this.transferAdd(homePageReports,acceptId,CommonConst.NUMBER_3,accept);
         //转移区域
-//        if (!byId.getSecondProxy().equals(accept.getSecondProxy())){
-//            this.transferAdd(homePageReports,accept.getSecondProxy(),CommonConst.NUMBER_2,accept);
-//            this.transferSub(homePageReports,byId.getSecondProxy());
-//        }
-//        //转移总代
-//        if (!byId.getFirstProxy().equals(accept.getFirstProxy())){
-//            this.transferAdd(homePageReports,accept.getFirstProxy(),CommonConst.NUMBER_1,accept);
-//            this.transferSub(homePageReports,byId.getFirstProxy());
-//        }
-        homePageReports.forEach(proxyHomePageReport1 -> {
-            proxyHomePageReport1.setNewUsers(CommonConst.NUMBER_0);
-            proxyHomePageReportService.save(proxyHomePageReport1);
-        });
-        homePageReports.clear();
+        //        if (!byId.getSecondProxy().equals(accept.getSecondProxy())){
+        //            this.transferAdd(homePageReports,accept.getSecondProxy(),CommonConst.NUMBER_2,accept);
+        //            this.transferSub(homePageReports,byId.getSecondProxy());
+        //        }
+        //        //转移总代
+        //        if (!byId.getFirstProxy().equals(accept.getFirstProxy())){
+        //            this.transferAdd(homePageReports,accept.getFirstProxy(),CommonConst.NUMBER_1,accept);
+        //            this.transferSub(homePageReports,byId.getFirstProxy());
+        //        }
+        //        homePageReports.forEach(proxyHomePageReport1 -> {
+        //            proxyHomePageReport1.setNewUsers(CommonConst.NUMBER_0);
+        //            proxyHomePageReportService.save(proxyHomePageReport1);
+        //        });
+        //        homePageReports.clear();
         log.info("转移会员被转移者{} 接受者{}结束",byId.getUserName(),accept.getUserName());
         return ResponseUtil.success();
     }
@@ -105,10 +105,9 @@ public class ProxyHomePageReportBusiness {
         log.info("转移会员被转移者id{}会员数量{}",id,userList.size());
         userList.forEach(user1 -> {
             user1.setThirdProxy(accept.getId());
-//            user1.setSecondProxy(accept.getSecondProxy());
-//            user1.setFirstProxy(accept.getFirstProxy());
+            //            user1.setSecondProxy(accept.getSecondProxy());
+            //            user1.setFirstProxy(accept.getFirstProxy());
             userService.save(user1);
-//            userRunningWaterService.updatetThirdProxy(user1.getId(),accept.getId());
         });
         userList.clear();
         return false;
@@ -206,7 +205,6 @@ public class ProxyHomePageReportBusiness {
             userList.forEach(user1 -> {
                 user1.setFirstProxy(accept.getId());
                 userService.save(user1);
-//                userRunningWaterService.updateFirstProxy(user1.getId(),accept.getId());
             });
             userList.clear();
         }
@@ -216,26 +214,26 @@ public class ProxyHomePageReportBusiness {
         proxyUserService.addProxyUsersNum(accept.getId(),proxyUsers.size());
 
         //查询报表并转移、转移下级、转移自己
-        proxyUserList.forEach(proxyUser1 -> {
-            proxyHomePageReportService.updateFirstProxy(proxyUser1.getId(),accept.getId());
-        });
-        List<ProxyHomePageReport> homePageReports = proxyHomePageReportService.findByProxyUserId(byId.getId());
-        homePageReports = homePageReports.stream().filter(homePageReport ->(homePageReport.getNewUsers() != CommonConst.NUMBER_0
-                || homePageReport.getNewSecondProxys() != CommonConst.NUMBER_0 || homePageReport.getNewThirdProxys() != CommonConst.NUMBER_0)).collect(Collectors.toList());
-        if (homePageReports.size() == CommonConst.NUMBER_0){
-            log.info("无有效报表数据转移总代数据结束");
-            return ResponseUtil.success();
-        }
-        log.info("转移代理被转移者id{} 有效报表数据{}",proxyUser.getFirstProxy(),homePageReports.size());
-        this.transferProxyAdd(homePageReports,accept.getId(),accept.getProxyRole(),accept);
-        homePageReports.forEach(proxyHomePageReport1 -> {
-            proxyHomePageReport1.setNewUsers(CommonConst.NUMBER_0);
-            proxyHomePageReport1.setNewSecondProxys(CommonConst.NUMBER_0);
-            proxyHomePageReport1.setNewThirdProxys(CommonConst.NUMBER_0);
-            proxyHomePageReportService.save(proxyHomePageReport1);
-        });
-        homePageReports.clear();
-        log.info("转移总代数据结束");
+        //        proxyUserList.forEach(proxyUser1 -> {
+        //            proxyHomePageReportService.updateFirstProxy(proxyUser1.getId(),accept.getId());
+        //        });
+        //        List<ProxyHomePageReport> homePageReports = proxyHomePageReportService.findByProxyUserId(byId.getId());
+        //        homePageReports = homePageReports.stream().filter(homePageReport ->(homePageReport.getNewUsers() != CommonConst.NUMBER_0
+        //                || homePageReport.getNewSecondProxys() != CommonConst.NUMBER_0 || homePageReport.getNewThirdProxys() != CommonConst.NUMBER_0)).collect(Collectors.toList());
+        //        if (homePageReports.size() == CommonConst.NUMBER_0){
+        //            log.info("无有效报表数据转移总代数据结束");
+        //            return ResponseUtil.success();
+        //        }
+        //        log.info("转移代理被转移者id{} 有效报表数据{}",proxyUser.getFirstProxy(),homePageReports.size());
+        //        this.transferProxyAdd(homePageReports,accept.getId(),accept.getProxyRole(),accept);
+        //        homePageReports.forEach(proxyHomePageReport1 -> {
+        //            proxyHomePageReport1.setNewUsers(CommonConst.NUMBER_0);
+        //            proxyHomePageReport1.setNewSecondProxys(CommonConst.NUMBER_0);
+        //            proxyHomePageReport1.setNewThirdProxys(CommonConst.NUMBER_0);
+        //            proxyHomePageReportService.save(proxyHomePageReport1);
+        //        });
+        //        homePageReports.clear();
+        //        log.info("转移总代数据结束");
         return ResponseUtil.success();
     }
 
@@ -259,7 +257,6 @@ public class ProxyHomePageReportBusiness {
             userList.forEach(user1 -> {
                 user1.setSecondProxy(accept.getId());
                 userService.save(user1);
-//                userRunningWaterService.updateSecondProxy(user1.getId(),accept.getId());
             });
             userList.clear();
         }
@@ -269,25 +266,58 @@ public class ProxyHomePageReportBusiness {
         proxyUserService.addProxyUsersNum(accept.getId(),proxyUsers.size());
 
         //查询报表并转移、转移下级、转移自己
-        proxyUserList.forEach(proxyUser1 -> {
-            proxyHomePageReportService.updateSecondProxy(proxyUser1.getId(),accept.getId());
-        });
-        List<ProxyHomePageReport> homePageReports = proxyHomePageReportService.findByProxyUserId(byId.getId());
-        homePageReports = homePageReports.stream().filter(homePageReport ->(homePageReport.getNewUsers() != CommonConst.NUMBER_0
-                ||  homePageReport.getNewThirdProxys() != CommonConst.NUMBER_0)).collect(Collectors.toList());
-        if (homePageReports.size() == CommonConst.NUMBER_0){
-            log.info("无有效报表数据转移区域代数据结束");
-            return ResponseUtil.success();
-        }
-        log.info("转移代理被转移者id{} 有效报表数据{}",proxyUser.getSecondProxy(),homePageReports.size());
-        this.transferProxyAdd(homePageReports,accept.getId(),accept.getProxyRole(),accept);
-        homePageReports.forEach(proxyHomePageReport1 -> {
-            proxyHomePageReport1.setNewUsers(CommonConst.NUMBER_0);
-            proxyHomePageReport1.setNewThirdProxys(CommonConst.NUMBER_0);
-            proxyHomePageReportService.save(proxyHomePageReport1);
-        });
-        homePageReports.clear();
+        //        proxyUserList.forEach(proxyUser1 -> {
+        //            proxyHomePageReportService.updateSecondProxy(proxyUser1.getId(),accept.getId());
+        //        });
+        //        List<ProxyHomePageReport> homePageReports = proxyHomePageReportService.findByProxyUserId(byId.getId());
+        //        homePageReports = homePageReports.stream().filter(homePageReport ->(homePageReport.getNewUsers() != CommonConst.NUMBER_0
+        //                ||  homePageReport.getNewThirdProxys() != CommonConst.NUMBER_0)).collect(Collectors.toList());
+        //        if (homePageReports.size() == CommonConst.NUMBER_0){
+        //            log.info("无有效报表数据转移区域代数据结束");
+        //            return ResponseUtil.success();
+        //        }
+        //        log.info("转移代理被转移者id{} 有效报表数据{}",proxyUser.getSecondProxy(),homePageReports.size());
+        //        this.transferProxyAdd(homePageReports,accept.getId(),accept.getProxyRole(),accept);
+        //        homePageReports.forEach(proxyHomePageReport1 -> {
+        //            proxyHomePageReport1.setNewUsers(CommonConst.NUMBER_0);
+        //            proxyHomePageReport1.setNewThirdProxys(CommonConst.NUMBER_0);
+        //            proxyHomePageReportService.save(proxyHomePageReport1);
+        //        });
+        //        homePageReports.clear();
         log.info("转移区域代数据结束");
         return ResponseUtil.success();
+    }
+
+    @Transactional
+    public ResponseEntity transferProxyUp(ProxyUser byId,ProxyUser accept){
+        //加锁
+        ProxyUser proxyUserById = proxyUserService.findProxyUserById(byId.getId());
+        //转移会员
+        this.transferUser(byId.getId(),accept);
+        //修改两个区域代的下级人数
+        proxyUserService.subProxyUsersNum(byId.getSecondProxy(),CommonConst.NUMBER_1);
+        proxyUserService.addProxyUsersNum(accept.getId(),CommonConst.NUMBER_1);
+        //修改被转移代理区域代理id
+        proxyUserById.setSecondProxy(accept.getId());
+        proxyUserService.save(proxyUserById);
+        log.info("向上转移基层代理数据结束");
+        return ResponseUtil.success();
+    }
+
+    private  Boolean transferUser(Long id,ProxyUser accept){
+        User user = new User();
+        user.setThirdProxy(id);
+        List<User> userList = userService.findUserList(user, null, null);
+        if (userList == null || userList.size() == CommonConst.NUMBER_0){
+            log.info("转移会员被转移者id{}无会员",id);
+            return true;
+        }
+        log.info("转移会员被转移者id{}会员数量{}",id,userList.size());
+        userList.forEach(user1 -> {
+            user1.setSecondProxy(accept.getId());
+            userService.save(user1);
+        });
+        userList.clear();
+        return false;
     }
 }

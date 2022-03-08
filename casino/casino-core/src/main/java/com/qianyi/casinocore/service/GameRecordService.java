@@ -78,20 +78,44 @@ public class GameRecordService {
         return gameRecordRepository.findSumBetAndWinLossByFirst(startTime,endTime,firstProxy);
     }
 
-    public Set<Long> findGroupBySecond(String startTime,String endTime,Long firstProxy){
-        return gameRecordRepository.findGroupBySecond(startTime,endTime,firstProxy);
+    public Set<Long> findGroupBySecond(String startTime,String endTime,Long secondProxy){
+        return gameRecordRepository.findGroupBySecond(startTime,endTime,secondProxy);
     }
 
-    public Map<String, Object> findSumBetAndWinLossBySecond(String startTime,String endTime,Long firstProxy){
-        return gameRecordRepository.findSumBetAndWinLossBySecond(startTime,endTime,firstProxy);
+    public Map<String, Object> findSumBetAndWinLossBySecond(String startTime,String endTime,Long secondProxy){
+        return gameRecordRepository.findSumBetAndWinLossBySecond(startTime,endTime,secondProxy);
     }
 
-    public Set<Long> findGroupByThird(String startTime,String endTime,Long firstProxy){
-        return gameRecordRepository.findGroupByThird(startTime,endTime,firstProxy);
+    public Set<Long> findGroupByThird(String startTime,String endTime,Long thirdProxy){
+        return gameRecordRepository.findGroupByThird(startTime,endTime,thirdProxy);
     }
 
-    public Map<String, Object> findSumBetAndWinLossByThird(String startTime,String endTime,Long firstProxy){
-        return gameRecordRepository.findSumBetAndWinLossByThird(startTime,endTime,firstProxy);
+    public Map<String, Object> findSumBetAndWinLossByThird(String startTime,String endTime,Long thirdProxy){
+        return gameRecordRepository.findSumBetAndWinLossByThird(startTime,endTime,thirdProxy);
+    }
+
+    public Set<Long> findGroupByFirst(Long firstProxy){
+        return gameRecordRepository.findGroupByFirst(firstProxy);
+    }
+
+    public Map<String, Object> findSumBetAndWinLossByFirst(Long firstProxy){
+        return gameRecordRepository.findSumBetAndWinLossByFirst(firstProxy);
+    }
+
+    public Set<Long> findGroupBySecond(Long secondProxy){
+        return gameRecordRepository.findGroupBySecond(secondProxy);
+    }
+
+    public Map<String, Object> findSumBetAndWinLossBySecond(Long secondProxy){
+        return gameRecordRepository.findSumBetAndWinLossBySecond(secondProxy);
+    }
+
+    public Set<Long> findGroupByThird(Long thirdProxy){
+        return gameRecordRepository.findGroupByThird(thirdProxy);
+    }
+
+    public Map<String, Object> findSumBetAndWinLossByThird(Long thirdProxy){
+        return gameRecordRepository.findSumBetAndWinLossByThird(thirdProxy);
     }
 
     public  GameRecord  findRecordRecordSum(GameRecord game,String startBetTime,String endBetTime,String startSetTime,String endSetTime) {

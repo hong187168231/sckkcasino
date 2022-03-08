@@ -291,6 +291,47 @@ public class WithdrawOrderService {
         return singleResult;
     }
 
+    public  WithdrawOrder  sumWithdrawOrder(WithdrawOrder withdrawOrder,Date startDate,Date endDatee) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<WithdrawOrder> query = builder.createQuery(WithdrawOrder.class);
+        Root<WithdrawOrder> root = query.from(WithdrawOrder.class);
+
+        query.multiselect(
+            builder.sum(root.get("withdrawMoney").as(BigDecimal.class)).alias("withdrawMoney")
+        );
+        List<Predicate> predicates = new ArrayList();
+
+        if (withdrawOrder.getStatus() != null) {
+            predicates.add(
+                builder.equal(root.get("status").as(Integer.class), withdrawOrder.getStatus())
+            );
+        }
+        if (withdrawOrder.getFirstProxy() != null) {
+            predicates.add(
+                builder.equal(root.get("firstProxy").as(Long.class), withdrawOrder.getFirstProxy())
+            );
+        }
+        if (withdrawOrder.getSecondProxy() != null) {
+            predicates.add(
+                builder.equal(root.get("secondProxy").as(Long.class), withdrawOrder.getSecondProxy())
+            );
+        }
+        if (withdrawOrder.getThirdProxy() != null) {
+            predicates.add(
+                builder.equal(root.get("thirdProxy").as(Long.class), withdrawOrder.getThirdProxy())
+            );
+        }
+        if (startDate != null) {
+            predicates.add(builder.greaterThanOrEqualTo(root.get("updateTime").as(Date.class), startDate));
+        }
+        if (endDatee != null) {
+            predicates.add(builder.lessThanOrEqualTo(root.get("updateTime").as(Date.class),endDatee));
+        }
+        query
+            .where(predicates.toArray(new Predicate[predicates.size()]));
+        WithdrawOrder singleResult = entityManager.createQuery(query).getSingleResult();
+        return singleResult;
+    }
 
     public BigDecimal sumWithdrawMoney(){
         return withdrawOrderRepository.sumWithdrawMoney();

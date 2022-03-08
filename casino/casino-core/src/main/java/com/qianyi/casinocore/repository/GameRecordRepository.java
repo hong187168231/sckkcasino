@@ -104,4 +104,22 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
 
     @Query(value = "select ifnull(SUM(g.validbet),0) validbet,ifnull(SUM(g.win_loss),0) winLoss  from game_record g where g.bet_time BETWEEN ?1 and ?2 and g.third_proxy = ?3",nativeQuery = true)
     Map<String, Object> findSumBetAndWinLossByThird(String startTime,String endTime,Long thirdProxy);
+
+    @Query(value = "select g.user_id  from game_record g where  g.first_proxy = ?1 GROUP BY g.user_id;",nativeQuery = true)
+    Set<Long> findGroupByFirst(Long firstProxy);
+
+    @Query(value = "select ifnull(SUM(g.validbet),0) validbet,ifnull(SUM(g.win_loss),0) winLoss from game_record g where g.first_proxy = ?1",nativeQuery = true)
+    Map<String, Object> findSumBetAndWinLossByFirst(Long firstProxy);
+
+    @Query(value = "select g.user_id  from game_record g where g.second_proxy = ?1 GROUP BY g.user_id;",nativeQuery = true)
+    Set<Long> findGroupBySecond(Long secondProxy);
+
+    @Query(value = "select ifnull(SUM(g.validbet),0) validbet,ifnull(SUM(g.win_loss),0) winLoss  from game_record g where g.second_proxy = ?1",nativeQuery = true)
+    Map<String, Object> findSumBetAndWinLossBySecond(Long secondProxy);
+
+    @Query(value = "select g.user_id  from game_record g where g.third_proxy = ?1 GROUP BY g.user_id;",nativeQuery = true)
+    Set<Long> findGroupByThird(Long thirdProxy);
+
+    @Query(value = "select ifnull(SUM(g.validbet),0) validbet,ifnull(SUM(g.win_loss),0) winLoss  from game_record g where  g.third_proxy = ?1",nativeQuery = true)
+    Map<String, Object> findSumBetAndWinLossByThird(Long thirdProxy);
 }

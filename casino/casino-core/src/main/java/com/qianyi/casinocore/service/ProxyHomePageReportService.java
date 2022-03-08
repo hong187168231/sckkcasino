@@ -238,6 +238,44 @@ public class ProxyHomePageReportService {
         }
         return null;
     }
+
+    public void gameRecord(ProxyUser proxyUser,ProxyHomePageReport proxyHomePageReport){
+        try {
+            Set<Long> set = new HashSet<>();
+            BigDecimal validbetAmount = BigDecimal.ZERO;
+            BigDecimal winLoss = BigDecimal.ZERO;
+            Map<String, Object> gameRecordMap = null;
+            Map<String, Object> gameRecordGoldenFMap = null;
+            Set<Long> gameRecordSet = null;
+            Set<Long> gameRecordGoldenFSet = null;
+            if (proxyUser.getProxyRole() == CommonConst.NUMBER_1){
+                gameRecordSet = gameRecordService.findGroupByFirst(proxyUser.getId());
+                gameRecordMap = gameRecordService.findSumBetAndWinLossByFirst( proxyUser.getId());
+                gameRecordGoldenFSet = gameRecordGoldenFService.findGroupByFirst(proxyUser.getId());
+                gameRecordGoldenFMap = gameRecordGoldenFService.findSumBetAndWinLossByFirst(proxyUser.getId());
+            }else if (proxyUser.getProxyRole() == CommonConst.NUMBER_2){
+                gameRecordSet = gameRecordService.findGroupBySecond(proxyUser.getId());
+                gameRecordMap = gameRecordService.findSumBetAndWinLossBySecond(proxyUser.getId());
+                gameRecordGoldenFSet = gameRecordGoldenFService.findGroupBySecond(proxyUser.getId());
+                gameRecordGoldenFMap = gameRecordGoldenFService.findSumBetAndWinLossBySecond(proxyUser.getId());
+            }else {
+                gameRecordSet = gameRecordService.findGroupByThird(proxyUser.getId());
+                gameRecordMap = gameRecordService.findSumBetAndWinLossByThird(proxyUser.getId());
+                gameRecordGoldenFSet = gameRecordGoldenFService.findGroupByThird( proxyUser.getId());
+                gameRecordGoldenFMap = gameRecordGoldenFService.findSumBetAndWinLossByThird(proxyUser.getId());
+            }
+            set.addAll(gameRecordSet);
+            set.addAll(gameRecordGoldenFSet);
+            validbetAmount = new BigDecimal(gameRecordMap.get("validbet").toString()).add(new BigDecimal(gameRecordGoldenFMap.get("betAmount").toString()));
+            winLoss = new BigDecimal(gameRecordMap.get("winLoss").toString()).add(new BigDecimal(gameRecordGoldenFMap.get("winAmount").toString()));
+            proxyHomePageReport.setValidbetAmount(validbetAmount);
+            proxyHomePageReport.setWinLossAmount(winLoss);
+            proxyHomePageReport.setActiveUsers(set.size());
+            set.clear();
+        }catch (Exception ex){
+            log.error("统计代理{}三方游戏注单失败{}",proxyUser.getUserName(),ex);
+        }
+    }
 //    public Set<Long> gameRecordAndActive(ProxyUser proxyUser, String startTime, String endTime, ProxyHomePageReport proxyHomePageReport){
 //        try {
 //            GameRecord gameRecord = new GameRecord();

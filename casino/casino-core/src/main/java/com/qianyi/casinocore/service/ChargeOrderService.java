@@ -288,6 +288,47 @@ public class ChargeOrderService {
         return singleResult;
     }
 
+    public  ChargeOrder  sumChargeOrder(ChargeOrder chargeOrder,Date startDate,Date endDatee) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ChargeOrder> query = builder.createQuery(ChargeOrder.class);
+        Root<ChargeOrder> root = query.from(ChargeOrder.class);
+
+        query.multiselect(
+            builder.sum(root.get("chargeAmount").as(BigDecimal.class)).alias("chargeAmount")
+        );
+        List<Predicate> predicates = new ArrayList();
+
+        if (chargeOrder.getStatus() != null) {
+            predicates.add(
+                builder.equal(root.get("status").as(Integer.class), chargeOrder.getStatus())
+            );
+        }
+        if (chargeOrder.getFirstProxy() != null) {
+            predicates.add(
+                builder.equal(root.get("firstProxy").as(Long.class), chargeOrder.getFirstProxy())
+            );
+        }
+        if (chargeOrder.getSecondProxy() != null) {
+            predicates.add(
+                builder.equal(root.get("secondProxy").as(Long.class), chargeOrder.getSecondProxy())
+            );
+        }
+        if (chargeOrder.getThirdProxy() != null) {
+            predicates.add(
+                builder.equal(root.get("thirdProxy").as(Long.class), chargeOrder.getThirdProxy())
+            );
+        }
+        if (startDate != null) {
+            predicates.add(builder.greaterThanOrEqualTo(root.get("updateTime").as(Date.class), startDate));
+        }
+        if (endDatee != null) {
+            predicates.add(builder.lessThanOrEqualTo(root.get("updateTime").as(Date.class),endDatee));
+        }
+        query
+            .where(predicates.toArray(new Predicate[predicates.size()]));
+        ChargeOrder singleResult = entityManager.createQuery(query).getSingleResult();
+        return singleResult;
+    }
 
     public BigDecimal sumChargeAmount(){
         return chargeOrderRepository.sumChargeAmount();
