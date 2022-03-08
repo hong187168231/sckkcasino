@@ -138,8 +138,10 @@ public class ProxyHomePageReportBusiness {
             proxyUserService.save(proxyUser1);
 
             ProxyCommission byProxyUserId = proxyCommissionService.findByProxyUserId(proxyUser1.getId());
-            byProxyUserId.setSecondProxy(accept.getId());
-            proxyCommissionService.save(byProxyUserId);
+            if (byProxyUserId != null){
+                byProxyUserId.setSecondProxy(accept.getId());
+                proxyCommissionService.save(byProxyUserId);
+            }
         });
         proxyUserList.addAll(proxyUsers);
         return proxyUserList;
@@ -302,8 +304,10 @@ public class ProxyHomePageReportBusiness {
         proxyUserService.save(proxyUserById);
 
         ProxyCommission byProxyUserId = proxyCommissionService.findByProxyUserId(byId.getId());
-        byProxyUserId.setSecondProxy(accept.getId());
-        proxyCommissionService.save(byProxyUserId);
+        if (byProxyUserId != null){
+            byProxyUserId.setSecondProxy(accept.getId());
+            proxyCommissionService.save(byProxyUserId);
+        }
         log.info("向上转移基层代理数据结束");
         return ResponseUtil.success();
     }
