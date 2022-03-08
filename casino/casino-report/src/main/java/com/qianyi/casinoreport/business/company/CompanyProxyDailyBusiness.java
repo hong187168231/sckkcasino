@@ -79,8 +79,8 @@ public class CompanyProxyDailyBusiness {
         log.info("firstList size is {}, secondeList size is {}, thirdList size is {}",firstList.size(),secondeList.size(),thirdList.size());
 
         // 处理总返佣：总返佣group_totalprofit = 下级profit_amount总计
-        List<CompanyProxyDetail> secondeCompanyProxyDetail = processSec(secondeList,thirdList,2);
-        List<CompanyProxyDetail> firstCompanyProxyDetail = processSec(firstList,secondeCompanyProxyDetail,1);
+        List<CompanyProxyDetail> secondeCompanyProxyDetail = processSecTemp(secondeList,thirdList,2);
+        List<CompanyProxyDetail> firstCompanyProxyDetail = processSecTemp(firstList,secondeCompanyProxyDetail,1);
 
         List<CompanyProxyDetail> resultList = Stream.concat(thirdList.stream(),secondeCompanyProxyDetail.stream()).collect(Collectors.toList());
         resultList.addAll(firstCompanyProxyDetail);
@@ -90,7 +90,25 @@ public class CompanyProxyDailyBusiness {
         companyProxyDetailService.saveAll(resultList);
         log.info("save all proxyDetail data finish");
     }
-
+    private List<CompanyProxyDetail> processSecTemp(List<CompanyProxyDetail> firstList,List<CompanyProxyDetail> secList,int level) {
+        Map<Long,List<CompanyProxyDetail>> firstProxy=new HashMap<>();
+        if (level==2){
+            firstProxy = secList.stream().collect(Collectors.groupingBy(CompanyProxyDetail::getSecondProxy));
+        }else {
+            firstProxy = secList.stream().collect(Collectors.groupingBy(CompanyProxyDetail::getFirstProxy));
+        }
+        Map<Long, List<CompanyProxyDetail>> finalFirstProxy = firstProxy;
+        firstList.forEach(info ->{
+            List<CompanyProxyDetail> subList = finalFirstProxy.get(info.getUserId());
+            if (subList!=null){
+                if (subList!=null){
+                    //处理总返佣：总返佣group_totalprofit = 下级profit_amount总计
+                    info.setGroupTotalprofit(subList.stream().map(x->x.getProfitAmount()).reduce(BigDecimal.ZERO,BigDecimal::add));
+                }
+            }
+        });
+        return firstList;
+    }
 
     private List<CompanyProxyDetail> processSec(List<CompanyProxyDetail> firstList,List<CompanyProxyDetail> secList,int level) {
         List<CompanyProxyDetail> companyProxyDetailList = new ArrayList<>();
