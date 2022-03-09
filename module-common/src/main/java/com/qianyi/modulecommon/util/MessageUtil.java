@@ -45,18 +45,22 @@ public class MessageUtil {
     private Locale getLocale() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String language = request.getHeader(Constants.LANGUAGE);
-        //默认中文
-        Locale locale = Locale.CHINA;
+        //默认英文
+        Locale locale = Locale.US;
         //柬埔寨语
         Locale km_kh = new Locale("km", "KH");
         //马来西亚语
         Locale as_MY = new Locale("as", "MY");
-        if (Locale.US.toString().equals(language)) {
-            locale = Locale.US;
+        //泰语
+        Locale th_TH = new Locale("th", "TH");
+        if (Locale.CHINA.toString().equals(language)) {
+            locale = Locale.CHINA;
         } else if (km_kh.toString().equals(language)) {
             locale = km_kh;
         } else if (as_MY.toString().equals(language)) {
             locale = as_MY;
+        } else if (th_TH.toString().equals(language)) {
+            locale = th_TH;
         }
         return locale;
     }

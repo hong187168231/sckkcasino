@@ -10,7 +10,7 @@ public enum LanguageEnum {
     en_US("en-US", "English (英文)", "en_US"),
     zh_CN("zh-CN", "Chinese Simplified(简中)", "zh_CN"),
     ID("ID", "Indonesian (印尼语)"),
-    TH("TH", "Thai (泰语)"),
+    TH("TH", "Thai (泰语)","th_TH"),
     VI("VI", "Vietnamese (越南文)"),
     JA("JA", "Japanese (日文)"),
     KO("KO", "Korean (韩文)"),
