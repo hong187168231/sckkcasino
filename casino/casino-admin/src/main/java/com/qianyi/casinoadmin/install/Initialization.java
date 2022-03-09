@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.install;
 
+import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.install.file.*;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.*;
@@ -7,7 +8,9 @@ import com.qianyi.casinocore.repository.CustomerConfigureRepository;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.util.CommonUtil;
+import com.qianyi.modulecommon.util.HttpClient4Util;
 import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -76,6 +80,8 @@ public class Initialization implements CommandLineRunner {
     @Autowired
     private AccountChangeService accountChangeService;
 
+    @Value("${project.reportUrl}")
+    private String reportUrl;
     @Override
     public void run(String... args) throws Exception {
         log.info("初始化数据开始============================================》");
@@ -94,7 +100,16 @@ public class Initialization implements CommandLineRunner {
 
         this. saveReturnCommissionInfo();
         this.initializationTotalPlatformQuota();
+        this.supplementaryData();
     }
+
+    public void supplementaryData(){
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("dayTime", "2022-01-01");
+        String result = HttpClient4Util.doPost(reportUrl + "/company/supplementaryData", paramMap);
+        ResponseEntity responseEntity = JSONObject.parseObject(result, ResponseEntity.class);
+    }
+
 
     public void initPermission(){
         newPermissions.init();

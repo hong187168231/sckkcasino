@@ -240,7 +240,9 @@ public class CompanyProxyMonthBusiness {
         CompanyLevelBO companyLevelBO = companyLevelProcessBusiness.getLevelData(new BigDecimal(companyOrderAmountVo.getValidbet()),companyOrderAmountVo.getFirstProxy(),companyOrderAmountVo.getGameType());
         //根据基层代查询代理佣金配置表
         ProxyCommission proxyCommission = proxyCommissionService.findByProxyUserId(companyOrderAmountVo.getThirdProxy());
-
+        if(proxyCommission==null){
+            return;
+        }
         log.info("companyLevelBO:{}",companyLevelBO);
         log.info("proxyCommission:{}",proxyCommission);
 

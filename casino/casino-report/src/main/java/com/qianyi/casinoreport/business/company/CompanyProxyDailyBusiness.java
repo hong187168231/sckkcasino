@@ -156,6 +156,10 @@ public class CompanyProxyDailyBusiness {
         //根据基层代查询代理佣金配置表
         ProxyCommission proxyCommission = proxyCommissionService.findByProxyUserId(companyOrderAmountVo.getThirdProxy());
 
+        if(proxyCommission==null){
+            return;
+        }
+
         log.info("companyLevelBO:{}",companyLevelBO);
         log.info("proxyCommission:{}",proxyCommission);
 
