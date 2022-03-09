@@ -106,7 +106,7 @@ public class Initialization implements CommandLineRunner {
     public void supplementaryData(){
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("dayTime", "2022-01-01");
-        String result = HttpClient4Util.doPost(reportUrl + "/company/supplementaryData", paramMap);
+        String result = HttpClient4Util.doPost(reportUrl + "/company/supplementaryData", null);
         ResponseEntity responseEntity = JSONObject.parseObject(result, ResponseEntity.class);
     }
 
