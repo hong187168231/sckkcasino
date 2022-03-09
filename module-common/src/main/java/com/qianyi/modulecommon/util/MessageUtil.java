@@ -2,6 +2,7 @@ package com.qianyi.modulecommon.util;
 
 
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.config.LocaleConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -46,21 +47,15 @@ public class MessageUtil {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String language = request.getHeader(Constants.LANGUAGE);
         //默认英文
-        Locale locale = Locale.US;
-        //柬埔寨语
-        Locale km_kh = new Locale("km", "KH");
-        //马来西亚语
-        Locale as_MY = new Locale("as", "MY");
-        //泰语
-        Locale th_TH = new Locale("th", "TH");
-        if (Locale.CHINA.toString().equals(language)) {
-            locale = Locale.CHINA;
-        } else if (km_kh.toString().equals(language)) {
-            locale = km_kh;
-        } else if (as_MY.toString().equals(language)) {
-            locale = as_MY;
-        } else if (th_TH.toString().equals(language)) {
-            locale = th_TH;
+        Locale locale = LocaleConfig.en_US;
+        if (LocaleConfig.zh_CN.toString().equals(language)) {
+            locale = LocaleConfig.zh_CN;
+        } else if (LocaleConfig.km_KH.toString().equals(language)) {
+            locale = LocaleConfig.km_KH;
+        } else if (LocaleConfig.as_MY.toString().equals(language)) {
+            locale = LocaleConfig.as_MY;
+        } else if (LocaleConfig.th_TH.toString().equals(language)) {
+            locale = LocaleConfig.th_TH;
         }
         return locale;
     }
