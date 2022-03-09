@@ -32,12 +32,12 @@ public interface GameRecordGoldenFRepository extends JpaRepository<GameRecordGol
     @Query("update GameRecordGoldenF u set u.shareProfitStatus= u.shareProfitStatus+?2 where u.id=?1")
     void updateProfitStatus(Long id, Integer shareProfitStatus);
 
-    @Query(value = "select max(first_proxy) first_proxy ,max(second_proxy) second_proxy ,third_proxy third_proxy,user_id as  userId,count(distinct user_id) player_num ,max(create_at_str) bet_time, sum(bet_amount) validbet ,(case WHEN vendor_code ='PG' THEN 2 ELSE 3 END) as gameType\n" +
+    @Query(value = "select first_proxy first_proxy ,second_proxy second_proxy ,third_proxy third_proxy,user_id as  userId,count(distinct user_id) player_num ,max(create_at_str) bet_time, sum(bet_amount) validbet ,(case WHEN vendor_code ='PG' THEN 2 ELSE 3 END) as gameType\n" +
         "from game_record_goldenf gr\n" +
         "where\n" +
         "create_at_str between ?1 and ?2\n" +
         "and third_proxy is not null \n" +
-        "group by third_proxy,user_id,vendor_code ",nativeQuery = true)
+        "group by third_proxy,user_id,vendor_code,first_proxy,second_proxy ",nativeQuery = true)
     List<Map<String,Object>> getStatisticsResult(String startTime, String endTime);
 
     @Query(value = "select ifnull(sum(g.bet_amount),0) betAmount from game_record_goldenf g where g.create_at_str "
