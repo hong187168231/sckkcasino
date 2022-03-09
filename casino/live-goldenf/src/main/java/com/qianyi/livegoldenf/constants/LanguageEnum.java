@@ -16,7 +16,8 @@ public enum LanguageEnum {
     JA("JA", "Japanese (日文)"),
     KO("KO", "Korean (韩文)"),
     ES("ES", "Spanish（西班牙文"),
-    MY("MY", "Malaysia(馬來西亞文)", LocaleConfig.as_MY.toString()),
+    //三方马来西亚代码未MY,实际上显示中文
+    MY("en-US", "Malaysia(馬來西亞文)", LocaleConfig.as_MY.toString()),
     TR("TR", "Turkish (土耳其语)"),
     ;
     private String code;
