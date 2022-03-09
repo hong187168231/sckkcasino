@@ -104,6 +104,8 @@ public class Constants {
     public static final String REDIS_IPLIMIT = "ipLimit::";
     //redis批量邀请码
     public static final String REDIS_INVITECODELIST= "inviteCodeList";
+    //redis推广贷补充数据标识
+    public static final String REDIS_SUPPLEMENTARYDATA= "supplementaryData";
     //会员类型：公司会员
     public static final Integer USER_TYPE0= 0;
     //会员类型：渠道会员

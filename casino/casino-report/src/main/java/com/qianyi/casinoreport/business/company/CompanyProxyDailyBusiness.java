@@ -157,9 +157,9 @@ public class CompanyProxyDailyBusiness {
         ProxyCommission proxyCommission = proxyCommissionService.findByProxyUserId(companyOrderAmountVo.getThirdProxy());
 
         if(proxyCommission==null){
+            log.info("proxyCommission代理佣金配置表为null,基层贷id:{}",companyOrderAmountVo.getThirdProxy());
             return;
         }
-
         log.info("companyLevelBO:{}",companyLevelBO);
         log.info("proxyCommission:{}",proxyCommission);
 

@@ -328,4 +328,24 @@ public class DirectRabbitConfig {
     }
 
 
+    /**
+     * 推广贷补充数据
+     * @return
+     */
+    @Bean
+    public Queue supplementaryDataDirectqueue(){
+        return new Queue(RabbitMqConstants.SUPPLEMENTARY_DATA_DIRECTQUEUE,true);
+    }
+    @Bean
+    public DirectExchange supplementaryDtaDirectexchange(){
+        return new DirectExchange(RabbitMqConstants.SUPPLEMENTARY_DATA_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding supplementaryDataDirect(){
+        return BindingBuilder.bind(supplementaryDataDirectqueue()).to(supplementaryDtaDirectexchange()).with(RabbitMqConstants.SUPPLEMENTARY_DATA_DIRECT);
+    }
+
+
+
+
 }

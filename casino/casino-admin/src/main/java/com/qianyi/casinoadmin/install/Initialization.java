@@ -12,7 +12,11 @@ import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.HttpClient4Util;
 import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
+import com.qianyi.modulespringcacheredis.util.RedisUtil;
+import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -21,10 +25,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -64,6 +65,7 @@ public class Initialization implements CommandLineRunner {
     @Value("${project.password:123456}")
     private String password;
 
+
     @Autowired
     NewPermissions newPermissions;
 
@@ -80,8 +82,11 @@ public class Initialization implements CommandLineRunner {
     @Autowired
     private AccountChangeService accountChangeService;
 
-    @Value("${project.reportUrl}")
-    private String reportUrl;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private RedisUtil redisUtil;
+
     @Override
     public void run(String... args) throws Exception {
         log.info("初始化数据开始============================================》");
@@ -104,10 +109,18 @@ public class Initialization implements CommandLineRunner {
     }
 
     public void supplementaryData(){
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("dayTime", "2022-01-01");
-        String result = HttpClient4Util.doPost(reportUrl + "/company/supplementaryData", null);
-        ResponseEntity responseEntity = JSONObject.parseObject(result, ResponseEntity.class);
+        boolean hasKey = redisUtil.hasKey(Constants.REDIS_SUPPLEMENTARYDATA);
+        if (!hasKey){
+           //发消息
+            Map<String,Object> map= new HashMap<>();
+            map.put("dayTime","2022-02-01");
+            rabbitTemplate.convertAndSend(RabbitMqConstants.SUPPLEMENTARY_DATA_DIRECTEXCHANGE, RabbitMqConstants.SUPPLEMENTARY_DATA_DIRECT, map, new CorrelationData(UUID.randomUUID().toString()));
+
+            Map<String,Object> map1= new HashMap<>();
+            map1.put("dayTime","2022-03-01");
+            rabbitTemplate.convertAndSend(RabbitMqConstants.SUPPLEMENTARY_DATA_DIRECTEXCHANGE, RabbitMqConstants.SUPPLEMENTARY_DATA_DIRECT, map1, new CorrelationData(UUID.randomUUID().toString()));
+            redisUtil.lSet(Constants.REDIS_SUPPLEMENTARYDATA, 1);
+        }
     }
 
 

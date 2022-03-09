@@ -46,14 +46,6 @@ public class CompanyProxyTask {
         }
         log.info("---------------推广贷计算结束---------------");
     }
-
-    //补充推广贷数据
-    public void supplementaryData(String dayTime){
-        if (!CommonUtil.checkNull(dayTime) ){
-            companyProxyMonthBusiness.processMonthReport(dayTime);
-        }
-    }
-
     // 每天凌晨08分开始启动
     @Scheduled(cron = "0 8 * * * ?")
     public void setCompanyProxyMonthExtractPoint(){

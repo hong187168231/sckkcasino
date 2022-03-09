@@ -241,6 +241,7 @@ public class CompanyProxyMonthBusiness {
         //根据基层代查询代理佣金配置表
         ProxyCommission proxyCommission = proxyCommissionService.findByProxyUserId(companyOrderAmountVo.getThirdProxy());
         if(proxyCommission==null){
+            log.info("proxyCommission代理佣金配置表为null,基层贷id:{}",companyOrderAmountVo.getThirdProxy());
             return;
         }
         log.info("companyLevelBO:{}",companyLevelBO);

@@ -87,6 +87,12 @@ public class RabbitMqConstants {
     public final static String THREE_INGCHARGEORDER_DIRECT = "three.chargeOrderDev";
 
 
+    //推广贷补充数据mp
+    public final static String SUPPLEMENTARY_DATA_DIRECTQUEUE = "supplementaryData.queue";
+    public final static String SUPPLEMENTARY_DATA_DIRECTEXCHANGE = "supplementaryData.exchange";
+    public final static String SUPPLEMENTARY_DATA_DIRECT = "supplementaryData";
+
+
 }
 
 
