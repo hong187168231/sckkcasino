@@ -59,7 +59,6 @@ project:
   username: admin1,admin2,admin3,admin4,admin5
   password: 123456
   smsUrl: http://127.0.0.1:9600                #短信服务模块
-  reportUrl: http://127.0.0.1:9500                #报表服务模块
   swagger:
     enable: true
 
