@@ -239,15 +239,15 @@ public class RoleController {
             return ResponseUtil.success();
         }
 
-        /*List<SysPermissionVo> tree = DTOUtil.toNodeTree(
+        List<SysPermissionVo> tree = DTOUtil.toNodeTree(
                 sysPermissions,
                 SysPermissionVo.class,
                 DTOUtil.config()
                         .setChildrenKey("sysPermissionVoList")
                         .build()
         );
-        return ResponseUtil.success(tree);*/
-        List<SysPermissionVo> sysPermissionVos = JSON.parseArray(JSONObject.toJSONString(sysPermissions), SysPermissionVo.class);
+        return ResponseUtil.success(tree);
+        /*List<SysPermissionVo> sysPermissionVos = JSON.parseArray(JSONObject.toJSONString(sysPermissions), SysPermissionVo.class);
 
         //得到第三层权限数据
         List<SysPermissionVo> sysPermissionThird = sysPermissionVos.stream().filter(sysPermissionVo -> sysPermissionVo.getMenuLevel() == 3).collect(Collectors.toList());
@@ -272,7 +272,7 @@ public class RoleController {
             });
         });
 
-        return ResponseUtil.success(sysPermissionOne);
+        return ResponseUtil.success(sysPermissionOne);*/
     }
 
 

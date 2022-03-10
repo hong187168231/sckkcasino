@@ -332,6 +332,13 @@
             "url": "/proxyUser/transferProxy"
           },
           {
+            "descritpion": "转移代理向上",
+            "englishName": "Transfer agent up",
+            "menuLevel": 3,
+            "name": "转移代理向上",
+            "url": "/proxyUser/transferProxyUp"
+          },
+          {
             "descritpion": "删除",
             "englishName": "Delete",
             "menuLevel": 3,

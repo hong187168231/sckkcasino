@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.vo;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
@@ -8,10 +9,11 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.Set;
 
 @Data
-public class CompanyProxyReportVo implements Serializable {
+public class CompanyProxyReportVo implements Serializable, Comparable<BigDecimal> {
     private static final long serialVersionUID = -6875647823650305179L;
     @ApiModelProperty(value = "id")
     private Long id;
@@ -43,5 +45,10 @@ public class CompanyProxyReportVo implements Serializable {
     @ApiModelProperty("统计日期")
     private String staticsTimes;
 
-    private Set<Long> userIdSet;
+    private ProxyUser proxyUser;
+    //    private Set<Long> userIdSet;
+    @Override
+    public int compareTo(BigDecimal o) {
+        return 0;
+    }
 }

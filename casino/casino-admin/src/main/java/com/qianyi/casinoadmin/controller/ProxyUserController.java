@@ -608,4 +608,63 @@ public class ProxyUserController {
             return ResponseUtil.custom("转移失败请联系管理员");
         }
     }
+
+    @ApiOperation("转移代理向上")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "id", value = "被转移者id(选中列id)", required = true),
+        @ApiImplicitParam(name = "acceptId", value = "接受者id", required = true),
+    })
+    @GetMapping("transferProxyUp")
+    public ResponseEntity transferProxyUp(Long id,Long acceptId){
+        if (LoginUtil.checkNull(id,acceptId) || id.toString().equals(acceptId.toString())){
+            return ResponseUtil.custom("参数不合法");
+        }
+        ProxyUser byId = proxyUserService.findById(id);
+        ProxyUser accept = proxyUserService.findById(acceptId);
+        if (LoginUtil.checkNull(byId,accept)){
+            return ResponseUtil.custom("没有这个代理");
+        }
+        if (!byId.getFirstProxy().equals(accept.getFirstProxy())){
+            return ResponseUtil.custom("不是同一总代不能移动");
+        }
+        if (byId.getProxyRole() != CommonConst.NUMBER_3){
+            return ResponseUtil.custom("只能移动基层代理");
+        }
+        if (accept.getProxyRole() != CommonConst.NUMBER_2){
+            return ResponseUtil.custom("只能移到区域代理下");
+        }
+        log.info("admin开始向上转移代理被转移者{} 接受者{}",byId.getUserName(),accept.getUserName());
+        try {
+            return proxyHomePageReportBusiness.transferProxyUp(byId,accept);
+        }catch (Exception ex){
+            return ResponseUtil.custom("转移失败请联系管理员");
+        }
+    }
+
+    @ApiOperation("转移代理向上获取下拉框数据")
+    @GetMapping("getTransferProxyUp")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "id", value = "选中列id", required = true),
+    })
+    @NoAuthorization
+    public ResponseEntity<ProxyUser> getTransferProxyUp(Long id){
+        if (LoginUtil.checkNull(id)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        ProxyUser byId = proxyUserService.findById(id);
+        if (LoginUtil.checkNull(byId)){
+            return ResponseUtil.custom("没有这个代理");
+        }
+        if (byId.getProxyRole() != CommonConst.NUMBER_3){
+            return ResponseUtil.custom("只有基层代理可以移动");
+        }
+        ProxyUser proxyUser = new ProxyUser();
+        proxyUser.setIsDelete(CommonConst.NUMBER_1);
+        proxyUser.setUserFlag(CommonConst.NUMBER_1);
+        proxyUser.setProxyRole(CommonConst.NUMBER_2);
+        proxyUser.setFirstProxy(byId.getFirstProxy());
+        List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
+        proxyUserList = proxyUserList.stream().filter(proxy -> !proxy.getId().equals(byId.getSecondProxy())).collect(Collectors.toList());
+        return ResponseUtil.success(proxyUserList);
+    }
 }

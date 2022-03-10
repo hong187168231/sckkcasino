@@ -78,4 +78,7 @@ public class WithdrawOrder extends BaseEntity {
         this.serviceCharge = serviceCharge==null?BigDecimal.ZERO:serviceCharge;
     }
 
+    public WithdrawOrder(BigDecimal withdrawMoney){
+        this.withdrawMoney = withdrawMoney==null?BigDecimal.ZERO:withdrawMoney;
+    }
 }

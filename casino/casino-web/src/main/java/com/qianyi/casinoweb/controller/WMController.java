@@ -10,6 +10,7 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinoweb.util.DeviceUtil;
+import com.qianyi.livewm.constants.LanguageEnum;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.executor.AsyncService;
@@ -129,10 +130,7 @@ public class WMController {
 //            lang = 0;
 //        }
         String language = request.getHeader(Constants.LANGUAGE);
-        Integer lang = 1;//1为英文  wm那边先默认设置成英文
-        if (Locale.CHINA.toString().equals(language)) {
-            lang = 0;//中文
-        }
+        Integer lang = LanguageEnum.getLanguageCode(language);
         //回收PG/CQ9的余额
         thirdGameBusiness.oneKeyRecoverGoldenF(authId);
         PlatformConfig platformConfig = platformConfigService.findFirst();
@@ -277,6 +275,11 @@ public class WMController {
         }
 
         return model;
+    }
+
+    public static void main(String[] args) {
+        Integer lang = LanguageEnum.getLanguageCode("th_TH");
+        System.out.println(lang);
     }
 
     @ApiOperation("查询当前登录用户WM余额")

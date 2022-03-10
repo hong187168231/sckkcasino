@@ -19,6 +19,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,12 +45,9 @@ public class CompanyProxyDetailController {
     @Autowired
     private ProxyHomePageReportService proxyHomePageReportService;
 
-    @Autowired
-    private UserRunningWaterService userRunningWaterService;
+    public final static String startStr = " 12:00:00";
 
-    public final static String start = " 00:00:00";
-
-    public final static String end = " 23:59:59";
+    public final static String endStr = " 11:59:59";
     @ApiOperation("查询代理报表")
     @GetMapping("/find")
     @ApiImplicitParams({
@@ -58,12 +56,15 @@ public class CompanyProxyDetailController {
         @ApiImplicitParam(name = "proxyRole", value = "代理级别1：总代理 2：区域代理 3：基层代理", required = false),
         @ApiImplicitParam(name = "userName", value = "账号", required = false),
         @ApiImplicitParam(name = "tag", value = "1：含下级 0：不包含", required = false),
-        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
-        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
+        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
+        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
     public ResponseEntity<CompanyProxyReportVo> find(Integer pageSize, Integer pageCode,Integer proxyRole, Integer tag, String userName,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        if (CasinoProxyUtil.checkNull(startDate,endDate)){
+            return ResponseUtil.custom("参数不合法");
+        }
         ProxyUser proxyUser = new ProxyUser();
         proxyUser.setProxyRole(proxyRole);
         proxyUser.setIsDelete(CommonConst.NUMBER_1);
@@ -73,11 +74,6 @@ public class CompanyProxyDetailController {
         if (CasinoProxyUtil.setParameter(proxyUser)){
             return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
         }
-        ProxyHomePageReport proxyHomeReport = new  ProxyHomePageReport();
-        if (CasinoProxyUtil.setParameter(proxyHomeReport)){
-            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
-        }
-        proxyHomeReport.setProxyRole(proxyRole);
         if (!CasinoProxyUtil.checkNull(userName)){
             if (CasinoProxyUtil.checkNull(tag)){
                 return ResponseUtil.custom("参数不合法");
@@ -88,12 +84,10 @@ public class CompanyProxyDetailController {
             }
             if (tag == CommonConst.NUMBER_0){
                 proxyUser.setUserName(userName);
-                proxyHomeReport.setProxyUserId(byUserName.getId());
             }
             if (tag == CommonConst.NUMBER_1){
                 if (byUserName.getProxyRole() == CommonConst.NUMBER_2){
                     proxyUser.setSecondProxy(byUserName.getId());
-                    proxyHomeReport.setSecondProxy(byUserName.getId());
                 }
             }
         }
@@ -103,72 +97,22 @@ public class CompanyProxyDetailController {
         }
         PageResultVO<CompanyProxyReportVo> pageResultVO = new PageResultVO(proxyUserPage);
         List<CompanyProxyReportVo> list = new LinkedList<>();
+        //偏移12小时
+        Date start = cn.hutool.core.date.DateUtil.offsetHour(startDate, 12);
+        Date end = cn.hutool.core.date.DateUtil.offsetHour(endDate, 12);
         try {
             proxyUserPage.getContent().forEach(proxyUser1 -> {
-                CompanyProxyReportVo companyProxyReportVo = null;
-                if ((CasinoProxyUtil.checkNull(startDate,endDate)) || DateUtil.isEffectiveDate(new Date(),startDate,endDate)){
-                    try {
-                        companyProxyReportVo = this.assemble(proxyUser1);
-                    } catch (ParseException e) {
-                        log.error("代理当日报表统计失败",e);
-                    }
-                }else {
-                    companyProxyReportVo = this.assemble(new CompanyProxyReportVo(),proxyUser1);
-                }
+                CompanyProxyReportVo companyProxyReportVo = this.assembleData(proxyUser1,start,end);
                 list.add(companyProxyReportVo);
             });
-            String startTime = startDate==null? null:DateUtil.getSimpleDateFormat1().format(startDate);
-            String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
-            List<Long> proxyUserId = list.stream().map(CompanyProxyReportVo::getId).collect(Collectors.toList());
-            List<ProxyHomePageReport> proxyHomePageReports = proxyHomePageReportService.findHomePageReports(proxyUserId,proxyHomeReport,startTime,endTime);
-            if (CasinoProxyUtil.checkNull(proxyHomePageReports) || proxyHomePageReports.size() == CommonConst.NUMBER_0){
-                this.getCompanyProxyReportVos(list);
-                pageResultVO.setContent(list);
-                return ResponseUtil.success(pageResultVO);
-            }
-            Map<Long, List<ProxyHomePageReport>> firstMap = proxyHomePageReports.stream().collect(Collectors.groupingBy(ProxyHomePageReport::getProxyUserId));
-            list.forEach(vo->{
-                List<ProxyHomePageReport> proxyHomes = firstMap.get(vo.getId());
-                if (!CasinoProxyUtil.checkNull(proxyHomes) && proxyHomes.size() > CommonConst.NUMBER_0){
-                    BigDecimal chargeAmount = proxyHomes.stream().map(ProxyHomePageReport::getChargeAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-                    BigDecimal withdrawMoney = proxyHomes.stream().map(ProxyHomePageReport::getWithdrawMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
-                    BigDecimal validbetAmount = proxyHomes.stream().map(ProxyHomePageReport::getValidbetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-                    //                    Integer activeUsers = proxyHomes.stream().mapToInt(ProxyHomePageReport::getActiveUsers).sum();
-                    Integer newUsers = proxyHomes.stream().mapToInt(ProxyHomePageReport::getNewUsers).sum();
-                    Integer newSecondProxys = proxyHomes.stream().mapToInt(ProxyHomePageReport::getNewSecondProxys).sum();
-                    Integer newThirdProxys = proxyHomes.stream().mapToInt(ProxyHomePageReport::getNewThirdProxys).sum();
-                    vo.setChargeAmount(vo.getChargeAmount().add(chargeAmount));
-                    vo.setWithdrawMoney(vo.getWithdrawMoney().add(withdrawMoney));
-                    vo.setGroupPerformance(vo.getGroupPerformance().add(validbetAmount));
-                    this.getActiveUsers(vo,startTime,endTime);
-                    vo.setGroupNewUsers(newUsers + vo.getGroupNewUsers());
-                    vo.setGroupNewProxyUsers(vo.getGroupNewProxyUsers() + newSecondProxys + newThirdProxys);
-                }
-            });
+            this.getCompanyProxyReportVos(list);
+            pageResultVO.setContent(list);
+            return ResponseUtil.success(pageResultVO);
+
         }catch (Exception ex){
             log.error("代理报表统计失败",ex);
+            return ResponseUtil.custom("查询失败");
         }
-        this.getCompanyProxyReportVos(list);
-        pageResultVO.setContent(list);
-        return ResponseUtil.success(pageResultVO);
-    }
-
-    private void getActiveUsers(CompanyProxyReportVo companyProxyReportVo,String startTime, String endTime){
-        UserRunningWater userRunningWater = new UserRunningWater();
-        ProxyUser byId = proxyUserService.findById(companyProxyReportVo.getId());
-        if (CommonUtil.setParameter(userRunningWater,byId)){
-            return;
-        }
-        List<UserRunningWater> userRunningWaterList = userRunningWaterService.findUserRunningWaterList(userRunningWater, startTime, endTime);
-        Set<Long> userIdSet = companyProxyReportVo.getUserIdSet();
-        if (CasinoProxyUtil.checkNull(userIdSet)){
-            userIdSet = new HashSet<>();
-        }
-        for (UserRunningWater u : userRunningWaterList){
-            userIdSet.add(u.getUserId());
-        }
-        companyProxyReportVo.setActiveUsers(userIdSet.size());
-        userIdSet.clear();
     }
 
     @ApiOperation("每日结算细节")
@@ -176,62 +120,67 @@ public class CompanyProxyDetailController {
     @ApiImplicitParams({
         @ApiImplicitParam(name = "id", value = "当前id", required = false),
         @ApiImplicitParam(name = "userName", value = "账号", required = false),
-        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
-        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
+        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
+        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
     public ResponseEntity<CompanyProxyReportVo> findDailyDetails(Long id,String userName,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (CasinoProxyUtil.checkNull(id) && CasinoProxyUtil.checkNull(userName)  ){
             return ResponseUtil.custom("参数不合法");
         }
-        ProxyHomePageReport proxyHomeReport = new  ProxyHomePageReport();
+        if (CasinoProxyUtil.checkNull(startDate,endDate) ){
+            return ResponseUtil.custom("参数不合法");
+        }
         ProxyUser proxyUser = null;
         if (!CasinoProxyUtil.checkNull(id)){
             proxyUser = proxyUserService.findById(id);
-            proxyHomeReport.setProxyUserId(proxyUser == null?0L:proxyUser.getId());
         }
         if (!CasinoProxyUtil.checkNull(userName)){
             proxyUser = proxyUserService.findByUserName(userName);
-            proxyHomeReport.setProxyUserId(proxyUser == null?0L:proxyUser.getId());
         }
-        CompanyProxyReportVo companyProxyReportVo = null;
-        if ((CasinoProxyUtil.checkNull(startDate,endDate)) || DateUtil.isEffectiveDate(new Date(),startDate,endDate)){
-            try {
-                companyProxyReportVo = this.assemble(proxyUser);
-            } catch (ParseException e) {
-                log.error("代理每日结算细节失败",e);
-                return ResponseUtil.custom("查询失败");
-            }
+        if (CasinoProxyUtil.checkNull(proxyUser)){
+            return ResponseUtil.success();
         }
-        Sort sort=Sort.by("staticsTimes").descending();
+        ProxyUser proxy = proxyUser;
         List<CompanyProxyReportVo> list = new LinkedList<>();
-        String startTime = startDate==null? null:DateUtil.getSimpleDateFormat1().format(startDate);
-        String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
-        List<ProxyHomePageReport> proxyHomePageReports = proxyHomePageReportService.findHomePageReports(proxyHomeReport,startTime,endTime,sort);
-        if (!CasinoProxyUtil.checkNull(companyProxyReportVo)){
-            list.add(companyProxyReportVo);
-        }
-        if (!CasinoProxyUtil.checkNull(proxyHomePageReports) && proxyHomePageReports.size() > CommonConst.NUMBER_0){
-            proxyHomePageReports.forEach(proxyHomePageReport -> {
-                list.add(this.assemble(proxyHomePageReport));
+        try {
+            Map<Integer,String> mapDate = CommonUtil.findDates("D", startDate, endDate);
+            mapDate.forEach((k,today)->{
+                Calendar calendar = Calendar.getInstance();
+                Date  todayDate = null;
+                try {
+                    todayDate = DateUtil.getSimpleDateFormat1().parse(today);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                calendar.setTime(todayDate);
+                calendar.add(Calendar.DATE, 1);
+                String tomorrow = DateUtil.dateToPatten1(calendar.getTime());
+                //                System.out.println("昨日"+yesterday+"===========今日"+today);
+                try {
+                    Date start = DateUtil.getSimpleDateFormat().parse(today+startStr);
+                    Date end = DateUtil.getSimpleDateFormat().parse(tomorrow+endStr);
+                    CompanyProxyReportVo companyProxyReportVo = this.assembleData(proxy,start,end);
+                    companyProxyReportVo.setStaticsTimes(today);
+                    list.add(companyProxyReportVo);
+                }catch (ParseException px){
+                    px.printStackTrace();
+                }
             });
-            proxyHomePageReports.clear();
+        }catch (Exception ex){
+            log.error("proxy代理报表每日明细查询失败",ex);
+            return ResponseUtil.custom("查询失败");
         }
-        Collections.reverse(list);
+
         return ResponseUtil.success(list);
     }
-    private CompanyProxyReportVo assemble(ProxyUser byId) throws ParseException {
-        Calendar nowTime = Calendar.getInstance();
-        String format = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
+    private CompanyProxyReportVo assembleData(ProxyUser byId,Date start,Date end){
         ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
-        proxyHomePageReport.setStaticsTimes(format);
-        String startTime = format + start;
-        String endTime = format + end;
-        Date start = DateUtil.getSimpleDateFormat().parse(startTime);
-        Date end = DateUtil.getSimpleDateFormat().parse(endTime);
+        String startTime = cn.hutool.core.date.DateUtil.formatDateTime(start);
+        String endTime = cn.hutool.core.date.DateUtil.formatDateTime(end);
         proxyHomePageReportService.chargeOrder(byId, start, end, proxyHomePageReport);
         proxyHomePageReportService.withdrawOrder(byId, start, end, proxyHomePageReport);
-        Set<Long> set = proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
+        proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
         proxyHomePageReportService.getNewUsers(byId, start, end, proxyHomePageReport);
         if (byId.getProxyRole() == CommonConst.NUMBER_1){
             proxyHomePageReportService.getNewSecondProxys(byId,start,end,proxyHomePageReport);
@@ -239,7 +188,11 @@ public class CompanyProxyDetailController {
         if (byId.getProxyRole() != CommonConst.NUMBER_3){
             proxyHomePageReportService.getNewThirdProxys(byId,start,end,proxyHomePageReport);
         }
-        CompanyProxyReportVo companyProxyReportVo = this.assemble(proxyHomePageReport,set);
+        CompanyProxyReportVo companyProxyReportVo = new CompanyProxyReportVo();
+        BeanUtils.copyProperties(proxyHomePageReport, companyProxyReportVo);
+        companyProxyReportVo.setGroupPerformance(proxyHomePageReport.getValidbetAmount());
+        companyProxyReportVo.setGroupNewUsers(proxyHomePageReport.getNewUsers());
+        companyProxyReportVo.setGroupNewProxyUsers(proxyHomePageReport.getNewSecondProxys() + proxyHomePageReport.getNewThirdProxys());
         return this.assemble(companyProxyReportVo,byId);
     }
 
@@ -254,31 +207,6 @@ public class CompanyProxyDetailController {
         companyProxyReportVo.setUserName(byId.getUserName());
         companyProxyReportVo.setNickName(byId.getNickName());
         companyProxyReportVo.setProxyRole(byId.getProxyRole());
-        return companyProxyReportVo;
-    }
-
-    private CompanyProxyReportVo assemble(ProxyHomePageReport proxyHomePageReport,Set<Long> userIdSet){
-        CompanyProxyReportVo companyProxyReportVo = new CompanyProxyReportVo();
-        companyProxyReportVo.setChargeAmount(proxyHomePageReport.getChargeAmount());
-        companyProxyReportVo.setWithdrawMoney(proxyHomePageReport.getWithdrawMoney());
-        companyProxyReportVo.setGroupPerformance(proxyHomePageReport.getValidbetAmount());
-        companyProxyReportVo.setGroupNewUsers(proxyHomePageReport.getNewUsers());
-        companyProxyReportVo.setGroupNewProxyUsers(proxyHomePageReport.getNewSecondProxys() + proxyHomePageReport.getNewThirdProxys());
-        companyProxyReportVo.setUserIdSet(userIdSet);
-        companyProxyReportVo.setActiveUsers(userIdSet == null ? CommonConst.NUMBER_0 : userIdSet.size());
-        companyProxyReportVo.setStaticsTimes(proxyHomePageReport.getStaticsTimes());
-        return companyProxyReportVo;
-    }
-
-    private CompanyProxyReportVo assemble(ProxyHomePageReport proxyHomePageReport){
-        CompanyProxyReportVo companyProxyReportVo = new CompanyProxyReportVo();
-        companyProxyReportVo.setChargeAmount(proxyHomePageReport.getChargeAmount());
-        companyProxyReportVo.setWithdrawMoney(proxyHomePageReport.getWithdrawMoney());
-        companyProxyReportVo.setGroupPerformance(proxyHomePageReport.getValidbetAmount());
-        companyProxyReportVo.setGroupNewUsers(proxyHomePageReport.getNewUsers());
-        companyProxyReportVo.setGroupNewProxyUsers(proxyHomePageReport.getNewSecondProxys() + proxyHomePageReport.getNewThirdProxys());
-        companyProxyReportVo.setActiveUsers(proxyHomePageReport.getActiveUsers());
-        companyProxyReportVo.setStaticsTimes(proxyHomePageReport.getStaticsTimes());
         return companyProxyReportVo;
     }
 

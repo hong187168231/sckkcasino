@@ -180,13 +180,16 @@ public class NewPermissions {
     // 获取数据库 权限映射
     private Map<String, SysPermission> getSysPermissionMap(List<SysPermission> sysPermissionList, Function<SysPermission, String> sysKeyFn){
         // ！由于历史原因，数据库中存在相同的key, 在做映射之前需要先将重复的数据过滤掉
-        List<Long> duplicateIdsList = new ArrayList<>();
+
         Map<String, List<SysPermission>> sysGroups = sysPermissionList.stream().collect(
                 Collectors.groupingBy(sysKeyFn)
         );
 
         // 数据库 权限映射 { `name:url:menuLevel` : SysPermission}
         Map<String, SysPermission> sysMaps = new HashMap<>();
+
+        List<SysPermission> sysUpdateList = new ArrayList<>();
+
         // 以key分组，得到长度不为1的都是重复的数据
         for (Map.Entry<String, List<SysPermission>> entry: sysGroups.entrySet()) {
             List<SysPermission> list = entry.getValue();
@@ -195,14 +198,19 @@ public class NewPermissions {
                 SysPermission value = list.get(0);
                 sysMaps.put(key, value);
             } else {
-                // 重复的主键
-                duplicateIdsList.addAll(list.stream().map(SysPermission::getId).collect(Collectors.toList()));
+                // 重复的主键, 自动更改名称
+                for (int i=0; i< list.size(); ++i) {
+                    SysPermission tobeUpdate = list.get(i);
+                    String oldName = tobeUpdate.getName();
+                    tobeUpdate.setName(oldName + (i + 1));
+                    sysUpdateList.add(tobeUpdate);
+                }
+
             }
         }
 
-        // 删除重复的主键
-        if (CollUtil.isNotEmpty(duplicateIdsList)) {
-            sysPermissionService.deleteAllIds(duplicateIdsList);
+        if (CollUtil.isNotEmpty(sysUpdateList)) {
+            sysPermissionService.saveAllList(sysUpdateList);
         }
 
         return sysMaps;
