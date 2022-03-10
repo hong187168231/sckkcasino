@@ -91,14 +91,15 @@ public class CompanyProxyMonthBusiness {
         secondeList.addAll(secondeList1);
         thirdList.addAll(thirdList1);
 
-        //根据代理id合并不同游戏数据
-        List<CompanyProxyMonth> firstResultList = proxyList(firstList);
-        List<CompanyProxyMonth> secondeResultList = proxyList(secondeList);
-        List<CompanyProxyMonth> thirdResultList = proxyList(thirdList);
+        List<CompanyProxyMonth> resultList=new ArrayList<>();
+        resultList.addAll(firstList);
+        resultList.addAll(secondeList);
+        resultList.addAll(thirdList);
+       /* List<CompanyProxyMonth> resultList = processingData(firstList, secondeList, thirdList);
 
-        //处理总返佣：总返佣group_totalprofit = 下级profit_amount总计
-        List<CompanyProxyMonth> resultList = processingData(firstResultList, secondeResultList, thirdResultList);
 
+*/
+        resultList=proxyList(resultList);
         log.info("save all proxyDetail data");
         log.info("resultList:{}",resultList);
         companyProxyMonthService.saveAll(resultList);
