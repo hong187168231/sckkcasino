@@ -22,18 +22,6 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
         "group by third_proxy,user_id,second_proxy,first_proxy ",nativeQuery = true)
     List<Map<String,Object>> getStatisticsResult(String startTime, String endTime);
 
-    @Query(value="SELECT\n" +
-            "\tg.second_proxy as second_proxy,\n" +
-            "\tg.third_proxy as third_proxy\n" +
-            "FROM\n" +
-            "\tgame_record g \n" +
-            "WHERE\n" +
-            "\tg.third_proxy IS NOT NULL \n" +
-            "\tAND g.third_proxy NOT IN ( SELECT c.proxy_user_id FROM proxy_commission c ) \n" +
-            "GROUP BY\n" +
-            "\tg.second_proxy,\n" +
-            "\tg.third_proxy",nativeQuery = true)
-    List<Map<String,Object>> findGameRecordList();
 
     @Modifying
     @Query("update GameRecord u set u.codeNumStatus=?2 where u.id=?1")

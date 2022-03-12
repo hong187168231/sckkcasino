@@ -1,17 +1,12 @@
 package com.qianyi.casinoadmin.install;
 
-import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.install.file.*;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.*;
-import com.qianyi.casinocore.repository.CustomerConfigureRepository;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.casinocore.vo.GameRecordCommissionVo;
 import com.qianyi.modulecommon.Constants;
-import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.util.CommonUtil;
-import com.qianyi.modulecommon.util.HttpClient4Util;
 import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
@@ -87,11 +82,7 @@ public class Initialization implements CommandLineRunner {
     private RabbitTemplate rabbitTemplate;
     @Autowired
     private RedisUtil redisUtil;
-    @Autowired
-    private GameRecordService gameRecordService;
 
-    @Autowired
-    private ProxyCommissionService proxyCommissionService;
     @Override
     public void run(String... args) throws Exception {
         log.info("初始化数据开始============================================》");
@@ -110,27 +101,7 @@ public class Initialization implements CommandLineRunner {
 
         this. saveReturnCommissionInfo();
         this.initializationTotalPlatformQuota();
-        this.supplementaryProxyCommissionData();
         this.supplementaryData();
-    }
-
-    //补充基层贷proxy_commission佣金分成比
-    public void supplementaryProxyCommissionData(){
-        boolean hasKey = redisUtil.hasKey(Constants.REDIS_SUPPLEMENTARY_COMMISSION_DATA);
-        if (!hasKey){
-            //给基层贷添加proxy_commission佣金分成比
-            List<GameRecordCommissionVo> gameRecordList = gameRecordService.findGameRecordList();
-            gameRecordList.forEach(info ->{
-                ProxyCommission proxyCommission= new ProxyCommission();
-                proxyCommission.setProxyUserId(info.getThirdProxy());
-                proxyCommission.setFirstCommission(BigDecimal.ZERO);
-                proxyCommission.setSecondCommission(BigDecimal.ZERO);
-                proxyCommission.setThirdCommission(BigDecimal.ZERO);
-                proxyCommission.setSecondProxy(info.getSecondProxy());
-                proxyCommissionService.save(proxyCommission);
-            });
-            redisUtil.lSet(Constants.REDIS_SUPPLEMENTARY_COMMISSION_DATA, 1);
-        }
     }
 
     //补充推广贷佣金company_proxy_month
