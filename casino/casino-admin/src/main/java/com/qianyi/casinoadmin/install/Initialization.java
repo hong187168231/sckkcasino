@@ -7,6 +7,7 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.repository.CustomerConfigureRepository;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.vo.GameRecordCommissionVo;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -86,7 +87,11 @@ public class Initialization implements CommandLineRunner {
     private RabbitTemplate rabbitTemplate;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private GameRecordService gameRecordService;
 
+    @Autowired
+    private ProxyCommissionService proxyCommissionService;
     @Override
     public void run(String... args) throws Exception {
         log.info("初始化数据开始============================================》");
@@ -105,13 +110,34 @@ public class Initialization implements CommandLineRunner {
 
         this. saveReturnCommissionInfo();
         this.initializationTotalPlatformQuota();
+        this.supplementaryProxyCommissionData();
         this.supplementaryData();
     }
 
+    //补充基层贷proxy_commission佣金分成比
+    public void supplementaryProxyCommissionData(){
+        boolean hasKey = redisUtil.hasKey(Constants.REDIS_SUPPLEMENTARY_COMMISSION_DATA);
+        if (!hasKey){
+            //给基层贷添加proxy_commission佣金分成比
+            List<GameRecordCommissionVo> gameRecordList = gameRecordService.findGameRecordList();
+            gameRecordList.forEach(info ->{
+                ProxyCommission proxyCommission= new ProxyCommission();
+                proxyCommission.setProxyUserId(info.getThirdProxy());
+                proxyCommission.setFirstCommission(BigDecimal.ZERO);
+                proxyCommission.setSecondCommission(BigDecimal.ZERO);
+                proxyCommission.setThirdCommission(BigDecimal.ZERO);
+                proxyCommission.setSecondProxy(info.getSecondProxy());
+                proxyCommissionService.save(proxyCommission);
+            });
+            redisUtil.lSet(Constants.REDIS_SUPPLEMENTARY_COMMISSION_DATA, 1);
+        }
+    }
+
+    //补充推广贷佣金company_proxy_month
     public void supplementaryData(){
         boolean hasKey = redisUtil.hasKey(Constants.REDIS_SUPPLEMENTARYDATA);
         if (!hasKey){
-           //发消息
+            //发消息
             Map<String,Object> map= new HashMap<>();
             map.put("dayTime","2022-02-01");
             rabbitTemplate.convertAndSend(RabbitMqConstants.SUPPLEMENTARY_DATA_DIRECTEXCHANGE, RabbitMqConstants.SUPPLEMENTARY_DATA_DIRECT, map, new CorrelationData(UUID.randomUUID().toString()));

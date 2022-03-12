@@ -106,6 +106,7 @@ public class Constants {
     public static final String REDIS_INVITECODELIST= "inviteCodeList";
     //redis推广贷补充数据标识
     public static final String REDIS_SUPPLEMENTARYDATA= "supplementaryData";
+    public static final String REDIS_SUPPLEMENTARY_COMMISSION_DATA= "supplementaryProxyCommissionData";
     //会员类型：公司会员
     public static final Integer USER_TYPE0= 0;
     //会员类型：渠道会员

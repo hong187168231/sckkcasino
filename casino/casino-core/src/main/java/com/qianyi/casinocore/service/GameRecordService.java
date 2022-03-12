@@ -7,6 +7,7 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.repository.GameRecordRepository;
 import com.qianyi.casinocore.util.DTOUtil;
 import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
+import com.qianyi.casinocore.vo.GameRecordCommissionVo;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -199,6 +200,11 @@ public class GameRecordService {
     }
 
     public GameRecord findGameRecordById(Long gameId){return gameRecordRepository.findById(gameId).orElse(null);}
+
+    public List<GameRecordCommissionVo> findGameRecordList(){
+        List<Map<String, Object>> gameRecordList = gameRecordRepository.findGameRecordList();
+        return DTOUtil.map2DTO(gameRecordList, GameRecordCommissionVo.class);
+    }
 
 
     public int countByIdLessThanEqualAndUserId(Date createTime, Long UserId){
