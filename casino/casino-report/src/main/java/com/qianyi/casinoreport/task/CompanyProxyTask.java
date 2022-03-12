@@ -47,7 +47,7 @@ public class CompanyProxyTask {
         log.info("---------------推广贷计算结束---------------");
     }
     // 每天凌晨08分开始启动
-    @Scheduled(cron = "0 8 * * * ?")
+    @Scheduled(cron = "0 8 0 * * ? ")
     public void setCompanyProxyMonthExtractPoint(){
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String dayTime = df.format(LocalDateTime.now());
