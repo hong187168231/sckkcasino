@@ -65,6 +65,7 @@ public class CompanyProxyDetailController {
         if (CasinoProxyUtil.checkNull(startDate,endDate)){
             return ResponseUtil.custom("参数不合法");
         }
+        log.info("综合报表时间范围========>{}至{}",cn.hutool.core.date.DateUtil.formatDateTime(startDate),cn.hutool.core.date.DateUtil.formatDateTime(endDate));
         ProxyUser proxyUser = new ProxyUser();
         proxyUser.setProxyRole(proxyRole);
         proxyUser.setIsDelete(CommonConst.NUMBER_1);
