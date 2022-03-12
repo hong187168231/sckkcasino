@@ -93,6 +93,7 @@ public class CompanyProxyDetailController {
         }
         Page<ProxyUser> proxyUserPage = proxyUserService.findProxyUserPage(pageable,proxyUser,null,null);
         if (CasinoProxyUtil.checkNull(proxyUserPage) || proxyUserPage.getContent().size() == CommonConst.NUMBER_0){
+            log.info("综合报表没有查到代理");
             return ResponseUtil.success(new PageResultVO());
         }
         PageResultVO<CompanyProxyReportVo> pageResultVO = new PageResultVO(proxyUserPage);
@@ -107,6 +108,7 @@ public class CompanyProxyDetailController {
             });
             this.getCompanyProxyReportVos(list);
             pageResultVO.setContent(list);
+            log.info("综合报表查询结果{}",list);
             return ResponseUtil.success(pageResultVO);
 
         }catch (Exception ex){
@@ -178,6 +180,7 @@ public class CompanyProxyDetailController {
         ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
         String startTime = cn.hutool.core.date.DateUtil.formatDateTime(start);
         String endTime = cn.hutool.core.date.DateUtil.formatDateTime(end);
+        log.info("综合报表查询代理名{}时间范围========>{}至{}",byId.getUserName(),startTime,endTime);
         proxyHomePageReportService.chargeOrder(byId, start, end, proxyHomePageReport);
         proxyHomePageReportService.withdrawOrder(byId, start, end, proxyHomePageReport);
         proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
@@ -207,6 +210,7 @@ public class CompanyProxyDetailController {
         companyProxyReportVo.setUserName(byId.getUserName());
         companyProxyReportVo.setNickName(byId.getNickName());
         companyProxyReportVo.setProxyRole(byId.getProxyRole());
+        log.info("综合报表查询结果代理名{}结果{}",companyProxyReportVo.getUserName(),companyProxyReportVo,toString());
         return companyProxyReportVo;
     }
 
