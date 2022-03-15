@@ -35,9 +35,9 @@ public class ThridHomeReportController {
     @Autowired
     private ProxyHomePageReportService proxyHomePageReportService;
 
-    public final static String start = " 00:00:00";
+    public final static String start = " 12:00:00";
 
-    public final static String end = " 23:59:59";
+    public final static String end = " 11:59:59";
 
     @Autowired
     private ProxyUserService proxyUserService;
@@ -63,8 +63,11 @@ public class ThridHomeReportController {
             if (CasinoProxyUtil.checkNull(startDate) || CasinoProxyUtil.checkNull(endDate)){
                 proxyHomePageReportVo = this.assembleData(byId,proxyHome);
             }else {
-                String startTimeStr = DateUtil.dateToPatten(startDate);
-                String endTimeStr = DateUtil.dateToPatten(endDate);
+                //偏移12小时
+                Date start = cn.hutool.core.date.DateUtil.offsetHour(startDate, 12);
+                Date end = cn.hutool.core.date.DateUtil.offsetHour(endDate, 12);
+                String startTimeStr = DateUtil.dateToPatten(start);
+                String endTimeStr = DateUtil.dateToPatten(end);
                 proxyHomePageReportVo = this.assembleData(byId,proxyHome,startTimeStr,endTimeStr);
             }
             String startTime = startDate==null? null:DateUtil.getSimpleDateFormat1().format(startDate);
@@ -111,8 +114,17 @@ public class ThridHomeReportController {
                 List<ProxyHomePageReportVo> newList = new LinkedList<>();
                 list.forEach(vo -> {
                     String staticsTimes = vo.getStaticsTimes();
-                    String startTime = staticsTimes + start;
-                    String endTime = staticsTimes + end;
+                    Calendar calendar = Calendar.getInstance();
+                    Date date = null;
+                    try {
+                        date = DateUtil.getSimpleDateFormat1().parse(staticsTimes);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    calendar.setTime(date);
+                    String startTime = DateUtil.dateToPatten1(calendar.getTime()) + start;
+                    calendar.add(Calendar.DATE, 1);
+                    String endTime = DateUtil.dateToPatten1(calendar.getTime()) + end;
                     ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
                     try {
                         vo = this.trendChartData(byId,proxyHomePageReport,startTime,endTime);
@@ -160,32 +172,46 @@ public class ThridHomeReportController {
         ProxyHomePageReportVo vo = new ProxyHomePageReportVo();
         try {
             if (tag == CommonConst.NUMBER_2){
-                Date date = DateUtil.getSimpleDateFormatMonth().parse(time);
+                //                Date date = DateUtil.getSimpleDateFormatMonth().parse(time);
+                //                Calendar calendar = Calendar.getInstance();
+                //                calendar.setTime(date);
+                //                calendar.set(Calendar.DAY_OF_MONTH, 1);
+                //                String startTime = DateUtil.dateToPatten1(calendar.getTime()) + start;
+                //
+                //                calendar.add(Calendar.MONTH,1);//月增加1天
+                //                calendar.add(Calendar.DAY_OF_MONTH,-1);//日期倒数一日,既得到本月最后一天
+                //                String endTime = DateUtil.dateToPatten1(calendar.getTime()) + end;
+
                 Calendar calendar = Calendar.getInstance();
+                Date date = DateUtil.getSimpleDateFormatMonth().parse(time);
                 calendar.setTime(date);
-                calendar.set(Calendar.DAY_OF_MONTH, 1);
+                calendar.set(Calendar.DAY_OF_MONTH,1);
                 String startTime = DateUtil.dateToPatten1(calendar.getTime()) + start;
-
-                calendar.add(Calendar.MONTH,1);//月增加1天
-                calendar.add(Calendar.DAY_OF_MONTH,-1);//日期倒数一日,既得到本月最后一天
+                calendar.add(Calendar.MONTH, 1);
                 String endTime = DateUtil.dateToPatten1(calendar.getTime()) + end;
-
                 ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
                 vo = this.trendChartData(byId,proxyHomePageReport,startTime,endTime);
             }else {
-                Date date = DateUtil.getSimpleDateFormatYear().parse(time);
+                //                Date date = DateUtil.getSimpleDateFormatYear().parse(time);
+                //                Calendar calendar = Calendar.getInstance();
+                //                calendar.setTime(date);
+                //                calendar.set(Calendar.DAY_OF_YEAR,1);
+                //
+                //                String startTime = DateUtil.dateToPatten1(calendar.getTime()) + start;
+                //
+                //                int year = calendar.get(Calendar.YEAR);
+                //                calendar.set(Calendar.YEAR, year);
+                //                calendar.roll(Calendar.DAY_OF_YEAR, -1);
+                //
+                //                String endTime = DateUtil.dateToPatten1(calendar.getTime()) + end;
+
                 Calendar calendar = Calendar.getInstance();
+                Date date = DateUtil.getSimpleDateFormatYear().parse(time);
                 calendar.setTime(date);
                 calendar.set(Calendar.DAY_OF_YEAR,1);
-
                 String startTime = DateUtil.dateToPatten1(calendar.getTime()) + start;
-
-                int year = calendar.get(Calendar.YEAR);
-                calendar.set(Calendar.YEAR, year);
-                calendar.roll(Calendar.DAY_OF_YEAR, -1);
-
+                calendar.add(Calendar.YEAR, 1);
                 String endTime = DateUtil.dateToPatten1(calendar.getTime()) + end;
-
                 ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
                 vo = this.trendChartData(byId,proxyHomePageReport,startTime,endTime);
             }
