@@ -4,6 +4,7 @@ import com.qianyi.casinoadmin.model.HomePageReport;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.CompanyProxyMonth;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.vo.GameRecordTotalVo;
 import com.qianyi.casinocore.vo.GameRecordVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.model.GameRecord;
@@ -131,11 +132,10 @@ public class GameRecordController {
             @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
     })
     @NoAuthorization
-    public ResponseEntity<BigDecimal> findGameRecordTotal(String user, String betId,
-                                                          String gname, Integer gid, String account, Integer tag,
-                                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
-        BigDecimal validbet =BigDecimal.ZERO;
+    public ResponseEntity<GameRecordTotalVo> findGameRecordTotal(String user, String betId,
+                                                                 String gname, Integer gid, String account, Integer tag,
+                                                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+                                                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         GameRecord game = new GameRecord();
         Long userId = null;
         if (!LoginUtil.checkNull(account)){
@@ -162,21 +162,27 @@ public class GameRecordController {
         }else {
             gameRecordList = gameRecordService.findGameRecordList(game,null,null,null,null);
         }
-
+        BigDecimal bet=BigDecimal.ZERO;
+        BigDecimal validbet=BigDecimal.ZERO;
+        BigDecimal winLoss=BigDecimal.ZERO;
         if(gameRecordList != null && gameRecordList.size() > 0){
             List<Map<BigDecimal, Object>> list = new ArrayList<>();
             gameRecordList.stream().forEach(info ->{
                 list.add(new HashMap(1) {{
                     put("validbet", new BigDecimal(info.getValidbet()));
+                    put("bet", new BigDecimal(info.getValidbet()));
+                    put("winLoss", new BigDecimal(info.getValidbet()));
                 }});
             });
-            validbet = list.stream().map(item -> {
-                {
-                    return new BigDecimal(item.get("validbet").toString());
-                }
-            }).reduce(BigDecimal.ZERO, BigDecimal::add);
+             bet = list.stream().map(item -> { { return new BigDecimal(item.get("bet").toString());}}).reduce(BigDecimal.ZERO, BigDecimal::add);
+            validbet = list.stream().map(item -> { { return new BigDecimal(item.get("validbet").toString());}}).reduce(BigDecimal.ZERO, BigDecimal::add);
+            winLoss = list.stream().map(item -> { { return new BigDecimal(item.get("winLoss").toString());}}).reduce(BigDecimal.ZERO, BigDecimal::add);
         }
-        return ResponseUtil.success(validbet);
+        GameRecordTotalVo gameRecordTotalVo=new GameRecordTotalVo();
+        gameRecordTotalVo.setBet(bet);
+        gameRecordTotalVo.setValidbet(validbet);
+        gameRecordTotalVo.setWinLoss(winLoss);
+        return ResponseUtil.success(gameRecordTotalVo);
     }
 
     /**
