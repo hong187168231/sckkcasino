@@ -141,7 +141,7 @@ public class GameRecordController {
         if (!LoginUtil.checkNull(account)){
             User byAccount = userService.findByAccount(account);
             if (LoginUtil.checkNull(byAccount)){
-                return ResponseUtil.custom("--");
+                return ResponseUtil.custom("用户不存在");
             }
             userId = byAccount.getId();
         }
