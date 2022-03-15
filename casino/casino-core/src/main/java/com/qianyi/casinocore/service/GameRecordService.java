@@ -31,6 +31,10 @@ public class GameRecordService {
     private EntityManager entityManager;
 
 
+    public List<GameRecord> findGameRecordList(GameRecord gameRecord, String startBetTime,String endBetTime,String startSetTime,String endSetTime) {
+        Specification<GameRecord> condition = getCondition(gameRecord,startBetTime,endBetTime,startSetTime,endSetTime);
+        return gameRecordRepository.findAll(condition);
+    }
 
     public Page<GameRecord> findGameRecordPage(GameRecord gameRecord, Pageable pageable,String startBetTime,String endBetTime,String startSetTime,String endSetTime) {
         Specification<GameRecord> condition = getCondition(gameRecord,startBetTime,endBetTime,startSetTime,endSetTime);
