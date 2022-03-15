@@ -78,11 +78,6 @@ public class Initialization implements CommandLineRunner {
     @Autowired
     private AccountChangeService accountChangeService;
 
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
-    @Autowired
-    private RedisUtil redisUtil;
-
     @Override
     public void run(String... args) throws Exception {
         log.info("初始化数据开始============================================》");
@@ -101,25 +96,7 @@ public class Initialization implements CommandLineRunner {
 
         this. saveReturnCommissionInfo();
         this.initializationTotalPlatformQuota();
-        this.supplementaryData();
     }
-
-    //补充推广贷佣金company_proxy_month
-    public void supplementaryData(){
-        boolean hasKey = redisUtil.hasKey(Constants.REDIS_SUPPLEMENTARYDATA);
-        if (!hasKey){
-            //发消息
-            Map<String,Object> map= new HashMap<>();
-            map.put("dayTime","2022-02-01");
-            rabbitTemplate.convertAndSend(RabbitMqConstants.SUPPLEMENTARY_DATA_DIRECTEXCHANGE, RabbitMqConstants.SUPPLEMENTARY_DATA_DIRECT, map, new CorrelationData(UUID.randomUUID().toString()));
-
-            Map<String,Object> map1= new HashMap<>();
-            map1.put("dayTime","2022-03-01");
-            rabbitTemplate.convertAndSend(RabbitMqConstants.SUPPLEMENTARY_DATA_DIRECTEXCHANGE, RabbitMqConstants.SUPPLEMENTARY_DATA_DIRECT, map1, new CorrelationData(UUID.randomUUID().toString()));
-            redisUtil.lSet(Constants.REDIS_SUPPLEMENTARYDATA, 1);
-        }
-    }
-
 
     public void initPermission(){
         newPermissions.init();
