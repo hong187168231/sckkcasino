@@ -170,8 +170,8 @@ public class GameRecordController {
             gameRecordList.stream().forEach(info ->{
                 list.add(new HashMap(1) {{
                     put("validbet", new BigDecimal(info.getValidbet()));
-                    put("bet", new BigDecimal(info.getValidbet()));
-                    put("winLoss", new BigDecimal(info.getValidbet()));
+                    put("bet", new BigDecimal(info.getBet()));
+                    put("winLoss", new BigDecimal(info.getWinLoss()));
                 }});
             });
              bet = list.stream().map(item -> { { return new BigDecimal(item.get("bet").toString());}}).reduce(BigDecimal.ZERO, BigDecimal::add);
