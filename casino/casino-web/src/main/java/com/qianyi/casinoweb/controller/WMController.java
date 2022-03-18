@@ -157,7 +157,7 @@ public class WMController {
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
             if (entity.getErrorCode() != 0) {
-                log.error("userId:{},errorCode={},errorMsg={}",third.getUserId(), entity.getErrorCode(), entity.getErrorMessage());
+                log.error("进游戏加扣点失败,userId:{},errorCode={},errorMsg={}",third.getUserId(), entity.getErrorCode(), entity.getErrorMessage());
                 return ResponseUtil.custom("加点失败,请联系客服");
             }
             //钱转入第三方后本地扣减记录账变
