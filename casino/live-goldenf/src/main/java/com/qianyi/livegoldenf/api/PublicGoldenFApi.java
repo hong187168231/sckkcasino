@@ -263,7 +263,7 @@ public class PublicGoldenFApi {
             jsonObject = JSONObject.parseObject(result);
         } catch (Exception e) {
             entity.setErrorCode("500");
-            entity.setErrorMessage("服务器异常,请重新操作");
+            entity.setErrorMessage("远程请求GoldenF异常,请重新操作");
             return entity;
         }
         if (ObjectUtils.isEmpty(jsonObject)) {

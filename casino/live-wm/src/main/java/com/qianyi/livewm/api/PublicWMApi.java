@@ -320,7 +320,7 @@ public class PublicWMApi {
         }catch (Exception e){
             ResponseEntity entity = new ResponseEntity();
             entity.setErrorCode(500);
-            entity.setErrorMessage("远程请求异常,请重新操作");
+            entity.setErrorMessage("远程请求WM异常,请重新操作");
             return entity;
         }
         Integer code = jsonObject.getInteger("errorCode");
