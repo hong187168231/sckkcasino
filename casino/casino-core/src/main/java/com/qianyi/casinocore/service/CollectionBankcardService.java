@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,7 @@ public class CollectionBankcardService {
     public void delete(CollectionBankcard collectionBankcard){
         collectionBankCardRepository.delete(collectionBankcard);
     }
+
     public Page<CollectionBankcard> getCollectionBandPage(CollectionBankcard collectionBankcard , Pageable pageable){
         Specification<CollectionBankcard> condition = this.getCondition(collectionBankcard);
         return collectionBankCardRepository.findAll(condition,pageable);
@@ -71,8 +73,18 @@ public class CollectionBankcardService {
         return null;
     }
 
+    @CacheEvict(allEntries = true)
+    public void saveAll(List<CollectionBankcard> collectionBankcardList) {
+        collectionBankCardRepository.saveAll(collectionBankcardList);
+    }
+
     public List<CollectionBankcard> findAll() {
         return collectionBankCardRepository.findAll();
+    }
+
+
+    public List<CollectionBankcard> findAllSort(Sort sort) {
+        return collectionBankCardRepository.findAll(sort);
     }
 
     @Cacheable(key="'disable::' + #p0")
@@ -126,4 +138,5 @@ public class CollectionBankcardService {
         };
         return specification;
     }
+
 }

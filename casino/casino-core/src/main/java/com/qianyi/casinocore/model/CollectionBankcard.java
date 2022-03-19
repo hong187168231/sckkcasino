@@ -33,6 +33,9 @@ public class CollectionBankcard extends BaseEntity{
     @ApiModelProperty(value = "0:未禁用 1：禁用")
     private Integer disable;
 
+    @ApiModelProperty(value = "排序")
+    private Integer sortId;
+
 //    @ApiModelProperty(value = "渠道等级 1A 2B 3C 4D")
 //    private Integer grade;
 //
