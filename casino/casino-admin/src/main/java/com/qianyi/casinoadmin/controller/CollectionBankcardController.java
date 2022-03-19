@@ -179,7 +179,7 @@ public class CollectionBankcardController {
     }
 
     @NoAuthentication
-    @GetMapping("收款银行卡排序")
+    @GetMapping("sortBankInfo")
     @ApiOperation("收款银行卡排序")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id", required = true),
