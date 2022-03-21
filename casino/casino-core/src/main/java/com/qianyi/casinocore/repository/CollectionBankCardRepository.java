@@ -10,5 +10,5 @@ public interface CollectionBankCardRepository extends JpaRepository<CollectionBa
 
     List<CollectionBankcard> findByBankNo(String bankNo);
 
-    List<CollectionBankcard> findByDisable(Integer disable);
+    List<CollectionBankcard> findByDisableOrderBySortIdAsc(Integer disable);
 }

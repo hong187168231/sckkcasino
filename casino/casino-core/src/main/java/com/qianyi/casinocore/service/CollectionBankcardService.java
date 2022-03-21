@@ -76,8 +76,8 @@ public class CollectionBankcardService {
     }
 
     @Cacheable(key="'disable::' + #p0")
-    public List<CollectionBankcard> findByDisable(Integer disable){
-        return collectionBankCardRepository.findByDisable(disable);
+    public List<CollectionBankcard> findByDisableOrderBySortIdAsc(Integer disable){
+        return collectionBankCardRepository.findByDisableOrderBySortIdAsc(disable);
     }
 
     /**

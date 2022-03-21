@@ -40,7 +40,7 @@ public class ChargeController {
     @ApiOperation("收款银行卡列表")
     @ResponseBody
     public ResponseEntity<List<CollectionBankcardVo>> bankList() {
-        List<CollectionBankcard> bankcardList = collectionBankcardService.findByDisable(0);
+        List<CollectionBankcard> bankcardList = collectionBankcardService.findByDisableOrderBySortIdAsc(0);
         if (CollectionUtils.isEmpty(bankcardList)) {
             return ResponseUtil.success();
         }
