@@ -28,8 +28,8 @@ public class TransferUserInit implements CommandLineRunner {
     private static List<String> users = new ArrayList<>();
 
     static {
-        users.add("Makly855");
-        users.add("Rahu855");
+        users.add("povpov188");
+//        users.add("Rahu855");
 //        users.add("Makara911");
 //        users.add("Kimhong009");
 //        users.add("VANNDA33");
@@ -58,7 +58,7 @@ public class TransferUserInit implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         log.info("初始化转移会员开始============================================》");
-        ProxyUser d018JD = proxyUserService.findByUserName("L037JD");
+        ProxyUser d018JD = proxyUserService.findByUserName("D018JD");
         if (LoginUtil.checkNull(d018JD)){
             log.info("没有找到这个代理转移结束");
             return;
