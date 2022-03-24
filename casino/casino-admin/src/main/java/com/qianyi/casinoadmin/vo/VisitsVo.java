@@ -14,4 +14,10 @@ public class VisitsVo {
 
     @ApiModelProperty("总访问量")
     private Integer domainCount;
+
+    @ApiModelProperty("注册会员数")
+    private Integer nums;
+
+    @ApiModelProperty("充值会员数")
+    private Integer ChargeNums;
 }

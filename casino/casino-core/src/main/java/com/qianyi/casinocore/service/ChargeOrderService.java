@@ -16,10 +16,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ChargeOrderService {
@@ -30,6 +27,12 @@ public class ChargeOrderService {
     @PersistenceContext
     private EntityManager entityManager;
 
+    public static final List<Integer> statusList = new ArrayList<>();
+
+    static {
+        statusList.add(1);
+        statusList.add(4);
+    }
 
     public ChargeOrder saveOrder(ChargeOrder entity){
         return chargeOrderRepository.save(entity);
@@ -334,4 +337,31 @@ public class ChargeOrderService {
         return chargeOrderRepository.sumChargeAmount();
     }
 
+    public Integer getChargeNums(Set<Long> userIds){
+        if (userIds == null || userIds.size() == 0) {
+            return 0;
+        }
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ChargeOrder> criteriaQuery = criteriaBuilder.createQuery(ChargeOrder.class);
+        Root<ChargeOrder> root = criteriaQuery.from(ChargeOrder.class);
+        List<Predicate> predicates = new ArrayList();
+
+        Path<Object> userId = root.get("userId");
+        CriteriaBuilder.In<Object> in = criteriaBuilder.in(userId);
+        for (Long id : userIds) {
+            in.value(id);
+        }
+        predicates.add(criteriaBuilder.and(criteriaBuilder.and(in)));
+
+        Path<Object> status = root.get("status");
+        CriteriaBuilder.In<Object> statusin = criteriaBuilder.in(status);
+        for (Integer id : statusList) {
+            statusin.value(id);
+        }
+        predicates.add(criteriaBuilder.and(criteriaBuilder.and(statusin)));
+        criteriaQuery.groupBy(root.get("userId"));
+        criteriaQuery.where(predicates.toArray(new Predicate[predicates.size()]));
+        List<ChargeOrder> counts = entityManager.createQuery(criteriaQuery).getResultList();
+        return counts == null? 0 : counts.size();
+    }
 }

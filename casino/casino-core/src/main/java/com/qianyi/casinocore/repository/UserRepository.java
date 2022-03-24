@@ -7,6 +7,7 @@ import javax.persistence.LockModeType;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
@@ -48,4 +49,7 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     List<User> findByPhone(String phone);
 
     User findByFirstPidAndAccount(Long userId, String account);
+
+    @Query(value = "select u.id  from user u  where u.register_domain_name = ?1 and u.create_time >= ?2 and u.create_time <= ?3",nativeQuery = true)
+    Set<Long> findUserByRegisterDomainName(String registerDomainName,String startTime,String endTime);
 }

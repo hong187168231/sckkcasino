@@ -6,9 +6,7 @@ import com.qianyi.casinoadmin.vo.VisitsSum;
 import com.qianyi.casinocore.model.DepositSendActivity;
 import com.qianyi.casinocore.model.DomainConfig;
 import com.qianyi.casinocore.model.SysUser;
-import com.qianyi.casinocore.service.DomainConfigService;
-import com.qianyi.casinocore.service.SysUserService;
-import com.qianyi.casinocore.service.VisitsService;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoadmin.vo.VisitsVo;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
@@ -24,10 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.IntSummaryStatistics;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -45,13 +40,19 @@ public class DomainConfigController {
     @Autowired
     private SysUserService sysUserService;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ChargeOrderService chargeOrderService;
+
     @GetMapping("/visitsFindList")
     @ApiOperation("域名访问量统计")
     @NoAuthorization
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "domainName", value = "域名名称", required = false),
-            @ApiImplicitParam(name = "StartTime", value = "开始时间", required = true),
-            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true),
+        @ApiImplicitParam(name = "domainName", value = "域名名称", required = false),
+        @ApiImplicitParam(name = "StartTime", value = "开始时间", required = true),
+        @ApiImplicitParam(name = "endTime", value = "结束时间", required = true),
     })
     public ResponseEntity<VisitsVo> visitsFindList(String domainName, String ip, String StartTime, String endTime) {
         List<Map<String, Object>> list = visitsService.findListSum(domainName, ip, StartTime, endTime);
@@ -74,6 +75,10 @@ public class DomainConfigController {
             visitsVo.setDomainIpCount(visitss.size());
             Integer sumDomainCount = visitss.stream().collect(Collectors.summingInt(VisitsSum::getDomainCount));
             visitsVo.setDomainCount(sumDomainCount);
+            Set<Long> users = userService.findUserByRegisterDomainName(visitsVo.getDomainName(), StartTime, endTime);
+            visitsVo.setNums(users.size());
+            Integer chargeNums = chargeOrderService.getChargeNums(users);
+            visitsVo.setChargeNums(chargeNums);
             visitsVoList.add(visitsVo);
         }
         return ResponseUtil.success(visitsVoList);
@@ -101,10 +106,10 @@ public class DomainConfigController {
     @ApiOperation("新增或者修改域名")
     @PostMapping(value = "/saveDomain",name = "新增或者修改域名")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "domainName", value = "域名名称", required = false),
-            @ApiImplicitParam(name = "domainUrl", value = "域名地址", required = true),
-            @ApiImplicitParam(name = "id", value = "id", required = false),
-            @ApiImplicitParam(name = "domainStatus", value = "状态 0：禁用， 1：启用", required = true)})
+        @ApiImplicitParam(name = "domainName", value = "域名名称", required = false),
+        @ApiImplicitParam(name = "domainUrl", value = "域名地址", required = true),
+        @ApiImplicitParam(name = "id", value = "id", required = false),
+        @ApiImplicitParam(name = "domainStatus", value = "状态 0：禁用， 1：启用", required = true)})
     public ResponseEntity<DomainConfig> saveDomain(String domainName,String domainUrl,Long id, Integer domainStatus){
         if (LoginUtil.checkNull(domainUrl) || domainStatus == null){
             ResponseUtil.custom("参数不合法");
@@ -129,8 +134,8 @@ public class DomainConfigController {
 
     @ApiOperation("修改域名状态")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "id", required = true),
-            @ApiImplicitParam(name = "domainStatus", value = "状态 0：禁用， 1：启用", required = true)
+        @ApiImplicitParam(name = "id", value = "id", required = true),
+        @ApiImplicitParam(name = "domainStatus", value = "状态 0：禁用， 1：启用", required = true)
     })
     @PostMapping("domainStatus")
     public ResponseEntity<DomainConfig> updateDomainStatus(Long id, Integer domainStatus){
@@ -145,7 +150,7 @@ public class DomainConfigController {
 
     @ApiOperation("删除域名")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "id", required = true)
+        @ApiImplicitParam(name = "id", value = "id", required = true)
     })
     @GetMapping("deleteId")
     public ResponseEntity<DomainConfig> deleteId(Long id){
