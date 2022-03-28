@@ -103,14 +103,7 @@ public class AuthController {
             @ApiImplicitParam(name = "inviteType", value = "邀请类型:everyone:人人代，proxy:基层代理，888:官方推广", required = false),
     })
     public ResponseEntity spreadRegister(String account, String password, String country, String phone, String phoneCode, HttpServletRequest request, String validate, String inviteCode, String inviteType) {
-        boolean checkVerificationSwitch = checkVerificationSwitch();
-        boolean checkNull = false;
-        if (checkVerificationSwitch) {
-            checkNull = CommonUtil.checkNull(account, password, country, phone, phoneCode, validate);
-        } else {
-            checkNull = CommonUtil.checkNull(account, password, country, phone, validate);
-        }
-        if (checkNull) {
+        if (checkRequiredParams(account, password, country, phone, phoneCode, validate)) {
             return ResponseUtil.parameterNotNull();
         }
         //检验域名或者邀请码
@@ -144,8 +137,7 @@ public class AuthController {
     })
     public ResponseEntity register(String account, String password, String country, String phone, String phoneCode,
                                    HttpServletRequest request, String validate, String inviteCode) {
-        boolean checkNull = CommonUtil.checkNull(account, password, country, phone, phoneCode, validate);
-        if (checkNull) {
+        if (checkRequiredParams(account, password, country, phone, phoneCode, validate)) {
             return ResponseUtil.parameterNotNull();
         }
         PlatformConfig platformConfig = platformConfigService.findFirst();
@@ -154,6 +146,17 @@ public class AuthController {
         }
         ResponseEntity responseEntity = registerCommon(account, password, country, phone, phoneCode, request, validate, inviteCode, null,1);
         return responseEntity;
+    }
+
+    public boolean checkRequiredParams(String account, String password, String country, String phone, String phoneCode,String validate){
+        boolean checkVerificationSwitch = checkVerificationSwitch();
+        boolean checkNull = false;
+        if (checkVerificationSwitch) {
+            checkNull = CommonUtil.checkNull(account, password, country, phone, phoneCode, validate);
+        } else {
+            checkNull = CommonUtil.checkNull(account, password, country, phone, validate);
+        }
+        return checkNull;
     }
 
     /**
