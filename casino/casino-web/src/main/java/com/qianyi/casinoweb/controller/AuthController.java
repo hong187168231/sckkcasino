@@ -97,13 +97,19 @@ public class AuthController {
             @ApiImplicitParam(name = "password", value = "密码", required = true),
             @ApiImplicitParam(name = "country", value = "区号，柬埔寨：855", required = true),
             @ApiImplicitParam(name = "phone", value = "手机号", required = true),
-            @ApiImplicitParam(name = "phoneCode", value = "手机号验证码", required = true),
+            @ApiImplicitParam(name = "phoneCode", value = "手机号验证码,验证码开关开启后必填", required = false),
             @ApiImplicitParam(name = "validate", value = "网易易顿", required = true),
             @ApiImplicitParam(name = "inviteCode", value = "邀请码", required = false),
             @ApiImplicitParam(name = "inviteType", value = "邀请类型:everyone:人人代，proxy:基层代理，888:官方推广", required = false),
     })
     public ResponseEntity spreadRegister(String account, String password, String country, String phone, String phoneCode, HttpServletRequest request, String validate, String inviteCode, String inviteType) {
-        boolean checkNull = CommonUtil.checkNull(account, password, country, phone, phoneCode, validate);
+        boolean checkVerificationSwitch = checkVerificationSwitch();
+        boolean checkNull = false;
+        if (checkVerificationSwitch) {
+            checkNull = CommonUtil.checkNull(account, password, country, phone, phoneCode, validate);
+        } else {
+            checkNull = CommonUtil.checkNull(account, password, country, phone, validate);
+        }
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
@@ -182,10 +188,13 @@ public class AuthController {
             return ResponseUtil.custom("手机号" + RegexEnum.PHONE.getDesc());
         }
         phone = country + phone;
-        String redisKey = Constants.REDIS_SMSCODE + phone;
-        Object redisCode = redisUtil.get(redisKey);
-        if (!phoneCode.equals(redisCode)) {
-             return ResponseUtil.custom("手机号验证码错误");
+        boolean checkVerificationSwitch = checkVerificationSwitch();
+        if (checkVerificationSwitch) {
+            String redisKey = Constants.REDIS_SMSCODE + phone;
+            Object redisCode = redisUtil.get(redisKey);
+            if (!phoneCode.equals(redisCode)) {
+                return ResponseUtil.custom("手机号验证码错误");
+            }
         }
         //一个手机号只能注册一个账号
         List<User> phoneUser = userService.findByPhone(phone);
@@ -708,6 +717,22 @@ public class AuthController {
             return ResponseUtil.custom("当前手机号已注册");
         }
         return ResponseUtil.success();
+    }
+
+    /**
+     * 检查验证码开关
+     * @return
+     */
+    public boolean checkVerificationSwitch(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig == null) {
+            return true;
+        }
+        Integer verificationCode = platformConfig.getVerificationCode();
+        if (verificationCode == Constants.open) {
+            return true;
+        }
+        return false;
     }
 
     private void setUserTokenToRedis(Long userId, String token) {
