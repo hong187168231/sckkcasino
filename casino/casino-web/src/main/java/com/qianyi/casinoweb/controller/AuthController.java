@@ -131,7 +131,7 @@ public class AuthController {
             @ApiImplicitParam(name = "password", value = "密码", required = true),
             @ApiImplicitParam(name = "country", value = "区号，柬埔寨：855", required = true),
             @ApiImplicitParam(name = "phone", value = "电话号码", required = true),
-            @ApiImplicitParam(name = "phoneCode", value = "手机号验证码", required = true),
+            @ApiImplicitParam(name = "phoneCode", value = "手机号验证码", required = false),
             @ApiImplicitParam(name = "validate", value = "网易易顿", required = true),
             @ApiImplicitParam(name = "inviteCode", value = "邀请码", required = false),
     })
