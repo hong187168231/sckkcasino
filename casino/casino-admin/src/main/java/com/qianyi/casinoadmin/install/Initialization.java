@@ -456,6 +456,9 @@ public class Initialization implements CommandLineRunner {
             if(LoginUtil.checkNull(platformConfig.getPlatformMaintenance())){
                 platformConfig.setPlatformMaintenance(CommonConst.NUMBER_0);
             }
+            if(LoginUtil.checkNull(platformConfig.getVerificationCode())){
+                platformConfig.setVerificationCode(CommonConst.NUMBER_1);
+            }
             platformConfigService.save(platformConfig);
         }
     }

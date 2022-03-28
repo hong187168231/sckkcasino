@@ -159,6 +159,9 @@ public class PlatformConfig {
     @ApiModelProperty("平台总额度初始化标识")
     private Integer historicalDataId;
 
+    @ApiModelProperty("验证码开关 0 关闭 1 开启")
+    private Integer verificationCode ;
+
 
 
     //得到充值手续费用
