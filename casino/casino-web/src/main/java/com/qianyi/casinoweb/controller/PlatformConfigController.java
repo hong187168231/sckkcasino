@@ -52,6 +52,21 @@ public class PlatformConfigController {
         return ResponseUtil.success(proxySwitch);
     }
 
+    @GetMapping("checkVerificationSwitch")
+    @ApiOperation("检查验证码开关")
+    @NoAuthentication
+    public ResponseEntity<Boolean> checkVerificationSwitch() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig == null) {
+            return ResponseUtil.success(true);
+        }
+        Integer verificationCode = platformConfig.getVerificationCode();
+        if (verificationCode == Constants.open) {
+            return ResponseUtil.success(true);
+        }
+        return ResponseUtil.success(false);
+    }
+
     @GetMapping("getPeopleProportion")
     @ApiOperation("获取人人代三级分佣比例")
     @NoAuthentication
