@@ -730,6 +730,20 @@
             "url": "/platformConfig/updatePeopleProxySwitch"
           },
           {
+            "descritpion": "查询验证码开关",
+            "englishName": "Query verification code switch",
+            "menuLevel": 3,
+            "name": "查询验证码开关",
+            "url": "/platformConfig/findVerificationCode"
+          },
+          {
+            "descritpion": "编辑验证码开关",
+            "englishName": "Edit verification code switch",
+            "menuLevel": 3,
+            "name": "编辑验证码开关",
+            "url": "/platformConfig/updateVerificationCode"
+          },
+          {
             "descritpion": "查询银行卡账号校验开关",
             "englishName": "Enable bank card verification",
             "menuLevel": 3,

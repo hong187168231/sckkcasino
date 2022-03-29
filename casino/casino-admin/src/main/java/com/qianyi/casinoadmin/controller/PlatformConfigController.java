@@ -737,4 +737,30 @@ public class PlatformConfigController {
     }
 
 
+    @ApiOperation("查询验证码开关")
+    @GetMapping("/findVerificationCode")
+    public ResponseEntity findVerificationCode(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        return ResponseUtil.success(platformConfig==null? Constants.open:platformConfig.getVerificationCode());
+    }
+
+    @ApiOperation("修改验证码开关")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "verificationCode", value = "编辑验证码开关(0:关闭，1:开启)", required = true),
+    })
+    @PostMapping("/updateVerificationCode")
+    public ResponseEntity updateVerificationCode(Integer verificationCode){
+        if (LoginUtil.checkNull(verificationCode)){
+            return ResponseUtil.custom("参数错误");
+        }
+        PlatformConfig first = platformConfigService.findFirst();
+        if (LoginUtil.checkNull(first)){
+            first = new PlatformConfig();
+        }
+        first.setVerificationCode(verificationCode);
+        platformConfigService.save(first);
+        return ResponseUtil.success();
+    }
+
+
 }
