@@ -42,5 +42,5 @@ public class PlatformConfigFile {
     private Integer peopleProxySwitch;
     private Integer bankcardRealNameSwitch;
     private BigDecimal totalPlatformQuota;
-
+    private Integer verificationCode;
 }

@@ -437,6 +437,7 @@ public class Initialization implements CommandLineRunner {
             platformConfig.setPeopleProxySwitch(platformConfigFile.getPeopleProxySwitch());
             platformConfig.setBankcardRealNameSwitch(platformConfigFile.getBankcardRealNameSwitch());
             platformConfig.setTotalPlatformQuota(platformConfigFile.getTotalPlatformQuota());
+            platformConfig.setVerificationCode(platformConfigFile.getVerificationCode());
             platformConfigService.save(platformConfig);
         }else {
             PlatformConfig platformConfig = all.get(CommonConst.NUMBER_0);
