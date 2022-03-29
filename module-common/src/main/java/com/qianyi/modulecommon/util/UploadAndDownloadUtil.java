@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -46,6 +47,10 @@ public class UploadAndDownloadUtil {
             builder.addTextBody("filename", fileName,contentType);// 类似浏览器表单提交，对应input的name和value
             HttpEntity entity = builder.build();
             httpPost.setEntity(entity);
+
+            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(4000).setConnectionRequestTimeout(1000).setSocketTimeout(3000)
+                    .build();
+            httpPost.setConfig(requestConfig);
             HttpResponse response = httpClient.execute(httpPost);// 执行提交
             HttpEntity responseEntity = response.getEntity();
 
