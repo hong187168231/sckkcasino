@@ -133,7 +133,6 @@ public class Initialization implements CommandLineRunner {
             first.setPGMaxId(0L);
             first.setCQ9MaxId(0L);
             gameRecordEndIndexService.save(first);
-            gameRecordReportService.saveGameRecordReportWM();
         }else {
             first.setGameRecordId(first.getGameRecordId()==null?0L:first.getGameRecordId());
             first.setPGMaxId(first.getPGMaxId()==null?0L:first.getPGMaxId());
