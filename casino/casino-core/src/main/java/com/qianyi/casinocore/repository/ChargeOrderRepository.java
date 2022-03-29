@@ -26,6 +26,6 @@ public interface ChargeOrderRepository extends JpaRepository<ChargeOrder,Long>, 
     void updateChargeOrdersRemark(String remark,Long id);
 
 
-    @Query(value = "select SUM(charge_amount) from charge_order where `status` in (1,4,5)",nativeQuery = true)
+    @Query(value = "select IFNULL( SUM(charge_amount),0) from charge_order where `status` in (1,4,5)",nativeQuery = true)
     BigDecimal sumChargeAmount();
 }
