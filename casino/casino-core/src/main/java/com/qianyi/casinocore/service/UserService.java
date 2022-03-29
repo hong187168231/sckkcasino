@@ -133,6 +133,9 @@ public class UserService {
                 if (user.getState() != null) {
                     list.add(cb.equal(root.get("state").as(String.class), user.getState()));
                 }
+                if (user.getRegisterDomainName() != null) {
+                    list.add(cb.equal(root.get("registerDomainName").as(String.class), user.getRegisterDomainName()));
+                }
                 if (user.getId() != null) {
                     list.add(cb.equal(root.get("id").as(Long.class), user.getId()));
                 }

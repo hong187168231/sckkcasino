@@ -1215,6 +1215,13 @@
             "url": "/domain/deleteId"
           },
           {
+            "descritpion": "会员列表",
+            "englishName": "User List",
+            "menuLevel": 3,
+            "name": "会员列表",
+            "url": "/domain/findUser"
+          },
+          {
             "descritpion": "域名访问量统计",
             "englishName": "Domain name visitor statistic",
             "menuLevel": 3,

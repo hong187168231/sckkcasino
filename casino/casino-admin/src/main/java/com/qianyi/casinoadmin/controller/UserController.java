@@ -577,10 +577,11 @@ public class UserController {
         @ApiImplicitParam(name = "account", value = "用户名", required = true),
         @ApiImplicitParam(name = "name", value = "用户昵称", required = false),
         @ApiImplicitParam(name = "phone", value = "电话号码", required = false),
+        @ApiImplicitParam(name = "thirdAccount", value = "基层代理账号", required = false),
     })
     @PostMapping("saveUser")
     @Transactional
-    public ResponseEntity saveUser(String account, String name, String phone){
+    public ResponseEntity saveUser(String account, String name, String phone,String thirdAccount){
         if (LoginUtil.checkNull(account)){
             return ResponseUtil.custom("参数不合法");
         }
@@ -614,8 +615,24 @@ public class UserController {
 
         //默认中文
         //        user.setLanguage(Constants.USER_LANGUAGE_CH);
-        //来源 公司会员
-        user.setType(Constants.USER_TYPE2);
+        if (LoginUtil.checkNull(thirdAccount)){
+            //来源 公司会员
+            user.setType(Constants.USER_TYPE2);
+        }else {
+            ProxyUser byUserName = proxyUserService.findByUserName(thirdAccount);
+            if (LoginUtil.checkNull(byUserName)){
+                return ResponseUtil.custom("没有这个代理");
+            }
+            if (byUserName.getProxyRole() != CommonConst.NUMBER_3){
+                return ResponseUtil.custom("代理级别不对应");
+            }
+            user.setFirstProxy(byUserName.getFirstProxy());
+            user.setSecondProxy(byUserName.getSecondProxy());
+            user.setThirdProxy(byUserName.getId());
+            //来源 渠道会员
+            user.setType(Constants.USER_TYPE1);
+        }
+
         //随机生成
         String password = PasswordUtil.getRandomPwd();
         String bcryptPassword = LoginUtil.bcrypt(password);
@@ -637,6 +654,18 @@ public class UserController {
         jsonObject.put("account", account);
         jsonObject.put("password", password);
         return ResponseUtil.success(jsonObject);
+    }
+
+    @ApiOperation("添加用户获取基层代理数据")
+    @GetMapping("getThirdProxy")
+    @NoAuthorization
+    public ResponseEntity<ProxyUser> getThirdProxy(){
+        ProxyUser proxyUser = new ProxyUser();
+        proxyUser.setIsDelete(CommonConst.NUMBER_1);
+        proxyUser.setUserFlag(CommonConst.NUMBER_1);
+        proxyUser.setProxyRole(CommonConst.NUMBER_3);
+        List<ProxyUser> proxyUserList = proxyUserService.findProxyUserList(proxyUser);
+        return ResponseUtil.success(proxyUserList);
     }
 
     /**

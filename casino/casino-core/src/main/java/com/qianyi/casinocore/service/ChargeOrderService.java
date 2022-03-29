@@ -337,9 +337,9 @@ public class ChargeOrderService {
         return chargeOrderRepository.sumChargeAmount();
     }
 
-    public Integer getChargeNums(Set<Long> userIds){
+    public List<ChargeOrder> getChargeNums(Set<Long> userIds){
         if (userIds == null || userIds.size() == 0) {
-            return 0;
+            return null;
         }
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<ChargeOrder> criteriaQuery = criteriaBuilder.createQuery(ChargeOrder.class);
@@ -362,6 +362,6 @@ public class ChargeOrderService {
         criteriaQuery.groupBy(root.get("userId"));
         criteriaQuery.where(predicates.toArray(new Predicate[predicates.size()]));
         List<ChargeOrder> counts = entityManager.createQuery(criteriaQuery).getResultList();
-        return counts == null? 0 : counts.size();
+        return counts;
     }
 }
