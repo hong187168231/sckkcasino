@@ -957,12 +957,11 @@
         "url": "/gameRecord/findGameRecordPage"
       },
       {
-        "descritpion": "历史盈亏报表",
+        "descritpion": "会员总报表",
         "englishName": "Pofit Report",
         "menuLevel": 2,
-        "name": "会员报表",
+        "name": "会员总报表",
         "url": "/report/queryPersonReport",
-        "delete": true,
         "children": [
           {
             "descritpion": "盈亏报表总计",

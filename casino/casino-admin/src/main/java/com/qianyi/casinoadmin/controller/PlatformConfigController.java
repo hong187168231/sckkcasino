@@ -383,6 +383,7 @@ public class PlatformConfigController {
         if (LoginUtil.checkNull(uploadUrl)){
             return ResponseUtil.custom("参数错误");
         }
+
         PlatformConfig first = platformConfigService.findFirst();
         if (LoginUtil.checkNull(first)){
             first = new PlatformConfig();

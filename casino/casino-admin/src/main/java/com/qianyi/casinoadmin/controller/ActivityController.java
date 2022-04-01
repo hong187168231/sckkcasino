@@ -6,6 +6,7 @@ import com.qianyi.casinocore.model.DepositSendActivity;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.DepositSendActivityService;
 import com.qianyi.casinocore.service.SysUserService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -66,8 +67,13 @@ public class ActivityController {
         if (LoginUtil.checkNull(actName)){
             ResponseUtil.custom("参数不合法");
         }
-
         Integer actTypeInt = Integer.parseInt(actType);
+        if (LoginUtil.checkNull(depositAmount)){
+            depositAmount= CommonConst.STRING_0;
+        }
+        if (LoginUtil.checkNull(sendAmount)){
+            sendAmount= CommonConst.STRING_0;
+        }
         BigDecimal depAmountDec = new BigDecimal(depositAmount);
         BigDecimal sendAmountDec = new BigDecimal(sendAmount);
         Integer amountTimesInt = Integer.parseInt(amountTimes);
