@@ -119,7 +119,7 @@ public class PublicWMApi {
         }
         String s = HttpClient4Util.doPost(url, params);
         if (CommonUtil.checkNull(s)) {
-            return null;
+            return false;
         }
         ResponseEntity entity = entity(s);
         if (entity.getErrorCode() == 0) {
