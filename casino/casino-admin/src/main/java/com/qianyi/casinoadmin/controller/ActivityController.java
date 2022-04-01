@@ -67,13 +67,8 @@ public class ActivityController {
         if (LoginUtil.checkNull(actName)){
             ResponseUtil.custom("参数不合法");
         }
+
         Integer actTypeInt = Integer.parseInt(actType);
-        if (LoginUtil.checkNull(depositAmount)){
-            depositAmount= CommonConst.STRING_0;
-        }
-        if (LoginUtil.checkNull(sendAmount)){
-            sendAmount= CommonConst.STRING_0;
-        }
         BigDecimal depAmountDec = new BigDecimal(depositAmount);
         BigDecimal sendAmountDec = new BigDecimal(sendAmount);
         Integer amountTimesInt = Integer.parseInt(amountTimes);
