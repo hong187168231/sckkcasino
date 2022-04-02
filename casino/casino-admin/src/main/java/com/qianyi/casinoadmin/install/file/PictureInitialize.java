@@ -92,6 +92,13 @@ public class PictureInitialize {
         onlineUrl.setPcIconUrl("/customer/pc_zaixiankefu.png");
         customer.add(onlineUrl);
 
+        CustomerConfigure wx=new CustomerConfigure();
+        tg.setCustomerMark(7);
+        tg.setCustomer("微信号");
+        tg.setState(Constants.close);
+        tg.setAppIconUrl("/customer/app_wx@2x.png");
+        tg.setPcIconUrl("/customer/wx.png");
+        customer.add(wx);
     }
 
 
