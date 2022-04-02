@@ -238,6 +238,8 @@ public class GameRecordReportNewService {
                 predicates.add(
                         criteriaBuilder.equal(root.get("secondProxy").as(Long.class), proxyId)
                 );
+                //group by type
+                criteriaQuery.groupBy(root.get("secondProxy"));
             }
         }else {
             criteriaQuery.multiselect(root.get("thirdProxy"), criteriaBuilder.sum(root.get("bettingNumber")), criteriaBuilder.sum(root.get("amount")),
@@ -245,6 +247,8 @@ public class GameRecordReportNewService {
             predicates.add(
                 criteriaBuilder.equal(root.get("thirdProxy").as(Long.class), proxyId)
             );
+            //group by type
+            criteriaQuery.groupBy(root.get("thirdProxy"));
         }
         criteriaQuery.where(predicates.toArray(new Predicate[predicates.size()]));
         //criteriaQuery拼成的sql是select type,max(price) maxPrice,sum(price) sumPrice from books group by type；查询出的列与对象BookInfo的属性对应
