@@ -93,11 +93,11 @@ public class PictureInitialize {
         customer.add(onlineUrl);
 
         CustomerConfigure wx=new CustomerConfigure();
-        tg.setCustomerMark(7);
-        tg.setCustomer("微信号");
-        tg.setState(Constants.close);
-        tg.setAppIconUrl("/customer/app_wx@2x.png");
-        tg.setPcIconUrl("/customer/wx.png");
+        wx.setCustomerMark(7);
+        wx.setCustomer("微信号");
+        wx.setState(Constants.close);
+        wx.setAppIconUrl("/customer/app_wx@2x.png");
+        wx.setPcIconUrl("/customer/pc_wx.png");
         customer.add(wx);
     }
 
