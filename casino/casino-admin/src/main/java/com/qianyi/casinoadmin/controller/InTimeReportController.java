@@ -4,6 +4,7 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.GameRecordReportNew;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.GameRecordReportVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
@@ -77,6 +78,7 @@ public class InTimeReportController {
         gameRecordReport.setPlatform(platform);
         Long proxyId = null;
         Integer proxyRole = null;
+        Boolean mark = true;
         if (!LoginUtil.checkNull(userName)){
             ProxyUser byUserName = proxyUserService.findByUserName(userName);
             if (LoginUtil.checkNull(byUserName)){
@@ -84,6 +86,9 @@ public class InTimeReportController {
             }
             proxyId = byUserName.getId();
             proxyRole = byUserName.getProxyRole();
+            if(agentMark && proxyRole== CommonConst.NUMBER_2){
+                mark=false;
+            }
         }
         Page<GameRecordReportNew> gameRecordReportPage = gameRecordReportNewService.findGameRecordReportPage(pageable, gameRecordReport, startTime, endTime,proxyId,proxyRole,agentMark);
         PageResultVO<GameRecordReportVo> pageResultVO = new PageResultVO(gameRecordReportPage);
@@ -92,8 +97,10 @@ public class InTimeReportController {
             List<GameRecordReportVo> gameRecordReportVos = new LinkedList();
             List<Long> firsts = gameRecordReports.stream().map(GameRecordReportNew::getFirstProxy).collect(Collectors.toList());
             List<ProxyUser> proxyUsers = proxyUserService.findProxyUser(firsts);
+            Boolean finalMark = mark;
             gameRecordReports.stream().forEach(gameRecordReport1 -> {
                 GameRecordReportVo vo = new GameRecordReportVo();
+                vo.setHasChildren(finalMark);
                 BeanUtils.copyProperties(gameRecordReport1,vo);
                 vo.setAmount(vo.getAmount().setScale(2, RoundingMode.HALF_UP));
 //                if (gameRecordReport1.getFirstProxy().equals(CommonConst.LONG_0)){
