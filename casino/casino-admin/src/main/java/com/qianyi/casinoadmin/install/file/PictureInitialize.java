@@ -97,7 +97,7 @@ public class PictureInitialize {
         wx.setCustomer("微信号");
         wx.setState(Constants.close);
         wx.setAppIconUrl("/customer/app_wx@2x.png");
-        wx.setPcIconUrl("/customer/pc_wx.png");
+        wx.setPcIconUrl("/customer/wx.png");
         customer.add(wx);
     }
 
