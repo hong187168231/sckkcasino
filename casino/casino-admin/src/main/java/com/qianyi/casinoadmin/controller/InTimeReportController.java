@@ -86,7 +86,7 @@ public class InTimeReportController {
             }
             proxyId = byUserName.getId();
             proxyRole = byUserName.getProxyRole();
-            if(agentMark && proxyRole== CommonConst.NUMBER_2){
+            if( (agentMark && proxyRole== CommonConst.NUMBER_2) || proxyRole== CommonConst.NUMBER_3){
                 mark=false;
             }
         }
