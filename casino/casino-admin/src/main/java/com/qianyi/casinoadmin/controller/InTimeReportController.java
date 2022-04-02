@@ -51,12 +51,13 @@ public class InTimeReportController {
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
+            @ApiImplicitParam(name = "agentMark", value = "代理标识", required = false),
 //            @ApiImplicitParam(name = "gid", value = "游戏类别编号 百家乐:101 龙虎:102 轮盘:103 骰宝:104 牛牛:105 番摊:107 色碟:108 鱼虾蟹:110 炸金花:111 安达巴哈:128", required = false),
             @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
             @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
-    public ResponseEntity<GameRecordReportVo> find(Integer pageSize, Integer pageCode, String userName, String platform, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+    public ResponseEntity<GameRecordReportVo> find(Integer pageSize, Integer pageCode, String userName,Boolean agentMark, String platform, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(startDate) ||  LoginUtil.checkNull(endDate)){
             return ResponseUtil.custom("参数不合法");
@@ -84,7 +85,7 @@ public class InTimeReportController {
             proxyId = byUserName.getId();
             proxyRole = byUserName.getProxyRole();
         }
-        Page<GameRecordReportNew> gameRecordReportPage = gameRecordReportNewService.findGameRecordReportPage(pageable, gameRecordReport, startTime, endTime,proxyId,proxyRole);
+        Page<GameRecordReportNew> gameRecordReportPage = gameRecordReportNewService.findGameRecordReportPage(pageable, gameRecordReport, startTime, endTime,proxyId,proxyRole,agentMark);
         PageResultVO<GameRecordReportVo> pageResultVO = new PageResultVO(gameRecordReportPage);
         List<GameRecordReportNew> gameRecordReports = gameRecordReportPage.getContent();
         if(!LoginUtil.checkNull(gameRecordReports) && gameRecordReports.size() > 0){
