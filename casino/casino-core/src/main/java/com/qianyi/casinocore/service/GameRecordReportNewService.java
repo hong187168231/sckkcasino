@@ -238,6 +238,9 @@ public class GameRecordReportNewService {
                 predicates.add(
                         criteriaBuilder.equal(root.get("secondProxy").as(Long.class), proxyId)
                 );
+                predicates.add(
+                        criteriaBuilder.notEqual(root.get("firstProxy").as(Long.class), 0L)
+                );
                 //group by type
                 criteriaQuery.groupBy(root.get("secondProxy"));
             }
@@ -246,6 +249,9 @@ public class GameRecordReportNewService {
                 criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")));
             predicates.add(
                 criteriaBuilder.equal(root.get("thirdProxy").as(Long.class), proxyId)
+            );
+            predicates.add(
+                    criteriaBuilder.notEqual(root.get("firstProxy").as(Long.class), 0L)
             );
             //group by type
             criteriaQuery.groupBy(root.get("thirdProxy"));

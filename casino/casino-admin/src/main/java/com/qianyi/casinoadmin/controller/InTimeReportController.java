@@ -5,6 +5,7 @@ import com.qianyi.casinocore.model.GameRecordReportNew;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.vo.GameRecordReportTotalVo;
 import com.qianyi.casinocore.vo.GameRecordReportVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -106,6 +108,7 @@ public class InTimeReportController {
 //                if (gameRecordReport1.getFirstProxy().equals(CommonConst.LONG_0)){
 //                    vo.setAccount(messageUtil.get("公司"));
 //                }
+                vo.setTotalWinLossAmount(vo.getWinLossAmount().subtract(vo.getAmount()));
                 proxyUsers.stream().forEach(proxyUser -> {
                     if (gameRecordReport1.getFirstProxy().equals(proxyUser.getId())){
                         vo.setAccount(proxyUser.getUserName());
@@ -158,7 +161,14 @@ public class InTimeReportController {
         if (!LoginUtil.checkNull(recordRecordSum)){
             recordRecordSum.setAmount(recordRecordSum.getAmount() != null? recordRecordSum.getAmount().setScale(2, RoundingMode.HALF_UP):null);
         }
-        return ResponseUtil.success(recordRecordSum);
+        GameRecordReportTotalVo gameRecordReportTotalVo=new GameRecordReportTotalVo();
+        gameRecordReportTotalVo.setBetAmount(recordRecordSum.getBetAmount() != null? recordRecordSum.getBetAmount() : BigDecimal.ZERO);
+        gameRecordReportTotalVo.setBettingNumber(recordRecordSum.getBettingNumber()!= null? recordRecordSum.getBettingNumber() : CommonConst.NUMBER_0);
+        gameRecordReportTotalVo.setValidAmount(recordRecordSum.getValidAmount()!= null? recordRecordSum.getValidAmount() : BigDecimal.ZERO);
+        gameRecordReportTotalVo.setWinLossAmount(recordRecordSum.getWinLossAmount()!= null? recordRecordSum.getWinLossAmount() : BigDecimal.ZERO);
+        gameRecordReportTotalVo.setAmount(recordRecordSum.getAmount()!= null? recordRecordSum.getAmount() : BigDecimal.ZERO);
+        gameRecordReportTotalVo.setTotalWinLossAmount(gameRecordReportTotalVo.getWinLossAmount().subtract(gameRecordReportTotalVo.getAmount()));
+        return ResponseUtil.success(gameRecordReportTotalVo);
 
     }
 }
