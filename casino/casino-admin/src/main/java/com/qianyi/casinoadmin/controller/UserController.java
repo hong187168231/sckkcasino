@@ -634,7 +634,7 @@ public class UserController {
         }
 
         //随机生成
-        String password = PasswordUtil.getRandomPwd();
+        String password = UserPasswordUtil.getRandomPwd();
         String bcryptPassword = LoginUtil.bcrypt(password);
         user.setPassword(bcryptPassword);
         //默认展示两张收款卡
@@ -754,7 +754,7 @@ public class UserController {
         }
         log.info("重置密码之前密码{}, 账号：【{}】",user.getPassword(), user.getAccount());
         //随机生成
-        String password = PasswordUtil.getRandomPwd();
+        String password = UserPasswordUtil.getRandomPwd();
         String bcryptPassword = LoginUtil.bcrypt(password);
         log.info("生成密码{}",bcryptPassword);
         user.setPassword(bcryptPassword);
