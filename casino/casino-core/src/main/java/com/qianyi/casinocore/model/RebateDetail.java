@@ -24,7 +24,7 @@ public class RebateDetail extends BaseEntity {
     @ApiModelProperty(value = "游戏记录ID")
     private Long gameRecordId;
 
-    @ApiModelProperty(value = "平台:WM,PG,CQ9")
+    @ApiModelProperty(value = "平台:wm,PG,CQ9")
     private String platform;
 
     @ApiModelProperty(value = "有效投注额")
