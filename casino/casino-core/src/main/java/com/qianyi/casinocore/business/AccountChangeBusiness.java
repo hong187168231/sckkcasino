@@ -37,7 +37,9 @@ public class AccountChangeBusiness {
             change.setSecondProxy(user.getSecondProxy());
             change.setThirdProxy(user.getThirdProxy());
         }
-        return accountChangeService.save(change);
+        AccountChange accountChange = accountChangeService.save(change);
+        log.info("账变中心数据记录成功,AccountChange={}",accountChange.toString());
+        return accountChange;
     }
 
     //生成订单 号

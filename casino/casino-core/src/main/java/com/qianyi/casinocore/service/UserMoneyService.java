@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.qianyi.casinocore.exception.UserMoneyChangeException;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
@@ -8,6 +9,7 @@ import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.repository.UserMoneyRepository;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.util.HttpClient4Util;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -78,6 +80,11 @@ public class UserMoneyService {
     @Transactional
     public void subMoney(Long userId, BigDecimal money) {
         synchronized (userId) {
+            UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+            //扣减余额大于剩余余额
+            if (money.compareTo(userMoneyLock.getMoney()) == 1) {
+                throw new UserMoneyChangeException("扣减余额超过本地剩余额度");
+            }
             userMoneyRepository.subMoney(userId, money);
         }
     }
@@ -108,6 +115,11 @@ public class UserMoneyService {
     @Transactional
     public void subCodeNum(Long userId, BigDecimal codeNum) {
         synchronized (userId) {
+            UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+            //扣减余额大于剩余余额
+            if (codeNum.compareTo(userMoneyLock.getCodeNum()) == 1) {
+                throw new UserMoneyChangeException("扣减打码量超过本地剩余额度");
+            }
             userMoneyRepository.subCodeNum(userId, codeNum);
         }
     }
@@ -135,6 +147,11 @@ public class UserMoneyService {
     @Transactional
     public void subWashCode(Long userId, BigDecimal washCode) {
         synchronized (userId) {
+            UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+            //扣减余额大于剩余余额
+            if (washCode.compareTo(userMoneyLock.getWashCode()) == 1) {
+                throw new UserMoneyChangeException("扣减洗码额超过本地剩余额度");
+            }
             userMoneyRepository.subWashCode(userId, washCode);
         }
     }
@@ -171,6 +188,11 @@ public class UserMoneyService {
     @Transactional
     public void subShareProfit(Long userId, BigDecimal shareProfit) {
         synchronized (userId) {
+            UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+            //扣减余额大于剩余余额
+            if (shareProfit.compareTo(userMoneyLock.getShareProfit()) == 1) {
+                throw new UserMoneyChangeException("扣减分润金额超过本地剩余额度");
+            }
             userMoneyRepository.subShareProfit(userId, shareProfit);
         }
     }
@@ -198,6 +220,11 @@ public class UserMoneyService {
     @Transactional
     public void subBalance(Long userId, BigDecimal balance) {
         synchronized (userId) {
+            UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+            //扣减余额大于剩余余额
+            if (balance.compareTo(userMoneyLock.getBalance()) == 1) {
+                throw new UserMoneyChangeException("扣减实时余额超过本地剩余额度");
+            }
             userMoneyRepository.subBalance(userId, balance);
         }
     }

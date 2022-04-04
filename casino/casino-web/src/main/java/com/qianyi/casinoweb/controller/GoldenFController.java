@@ -71,7 +71,6 @@ public class GoldenFController {
 
     @ApiOperation("开游戏")
 //    @RequestLimit(limit = 1, timeout = 5)
-    @Transactional
     @PostMapping("/openGame")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9", required = true),
@@ -117,7 +116,7 @@ public class GoldenFController {
         //转出WM游戏的余额
         thirdGameBusiness.oneKeyRecoverWm(authId);
         //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
-        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(authId);
+        UserMoney userMoney = userMoneyService.findByUserId(authId);
         BigDecimal userCenterMoney = BigDecimal.ZERO;
         if (userMoney != null && userMoney.getMoney() != null) {
             userCenterMoney = userMoney.getMoney();
@@ -135,12 +134,10 @@ public class GoldenFController {
         if (userCenterMoney.compareTo(BigDecimal.ZERO) == 1) {
             String orderNo = orderService.getOrderNo();
             //加点
-            ResponseEntity responseEntity = transferIn(goldenfAccount, authId, userCenterMoney.doubleValue(), orderNo);
+            ResponseEntity responseEntity = transferIn(goldenfAccount, authId, userCenterMoney, orderNo);
             if (responseEntity != null) {
                 return responseEntity;
             }
-            //钱转入第三方后本地扣减，扣款
-            userMoneyService.subMoney(authId, userCenterMoney);
             //记录账变
             saveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, "自动转入PG/CQ9");
         }
@@ -186,14 +183,18 @@ public class GoldenFController {
         asyncService.executeAsync(vo);
     }
 
-    public ResponseEntity transferIn(String playerName, Long userId, double amonut, String orderNo) {
-        PublicGoldenFApi.ResponseEntity entity = goldenFApi.transferIn(playerName, amonut, orderNo, null);
+    public ResponseEntity transferIn(String playerName, Long userId, BigDecimal userCenterMoney, String orderNo) {
+        //优先扣减本地的钱
+        userMoneyService.subMoney(userId, userCenterMoney);
+        double amount = userCenterMoney.doubleValue();
+        PublicGoldenFApi.ResponseEntity entity = goldenFApi.transferIn(playerName, amount, orderNo, null);
         if (entity == null) {
             log.error("userId:{},进游戏加扣点失败", userId);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         if (!ObjectUtils.isEmpty(entity.getErrorCode())) {
             log.error("userId:{},errorCode={},errorMsg={}", userId, entity.getErrorCode(), entity.getErrorMessage());
+            userMoneyService.addMoney(userId, userCenterMoney);
             return ResponseUtil.custom("加点失败,请联系客服");
         }
         //三方强烈建议提值/充值后使用 5.9 获取单个玩家的转账记录 进一步确认交易是否成功，避免造成金额损失
@@ -210,6 +211,7 @@ public class GoldenFController {
         JSONObject jsonData = JSONObject.parseObject(playerTransactionRecord.getData());
         JSONArray translogs = jsonData.getJSONArray("translogs");
         if (translogs.size() == 0) {
+            userMoneyService.addMoney(userId, userCenterMoney);
             return ResponseUtil.custom("加点失败,请联系客服");
         }
         return null;
@@ -291,7 +293,6 @@ public class GoldenFController {
     }
 
     @ApiOperation("一键回收当前登录用户PG/CQ9余额")
-    @Transactional
     @GetMapping("/oneKeyRecover")
     public ResponseEntity oneKeyRecover() {
         //获取登陆用户
@@ -300,7 +301,6 @@ public class GoldenFController {
     }
 
     @ApiOperation("一键回收用户PG/CQ9余额外部接口")
-    @Transactional
     @GetMapping("/oneKeyRecoverApi")
     @NoAuthentication
     @ApiImplicitParam(name = "userId", value = "用户ID", required = true)

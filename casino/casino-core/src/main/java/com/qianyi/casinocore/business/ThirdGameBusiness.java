@@ -203,6 +203,7 @@ public class ThirdGameBusiness {
         order.setThirdProxy(user.getThirdProxy());
         order.setGamePlatformName(gamePlatformName);
         orderService.save(order);
+        log.info("order表记录保存成功，order={}",order.toString());
 
         //账变中心记录账变
         AccountChangeVo vo = new AccountChangeVo();
