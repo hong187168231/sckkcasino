@@ -341,7 +341,7 @@ public class PlatformConfigController {
         if (LoginUtil.checkNull(first)){
             first = new PlatformConfig();
         }
-        if(first.getUploadUrl().equals(uploadUrl)){
+        if(first.getUploadUrl()!=null && first.getUploadUrl().equals(uploadUrl)){
             return ResponseUtil.custom("当前地址相同,请勿重复修改");
         }
         first.setUploadUrl(uploadUrl);
@@ -388,7 +388,7 @@ public class PlatformConfigController {
         if (LoginUtil.checkNull(first)){
             first = new PlatformConfig();
         }
-        if(first.getReadUploadUrl().equals(uploadUrl)){
+        if(first.getReadUploadUrl()!=null && first.getReadUploadUrl().equals(uploadUrl)){
             return ResponseUtil.custom("当前地址相同,请勿重复修改");
         }
         first.setReadUploadUrl(uploadUrl);
