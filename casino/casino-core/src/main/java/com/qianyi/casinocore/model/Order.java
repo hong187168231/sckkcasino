@@ -17,7 +17,7 @@ public class Order extends BaseEntity {
     @ApiModelProperty("订单号")
     private String no;
     @ApiModelProperty("金额")
-    @Column(columnDefinition = "Decimal(10,6) default '0.00'")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal money;
     //1.未确认。 2.成功   3.失败
     @ApiModelProperty("1.未确认。 2.成功   3.失败")
