@@ -241,6 +241,8 @@ public class GameRecordGoldenFJob {
         gameRecordAsyncOper.subCodeNum(gameRecordGoldenF.getVendorCode(), platformConfig, gameRecord);
         //代理分润
         gameRecordAsyncOper.shareProfit(gameRecordGoldenF.getVendorCode(), gameRecord);
+        //返利
+        gameRecordAsyncOper.rebate(gameRecordGoldenF.getVendorCode(), gameRecord);
     }
 
 

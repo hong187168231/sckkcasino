@@ -66,6 +66,16 @@ public class GameRecordAsyncOper {
     }
 
     /**
+     * 异步返利
+     * @param platform
+     * @param record
+     */
+    @Async("asyncExecutor")
+    public void rebate(String platform, GameRecord record) {
+        userMoneyBusiness.rebate(platform, record);
+    }
+
+    /**
      * 异步给TG机器人发送消息
      *
      * @param msg

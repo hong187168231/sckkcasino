@@ -24,6 +24,10 @@ public class GameRecordGoldenFService {
         gameRecordGoldenFRepository.updateWashCodeStatus(id,washCodeStatus);
     }
 
+    public void updateRebateStatus(Long id,Integer rebateStatus){
+        gameRecordGoldenFRepository.updateRebateStatus(id,rebateStatus);
+    }
+
     public List<Map<String, Object>> findSumBetAmount(String startTime, String endTime){
         return gameRecordGoldenFRepository.findSumBetAmount(startTime,endTime);
     }

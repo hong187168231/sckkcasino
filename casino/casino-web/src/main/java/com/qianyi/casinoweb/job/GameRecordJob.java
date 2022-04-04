@@ -188,6 +188,7 @@ public class GameRecordJob {
                     gameRecord.setCodeNumStatus(Constants.yes);
                     gameRecord.setShareProfitStatus(Constants.yes);
                     gameRecord.setExtractStatus(Constants.yes);
+                    gameRecord.setRebateStatus(Constants.yes);
                 }
                 //有数据会重复注单id唯一约束会报错，所以一条一条保存，避免影响后面的
                 GameRecord record = save(gameRecord);
@@ -204,6 +205,8 @@ public class GameRecordJob {
                 gameRecordAsyncOper.subCodeNum(Constants.PLATFORM_WM,platformConfig, record);
                 //代理分润
                 gameRecordAsyncOper.shareProfit(Constants.PLATFORM_WM,record);
+                //返利
+                gameRecordAsyncOper.rebate(Constants.PLATFORM_WM,record);
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("保存游戏记录时报错,message={}", e.getMessage());
