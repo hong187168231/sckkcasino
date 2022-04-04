@@ -265,7 +265,7 @@ public class UserMoneyBusiness {
     @Transactional
     public void rebate(String platform, GameRecord record) {
         //先查询平台的返利比例
-        RebateConfiguration rebateConfiguration = rebateConfigurationService.findByThirdProxy(0L);
+        RebateConfiguration rebateConfiguration = rebateConfigurationService.findByUserId(0L);
         BigDecimal platformRate = null;
         if (rebateConfiguration == null) {
             platformRate = BigDecimal.ZERO;
@@ -285,7 +285,7 @@ public class UserMoneyBusiness {
         BigDecimal validbet = new BigDecimal(record.getValidbet());
         BigDecimal totalAmount = validbet.multiply(platformRate);
         //查询用户的分成比例
-        RebateConfiguration userRebateConfiguration = rebateConfigurationService.findByThirdProxy(record.getUserId());
+        RebateConfiguration userRebateConfiguration = rebateConfigurationService.findByUserId(record.getUserId());
         BigDecimal userDivideRate = null;
         if (userRebateConfiguration == null) {
             userDivideRate = BigDecimal.ZERO;
