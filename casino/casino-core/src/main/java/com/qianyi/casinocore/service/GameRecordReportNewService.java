@@ -176,7 +176,7 @@ public class GameRecordReportNewService {
     /**’
      * 分组分页
      */
-    public Page<GameRecordReportNew> findGameRecordReportPage(Pageable page, GameRecordReportNew gameRecordReport, String startSetTime, String endSetTime,Long proxyId,Integer proxyRole,Boolean agentMark){
+    public Page<GameRecordReportNew> findGameRecordReportPage(Pageable page, GameRecordReportNew gameRecordReport, String startSetTime, String endSetTime,Long proxyId,Integer proxyRole,Boolean agentMark,Integer agentId){
         //criteriaBuilder用于构建CriteriaQuery的构建器对象
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         //criteriaQuery包含查询语句的各个部分，如where、max、sum、groupBy、orderBy等
@@ -230,6 +230,9 @@ public class GameRecordReportNewService {
                         criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")));
                 predicates.add(
                         criteriaBuilder.equal(root.get("secondProxy").as(Long.class), proxyId)
+                );
+                predicates.add(
+                        criteriaBuilder.equal(root.get("firstProxy").as(Long.class), agentId)
                 );
                 criteriaQuery.groupBy(root.get("thirdProxy"));
             }else {

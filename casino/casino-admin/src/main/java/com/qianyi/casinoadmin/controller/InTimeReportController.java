@@ -55,12 +55,13 @@ public class InTimeReportController {
             @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
             @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
             @ApiImplicitParam(name = "agentMark", value = "代理标识", required = false),
+            @ApiImplicitParam(name = "agentId", value = "总代id", required = false),
 //            @ApiImplicitParam(name = "gid", value = "游戏类别编号 百家乐:101 龙虎:102 轮盘:103 骰宝:104 牛牛:105 番摊:107 色碟:108 鱼虾蟹:110 炸金花:111 安达巴哈:128", required = false),
             @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
             @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
-    public ResponseEntity<GameRecordReportVo> find(Integer pageSize, Integer pageCode, String userName,Boolean agentMark, String platform, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+    public ResponseEntity<GameRecordReportVo> find(Integer pageSize, Integer pageCode, String userName,Boolean agentMark,Integer agentId, String platform, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(startDate) ||  LoginUtil.checkNull(endDate)){
             return ResponseUtil.custom("参数不合法");
@@ -92,7 +93,7 @@ public class InTimeReportController {
                 mark=false;
             }
         }
-        Page<GameRecordReportNew> gameRecordReportPage = gameRecordReportNewService.findGameRecordReportPage(pageable, gameRecordReport, startTime, endTime,proxyId,proxyRole,agentMark);
+        Page<GameRecordReportNew> gameRecordReportPage = gameRecordReportNewService.findGameRecordReportPage(pageable, gameRecordReport, startTime, endTime,proxyId,proxyRole,agentMark,agentId);
         PageResultVO<GameRecordReportVo> pageResultVO = new PageResultVO(gameRecordReportPage);
         List<GameRecordReportNew> gameRecordReports = gameRecordReportPage.getContent();
         if(!LoginUtil.checkNull(gameRecordReports) && gameRecordReports.size() > 0){
@@ -109,9 +110,11 @@ public class InTimeReportController {
 //                    vo.setAccount(messageUtil.get("公司"));
 //                }
                 vo.setTotalWinLossAmount(vo.getWinLossAmount().subtract(vo.getAmount()));
+                vo.setAccountId(gameRecordReport1.getId());
                 proxyUsers.stream().forEach(proxyUser -> {
                     if (gameRecordReport1.getFirstProxy().equals(proxyUser.getId())){
                         vo.setAccount(proxyUser.getUserName());
+                        vo.setAccountId(proxyUser.getId());
                     }
                 });
                 gameRecordReportVos.add(vo);

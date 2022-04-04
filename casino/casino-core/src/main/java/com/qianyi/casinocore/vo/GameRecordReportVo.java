@@ -13,6 +13,7 @@ public class GameRecordReportVo implements Serializable {
     private static final long serialVersionUID = -6875674563240305179L;
     @ApiModelProperty(value = "代理账号")
     private String account;
+    private Long accountId;
     private Boolean hasChildren;
     @ApiModelProperty("投注笔数")
     private Integer bettingNumber;
