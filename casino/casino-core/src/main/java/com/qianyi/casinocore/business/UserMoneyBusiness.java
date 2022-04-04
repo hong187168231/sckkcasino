@@ -306,6 +306,10 @@ public class UserMoneyBusiness {
         BigDecimal userAmount = totalAmount.multiply(userDivideRate);
         //剩余的
         BigDecimal surplusAmount = totalAmount.subtract(userAmount);
+        //把分到的钱加到userMoney表的洗码额上面
+        if (userAmount.compareTo(BigDecimal.ZERO)== 1){
+            userMoneyService.addWashCode(record.getUserId(),userAmount);
+        }
         //保存明细数据
         RebateDetail rebateDetail = new RebateDetail();
         rebateDetail.setUserId(record.getUserId());
