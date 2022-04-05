@@ -278,7 +278,7 @@ public class UserMoneyBusiness {
         BigDecimal userDivideRate = getRate(platform, userRebateConfiguration);
         if (userDivideRate == null) {
             //查询用户归属代理的分成比例
-            RebateConfiguration proxyRebateConfiguration = rebateConfigurationService.findByUserIdAndType(record.getThirdProxy(), 1);
+            RebateConfiguration proxyRebateConfiguration = rebateConfigurationService.findByUserIdAndType(record.getThirdProxy(), 2);
             userDivideRate = getRate(platform, proxyRebateConfiguration);
         }
         if (userDivideRate == null) {
