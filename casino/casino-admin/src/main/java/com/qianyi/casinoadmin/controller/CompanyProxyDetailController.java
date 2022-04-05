@@ -323,10 +323,18 @@ public class CompanyProxyDetailController {
         ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
         String startTime = cn.hutool.core.date.DateUtil.formatDateTime(startDate);
         String endTime = cn.hutool.core.date.DateUtil.formatDateTime(endDate);
+        long start = System.currentTimeMillis();
         proxyHomePageReportService.chargeOrder(byId, startDate, endDate, proxyHomePageReport);
+        log.info("综合报表统计充值耗时{}",System.currentTimeMillis()-start);
+        start = System.currentTimeMillis();
         proxyHomePageReportService.withdrawOrder(byId, startDate, endDate, proxyHomePageReport);
+        log.info("综合报表统计提现耗时{}",System.currentTimeMillis()-start);
+        start = System.currentTimeMillis();
         proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
+        log.info("综合报表统计注单耗时{}",System.currentTimeMillis()-start);
+        start = System.currentTimeMillis();
         proxyHomePageReportService.getNewUsers(byId, startDate, endDate, proxyHomePageReport);
+        log.info("综合报表统计用户耗时{}",System.currentTimeMillis()-start);
         if (byId.getProxyRole() == CommonConst.NUMBER_1){
             proxyHomePageReportService.getNewSecondProxys(byId,startDate,endDate,proxyHomePageReport);
         }

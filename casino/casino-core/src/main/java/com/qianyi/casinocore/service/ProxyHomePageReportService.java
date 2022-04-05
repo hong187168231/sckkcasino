@@ -205,10 +205,18 @@ public class ProxyHomePageReportService {
             Map<String, Object> gameRecordMap = null;
             Map<String, Object> gameRecordGoldenFMap = null;
             if (proxyUser.getProxyRole() == CommonConst.NUMBER_1){
+                long start = System.currentTimeMillis();
                 Set<Long> gameRecordSet = gameRecordService.findGroupByFirst(startTime, endTime, proxyUser.getId());
+                log.info("综合报表统计WM笔数耗时{}",System.currentTimeMillis()-start);
+                start = System.currentTimeMillis();
                 gameRecordMap = gameRecordService.findSumBetAndWinLossByFirst(startTime, endTime, proxyUser.getId());
+                log.info("综合报表统计WM注单耗时{}",System.currentTimeMillis()-start);
+                start = System.currentTimeMillis();
                 Set<Long> gameRecordGoldenFSet = gameRecordGoldenFService.findGroupByFirst(startTime, endTime, proxyUser.getId());
+                log.info("综合报表统计电子笔数耗时{}",System.currentTimeMillis()-start);
+                start = System.currentTimeMillis();
                 gameRecordGoldenFMap = gameRecordGoldenFService.findSumBetAndWinLossByFirst(startTime, endTime, proxyUser.getId());
+                log.info("综合报表统计电子注单耗时{}",System.currentTimeMillis()-start);
                 set.addAll(gameRecordSet);
                 set.addAll(gameRecordGoldenFSet);
             }else if (proxyUser.getProxyRole() == CommonConst.NUMBER_2){
