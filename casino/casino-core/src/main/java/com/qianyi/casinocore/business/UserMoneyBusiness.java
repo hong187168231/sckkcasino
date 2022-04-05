@@ -2,7 +2,6 @@ package com.qianyi.casinocore.business;
 
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
-import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.ShareProfitMqVo;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
@@ -236,7 +235,6 @@ public class UserMoneyBusiness {
 
     /**
      * 增加账号实时余额
-     *
      * @param userId
      * @param balance
      */
