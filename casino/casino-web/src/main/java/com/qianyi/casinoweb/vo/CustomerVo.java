@@ -15,6 +15,8 @@ public class CustomerVo {
     private CustomerConfigure onlineUrl;
     @ApiModelProperty(value = "联系电话")
     private CustomerConfigure telephone;
+    @ApiModelProperty(value = "微信")
+    private CustomerConfigure webChat;
     @ApiModelProperty(value = "其他联系方式")
     private List<CustomerConfigure> customerList;
 }

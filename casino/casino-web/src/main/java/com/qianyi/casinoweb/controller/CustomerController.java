@@ -43,6 +43,10 @@ public class CustomerController {
                 vo.setOnlineUrl(customerConfigure);
                 integerIterator.remove();
             }
+            if (customerConfigure.getCustomerMark() == 7) {
+                vo.setWebChat(customerConfigure);
+                integerIterator.remove();
+            }
         }
         vo.setCustomerList(list);
         return ResponseUtil.success(vo);
