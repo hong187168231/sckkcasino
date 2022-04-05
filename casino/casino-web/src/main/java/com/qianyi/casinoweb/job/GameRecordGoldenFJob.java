@@ -93,9 +93,10 @@ public class GameRecordGoldenFJob {
         Long range = endTime - startTime;
         if (range <= 0) return timeVOS;
         log.info("{}", range);
-        Long num = range / (5 * 60 * 1000);
+        Long num = range / (4 * 60 * 1000);
         log.info("num is {}", num);
         for (int i = 0; i <= num; i++) {
+            startTime = startTime - 60 * 1000;//每次拉取重叠一分钟
             GoldenFTimeVO goldenFTimeVO = new GoldenFTimeVO();
             Long tempEndTime = startTime + (5 * 60 * 1000);
             goldenFTimeVO.setStartTime(startTime);
@@ -148,7 +149,7 @@ public class GameRecordGoldenFJob {
     }
 
     private void processFaildRequest(Long startTime, Long endTime, String vendorCode, PublicGoldenFApi.ResponseEntity responseEntity) {
-        log.error("startTime{},endTime{},vendorCode{},responseEntity{}", startTime, endTime, vendorCode, responseEntity);
+        log.error("注单拉取失败startTime{},endTime{},vendorCode{},responseEntity{}", startTime, endTime, vendorCode, responseEntity);
     }
 
     private boolean checkRequestFail(PublicGoldenFApi.ResponseEntity responseEntity) {
