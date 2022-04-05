@@ -331,9 +331,9 @@ public class UserMoneyBusiness {
         } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
             gameRecordGoldenFService.updateRebateStatus(record.getId(), Constants.yes);
         }
-        if (rebateDetail.getUserAmount().compareTo(BigDecimal.ZERO)>0){
+        if (rebateDetail.getTotalAmount().compareTo(BigDecimal.ZERO)>0){
             //后台异步增减平台总余额
-            platformConfigService.reception(CommonConst.NUMBER_0,rebateDetail.getUserAmount());
+            platformConfigService.reception(CommonConst.NUMBER_0,rebateDetail.getTotalAmount());
         }
     }
 }
