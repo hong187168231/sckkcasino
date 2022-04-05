@@ -5,8 +5,10 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.repository.UserRepository;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.DTOUtil;
+import com.qianyi.casinocore.util.RebateSqlConst;
 import com.qianyi.casinocore.util.SqlConst;
 import com.qianyi.casinocore.vo.PersonReportVo;
+import com.qianyi.casinocore.vo.RebateReportVo;
 import com.qianyi.modulecommon.util.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -289,10 +291,10 @@ public class UserService {
         }else {
             sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"'CQ9'");
         }
-//        log.info("\n" + sql);
-//        log.info("\n" + SqlConst.seleOneTotal);
-//        log.info("\n" + SqlConst.seleOneWm);
-//        log.info("\n" + SqlConst.seleOnePgOrCq9Sql);
+        //        log.info("\n" + sql);
+        //        log.info("\n" + SqlConst.seleOneTotal);
+        //        log.info("\n" + SqlConst.seleOneWm);
+        //        log.info("\n" + SqlConst.seleOnePgOrCq9Sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
         List<Map<String, Object>> mapList = parsePersonReportMapList(resultList);
@@ -300,16 +302,16 @@ public class UserService {
     }
 
     private static final List<String> PERSON_REPORT_TOTAL_FIELD_LIST = Arrays.asList(
-            "num",
-            "bet_amount",
-            "validbet",
-            "win_loss",
-            "wash_amount",
-            "service_charge",
-            "all_profit_amount",
-            "avg_benefit",
-            "total_amount",
-            "all_water"
+        "num",
+        "bet_amount",
+        "validbet",
+        "win_loss",
+        "wash_amount",
+        "service_charge",
+        "all_profit_amount",
+        "avg_benefit",
+        "total_amount",
+        "all_water"
     );
 
     @SuppressWarnings("unchecked")
@@ -326,10 +328,10 @@ public class UserService {
         }else {
             sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime, endTime, "'CQ9'");
         }
-//        log.info("\n" + sql);
-//        log.info("\n" + SqlConst.sumSql);
-//        log.info("\n" + SqlConst.WMSumSql);
-//        log.info("\n" + SqlConst.PGAndCQ9SumSql);
+        //        log.info("\n" + sql);
+        //        log.info("\n" + SqlConst.sumSql);
+        //        log.info("\n" + SqlConst.WMSumSql);
+        //        log.info("\n" + SqlConst.PGAndCQ9SumSql);
         Query countQuery = entityManager.createNativeQuery(sql);
         Object result = countQuery.getSingleResult();
         Map<String,Object> map = new HashMap<>();
@@ -344,19 +346,19 @@ public class UserService {
     }
 
     private static final List<String> PERSON_REPORT_VO_FIELD_LIST = Arrays.asList(
-            "account",
-            "third_proxy",
-            "id",
-            "num",
-            "bet_amount",
-            "validbet",
-            "win_loss",
-            "wash_amount",
-            "service_charge",
-            "all_profit_amount",
-            "avg_benefit",
-            "total_amount",
-            "all_water"
+        "account",
+        "third_proxy",
+        "id",
+        "num",
+        "bet_amount",
+        "validbet",
+        "win_loss",
+        "wash_amount",
+        "service_charge",
+        "all_profit_amount",
+        "avg_benefit",
+        "total_amount",
+        "all_water"
     );
 
     private List<Map<String,Object>> parsePersonReportMapList(List<Object> resultList) {
@@ -369,6 +371,121 @@ public class UserService {
                 Object[] obj = (Object[]) result;
                 for (int i=0; i< PERSON_REPORT_VO_FIELD_LIST.size(); i++) {
                     String field = PERSON_REPORT_VO_FIELD_LIST.get(i);
+                    Object value = obj[i];
+                    map.put(field, value);
+                }
+                list.add(map);
+            }
+        }
+        return list;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<RebateReportVo> findRebateMap(String platform,String startTime,String endTime,Integer page,Integer pageSize,String sort)
+        throws Exception {
+        startTime = "'"+startTime+"'";
+        endTime = "'"+endTime+"'";
+        String sql = "";
+        if(StringUtils.isNullOrEmpty(platform)){
+            sql = MessageFormat.format(RebateSqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString());
+        }else if (platform.equals("WM")){
+            sql = MessageFormat.format(RebateSqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'wm'");
+        }else if (platform.equals("PG")){
+            sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'PG'");
+        }else {
+            sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'CQ9'");
+        }
+        Query countQuery = entityManager.createNativeQuery(sql);
+        List<Object> resultList = countQuery.getResultList();
+        List<Map<String, Object>> mapList = parseRebateReportMapList(resultList);
+        return DTOUtil.map2DTO(mapList, RebateReportVo.class);
+    }
+    @SuppressWarnings("unchecked")
+    public List<RebateReportVo> findRebateMap(String platform, String startTime, String endTime, Long userId){
+        startTime = "'"+startTime+"'";
+        endTime = "'"+endTime+"'";
+        String sql = "";
+        if(StringUtils.isNullOrEmpty(platform)){
+            sql = MessageFormat.format(RebateSqlConst.seleOneTotal,startTime,endTime,userId.toString());
+        }else if (platform.equals("WM")){
+            sql = MessageFormat.format(RebateSqlConst.seleOneWm, startTime, endTime, userId.toString(), "'wm'");
+        }else if (platform.equals("PG")){
+            sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(), "'PG'");
+        }else {
+            sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"'CQ9'");
+        }
+        Query countQuery = entityManager.createNativeQuery(sql);
+        List<Object> resultList = countQuery.getResultList();
+        List<Map<String, Object>> mapList = parseRebateReportMapList(resultList);
+        return DTOUtil.map2DTO(mapList, RebateReportVo.class);
+    }
+
+    private static final List<String> REBATE_REPORT_TOTAL_FIELD_LIST = Arrays.asList(
+        "num",
+        "bet_amount",
+        "validbet",
+        "win_loss",
+        "total_rebate",
+        "user_amount",
+        "surplus_amount",
+        "service_charge",
+        "avg_benefit",
+        "total_amount"
+    );
+
+    @SuppressWarnings("unchecked")
+    public Map<String,Object> findRebateMap(String platform,String startTime,String endTime){
+        startTime = "'"+startTime+"'";
+        endTime = "'"+endTime+"'";
+        String sql = "";
+        if(StringUtils.isNullOrEmpty(platform)){
+            sql = MessageFormat.format(RebateSqlConst.sumSql,startTime,endTime);
+        }else if (platform.equals("WM")){
+            sql = MessageFormat.format(RebateSqlConst.WMSumSql,startTime, endTime, "'wm'");
+        }else if (platform.equals("PG")){
+            sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql,startTime, endTime, "'PG'");
+        }else {
+            sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql,startTime, endTime, "'CQ9'");
+        }
+        Query countQuery = entityManager.createNativeQuery(sql);
+        Object result = countQuery.getSingleResult();
+        Map<String,Object> map = new HashMap<>();
+        Object[] obj = (Object[]) result;
+        for (int i=0; i< REBATE_REPORT_TOTAL_FIELD_LIST.size(); i++) {
+            String field = REBATE_REPORT_TOTAL_FIELD_LIST.get(i);
+            Object value = obj[i];
+            map.put(field, value);
+        }
+
+        return map;
+    }
+
+    private static final List<String> REBATE_REPORT_VO_FIELD_LIST = Arrays.asList(
+        "account",
+        "third_proxy",
+        "id",
+        "num",
+        "bet_amount",
+        "validbet",
+        "win_loss",
+        "total_rebate",
+        "user_amount",
+        "surplus_amount",
+        "service_charge",
+        "avg_benefit",
+        "total_amount"
+    );
+
+    private List<Map<String,Object>> parseRebateReportMapList(List<Object> resultList) {
+        List<Map<String,Object>> list = null;
+        if (resultList != null && resultList.size() > CommonConst.NUMBER_0){
+            list = new LinkedList<>();
+
+            for (Object result:resultList){
+                Map<String,Object> map = new HashMap<>();
+                Object[] obj = (Object[]) result;
+                for (int i=0; i< REBATE_REPORT_VO_FIELD_LIST.size(); i++) {
+                    String field = REBATE_REPORT_VO_FIELD_LIST.get(i);
                     Object value = obj[i];
                     map.put(field, value);
                 }

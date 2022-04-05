@@ -35,6 +35,20 @@
             "url": "/user/cleanMud"
           },
           {
+            "descritpion": "会员返利比例",
+            "englishName": "Rebate Configures the rebate ratio for members",
+            "menuLevel": 3,
+            "name": "会员返利比例",
+            "url": "/rebateUserConfiguration/findAll"
+          },
+          {
+            "descritpion": "保存",
+            "englishName": "Save",
+            "menuLevel": 3,
+            "name": "保存",
+            "url": "/rebateUserConfiguration/update"
+          },
+          {
             "descritpion": "充值登录密码",
             "englishName": "Reset Login Password",
             "menuLevel": 3,
@@ -358,6 +372,20 @@
             "menuLevel": 3,
             "name": "更新基础代代理抽点配置",
             "url": "/extractPointsConfig/poxy/update"
+          },
+          {
+            "descritpion": "基层代理返利比例",
+            "englishName": "Agent rebate ratio",
+            "menuLevel": 3,
+            "name": "基层代理返利比例",
+            "url": "/rebateProxyConfiguration/findAll"
+          },
+          {
+            "descritpion": "保存",
+            "englishName": "Save",
+            "menuLevel": 3,
+            "name": "保存",
+            "url": "/rebateProxyConfiguration/update"
           }
         ]
       },
@@ -806,6 +834,22 @@
         ]
       },
       {
+        "descritpion": "全局获取返利比例",
+        "englishName": "Gets the percentage of wash code points",
+        "menuLevel": 2,
+        "name": "全局获取返利比例",
+        "url": "/rebateConfiguration/findAll",
+        "children": [
+          {
+            "descritpion": "保存",
+            "englishName": "Save",
+            "menuLevel": 3,
+            "name": "保存",
+            "url": "/rebateConfiguration/update"
+          }
+        ]
+      },
+      {
         "descritpion": "移动端轮播图配置",
         "englishName": "Phone Cover Edit",
         "menuLevel": 2,
@@ -969,6 +1013,22 @@
             "menuLevel": 3,
             "name": "盈亏报表总计",
             "url": "/report/queryTotal"
+          }
+        ]
+      },
+      {
+        "descritpion": "会员返利报表",
+        "englishName": "Member rebate statement",
+        "menuLevel": 2,
+        "name": "会员返利报表",
+        "url": "/rebateReport/queryPersonReport",
+        "children": [
+          {
+            "descritpion": "盈亏报表总计",
+            "englishName": "Total Profit",
+            "menuLevel": 3,
+            "name": "盈亏报表总计",
+            "url": "/rebateReport/queryTotal"
           }
         ]
       },

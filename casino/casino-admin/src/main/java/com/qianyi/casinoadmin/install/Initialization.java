@@ -77,6 +77,8 @@ public class Initialization implements CommandLineRunner {
     private WithdrawOrderService withdrawOrderService;
     @Autowired
     private AccountChangeService accountChangeService;
+    @Autowired
+    private RebateConfigurationService rebateConfigurationService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -96,6 +98,22 @@ public class Initialization implements CommandLineRunner {
 
         this. saveReturnCommissionInfo();
         this.initializationTotalPlatformQuota();
+
+        this.initProxyWashCodeConfig();
+    }
+
+    public void initProxyWashCodeConfig(){
+        RebateConfiguration byThirdProxy = rebateConfigurationService.findByUserIdAndType(0L,Constants.OVERALL_TYPE);
+        if (LoginUtil.checkNull(byThirdProxy)){
+            RebateConfiguration proxyWashCodeConfig = new RebateConfiguration();
+            proxyWashCodeConfig.setCQ9Rate(new BigDecimal(0.9));
+            proxyWashCodeConfig.setWMRate(new BigDecimal(0.9));
+            proxyWashCodeConfig.setPGRate(new BigDecimal(0.9));
+            proxyWashCodeConfig.setUserId(0L);
+            proxyWashCodeConfig.setType(Constants.OVERALL_TYPE);
+            rebateConfigurationService.save(proxyWashCodeConfig);
+        }
+
     }
 
     public void initPermission(){
