@@ -173,10 +173,10 @@ public class GameRecordReportNewService {
         }
     }
 
-    /**
+    /**’
      * 分组分页
      */
-    public Page<GameRecordReportNew> findGameRecordReportPage(Pageable page, GameRecordReportNew gameRecordReport, String startSetTime, String endSetTime,Long proxyId,Integer proxyRole){
+    public Page<GameRecordReportNew> findGameRecordReportPage(Pageable page, GameRecordReportNew gameRecordReport, String startSetTime, String endSetTime,Long proxyId,Integer proxyRole,Boolean agentMark,Integer agentId){
         //criteriaBuilder用于构建CriteriaQuery的构建器对象
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         //criteriaQuery包含查询语句的各个部分，如where、max、sum、groupBy、orderBy等
@@ -185,44 +185,80 @@ public class GameRecordReportNewService {
         Root<GameRecordReportNew> root = criteriaQuery.from(GameRecordReportNew.class);
         List<Predicate> predicates = new ArrayList();
         //相当于select type,max(price) maxPrice,sum(price) sumPrice from books中select 与 from之间的部分
+
+        if (!com.qianyi.modulecommon.util.CommonUtil.checkNull(gameRecordReport.getPlatform())) {
+            predicates.add(
+                    criteriaBuilder.equal(root.get("platform").as(String.class), gameRecordReport.getPlatform())
+            );
+        }
+        if (!ObjectUtils.isEmpty(startSetTime) && !ObjectUtils.isEmpty(endSetTime)) {
+            predicates.add(
+                    criteriaBuilder.between(root.get("staticsTimes").as(String.class), startSetTime, endSetTime)
+            );
+        }
         if (proxyRole==null){
             criteriaQuery.multiselect(root.get("firstProxy"), criteriaBuilder.sum(root.get("bettingNumber")), criteriaBuilder.sum(root.get("amount")),
                 criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")));
+            predicates.add(
+                    criteriaBuilder.notEqual(root.get("firstProxy").as(Long.class), 0L)
+            );
+            //group by type
+            criteriaQuery.groupBy(root.get("firstProxy"));
         }else if (proxyRole== CommonConst.NUMBER_1){
-            criteriaQuery.multiselect(root.get("firstProxy"), criteriaBuilder.sum(root.get("bettingNumber")), criteriaBuilder.sum(root.get("amount")),
-                criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")));
-            predicates.add(
-                criteriaBuilder.equal(root.get("firstProxy").as(Long.class), proxyId)
-            );
+            if (agentMark){
+                criteriaQuery.multiselect(root.get("secondProxy"), criteriaBuilder.sum(root.get("bettingNumber")), criteriaBuilder.sum(root.get("amount")),
+                        criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")));
+                predicates.add(
+                        criteriaBuilder.equal(root.get("firstProxy").as(Long.class), proxyId)
+                );
+                criteriaQuery.groupBy(root.get("secondProxy"));
+            }else {
+                criteriaQuery.multiselect(root.get("firstProxy"), criteriaBuilder.sum(root.get("bettingNumber")), criteriaBuilder.sum(root.get("amount")),
+                        criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")));
+                predicates.add(
+                        criteriaBuilder.equal(root.get("firstProxy").as(Long.class), proxyId)
+                );
+                predicates.add(
+                        criteriaBuilder.notEqual(root.get("firstProxy").as(Long.class), 0L)
+                );
+                //group by type
+                criteriaQuery.groupBy(root.get("firstProxy"));
+            }
         }else if (proxyRole== CommonConst.NUMBER_2){
-            criteriaQuery.multiselect(root.get("secondProxy"), criteriaBuilder.sum(root.get("bettingNumber")), criteriaBuilder.sum(root.get("amount")),
-                criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")));
-            predicates.add(
-                criteriaBuilder.equal(root.get("secondProxy").as(Long.class), proxyId)
-            );
+            if (agentMark){
+                criteriaQuery.multiselect(root.get("thirdProxy"), criteriaBuilder.sum(root.get("bettingNumber")), criteriaBuilder.sum(root.get("amount")),
+                        criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")));
+                predicates.add(
+                        criteriaBuilder.equal(root.get("secondProxy").as(Long.class), proxyId)
+                );
+                predicates.add(
+                        criteriaBuilder.equal(root.get("firstProxy").as(Long.class), agentId)
+                );
+                criteriaQuery.groupBy(root.get("thirdProxy"));
+            }else {
+                criteriaQuery.multiselect(root.get("secondProxy"), criteriaBuilder.sum(root.get("bettingNumber")), criteriaBuilder.sum(root.get("amount")),
+                        criteriaBuilder.sum(root.get("betAmount")), criteriaBuilder.sum(root.get("validAmount")), criteriaBuilder.sum(root.get("winLossAmount")));
+                predicates.add(
+                        criteriaBuilder.equal(root.get("secondProxy").as(Long.class), proxyId)
+                );
+                predicates.add(
+                        criteriaBuilder.notEqual(root.get("firstProxy").as(Long.class), 0L)
+                );
+                //group by type
+                criteriaQuery.groupBy(root.get("secondProxy"));
+            }
         }else {
             criteriaQuery.multiselect(root.get("thirdProxy"), criteriaBuilder.sum(root.get("bettingNumber")), criteriaBuilder.sum(root.get("amount")),
                 criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")));
             predicates.add(
                 criteriaBuilder.equal(root.get("thirdProxy").as(Long.class), proxyId)
             );
-        }
-
-        if (!com.qianyi.modulecommon.util.CommonUtil.checkNull(gameRecordReport.getPlatform())) {
             predicates.add(
-                criteriaBuilder.equal(root.get("platform").as(String.class), gameRecordReport.getPlatform())
+                    criteriaBuilder.notEqual(root.get("firstProxy").as(Long.class), 0L)
             );
+            //group by type
+            criteriaQuery.groupBy(root.get("thirdProxy"));
         }
-        if (!ObjectUtils.isEmpty(startSetTime) && !ObjectUtils.isEmpty(endSetTime)) {
-            predicates.add(
-                criteriaBuilder.between(root.get("staticsTimes").as(String.class), startSetTime, endSetTime)
-            );
-        }
-        predicates.add(
-            criteriaBuilder.notEqual(root.get("firstProxy").as(Long.class), 0L)
-        );
-        //group by type
-        criteriaQuery.groupBy(root.get("firstProxy"));
         criteriaQuery.where(predicates.toArray(new Predicate[predicates.size()]));
         //criteriaQuery拼成的sql是select type,max(price) maxPrice,sum(price) sumPrice from books group by type；查询出的列与对象BookInfo的属性对应
         //记录当前sql查询结果总条数
