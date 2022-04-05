@@ -16,49 +16,49 @@ public interface UserMoneyRepository extends JpaRepository<UserMoney,Long>, JpaS
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     UserMoney findUserMoneyByUserId(Long userId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update UserMoney u set u.shareProfit= u.shareProfit+?2 where u.userId=?1")
     void changeProfit(Long userId, BigDecimal profit);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update UserMoney u set u.codeNum=u.codeNum+?2 where u.userId=?1")
     void addCodeNum(Long userId, BigDecimal codeNum);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update UserMoney u set u.codeNum=u.codeNum-?2 where u.userId=?1")
     void subCodeNum(Long userId, BigDecimal codeNum);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update UserMoney u set u.money=u.money+?2 where u.userId=?1")
     void addMoney(Long userId, BigDecimal money);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update UserMoney u set u.money=u.money-?2 where u.userId=?1")
     void subMoney(Long userId, BigDecimal money);
 
     UserMoney findByUserId(Long userId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update UserMoney u set u.washCode=u.washCode+?2 where u.userId=?1")
     void addWashCode(Long userId, BigDecimal washCode);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update UserMoney u set u.washCode=u.washCode-?2 where u.userId=?1")
     void subWashCode(Long userId, BigDecimal washCode);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update UserMoney u set u.shareProfit=u.shareProfit+?2 where u.userId=?1")
     void addShareProfit(Long userId, BigDecimal shareProfit);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update UserMoney u set u.shareProfit=u.shareProfit-?2 where u.userId=?1")
     void subShareProfit(Long userId, BigDecimal shareProfit);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update UserMoney u set u.balance=u.balance+?2 where u.userId=?1")
     void addBalance(Long userId, BigDecimal balance);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update UserMoney u set u.balance=u.balance-?2 where u.userId=?1")
     void subBalance(Long userId, BigDecimal balance);
 }

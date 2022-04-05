@@ -16,23 +16,23 @@ import java.util.Set;
 public interface GameRecordGoldenFRepository extends JpaRepository<GameRecordGoldenF,Long>, JpaSpecificationExecutor<GameRecordGoldenF> {
 
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update GameRecordGoldenF u set u.codeNumStatus=?2 where u.id=?1")
     void updateCodeNumStatus(Long id, Integer codeNumStatus);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update GameRecordGoldenF u set u.washCodeStatus=?2 where u.id=?1")
     void updateWashCodeStatus(Long id, Integer washCodeStatus);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update GameRecordGoldenF u set u.rebateStatus=?2 where u.id=?1")
     void updateRebateStatus(Long id, Integer rebateStatus);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update GameRecordGoldenF u set u.extractStatus=?2 where u.id=?1")
     void updateExtractStatus(Long id, Integer status);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update GameRecordGoldenF u set u.shareProfitStatus= u.shareProfitStatus+?2 where u.id=?1")
     void updateProfitStatus(Long id, Integer shareProfitStatus);
 

@@ -47,7 +47,6 @@ public class ThirdGameBusiness {
     @Qualifier("accountChangeJob")
     private AsyncService asyncService;
 
-    @Transactional(propagation= Propagation.REQUIRES_NEW)
     public ResponseEntity oneKeyRecoverGoldenF(Long userId) {
         log.info("开始回收PG/CQ9余额，userId={}", userId);
         if (userId == null) {
@@ -96,7 +95,7 @@ public class ThirdGameBusiness {
             return ResponseUtil.custom("回收失败,请联系客服");
         }
         //把额度加回本地
-        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        UserMoney userMoney = userMoneyService.findByUserId(userId);
         if (userMoney == null) {
             userMoney = new UserMoney();
             userMoney.setUserId(userId);
@@ -110,7 +109,6 @@ public class ThirdGameBusiness {
         return ResponseUtil.success();
     }
 
-    @Transactional(propagation= Propagation.REQUIRES_NEW)
     public ResponseEntity oneKeyRecoverWm(Long userId) {
         log.info("开始回收wm余额，userId={}", userId);
         if (userId == null) {
@@ -162,7 +160,7 @@ public class ThirdGameBusiness {
         }
         balance = recoverMoney.abs();
         //把额度加回本地
-        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        UserMoney userMoney = userMoneyService.findByUserId(userId);
         if (userMoney == null) {
             userMoney = new UserMoney();
             userMoney.setUserId(userId);
