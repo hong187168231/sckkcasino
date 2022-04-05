@@ -265,19 +265,8 @@ public class UserMoneyBusiness {
     @Transactional
     public void rebate(String platform, GameRecord record) {
         //先查询平台的返利比例
-        RebateConfiguration rebateConfiguration = rebateConfigurationService.findByUserId(0L);
-        BigDecimal platformRate = null;
-        if (rebateConfiguration == null) {
-            platformRate = BigDecimal.ZERO;
-        } else {
-            if (Constants.PLATFORM_WM.equals(platform)) {
-                platformRate = rebateConfiguration.getWMRate();
-            } else if (Constants.PLATFORM_PG.equals(platform)) {
-                platformRate = rebateConfiguration.getPGRate();
-            } else if (Constants.PLATFORM_CQ9.equals(platform)) {
-                platformRate = rebateConfiguration.getCQ9Rate();
-            }
-        }
+        RebateConfiguration rebateConfiguration = rebateConfigurationService.findByUserIdAndType(0L, 0);
+        BigDecimal platformRate = getRate(platform, rebateConfiguration);
         if (platformRate == null) {
             platformRate = BigDecimal.ZERO;
         }
@@ -285,18 +274,12 @@ public class UserMoneyBusiness {
         BigDecimal validbet = new BigDecimal(record.getValidbet());
         BigDecimal totalAmount = validbet.multiply(platformRate);
         //查询用户的分成比例
-        RebateConfiguration userRebateConfiguration = rebateConfigurationService.findByUserId(record.getUserId());
-        BigDecimal userDivideRate = null;
-        if (userRebateConfiguration == null) {
-            userDivideRate = BigDecimal.ZERO;
-        } else {
-            if (Constants.PLATFORM_WM.equals(platform)) {
-                userDivideRate = userRebateConfiguration.getWMRate();
-            } else if (Constants.PLATFORM_PG.equals(platform)) {
-                userDivideRate = userRebateConfiguration.getPGRate();
-            } else if (Constants.PLATFORM_CQ9.equals(platform)) {
-                userDivideRate = userRebateConfiguration.getCQ9Rate();
-            }
+        RebateConfiguration userRebateConfiguration = rebateConfigurationService.findByUserIdAndType(record.getUserId(), 1);
+        BigDecimal userDivideRate = getRate(platform, userRebateConfiguration);
+        if (userDivideRate == null) {
+            //查询用户归属代理的分成比例
+            RebateConfiguration proxyRebateConfiguration = rebateConfigurationService.findByUserIdAndType(record.getThirdProxy(), 1);
+            userDivideRate = getRate(platform, proxyRebateConfiguration);
         }
         if (userDivideRate == null) {
             userDivideRate = BigDecimal.ZERO;
@@ -307,8 +290,8 @@ public class UserMoneyBusiness {
         //剩余的
         BigDecimal surplusAmount = totalAmount.subtract(userAmount);
         //把分到的钱加到userMoney表的洗码额上面
-        if (userAmount.compareTo(BigDecimal.ZERO)== 1){
-            userMoneyService.addWashCode(record.getUserId(),userAmount);
+        if (userAmount.compareTo(BigDecimal.ZERO) == 1) {
+            userMoneyService.addWashCode(record.getUserId(), userAmount);
         }
         //保存明细数据
         RebateDetail rebateDetail = new RebateDetail();
@@ -328,5 +311,20 @@ public class UserMoneyBusiness {
         } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
             gameRecordGoldenFService.updateRebateStatus(record.getId(), Constants.yes);
         }
+    }
+
+    public BigDecimal getRate(String platform, RebateConfiguration rebateConfiguration) {
+        if (rebateConfiguration == null) {
+            return null;
+        }
+        BigDecimal rate = null;
+        if (Constants.PLATFORM_WM.equals(platform)) {
+            rate = rebateConfiguration.getWMRate();
+        } else if (Constants.PLATFORM_PG.equals(platform)) {
+            rate = rebateConfiguration.getPGRate();
+        } else if (Constants.PLATFORM_CQ9.equals(platform)) {
+            rate = rebateConfiguration.getCQ9Rate();
+        }
+        return rate;
     }
 }
