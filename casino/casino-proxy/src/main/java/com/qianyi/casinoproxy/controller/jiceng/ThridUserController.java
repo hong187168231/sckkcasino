@@ -8,6 +8,7 @@ import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.GenerateInviteCodeRunner;
 import com.qianyi.casinocore.util.PasswordUtil;
+import com.qianyi.casinocore.util.UserPasswordUtil;
 import com.qianyi.casinocore.vo.CodeNumConfigVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.UserVo;
@@ -389,7 +390,7 @@ public class ThridUserController {
 //        user.setLanguage(Constants.USER_LANGUAGE_CH);
 
         //随机生成
-        String password = PasswordUtil.getRandomPwd();
+        String password = UserPasswordUtil.getRandomPwd();
         String bcryptPassword = CasinoProxyUtil.bcrypt(password);
         user.setPassword(bcryptPassword);
         //默认展示两张收款卡
@@ -504,7 +505,7 @@ public class ThridUserController {
         }
         log.info("重置密码之前密码:{}账号:{}",user.getPassword(), user.getAccount());
         //随机生成
-        String password = PasswordUtil.getRandomPwd();
+        String password = UserPasswordUtil.getRandomPwd();
         String bcryptPassword = CasinoProxyUtil.bcrypt(password);
         log.info("生成密码{}",bcryptPassword);
         user.setPassword(bcryptPassword);
