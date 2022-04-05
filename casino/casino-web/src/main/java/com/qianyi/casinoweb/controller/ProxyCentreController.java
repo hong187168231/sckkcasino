@@ -248,7 +248,7 @@ public class ProxyCentreController {
         }
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
-        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        UserMoney userMoney = userMoneyService.findByUserId(userId);
         BigDecimal shareProfit = BigDecimal.ZERO;
         if (userMoney != null && userMoney.getShareProfit() != null) {
             shareProfit = userMoney.getShareProfit();

@@ -155,7 +155,7 @@ public class WashCodeController {
     public ResponseEntity<String> receiveWashCode() {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
-        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        UserMoney userMoney = userMoneyService.findByUserId(userId);
         BigDecimal washCode = BigDecimal.ZERO;
         if (userMoney != null && userMoney.getWashCode() != null) {
             washCode = userMoney.getWashCode();
