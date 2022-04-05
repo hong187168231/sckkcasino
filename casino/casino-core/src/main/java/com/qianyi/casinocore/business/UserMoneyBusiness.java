@@ -2,6 +2,7 @@ package com.qianyi.casinocore.business;
 
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.ShareProfitMqVo;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
