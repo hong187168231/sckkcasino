@@ -5,6 +5,7 @@ import com.qianyi.casinocore.business.ChargeOrderBusiness;
 import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.GenerateInviteCodeRunner;
 import com.qianyi.casinocore.util.PasswordUtil;
@@ -418,7 +419,7 @@ public class UserController {
         }
         log.info("重置密码之前密码:{}账号:{}",user.getPassword(), user.getAccount());
         //随机生成
-        String password = PasswordUtil.getRandomPwd();
+        String password = UserPasswordUtil.getRandomPwd();
         String bcryptPassword = CasinoProxyUtil.bcrypt(password);
         log.info("生成密码{}",bcryptPassword);
         user.setPassword(bcryptPassword);
