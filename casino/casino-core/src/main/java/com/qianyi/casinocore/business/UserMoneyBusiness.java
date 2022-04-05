@@ -2,6 +2,7 @@ package com.qianyi.casinocore.business;
 
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.ShareProfitMqVo;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
@@ -41,6 +42,8 @@ public class UserMoneyBusiness {
     private RebateConfigurationService rebateConfigurationService;
     @Autowired
     private RebateDetailService rebateDetailService;
+    @Autowired
+    private PlatformConfigService platformConfigService;
 
     //默认最小清零打码量
     private static final BigDecimal DEFAULT_CLEAR = new BigDecimal("10");
@@ -233,6 +236,7 @@ public class UserMoneyBusiness {
 
     /**
      * 增加账号实时余额
+     *
      * @param userId
      * @param balance
      */
@@ -264,6 +268,7 @@ public class UserMoneyBusiness {
 
     @Transactional
     public void rebate(String platform, GameRecord record) {
+        log.info("开始返利，record={}",record.toString());
         //先查询平台的返利比例
         RebateConfiguration rebateConfiguration = rebateConfigurationService.findByUserIdAndType(0L, 0);
         BigDecimal platformRate = getRate(platform, rebateConfiguration);
@@ -311,6 +316,11 @@ public class UserMoneyBusiness {
         } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
             gameRecordGoldenFService.updateRebateStatus(record.getId(), Constants.yes);
         }
+        if (rebateDetail.getTotalAmount().compareTo(BigDecimal.ZERO)>0){
+            //后台异步增减平台总余额
+            platformConfigService.reception(CommonConst.NUMBER_0,rebateDetail.getTotalAmount());
+        }
+        log.info("返利完成，record={}",record.toString());
     }
 
     public BigDecimal getRate(String platform, RebateConfiguration rebateConfiguration) {

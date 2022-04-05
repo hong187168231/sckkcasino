@@ -31,9 +31,11 @@ public class RebateDetail extends BaseEntity {
     private BigDecimal validbet;
 
     @ApiModelProperty(value = "平台返利比例")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal platformRebateRate;
 
     @ApiModelProperty(value = "用户分成比例")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal userDivideRate;
 
     @ApiModelProperty(value = "总返利金额")
