@@ -152,7 +152,6 @@ public class WashCodeController {
 
     @ApiOperation("用户领取洗码")
     @GetMapping("/receiveWashCode")
-    @Transactional
     public ResponseEntity<String> receiveWashCode() {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();

@@ -240,7 +240,6 @@ public class ProxyCentreController {
 
     @ApiOperation("用户领取分润金额")
     @GetMapping("/receiveShareProfit")
-    @Transactional
     public ResponseEntity<String> receiveWashCode() {
         //人人代开关检查
         ResponseEntity response = checkPeopleProxySwitch();
