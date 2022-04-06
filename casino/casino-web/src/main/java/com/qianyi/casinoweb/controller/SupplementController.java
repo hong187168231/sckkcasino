@@ -2,15 +2,15 @@ package com.qianyi.casinoweb.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.qianyi.casinocore.model.GameRecord;
-import com.qianyi.casinocore.model.PlatformConfig;
-import com.qianyi.casinocore.model.UserThird;
+import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.UserThirdService;
 import com.qianyi.casinoweb.job.GameRecordAsyncOper;
+import com.qianyi.casinoweb.job.GameRecordGoldenFJob;
 import com.qianyi.casinoweb.job.GameRecordJob;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
+import com.qianyi.casinoweb.vo.GoldenFTimeVO;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
@@ -48,6 +48,8 @@ public class SupplementController {
     private PublicWMApi wmApi;
     @Autowired
     private GameRecordJob gameRecordJob;
+    @Autowired
+    private GameRecordGoldenFJob gameRecordGoldenFJob;
 
     @GetMapping("/wm")
     @ApiOperation("WM平台手动补单")
@@ -154,5 +156,47 @@ public class SupplementController {
         Date afterFiveMin = now.getTime();
         String dateTime = format.format(afterFiveMin);
         return dateTime;
+    }
+
+    @GetMapping("/goldenF")
+    @ApiOperation("goldenF平台手动补单")
+    @NoAuthentication
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "startTime", value = "开始时间,13位时间戳", required = true),
+            @ApiImplicitParam(name = "endTime", value = "结束时间,13位时间戳", required = true),
+            @ApiImplicitParam(name = "vendorCode", value = "产品代码：PG/CQ9", required = true),
+    })
+    public ResponseEntity goldenFSupplement(String vendorCode, Long startTime, Long endTime) {
+        boolean checkNull = CasinoWebUtil.checkNull(vendorCode,startTime, endTime);
+        if (checkNull) {
+            return ResponseUtil.parameterNotNull();
+        }
+        if (!Constants.PLATFORM_PG.equals(vendorCode) && !Constants.PLATFORM_CQ9.equals(vendorCode)) {
+            return ResponseUtil.custom("产品代码错误");
+        }
+        if (startTime.toString().length() != 13 || endTime.toString().length() != 13) {
+            return ResponseUtil.custom("时间格式错误");
+        }
+        List<GoldenFTimeVO> timeVOS = new ArrayList<>();
+        log.info("{},{}", startTime, endTime);
+        Long range = endTime - startTime;
+        if (range <= 0) {
+            return ResponseUtil.custom("结束时间大于开始时间");
+        }
+        log.info("{}", range);
+        Long num = range / (4 * 60 * 1000);
+        log.info("num is {}", num);
+        for (int i = 0; i <= num; i++) {
+            startTime = startTime - 60 * 1000;//每次拉取重叠一分钟
+            GoldenFTimeVO goldenFTimeVO = new GoldenFTimeVO();
+            Long tempEndTime = startTime + (5 * 60 * 1000);
+            goldenFTimeVO.setStartTime(startTime);
+            goldenFTimeVO.setEndTime(tempEndTime > endTime ? endTime : tempEndTime);
+            timeVOS.add(goldenFTimeVO);
+            startTime = tempEndTime;
+        }
+        log.info("{}", timeVOS);
+        gameRecordGoldenFJob.supplementPullGameRecord(vendorCode,timeVOS);
+        return ResponseUtil.success(timeVOS);
     }
 }

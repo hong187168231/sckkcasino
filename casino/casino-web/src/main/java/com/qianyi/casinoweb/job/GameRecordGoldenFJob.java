@@ -18,9 +18,7 @@ import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -70,7 +68,19 @@ public class GameRecordGoldenFJob {
 //        Long endTime = 1644588600000l;
         List<GoldenFTimeVO> timeVOS = getTimes(vendorCode);
         timeVOS.forEach(item -> {
-            excutePull(vendorCode, item.getStartTime(), item.getEndTime());
+            excutePull(true,vendorCode, item.getStartTime(), item.getEndTime());
+        });
+
+    }
+
+    /**
+     * 补单
+     * @param vendorCode
+     * @param timeVOS
+     */
+    public void supplementPullGameRecord(String vendorCode,List<GoldenFTimeVO> timeVOS) {
+        timeVOS.forEach(item -> {
+            excutePull(false,vendorCode, item.getStartTime(), item.getEndTime());
         });
 
     }
@@ -109,7 +119,7 @@ public class GameRecordGoldenFJob {
     }
 
 
-    private void excutePull(String vendorCode, Long startTime, Long endTime) {
+    private void excutePull(boolean pull,String vendorCode, Long startTime, Long endTime) {
 
 
         log.info("startime is {}  endtime is {}", startTime, endTime);
@@ -118,14 +128,17 @@ public class GameRecordGoldenFJob {
         int page = 1;
 
         int pageSize = 1000;
-
+        Boolean successRequestFlag = true;
         while (true) {
             // 获取数据
             PublicGoldenFApi.ResponseEntity responseEntity = publicGoldenFApi.getPlayerGameRecord(startTime, endTime, vendorCode, page, pageSize);
 
             if (responseEntity == null || checkRequestFail(responseEntity)) {
                 processFaildRequest(startTime, endTime, vendorCode, responseEntity);
-                if (failCount >= 2) break;
+                if (failCount >= 2) {
+                    successRequestFlag = false;
+                    break;
+                }
                 failCount++;
                 continue;
             }
@@ -137,7 +150,9 @@ public class GameRecordGoldenFJob {
 
             page++;
         }
-        processSuccessRequest(startTime, endTime, vendorCode);
+        if (pull && successRequestFlag) {
+            processSuccessRequest(startTime, endTime, vendorCode);
+        }
     }
 
     private void processSuccessRequest(Long startTime, Long endTime, String vendorCode) {
