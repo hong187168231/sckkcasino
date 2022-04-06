@@ -23,6 +23,13 @@ public class GameRecordReportNew extends BaseEntity{
     @ApiModelProperty("投注笔数")
     private Integer bettingNumber;
 
+
+    @ApiModelProperty(value = "用户返利金额")
+    private BigDecimal userAmount;
+
+    @ApiModelProperty(value = "代理返利金额")
+    private BigDecimal surplusAmount;
+
 //    @ApiModelProperty(value = "游戏类别编号")
 //    private Integer gid;
 
@@ -68,19 +75,23 @@ public class GameRecordReportNew extends BaseEntity{
     public GameRecordReportNew(){
 
     }
-    public GameRecordReportNew(Long firstProxy,Long bettingNumber,BigDecimal amount,BigDecimal betAmount,BigDecimal validAmount,BigDecimal winLossAmount){
+    public GameRecordReportNew(Long firstProxy,Long bettingNumber,BigDecimal amount,BigDecimal betAmount,BigDecimal validAmount,BigDecimal winLossAmount,BigDecimal userAmount,BigDecimal surplusAmount){
         this.firstProxy = firstProxy;
         this.bettingNumber = bettingNumber==null?0:bettingNumber .intValue();
         this.amount = amount;
         this.betAmount = betAmount;
         this.validAmount = validAmount;
         this.winLossAmount = winLossAmount;
+        this.userAmount = userAmount;
+        this.surplusAmount = surplusAmount;
     }
-    public GameRecordReportNew(Long bettingNumber,BigDecimal amount,BigDecimal betAmount,BigDecimal validAmount,BigDecimal winLossAmount){
+    public GameRecordReportNew(Long bettingNumber,BigDecimal amount,BigDecimal betAmount,BigDecimal validAmount,BigDecimal winLossAmount,BigDecimal userAmount,BigDecimal surplusAmount){
         this.bettingNumber = bettingNumber==null?0:bettingNumber .intValue();
         this.amount = amount;
         this.betAmount = betAmount;
         this.validAmount = validAmount;
         this.winLossAmount = winLossAmount;
+        this.userAmount = userAmount;
+        this.surplusAmount = surplusAmount;
     }
 }

@@ -109,7 +109,7 @@ public class InTimeReportController {
 //                if (gameRecordReport1.getFirstProxy().equals(CommonConst.LONG_0)){
 //                    vo.setAccount(messageUtil.get("公司"));
 //                }
-                vo.setTotalWinLossAmount(vo.getWinLossAmount().subtract(vo.getAmount()));
+                vo.setTotalWinLossAmount(vo.getWinLossAmount().add(vo.getAmount()).add(vo.getUserAmount()));
                 vo.setAccountId(gameRecordReport1.getId());
                 proxyUsers.stream().forEach(proxyUser -> {
                     if (gameRecordReport1.getFirstProxy().equals(proxyUser.getId())){
@@ -170,7 +170,9 @@ public class InTimeReportController {
         gameRecordReportTotalVo.setValidAmount(recordRecordSum.getValidAmount()!= null? recordRecordSum.getValidAmount() : BigDecimal.ZERO);
         gameRecordReportTotalVo.setWinLossAmount(recordRecordSum.getWinLossAmount()!= null? recordRecordSum.getWinLossAmount() : BigDecimal.ZERO);
         gameRecordReportTotalVo.setAmount(recordRecordSum.getAmount()!= null? recordRecordSum.getAmount() : BigDecimal.ZERO);
-        gameRecordReportTotalVo.setTotalWinLossAmount(gameRecordReportTotalVo.getWinLossAmount().subtract(gameRecordReportTotalVo.getAmount()));
+        gameRecordReportTotalVo.setSurplusAmount(recordRecordSum.getSurplusAmount()!=null?recordRecordSum.getSurplusAmount():BigDecimal.ZERO);
+        gameRecordReportTotalVo.setUserAmount(recordRecordSum.getUserAmount()!=null?recordRecordSum.getUserAmount():BigDecimal.ZERO);
+        gameRecordReportTotalVo.setTotalWinLossAmount(gameRecordReportTotalVo.getWinLossAmount().add(gameRecordReportTotalVo.getAmount()).add(gameRecordReportTotalVo.getUserAmount()));
         return ResponseUtil.success(gameRecordReportTotalVo);
 
     }

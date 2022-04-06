@@ -70,6 +70,8 @@ public class GameRecordReportNewService {
                 gameRecordReport.setValidAmount(new BigDecimal(map.get("validbet").toString()));
                 gameRecordReport.setWinLossAmount(new BigDecimal(map.get("win_loss").toString()));
                 gameRecordReport.setBettingNumber(Integer.parseInt(map.get("num").toString()));
+                gameRecordReport.setUserAmount(new BigDecimal(map.get("user_amount").toString()));
+                gameRecordReport.setSurplusAmount(new BigDecimal(map.get("surplus_amount").toString()));
                 gameRecordReport.setPlatform("WM");
                 gameRecordReport.setFirstProxy(Long.parseLong(map.get("first_proxy").toString()));
                 gameRecordReport.setSecondProxy(Long.parseLong(map.get("second_proxy").toString()));
@@ -77,7 +79,7 @@ public class GameRecordReportNewService {
                 gameRecordReport.setGameRecordReportId(CommonUtil.toHash(gameRecordReport.getStaticsTimes()+gameRecordReport.getThirdProxy()+gameRecordReport.getPlatform()));
                 gameRecordReport01Repository.updateKey(gameRecordReport.getGameRecordReportId(),gameRecordReport.getStaticsTimes(),
                     gameRecordReport.getBetAmount(),gameRecordReport.getValidAmount(),gameRecordReport.getWinLossAmount(),gameRecordReport.getAmount(),
-                    gameRecordReport.getBettingNumber(),gameRecordReport.getFirstProxy(),gameRecordReport.getSecondProxy(),gameRecordReport.getThirdProxy(),gameRecordReport.getPlatform());
+                    gameRecordReport.getBettingNumber(),gameRecordReport.getFirstProxy(),gameRecordReport.getSecondProxy(),gameRecordReport.getThirdProxy(),gameRecordReport.getPlatform(),gameRecordReport.getSurplusAmount(),gameRecordReport.getUserAmount());
             }
             first.setGameRecordId(max);
             log.info("保存wm注单下标{}",first.getGameRecordId());
@@ -113,6 +115,8 @@ public class GameRecordReportNewService {
                 gameRecordReport.setValidAmount(new BigDecimal(map.get("validbet").toString()));
                 gameRecordReport.setWinLossAmount(new BigDecimal(map.get("win_loss").toString()).subtract(gameRecordReport.getBetAmount()));
                 gameRecordReport.setBettingNumber(Integer.parseInt(map.get("num").toString()));
+                gameRecordReport.setUserAmount(new BigDecimal(map.get("user_amount").toString()));
+                gameRecordReport.setSurplusAmount(new BigDecimal(map.get("surplus_amount").toString()));
                 gameRecordReport.setPlatform("PG");
                 gameRecordReport.setFirstProxy(Long.parseLong(map.get("first_proxy").toString()));
                 gameRecordReport.setSecondProxy(Long.parseLong(map.get("second_proxy").toString()));
@@ -120,7 +124,7 @@ public class GameRecordReportNewService {
                 gameRecordReport.setGameRecordReportId(CommonUtil.toHash(gameRecordReport.getStaticsTimes()+gameRecordReport.getThirdProxy()+gameRecordReport.getPlatform()));
                 gameRecordReport01Repository.updateKey(gameRecordReport.getGameRecordReportId(),gameRecordReport.getStaticsTimes(),
                     gameRecordReport.getBetAmount(),gameRecordReport.getValidAmount(),gameRecordReport.getWinLossAmount(),gameRecordReport.getAmount(),
-                    gameRecordReport.getBettingNumber(),gameRecordReport.getFirstProxy(),gameRecordReport.getSecondProxy(),gameRecordReport.getThirdProxy(),gameRecordReport.getPlatform());
+                    gameRecordReport.getBettingNumber(),gameRecordReport.getFirstProxy(),gameRecordReport.getSecondProxy(),gameRecordReport.getThirdProxy(),gameRecordReport.getPlatform(),gameRecordReport.getSurplusAmount(),gameRecordReport.getUserAmount());
             }
             first.setPGMaxId(max);
             log.info("保存PG注单下标{}",first.getPGMaxId());
@@ -156,6 +160,8 @@ public class GameRecordReportNewService {
                 gameRecordReport.setValidAmount(new BigDecimal(map.get("validbet").toString()));
                 gameRecordReport.setWinLossAmount(new BigDecimal(map.get("win_loss").toString()).subtract(gameRecordReport.getBetAmount()));
                 gameRecordReport.setBettingNumber(Integer.parseInt(map.get("num").toString()));
+                gameRecordReport.setUserAmount(new BigDecimal(map.get("user_amount").toString()));
+                gameRecordReport.setSurplusAmount(new BigDecimal(map.get("surplus_amount").toString()));
                 gameRecordReport.setPlatform("CQ9");
                 gameRecordReport.setFirstProxy(Long.parseLong(map.get("first_proxy").toString()));
                 gameRecordReport.setSecondProxy(Long.parseLong(map.get("second_proxy").toString()));
@@ -163,7 +169,7 @@ public class GameRecordReportNewService {
                 gameRecordReport.setGameRecordReportId(CommonUtil.toHash(gameRecordReport.getStaticsTimes()+gameRecordReport.getThirdProxy()+gameRecordReport.getPlatform()));
                 gameRecordReport01Repository.updateKey(gameRecordReport.getGameRecordReportId(),gameRecordReport.getStaticsTimes(),
                     gameRecordReport.getBetAmount(),gameRecordReport.getValidAmount(),gameRecordReport.getWinLossAmount(),gameRecordReport.getAmount(),
-                    gameRecordReport.getBettingNumber(),gameRecordReport.getFirstProxy(),gameRecordReport.getSecondProxy(),gameRecordReport.getThirdProxy(),gameRecordReport.getPlatform());
+                    gameRecordReport.getBettingNumber(),gameRecordReport.getFirstProxy(),gameRecordReport.getSecondProxy(),gameRecordReport.getThirdProxy(),gameRecordReport.getPlatform(),gameRecordReport.getSurplusAmount(),gameRecordReport.getUserAmount());
             }
             first.setCQ9MaxId(max);
             log.info("保存CQ9注单下标{}",first.getCQ9MaxId());
@@ -198,7 +204,9 @@ public class GameRecordReportNewService {
         }
         if (proxyRole==null){
             criteriaQuery.multiselect(root.get("firstProxy"), criteriaBuilder.sum(root.get("bettingNumber")), criteriaBuilder.sum(root.get("amount")),
-                criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")));
+                criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")),
+                    criteriaBuilder.sum(root.get("userAmount")), criteriaBuilder.sum(root.get("surplusAmount"))
+            );
             predicates.add(
                     criteriaBuilder.notEqual(root.get("firstProxy").as(Long.class), 0L)
             );
@@ -207,14 +215,16 @@ public class GameRecordReportNewService {
         }else if (proxyRole== CommonConst.NUMBER_1){
             if (agentMark){
                 criteriaQuery.multiselect(root.get("secondProxy"), criteriaBuilder.sum(root.get("bettingNumber")), criteriaBuilder.sum(root.get("amount")),
-                        criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")));
+                        criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")),
+                        criteriaBuilder.sum(root.get("userAmount")), criteriaBuilder.sum(root.get("surplusAmount")));
                 predicates.add(
                         criteriaBuilder.equal(root.get("firstProxy").as(Long.class), proxyId)
                 );
                 criteriaQuery.groupBy(root.get("secondProxy"));
             }else {
                 criteriaQuery.multiselect(root.get("firstProxy"), criteriaBuilder.sum(root.get("bettingNumber")), criteriaBuilder.sum(root.get("amount")),
-                        criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")));
+                        criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")),
+                        criteriaBuilder.sum(root.get("userAmount")), criteriaBuilder.sum(root.get("surplusAmount")));
                 predicates.add(
                         criteriaBuilder.equal(root.get("firstProxy").as(Long.class), proxyId)
                 );
@@ -227,7 +237,8 @@ public class GameRecordReportNewService {
         }else if (proxyRole== CommonConst.NUMBER_2){
             if (agentMark){
                 criteriaQuery.multiselect(root.get("thirdProxy"), criteriaBuilder.sum(root.get("bettingNumber")), criteriaBuilder.sum(root.get("amount")),
-                        criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")));
+                        criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")),
+                        criteriaBuilder.sum(root.get("userAmount")), criteriaBuilder.sum(root.get("surplusAmount")));
                 predicates.add(
                         criteriaBuilder.equal(root.get("secondProxy").as(Long.class), proxyId)
                 );
@@ -237,7 +248,8 @@ public class GameRecordReportNewService {
                 criteriaQuery.groupBy(root.get("thirdProxy"));
             }else {
                 criteriaQuery.multiselect(root.get("secondProxy"), criteriaBuilder.sum(root.get("bettingNumber")), criteriaBuilder.sum(root.get("amount")),
-                        criteriaBuilder.sum(root.get("betAmount")), criteriaBuilder.sum(root.get("validAmount")), criteriaBuilder.sum(root.get("winLossAmount")));
+                        criteriaBuilder.sum(root.get("betAmount")), criteriaBuilder.sum(root.get("validAmount")), criteriaBuilder.sum(root.get("winLossAmount")),
+                        criteriaBuilder.sum(root.get("userAmount")), criteriaBuilder.sum(root.get("surplusAmount")));
                 predicates.add(
                         criteriaBuilder.equal(root.get("secondProxy").as(Long.class), proxyId)
                 );
@@ -249,7 +261,8 @@ public class GameRecordReportNewService {
             }
         }else {
             criteriaQuery.multiselect(root.get("thirdProxy"), criteriaBuilder.sum(root.get("bettingNumber")), criteriaBuilder.sum(root.get("amount")),
-                criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")));
+                criteriaBuilder.sum(root.get("betAmount")),criteriaBuilder.sum(root.get("validAmount")),criteriaBuilder.sum(root.get("winLossAmount")),
+                    criteriaBuilder.sum(root.get("userAmount")), criteriaBuilder.sum(root.get("surplusAmount")));
             predicates.add(
                 criteriaBuilder.equal(root.get("thirdProxy").as(Long.class), proxyId)
             );
@@ -282,7 +295,9 @@ public class GameRecordReportNewService {
             builder.sum(root.get("amount").as(BigDecimal.class)).alias("amount"),
             builder.sum(root.get("betAmount").as(BigDecimal.class)).alias("betAmount"),
             builder.sum(root.get("validAmount").as(BigDecimal.class)).alias("validAmount"),
-            builder.sum(root.get("winLossAmount").as(BigDecimal.class)).alias("winLossAmount")
+            builder.sum(root.get("winLossAmount").as(BigDecimal.class)).alias("winLossAmount"),
+            builder.sum(root.get("userAmount").as(BigDecimal.class)).alias("userAmount"),
+            builder.sum(root.get("surplusAmount").as(BigDecimal.class)).alias("surplusAmount")
         );
 
         List<Predicate> predicates = new ArrayList();

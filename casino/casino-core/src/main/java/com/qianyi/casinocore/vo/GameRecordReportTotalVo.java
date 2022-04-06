@@ -30,4 +30,12 @@ public class GameRecordReportTotalVo implements Serializable {
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "输赢金额")
     private BigDecimal totalWinLossAmount;
+
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    @ApiModelProperty(value = "用户返利金额")
+    private BigDecimal userAmount;
+
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    @ApiModelProperty(value = "代理返利金额")
+    private BigDecimal surplusAmount;
 }
