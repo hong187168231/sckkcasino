@@ -54,7 +54,7 @@ public class GameRecordGoldenFJob {
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    //每隔5分钟执行一次
+    //每隔2分钟执行一次
     @Scheduled(cron = "0 0/2 * * * ?")
     public void pullGoldenF() {
         pullGameRecord(Constants.PLATFORM_PG);
@@ -68,9 +68,10 @@ public class GameRecordGoldenFJob {
 //        Long endTime = 1644588600000l;
         List<GoldenFTimeVO> timeVOS = getTimes(vendorCode);
         timeVOS.forEach(item -> {
+            log.info("{},开始拉取{}到{}的注单数据", vendorCode, item.getStartTime(), item.getEndTime());
             excutePull(true,vendorCode, item.getStartTime(), item.getEndTime());
+            log.info("{},{}到{}数据拉取完成", vendorCode, item.getStartTime(), item.getEndTime());
         });
-
     }
 
     /**
@@ -80,9 +81,10 @@ public class GameRecordGoldenFJob {
      */
     public void supplementPullGameRecord(String vendorCode,List<GoldenFTimeVO> timeVOS) {
         timeVOS.forEach(item -> {
+            log.info("{},开始补单{}到{}的注单数据", vendorCode, item.getStartTime(), item.getEndTime());
             excutePull(false,vendorCode, item.getStartTime(), item.getEndTime());
+            log.info("{},{}到{}数据补单完成", vendorCode, item.getStartTime(), item.getEndTime());
         });
-
     }
 
     private Long getGoldenStartTime(GameRecordGoldenfEndTime gameRecordGoldenfEndTime) {
