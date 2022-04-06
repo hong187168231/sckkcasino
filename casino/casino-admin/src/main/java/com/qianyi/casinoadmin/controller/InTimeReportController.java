@@ -109,6 +109,9 @@ public class InTimeReportController {
 //                if (gameRecordReport1.getFirstProxy().equals(CommonConst.LONG_0)){
 //                    vo.setAccount(messageUtil.get("公司"));
 //                }
+                if (vo.getUserAmount()==null){
+                    vo.setUserAmount(BigDecimal.ZERO);
+                }
                 vo.setTotalWinLossAmount(vo.getWinLossAmount().add(vo.getAmount()).add(vo.getUserAmount()));
                 vo.setAccountId(gameRecordReport1.getId());
                 proxyUsers.stream().forEach(proxyUser -> {
