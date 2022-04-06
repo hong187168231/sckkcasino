@@ -210,17 +210,13 @@ public class GameRecordGoldenFJob {
 
     private void saveToDB(GameRecordGoldenF item, PlatformConfig platformConfig) {
         try {
-            GameRecordGoldenF gameRecordGoldenF = gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
-            if (gameRecordGoldenF == null) {
-                gameRecordGoldenFService.save(item);
-                //改变用户实时余额
-                changeUserBalance(item);
-            }
-            GameRecord gameRecord = combineGameRecord(gameRecordGoldenF == null ? item : gameRecordGoldenF);
-
+            gameRecordGoldenFService.save(item);
+            //改变用户实时余额
+            changeUserBalance(item);
+            GameRecord gameRecord = combineGameRecord(item);
             processBusiness(item, gameRecord, platformConfig);
         } catch (Exception e) {
-            log.error("", e);
+            log.error("注单数据保存失败,msg={}", e.getMessage());
         }
 
     }
