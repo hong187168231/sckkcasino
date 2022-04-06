@@ -76,8 +76,10 @@ public class RebateReportController {
             return ResponseUtil.custom("参数不合法");
         }
         // 向后偏移12小时
-        startTime = DateUtil.offsetHour(startTime, 12);
-        endTime = DateUtil.offsetHour(endTime, 12);
+        if (LoginUtil.checkNull(platform) || platform.equals("WM")){
+            startTime = DateUtil.offsetHour(startTime, 12);
+            endTime = DateUtil.offsetHour(endTime, 12);
+        }
         String startTimeStr = DateUtil.formatDateTime(startTime);
         String endTimeStr = DateUtil.formatDateTime(endTime);
 
@@ -180,9 +182,10 @@ public class RebateReportController {
         }
 
         // 向后偏移12小时
-        startDate = DateUtil.offsetHour(startDate, 12);
-        endDate = DateUtil.offsetHour(endDate, 12);
-
+        if (LoginUtil.checkNull(platform) || platform.equals("WM")){
+            startDate = DateUtil.offsetHour(startDate, 12);
+            endDate = DateUtil.offsetHour(endDate, 12);
+        }
         String startTime = DateUtil.formatDateTime(startDate);
         String endTime = DateUtil.formatDateTime(endDate);
 
