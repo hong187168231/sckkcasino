@@ -89,7 +89,6 @@ public class AuthController {
     @PostMapping("spreadRegister")
     @ApiOperation("推广用户注册")
     @NoAuthentication
-    @Transactional
     //1分钟3次
 //    @RequestLimit(limit = 3, timeout = 60)
     @ApiImplicitParams({
@@ -123,7 +122,6 @@ public class AuthController {
     @PostMapping("register")
     @ApiOperation("前台用户注册")
     @NoAuthentication
-    @Transactional
     //1分钟3次
 //    @RequestLimit(limit = 3, timeout = 60)
     @ApiImplicitParams({
@@ -170,7 +168,6 @@ public class AuthController {
      * @param inviteType
      * @return
      */
-    @Transactional
     public ResponseEntity registerCommon(String account, String password, String country, String phone, String phoneCode,
                                          HttpServletRequest request, String validate, String inviteCode, String inviteType,Integer source) {
         boolean wangyidun = WangyiDunAuthUtil.verify(validate);
@@ -242,10 +239,12 @@ public class AuthController {
         user.setRegisterDomainName(origin);
 
         User save = userService.save(user);
+        log.info("user表数据创建成功，user={}",save.toString());
         //userMoney表初始化数据
         UserMoney userMoney = new UserMoney();
         userMoney.setUserId(save.getId());
         userMoneyService.save(userMoney);
+        log.info("userMoney表数据创建成功，userMoney={}",userMoney.toString());
         //记录注册日志
         setLoginLog(ip, user, request);
         //推送MQ

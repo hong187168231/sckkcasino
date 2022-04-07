@@ -33,7 +33,7 @@ public class HttpClient4Util {
         CloseableHttpResponse response = null;
         try {
             response = httpclient.execute(httpGet);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         HttpEntity entity = response.getEntity();//得到请求回来的数据
@@ -62,7 +62,7 @@ public class HttpClient4Util {
             log.info("specialGet请求返回参数{}", result);
         } catch (ClientProtocolException e) {
             e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             // 关闭资源
@@ -112,7 +112,7 @@ public class HttpClient4Util {
             log.info("doGet请求返回参数{}",result);
         } catch (ClientProtocolException e) {
             e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             // 关闭资源
@@ -181,7 +181,7 @@ public class HttpClient4Util {
             log.info("doPost请求返回参数{}",result);
         } catch (ClientProtocolException e) {
             e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             // 关闭资源

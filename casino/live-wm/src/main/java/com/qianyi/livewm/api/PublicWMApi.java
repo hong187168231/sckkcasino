@@ -301,6 +301,51 @@ public class PublicWMApi {
         throw new Exception(String.valueOf(entity));
     }
 
+    /**
+     * 交易记录
+     * 因网络环境问题(封包遗失，封包阻塞)，或其他不可违之因素可能在进行加扣点时导致失败，而贵公司有写入此单号，故做此功能以便查寻争议的单据。
+     * 使用此功能orderid 与 order 非必要代入，如只有带入user必须带入startTime与endTime,否则只可查寻一小时内该用户的交易纪录，如果代入orderid与order则不受时间限制。
+     * @param user 帐号
+     * @param orderId 三方订单号
+     * @param order 我放订单号
+     * @param startTime
+     * @param endTime
+     * @return
+     * @throws Exception
+     */
+    public ResponseEntity getMemberTradeReport(String user, String orderId,String order,String startTime, String endTime,Integer syslang){
+        String cmd = "GetMemberTradeReport";
+        Map<String, Object> params = new HashMap<>();
+        params.put("cmd", cmd);
+        params.put("vendorId", vendorId);
+        params.put("signature", signature);
+        if (!ObjectUtils.isEmpty(user)) {
+            params.put("user", user);
+        }
+        if (!ObjectUtils.isEmpty(orderId)) {
+            params.put("orderid", orderId);
+        }
+        if (!ObjectUtils.isEmpty(order)) {
+            params.put("order", order);
+        }
+        if(!ObjectUtils.isEmpty(startTime)){
+            params.put("startTime", startTime);
+        }
+        if(!ObjectUtils.isEmpty(endTime)){
+            params.put("endTime", endTime);
+        }
+        params.put("timestamp", getTimestamp());
+        if (syslang != null) {
+            params.put("syslang", syslang);
+        }
+        String s = HttpClient4Util.doPost(url, params);
+        if (CommonUtil.checkNull(s)) {
+            return null;
+        }
+        ResponseEntity entity = entity(s);
+        return entity;
+    }
+
     private Integer getTimestamp() {
         return Integer.parseInt(System.currentTimeMillis() / 1000 + "");
     }

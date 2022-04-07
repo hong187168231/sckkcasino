@@ -23,23 +23,23 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
     List<Map<String,Object>> getStatisticsResult(String startTime, String endTime);
 
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update GameRecord u set u.codeNumStatus=?2 where u.id=?1")
     void updateCodeNumStatus(Long id, Integer codeNumStatus);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update GameRecord u set u.washCodeStatus=?2 where u.id=?1")
     void updateWashCodeStatus(Long id, Integer washCodeStatus);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update GameRecord u set u.rebateStatus=?2 where u.id=?1")
     void updateRebateStatus(Long id, Integer rebateStatus);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update GameRecord u set u.extractStatus=?2 where u.id=?1")
     void updateExtractStatus(Long id, Integer status);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update GameRecord u set u.shareProfitStatus= u.shareProfitStatus+?2 where u.id=?1")
     void updateProfitStatus(Long id, Integer washCodeStatus);
 

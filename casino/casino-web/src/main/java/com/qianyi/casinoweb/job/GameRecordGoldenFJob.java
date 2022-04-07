@@ -18,9 +18,7 @@ import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -56,7 +54,7 @@ public class GameRecordGoldenFJob {
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    //每隔5分钟执行一次
+    //每隔2分钟执行一次
     @Scheduled(cron = "0 0/2 * * * ?")
     public void pullGoldenF() {
         pullGameRecord(Constants.PLATFORM_PG);
@@ -70,9 +68,23 @@ public class GameRecordGoldenFJob {
 //        Long endTime = 1644588600000l;
         List<GoldenFTimeVO> timeVOS = getTimes(vendorCode);
         timeVOS.forEach(item -> {
-            excutePull(vendorCode, item.getStartTime(), item.getEndTime());
+            log.info("{},开始拉取{}到{}的注单数据", vendorCode, item.getStartTime(), item.getEndTime());
+            excutePull(true,vendorCode, item.getStartTime(), item.getEndTime());
+            log.info("{},{}到{}数据拉取完成", vendorCode, item.getStartTime(), item.getEndTime());
         });
+    }
 
+    /**
+     * 补单
+     * @param vendorCode
+     * @param timeVOS
+     */
+    public void supplementPullGameRecord(String vendorCode,List<GoldenFTimeVO> timeVOS) {
+        timeVOS.forEach(item -> {
+            log.info("{},开始补单{}到{}的注单数据", vendorCode, item.getStartTime(), item.getEndTime());
+            excutePull(false,vendorCode, item.getStartTime(), item.getEndTime());
+            log.info("{},{}到{}数据补单完成", vendorCode, item.getStartTime(), item.getEndTime());
+        });
     }
 
     private Long getGoldenStartTime(GameRecordGoldenfEndTime gameRecordGoldenfEndTime) {
@@ -93,9 +105,10 @@ public class GameRecordGoldenFJob {
         Long range = endTime - startTime;
         if (range <= 0) return timeVOS;
         log.info("{}", range);
-        Long num = range / (5 * 60 * 1000);
+        Long num = range / (4 * 60 * 1000);
         log.info("num is {}", num);
         for (int i = 0; i <= num; i++) {
+            startTime = startTime - 60 * 1000;//每次拉取重叠一分钟
             GoldenFTimeVO goldenFTimeVO = new GoldenFTimeVO();
             Long tempEndTime = startTime + (5 * 60 * 1000);
             goldenFTimeVO.setStartTime(startTime);
@@ -108,7 +121,7 @@ public class GameRecordGoldenFJob {
     }
 
 
-    private void excutePull(String vendorCode, Long startTime, Long endTime) {
+    private void excutePull(boolean pull,String vendorCode, Long startTime, Long endTime) {
 
 
         log.info("startime is {}  endtime is {}", startTime, endTime);
@@ -117,14 +130,17 @@ public class GameRecordGoldenFJob {
         int page = 1;
 
         int pageSize = 1000;
-
+        Boolean successRequestFlag = true;
         while (true) {
             // 获取数据
             PublicGoldenFApi.ResponseEntity responseEntity = publicGoldenFApi.getPlayerGameRecord(startTime, endTime, vendorCode, page, pageSize);
 
             if (responseEntity == null || checkRequestFail(responseEntity)) {
                 processFaildRequest(startTime, endTime, vendorCode, responseEntity);
-                if (failCount >= 2) break;
+                if (failCount >= 2) {
+                    successRequestFlag = false;
+                    break;
+                }
                 failCount++;
                 continue;
             }
@@ -136,7 +152,9 @@ public class GameRecordGoldenFJob {
 
             page++;
         }
-        processSuccessRequest(startTime, endTime, vendorCode);
+        if (pull && successRequestFlag) {
+            processSuccessRequest(startTime, endTime, vendorCode);
+        }
     }
 
     private void processSuccessRequest(Long startTime, Long endTime, String vendorCode) {
@@ -148,7 +166,7 @@ public class GameRecordGoldenFJob {
     }
 
     private void processFaildRequest(Long startTime, Long endTime, String vendorCode, PublicGoldenFApi.ResponseEntity responseEntity) {
-        log.error("startTime{},endTime{},vendorCode{},responseEntity{}", startTime, endTime, vendorCode, responseEntity);
+        log.error("注单拉取失败startTime{},endTime{},vendorCode{},responseEntity{}", startTime, endTime, vendorCode, responseEntity);
     }
 
     private boolean checkRequestFail(PublicGoldenFApi.ResponseEntity responseEntity) {
@@ -192,17 +210,13 @@ public class GameRecordGoldenFJob {
 
     private void saveToDB(GameRecordGoldenF item, PlatformConfig platformConfig) {
         try {
-            GameRecordGoldenF gameRecordGoldenF = gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
-            if (gameRecordGoldenF == null) {
-                gameRecordGoldenFService.save(item);
-                //改变用户实时余额
-                changeUserBalance(item);
-            }
-            GameRecord gameRecord = combineGameRecord(gameRecordGoldenF == null ? item : gameRecordGoldenF);
-
+            gameRecordGoldenFService.save(item);
+            //改变用户实时余额
+            changeUserBalance(item);
+            GameRecord gameRecord = combineGameRecord(item);
             processBusiness(item, gameRecord, platformConfig);
         } catch (Exception e) {
-            log.error("", e);
+            log.error("注单数据保存失败,msg={}", e.getMessage());
         }
 
     }

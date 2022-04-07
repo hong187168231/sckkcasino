@@ -62,6 +62,8 @@ public class WMController {
     @Autowired
     ThirdGameBusiness thirdGameBusiness;
     @Autowired
+    ErrorOrderService errorOrderService;
+    @Autowired
     @Qualifier("accountChangeJob")
     AsyncService asyncService;
 
@@ -72,7 +74,6 @@ public class WMController {
 
     @ApiOperation("开游戏")
     @RequestLimit(limit = 1, timeout = 5)
-    @Transactional
     @PostMapping("openGame")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "gameType", value = "空：大厅。1.百家乐。2.龙虎 3. 轮盘 4. 骰宝 " +
@@ -135,7 +136,7 @@ public class WMController {
         thirdGameBusiness.oneKeyRecoverGoldenF(authId);
         PlatformConfig platformConfig = platformConfigService.findFirst();
         //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
-        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(authId);
+        UserMoney userMoney = userMoneyService.findByUserId(authId);
         BigDecimal userCenterMoney = BigDecimal.ZERO;
         if (userMoney != null && userMoney.getMoney() != null) {
             userCenterMoney = userMoney.getMoney();
@@ -145,24 +146,28 @@ public class WMController {
             BigDecimal wmMoney = platformConfig.getWmMoney();
             if (wmMoney != null && wmMoney.compareTo(userCenterMoney) == -1) {
                 userCenterMoney = wmMoney;
-                log.error("userId:{},进游戏加扣是WM余额不足，wm余额={}",third.getUserId(),wmMoney);
+                log.error("userId:{},account={},进游戏加扣点WM余额不足，用户余额={}，wm余额={}",third.getUserId(),user.getAccount(),userCenterMoney,wmMoney);
             }
         }
 
         if (userCenterMoney.compareTo(BigDecimal.ZERO) == 1) {
+            //钱转入第三方后本地扣减记录账变  优先扣减本地余额，否则会出现三方加点成功，本地扣减失败的情况
+            //先扣本地款
+            userMoneyService.subMoney(authId, userCenterMoney);
             String orderNo = orderService.getOrderNo();
             PublicWMApi.ResponseEntity entity = wmApi.changeBalance(third.getAccount(), userCenterMoney, orderNo, lang);
             if (entity == null) {
-                log.error("userId:{},进游戏加扣点失败",third.getUserId());
+                log.error("userId:{},account{},money:{},进游戏加扣点失败",third.getUserId(),user.getAccount(),userCenterMoney);
+                //异步记录错误订单并重试补偿
+                errorOrderService.syncSaveErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.WM_IN, Constants.PLATFORM_WM_BIG);
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
             if (entity.getErrorCode() != 0) {
-                log.error("进游戏加扣点失败,userId:{},errorCode={},errorMsg={}",third.getUserId(), entity.getErrorCode(), entity.getErrorMessage());
+                log.error("进游戏加扣点失败,userId:{},account={},money:{},errorCode={},errorMsg={}",third.getUserId(),user.getAccount(),userCenterMoney, entity.getErrorCode(), entity.getErrorMessage());
+                //三方加扣点失败再把钱加回来
+                userMoneyService.addMoney(authId, userCenterMoney);
                 return ResponseUtil.custom("加点失败,请联系客服");
             }
-            //钱转入第三方后本地扣减记录账变
-            //扣款
-            userMoneyService.subMoney(authId, userCenterMoney);
 
             Order order = new Order();
             order.setMoney(userCenterMoney);
@@ -176,6 +181,7 @@ public class WMController {
             order.setSecondProxy(user.getSecondProxy());
             order.setThirdProxy(user.getThirdProxy());
             orderService.save(order);
+            log.info("order表记录保存成功，order={}",order.toString());
 
             //账变中心记录账变
             AccountChangeVo vo = new AccountChangeVo();
@@ -191,7 +197,7 @@ public class WMController {
         //获取进游戏地址
         String url = getOpenGameUrl(request, third, mode, lang,platformConfig);
         if (CommonUtil.checkNull(url)) {
-            log.error("userId:{},进游戏失败",third.getUserId());
+            log.error("userId:{},account={},进游戏失败",third.getUserId(),user.getAccount());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         return ResponseUtil.success(url);
@@ -353,7 +359,6 @@ public class WMController {
     }
 
     @ApiOperation("一键回收当前登录用户WM余额")
-    @Transactional
     @GetMapping("oneKeyRecover")
     public ResponseEntity oneKeyRecover() {
         //判断平台状态
@@ -367,7 +372,6 @@ public class WMController {
     }
 
     @ApiOperation("一键回收用户WM余额外部接口")
-    @Transactional
     @GetMapping("oneKeyRecoverApi")
     @NoAuthentication
     @ApiImplicitParam(name = "userId", value = "用户ID", required = true)
