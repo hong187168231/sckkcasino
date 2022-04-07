@@ -87,6 +87,7 @@ public class SupplementBusiness {
                         accountChangeVo.setAmount(amount);
                         accountChangeVo.setAmountBefore(userMoney.getMoney());
                         accountChangeVo.setAmountAfter(userMoney.getMoney().subtract(amount));
+                        accountChangeVo.setOrderNo(orderNo);
                         asyncService.executeAsync(accountChangeVo);
                         log.info("订单自动补单成功,AccountChange表账变记录成功,AccountChange={}", accountChangeVo.toString());
                         break;

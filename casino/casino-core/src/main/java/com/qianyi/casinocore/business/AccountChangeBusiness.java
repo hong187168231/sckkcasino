@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
 
@@ -26,8 +27,10 @@ public class AccountChangeBusiness {
     private UserService userService;
 
     public AccountChange save(AccountChangeVo vo){
-        String orderNo = getOrderNo(vo.getChangeEnum());
-        vo.setOrderNo(orderNo);
+        if (ObjectUtils.isEmpty(vo.getOrderNo())){
+            String orderNo = getOrderNo(vo.getChangeEnum());
+            vo.setOrderNo(orderNo);
+        }
         AccountChange change=new AccountChange();
         BeanUtils.copyProperties(vo,change);
         change.setType(vo.getChangeEnum().getType());
