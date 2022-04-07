@@ -112,7 +112,7 @@ public class HttpClient4Util {
             log.info("doGet请求返回参数{}",result);
         } catch (ClientProtocolException e) {
             e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             // 关闭资源
@@ -181,7 +181,7 @@ public class HttpClient4Util {
             log.info("doPost请求返回参数{}",result);
         } catch (ClientProtocolException e) {
             e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             // 关闭资源
