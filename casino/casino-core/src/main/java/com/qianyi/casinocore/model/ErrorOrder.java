@@ -29,6 +29,9 @@ public class ErrorOrder extends BaseEntity {
     @ApiModelProperty("0.失败、1.补单成功、2.取消补单")
     private Integer status;
 
+    @ApiModelProperty(value = "账变类型:0.洗码领取,7.转入wm,8.一键回收(转出WM),9.代理佣金领取,10.转入PC/CQ9,11.转出PC/CQ9")
+    private Integer type;
+
     @ApiModelProperty("备注")
     private String remark;
 
