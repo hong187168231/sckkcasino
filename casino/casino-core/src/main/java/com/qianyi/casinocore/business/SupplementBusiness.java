@@ -44,13 +44,13 @@ public class SupplementBusiness {
         int requestNum = 0;
         while (true) {
             try {
-                //报表查询需间隔30秒，未搜寻到数据需间隔10秒。
-                Thread.sleep(30 * 1000);
                 if (requestNum >= 3) {
                     log.error("尝试3次补单失败,errorOrder={}",errorOrder.toString());
                     break;
                 }
                 requestNum++;
+                //报表查询需间隔30秒，未搜寻到数据需间隔10秒。
+                Thread.sleep(30 * 1000);
                 PublicWMApi.ResponseEntity entity = wmApi.getMemberTradeReport(thirdAccount, null, orderNo, null, null, null);
                 if (entity == null) {
                     log.error("查询WM交易记录时远程请求异常");

@@ -92,7 +92,7 @@ public class ErrorOrderService {
     }
 
 
-    @Async
+    @Async("asyncExecutor")
     public void syncSaveErrorOrder(String thirdAccount, Long userId, String account, String orderNo, BigDecimal money, AccountChangeEnum ChangeEnum, String platform) {
         ErrorOrder errorOrder = new ErrorOrder();
         errorOrder.setUserId(userId);
