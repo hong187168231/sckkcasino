@@ -44,6 +44,8 @@ public class ThirdGameBusiness {
     @Autowired
     private AdGamesService adGamesService;
     @Autowired
+    private ErrorOrderService errorOrderService;
+    @Autowired
     @Qualifier("accountChangeJob")
     private AsyncService asyncService;
 
@@ -151,11 +153,13 @@ public class ThirdGameBusiness {
         BigDecimal recoverMoney = balance.negate().setScale(0, BigDecimal.ROUND_DOWN);
         PublicWMApi.ResponseEntity entity = wmApi.changeBalance(account, recoverMoney, null, lang);
         if (entity == null) {
-            log.error("加扣点失败,远程请求异常,userId:{}", userId);
+            log.error("加扣点失败,远程请求异常,userId:{},money={}", userId,recoverMoney);
+            //异步记录错误订单并重试补偿
+            errorOrderService.syncSaveErrorOrder(third.getAccount(),user.getId(),user.getAccount(),orderNo,recoverMoney,AccountChangeEnum.RECOVERY,Constants.PLATFORM_WM_BIG);
             return ResponseUtil.custom("回收失败,请联系客服");
         }
         if (entity.getErrorCode() != 0) {
-            log.error("加扣点失败，userId:{},errorCode={},errorMsg={}", userId, entity.getErrorCode(), entity.getErrorMessage());
+            log.error("加扣点失败，userId:{},money={},errorCode={},errorMsg={}", userId,recoverMoney, entity.getErrorCode(), entity.getErrorMessage());
             return ResponseUtil.custom("回收失败,请联系客服");
         }
         balance = recoverMoney.abs();

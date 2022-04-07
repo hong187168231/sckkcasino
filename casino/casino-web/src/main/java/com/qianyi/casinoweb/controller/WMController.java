@@ -62,6 +62,8 @@ public class WMController {
     @Autowired
     ThirdGameBusiness thirdGameBusiness;
     @Autowired
+    ErrorOrderService errorOrderService;
+    @Autowired
     @Qualifier("accountChangeJob")
     AsyncService asyncService;
 
@@ -144,7 +146,7 @@ public class WMController {
             BigDecimal wmMoney = platformConfig.getWmMoney();
             if (wmMoney != null && wmMoney.compareTo(userCenterMoney) == -1) {
                 userCenterMoney = wmMoney;
-                log.error("userId:{},进游戏加扣是WM余额不足，wm余额={}",third.getUserId(),wmMoney);
+                log.error("userId:{},进游戏加扣点WM余额不足，用户余额={}，wm余额={}",third.getUserId(),userCenterMoney,wmMoney);
             }
         }
 
@@ -155,11 +157,13 @@ public class WMController {
             String orderNo = orderService.getOrderNo();
             PublicWMApi.ResponseEntity entity = wmApi.changeBalance(third.getAccount(), userCenterMoney, orderNo, lang);
             if (entity == null) {
-                log.error("userId:{},进游戏加扣点失败",third.getUserId());
+                log.error("userId:{},userName{},money:{},进游戏加扣点失败",third.getUserId(),user.getAccount(),userCenterMoney);
+                //异步记录错误订单并重试补偿
+                errorOrderService.syncSaveErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.WM_IN, Constants.PLATFORM_WM_BIG);
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
             if (entity.getErrorCode() != 0) {
-                log.error("进游戏加扣点失败,userId:{},errorCode={},errorMsg={}",third.getUserId(), entity.getErrorCode(), entity.getErrorMessage());
+                log.error("进游戏加扣点失败,userId:{},userName{},money:{},errorCode={},errorMsg={}",third.getUserId(),user.getAccount(),userCenterMoney, entity.getErrorCode(), entity.getErrorMessage());
                 //三方加扣点失败再把钱加回来
                 userMoneyService.addMoney(authId, userCenterMoney);
                 return ResponseUtil.custom("加点失败,请联系客服");
