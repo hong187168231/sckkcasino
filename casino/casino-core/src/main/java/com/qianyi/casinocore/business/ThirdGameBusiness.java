@@ -129,7 +129,7 @@ public class ThirdGameBusiness {
         //先退出游戏
         Boolean aBoolean = wmApi.logoutGame(account, lang);
         if (!aBoolean) {
-            log.error("userId:{},退出游戏失败", userId);
+            log.error("userId:{},account={},退出游戏失败", userId,user.getAccount());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         //查询用户在wm的余额
@@ -137,29 +137,29 @@ public class ThirdGameBusiness {
         try {
             balance = wmApi.getBalance(account, lang);
             if (balance == null) {
-                log.error("userId:{},获取用户WM余额为null", userId);
+                log.error("userId:{},account={},获取用户WM余额为null", userId,user.getAccount());
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
         } catch (Exception e) {
-            log.error("userId:{},获取用户WM余额失败{}", userId, e.getMessage());
+            log.error("userId:{},account={},获取用户WM余额失败{}", userId,user.getAccount(), e.getMessage());
             e.printStackTrace();
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         if (balance.compareTo(BigDecimal.ONE) == -1) {
-            log.error("userId:{},balance={},金额小于1，不可回收", userId, balance);
+            log.error("userId:{},account={},balance={},金额小于1，不可回收", userId,user.getAccount(), balance);
             return ResponseUtil.custom("WM余额小于1,不可回收");
         }
         //调用加扣点接口扣减wm余额  存在精度问题，只回收整数部分
         BigDecimal recoverMoney = balance.negate().setScale(0, BigDecimal.ROUND_DOWN);
         PublicWMApi.ResponseEntity entity = wmApi.changeBalance(account, recoverMoney, null, lang);
         if (entity == null) {
-            log.error("加扣点失败,远程请求异常,userId:{},money={}", userId,recoverMoney);
+            log.error("加扣点失败,远程请求异常,userId:{},account={},money={}", userId,user.getAccount(),recoverMoney);
             //异步记录错误订单并重试补偿
             errorOrderService.syncSaveErrorOrder(third.getAccount(),user.getId(),user.getAccount(),orderNo,recoverMoney,AccountChangeEnum.RECOVERY,Constants.PLATFORM_WM_BIG);
             return ResponseUtil.custom("回收失败,请联系客服");
         }
         if (entity.getErrorCode() != 0) {
-            log.error("加扣点失败，userId:{},money={},errorCode={},errorMsg={}", userId,recoverMoney, entity.getErrorCode(), entity.getErrorMessage());
+            log.error("加扣点失败，userId:{},account={},money={},errorCode={},errorMsg={}", userId,user.getAccount(),recoverMoney, entity.getErrorCode(), entity.getErrorMessage());
             return ResponseUtil.custom("回收失败,请联系客服");
         }
         balance = recoverMoney.abs();
@@ -173,7 +173,7 @@ public class ThirdGameBusiness {
         userMoneyService.addMoney(userId, balance);
         String orderNo = orderService.getOrderNo();
         saveAccountChange(Constants.PLATFORM_WM_BIG,userId, balance, userMoney.getMoney(), balance.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.RECOVERY,"自动转出WM", user);
-        log.info("wm余额回收成功，userId={}", userId);
+        log.info("wm余额回收成功，userId={},account={}", userId,user.getAccount());
         return ResponseUtil.success();
     }
 
@@ -184,7 +184,7 @@ public class ThirdGameBusiness {
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         if (!ObjectUtils.isEmpty(playerBalance.getErrorCode())) {
-            log.error("userId:{},errorCode={},errorMsg={}", userId, playerBalance.getErrorCode(), playerBalance.getErrorMessage());
+            log.error("userId:{},account={},errorCode={},errorMsg={}", userId,account, playerBalance.getErrorCode(), playerBalance.getErrorMessage());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         JSONObject jsonData = JSONObject.parseObject(playerBalance.getData());
