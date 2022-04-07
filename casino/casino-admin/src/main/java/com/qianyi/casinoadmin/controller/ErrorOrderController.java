@@ -5,6 +5,7 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.PageResultVO;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -46,11 +47,14 @@ public class ErrorOrderController {
             @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
             @ApiImplicitParam(name = "status", value = "状态", required = false),
             @ApiImplicitParam(name = "type", value = "类型", required = false),
+            @ApiImplicitParam(name = "userName", value = "用户名", required = false),
+            @ApiImplicitParam(name = "platform", value = "平台名称", required = false),
             @ApiImplicitParam(name = "startDate", value = "起始时间", required = false),
             @ApiImplicitParam(name = "endDate", value = "结束时间", required = false),
     })
     @GetMapping("/errorOrderList")
-    public ResponseEntity<ErrorOrder> errorOrderList(Integer pageSize, Integer pageCode,String orderNo,Integer status,Integer type,
+    @NoAuthorization
+    public ResponseEntity<ErrorOrder> errorOrderList(Integer pageSize, Integer pageCode,String orderNo,Integer status,Integer type,String userName,String platform,
                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         Sort sort = Sort.by("id").descending();
@@ -59,6 +63,8 @@ public class ErrorOrderController {
         order.setOrderNo(orderNo);
         order.setStatus(status);
         order.setType(type);
+        order.setUserName(userName);
+        order.setPlatform(platform);
         Page<ErrorOrder> errorOrderPage = errorOrderService.findErrorOrderPage(order, pageable, startDate, endDate);
         PageResultVO<ErrorOrder> pageResult =new PageResultVO(errorOrderPage);
         pageResult.setContent(errorOrderPage.getContent());
