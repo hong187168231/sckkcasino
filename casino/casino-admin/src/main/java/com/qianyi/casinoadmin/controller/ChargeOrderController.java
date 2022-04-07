@@ -64,6 +64,12 @@ public class ChargeOrderController {
 
     @Autowired
     PlatformConfigService platformConfigService;
+
+    @Autowired
+    private ErrorOrderService errorOrderService;
+    @Autowired
+    private UserController userController;
+
     /**
      * 充值申请列表
      *
@@ -260,5 +266,65 @@ public class ChargeOrderController {
         ChargeOrderVo vo = new ChargeOrderVo();
         vo.setChargeAmount(chargeOrder==null?BigDecimal.ZERO:chargeOrder.getChargeAmount());
         return ResponseUtil.success(vo);
+    }
+
+
+
+    @ApiOperation("异常订单列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+            @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
+            @ApiImplicitParam(name = "status", value = "状态", required = false),
+            @ApiImplicitParam(name = "type", value = "类型", required = false),
+            @ApiImplicitParam(name = "startDate", value = "起始时间", required = false),
+            @ApiImplicitParam(name = "endDate", value = "结束时间", required = false),
+    })
+    @GetMapping("/errorOrderList")
+    @NoAuthorization
+    public ResponseEntity<ErrorOrder> errorOrderList(Integer pageSize, Integer pageCode,String orderNo,Integer status,Integer type,
+                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        ErrorOrder order = new ErrorOrder();
+        order.setOrderNo(orderNo);
+        order.setStatus(status);
+        order.setType(type);
+        Page<ErrorOrder> errorOrderPage = errorOrderService.findErrorOrderPage(order, pageable, startDate, endDate);
+        PageResultVO<ErrorOrder> pageResult =new PageResultVO(errorOrderPage);
+        pageResult.setContent(errorOrderPage.getContent());
+        return ResponseUtil.success(pageResult);
+    }
+
+    /**
+     * 修改异常订单状态
+     *
+     * @return
+     */
+    @ApiOperation("修改异常订单状态")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "id", required = true),
+            @ApiImplicitParam(name = "status", value = "状态(0.失败、1.自动补单成功、2.后台审核通过、3.后台拒绝、4.后台审核通过上分)", required = false)
+    })
+    @PostMapping("/updateErrorOrdersStatus")
+    @NoAuthorization
+    public ResponseEntity updateErrorOrdersStatus(Long id,Integer status){
+        if (LoginUtil.checkNull(id) || LoginUtil.checkNull(status)){
+            ResponseUtil.custom("参数不合法");
+        }
+        ErrorOrder order = errorOrderService.findErrorOrderByIdUseLock(id);
+        if(order !=null && order.getStatus()==status){
+            return ResponseUtil.custom("订单不存在或已被处理");
+        }
+        if (status==CommonConst.NUMBER_4){
+            //人工上分
+            ResponseEntity responseEntity = userController.saveChargeOrder(order.getUserId(), order.getUserName(), "补单",order.getMoney().toString(), BigDecimal.ONE);
+            if (responseEntity.getCode()!=CommonConst.NUMBER_0){
+                return ResponseUtil.fail();
+            }
+        }
+       errorOrderService.updateErrorOrdersRemark(status,order.getId());
+        return ResponseUtil.success();
     }
 }
