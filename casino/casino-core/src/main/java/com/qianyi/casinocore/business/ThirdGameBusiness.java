@@ -151,7 +151,8 @@ public class ThirdGameBusiness {
         }
         //调用加扣点接口扣减wm余额  存在精度问题，只回收整数部分
         BigDecimal recoverMoney = balance.negate().setScale(0, BigDecimal.ROUND_DOWN);
-        PublicWMApi.ResponseEntity entity = wmApi.changeBalance(account, recoverMoney, null, lang);
+        String orderNo = orderService.getOrderNo();
+        PublicWMApi.ResponseEntity entity = wmApi.changeBalance(account, recoverMoney, orderNo, lang);
         if (entity == null) {
             log.error("加扣点失败,远程请求异常,userId:{},account={},money={}", userId,user.getAccount(),recoverMoney);
             //异步记录错误订单并重试补偿
@@ -171,7 +172,6 @@ public class ThirdGameBusiness {
             userMoneyService.save(userMoney);
         }
         userMoneyService.addMoney(userId, balance);
-        String orderNo = orderService.getOrderNo();
         saveAccountChange(Constants.PLATFORM_WM_BIG,userId, balance, userMoney.getMoney(), balance.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.RECOVERY,"自动转出WM", user);
         log.info("wm余额回收成功，userId={},account={}", userId,user.getAccount());
         return ResponseUtil.success();

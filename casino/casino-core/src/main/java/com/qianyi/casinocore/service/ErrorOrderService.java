@@ -1,18 +1,29 @@
 package com.qianyi.casinocore.service;
 
+import com.qianyi.casinocore.business.SupplementBusiness;
+import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.ChargeOrder;
 import com.qianyi.casinocore.model.ErrorOrder;
 import com.qianyi.casinocore.repository.ChargeOrderRepository;
 import com.qianyi.casinocore.repository.ErrorOrderRepository;
 import com.qianyi.modulecommon.util.CommonUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
-
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 @Service
 @Slf4j
 @Transactional
@@ -42,7 +53,7 @@ public class ErrorOrderService {
      * @param
      * @return
      */
-    private Specification<ErrorOrder> getCondition(ErrorOrder order,Date startDate,Date endDate) {
+    private Specification<ErrorOrder> getCondition(ErrorOrder order, Date startDate, Date endDate) {
         Specification<ErrorOrder> specification = new Specification<ErrorOrder>() {
             @Override
             public Predicate toPredicate(Root<ErrorOrder> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
