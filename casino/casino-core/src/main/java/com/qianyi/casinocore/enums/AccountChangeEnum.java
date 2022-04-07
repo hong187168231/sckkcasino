@@ -17,6 +17,7 @@ public enum AccountChangeEnum {
     SHARE_PROFIT(9, "SP","代理佣金领取"),
     PG_CQ9_IN(10, "PGCQ9IN","PG/CQ9转入"),
     PG_CQ9_OUT(11, "PGCQ9OUT","PG/CQ9转出"),
+    SYSTEM_UPP (12, "SystemUpp","系统上分"),
     ;
 
     private Integer type;

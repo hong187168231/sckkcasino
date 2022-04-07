@@ -1,13 +1,19 @@
 package com.qianyi.casinocore.business;
 
 import com.alibaba.fastjson.JSON;
+import com.qianyi.casinocore.enums.AccountChangeEnum;
+import com.qianyi.casinocore.model.AccountChange;
 import com.qianyi.casinocore.model.ErrorOrder;
+import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.repository.ErrorOrderRepository;
 import com.qianyi.casinocore.service.UserMoneyService;
+import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinocore.vo.WmMemberTradeReportVo;
 import com.qianyi.livewm.api.PublicWMApi;
+import com.qianyi.modulecommon.executor.AsyncService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,6 +29,9 @@ public class SupplementBusiness {
     private UserMoneyService userMoneyService;
     @Autowired
     private ErrorOrderRepository errorOrderRepository;
+    @Autowired
+    @Qualifier("accountChangeJob")
+    private AsyncService asyncService;
 
     /**
      * 尝试3次补单
@@ -70,6 +79,16 @@ public class SupplementBusiness {
                         errorOrder.setRemark("自动补单成功,补单金额:" + amount);
                         errorOrderRepository.save(errorOrder);
                         log.info("订单自动补单成功,errorOrder表更新成功,errorOrder={}", errorOrder.toString());
+                        //账变中心记录账变
+                        UserMoney userMoney = userMoneyService.findByUserId(errorOrder.getUserId());
+                        AccountChangeVo accountChangeVo = new AccountChangeVo();
+                        accountChangeVo.setUserId(errorOrder.getUserId());
+                        accountChangeVo.setChangeEnum(AccountChangeEnum.SYSTEM_UPP);
+                        accountChangeVo.setAmount(amount);
+                        accountChangeVo.setAmountBefore(userMoney.getMoney());
+                        accountChangeVo.setAmountAfter(userMoney.getMoney().subtract(amount));
+                        asyncService.executeAsync(accountChangeVo);
+                        log.info("订单自动补单成功,AccountChange表账变记录成功,AccountChange={}", accountChangeVo.toString());
                         break;
                     }
                 }
