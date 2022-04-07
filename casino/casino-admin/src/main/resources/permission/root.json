@@ -489,6 +489,36 @@
             "url": "/withdraw/updateWithdrawOrderRemark"
           }
         ]
+      },
+      {
+        "descritpion": "异常订单",
+        "englishName": "Abnormal order",
+        "menuLevel": 2,
+        "name": "异常订单列表",
+        "url": "/aErrorOrder/errorOrderList",
+        "children": [
+          {
+            "descritpion": "通过",
+            "englishName": "adopt",
+            "menuLevel": 3,
+            "name": "通过",
+            "url": "/aErrorOrder/updateErrorOrdersStatus"
+          },
+          {
+            "descritpion": "拒绝",
+            "englishName": "refuse",
+            "menuLevel": 3,
+            "name": "拒绝",
+            "url": "/aErrorOrder/updateErrorOrdersStatus"
+          },
+          {
+            "descritpion": "通过上分",
+            "englishName": "Pass the upper score",
+            "menuLevel": 3,
+            "name": "通过上分",
+            "url": "/aErrorOrder/updateErrorOrdersStatus"
+          }
+        ]
       }
     ]
   },
