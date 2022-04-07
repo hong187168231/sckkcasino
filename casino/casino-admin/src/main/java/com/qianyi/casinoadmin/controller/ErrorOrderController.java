@@ -92,7 +92,7 @@ public class ErrorOrderController {
         }
         if (status==CommonConst.NUMBER_4){
             //人工上分
-            ResponseEntity responseEntity = userController.saveChargeOrder(order.getUserId(), order.getUserName(), "补单",order.getMoney().toString(), BigDecimal.ONE);
+            ResponseEntity responseEntity = userController.saveSystemChargeOrder(order.getOrderNo(),order.getUserId(), order.getUserName(), "补单",order.getMoney().toString(), BigDecimal.ONE);
             if (responseEntity.getCode()!=CommonConst.NUMBER_0){
                 return ResponseUtil.fail();
             }

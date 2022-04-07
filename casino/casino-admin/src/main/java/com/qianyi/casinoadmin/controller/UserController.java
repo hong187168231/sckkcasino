@@ -833,6 +833,60 @@ public class UserController {
         }
         return responseEntity;
     }
+
+
+
+    @ApiOperation("系统上分")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "会员id", required = true),
+            @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = false),
+            @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
+            @ApiImplicitParam(name = "chargeAmount", value = "汇款金额", required = true),
+            @ApiImplicitParam(name = "remark", value = "汇款备注", required = false),
+            @ApiImplicitParam(name = "betRate", value = "打码倍率", required = true),
+    })
+    @PostMapping("/saveSystemChargeOrder")
+    public ResponseEntity saveSystemChargeOrder(String orderNo,Long id,String remitter,String remark, String chargeAmount,BigDecimal betRate){
+        if (LoginUtil.checkNull(id,chargeAmount,betRate)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        BigDecimal money = CommonUtil.checkMoney(chargeAmount);
+        if(betRate.compareTo(BigDecimal.ZERO)<0){
+            return ResponseUtil.custom("打码倍率错误");
+        }
+        if(money.compareTo(BigDecimal.ZERO)<1){
+            return ResponseUtil.custom("金额类型错误");
+        }
+        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_99999999)) >= CommonConst.NUMBER_1){
+            return ResponseUtil.custom("金额不能大于99999999");
+        }
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            return ResponseUtil.custom("账户不存在");
+        }
+        Long userId = LoginUtil.getLoginUserId();
+        SysUser sysUser = sysUserService.findById(userId);
+        String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
+        ChargeOrder chargeOrder = new ChargeOrder();
+        chargeOrder.setUserId(id);
+        //打码倍率
+        chargeOrder.setBetRate(betRate);
+        chargeOrder.setRemitter(remitter);
+        chargeOrder.setRemark(remark);
+        chargeOrder.setOrderNo(orderService.getOrderNo());
+        chargeOrder.setChargeAmount(money);
+        chargeOrder.setLastModifier(lastModifier);
+        chargeOrder.setType(user.getType());
+        Boolean aBoolean = platformConfigService.queryTotalPlatformQuota();
+        if (!aBoolean){
+            return ResponseUtil.custom("上分失败,平台额度不足");
+        }
+        ResponseEntity responseEntity = chargeOrderBusiness.saveSystemOrderSuccess(orderNo,user, chargeOrder, Constants.chargeOrder_masterControl, Constants.remitType_general, Constants.CODENUMCHANGE_MASTERCONTROL);
+        if(responseEntity.getCode()==CommonConst.NUMBER_0){
+            platformConfigService.backstage(CommonConst.NUMBER_0, new BigDecimal(chargeAmount));
+        }
+        return responseEntity;
+    }
     /**
      * 后台新增提现订单
      *

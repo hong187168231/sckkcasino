@@ -94,6 +94,16 @@ public class ChargeOrderBusiness {
         return this.saveOrder(chargeOrder,status,AccountChangeEnum.ADD_CODE,type);
     }
 
+
+    @Transactional
+    public ResponseEntity saveSystemOrderSuccess(String orderNo,User user,ChargeOrder chargeOrder,Integer status,Integer remitType,Integer type) {
+        chargeOrder.setFirstProxy(user.getFirstProxy());
+        chargeOrder.setSecondProxy(user.getSecondProxy());
+        chargeOrder.setThirdProxy(user.getThirdProxy());
+        chargeOrder.setRemitType(remitType);
+        return this.saveSystemOrder(orderNo,chargeOrder,status,AccountChangeEnum.SYSTEM_UPP,type);
+    }
+
     private ResponseEntity saveOrder(ChargeOrder chargeOrder,Integer status,AccountChangeEnum changeEnum,Integer type){
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(chargeOrder.getUserId());
         if(userMoney == null){
@@ -147,6 +157,44 @@ public class ChargeOrderBusiness {
         return ResponseUtil.success(chargeOrder.getChargeAmount());
     }
 
+
+
+    private ResponseEntity saveSystemOrder(String orderNo,ChargeOrder chargeOrder,Integer status,AccountChangeEnum changeEnum,Integer type){
+        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(chargeOrder.getUserId());
+        if(userMoney == null){
+            return ResponseUtil.custom("用户钱包不存在");
+        }
+        //输入打码倍率
+        BigDecimal codeTimes=chargeOrder.getBetRate()==null ? new BigDecimal(CommonConst.NUMBER_2) :chargeOrder.getBetRate();
+
+        chargeOrder.setStatus(status);
+        chargeOrder.setBetRate(codeTimes);
+        chargeOrder = chargeOrderService.saveOrder(chargeOrder);
+        userMoney.setMoney(userMoney.getMoney().add(chargeOrder.getChargeAmount()));
+
+        BigDecimal codeNum = chargeOrder.getChargeAmount().multiply(codeTimes);
+        userMoney.setCodeNum(userMoney.getCodeNum().add(codeNum));
+        Integer isFirst = userMoney.getIsFirst() == null ? 0 : userMoney.getIsFirst();
+        if (isFirst == 0){
+            userMoney.setIsFirst(1);
+        }
+        userMoneyService.save(userMoney);
+        userMoneyBusiness.addBalanceAdmin(userMoney.getUserId(), chargeOrder.getChargeAmount());
+        //流水表记录
+        RechargeTurnover turnover = getRechargeTurnover(chargeOrder,userMoney, codeNum, codeTimes);
+        rechargeTurnoverService.save(turnover);
+        //打吗记录
+        CodeNumChange codeNumChange = getCodeNumCharge(userMoney.getUserId(),chargeOrder.getOrderNo(),codeNum,userMoney.getCodeNum().subtract(codeNum),userMoney.getCodeNum(),type);
+        codeNumChangeService.save(codeNumChange);
+        log.info("后台上分userId {} 类型 {}订单号 {} chargeAmount is {}, money is {}",userMoney.getUserId(),
+                changeEnum.getCode(),chargeOrder.getOrderNo(),chargeOrder.getChargeAmount(), userMoney.getMoney());
+        //用户账变记录
+        this.saveSystemAccountChang(orderNo,changeEnum,userMoney.getUserId(),chargeOrder,userMoney.getMoney());
+        //发送充值消息
+        this.sendMessage(userMoney.getUserId(),isFirst,chargeOrder);
+        return ResponseUtil.success(chargeOrder.getChargeAmount());
+    }
+
     private CodeNumChange getCodeNumCharge(Long userId, String orderNo, BigDecimal codeNum, BigDecimal subtract, BigDecimal amountAfter,Integer type) {
         CodeNumChange codeNumChange = new CodeNumChange();
         codeNumChange.setUserId(userId);
@@ -171,6 +219,21 @@ public class ChargeOrderBusiness {
         change.setThirdProxy(chargeOrder.getThirdProxy());
         accountChangeService.save(change);
     }
+
+    private void saveSystemAccountChang(String orderNo,AccountChangeEnum changeEnum, Long userId, ChargeOrder chargeOrder, BigDecimal amountAfter){
+        AccountChange change=new AccountChange();
+        change.setUserId(userId);
+        change.setOrderNo(orderNo);
+        change.setType(changeEnum.getType());
+        change.setAmount(chargeOrder.getChargeAmount());
+        change.setAmountBefore(amountAfter.subtract(chargeOrder.getChargeAmount()));
+        change.setAmountAfter(amountAfter);
+        change.setFirstProxy(chargeOrder.getFirstProxy());
+        change.setSecondProxy(chargeOrder.getSecondProxy());
+        change.setThirdProxy(chargeOrder.getThirdProxy());
+        accountChangeService.save(change);
+    }
+
     public String getOrderNo(AccountChangeEnum changeEnum) {
         String orderNo = changeEnum.getCode();
         String today = DateUtil.today("yyyyMMddHHmmssSSS");
