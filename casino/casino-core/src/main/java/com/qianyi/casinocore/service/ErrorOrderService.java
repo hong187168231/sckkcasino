@@ -106,7 +106,7 @@ public class ErrorOrderService {
         errorOrderRepository.save(errorOrder);
         log.info("异常订单保存成功，errorOrder:{}",errorOrder.toString());
         //尝试3次补单
-        supplementBusiness.trySupplement(errorOrder, thirdAccount);
+//        supplementBusiness.trySupplement(errorOrder, thirdAccount);
     }
 
     public void save(ErrorOrder errorOrder) {
