@@ -25,6 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -40,6 +43,10 @@ public class ErrorOrderController {
     private UserController userController;
 
 
+    @Autowired
+    private SysUserService sysUserService;
+
+
     @ApiOperation("异常订单列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
@@ -53,7 +60,6 @@ public class ErrorOrderController {
             @ApiImplicitParam(name = "endDate", value = "结束时间", required = false),
     })
     @GetMapping("/errorOrderList")
-    @NoAuthorization
     public ResponseEntity<ErrorOrder> errorOrderList(Integer pageSize, Integer pageCode,String orderNo,Integer status,Integer type,String userName,String platform,
                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
@@ -65,9 +71,24 @@ public class ErrorOrderController {
         order.setType(type);
         order.setUserName(userName);
         order.setPlatform(platform);
+        //查询异常列表
         Page<ErrorOrder> errorOrderPage = errorOrderService.findErrorOrderPage(order, pageable, startDate, endDate);
         PageResultVO<ErrorOrder> pageResult =new PageResultVO(errorOrderPage);
-        pageResult.setContent(errorOrderPage.getContent());
+        List<ErrorOrder> content = errorOrderPage.getContent();
+        List<String> updateBys = content.stream().map(ErrorOrder::getUpdateBy).collect(Collectors.toList());
+        //根据最后操作人id查询用户列表
+        List<SysUser> userList = sysUserService.findAll(updateBys);
+        Map<Long, SysUser> userMap = userList.stream().collect(Collectors.toMap(SysUser::getId, a -> a, (k1, k2) -> k1));
+        content.stream().forEach(info ->{
+            if (info.getUpdateBy()!=null){
+                SysUser user = userMap.get(Long.valueOf(info.getUpdateBy()));
+                if (user!=null){
+                    info.setUpdateBy(user.getUserName());
+                }
+            }
+
+        });
+        pageResult.setContent(content);
         return ResponseUtil.success(pageResult);
     }
 
@@ -97,7 +118,12 @@ public class ErrorOrderController {
                 return ResponseUtil.fail();
             }
         }
-       errorOrderService.updateErrorOrdersRemark(status,order.getId());
+        Long loginUserId = LoginUtil.getLoginUserId();
+        SysUser sysLogin = sysUserService.findById(loginUserId);
+        order.setUpdateBy(sysLogin==null?null:sysLogin.getUserName());
+        order.setStatus(status);
+        errorOrderService.save(order);
+        //errorOrderService.updateErrorOrdersRemark(status,order.getId());
         return ResponseUtil.success();
     }
 }
