@@ -94,6 +94,7 @@ public class ErrorOrderService {
 
     @Async("asyncExecutor")
     public void syncSaveErrorOrder(String thirdAccount, Long userId, String account, String orderNo, BigDecimal money, AccountChangeEnum ChangeEnum, String platform) {
+        log.info("开始记录异常订单，userId:{},account:{},money:{}",userId,account,money);
         ErrorOrder errorOrder = new ErrorOrder();
         errorOrder.setUserId(userId);
         errorOrder.setUserName(account);
@@ -103,6 +104,7 @@ public class ErrorOrderService {
         errorOrder.setType(ChangeEnum.getType());
         errorOrder.setPlatform(platform);
         errorOrderRepository.save(errorOrder);
+        log.info("异常订单保存成功，errorOrder:{}",errorOrder.toString());
         //尝试3次补单
         supplementBusiness.trySupplement(errorOrder, thirdAccount);
     }

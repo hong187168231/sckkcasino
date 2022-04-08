@@ -58,9 +58,7 @@ public class SupplementBusiness {
                 }
                 if (entity.getErrorCode() == 107) {
                     log.info("订单号:{}查询无记录", orderNo);
-                    errorOrder.setStatus(1);
-                    errorOrder.setRemark("自动补单成功,补单金额:0,订单查询无记录");
-                    errorOrderRepository.save(errorOrder);
+                    addMoneySaveAccountChange(errorOrder, errorOrder.getMoney(), orderNo);
                     break;
                 }
                 if (entity.getErrorCode() != 0) {
@@ -72,24 +70,7 @@ public class SupplementBusiness {
 
                 for (WmMemberTradeReportVo vo : records) {
                     if (thirdAccount.equals(vo.getUser()) && orderNo.equals(vo.getOrdernum())) {
-                        BigDecimal amount = new BigDecimal(vo.getMoney()).abs();
-                        userMoneyService.addMoney(errorOrder.getUserId(), amount);
-                        log.info("userMoney表金额补偿成功,userId={},money={}", errorOrder.getUserId(), amount);
-                        errorOrder.setStatus(1);
-                        errorOrder.setRemark("自动补单成功,补单金额:" + amount);
-                        errorOrderRepository.save(errorOrder);
-                        log.info("订单自动补单成功,errorOrder表更新成功,errorOrder={}", errorOrder.toString());
-                        //账变中心记录账变
-                        UserMoney userMoney = userMoneyService.findByUserId(errorOrder.getUserId());
-                        AccountChangeVo accountChangeVo = new AccountChangeVo();
-                        accountChangeVo.setUserId(errorOrder.getUserId());
-                        accountChangeVo.setChangeEnum(AccountChangeEnum.SYSTEM_UPP);
-                        accountChangeVo.setAmount(amount);
-                        accountChangeVo.setAmountBefore(userMoney.getMoney());
-                        accountChangeVo.setAmountAfter(userMoney.getMoney().subtract(amount));
-                        accountChangeVo.setOrderNo(orderNo);
-                        asyncService.executeAsync(accountChangeVo);
-                        log.info("订单自动补单成功,AccountChange表账变记录成功,AccountChange={}", accountChangeVo.toString());
+                        addMoneySaveAccountChange(errorOrder, new BigDecimal(vo.getMoney()), orderNo);
                         break;
                     }
                 }
@@ -99,5 +80,26 @@ public class SupplementBusiness {
                 log.error("查询WM交易记录时异常,msg={}", e.getMessage());
             }
         }
+    }
+
+    public void addMoneySaveAccountChange(ErrorOrder errorOrder,BigDecimal money,String orderNo){
+        BigDecimal amount = money.abs();
+        userMoneyService.addMoney(errorOrder.getUserId(), amount);
+        log.info("userMoney表金额补偿成功,userId={},money={}", errorOrder.getUserId(), amount);
+        errorOrder.setStatus(1);
+        errorOrder.setRemark("自动补单成功,补单金额:" + amount);
+        errorOrderRepository.save(errorOrder);
+        log.info("订单自动补单成功,errorOrder表更新成功,errorOrder={}", errorOrder.toString());
+        //账变中心记录账变
+        UserMoney userMoney = userMoneyService.findByUserId(errorOrder.getUserId());
+        AccountChangeVo accountChangeVo = new AccountChangeVo();
+        accountChangeVo.setUserId(errorOrder.getUserId());
+        accountChangeVo.setChangeEnum(AccountChangeEnum.SYSTEM_UPP);
+        accountChangeVo.setAmount(amount);
+        accountChangeVo.setAmountBefore(userMoney.getMoney());
+        accountChangeVo.setAmountAfter(userMoney.getMoney().subtract(amount));
+        accountChangeVo.setOrderNo(orderNo);
+        asyncService.executeAsync(accountChangeVo);
+        log.info("订单自动补单成功,AccountChange表账变记录成功,AccountChange={}", accountChangeVo.toString());
     }
 }

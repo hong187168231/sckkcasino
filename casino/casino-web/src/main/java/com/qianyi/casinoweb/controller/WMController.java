@@ -157,13 +157,13 @@ public class WMController {
             String orderNo = orderService.getOrderNo();
             PublicWMApi.ResponseEntity entity = wmApi.changeBalance(third.getAccount(), userCenterMoney, orderNo, lang);
             if (entity == null) {
-                log.error("userId:{},account{},money:{},进游戏加扣点失败",third.getUserId(),user.getAccount(),userCenterMoney);
+                log.error("userId:{},account:{},money:{},进游戏加扣点失败",third.getUserId(),user.getAccount(),userCenterMoney);
                 //异步记录错误订单并重试补偿
                 errorOrderService.syncSaveErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.WM_IN, Constants.PLATFORM_WM_BIG);
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
             if (entity.getErrorCode() != 0) {
-                log.error("进游戏加扣点失败,userId:{},account={},money:{},errorCode={},errorMsg={}",third.getUserId(),user.getAccount(),userCenterMoney, entity.getErrorCode(), entity.getErrorMessage());
+                log.error("进游戏加扣点失败,userId:{},account:{},money:{},errorCode={},errorMsg={}",third.getUserId(),user.getAccount(),userCenterMoney, entity.getErrorCode(), entity.getErrorMessage());
                 //三方加扣点失败再把钱加回来
                 userMoneyService.addMoney(authId, userCenterMoney);
                 return ResponseUtil.custom("加点失败,请联系客服");
@@ -197,7 +197,7 @@ public class WMController {
         //获取进游戏地址
         String url = getOpenGameUrl(request, third, mode, lang,platformConfig);
         if (CommonUtil.checkNull(url)) {
-            log.error("userId:{},account={},进游戏失败",third.getUserId(),user.getAccount());
+            log.error("userId:{},account:{},进游戏失败",third.getUserId(),user.getAccount());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         return ResponseUtil.success(url);
