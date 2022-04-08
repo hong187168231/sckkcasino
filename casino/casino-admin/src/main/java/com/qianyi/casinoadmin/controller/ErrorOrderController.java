@@ -103,6 +103,7 @@ public class ErrorOrderController {
             @ApiImplicitParam(name = "status", value = "状态(0.失败、1.自动补单成功、2.后台审核通过、3.后台拒绝、4.后台审核通过上分)", required = false)
     })
     @PostMapping("/updateErrorOrdersStatus")
+    @NoAuthorization
     public ResponseEntity updateErrorOrdersStatus(Long id,Integer status){
         if (LoginUtil.checkNull(id) || LoginUtil.checkNull(status)){
             ResponseUtil.custom("参数不合法");
@@ -118,12 +119,8 @@ public class ErrorOrderController {
                 return ResponseUtil.fail();
             }
         }
-        Long loginUserId = LoginUtil.getLoginUserId();
-        SysUser sysLogin = sysUserService.findById(loginUserId);
-        order.setUpdateBy(sysLogin==null?null:sysLogin.getUserName());
         order.setStatus(status);
         errorOrderService.save(order);
-        //errorOrderService.updateErrorOrdersRemark(status,order.getId());
         return ResponseUtil.success();
     }
 }
