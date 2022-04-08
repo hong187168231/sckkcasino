@@ -181,7 +181,8 @@ public class HttpClient4Util {
             log.info("doPost请求返回参数{}",result);
         } catch (ClientProtocolException e) {
             e.printStackTrace();
-        } catch (Exception e) {
+        } catch (Throwable e) {
+            log.error("http远程请求异常,msg={}",e.getMessage());
             e.printStackTrace();
         } finally {
             // 关闭资源
