@@ -60,10 +60,11 @@ public class ErrorOrderController {
             @ApiImplicitParam(name = "endDate", value = "结束时间", required = false),
     })
     @GetMapping("/errorOrderList")
+    @NoAuthorization
     public ResponseEntity<ErrorOrder> errorOrderList(Integer pageSize, Integer pageCode,String orderNo,Integer status,Integer type,String userName,String platform,
                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
-        Sort sort = Sort.by("id").descending();
+        Sort sort = Sort.by("updateTime").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         ErrorOrder order = new ErrorOrder();
         order.setOrderNo(orderNo);
