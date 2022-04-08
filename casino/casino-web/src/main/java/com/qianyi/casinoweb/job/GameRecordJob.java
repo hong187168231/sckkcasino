@@ -207,6 +207,8 @@ public class GameRecordJob {
                 gameRecordAsyncOper.shareProfit(Constants.PLATFORM_WM,record);
                 //返利
                 gameRecordAsyncOper.rebate(Constants.PLATFORM_WM,record);
+                //发送注单消息到MQ后台要统计数据
+                gameRecordAsyncOper.proxyGameRecordReport(Constants.PLATFORM_WM,record);
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("保存游戏记录时报错,message={}", e.getMessage());

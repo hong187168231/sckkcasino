@@ -3,6 +3,7 @@ package com.qianyi.casinocore.business;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.vo.ProxyGameRecordReportVo;
 import com.qianyi.casinocore.vo.ShareProfitMqVo;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
@@ -335,5 +336,20 @@ public class UserMoneyBusiness {
             rate = rebateConfiguration.getCQ9Rate();
         }
         return rate;
+    }
+
+    public void proxyGameRecordReport(String platform, GameRecord record) {
+        log.info("开始推送后台proxyGameRecordReport MQ消息,平台={},注单ID={},注单明细={}", platform, record.getBetId(), record.toString());
+        ProxyGameRecordReportVo vo = new ProxyGameRecordReportVo();
+        vo.setOrderId(record.getBetId());
+        vo.setFirstProxy(record.getFirstProxy());
+        vo.setSecondProxy(record.getSecondProxy());
+        vo.setThirdProxy(record.getThirdProxy());
+        vo.setOrderTimes(record.getBetTime());
+        vo.setUserId(record.getUserId());
+        vo.setValidAmount(new BigDecimal(record.getValidbet()));
+        vo.setWinLoss(new BigDecimal(record.getWinLoss()));
+        rabbitTemplate.convertAndSend(RabbitMqConstants.PROXYG_AMERECORD_REPORT_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.PROXYG_AMERECORD_REPORT_DIRECT, vo, new CorrelationData(UUID.randomUUID().toString()));
+        log.info("proxyGameRecordReport MQ消息发送成功,平台={},注单ID={},消息明细={}", platform, record.getBetId(), vo);
     }
 }

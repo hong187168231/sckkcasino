@@ -76,6 +76,15 @@ public class GameRecordAsyncOper {
     }
 
     /**
+     * 异步推送MQ消息
+     * @param platform
+     * @param record
+     */
+    @Async("asyncExecutor")
+    public void proxyGameRecordReport(String platform, GameRecord record) {
+        userMoneyBusiness.proxyGameRecordReport(platform, record);
+    }
+    /**
      * 异步给TG机器人发送消息
      *
      * @param msg

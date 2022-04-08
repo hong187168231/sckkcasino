@@ -257,6 +257,8 @@ public class GameRecordGoldenFJob {
         gameRecordAsyncOper.shareProfit(gameRecordGoldenF.getVendorCode(), gameRecord);
         //返利
         gameRecordAsyncOper.rebate(gameRecordGoldenF.getVendorCode(), gameRecord);
+        //发送注单消息到MQ后台要统计数据
+        gameRecordAsyncOper.proxyGameRecordReport(gameRecordGoldenF.getVendorCode(),gameRecord);
     }
 
 
@@ -273,6 +275,10 @@ public class GameRecordGoldenFJob {
         gameRecord.setFirstProxy(item.getFirstProxy());
         gameRecord.setSecondProxy(item.getSecondProxy());
         gameRecord.setThirdProxy(item.getThirdProxy());
+        if (item.getWinAmount() != null && item.getBetAmount() != null) {
+            BigDecimal winLoss = item.getWinAmount().subtract(item.getBetAmount());
+            gameRecord.setWinLoss(winLoss.toString());
+        }
         return gameRecord;
     }
 
