@@ -103,10 +103,10 @@ public class ErrorOrderService {
         errorOrder.setMoney(money.abs());
         errorOrder.setType(ChangeEnum.getType());
         errorOrder.setPlatform(platform);
-        errorOrderRepository.save(errorOrder);
+        ErrorOrder order = errorOrderRepository.save(errorOrder);
         log.info("异常订单保存成功，errorOrder:{}",errorOrder.toString());
         //尝试3次补单
-        supplementBusiness.trySupplement(errorOrder, thirdAccount);
+        supplementBusiness.trySupplement(order, thirdAccount);
     }
 
     public void save(ErrorOrder errorOrder) {

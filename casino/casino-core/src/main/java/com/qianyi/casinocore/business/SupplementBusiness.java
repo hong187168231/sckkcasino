@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -61,11 +62,13 @@ public class SupplementBusiness {
                     //转入wm时，wm查询无记录说明wm加点失败，要把本地的钱加回来，
                     if (errorOrder.getType() == AccountChangeEnum.WM_IN.getType()) {
                         //更新错误订单表状态
-                        updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + errorOrder.getMoney() + ",转入WM时加点失败,加回本地额度");
-                        //加回额度
-                        addMoney(errorOrder.getUserId(), errorOrder.getMoney());
-                        //记录账变
-                        saveAccountChange(errorOrder, errorOrder.getMoney());
+                        Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + errorOrder.getMoney() + ",转入WM时加点失败,加回本地额度");
+                        if (count > 0) {
+                            //加回额度
+                            addMoney(errorOrder.getUserId(), errorOrder.getMoney());
+                            //记录账变
+                            saveAccountChange(errorOrder, errorOrder.getMoney());
+                        }
                     } else if (errorOrder.getType() == AccountChangeEnum.RECOVERY.getType()) {
                         //转出wm时，是先扣减wm的钱再加回本地，wm查询无记录说明没有扣点成功，本地也不用把钱加回来,更新状态就行
                         updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转出WM时扣点失败,额度未丢失");
@@ -84,19 +87,20 @@ public class SupplementBusiness {
                             //转入wm,本地先扣减，确认三方加点成功无需加回本地余额
                             if (vo.getOp_code() == 121 && errorOrder.getType() == AccountChangeEnum.WM_IN.getType()) {
                                 updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转入WM时加点成功,额度未丢失");
-                                break;
                                 //转出WM时，三方先扣减，确认三方扣点成功加回本地余额
                             } else if (vo.getOp_code() == 122 && errorOrder.getType() == AccountChangeEnum.RECOVERY.getType()) {
                                 //以WM额度为准
                                 BigDecimal money = new BigDecimal(vo.getMoney()).abs();
                                 //更新错误订单表状态
-                                updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + money + ",转出WM时扣点成功,加回本地额度");
-                                //加回额度
-                                addMoney(errorOrder.getUserId(), money);
-                                //记录账变
-                                saveAccountChange(errorOrder, money);
-                                break;
+                                Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + money + ",转出WM时扣点成功,加回本地额度");
+                                if (count > 0) {
+                                    //加回额度
+                                    addMoney(errorOrder.getUserId(), money);
+                                    //记录账变
+                                    saveAccountChange(errorOrder, money);
+                                }
                             }
+                            break;
                         }
                     }
                     break;
@@ -113,11 +117,11 @@ public class SupplementBusiness {
         log.info("订单自动补单成功,userMoney表金额补偿成功,userId={},money={}", userId, money);
     }
 
-    public void updateErrorOrderStatus(ErrorOrder errorOrder, String remark) {
-        errorOrder.setStatus(1);
-        errorOrder.setRemark(remark);
-        errorOrderRepository.save(errorOrder);
+    public Integer updateErrorOrderStatus(ErrorOrder errorOrder, String remark) {
+        //调save方法更新无效，所以自定义方法
+        Integer count = errorOrderRepository.updateErrorStatusRemark(1, remark, errorOrder.getId());
         log.info("订单自动补单成功,errorOrder表更新成功,errorOrder={}", errorOrder.toString());
+        return count;
     }
 
     public void saveAccountChange(ErrorOrder errorOrder, BigDecimal money) {

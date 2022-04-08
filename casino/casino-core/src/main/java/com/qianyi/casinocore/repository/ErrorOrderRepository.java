@@ -14,4 +14,8 @@ public interface ErrorOrderRepository extends JpaRepository<ErrorOrder, Long>, J
     @Modifying
     @Query(value = "update error_order c set c.status = ?1 where  c.id = ?2",nativeQuery = true)
     void updateErrorOrdersRemark(Integer status,Long id);
+
+    @Modifying
+    @Query(value = "update error_order c set c.status = ?1,c.remark = ?2 where  c.id = ?3 and c.status=0",nativeQuery = true)
+    Integer updateErrorStatusRemark(Integer status,String remark,Long id);
 }
