@@ -14,8 +14,8 @@ public class RebateSqlConst {
     ifnull(rd_t.user_amount,0) user_amount,
     ifnull(rd_t.surplus_amount,0) surplus_amount,
     ifnull(withdraw_t.service_charge,0) service_charge,
-    -(ifnull(main_t.win_loss,0)+ifnull(rd_t.user_amount,0)) avg_benefit,
-    -(ifnull(main_t.win_loss,0)+ifnull(rd_t.user_amount,0))+ifnull(withdraw_t.service_charge,0) total_amount
+    -(ifnull(main_t.win_loss,0)+ifnull(rd_t.total_amount,0)) avg_benefit,
+        -(ifnull(main_t.win_loss,0)+ifnull(rd_t.total_amount,0))+ifnull(withdraw_t.service_charge,0) total_amount
     from user u left join (
         select user_id ,
         count(1) num,
@@ -29,7 +29,7 @@ public class RebateSqlConst {
     left join (
         select user_id ,
         sum(total_amount) total_amount,
-        sum(user_amount) user_amount,
+    sum(user_amount) user_amount,
     sum(surplus_amount) surplus_amount
     from rebate_detail rd
     where create_time >= {0} and create_time <= {1}
@@ -60,8 +60,8 @@ public class RebateSqlConst {
     ifnull(rd_t.user_amount,0) user_amount,
     ifnull(rd_t.surplus_amount,0) surplus_amount,
     ifnull(withdraw_t.service_charge,0) service_charge,
-    -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.user_amount,0)) avg_benefit,
-    -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.user_amount,0))+ifnull(withdraw_t.service_charge,0) total_amount
+    -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0)) avg_benefit,
+        -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0))+ifnull(withdraw_t.service_charge,0) total_amount
     from user u left join (
         select user_id ,
         count(1) num,
@@ -114,8 +114,8 @@ public class RebateSqlConst {
     ifnull(rd_t.user_amount,0) user_amount,
     ifnull(rd_t.surplus_amount,0) surplus_amount,
     ifnull(withdraw_t.service_charge,0) service_charge,
-    -(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.user_amount,0)) avg_benefit,
-    -(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.user_amount,0))+ifnull(withdraw_t.service_charge,0) total_amount
+    -(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0)) avg_benefit,
+        -(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0))+ifnull(withdraw_t.service_charge,0) total_amount
     from user u left join (
         select user_id ,
         count(1) num,
@@ -160,8 +160,8 @@ public class RebateSqlConst {
     ifnull(rd_t.user_amount,0) user_amount,
     ifnull(rd_t.surplus_amount,0) surplus_amount,
     ifnull(withdraw_t.service_charge,0) service_charge,
-    -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.user_amount,0)) avg_benefit,
-    -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.user_amount,0))+ifnull(withdraw_t.service_charge,0) total_amount
+    -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0)) avg_benefit,
+        -(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0))+ifnull(withdraw_t.service_charge,0) total_amount
     from user u left join (
         select
             user_id ,
@@ -215,8 +215,8 @@ public class RebateSqlConst {
     ifnull(rd_t.user_amount,0) user_amount,
     ifnull(rd_t.surplus_amount,0) surplus_amount,
     ifnull(withdraw_t.service_charge,0) service_charge,
-    -(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.user_amount,0)) avg_benefit,
-    -(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.user_amount,0))+ifnull(withdraw_t.service_charge,0) total_amount
+    -(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0)) avg_benefit,
+        -(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0))+ifnull(withdraw_t.service_charge,0) total_amount
     from user u
     left join (
         select user_id ,
@@ -260,8 +260,8 @@ public class RebateSqlConst {
     ifnull(rd_t.user_amount,0) user_amount,
     ifnull(rd_t.surplus_amount,0) surplus_amount,
     ifnull(withdraw_t.service_charge,0) service_charge,
-    -(ifnull(main_t.win_loss,0)+ifnull(rd_t.user_amount,0)) avg_benefit,
-    -(ifnull(main_t.win_loss,0)+ifnull(rd_t.user_amount,0))+ifnull(withdraw_t.service_charge,0) total_amount
+    -(ifnull(main_t.win_loss,0)+ifnull(rd_t.total_amount,0)) avg_benefit,
+        -(ifnull(main_t.win_loss,0)+ifnull(rd_t.total_amount,0))+ifnull(withdraw_t.service_charge,0) total_amount
     from user u
     left join (
         select
@@ -304,8 +304,8 @@ public class RebateSqlConst {
     sum(ifnull(rd_t.user_amount,0)) user_amount,
     sum(ifnull(rd_t.surplus_amount,0)) surplus_amount,
     sum(ifnull(withdraw_t.service_charge,0)) service_charge,
-    sum(-(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.user_amount,0))) avg_benefit,
-    sum(-(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.user_amount,0))+ifnull(withdraw_t.service_charge,0)) total_amount
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0))) avg_benefit,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0))+ifnull(withdraw_t.service_charge,0)) total_amount
     from user u left join (
         select user_id ,
         count(1) num,
@@ -354,8 +354,8 @@ public class RebateSqlConst {
     sum(ifnull(rd_t.user_amount,0)) user_amount,
     sum(ifnull(rd_t.surplus_amount,0)) surplus_amount,
     sum(ifnull(withdraw_t.service_charge,0)) service_charge,
-    sum(-(ifnull(main_t.win_loss,0)+ifnull(rd_t.user_amount,0))) avg_benefit,
-    sum(-(ifnull(main_t.win_loss,0)+ifnull(rd_t.user_amount,0))+ifnull(withdraw_t.service_charge,0)) total_amount
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(rd_t.total_amount,0))) avg_benefit,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(rd_t.total_amount,0))+ifnull(withdraw_t.service_charge,0)) total_amount
     from user u
     left join (
         select user_id ,
@@ -396,8 +396,8 @@ public class RebateSqlConst {
     sum(ifnull(rd_t.user_amount,0)) user_amount,
     sum(ifnull(rd_t.surplus_amount,0)) surplus_amount,
     sum(ifnull(withdraw_t.service_charge,0)) service_charge,
-    sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.user_amount,0))) avg_benefit,
-    sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.user_amount,0))+ifnull(withdraw_t.service_charge,0)) total_amount
+    sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0))) avg_benefit,
+    sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0))+ifnull(withdraw_t.service_charge,0)) total_amount
     from user u
     left join (
         select user_id ,
