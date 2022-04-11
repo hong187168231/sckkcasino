@@ -112,7 +112,7 @@ public class InTimeReportController {
                 if (vo.getUserAmount()==null){
                     vo.setUserAmount(BigDecimal.ZERO);
                 }
-                vo.setTotalWinLossAmount(vo.getWinLossAmount().add(vo.getAmount()).add(vo.getUserAmount()));
+                vo.setTotalWinLossAmount(vo.getWinLossAmount().add(vo.getAmount()).add(vo.getUserAmount()).add(vo.getSurplusAmount()));
                 vo.setAccountId(gameRecordReport1.getId());
                 proxyUsers.stream().forEach(proxyUser -> {
                     if (gameRecordReport1.getFirstProxy().equals(proxyUser.getId())){
@@ -175,7 +175,7 @@ public class InTimeReportController {
         gameRecordReportTotalVo.setAmount(recordRecordSum.getAmount()!= null? recordRecordSum.getAmount() : BigDecimal.ZERO);
         gameRecordReportTotalVo.setSurplusAmount(recordRecordSum.getSurplusAmount()!=null?recordRecordSum.getSurplusAmount():BigDecimal.ZERO);
         gameRecordReportTotalVo.setUserAmount(recordRecordSum.getUserAmount()!=null?recordRecordSum.getUserAmount():BigDecimal.ZERO);
-        gameRecordReportTotalVo.setTotalWinLossAmount(gameRecordReportTotalVo.getWinLossAmount().add(gameRecordReportTotalVo.getAmount()).add(gameRecordReportTotalVo.getUserAmount()));
+        gameRecordReportTotalVo.setTotalWinLossAmount(gameRecordReportTotalVo.getWinLossAmount().add(gameRecordReportTotalVo.getAmount()).add(gameRecordReportTotalVo.getUserAmount()).add(gameRecordReportTotalVo.getSurplusAmount()));
         return ResponseUtil.success(gameRecordReportTotalVo);
 
     }
