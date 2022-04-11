@@ -341,6 +341,7 @@ public class UserMoneyBusiness {
     public void proxyGameRecordReport(String platform, GameRecord record) {
         log.info("开始推送后台proxyGameRecordReport MQ消息,平台={},注单ID={},注单明细={}", platform, record.getBetId(), record.toString());
         ProxyGameRecordReportVo vo = new ProxyGameRecordReportVo();
+        vo.setPlatform(platform);
         vo.setOrderId(record.getBetId());
         vo.setFirstProxy(record.getFirstProxy());
         vo.setSecondProxy(record.getSecondProxy());
