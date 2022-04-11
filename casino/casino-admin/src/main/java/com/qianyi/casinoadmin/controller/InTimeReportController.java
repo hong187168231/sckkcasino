@@ -112,6 +112,9 @@ public class InTimeReportController {
                 if (vo.getUserAmount()==null){
                     vo.setUserAmount(BigDecimal.ZERO);
                 }
+                if (vo.getSurplusAmount()==null){
+                    vo.setSurplusAmount(BigDecimal.ZERO);
+                }
                 vo.setTotalWinLossAmount(vo.getWinLossAmount().add(vo.getAmount()).add(vo.getUserAmount()).add(vo.getSurplusAmount()));
                 vo.setAccountId(gameRecordReport1.getId());
                 proxyUsers.stream().forEach(proxyUser -> {
