@@ -214,6 +214,8 @@ public class GameRecordGoldenFJob {
             //改变用户实时余额
             changeUserBalance(item);
             GameRecord gameRecord = combineGameRecord(item);
+            //发送注单消息到MQ后台要统计数据
+            gameRecordAsyncOper.proxyGameRecordReport(item.getVendorCode(),gameRecord);
             processBusiness(item, gameRecord, platformConfig);
         } catch (Exception e) {
             log.error("注单数据保存失败,msg={}", e.getMessage());
@@ -257,8 +259,6 @@ public class GameRecordGoldenFJob {
         gameRecordAsyncOper.shareProfit(gameRecordGoldenF.getVendorCode(), gameRecord);
         //返利
         gameRecordAsyncOper.rebate(gameRecordGoldenF.getVendorCode(), gameRecord);
-        //发送注单消息到MQ后台要统计数据
-        gameRecordAsyncOper.proxyGameRecordReport(gameRecordGoldenF.getVendorCode(),gameRecord);
     }
 
 

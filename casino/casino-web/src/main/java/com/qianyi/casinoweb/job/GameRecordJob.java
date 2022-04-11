@@ -194,6 +194,8 @@ public class GameRecordJob {
                 GameRecord record = save(gameRecord);
                 //计算用户账号实时余额
                 changeUserBalance(account.getUserId(),gameRecord.getResult());
+                //发送注单消息到MQ后台要统计数据
+                gameRecordAsyncOper.proxyGameRecordReport(Constants.PLATFORM_WM,record);
                 if (validbet.compareTo(BigDecimal.ZERO) == 0) {
                     continue;
                 }
@@ -207,8 +209,6 @@ public class GameRecordJob {
                 gameRecordAsyncOper.shareProfit(Constants.PLATFORM_WM,record);
                 //返利
                 gameRecordAsyncOper.rebate(Constants.PLATFORM_WM,record);
-                //发送注单消息到MQ后台要统计数据
-                gameRecordAsyncOper.proxyGameRecordReport(Constants.PLATFORM_WM,record);
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("保存游戏记录时报错,message={}", e.getMessage());
