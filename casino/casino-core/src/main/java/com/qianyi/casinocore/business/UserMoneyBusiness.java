@@ -350,6 +350,7 @@ public class UserMoneyBusiness {
         vo.setUserId(record.getUserId());
         vo.setValidAmount(new BigDecimal(record.getValidbet()));
         vo.setWinLoss(new BigDecimal(record.getWinLoss()));
+        vo.setGameRecordId(record.getId());
         rabbitTemplate.convertAndSend(RabbitMqConstants.PROXYG_AMERECORD_REPORT_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.PROXYG_AMERECORD_REPORT_DIRECT, vo, new CorrelationData(UUID.randomUUID().toString()));
         log.info("proxyGameRecordReport MQ消息发送成功,平台={},注单ID={},消息明细={}", platform, record.getBetId(), vo);
     }
