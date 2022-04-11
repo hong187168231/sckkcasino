@@ -344,7 +344,9 @@ public class GameRecordReportNewService {
             builder.sum(root.get("amount").as(BigDecimal.class)).alias("amount"),
             builder.sum(root.get("betAmount").as(BigDecimal.class)).alias("betAmount"),
             builder.sum(root.get("validAmount").as(BigDecimal.class)).alias("validAmount"),
-            builder.sum(root.get("winLossAmount").as(BigDecimal.class)).alias("winLossAmount")
+            builder.sum(root.get("winLossAmount").as(BigDecimal.class)).alias("winLossAmount"),
+                builder.sum(root.get("userAmount").as(BigDecimal.class)).alias("userAmount"),
+                builder.sum(root.get("surplusAmount").as(BigDecimal.class)).alias("surplusAmount")
         );
 
         List<Predicate> predicates = new ArrayList();
