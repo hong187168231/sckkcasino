@@ -53,7 +53,7 @@ public interface GameRecordGoldenFRepository extends JpaRepository<GameRecordGol
         "COUNT(1) num,SUM(g.bet_amount) bet,SUM(g.bet_amount) validbet,SUM(g.win_amount) win_loss," +
         " ifnull(SUM(w.amount),0) amount from game_record_goldenf g left join  " +
         "wash_code_change w  on  w.game_record_id = g.id and w.platform = ?3 " +
-            "LEFT JOIN  rebate_detail d on d.game_record_id=g.id" +
+            "LEFT JOIN  rebate_detail d on d.game_record_id=g.id  and d.platform = ?3 " +
             " where g.id > ?1 and g.vendor_code = ?3 " +
         " GROUP BY g.third_proxy,LEFT(g.create_at_str,?2)  ",nativeQuery = true)
     List<Map<String,Object>> queryGameRecords(Long id,Integer num,String platform);
