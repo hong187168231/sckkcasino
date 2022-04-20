@@ -83,6 +83,7 @@ public class Constants {
     public final static String PLATFORM_PG = "PG";
     public final static String PLATFORM_CQ9 = "CQ9";
     public final static String PLATFORM_PG_CQ9 = "PG/CQ9";
+    public final static String PLATFORM_OBDJ = "OBDJ";
     //校验数字
     public static final String regex = "^[0-9]*$";
     //校验手机号

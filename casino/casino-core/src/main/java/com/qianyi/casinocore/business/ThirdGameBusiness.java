@@ -7,6 +7,7 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
+import com.qianyi.liveob.api.PublicObApi;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.executor.AsyncService;
@@ -17,8 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
@@ -39,6 +38,8 @@ public class ThirdGameBusiness {
     private PublicGoldenFApi goldenFApi;
     @Autowired
     private PublicWMApi wmApi;
+    @Autowired
+    private PublicObApi obApi;
     @Autowired
     private PlatformGameService platformGameService;
     @Autowired
@@ -189,6 +190,16 @@ public class ThirdGameBusiness {
         }
         JSONObject jsonData = JSONObject.parseObject(playerBalance.getData());
         BigDecimal balance = new BigDecimal(jsonData.getDouble("balance"));
+        return ResponseUtil.success(balance);
+    }
+
+    public ResponseEntity<BigDecimal> getBalanceOb(String account, Long userId) {
+        PublicObApi.ResponseEntity balanceResult = obApi.getBalance(account);
+        if (PublicObApi.STATUS_FALSE.equals(balanceResult.getStatus())) {
+            log.error("userId:{},查询余额失败,msg:{}", userId,balanceResult.getData());
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        BigDecimal balance = new BigDecimal(balanceResult.getData());
         return ResponseUtil.success(balance);
     }
 

@@ -36,6 +36,13 @@ public class OrderService {
         orderNo = orderNo + today + randNum;
         return orderNo;
     }
+    //生成OB订单号
+    public String getObOrderNo() {
+        String today = DateUtil.today("yyyyMMddHHmmssSSS");
+        String randNum = CommonUtil.random(3);
+        String orderNo = today + randNum;
+        return orderNo;
+    }
 
     public Order save(Order order) {
         return orderRepository.save(order);

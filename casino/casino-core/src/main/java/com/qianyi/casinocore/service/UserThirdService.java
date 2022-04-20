@@ -22,7 +22,8 @@ public class UserThirdService {
     }
     @Caching(
             put = {@CachePut(key = "#result.userId"), @CachePut(key = "'findByAccount::'+#result.account",condition = "#result.account != null"),
-                    @CachePut(key = "'findByGoldenfAccount::'+#result.goldenfAccount",condition = "#result.goldenfAccount != null")}
+                    @CachePut(key = "'findByGoldenfAccount::'+#result.goldenfAccount",condition = "#result.goldenfAccount != null"),
+                    @CachePut(key = "'findByObAccount::'+#result.obAccount",condition = "#result.obAccount != null")}
     )
     public UserThird save(UserThird third) {
         return userThirdRepository.save(third);
@@ -36,6 +37,11 @@ public class UserThirdService {
     @Cacheable(key = "#root.methodName+'::'+#p0")
     public UserThird findByGoldenfAccount(String account) {
         return userThirdRepository.findByGoldenfAccount(account);
+    }
+
+    @Cacheable(key = "#root.methodName+'::'+#p0")
+    public UserThird findByObAccount(String account) {
+        return userThirdRepository.findByObAccount(account);
     }
 
     public List<UserThird> findAllAcount(){

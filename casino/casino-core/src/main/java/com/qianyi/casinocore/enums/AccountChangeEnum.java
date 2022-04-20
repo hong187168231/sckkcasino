@@ -18,6 +18,8 @@ public enum AccountChangeEnum {
     PG_CQ9_IN(10, "PGCQ9IN","PG/CQ9转入"),
     PG_CQ9_OUT(11, "PGCQ9OUT","PG/CQ9转出"),
     SYSTEM_UPP (12, "SystemUpp","系统上分"),
+    OB_IN(13, "OBIN","OB转入"),
+    OB_OUT(14, "OBOUT","OB转出"),
     ;
 
     private Integer type;
