@@ -7,6 +7,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 @Entity
@@ -101,8 +102,14 @@ public class GameRecordOb extends BaseEntity{
     @ApiModelProperty(value = "投注时间（毫秒）")
     private Long betTime;
 
+    @ApiModelProperty(value = "投注时间（yyyy-MM-dd HH:mm:ss）")
+    private Date betDateTime;
+
     @ApiModelProperty(value = "结算时间（秒）")
     private Long settleTime;
+
+    @ApiModelProperty(value = "结算时间（yyyy-MM-dd HH:mm:ss）")
+    private Date setDateTime;
 
     @ApiModelProperty(value = "赛事开始时间（秒）")
     private Long matchStartTime;
