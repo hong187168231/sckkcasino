@@ -145,4 +145,13 @@ public class GameRecordOb extends BaseEntity{
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal exchangeRate;
 
+    @ApiModelProperty("总代ID")
+    private Long firstProxy;
+
+    @ApiModelProperty("区域代理ID")
+    private Long secondProxy;
+
+    @ApiModelProperty("基层代理ID")
+    private Long thirdProxy;
+
 }
