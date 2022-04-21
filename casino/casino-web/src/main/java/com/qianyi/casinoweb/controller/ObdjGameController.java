@@ -7,7 +7,7 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
-import com.qianyi.liveob.api.PublicObDjApi;
+import com.qianyi.liveob.api.PublicObdjApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.executor.AsyncService;
@@ -46,7 +46,7 @@ public class ObdjGameController {
     @Autowired
     private OrderService orderService;
     @Autowired
-    private PublicObDjApi obApi;
+    private PublicObdjApi obApi;
     @Autowired
     private ThirdGameBusiness thirdGameBusiness;
     @Autowired
@@ -104,14 +104,14 @@ public class ObdjGameController {
             userMoneyService.subMoney(authId, userCenterMoney);
             String orderNo = orderService.getObOrderNo();
             //加点
-            PublicObDjApi.ResponseEntity transfer = obApi.transfer(third.getObAccount(), 1, userCenterMoney, orderNo);
+            PublicObdjApi.ResponseEntity transfer = obApi.transfer(third.getObAccount(), 1, userCenterMoney, orderNo);
             if (transfer == null) {
                 log.error("userId:{},account:{},money:{},进OB电竞游戏加点失败,远程请求异常", third.getUserId(), user.getAccount(), userCenterMoney);
                 //异步记录错误订单并重试补偿
                 errorOrderService.syncSaveErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.OBDJ_IN, Constants.PLATFORM_OBDJ);
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
-            if (PublicObDjApi.STATUS_FALSE.equals(transfer.getStatus())) {
+            if (PublicObdjApi.STATUS_FALSE.equals(transfer.getStatus())) {
                 log.error("userId:{},进OB电竞游戏加点失败,msg:{}", authId, transfer.getData());
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
@@ -124,12 +124,12 @@ public class ObdjGameController {
             ip = "127.0.0.1";
         }
         ip = ip.replaceAll("\\.", "");
-        PublicObDjApi.ResponseEntity login = obApi.login(obAccount, obAccount, ip);
+        PublicObdjApi.ResponseEntity login = obApi.login(obAccount, obAccount, ip);
         if (login == null) {
             log.error("userId:{}，account:{},进OB电竞游戏登录失败,远程请求异常", authId, user.getAccount());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
-        if (PublicObDjApi.STATUS_FALSE.equals(login.getStatus())) {
+        if (PublicObdjApi.STATUS_FALSE.equals(login.getStatus())) {
             log.error("userId:{}，account:{},进OB电竞游戏登录失败,msg:{}", authId, user.getAccount(), login.getData());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }

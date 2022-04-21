@@ -14,17 +14,17 @@ import java.util.TreeMap;
 
 @Component
 @Slf4j
-public class PublicObDjApi {
+public class PublicObdjApi {
 
-    @Value("${project.ob.merchant:null}")
+    @Value("${project.obdj.merchant:null}")
     private String merchant;
-    @Value("${project.ob.secretKey:null}")
+    @Value("${project.obdj.secretKey:null}")
     private String secretKey;
-    @Value("${project.ob.currencyCode:null}")
+    @Value("${project.obdj.currencyCode:null}")
     private String currencyCode;
-    @Value("${project.ob.apiUrl:null}")
+    @Value("${project.obdj.apiUrl:null}")
     private String apiUrl;
-    @Value("${project.ob.recordUrl:null}")
+    @Value("${project.obdj.recordUrl:null}")
     private String recordUrl;
 
     public static final String STATUS_TRUE = "true";
