@@ -212,7 +212,7 @@ public class ThirdGameBusiness {
         BigDecimal balance = new BigDecimal(obApiBalance.getData());
         if (balance.compareTo(BigDecimal.ONE) == -1) {
             log.info("userId:{},account={},balance={},OB电竞金额小于1，不可回收", userId, user.getAccount(), balance);
-            return ResponseUtil.custom("OB余额小于1,不可回收");
+            return ResponseUtil.custom("OB电竞余额小于1,不可回收");
         }
         //调用加扣点接口扣减wm余额  存在精度问题，只回收整数部分
         balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
