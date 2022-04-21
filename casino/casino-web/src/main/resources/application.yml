@@ -69,6 +69,7 @@ project:   #不同环境需配置相应的值
     apiUrl: https://djtop.merchantapi09.com
     recordUrl: https://djtoppull.merchantapi09.com
     currencyCode: 2 #美元
+    tester: 1  #用户类型： 1-测试、0-正式
   swagger:
     enable: true                           #是否开启swagger接口文档
   telegramBot:  #定时器执行异常推送消息

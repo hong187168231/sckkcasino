@@ -22,6 +22,8 @@ public class PublicObdjApi {
     private String secretKey;
     @Value("${project.obdj.currencyCode:null}")
     private String currencyCode;
+    @Value("${project.obdj.tester:null}")
+    private String tester;
     @Value("${project.obdj.apiUrl:null}")
     private String apiUrl;
     @Value("${project.obdj.recordUrl:null}")
@@ -35,10 +37,9 @@ public class PublicObdjApi {
      *
      * @param username 用户名（2-15位）
      * @param password 用户密码 （6-30位）
-     * @param tester   用户类型： 1-测试、0-正式
      * @return
      */
-    public boolean register(String username, String password, Integer tester) {
+    public boolean register(String username, String password) {
         TreeMap<String, Object> treeMap = new TreeMap<>();
         treeMap.put("merchant", merchant);
         treeMap.put("key", secretKey);

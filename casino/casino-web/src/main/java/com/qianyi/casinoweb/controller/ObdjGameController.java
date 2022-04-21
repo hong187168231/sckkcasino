@@ -70,7 +70,7 @@ public class ObdjGameController {
             if (account.length() > 20) {
                 account = account.substring(0, 20);
             }
-            boolean register = obApi.register(account, account, 1);
+            boolean register = obApi.register(account, account);
             if (!register) {
                 log.error("OB电竞注册账号失败");
                 return ResponseUtil.custom("服务器异常,请重新操作");
