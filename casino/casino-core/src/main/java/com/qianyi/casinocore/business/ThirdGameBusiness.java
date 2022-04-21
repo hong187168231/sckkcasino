@@ -21,6 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Slf4j
 @Service
@@ -49,6 +53,9 @@ public class ThirdGameBusiness {
     @Autowired
     @Qualifier("accountChangeJob")
     private AsyncService asyncService;
+    @Autowired
+    @Qualifier("asyncExecutor")
+    private Executor executor;
 
     public ResponseEntity oneKeyRecoverGoldenF(Long userId) {
         log.info("开始回收PG/CQ9余额，userId={}", userId);
@@ -262,6 +269,31 @@ public class ThirdGameBusiness {
         }
         BigDecimal balance = new BigDecimal(balanceResult.getData());
         return ResponseUtil.success(balance);
+    }
+
+    /**
+     * 进游戏时一键回收其他游戏的金额(不包含当前游戏)
+     * @param userId
+     * @param platform
+     * @return
+     */
+    public ResponseEntity oneKeyRecoverOtherGame(Long userId,String platform) {
+        List<CompletableFuture> completableFutures = new ArrayList<>();
+        if (!Constants.PLATFORM_WM_BIG.equals(platform)){
+            CompletableFuture<Void> oneKeyRecoverWm = CompletableFuture.runAsync(() -> {oneKeyRecoverWm(userId);}, executor);
+            completableFutures.add(oneKeyRecoverWm);
+        }
+        if (!Constants.PLATFORM_PG_CQ9.equals(platform)){
+            CompletableFuture<Void> oneKeyRecoverGoldenF = CompletableFuture.runAsync(() -> {oneKeyRecoverGoldenF(userId);}, executor);
+            completableFutures.add(oneKeyRecoverGoldenF);
+        }
+        if (!Constants.PLATFORM_OBDJ.equals(platform)){
+            CompletableFuture<Void> oneKeyRecoverOb = CompletableFuture.runAsync(() -> {oneKeyRecoverOb(userId);}, executor);
+            completableFutures.add(oneKeyRecoverOb);
+        }
+        //等待所有子线程计算完成
+        CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[completableFutures.size()])).join();
+        return ResponseUtil.success();
     }
 
     public void saveAccountChange(String gamePlatformName, Long userId, BigDecimal amount, BigDecimal amountBefore, BigDecimal amountAfter, Integer type, String orderNo, AccountChangeEnum changeEnum, String remark, User user) {

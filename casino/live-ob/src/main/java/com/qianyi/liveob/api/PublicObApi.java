@@ -199,10 +199,10 @@ public class PublicObApi {
         ResponseEntity entity = new ResponseEntity();
         try {
             jsonObject = JSONObject.parseObject(result);
-            entity.setStatus(STATUS_FALSE);
-            entity.setData("远程请求OB异常");
         } catch (Exception e) {
             log.error("解析OB数据时出错，msg={}", e.getMessage());
+            entity.setStatus(STATUS_FALSE);
+            entity.setData("远程请求OB异常");
             return entity;
         }
         if (ObjectUtils.isEmpty(jsonObject)) {

@@ -98,8 +98,8 @@ public class ObGameController {
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
         }
-        //转出WM游戏的余额
-//        thirdGameBusiness.oneKeyRecoverWm(authId);
+        //回收其他游戏的余额
+        thirdGameBusiness.oneKeyRecoverOtherGame(authId,Constants.PLATFORM_OBDJ);
         //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
         UserMoney userMoney = userMoneyService.findByUserId(authId);
         BigDecimal userCenterMoney = BigDecimal.ZERO;

@@ -132,8 +132,8 @@ public class WMController {
 //        }
         String language = request.getHeader(Constants.LANGUAGE);
         Integer lang = LanguageEnum.getLanguageCode(language);
-        //回收PG/CQ9的余额
-        thirdGameBusiness.oneKeyRecoverGoldenF(authId);
+        //回收其他游戏的余额
+        thirdGameBusiness.oneKeyRecoverOtherGame(authId,Constants.PLATFORM_WM_BIG);
         PlatformConfig platformConfig = platformConfigService.findFirst();
         //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
         UserMoney userMoney = userMoneyService.findByUserId(authId);
