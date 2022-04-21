@@ -113,6 +113,8 @@ public class ObdjGameController {
             }
             if (PublicObdjApi.STATUS_FALSE.equals(transfer.getStatus())) {
                 log.error("userId:{},进OB电竞游戏加点失败,msg:{}", authId, transfer.getData());
+                //三方加扣点失败再把钱加回来
+                userMoneyService.addMoney(authId, userCenterMoney);
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
             //记录账变

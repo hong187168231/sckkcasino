@@ -25,7 +25,7 @@ public class GameRecordObdj extends BaseEntity{
     private Long memberId;
 
     @ApiModelProperty(value = "用户账户")
-    private Long memberAccount;
+    private String memberAccount;
 
     @ApiModelProperty(value = "商户ID")
     private Long merchantId;
@@ -103,13 +103,13 @@ public class GameRecordObdj extends BaseEntity{
     private Long betTime;
 
     @ApiModelProperty(value = "投注时间（yyyy-MM-dd HH:mm:ss）")
-    private Date betDateTime;
+    private String betStrTime;
 
     @ApiModelProperty(value = "结算时间（秒）")
     private Long settleTime;
 
     @ApiModelProperty(value = "结算时间（yyyy-MM-dd HH:mm:ss）")
-    private Date setDateTime;
+    private String setStrTime;
 
     @ApiModelProperty(value = "赛事开始时间（秒）")
     private Long matchStartTime;

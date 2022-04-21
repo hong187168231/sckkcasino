@@ -41,6 +41,8 @@ public class UserMoneyBusiness {
     @Autowired
     private GameRecordGoldenFService gameRecordGoldenFService;
     @Autowired
+    private GameRecordObdjService gameRecordObdjService;
+    @Autowired
     private RebateConfigurationService rebateConfigurationService;
     @Autowired
     private RebateDetailService rebateDetailService;
@@ -87,6 +89,8 @@ public class UserMoneyBusiness {
             gameRecordService.updateCodeNumStatus(record.getId(), Constants.yes);
         } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
             gameRecordGoldenFService.updateCodeNumStatus(record.getId(), Constants.yes);
+        } else if(Constants.PLATFORM_OBDJ.equals(platform)){
+            gameRecordObdjService.updateCodeNumStatus(record.getId(), Constants.yes);
         }
         log.info("打码结束,平台={},注单ID={}", platform, record.getBetId());
     }
@@ -127,10 +131,10 @@ public class UserMoneyBusiness {
         BigDecimal validbet = new BigDecimal(gameRecord.getValidbet());
         Long userId = gameRecord.getUserId();
         String washGameId = null;
+        //WM的洗码是按里面游戏配置的，其他是按大类配置
         if (Constants.PLATFORM_WM.equals(platform)) {
             washGameId = gameRecord.getGid().toString();
-        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
-            //PG和CQ9的洗码配置是以平台配置的不是以里面的游戏
+        } else  {
             washGameId = platform;
         }
         log.info("开始洗码,平台={},注单ID={},注单明细={}", platform, gameRecord.getBetId(), gameRecord.toString());
@@ -146,7 +150,7 @@ public class UserMoneyBusiness {
             washCodeChange.setPlatform(platform);
             if (Constants.PLATFORM_WM.equals(platform)) {
                 washCodeChange.setGameId(gameRecord.getGid().toString());
-            } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
+            } else {
                 washCodeChange.setGameId(gameRecord.getGameCode());
             }
             washCodeChange.setGameName(gameRecord.getGname());
@@ -161,6 +165,8 @@ public class UserMoneyBusiness {
             gameRecordService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
         } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
             gameRecordGoldenFService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_OBDJ.equals(platform)) {
+            gameRecordObdjService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
         }
         log.info("洗码完成,平台={},注单ID={}", platform, gameRecord.getBetId());
     }
@@ -316,6 +322,8 @@ public class UserMoneyBusiness {
             gameRecordService.updateRebateStatus(record.getId(), Constants.yes);
         } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
             gameRecordGoldenFService.updateRebateStatus(record.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_OBDJ.equals(platform)) {
+            gameRecordObdjService.updateRebateStatus(record.getId(), Constants.yes);
         }
         if (rebateDetail.getTotalAmount().compareTo(BigDecimal.ZERO)>0){
             //后台异步增减平台总余额
@@ -335,6 +343,8 @@ public class UserMoneyBusiness {
             rate = rebateConfiguration.getPGRate();
         } else if (Constants.PLATFORM_CQ9.equals(platform)) {
             rate = rebateConfiguration.getCQ9Rate();
+        } else if (Constants.PLATFORM_OBDJ.equals(platform)) {
+            rate = rebateConfiguration.getOBDJRate();
         }
         return rate;
     }

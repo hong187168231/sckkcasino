@@ -15,9 +15,9 @@ import java.math.BigDecimal;
 @ApiModel("OB游戏记录锦标赛")
 public class GameRecordObdjTournament extends BaseEntity{
 
-    @ApiModelProperty(value = "赛事ID")
-    private String matchId;
+    @ApiModelProperty(value = "联赛ID")
+    private Long tournamentId;
 
-    @ApiModelProperty(value = "赛事简称")
-    private String matchName;
+    @ApiModelProperty(value = "联赛名称")
+    private String tournamentName;
 }

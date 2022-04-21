@@ -1,8 +1,12 @@
 package com.qianyi.casinocore.service;
 
+import com.qianyi.casinocore.model.GameRecordObdj;
 import com.qianyi.casinocore.repository.GameRecordObdjRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class GameRecordObdjService {
@@ -28,5 +32,15 @@ public class GameRecordObdjService {
 
     public void updateProfitStatus(Long id, Integer shareProfitStatus) {
         gameRecordObdjRepository.updateProfitStatus(id, shareProfitStatus);
+    }
+
+    public List<Map<String,Object>> queryGameRecords(Long id,Integer num){
+        return gameRecordObdjRepository.queryGameRecords(id,num);
+    }
+
+    public GameRecordObdj findGameRecordById(Long gameId){return gameRecordObdjRepository.findById(gameId).orElse(null);}
+
+    public GameRecordObdj save(GameRecordObdj gameRecord) {
+        return gameRecordObdjRepository.save(gameRecord);
     }
 }

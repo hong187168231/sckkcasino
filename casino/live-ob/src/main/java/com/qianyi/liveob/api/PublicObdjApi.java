@@ -92,12 +92,6 @@ public class PublicObdjApi {
         return entity;
     }
 
-    public static void main(String[] args) {
-        String ip = "127.0.0.1";
-        ip.replaceAll("\\.", "");
-        System.out.println(ip);
-    }
-
     /**
      * 玩家余额获取
      *
@@ -157,25 +151,26 @@ public class PublicObdjApi {
      * 3. 每次查询时间区间为30分钟以内
      * 玩家注单拉取
      *
-     * @param start_time    指定拉取注单的时间范 围-起始时间。 注：时 间为北京时间，精确到秒
-     * @param end_time      指定拉取注单的时间范 围-结束时间。 注：时 间为北京时间，精确到秒
-     * @param last_order_id 与page_size一起使 用，表示从 last_order_id开始拉 取page_size条数据。 值为上次拉取返回的 last_order_id。数据 拉取完时， last_order_id返回 0。第一次拉取时可传0
-     * @param page_size     页数量（1000 - 10000）
+     * @param startTime    指定拉取注单的时间范 围-起始时间。 注：时 间为北京时间，精确到秒
+     * @param endTime      指定拉取注单的时间范 围-结束时间。 注：时 间为北京时间，精确到秒
+     * @param lastOrderId 与page_size一起使 用，表示从 last_order_id开始拉 取page_size条数据。 值为上次拉取返回的 last_order_id。数据 拉取完时， last_order_id返回 0。第一次拉取时可传0
+     * @param pageSize     页数量（1000 - 10000）
+     * @param agency     总商户：true，站点商 户：false
      * @param currency_code 币种编码 1=人民币
      *                      sign 将以上参数按照参数名的 首字母自然顺序进行排 序，（如果首字母相同则 对比下一个字母，以此类 推）（在参数中加入密钥 key 一起参与排序）把 排序后的参数按照 key=value的方式拼接 为Md5key字符串。 Md5加密得到密文。再在 密文中加入干扰值。
      * @return
      */
-    public ResponseEntity queryScroll(Long start_time, Long end_time, Integer last_order_id, Integer page_size) {
+    public String queryScroll(Long startTime, Long endTime, Long lastOrderId, Integer pageSize, String agency) {
         TreeMap<String, Object> treeMap = new TreeMap<>();
         treeMap.put("merchant", merchant);
         treeMap.put("key", secretKey);
         treeMap.put("currency_code", currencyCode);
-        treeMap.put("start_time", start_time);
-        treeMap.put("end_time", end_time);
-        treeMap.put("last_order_id", last_order_id);
-        treeMap.put("page_size", page_size);
-        treeMap.put("agency", "true");//总商户：true，站点商 户：false
-        treeMap.put("time", System.currentTimeMillis() / 1000);
+        treeMap.put("start_time", startTime);
+        treeMap.put("end_time", endTime);
+        treeMap.put("last_order_id", lastOrderId);
+        treeMap.put("page_size", pageSize);
+        treeMap.put("agency", agency);
+//        treeMap.put("time", System.currentTimeMillis() / 1000);
         String MD5Sign = GenerateSignUtil.getMd5Sign(treeMap);
         //干扰值填充说明：生成的 MD5 值，需要 首尾 及第 9 个和第 17 个字符后的位置分别插入 2 个随机的字符（数字或字母大小写）
         StringBuffer sign = new StringBuffer(MD5Sign);
@@ -183,12 +178,11 @@ public class PublicObdjApi {
                 .insert(21, GenerateSignUtil.getTwoRandom()).insert(38, GenerateSignUtil.getTwoRandom());
         treeMap.put("sign", sign.toString());
         String splicingParams = GenerateSignUtil.getParams(treeMap);
-        log.info("OB玩家注单拉取{}：", splicingParams);
-        String url = apiUrl + "/v2/pull/order/queryScroll?" + splicingParams;
+        log.info("OB玩家注单拉取参数{}：", splicingParams);
+        String url = recordUrl + "/v2/pull/order/queryScroll?" + splicingParams;
         String result = HttpClient4Util.doGet(url);
-        log.info("OB玩家注单拉取{}：", result);
-        ResponseEntity entity = entity(result);
-        return entity;
+        log.info("OB玩家注单拉取结果{}：", result);
+        return result;
     }
 
     private static ResponseEntity entity(String result) {
