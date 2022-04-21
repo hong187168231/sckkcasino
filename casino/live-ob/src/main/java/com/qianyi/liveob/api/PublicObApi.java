@@ -33,9 +33,9 @@ public class PublicObApi {
     /**
      * 注册
      *
-     * @param username      用户名（2-15位）
-     * @param password      用户密码 （6-30位）
-     * @param tester        用户类型： 1-测试、0-正式
+     * @param username 用户名（2-15位）
+     * @param password 用户密码 （6-30位）
+     * @param tester   用户类型： 1-测试、0-正式
      * @return
      */
     public boolean register(String username, String password, Integer tester) {
@@ -55,6 +55,9 @@ public class PublicObApi {
         String result = HttpClient4Util.doGet(url);
         log.info("OB创建玩家账号结果{}：", result);
         ResponseEntity entity = entity(result);
+        if (entity == null) {
+            log.error("OB创建玩家账号出错,远程请求异常");
+        }
         if (STATUS_TRUE.equals(entity.getStatus())) {
             return true;
         }
@@ -90,7 +93,7 @@ public class PublicObApi {
     }
 
     public static void main(String[] args) {
-        String ip="127.0.0.1";
+        String ip = "127.0.0.1";
         ip.replaceAll("\\.", "");
         System.out.println(ip);
     }
@@ -121,10 +124,10 @@ public class PublicObApi {
     /**
      * 玩家资金转入/转出
      *
-     * @param username      用户名（2-15位）
-     * @param type          转账类型( 1-资金转入 2-资金转出)
-     * @param amount        转账金额( = 0.01元) (单位：元) (￥)
-     * @param merOrderId    转账订单号（20~32位）
+     * @param username   用户名（2-15位）
+     * @param type       转账类型( 1-资金转入 2-资金转出)
+     * @param amount     转账金额( = 0.01元) (单位：元) (￥)
+     * @param merOrderId 转账订单号（20~32位）
      * @return
      */
     public ResponseEntity transfer(String username, Integer type, BigDecimal amount, String merOrderId) {
@@ -189,20 +192,21 @@ public class PublicObApi {
     }
 
     private static ResponseEntity entity(String result) {
-        ResponseEntity entity = new ResponseEntity();
-        entity.setStatus(STATUS_FALSE);
-        entity.setData("远程请求OB异常");
         if (ObjectUtils.isEmpty(result)) {
-            return entity;
+            return null;
         }
         JSONObject jsonObject = null;
+        ResponseEntity entity = new ResponseEntity();
         try {
             jsonObject = JSONObject.parseObject(result);
+            entity.setStatus(STATUS_FALSE);
+            entity.setData("远程请求OB异常");
         } catch (Exception e) {
+            log.error("解析OB数据时出错，msg={}", e.getMessage());
             return entity;
         }
         if (ObjectUtils.isEmpty(jsonObject)) {
-            return entity;
+            return null;
         }
         entity.setStatus(jsonObject.getString("status"));
         entity.setData(jsonObject.getString("data"));
