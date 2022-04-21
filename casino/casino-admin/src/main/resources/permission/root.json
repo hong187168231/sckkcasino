@@ -182,6 +182,20 @@
             "url": "/user/oneKeyRecoverApi"
           },
           {
+            "descritpion": "查询用户OB余额",
+            "englishName": "OB Balance",
+            "menuLevel": 3,
+            "name": "查询用户OB余额",
+            "url": "/user/refreshOB"
+          },
+          {
+            "descritpion": "一键回收用户OB余额",
+            "englishName": "Restore All OB Balance",
+            "menuLevel": 3,
+            "name": "一键回收用户OB余额",
+            "url": "/user/oneOBRecoverApi"
+          },
+          {
             "descritpion": "请求玩家再WM余额总余额",
             "englishName": "WM total balance",
             "menuLevel": 3,

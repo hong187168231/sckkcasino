@@ -399,20 +399,16 @@ public class UserController {
         Condition condition = reentrantLock.newCondition();
         AtomicInteger atomicInteger = new AtomicInteger(allAcount.size());
         Vector<BigDecimal> list = new Vector<>();
-        ConcurrentHashMap<String, BigDecimal> hashMap = new ConcurrentHashMap();
-        log.info("WM三方账号集合长度：【{}】", allAcount.size());
         for (UserThird u:allAcount){
             threadPool.execute(() ->{
                 try {
                     JSONObject jsonObject = userMoneyService.getWMonetUser(u);
                     if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
                         list.add(BigDecimal.ZERO);
-                        hashMap.put(u.getId().toString(), BigDecimal.ZERO);
                     }else {
                         Integer code = (Integer) jsonObject.get("code");
                         if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
-                           list.add(new BigDecimal(jsonObject.get("data").toString()));
-                            hashMap.put(u.getId().toString(), new BigDecimal(jsonObject.get("data").toString()));
+                            list.add(new BigDecimal(jsonObject.get("data").toString()));
                         }
                     }
                 }finally {
@@ -422,9 +418,6 @@ public class UserController {
             });
         }
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
-        log.info("map余额结合：【{}】", hashMap);
-        log.info("WM三方账号余额集合数据值：【{}】", list);
-
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         return ResponseUtil.success(sum);
     }
