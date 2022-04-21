@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -351,6 +352,9 @@ public class UserMoneyBusiness {
         vo.setValidAmount(new BigDecimal(record.getValidbet()));
         vo.setWinLoss(new BigDecimal(record.getWinLoss()));
         vo.setGameRecordId(record.getId());
+        if (!ObjectUtils.isEmpty(record.getBet())){
+            vo.setBetAmount(new BigDecimal(record.getBet()));
+        }
         rabbitTemplate.convertAndSend(RabbitMqConstants.PROXYG_AMERECORD_REPORT_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.PROXYG_AMERECORD_REPORT_DIRECT, vo, new CorrelationData(UUID.randomUUID().toString()));
         log.info("proxyGameRecordReport MQ消息发送成功,平台={},注单ID={},消息明细={}", platform, record.getBetId(), vo);
     }

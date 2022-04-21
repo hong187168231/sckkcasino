@@ -275,6 +275,9 @@ public class GameRecordGoldenFJob {
         gameRecord.setFirstProxy(item.getFirstProxy());
         gameRecord.setSecondProxy(item.getSecondProxy());
         gameRecord.setThirdProxy(item.getThirdProxy());
+        if (!ObjectUtils.isEmpty(item.getBetAmount())){
+            gameRecord.setBet(item.getBetAmount().toString());
+        }
         if (item.getWinAmount() != null && item.getBetAmount() != null) {
             BigDecimal winLoss = item.getWinAmount().subtract(item.getBetAmount());
             gameRecord.setWinLoss(winLoss.toString());
