@@ -1,6 +1,5 @@
 package com.qianyi.casinoweb.controller;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.business.ThirdGameBusiness;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
@@ -8,17 +7,12 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
-import com.qianyi.casinoweb.vo.MaintenanceGameVo;
-import com.qianyi.livegoldenf.api.PublicGoldenFApi;
-import com.qianyi.livegoldenf.constants.LanguageEnum;
-import com.qianyi.liveob.api.PublicObApi;
+import com.qianyi.liveob.api.PublicObDjApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.executor.AsyncService;
-import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
-import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.IpUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -36,15 +30,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/obGame")
 @Api(tags = "OB电竞游戏厅")
 @Slf4j
-public class ObGameController {
+public class ObdjGameController {
     @Autowired
     private UserService userService;
     @Autowired
@@ -54,7 +46,7 @@ public class ObGameController {
     @Autowired
     private OrderService orderService;
     @Autowired
-    private PublicObApi obApi;
+    private PublicObDjApi obApi;
     @Autowired
     private ThirdGameBusiness thirdGameBusiness;
     @Autowired
@@ -62,8 +54,6 @@ public class ObGameController {
     @Autowired
     @Qualifier("accountChangeJob")
     private AsyncService asyncService;
-    @Value("${project.goldenf.currency:null}")
-    private String currency;
     @Value("${project.ipWhite}")
     private String ipWhite;
 
@@ -114,19 +104,19 @@ public class ObGameController {
             userMoneyService.subMoney(authId, userCenterMoney);
             String orderNo = orderService.getObOrderNo();
             //加点
-            PublicObApi.ResponseEntity transfer = obApi.transfer(third.getObAccount(), 1, userCenterMoney, orderNo);
+            PublicObDjApi.ResponseEntity transfer = obApi.transfer(third.getObAccount(), 1, userCenterMoney, orderNo);
             if (transfer == null) {
                 log.error("userId:{},account:{},money:{},进OB电竞游戏加点失败,远程请求异常", third.getUserId(), user.getAccount(), userCenterMoney);
                 //异步记录错误订单并重试补偿
                 errorOrderService.syncSaveErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.OBDJ_IN, Constants.PLATFORM_OBDJ);
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
-            if (PublicObApi.STATUS_FALSE.equals(transfer.getStatus())) {
+            if (PublicObDjApi.STATUS_FALSE.equals(transfer.getStatus())) {
                 log.error("userId:{},进OB电竞游戏加点失败,msg:{}", authId, transfer.getData());
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
             //记录账变
-            saveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, "自动转入OB");
+            saveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, "自动转入OB电竞");
         }
         //开游戏
         String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
@@ -134,12 +124,12 @@ public class ObGameController {
             ip = "127.0.0.1";
         }
         ip = ip.replaceAll("\\.", "");
-        PublicObApi.ResponseEntity login = obApi.login(obAccount, obAccount, ip);
+        PublicObDjApi.ResponseEntity login = obApi.login(obAccount, obAccount, ip);
         if (login == null) {
             log.error("userId:{}，account:{},进OB电竞游戏登录失败,远程请求异常", authId, user.getAccount());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
-        if (PublicObApi.STATUS_FALSE.equals(login.getStatus())) {
+        if (PublicObDjApi.STATUS_FALSE.equals(login.getStatus())) {
             log.error("userId:{}，account:{},进OB电竞游戏登录失败,msg:{}", authId, user.getAccount(), login.getData());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }

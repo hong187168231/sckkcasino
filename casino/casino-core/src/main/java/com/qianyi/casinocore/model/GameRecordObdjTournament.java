@@ -11,9 +11,9 @@ import java.math.BigDecimal;
 
 @Data
 @Entity
-@Table(name ="game_record_ob_tournament")
+@Table(name ="game_record_obdj_tournament")
 @ApiModel("OB游戏记录锦标赛")
-public class GameRecordObTournament extends BaseEntity{
+public class GameRecordObdjTournament extends BaseEntity{
 
     @ApiModelProperty(value = "赛事ID")
     private String matchId;

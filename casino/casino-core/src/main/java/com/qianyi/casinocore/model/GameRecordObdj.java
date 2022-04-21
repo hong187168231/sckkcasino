@@ -11,9 +11,9 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table(name ="game_record_ob",uniqueConstraints={@UniqueConstraint(columnNames={"betId"})})
+@Table(name ="game_record_obdj",uniqueConstraints={@UniqueConstraint(columnNames={"betId"})})
 @ApiModel("OB游戏记录")
-public class GameRecordOb extends BaseEntity{
+public class GameRecordObdj extends BaseEntity{
 
     @ApiModelProperty(value = "我方账号")
     private Long userId;
@@ -153,5 +153,23 @@ public class GameRecordOb extends BaseEntity{
 
     @ApiModelProperty("基层代理ID")
     private Long thirdProxy;
+
+    @ApiModelProperty(value = "洗码状态：1：成功")
+    private Integer washCodeStatus;
+
+    @ApiModelProperty(value = "返利状态：1：成功")
+    private Integer rebateStatus;
+
+    @ApiModelProperty(value = "抽点状态: 0: 否 1: 是")
+    private Integer extractStatus;
+
+    @ApiModelProperty(value = "打码状态：1：成功")
+    private Integer codeNumStatus;
+
+    @ApiModelProperty(value = "分润状态：0:失败，>0：成功")
+    private Integer shareProfitStatus = Constants.no;
+
+    @ApiModelProperty(value = "游戏报表状态：0:失败，1：成功")
+    private Integer gameRecordStatus = Constants.no;
 
 }

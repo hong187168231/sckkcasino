@@ -14,7 +14,7 @@ import java.util.TreeMap;
 
 @Component
 @Slf4j
-public class PublicObApi {
+public class PublicObDjApi {
 
     @Value("${project.ob.merchant:null}")
     private String merchant;

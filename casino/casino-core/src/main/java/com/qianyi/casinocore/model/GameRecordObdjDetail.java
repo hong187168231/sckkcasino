@@ -12,9 +12,9 @@ import java.math.BigDecimal;
 
 @Data
 @Entity
-@Table(name ="game_record_ob_detail",uniqueConstraints={@UniqueConstraint(columnNames={"orderId"})})
+@Table(name ="game_record_obdj_detail",uniqueConstraints={@UniqueConstraint(columnNames={"orderId"})})
 @ApiModel("OB游戏记录明细")
-public class GameRecordObDetail extends BaseEntity{
+public class GameRecordObdjDetail extends BaseEntity{
 
     @ApiModelProperty(value = "串注ID")
     private Long betId;
