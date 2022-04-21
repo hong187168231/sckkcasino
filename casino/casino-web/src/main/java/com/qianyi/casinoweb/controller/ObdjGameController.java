@@ -7,7 +7,9 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
+import com.qianyi.casinoweb.vo.ObdjGameUrlVo;
 import com.qianyi.liveob.api.PublicObdjApi;
+import com.qianyi.liveob.constants.LanguageEnum;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.executor.AsyncService;
@@ -30,6 +32,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -59,7 +63,7 @@ public class ObdjGameController {
 
     @ApiOperation("开游戏")
     @PostMapping("/openGame")
-    public ResponseEntity openGame(HttpServletRequest request) {
+    public ResponseEntity<ObdjGameUrlVo> openGame(HttpServletRequest request) {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
@@ -89,7 +93,7 @@ public class ObdjGameController {
             }
         }
         //回收其他游戏的余额
-        thirdGameBusiness.oneKeyRecoverOtherGame(authId,Constants.PLATFORM_OBDJ);
+        thirdGameBusiness.oneKeyRecoverOtherGame(authId, Constants.PLATFORM_OBDJ);
         //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
         UserMoney userMoney = userMoneyService.findByUserId(authId);
         BigDecimal userCenterMoney = BigDecimal.ZERO;
@@ -136,7 +140,24 @@ public class ObdjGameController {
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         JSONObject gameUrl = JSONObject.parseObject(login.getData());
-        return ResponseUtil.success(gameUrl);
+        if (ObjectUtils.isEmpty(gameUrl)) {
+            return ResponseUtil.success(gameUrl);
+        }
+        //拼接语言参数
+        ObdjGameUrlVo vo=new ObdjGameUrlVo();
+        String language = request.getHeader(Constants.LANGUAGE);
+        String languageCode = LanguageEnum.getLanguageCode(language);
+        String pc = gameUrl.getString("pc");
+        if (!ObjectUtils.isEmpty(pc)) {
+            pc = pc + languageCode;
+        }
+        vo.setPc(pc);
+        String h5 = gameUrl.getString("h5");
+        if (!ObjectUtils.isEmpty(h5)) {
+            h5 = h5 + languageCode;
+        }
+        vo.setH5(h5);
+        return ResponseUtil.success(vo);
     }
 
     public void saveAccountChange(Long userId, BigDecimal amount, BigDecimal amountBefore, BigDecimal amountAfter, Integer type, String orderNo, String remark) {
