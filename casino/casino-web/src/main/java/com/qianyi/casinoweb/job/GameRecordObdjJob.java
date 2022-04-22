@@ -64,7 +64,7 @@ public class GameRecordObdjJob {
         GameRecordObEndTime gameRecordObEndTime = gameRecordObEndTimeService.findFirstByVendorCodeAndStatusOrderByEndTimeDesc(Constants.PLATFORM_OBDJ, Constants.yes);
         Long time = gameRecordObEndTime == null ? null : gameRecordObEndTime.getEndTime();
         //获取查询游戏记录的时间范围
-        List<StartTimeAndEndTime> timeList = getStartTimeAndEndTime(1650546000L);
+        List<StartTimeAndEndTime> timeList = getStartTimeAndEndTime(time);
         pullGameRecord(timeList);
         log.info("定时器拉取完成OB电竞注单记录");
     }
