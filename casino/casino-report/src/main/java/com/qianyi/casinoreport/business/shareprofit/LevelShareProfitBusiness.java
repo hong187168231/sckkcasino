@@ -55,7 +55,7 @@ public class LevelShareProfitBusiness {
             if (shareProfitMqVo.getPlatform().equals("wm")){
                 gameType=1;
                 record = gameRecordService.findGameRecordById(shareProfitMqVo.getGameRecordId());
-            }else if(shareProfitMqVo.getPlatform().equals("OBDJ")){
+            }else if(shareProfitMqVo.getPlatform().equals(Constants.PLATFORM_OBDJ)){
                 GameRecordObdj gameRecordObdj = gameRecordObdjService.findGameRecordById(shareProfitMqVo.getGameRecordId());
                 gameType=4;
                 GameRecord gameRecord=new GameRecord();

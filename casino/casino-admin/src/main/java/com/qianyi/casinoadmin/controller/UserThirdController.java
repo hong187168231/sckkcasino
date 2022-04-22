@@ -96,7 +96,7 @@ public class UserThirdController {
                 jsonObject.put("thirdAccount",userThird.getAccount());
                 jsonObject.put("platform","WM");
                 json.add(jsonObject);
-            }else if(platform.equals(Constants.PLATFORM_OBDJ)){
+            }else if(platform.equals("OBDJ")){
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("account",user.getAccount());
                 jsonObject.put("thirdAccount",userThird.getObdjAccount());

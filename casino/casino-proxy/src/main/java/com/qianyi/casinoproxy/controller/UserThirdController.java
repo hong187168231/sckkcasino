@@ -9,6 +9,7 @@ import com.qianyi.casinocore.service.UserThirdService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.UserThirdVo;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -79,7 +80,7 @@ public class UserThirdController {
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("account",user.getAccount());
                     jsonObject.put("thirdAccount",userThird.getObdjAccount());
-                    jsonObject.put("platform","OB");
+                    jsonObject.put("platform",Constants.PLATFORM_OBDJ);
                     json.add(jsonObject);
                 }
             }else if (platform.equals("WM")){
@@ -88,11 +89,11 @@ public class UserThirdController {
                 jsonObject.put("thirdAccount",userThird.getAccount());
                 jsonObject.put("platform","WM");
                 json.add(jsonObject);
-            }else if(platform.equals("OBDJ")){
+            }else if(platform.equals(Constants.PLATFORM_OBDJ)){
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("account",user.getAccount());
                 jsonObject.put("thirdAccount",userThird.getObdjAccount());
-                jsonObject.put("platform","OBDJ");
+                jsonObject.put("platform",Constants.PLATFORM_OBDJ);
                 json.add(jsonObject);
             }else {
                 JSONObject jsonObject = new JSONObject();
@@ -139,7 +140,7 @@ public class UserThirdController {
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("account",user.getAccount());
                     jsonObject.put("thirdAccount",userThird.getObdjAccount());
-                    jsonObject.put("platform","OBDJ");
+                    jsonObject.put("platform",Constants.PLATFORM_OBDJ);
                     json.add(jsonObject);
                     return ResponseUtil.success(json);
                 }
@@ -158,7 +159,7 @@ public class UserThirdController {
                 jsonObject.put("thirdAccount",userThird.getAccount());
                 jsonObject.put("platform","WM");
                 json.add(jsonObject);
-            }else if(platform.equals("OBDJ")){
+            }else if(platform.equals(Constants.PLATFORM_OBDJ)){
                 userThird =  userThirdService.findByGoldenfAccount(userAccount);
                 if (CasinoProxyUtil.checkNull(userThird)){
                     return ResponseUtil.success();
@@ -170,7 +171,7 @@ public class UserThirdController {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("account",user.getAccount());
                 jsonObject.put("thirdAccount",userThird.getObdjAccount());
-                jsonObject.put("platform","OBDJ");
+                jsonObject.put("platform",Constants.PLATFORM_OBDJ);
                 json.add(jsonObject);
             }else {
                 userThird =  userThirdService.findByGoldenfAccount(userAccount);
