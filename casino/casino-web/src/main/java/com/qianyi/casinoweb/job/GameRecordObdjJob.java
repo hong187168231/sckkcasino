@@ -196,6 +196,11 @@ public class GameRecordObdjJob {
         if (ObjectUtils.isEmpty(validbet) || new BigDecimal(validbet).compareTo(BigDecimal.ZERO) == 0) {
             return;
         }
+        //注单状态3-待结算4-已取消5-赢(已中奖) 6-输(未中奖) 7-已撤销8-赢半9-输半10-走水
+        Integer betStatus = gameRecordObdj.getBetStatus();
+        if (betStatus == null || betStatus == 3 || betStatus == 4 || betStatus == 7) {
+            return;
+        }
         //洗码
         gameRecordAsyncOper.washCode(platform, record);
         // 抽点
