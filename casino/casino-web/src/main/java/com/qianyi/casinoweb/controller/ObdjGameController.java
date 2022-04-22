@@ -144,17 +144,18 @@ public class ObdjGameController {
             return ResponseUtil.success(gameUrl);
         }
         //拼接语言参数
-        ObdjGameUrlVo vo=new ObdjGameUrlVo();
+        ObdjGameUrlVo vo = new ObdjGameUrlVo();
         String language = request.getHeader(Constants.LANGUAGE);
         String languageCode = LanguageEnum.getLanguageCode(language);
         String pc = gameUrl.getString("pc");
+        //三方返回的url中lang时候有值有时候没值，要自己拼接下
         if (!ObjectUtils.isEmpty(pc)) {
-            pc = pc + languageCode;
+            pc = pc.substring(0, pc.lastIndexOf("=") + 1) + languageCode;
         }
         vo.setPc(pc);
         String h5 = gameUrl.getString("h5");
         if (!ObjectUtils.isEmpty(h5)) {
-            h5 = h5 + languageCode;
+            h5 = h5.substring(0, h5.lastIndexOf("=") + 1) + languageCode;
         }
         vo.setH5(h5);
         return ResponseUtil.success(vo);
