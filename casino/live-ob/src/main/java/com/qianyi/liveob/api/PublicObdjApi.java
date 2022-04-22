@@ -47,22 +47,22 @@ public class PublicObdjApi {
         treeMap.put("username", username);
         treeMap.put("password", password);
         treeMap.put("tester", tester);
-        treeMap.put("time", "1608797609");
+        treeMap.put("time", System.currentTimeMillis() / 1000);
         String sign = GenerateSignUtil.getMd5Sign(treeMap);
         treeMap.put("sign", sign);
         String splicingParams = GenerateSignUtil.getParams(treeMap);
-        log.info("OB创建玩家账号参数{}", splicingParams);
-        String url = "https://djtop.merchantapi09.com" + "/api/member/register?" + splicingParams;
+        log.info("OB电竞创建玩家账号参数{}", splicingParams);
+        String url = apiUrl + "/api/member/register?" + splicingParams;
         String result = HttpClient4Util.doGet(url);
-        log.info("OB创建玩家账号结果{}：", result);
+        log.info("OB电竞创建玩家账号结果{}：", result);
         ResponseEntity entity = entity(result);
         if (entity == null) {
-            log.error("OB创建玩家账号出错,远程请求异常");
+            log.error("OB电竞创建玩家账号出错,远程请求异常");
         }
         if (STATUS_TRUE.equals(entity.getStatus())) {
             return true;
         }
-        log.error("OB创建玩家账号出错{}：", entity.getData());
+        log.error("OB电竞创建玩家账号出错{}：", entity.getData());
         return false;
     }
 
@@ -85,10 +85,10 @@ public class PublicObdjApi {
         String sign = GenerateSignUtil.getMd5Sign(treeMap);
         treeMap.put("sign", sign);
         String splicingParams = GenerateSignUtil.getParams(treeMap);
-        log.info("OB玩家登录参数{}：", splicingParams);
+        log.info("OB电竞玩家登录参数{}：", splicingParams);
         String url = apiUrl + "/api/v2/member/login?" + splicingParams;
         String result = HttpClient4Util.doGet(url);
-        log.info("OB玩家登录结果{}：", result);
+        log.info("OB电竞玩家登录结果{}：", result);
         ResponseEntity entity = entity(result);
         return entity;
     }
@@ -108,10 +108,10 @@ public class PublicObdjApi {
         String sign = GenerateSignUtil.getMd5Sign(treeMap);
         treeMap.put("sign", sign);
         String splicingParams = GenerateSignUtil.getParams(treeMap);
-        log.info("OB玩家获取余额参数{}：", splicingParams);
+        log.info("OB电竞玩家获取余额参数{}：", splicingParams);
         String url = apiUrl + "/api/fund/getBalance?" + splicingParams;
         String result = HttpClient4Util.doGet(url);
-        log.info("OB玩家获取余额结果{}：", result);
+        log.info("OB电竞玩家获取余额结果{}：", result);
         ResponseEntity entity = entity(result);
         return entity;
     }
@@ -138,10 +138,10 @@ public class PublicObdjApi {
         String sign = GenerateSignUtil.getMd5Sign(treeMap);
         treeMap.put("sign", sign);
         String splicingParams = GenerateSignUtil.getParams(treeMap);
-        log.info("OB玩家资金转入/转出参数{}：", splicingParams);
+        log.info("OB电竞玩家资金转入/转出参数{}：", splicingParams);
         String url = apiUrl + "/api/fund/transfer?" + splicingParams;
         String result = HttpClient4Util.doGet(url);
-        log.info("OB玩家资金转入/转出结果{}：", result);
+        log.info("OB电竞玩家资金转入/转出结果{}：", result);
         ResponseEntity entity = entity(result);
         return entity;
     }
@@ -179,10 +179,10 @@ public class PublicObdjApi {
                 .insert(21, GenerateSignUtil.getTwoRandom()).insert(38, GenerateSignUtil.getTwoRandom());
         treeMap.put("sign", sign.toString());
         String splicingParams = GenerateSignUtil.getParams(treeMap);
-        log.info("OB玩家注单拉取参数{}：", splicingParams);
+        log.info("OB电竞玩家注单拉取参数{}：", splicingParams);
         String url = recordUrl + "/v2/pull/order/queryScroll?" + splicingParams;
         String result = HttpClient4Util.doGet(url);
-        log.info("OB玩家注单拉取结果{}：", result);
+        log.info("OB电竞玩家注单拉取结果{}：", result);
         return result;
     }
 
@@ -195,9 +195,9 @@ public class PublicObdjApi {
         try {
             jsonObject = JSONObject.parseObject(result);
         } catch (Exception e) {
-            log.error("解析OB数据时出错，msg={}", e.getMessage());
+            log.error("解析OB电竞数据时出错，msg={}", e.getMessage());
             entity.setStatus(STATUS_FALSE);
-            entity.setData("远程请求OB异常");
+            entity.setData("远程请求OB电竞异常");
             return entity;
         }
         if (ObjectUtils.isEmpty(jsonObject)) {

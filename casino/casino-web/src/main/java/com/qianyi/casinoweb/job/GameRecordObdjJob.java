@@ -345,7 +345,7 @@ public class GameRecordObdjJob {
             gameRecord.setGameCode(item.getGameId().toString());
         }
         gameRecord.setGname("OB电竞");
-        gameRecord.setBetTime(item.getBetStrTime());
+        gameRecord.setBetTime(item.getSetStrTime());
         gameRecord.setId(item.getId());
         gameRecord.setFirstProxy(item.getFirstProxy());
         gameRecord.setSecondProxy(item.getSecondProxy());
