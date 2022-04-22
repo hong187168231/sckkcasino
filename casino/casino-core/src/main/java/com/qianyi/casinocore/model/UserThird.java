@@ -18,15 +18,25 @@ public class UserThird extends BaseEntity{
     @ApiModelProperty(value = "我方用户id")
     @Column(unique = true)
     private Long userId;
+
     @Column(unique = true)
+    @ApiModelProperty(value = "WMF账号")
     private String account;
+
     @Column(unique = true)
     @ApiModelProperty(value = "GoldenF账号")
     private String goldenfAccount;
+
     @Column(unique = true)
-    @ApiModelProperty(value = "OB账号")
-    private String obAccount;
+    @ApiModelProperty(value = "OB电竞账号")
+    private String obdjAccount;
+
+    @Column(unique = true)
+    @ApiModelProperty(value = "OB体育账号")
+    private String obtyAccount;
+
     private String password;
+
     private String language;
 
 }

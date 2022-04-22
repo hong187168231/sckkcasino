@@ -68,7 +68,7 @@ public class ObdjGameController {
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
         //未注册自动注册到第三方
-        if (third == null || ObjectUtils.isEmpty(third.getObAccount())) {
+        if (third == null || ObjectUtils.isEmpty(third.getObdjAccount())) {
             String account = UUID.randomUUID().toString();
             account = account.replaceAll("-", "");
             if (account.length() > 20) {
@@ -83,7 +83,7 @@ public class ObdjGameController {
                 third = new UserThird();
                 third.setUserId(authId);
             }
-            third.setObAccount(account);
+            third.setObdjAccount(account);
             try {
                 userThirdService.save(third);
             } catch (Exception e) {
@@ -100,7 +100,7 @@ public class ObdjGameController {
         if (userMoney != null && userMoney.getMoney() != null) {
             userCenterMoney = userMoney.getMoney();
         }
-        String obAccount = third.getObAccount();
+        String obAccount = third.getObdjAccount();
         User user = userService.findById(authId);
         if (userCenterMoney.compareTo(BigDecimal.ZERO) == 1) {
             //钱转入第三方后本地扣减记录账变  优先扣减本地余额，否则会出现三方加点成功，本地扣减失败的情况
@@ -108,7 +108,7 @@ public class ObdjGameController {
             userMoneyService.subMoney(authId, userCenterMoney);
             String orderNo = orderService.getObOrderNo();
             //加点
-            PublicObdjApi.ResponseEntity transfer = obApi.transfer(third.getObAccount(), 1, userCenterMoney, orderNo);
+            PublicObdjApi.ResponseEntity transfer = obApi.transfer(third.getObdjAccount(), 1, userCenterMoney, orderNo);
             if (transfer == null) {
                 log.error("userId:{},account:{},money:{},进OB电竞游戏加点失败,远程请求异常", third.getUserId(), user.getAccount(), userCenterMoney);
                 //异步记录错误订单并重试补偿
@@ -192,11 +192,11 @@ public class ObdjGameController {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
-        if (third == null || ObjectUtils.isEmpty(third.getObAccount())) {
+        if (third == null || ObjectUtils.isEmpty(third.getObdjAccount())) {
             return ResponseUtil.success(BigDecimal.ZERO);
         }
         BigDecimal balance = BigDecimal.ZERO;
-        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getBalanceOb(third.getObAccount(), authId);
+        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getBalanceOb(third.getObdjAccount(), authId);
         if (responseEntity.getData() != null) {
             balance = responseEntity.getData();
         }
@@ -220,10 +220,10 @@ public class ObdjGameController {
             return ResponseUtil.parameterNotNull();
         }
         UserThird third = userThirdService.findByUserId(userId);
-        if (third == null || ObjectUtils.isEmpty(third.getObAccount())) {
+        if (third == null || ObjectUtils.isEmpty(third.getObdjAccount())) {
             return ResponseUtil.custom("当前用户暂未进入过游戏");
         }
-        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getBalanceOb(third.getObAccount(), userId);
+        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getBalanceOb(third.getObdjAccount(), userId);
         return responseEntity;
     }
 

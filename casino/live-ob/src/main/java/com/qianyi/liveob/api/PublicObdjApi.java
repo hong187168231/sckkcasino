@@ -54,7 +54,7 @@ public class PublicObdjApi {
         log.info("OB电竞创建玩家账号参数{}", splicingParams);
         String url = apiUrl + "/api/member/register?" + splicingParams;
         String result = HttpClient4Util.doGet(url);
-        log.info("OB电竞创建玩家账号结果{}：", result);
+        log.info("OB电竞创建玩家账号结果{}", result);
         ResponseEntity entity = entity(result);
         if (entity == null) {
             log.error("OB电竞创建玩家账号出错,远程请求异常");
@@ -88,7 +88,7 @@ public class PublicObdjApi {
         log.info("OB电竞玩家登录参数{}：", splicingParams);
         String url = apiUrl + "/api/v2/member/login?" + splicingParams;
         String result = HttpClient4Util.doGet(url);
-        log.info("OB电竞玩家登录结果{}：", result);
+        log.info("OB电竞玩家登录结果{}", result);
         ResponseEntity entity = entity(result);
         return entity;
     }
@@ -111,7 +111,7 @@ public class PublicObdjApi {
         log.info("OB电竞玩家获取余额参数{}：", splicingParams);
         String url = apiUrl + "/api/fund/getBalance?" + splicingParams;
         String result = HttpClient4Util.doGet(url);
-        log.info("OB电竞玩家获取余额结果{}：", result);
+        log.info("OB电竞玩家获取余额结果{}", result);
         ResponseEntity entity = entity(result);
         return entity;
     }
@@ -141,7 +141,7 @@ public class PublicObdjApi {
         log.info("OB电竞玩家资金转入/转出参数{}：", splicingParams);
         String url = apiUrl + "/api/fund/transfer?" + splicingParams;
         String result = HttpClient4Util.doGet(url);
-        log.info("OB电竞玩家资金转入/转出结果{}：", result);
+        log.info("OB电竞玩家资金转入/转出结果{}", result);
         ResponseEntity entity = entity(result);
         return entity;
     }
@@ -182,7 +182,7 @@ public class PublicObdjApi {
         log.info("OB电竞玩家注单拉取参数{}：", splicingParams);
         String url = recordUrl + "/v2/pull/order/queryScroll?" + splicingParams;
         String result = HttpClient4Util.doGet(url);
-        log.info("OB电竞玩家注单拉取结果{}：", result);
+        log.info("OB电竞玩家注单拉取结果{}", result);
         return result;
     }
 

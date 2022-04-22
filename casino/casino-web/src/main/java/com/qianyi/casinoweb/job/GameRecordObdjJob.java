@@ -243,7 +243,7 @@ public class GameRecordObdjJob {
         gameRecord.setUpdateDateTime(gameRecordObdjVo.getUpdateTime());
         gameRecord.setId(id);
         if (first) {
-            UserThird account = userThirdService.findByObAccount(gameRecord.getMemberAccount());
+            UserThird account = userThirdService.findByObdjAccount(gameRecord.getMemberAccount());
             if (account == null || account.getUserId() == null) {
                 log.error("同步游戏记录时，UserThird查询结果为null,account={}", gameRecord.getMemberAccount());
                 return null;

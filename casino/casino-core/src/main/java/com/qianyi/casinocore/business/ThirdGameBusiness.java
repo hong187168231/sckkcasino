@@ -191,11 +191,11 @@ public class ThirdGameBusiness {
             return ResponseUtil.parameterNotNull();
         }
         UserThird third = userThirdService.findByUserId(userId);
-        if (third == null || ObjectUtils.isEmpty(third.getObAccount())) {
+        if (third == null || ObjectUtils.isEmpty(third.getObdjAccount())) {
             return ResponseUtil.custom("OB电竞余额为0");
         }
         User user = userService.findById(userId);
-        String account = third.getObAccount();
+        String account = third.getObdjAccount();
         PublicObdjApi.ResponseEntity obApiBalance = obApi.getBalance(account);
         if (obApiBalance == null) {
             log.error("userId:{},account={},获取用户OB电竞余额为失败,远程请求异常", userId, user.getAccount());

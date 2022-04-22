@@ -13,7 +13,9 @@ public interface UserThirdRepository extends JpaRepository<UserThird,Long> {
 
     UserThird findByGoldenfAccount(String account);
 
-    UserThird findByObAccount(String account);
+    UserThird findByObdjAccount(String account);
+
+    UserThird findByObtyAccount(String account);
 
     @Query(value = "select * from user_third u where u.account is not null ",nativeQuery = true)
     List<UserThird> findAllAcount();
