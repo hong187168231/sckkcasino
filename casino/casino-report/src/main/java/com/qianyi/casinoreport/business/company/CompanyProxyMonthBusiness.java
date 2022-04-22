@@ -53,6 +53,9 @@ public class CompanyProxyMonthBusiness {
     @Autowired
     private ExtractPointsChangeService extractPointsChangeService;
 
+    @Autowired
+    private GameRecordObdjService gameRecordObdjService;
+
 
     @Autowired
     private MessageUtil messageUtil;
@@ -82,6 +85,13 @@ public class CompanyProxyMonthBusiness {
         List<CompanyProxyMonth> thirdList1= new ArrayList<>();
         List<CompanyOrderAmountVo> statisticsResult = gameRecordGoldenFService.getStatisticsResult(startTime, endTime);
         statisticsResult.forEach(item->processOrder(item,firstList1,secondeList1,thirdList1));
+
+        //查询电子游戏数据
+        List<CompanyProxyMonth> obdjFirstList= new ArrayList<>();
+        List<CompanyProxyMonth> obdjSecondeList = new ArrayList<>();
+        List<CompanyProxyMonth> obdjThirdList = new ArrayList<>();
+        List<CompanyOrderAmountVo> obdjResult = gameRecordObdjService.getStatisticsResult(startTime, endTime);
+        obdjResult.forEach(item->processOrder(item,obdjFirstList,obdjSecondeList,obdjThirdList));
 
         if(firstList.size() == 0 && firstList1.size()==0) {
             log.info("first level is no user");

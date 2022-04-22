@@ -33,9 +33,11 @@ public class CompanyProxyDailyBusiness {
     @Autowired
     private GameRecordGoldenFService gameRecordGoldenFService;
 
-
     @Autowired
     private CompanyLevelProcessBusiness companyLevelProcessBusiness;
+
+    @Autowired
+    private GameRecordObdjService gameRecordObdjService;
 
     //传入计算当天的时间  yyyy-MM-dd 格式
     @Transactional
@@ -54,6 +56,12 @@ public class CompanyProxyDailyBusiness {
         List<CompanyOrderAmountVo> statisticsResult = gameRecordGoldenFService.getStatisticsResult(startTime, endTime);
         if(statisticsResult.size()>0){
             processingData(statisticsResult);
+        }
+
+        //查询电子游戏数据
+        List<CompanyOrderAmountVo> obdjStatisticsResult = gameRecordObdjService.getStatisticsResult(startTime, endTime);
+        if(obdjStatisticsResult.size()>0){
+            processingData(obdjStatisticsResult);
         }
 
         if(companyOrderAmountVoList.size() == 0 && statisticsResult.size()==0) {

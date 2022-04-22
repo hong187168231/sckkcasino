@@ -2,6 +2,7 @@ package com.qianyi.casinoreport.business.shareprofit;
 
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.DateUtilX;
 import com.qianyi.casinocore.vo.ShareProfitBO;
 import com.qianyi.casinocore.vo.ShareProfitMqVo;
 import com.qianyi.casinoreport.util.ReportConstant;
@@ -40,6 +41,9 @@ public class LevelShareProfitBusiness {
     @Autowired
     private LevelShareProfitTransactionService shareProfitTransactionService;
 
+    @Autowired
+    private GameRecordObdjService gameRecordObdjService;
+
     /**
      * 处理分润
      * @param shareProfitMqVo
@@ -48,7 +52,19 @@ public class LevelShareProfitBusiness {
         try {
             Integer gameType=0;
             GameRecord record=new GameRecord();
-            if (!shareProfitMqVo.getPlatform().equals("wm")){
+            if (shareProfitMqVo.getPlatform().equals("wm")){
+                gameType=1;
+                record = gameRecordService.findGameRecordById(shareProfitMqVo.getGameRecordId());
+            }else if(shareProfitMqVo.getPlatform().equals("OBDJ")){
+                GameRecordObdj gameRecordObdj = gameRecordObdjService.findGameRecordById(shareProfitMqVo.getGameRecordId());
+                gameType=4;
+                GameRecord gameRecord=new GameRecord();
+                gameRecord.setCreateTime(gameRecordObdj.getCreateTime());
+                gameRecord.setBetId(gameRecordObdj.getBetId() + "");
+                gameRecord.setUserId(gameRecordObdj.getUserId());
+                gameRecord.setValidbet(gameRecordObdj.getBetAmount().toString());
+                record=gameRecord;
+            }else {
                 GameRecordGoldenF recordGoldenF = gameRecordGoldenFService.findGameRecordById(shareProfitMqVo.getGameRecordId());
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 Date date = simpleDateFormat.parse(recordGoldenF.getCreateAtStr());
@@ -65,11 +81,7 @@ public class LevelShareProfitBusiness {
                 if (shareProfitMqVo.getPlatform().equals("CQ9")){
                     gameType=3;
                 }
-            }else {
-                gameType=1;
-                record = gameRecordService.findGameRecordById(shareProfitMqVo.getGameRecordId());
             }
-
 
             //查询代理推广配置
             PlatformConfig platformConfig = platformConfigService.findFirst();
