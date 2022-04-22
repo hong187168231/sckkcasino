@@ -6,7 +6,6 @@ import com.qianyi.casinocore.repository.GameRecordObdjRepository;
 import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;

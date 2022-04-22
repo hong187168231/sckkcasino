@@ -157,7 +157,8 @@ public class LevelShareProfitBusiness {
         int amount=0;
        int recordAmount= gameRecordService.countByIdLessThanEqualAndUserId(record.getCreateTime(),userId);
        int goldenFAmount= gameRecordGoldenFService.countByIdLessThanEqualAndUserId(record.getCreateTime(),userId);
-        amount=recordAmount+goldenFAmount;
+       int obdjAmount= gameRecordObdjService.countByIdLessThanEqualAndUserId(record.getCreateTime(),userId);
+        amount=recordAmount+goldenFAmount + obdjAmount;
         if (amount==Constants.yes){
             return true;
         }
