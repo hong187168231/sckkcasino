@@ -379,6 +379,10 @@ public class ExtractPointsConfigBusiness {
      */
     @Transactional
     public void extractPoints(String platform, GameRecord gameRecord) {
+        //已经处理过的不需要再次处理
+        if (gameRecord.getExtractStatus() != null && gameRecord.getExtractStatus() == Constants.yes) {
+            return;
+        }
         // 有效投注额
         BigDecimal validBet = new BigDecimal(gameRecord.getValidbet());
         // 基础代理id

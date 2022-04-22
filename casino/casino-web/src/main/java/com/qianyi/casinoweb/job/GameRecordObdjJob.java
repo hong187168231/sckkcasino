@@ -5,11 +5,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinoweb.vo.GameRecordObdjDetailVo;
+import com.qianyi.casinoweb.vo.GameRecordObdjVo;
 import com.qianyi.liveob.api.PublicObdjApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.DateUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,12 +23,14 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * OB电竞定时任务拉取注单记录
+ * 按注单最后更新时间  ( update_time )拉取 存在一笔注单多次拉取到的情况要更新数据
  */
 @Component
 @Slf4j
@@ -59,7 +64,7 @@ public class GameRecordObdjJob {
         GameRecordObEndTime gameRecordObEndTime = gameRecordObEndTimeService.findFirstByVendorCodeAndStatusOrderByEndTimeDesc(Constants.PLATFORM_OBDJ, Constants.yes);
         Long time = gameRecordObEndTime == null ? null : gameRecordObEndTime.getEndTime();
         //获取查询游戏记录的时间范围
-        List<StartTimeAndEndTime> timeList = getStartTimeAndEndTime(time);
+        List<StartTimeAndEndTime> timeList = getStartTimeAndEndTime(1650546000L);
         pullGameRecord(timeList);
         log.info("定时器拉取完成OB电竞注单记录");
     }
@@ -148,37 +153,24 @@ public class GameRecordObdjJob {
 
     public void saveAll(JSONObject data) {
         String bet = data.getString("bet");
-        List<GameRecordObdj> gameRecordList = JSON.parseArray(bet, GameRecordObdj.class);
+        List<GameRecordObdjVo> gameRecordList = JSON.parseArray(bet, GameRecordObdjVo.class);
+        if (CollectionUtils.isEmpty(gameRecordList)) {
+            return;
+        }
         log.info("开始处理OB电竞游戏记录数据");
         //查询最小清0打码量
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        for (GameRecordObdj gameRecord : gameRecordList) {
-            gameRecord.setBetId(gameRecord.getId());
-            gameRecord.setId(null);
+        for (GameRecordObdjVo gameRecordObdjVo : gameRecordList) {
+            GameRecordObdj gameRecord = null;
             try {
-                UserThird account = userThirdService.findByObAccount(gameRecord.getMemberAccount());
-                if (account == null || account.getUserId() == null) {
-                    log.error("同步游戏记录时，UserThird查询结果为null,account={}", gameRecord.getMemberAccount());
+                gameRecord = save(gameRecordObdjVo);
+                if (gameRecord == null) {
                     continue;
                 }
-                gameRecord.setUserId(account.getUserId());
-                BigDecimal validbet = ObjectUtils.isEmpty(gameRecord.getBetAmount()) ? BigDecimal.ZERO : gameRecord.getBetAmount();
-                //有效投注额为0不参与洗码,打码,分润,抽點
-                if (validbet.compareTo(BigDecimal.ZERO) == 0) {
-                    gameRecord.setWashCodeStatus(Constants.yes);
-                    gameRecord.setCodeNumStatus(Constants.yes);
-                    gameRecord.setShareProfitStatus(Constants.yes);
-                    gameRecord.setExtractStatus(Constants.yes);
-                    gameRecord.setRebateStatus(Constants.yes);
-                }
-                //有数据会重复注单id唯一约束会报错，所以一条一条保存，避免影响后面的
-                save(gameRecord);
                 //保存明细数据
                 saveBatchDetail(data, gameRecord.getBetId());
                 //保存赛事信息
                 saveTournament(data, gameRecord.getTournamentId());
-                //计算用户账号实时余额
-                changeUserBalance(gameRecord);
                 //业务处理
                 business(Constants.PLATFORM_OBDJ, gameRecord, platformConfig);
             } catch (Exception e) {
@@ -189,16 +181,19 @@ public class GameRecordObdjJob {
     }
 
     public void business(String platform, GameRecordObdj gameRecordObdj, PlatformConfig platformConfig) {
+        //注单状态3-待结算4-已取消5-赢(已中奖) 6-输(未中奖) 7-已撤销8-赢半9-输半10-走水
+        Integer betStatus = gameRecordObdj.getBetStatus();
+        if (betStatus == null || betStatus == 3 || betStatus == 4 || betStatus == 7) {
+            return;
+        }
+        //计算用户账号实时余额
+        changeUserBalance(gameRecordObdj);
+        //组装gameRecord
         GameRecord record = combineGameRecord(gameRecordObdj);
         //发送注单消息到MQ后台要统计数据
         gameRecordAsyncOper.proxyGameRecordReport(platform, record);
         String validbet = record.getValidbet();
         if (ObjectUtils.isEmpty(validbet) || new BigDecimal(validbet).compareTo(BigDecimal.ZERO) == 0) {
-            return;
-        }
-        //注单状态3-待结算4-已取消5-赢(已中奖) 6-输(未中奖) 7-已撤销8-赢半9-输半10-走水
-        Integer betStatus = gameRecordObdj.getBetStatus();
-        if (betStatus == null || betStatus == 3 || betStatus == 4 || betStatus == 7) {
             return;
         }
         //洗码
@@ -233,21 +228,52 @@ public class GameRecordObdjJob {
         }
     }
 
-    public GameRecordObdj save(GameRecordObdj gameRecord) {
+    public GameRecordObdj save(GameRecordObdjVo gameRecordObdjVo) {
+        GameRecordObdj gameRecord = gameRecordObdjService.findByBetId(gameRecordObdjVo.getId());
+        boolean first = false;
+        if (gameRecord == null) {
+            first = true;
+            gameRecord = new GameRecordObdj();
+        }
+        //ID同名同类型要特殊处理
+        Long id = gameRecord.getId();
+        //只更新来自三方的数据
+        BeanUtils.copyProperties(gameRecordObdjVo, gameRecord);
+        gameRecord.setBetId(gameRecordObdjVo.getId());
+        gameRecord.setUpdateDateTime(gameRecordObdjVo.getUpdateTime());
+        gameRecord.setId(id);
+        if (first) {
+            UserThird account = userThirdService.findByObAccount(gameRecord.getMemberAccount());
+            if (account == null || account.getUserId() == null) {
+                log.error("同步游戏记录时，UserThird查询结果为null,account={}", gameRecord.getMemberAccount());
+                return null;
+            }
+            gameRecord.setUserId(account.getUserId());
+            BigDecimal validbet = ObjectUtils.isEmpty(gameRecord.getBetAmount()) ? BigDecimal.ZERO : gameRecord.getBetAmount();
+            //有效投注额为0不参与洗码,打码,分润,抽點
+            if (validbet.compareTo(BigDecimal.ZERO) == 0) {
+                gameRecord.setWashCodeStatus(Constants.yes);
+                gameRecord.setCodeNumStatus(Constants.yes);
+                gameRecord.setShareProfitStatus(Constants.yes);
+                gameRecord.setExtractStatus(Constants.yes);
+                gameRecord.setRebateStatus(Constants.yes);
+            }
+            //查询3级代理
+            User user = userService.findById(gameRecord.getUserId());
+            if (user != null) {
+                gameRecord.setFirstProxy(user.getFirstProxy());
+                gameRecord.setSecondProxy(user.getSecondProxy());
+                gameRecord.setThirdProxy(user.getThirdProxy());
+            }
+        }
         SimpleDateFormat format = DateUtil.getSimpleDateFormat();
         //投注时间是毫秒
-        if (!ObjectUtils.isEmpty(gameRecord.getBetTime())) {
+        if (!ObjectUtils.isEmpty(gameRecord.getBetTime()) && gameRecord.getBetTime() != 0) {
             gameRecord.setBetStrTime(format.format(gameRecord.getBetTime()));
         }
         //结算时间是秒
-        if (!ObjectUtils.isEmpty(gameRecord.getSettleTime())) {
-            gameRecord.setSetStrTime(format.format(gameRecord.getSettleTime()));
-        }
-        User user = userService.findById(gameRecord.getUserId());
-        if (user != null) {
-            gameRecord.setFirstProxy(user.getFirstProxy());
-            gameRecord.setSecondProxy(user.getSecondProxy());
-            gameRecord.setThirdProxy(user.getThirdProxy());
+        if (!ObjectUtils.isEmpty(gameRecord.getSettleTime()) && gameRecord.getSettleTime() != 0) {
+            gameRecord.setSetStrTime(format.format(gameRecord.getSettleTime() * 1000));
         }
         GameRecordObdj record = gameRecordObdjService.save(gameRecord);
         return record;
@@ -269,14 +295,21 @@ public class GameRecordObdjJob {
         if (ObjectUtils.isEmpty(datailList)) {
             return;
         }
-        List<GameRecordObdjDetail> gameRecordList = JSON.parseArray(datailList, GameRecordObdjDetail.class);
+        List<GameRecordObdjDetailVo> gameRecordList = JSON.parseArray(datailList, GameRecordObdjDetailVo.class);
         if (CollectionUtils.isEmpty(gameRecordList)) {
             return;
         }
-        for (GameRecordObdjDetail detail : gameRecordList) {
+        for (GameRecordObdjDetailVo detailVo : gameRecordList) {
+            GameRecordObdjDetail detail = null;
             try {
-                detail.setBetDetailId(detail.getId());
-                detail.setId(null);
+                detail = gameRecordObdjDetailService.findByBetDetailId(detailVo.getId());
+                if (detail == null) {
+                    detail = new GameRecordObdjDetail();
+                }
+                Long id = detail.getId();
+                detail.setBetDetailId(detailVo.getId());
+                detail.setUpdateDateTime(detailVo.getUpdateTime());
+                detail.setId(id);
                 gameRecordObdjDetailService.save(detail);
             } catch (Exception e) {
                 log.error("保存OB电竞注单明细时出错，msg={},GameRecordObdjDetail={}", e.getMessage(), detail.toString());
@@ -294,10 +327,13 @@ public class GameRecordObdjJob {
         }
         JSONObject jsonObject = JSONObject.parseObject(tournamentStr);
         String tournamentName = jsonObject.getString(tournamentId.toString());
-        GameRecordObdjTournament gameRecordObdjTournament = new GameRecordObdjTournament();
-        gameRecordObdjTournament.setTournamentId(tournamentId);
-        gameRecordObdjTournament.setTournamentName(tournamentName);
-        gameRecordObdjTournamentService.save(gameRecordObdjTournament);
+        GameRecordObdjTournament tournament = gameRecordObdjTournamentService.findByTournamentId(tournamentId);
+        if (tournament == null) {
+            tournament = new GameRecordObdjTournament();
+        }
+        tournament.setTournamentId(tournamentId);
+        tournament.setTournamentName(tournamentName);
+        gameRecordObdjTournamentService.save(tournament);
     }
 
     private GameRecord combineGameRecord(GameRecordObdj item) {
@@ -321,6 +357,11 @@ public class GameRecordObdjJob {
             BigDecimal winLoss = item.getWinAmount().subtract(item.getBetAmount());
             gameRecord.setWinLoss(winLoss.toString());
         }
+        gameRecord.setCodeNumStatus(item.getCodeNumStatus());
+        gameRecord.setWashCodeStatus(item.getWashCodeStatus());
+        gameRecord.setShareProfitStatus(item.getShareProfitStatus());
+        gameRecord.setRebateStatus(item.getRebateStatus());
+        gameRecord.setExtractStatus(item.getExtractStatus());
         return gameRecord;
     }
 

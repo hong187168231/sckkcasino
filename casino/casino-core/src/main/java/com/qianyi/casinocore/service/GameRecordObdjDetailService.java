@@ -15,4 +15,8 @@ public class GameRecordObdjDetailService {
         return gameRecordObdjDetailRepository.save(gameRecordObdjDetail);
     }
 
+    public GameRecordObdjDetail findByBetDetailId(Long betDetailId){
+        return gameRecordObdjDetailRepository.findByBetDetailId(betDetailId);
+    }
+
 }

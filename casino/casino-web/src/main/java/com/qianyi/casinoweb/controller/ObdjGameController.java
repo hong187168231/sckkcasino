@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/obGame")
+@RequestMapping("/obdjGame")
 @Api(tags = "OB电竞游戏厅")
 @Slf4j
 public class ObdjGameController {

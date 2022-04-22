@@ -7,11 +7,12 @@ import lombok.Data;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import java.math.BigDecimal;
 
 @Data
 @Entity
-@Table(name ="game_record_obdj_tournament")
+@Table(name ="game_record_obdj_tournament",uniqueConstraints={@UniqueConstraint(columnNames={"tournamentId"})})
 @ApiModel("OB游戏记录锦标赛")
 public class GameRecordObdjTournament extends BaseEntity{
 

@@ -6,6 +6,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+import java.util.Map;
+
 public interface GameRecordObdjRepository extends JpaRepository<GameRecordObdj, Long>, JpaSpecificationExecutor<GameRecordObdj> {
 
 
@@ -32,4 +35,16 @@ public interface GameRecordObdjRepository extends JpaRepository<GameRecordObdj, 
     @Modifying(clearAutomatically = true)
     @Query("update GameRecordObdj u set u.gameRecordStatus=?2 where u.id=?1")
     void updateGameRecordStatus(Long id, Integer gameRecordStatus);
+
+    GameRecordObdj findByBetId(Long betId);
+
+    @Query(value = "select MAX(g.id) maxId,ifnull(SUM(d.user_amount), 0 ) as user_amount,ifnull(SUM(d.surplus_amount), 0 ) as surplus_amount,LEFT(g.set_str_time,?2) set_time,ifnull(g.first_proxy,0) first_proxy,\n"
+        + "        ifnull(g.second_proxy,0) second_proxy,ifnull(g.third_proxy,0) third_proxy,\n"
+        + "        COUNT(1) num,SUM(g.bet_amount) bet,SUM(g.bet_amount) validbet,SUM(g.win_amount-g.bet_amount) win_loss,\n"
+        + "         ifnull(SUM(w.amount),0) amount from game_record_obdj g left join  \n"
+        + "        wash_code_change w  on  w.game_record_id = g.id and w.platform = 'OBDJ'\n"
+        + "        LEFT JOIN  rebate_detail d on d.game_record_id=g.id  and d.platform = 'OBDJ'\n"
+        + "         where g.id > ?1 \n" + "   GROUP BY g.third_proxy,LEFT(g.set_str_time,?2) ",nativeQuery = true)
+    List<Map<String,Object>> queryGameRecords(Long id,Integer num);
+//    game_record_obdj
 }

@@ -23,6 +23,7 @@ public class UserThird extends BaseEntity{
     @Column(unique = true)
     @ApiModelProperty(value = "GoldenF账号")
     private String goldenfAccount;
+    @Column(unique = true)
     @ApiModelProperty(value = "OB账号")
     private String obAccount;
     private String password;

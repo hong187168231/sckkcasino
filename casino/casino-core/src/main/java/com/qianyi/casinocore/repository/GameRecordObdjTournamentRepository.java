@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface GameRecordObdjTournamentRepository extends JpaRepository<GameRecordObdjTournament, Long>, JpaSpecificationExecutor<GameRecordObdjTournament> {
 
+    GameRecordObdjTournament findByTournamentId(Long tournamentId);
+
 }

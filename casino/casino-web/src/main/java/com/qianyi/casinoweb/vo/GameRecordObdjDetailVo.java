@@ -1,23 +1,18 @@
-package com.qianyi.casinocore.model;
+package com.qianyi.casinoweb.vo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import java.math.BigDecimal;
 
 @Data
-@Entity
-@Table(name ="game_record_obdj_detail",uniqueConstraints={@UniqueConstraint(columnNames={"betDetailId"})})
-@ApiModel("OB游戏记录明细")
-public class GameRecordObdjDetail extends BaseEntity{
+@ApiModel("OB游戏记录明细Vo")
+public class GameRecordObdjDetailVo {
 
     @ApiModelProperty(value = "串关注单明细ID")
-    private Long betDetailId;
+    private Long id;
 
     @ApiModelProperty(value = "注单ID")
     private Long orderId;
@@ -69,7 +64,7 @@ public class GameRecordObdjDetail extends BaseEntity{
     private Long matchStartTime;
 
     @ApiModelProperty(value = "修改时间（秒）")
-    private Long updateDateTime;
+    private Long updateTime;
 
     @ApiModelProperty(value = "结算时间（秒）")
     private Long settleTime;

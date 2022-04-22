@@ -14,4 +14,8 @@ public class GameRecordObdjTournamentService {
     public GameRecordObdjTournament save(GameRecordObdjTournament gameRecordObdjTournament) {
         return gameRecordObdjTournamentRepository.save(gameRecordObdjTournament);
     }
+
+    public GameRecordObdjTournament findByTournamentId(Long tournamentId){
+        return gameRecordObdjTournamentRepository.findByTournamentId(tournamentId);
+    }
 }

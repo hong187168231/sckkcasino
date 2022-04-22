@@ -60,7 +60,11 @@ public class UserMoneyBusiness {
      */
     @Transactional
     public void subCodeNum(String platform, PlatformConfig platformConfig, GameRecord record) {
-        log.info("开始打码,平台={}，注单ID={},注单明细={}",platform,record.getBetId(), record.toString());
+        //已经处理过的不需要再次处理
+        if (record.getCodeNumStatus() != null && record.getCodeNumStatus() == Constants.yes) {
+            return;
+        }
+        log.info("开始打码,平台={}，注单ID={},注单明细={}", platform, record.getBetId(), record.toString());
         BigDecimal validbet = new BigDecimal(record.getValidbet());
         Long userId = record.getUserId();
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
@@ -128,6 +132,10 @@ public class UserMoneyBusiness {
 
     @Transactional
     public void washCode(String platform, GameRecord gameRecord) {
+        //已经处理过的不需要再次处理
+        if (gameRecord.getWashCodeStatus() != null && gameRecord.getWashCodeStatus() == Constants.yes) {
+            return;
+        }
         BigDecimal validbet = new BigDecimal(gameRecord.getValidbet());
         Long userId = gameRecord.getUserId();
         String washGameId = null;
@@ -178,6 +186,10 @@ public class UserMoneyBusiness {
      */
     @Transactional
     public void shareProfit(String platform, GameRecord record) {
+        //已经处理过的不需要再次处理
+        if (record.getShareProfitStatus() != null && record.getShareProfitStatus() >0) {
+            return;
+        }
         log.info("开始三级分润,平台={},注单ID={},注单明细={}", platform, record.getBetId(), record.toString());
         BigDecimal validbet = new BigDecimal(record.getValidbet());
         Long userId = record.getUserId();
@@ -244,6 +256,7 @@ public class UserMoneyBusiness {
 
     /**
      * 增加账号实时余额
+     *
      * @param userId
      * @param balance
      */
@@ -256,6 +269,7 @@ public class UserMoneyBusiness {
 
     /**
      * 扣减账号实时余额
+     *
      * @param userId
      * @param balance
      */
@@ -275,6 +289,10 @@ public class UserMoneyBusiness {
 
     @Transactional
     public void rebate(String platform, GameRecord record) {
+        //已经处理过的不需要再次处理
+        if (record.getRebateStatus() != null && record.getRebateStatus() == Constants.yes) {
+            return;
+        }
         log.info("开始返利，record={}",record.toString());
         //先查询平台的返利比例
         RebateConfiguration rebateConfiguration = rebateConfigurationService.findByUserIdAndType(0L, 0);
@@ -301,10 +319,6 @@ public class UserMoneyBusiness {
         BigDecimal userAmount = totalAmount.multiply(userDivideRate);
         //剩余的
         BigDecimal surplusAmount = totalAmount.subtract(userAmount);
-        //把分到的钱加到userMoney表的洗码额上面
-        if (userAmount.compareTo(BigDecimal.ZERO) == 1) {
-            userMoneyService.addWashCode(record.getUserId(), userAmount);
-        }
         //保存明细数据
         RebateDetail rebateDetail = new RebateDetail();
         rebateDetail.setUserId(record.getUserId());
@@ -317,6 +331,10 @@ public class UserMoneyBusiness {
         rebateDetail.setUserAmount(userAmount);
         rebateDetail.setSurplusAmount(surplusAmount);
         rebateDetailService.save(rebateDetail);
+        //把分到的钱加到userMoney表的洗码额上面
+        if (userAmount.compareTo(BigDecimal.ZERO) == 1) {
+            userMoneyService.addWashCode(record.getUserId(), userAmount);
+        }
         //更新返利状态
         if (Constants.PLATFORM_WM.equals(platform)) {
             gameRecordService.updateRebateStatus(record.getId(), Constants.yes);

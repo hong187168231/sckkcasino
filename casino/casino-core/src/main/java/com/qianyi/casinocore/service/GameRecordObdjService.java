@@ -43,4 +43,8 @@ public class GameRecordObdjService {
     public GameRecordObdj save(GameRecordObdj gameRecord) {
         return gameRecordObdjRepository.save(gameRecord);
     }
+
+    public GameRecordObdj findByBetId(Long betId){
+        return gameRecordObdjRepository.findByBetId(betId);
+    }
 }
