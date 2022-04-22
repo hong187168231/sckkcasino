@@ -61,7 +61,7 @@ public class ThirdGameBusiness {
     @Autowired
     @Qualifier("asyncExecutor")
     private Executor executor;
-    @Value("${project.ipWhite}")
+    @Value("${project.ipWhite:null}")
     private String ipWhite;
 
     public ResponseEntity oneKeyRecoverGoldenF(Long userId) {
@@ -373,6 +373,31 @@ public class ThirdGameBusiness {
         }
         ResponseEntity gresponse = checkGameStatus(vendorCode, gameCode);
         return gresponse;
+    }
+
+    public void inSaveAccountChange(Long userId, BigDecimal amount, BigDecimal amountBefore, BigDecimal amountAfter, Integer type, String orderNo, String remark,String platform,AccountChangeEnum changeEnum ) {
+        User user = userService.findById(userId);
+        Order order = new Order();
+        order.setMoney(amount);
+        order.setUserId(userId);
+        order.setRemark(remark);
+        order.setType(type);
+        order.setState(Constants.order_wait);
+        order.setNo(orderNo);
+        order.setGamePlatformName(platform);
+        order.setFirstProxy(user.getFirstProxy());
+        order.setSecondProxy(user.getSecondProxy());
+        order.setThirdProxy(user.getThirdProxy());
+        orderService.save(order);
+
+        //账变中心记录账变
+        AccountChangeVo vo = new AccountChangeVo();
+        vo.setUserId(userId);
+        vo.setChangeEnum(changeEnum);
+        vo.setAmount(amount.negate());
+        vo.setAmountBefore(amountBefore);
+        vo.setAmountAfter(amountAfter);
+        asyncService.executeAsync(vo);
     }
 
     public Boolean ipWhiteCheck() {
