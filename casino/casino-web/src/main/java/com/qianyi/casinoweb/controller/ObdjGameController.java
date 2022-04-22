@@ -32,8 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -58,8 +56,6 @@ public class ObdjGameController {
     @Autowired
     @Qualifier("accountChangeJob")
     private AsyncService asyncService;
-    @Value("${project.ipWhite}")
-    private String ipWhite;
 
     @ApiOperation("开游戏")
     @PostMapping("/openGame")
@@ -213,7 +209,8 @@ public class ObdjGameController {
     })
     public ResponseEntity<BigDecimal> getBalanceApi(Long userId) {
         log.info("开始查询OB电竞余额:userId={}", userId);
-        if (!ipWhiteCheck()) {
+        Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
+        if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
         if (CasinoWebUtil.checkNull(userId)) {
@@ -240,23 +237,10 @@ public class ObdjGameController {
     @NoAuthentication
     @ApiImplicitParam(name = "userId", value = "用户ID", required = true)
     public ResponseEntity oneKeyRecoverApi(Long userId) {
-        if (!ipWhiteCheck()) {
+        Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
+        if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
         return thirdGameBusiness.oneKeyRecoverOb(userId);
-    }
-
-    private Boolean ipWhiteCheck() {
-        if (ObjectUtils.isEmpty(ipWhite)) {
-            return false;
-        }
-        String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
-        String[] ipWhiteArray = ipWhite.split(",");
-        for (String ipw : ipWhiteArray) {
-            if (!ObjectUtils.isEmpty(ipw) && ipw.trim().equals(ip)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

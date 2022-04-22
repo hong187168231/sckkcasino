@@ -66,8 +66,6 @@ public class GoldenFController {
     private AsyncService asyncService;
     @Value("${project.goldenf.currency:null}")
     private String currency;
-    @Value("${project.ipWhite}")
-    private String ipWhite;
 
     @ApiOperation("开游戏")
 //    @RequestLimit(limit = 1, timeout = 5)
@@ -278,7 +276,8 @@ public class GoldenFController {
     })
     public ResponseEntity<BigDecimal> getBalanceApi(Long userId) {
         log.info("开始查询PG/CQ9余额:userId={}", userId);
-        if (!ipWhiteCheck()) {
+        Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
+        if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
         if (CasinoWebUtil.checkNull(userId)) {
@@ -305,7 +304,8 @@ public class GoldenFController {
     @NoAuthentication
     @ApiImplicitParam(name = "userId", value = "用户ID", required = true)
     public ResponseEntity oneKeyRecoverApi(Long userId) {
-        if (!ipWhiteCheck()) {
+        Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
+        if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
         return thirdGameBusiness.oneKeyRecoverGoldenF(userId);
@@ -377,19 +377,5 @@ public class GoldenFController {
         List<AdGame> gameList = adGamesService.findByGamePlatformNameAndGamesStatusIn(gamePlatformName, gameStatusList);
         vo.setGameList(gameList);
         return vo;
-    }
-
-    private Boolean ipWhiteCheck() {
-        if (ObjectUtils.isEmpty(ipWhite)) {
-            return false;
-        }
-        String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
-        String[] ipWhiteArray = ipWhite.split(",");
-        for (String ipw : ipWhiteArray) {
-            if (!ObjectUtils.isEmpty(ipw) && ipw.trim().equals(ip)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

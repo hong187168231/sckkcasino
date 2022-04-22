@@ -69,8 +69,6 @@ public class WMController {
 
     @Value("${project.signature}")
     String signature;
-    @Value("${project.ipWhite}")
-    String ipWhite;
 
     @ApiOperation("开游戏")
     @RequestLimit(limit = 1, timeout = 5)
@@ -337,7 +335,8 @@ public class WMController {
             return response;
         }
         log.info("开始查询WM余额:account={},lang={}", account, lang);
-        if (!ipWhiteCheck()) {
+        Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
+        if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
         if (CasinoWebUtil.checkNull(account, lang)) {
@@ -381,24 +380,11 @@ public class WMController {
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
             return response;
         }
-        if (!ipWhiteCheck()) {
+        Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
+        if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
         return thirdGameBusiness.oneKeyRecoverWm(userId);
-    }
-
-    private Boolean ipWhiteCheck() {
-        if (ObjectUtils.isEmpty(ipWhite)) {
-            return false;
-        }
-        String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
-        String[] ipWhiteArray = ipWhite.split(",");
-        for (String ipw : ipWhiteArray) {
-            if (!ObjectUtils.isEmpty(ipw) && ipw.trim().equals(ip)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Data

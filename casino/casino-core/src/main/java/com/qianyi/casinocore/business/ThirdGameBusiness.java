@@ -14,12 +14,17 @@ import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +61,8 @@ public class ThirdGameBusiness {
     @Autowired
     @Qualifier("asyncExecutor")
     private Executor executor;
+    @Value("${project.ipWhite}")
+    private String ipWhite;
 
     public ResponseEntity oneKeyRecoverGoldenF(Long userId) {
         log.info("开始回收PG/CQ9余额，userId={}", userId);
@@ -366,5 +373,20 @@ public class ThirdGameBusiness {
         }
         ResponseEntity gresponse = checkGameStatus(vendorCode, gameCode);
         return gresponse;
+    }
+
+    public Boolean ipWhiteCheck() {
+        if (ObjectUtils.isEmpty(ipWhite)) {
+            return false;
+        }
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String ip = IpUtil.getIp(request);
+        String[] ipWhiteArray = ipWhite.split(",");
+        for (String ipw : ipWhiteArray) {
+            if (!ObjectUtils.isEmpty(ipw) && ipw.trim().equals(ip)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
