@@ -307,6 +307,7 @@ public class GameRecordObdjJob {
                     detail = new GameRecordObdjDetail();
                 }
                 Long id = detail.getId();
+                BeanUtils.copyProperties(detailVo,detail);
                 detail.setBetDetailId(detailVo.getId());
                 detail.setUpdateDateTime(detailVo.getUpdateTime());
                 detail.setId(id);
