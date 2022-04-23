@@ -55,9 +55,6 @@ public class ObtyGameController {
     private ThirdGameBusiness thirdGameBusiness;
     @Autowired
     private ErrorOrderService errorOrderService;
-    @Autowired
-    @Qualifier("accountChangeJob")
-    private AsyncService asyncService;
 
     @ApiOperation("开游戏")
     @PostMapping("/openGame")

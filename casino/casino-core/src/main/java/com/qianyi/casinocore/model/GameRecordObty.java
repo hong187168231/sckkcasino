@@ -49,7 +49,7 @@ public class GameRecordObty extends BaseEntity{
     private Long settleTime;
 
     @ApiModelProperty(value = "结算时间(yyyy-MM-dd)")
-    private Long settleStrTime;
+    private String settleStrTime;
 
     @ApiModelProperty(value = "结算金额")
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
