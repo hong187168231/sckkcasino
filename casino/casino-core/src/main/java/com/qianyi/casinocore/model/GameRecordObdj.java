@@ -12,7 +12,7 @@ import java.util.Date;
 @Data
 @Entity
 @Table(name ="game_record_obdj",uniqueConstraints={@UniqueConstraint(columnNames={"betId"})})
-@ApiModel("OB游戏记录")
+@ApiModel("OB电竞游戏记录")
 public class GameRecordObdj extends BaseEntity{
 
     @ApiModelProperty(value = "我方账号")

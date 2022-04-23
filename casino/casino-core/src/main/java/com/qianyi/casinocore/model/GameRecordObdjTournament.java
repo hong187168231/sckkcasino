@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @Data
 @Entity
 @Table(name ="game_record_obdj_tournament",uniqueConstraints={@UniqueConstraint(columnNames={"tournamentId"})})
-@ApiModel("OB游戏记录锦标赛")
+@ApiModel("OB电竞游戏记录锦标赛")
 public class GameRecordObdjTournament extends BaseEntity{
 
     @ApiModelProperty(value = "联赛ID")
