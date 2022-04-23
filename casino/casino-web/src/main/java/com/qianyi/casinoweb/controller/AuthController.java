@@ -172,7 +172,7 @@ public class AuthController {
                                          HttpServletRequest request, String validate, String inviteCode, String inviteType,Integer source) {
         boolean wangyidun = WangyiDunAuthUtil.verify(validate);
         if (!wangyidun) {
-            return ResponseUtil.custom("验证码错误");
+//            return ResponseUtil.custom("验证码错误");
         }
         //卫语句校验
         boolean checkAccountLength = User.checkAccountLength(account);
