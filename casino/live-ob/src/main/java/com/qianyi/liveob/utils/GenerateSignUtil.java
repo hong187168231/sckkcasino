@@ -55,6 +55,26 @@ public class GenerateSignUtil {
         return params;
     }
 
+
+    public static String getObtyMd5Sign(Object... params) {
+        String signatureKey = "";
+        for (Object param:params){
+            signatureKey=signatureKey+param+"&";
+        }
+        if (!ObjectUtils.isEmpty(signatureKey)) {
+            signatureKey = signatureKey.substring(0, signatureKey.length() - 1);
+        }
+        String md5Val = DigestUtils.md5DigestAsHex(signatureKey.getBytes());
+        return md5Val;
+    }
+
+
+    public static String getObtyMd5Sign(String sign, String key) {
+        String signatureKey = sign + "&" + key;
+        String md5Val = DigestUtils.md5DigestAsHex(signatureKey.getBytes());
+        return md5Val;
+    }
+
     /**
      * 获取两位随机数
      * @return

@@ -20,6 +20,8 @@ public enum AccountChangeEnum {
     SYSTEM_UPP (12, "SystemUpp","系统上分"),
     OBDJ_IN(13, "OBDJIN","OB电竞转入"),
     OBDJ_OUT(14, "OBDJOUT","OB电竞转出"),
+    OBTY_IN(15, "OBTYIN","OB体育转入"),
+    OBTY_OUT(16, "OBTYOUT","OB体育转出"),
     ;
 
     private Integer type;

@@ -70,6 +70,11 @@ project:   #不同环境需配置相应的值
     recordUrl: https://djtoppull.merchantapi09.com
     currencyCode: 2 #美元
     tester: 1  #用户类型： 1-测试、0-正式
+  obty: #OB体育
+    merchantCode: 263625
+    secretKey: yI>o@R#%DEY3&dnx7:BfpW+Y6>2I:r
+    apiUrl: https://sandbox-gateway.sportxxxw1box.com
+    currency: 2 #美元
   swagger:
     enable: true                           #是否开启swagger接口文档
   telegramBot:  #定时器执行异常推送消息

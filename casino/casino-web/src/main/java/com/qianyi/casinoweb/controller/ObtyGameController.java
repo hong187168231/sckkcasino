@@ -3,11 +3,15 @@ package com.qianyi.casinoweb.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.business.ThirdGameBusiness;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
-import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.model.UserMoney;
+import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
+import com.qianyi.casinoweb.util.DeviceUtil;
 import com.qianyi.casinoweb.vo.ObdjGameUrlVo;
 import com.qianyi.liveob.api.PublicObdjApi;
+import com.qianyi.liveob.api.PublicObtyApi;
 import com.qianyi.liveob.constants.LanguageEnum;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
@@ -33,10 +37,10 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/obdjGame")
-@Api(tags = "OB电竞游戏厅")
+@RequestMapping("/obtyGame")
+@Api(tags = "OB体育游戏厅")
 @Slf4j
-public class ObdjGameController {
+public class ObtyGameController {
     @Autowired
     private UserService userService;
     @Autowired
@@ -46,7 +50,7 @@ public class ObdjGameController {
     @Autowired
     private OrderService orderService;
     @Autowired
-    private PublicObdjApi obApi;
+    private PublicObtyApi obtyApi;
     @Autowired
     private ThirdGameBusiness thirdGameBusiness;
     @Autowired
@@ -57,115 +61,104 @@ public class ObdjGameController {
 
     @ApiOperation("开游戏")
     @PostMapping("/openGame")
-    public ResponseEntity<ObdjGameUrlVo> openGame(HttpServletRequest request) {
+    public ResponseEntity<String> openGame(HttpServletRequest request) {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
         //未注册自动注册到第三方
-        if (third == null || ObjectUtils.isEmpty(third.getObdjAccount())) {
+        if (third == null || ObjectUtils.isEmpty(third.getObtyAccount())) {
             String account = UUID.randomUUID().toString();
             account = account.replaceAll("-", "");
             if (account.length() > 20) {
                 account = account.substring(0, 20);
             }
-            boolean register = obApi.register(account, account);
+            boolean register = obtyApi.create(account, account);
             if (!register) {
-                log.error("OB电竞注册账号失败");
+                log.error("OB体育注册账号失败");
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
             if (third == null) {
                 third = new UserThird();
                 third.setUserId(authId);
             }
-            third.setObdjAccount(account);
+            third.setObtyAccount(account);
             try {
                 userThirdService.save(third);
             } catch (Exception e) {
                 e.printStackTrace();
-                log.error("OB电竞本地注册账号失败,userId:{},{}", authId, e.getMessage());
+                log.error("OB体育本地注册账号失败,userId:{},{}", authId, e.getMessage());
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
         }
         //回收其他游戏的余额
-        thirdGameBusiness.oneKeyRecoverOtherGame(authId, Constants.PLATFORM_OBDJ);
+        thirdGameBusiness.oneKeyRecoverOtherGame(authId, Constants.PLATFORM_OBTY);
         //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
         UserMoney userMoney = userMoneyService.findByUserId(authId);
         BigDecimal userCenterMoney = BigDecimal.ZERO;
         if (userMoney != null && userMoney.getMoney() != null) {
             userCenterMoney = userMoney.getMoney();
         }
-        String obAccount = third.getObdjAccount();
+        //三方要求金额保留到两位小数
+        userCenterMoney = userCenterMoney.setScale(2, BigDecimal.ROUND_DOWN);
+        String obAccount = third.getObtyAccount();
         User user = userService.findById(authId);
         if (userCenterMoney.compareTo(BigDecimal.ZERO) == 1) {
             //钱转入第三方后本地扣减记录账变  优先扣减本地余额，否则会出现三方加点成功，本地扣减失败的情况
             //先扣本地款
             userMoneyService.subMoney(authId, userCenterMoney);
-            String orderNo = orderService.getObdjOrderNo();
+            String orderNo = orderService.getObtyOrderNo();
             //加点
-            PublicObdjApi.ResponseEntity transfer = obApi.transfer(third.getObdjAccount(), 1, userCenterMoney, orderNo);
+            PublicObtyApi.ResponseEntity transfer = obtyApi.transfer(third.getObtyAccount(), 1, userCenterMoney, orderNo);
             if (transfer == null) {
-                log.error("userId:{},account:{},money:{},进OB电竞游戏加点失败,远程请求异常", third.getUserId(), user.getAccount(), userCenterMoney);
+                log.error("userId:{},account:{},money:{},进OB体育游戏加点失败,远程请求异常", third.getUserId(), user.getAccount(), userCenterMoney);
                 //异步记录错误订单并重试补偿
-                errorOrderService.syncSaveErrorOrder(third.getObdjAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.OBDJ_IN, Constants.PLATFORM_OBDJ);
+                errorOrderService.syncSaveErrorOrder(third.getObtyAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.OBTY_IN, Constants.PLATFORM_OBTY);
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
-            if (PublicObdjApi.STATUS_FALSE.equals(transfer.getStatus())) {
-                log.error("userId:{},进OB电竞游戏加点失败,msg:{}", authId, transfer.getData());
+            if (transfer.getCode() != PublicObtyApi.SUCCESS_CODE) {
+                log.error("userId:{},进OB体育游戏加点失败,msg:{}", authId, transfer.toString());
                 //三方加扣点失败再把钱加回来
                 userMoneyService.addMoney(authId, userCenterMoney);
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
             //记录账变
-            thirdGameBusiness.inSaveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, "自动转入OB电竞",Constants.PLATFORM_OBDJ,AccountChangeEnum.OBDJ_IN);
+            thirdGameBusiness.inSaveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, "自动转入OB体育", Constants.PLATFORM_OBTY, AccountChangeEnum.OBTY_IN);
         }
         //开游戏
-        String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
-        if (ObjectUtils.isEmpty(ip)) {
-            ip = "127.0.0.1";
+        String ua = request.getHeader("User-Agent");
+        boolean checkMobileOrPc = DeviceUtil.checkAgentIsMobile(ua);
+        String terminal = "pc";
+        if (checkMobileOrPc) {
+            terminal = "mobile";
         }
-        ip = ip.replaceAll("\\.", "");
-        PublicObdjApi.ResponseEntity login = obApi.login(obAccount, obAccount, ip);
+        PublicObtyApi.ResponseEntity login = obtyApi.login(obAccount, terminal, null);
         if (login == null) {
-            log.error("userId:{}，account:{},进OB电竞游戏登录失败,远程请求异常", authId, user.getAccount());
+            log.error("userId:{}，account:{},进OB体育游戏登录失败,远程请求异常", authId, user.getAccount());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
-        if (PublicObdjApi.STATUS_FALSE.equals(login.getStatus())) {
-            log.error("userId:{}，account:{},进OB电竞游戏登录失败,msg:{}", authId, user.getAccount(), login.getData());
+        if (login.getCode() != PublicObtyApi.SUCCESS_CODE) {
+            log.error("userId:{}，account:{},进OB体育游戏登录失败,msg:{}", authId, user.getAccount(), login.toString());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
-        JSONObject gameUrl = JSONObject.parseObject(login.getData());
-        if (ObjectUtils.isEmpty(gameUrl)) {
-            return ResponseUtil.success(gameUrl);
+        JSONObject data = JSONObject.parseObject(login.getData());
+        if (ObjectUtils.isEmpty(data)) {
+            return ResponseUtil.success(data);
         }
-        //拼接语言参数
-        ObdjGameUrlVo vo = new ObdjGameUrlVo();
-        String language = request.getHeader(Constants.LANGUAGE);
-        String languageCode = LanguageEnum.getLanguageCode(language);
-        String pc = gameUrl.getString("pc");
-        //三方返回的url中lang时候有值有时候没值，要自己拼接下
-        if (!ObjectUtils.isEmpty(pc)) {
-            pc = pc.substring(0, pc.lastIndexOf("=") + 1) + languageCode;
-        }
-        vo.setPc(pc);
-        String h5 = gameUrl.getString("h5");
-        if (!ObjectUtils.isEmpty(h5)) {
-            h5 = h5.substring(0, h5.lastIndexOf("=") + 1) + languageCode;
-        }
-        vo.setH5(h5);
-        return ResponseUtil.success(vo);
+        String loginUrl = data.getString("loginUrl");
+        return ResponseUtil.success(loginUrl);
     }
 
-    @ApiOperation("查询当前登录用户OB电竞余额")
+    @ApiOperation("查询当前登录用户OB体育余额")
     @GetMapping("/getBalance")
     public ResponseEntity<BigDecimal> getBalance() {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
-        if (third == null || ObjectUtils.isEmpty(third.getObdjAccount())) {
+        if (third == null || ObjectUtils.isEmpty(third.getObtyAccount())) {
             return ResponseUtil.success(BigDecimal.ZERO);
         }
         BigDecimal balance = BigDecimal.ZERO;
-        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getBalanceObdj(third.getObdjAccount(), authId);
+        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getBalanceObty(third.getObtyAccount(), authId);
         if (responseEntity.getData() != null) {
             balance = responseEntity.getData();
         }
@@ -174,14 +167,14 @@ public class ObdjGameController {
         return responseEntity;
     }
 
-    @ApiOperation("查询用户OB电竞余额外部接口")
+    @ApiOperation("查询用户OB体育余额外部接口")
     @GetMapping("/getBalanceApi")
     @NoAuthentication
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userId", value = "用户ID", required = true)
     })
     public ResponseEntity<BigDecimal> getBalanceApi(Long userId) {
-        log.info("开始查询OB电竞余额:userId={}", userId);
+        log.info("开始查询OB体育余额:userId={}", userId);
         Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
         if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
@@ -190,22 +183,22 @@ public class ObdjGameController {
             return ResponseUtil.parameterNotNull();
         }
         UserThird third = userThirdService.findByUserId(userId);
-        if (third == null || ObjectUtils.isEmpty(third.getObdjAccount())) {
+        if (third == null || ObjectUtils.isEmpty(third.getObtyAccount())) {
             return ResponseUtil.custom("当前用户暂未进入过游戏");
         }
-        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getBalanceObdj(third.getObdjAccount(), userId);
+        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getBalanceObty(third.getObtyAccount(), userId);
         return responseEntity;
     }
 
-    @ApiOperation(value = "一键回收当前登录用户OB电竞余额")
+    @ApiOperation(value = "一键回收当前登录用户OB体育余额")
     @GetMapping("/oneKeyRecover")
     public ResponseEntity oneKeyRecover() {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
-        return thirdGameBusiness.oneKeyRecoverObdj(userId);
+        return thirdGameBusiness.oneKeyRecoverObty(userId);
     }
 
-    @ApiOperation(value = "一键回收用户OB电竞余额外部接口")
+    @ApiOperation(value = "一键回收用户OB体育余额外部接口")
     @GetMapping("/oneKeyRecoverApi")
     @NoAuthentication
     @ApiImplicitParam(name = "userId", value = "用户ID", required = true)
@@ -214,6 +207,6 @@ public class ObdjGameController {
         if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
-        return thirdGameBusiness.oneKeyRecoverObdj(userId);
+        return thirdGameBusiness.oneKeyRecoverObty(userId);
     }
 }

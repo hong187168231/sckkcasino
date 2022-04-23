@@ -36,10 +36,17 @@ public class OrderService {
         orderNo = orderNo + today + randNum;
         return orderNo;
     }
-    //生成OB订单号
-    public String getObOrderNo() {
+    //生成OB电竞订单号
+    public String getObdjOrderNo() {
         String today = DateUtil.today("yyyyMMddHHmmssSSS");
         String randNum = CommonUtil.random(3);
+        String orderNo = today + randNum;
+        return orderNo;
+    }
+    //生成OB体育订单号
+    public String getObtyOrderNo() {
+        String today = DateUtil.today("yyyyMMddHHmmssSSS");
+        String randNum = CommonUtil.random(2);
         String orderNo = today + randNum;
         return orderNo;
     }
