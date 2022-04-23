@@ -269,7 +269,7 @@ public class ThirdGameBusiness {
             log.error("userId:{},account={},OB体育退出失败,远程请求异常", userId, user.getAccount());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
-        if (logoutResult.getCode()!=PublicObtyApi.SUCCESS_CODE){
+        if (!logoutResult.getStatus()){
             log.error("userId:{},account={},OB体育退出失败,result={}", userId, logoutResult.toString());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
@@ -292,7 +292,7 @@ public class ThirdGameBusiness {
             errorOrderService.syncSaveErrorOrder(third.getObtyAccount(), user.getId(), user.getAccount(), orderNo, balance, AccountChangeEnum.OBTY_OUT, Constants.PLATFORM_OBTY);
             return ResponseUtil.custom("回收失败,请联系客服");
         }
-        if (transfer.getCode()!=PublicObtyApi.SUCCESS_CODE) {
+        if (!transfer.getStatus()) {
             log.error("OB体育扣点失败,userId:{},account={},money={},msg={}", userId, user.getAccount(), balance, transfer.toString());
             return ResponseUtil.custom("回收失败,请联系客服");
         }
@@ -345,7 +345,7 @@ public class ThirdGameBusiness {
             log.error("userId:{},查询OB体育余额失败,远程请求异常", userId);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
-        if (balanceResult.getCode()!=PublicObtyApi.SUCCESS_CODE) {
+        if (!balanceResult.getStatus()) {
             log.error("userId:{},查询OB体育余额失败,balanceResult={}", userId, balanceResult.toString());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }

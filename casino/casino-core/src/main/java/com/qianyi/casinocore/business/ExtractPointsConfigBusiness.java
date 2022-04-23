@@ -3,6 +3,8 @@ package com.qianyi.casinocore.business;
 import com.qianyi.casinocore.exception.BusinessException;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.repository.*;
+import com.qianyi.casinocore.service.GameRecordObdjService;
+import com.qianyi.casinocore.service.GameRecordObtyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.DTOUtil;
@@ -46,6 +48,10 @@ public class ExtractPointsConfigBusiness {
 
     @Autowired
     private GameRecordGoldenFRepository gameRecordGoldenFRepository;
+    @Autowired
+    private GameRecordObdjService gameRecordObdjService;
+    @Autowired
+    private GameRecordObtyService gameRecordObtyService;
 
     @Autowired
     private UserService userService;
@@ -436,10 +442,14 @@ public class ExtractPointsConfigBusiness {
         extractPointsChangeRepository.save(e);
 
         // 更新抽点状态
-        if(Constants.PLATFORM_WM.equals(platform)) {
+        if (Constants.PLATFORM_WM.equals(platform)) {
             gameRecordRepository.updateExtractStatus(gameRecord.getId(), Constants.yes);
-        }else if(Constants.PLATFORM_PG.equals(platform)||Constants.PLATFORM_CQ9.equals(platform)){
+        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
             gameRecordGoldenFRepository.updateExtractStatus(gameRecord.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_OBDJ.equals(platform)) {
+            gameRecordObdjService.updateExtractStatus(gameRecord.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_OBTY.equals(platform)) {
+            gameRecordObtyService.updateExtractStatus(gameRecord.getId(), Constants.yes);
         }
 
         log.info("抽点完成，平台={}, 注单id={}", platform, gameRecord.getBetId());

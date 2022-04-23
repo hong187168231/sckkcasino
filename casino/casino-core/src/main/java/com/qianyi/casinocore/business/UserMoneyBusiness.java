@@ -43,6 +43,8 @@ public class UserMoneyBusiness {
     @Autowired
     private GameRecordObdjService gameRecordObdjService;
     @Autowired
+    private GameRecordObtyService gameRecordObtyService;
+    @Autowired
     private RebateConfigurationService rebateConfigurationService;
     @Autowired
     private RebateDetailService rebateDetailService;
@@ -95,6 +97,8 @@ public class UserMoneyBusiness {
             gameRecordGoldenFService.updateCodeNumStatus(record.getId(), Constants.yes);
         } else if(Constants.PLATFORM_OBDJ.equals(platform)){
             gameRecordObdjService.updateCodeNumStatus(record.getId(), Constants.yes);
+        } else if(Constants.PLATFORM_OBTY.equals(platform)){
+            gameRecordObtyService.updateCodeNumStatus(record.getId(), Constants.yes);
         }
         log.info("打码结束,平台={},注单ID={}", platform, record.getBetId());
     }
@@ -175,6 +179,8 @@ public class UserMoneyBusiness {
             gameRecordGoldenFService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
         } else if (Constants.PLATFORM_OBDJ.equals(platform)) {
             gameRecordObdjService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_OBTY.equals(platform)) {
+            gameRecordObtyService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
         }
         log.info("洗码完成,平台={},注单ID={}", platform, gameRecord.getBetId());
     }
@@ -342,6 +348,8 @@ public class UserMoneyBusiness {
             gameRecordGoldenFService.updateRebateStatus(record.getId(), Constants.yes);
         } else if (Constants.PLATFORM_OBDJ.equals(platform)) {
             gameRecordObdjService.updateRebateStatus(record.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_OBTY.equals(platform)) {
+            gameRecordObtyService.updateRebateStatus(record.getId(), Constants.yes);
         }
         if (rebateDetail.getTotalAmount().compareTo(BigDecimal.ZERO)>0){
             //后台异步增减平台总余额
@@ -363,6 +371,8 @@ public class UserMoneyBusiness {
             rate = rebateConfiguration.getCQ9Rate();
         } else if (Constants.PLATFORM_OBDJ.equals(platform)) {
             rate = rebateConfiguration.getOBDJRate();
+        } else if (Constants.PLATFORM_OBTY.equals(platform)) {
+            rate = rebateConfiguration.getOBTYRate();
         }
         return rate;
     }

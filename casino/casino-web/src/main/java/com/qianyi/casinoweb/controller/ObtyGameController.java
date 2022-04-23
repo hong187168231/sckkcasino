@@ -9,23 +9,17 @@ import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.util.DeviceUtil;
-import com.qianyi.casinoweb.vo.ObdjGameUrlVo;
-import com.qianyi.liveob.api.PublicObdjApi;
 import com.qianyi.liveob.api.PublicObtyApi;
-import com.qianyi.liveob.constants.LanguageEnum;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
-import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
-import com.qianyi.modulecommon.util.IpUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -112,7 +106,7 @@ public class ObtyGameController {
                 errorOrderService.syncSaveErrorOrder(third.getObtyAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.OBTY_IN, Constants.PLATFORM_OBTY);
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
-            if (transfer.getCode() != PublicObtyApi.SUCCESS_CODE) {
+            if (!transfer.getStatus()) {
                 log.error("userId:{},进OB体育游戏加点失败,msg:{}", authId, transfer.toString());
                 //三方加扣点失败再把钱加回来
                 userMoneyService.addMoney(authId, userCenterMoney);
@@ -133,7 +127,7 @@ public class ObtyGameController {
             log.error("userId:{}，account:{},进OB体育游戏登录失败,远程请求异常", authId, user.getAccount());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
-        if (login.getCode() != PublicObtyApi.SUCCESS_CODE) {
+        if (!login.getStatus()) {
             log.error("userId:{}，account:{},进OB体育游戏登录失败,msg:{}", authId, user.getAccount(), login.toString());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }

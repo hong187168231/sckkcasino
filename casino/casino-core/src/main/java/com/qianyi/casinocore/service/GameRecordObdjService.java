@@ -34,6 +34,10 @@ public class GameRecordObdjService {
         gameRecordObdjRepository.updateProfitStatus(id, shareProfitStatus);
     }
 
+    public void updateExtractStatus(Long id, Integer extractStatus) {
+        gameRecordObdjRepository.updateExtractStatus(id,extractStatus);
+    }
+
     public List<Map<String,Object>> queryGameRecords(Long id,Integer num){
         return gameRecordObdjRepository.queryGameRecords(id,num);
     }
@@ -47,4 +51,5 @@ public class GameRecordObdjService {
     public GameRecordObdj findByBetId(Long betId){
         return gameRecordObdjRepository.findByBetId(betId);
     }
+
 }

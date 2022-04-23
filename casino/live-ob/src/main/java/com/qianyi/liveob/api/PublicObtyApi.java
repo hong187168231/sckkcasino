@@ -12,6 +12,9 @@ import org.springframework.util.ObjectUtils;
 import java.math.BigDecimal;
 import java.util.TreeMap;
 
+/**
+ * 接口文档  http://api-doc.sportxxxw1box.com/#/main/api_doc_zn
+ */
 @Component
 @Slf4j
 public class PublicObtyApi {
@@ -24,8 +27,6 @@ public class PublicObtyApi {
     private String currency;
     @Value("${project.obty.apiUrl:null}")
     private String apiUrl;
-
-    public static final Integer SUCCESS_CODE = 0000;
 
     /**
      * 注册
@@ -56,7 +57,7 @@ public class PublicObtyApi {
             log.error("OB体育创建玩家账号远程请求异常");
             return false;
         }
-        if (entity.getCode() != SUCCESS_CODE) {
+        if (!entity.getStatus()) {
             log.error("OB体育创建玩家账号出错,result={}", entity.toString());
             return false;
         }
@@ -177,10 +178,12 @@ public class PublicObtyApi {
      * @param pageSize     每页条数,默认10条
      * @return
      */
-    public ResponseEntity queryBetList(String userName, String startTime, String endTime, Integer settleStatus, Integer pageNum, Integer pageSize) {
+    public ResponseEntity queryBetList(String userName, Long startTime, Long endTime, Integer settleStatus, Integer pageNum, Integer pageSize) {
         String url = apiUrl + "/api/bet/queryBetList";
         TreeMap<String, Object> treeMap = new TreeMap<>();
         treeMap.put("merchantCode", merchantCode);
+        treeMap.put("startTime", startTime);
+        treeMap.put("endTime", endTime);
         if (!ObjectUtils.isEmpty(userName)) {
             treeMap.put("userName", userName);
         }
@@ -218,6 +221,7 @@ public class PublicObtyApi {
             String msg = "解析OB体育数据时出错,msg=" + e.getMessage();
             log.error(msg);
             entity.setCode(500);
+            entity.setStatus(Boolean.FALSE);
             entity.setMsg(msg);
             entity.setData("远程请求OB体育异常");
             return entity;
