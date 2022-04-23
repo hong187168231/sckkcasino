@@ -436,7 +436,7 @@ public class ExtractPointsConfigBusiness {
         e.setUserId(userId);
         if (Constants.PLATFORM_WM.equals(platform)) {
             e.setGameId(gameRecord.getGid().toString());
-        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
+        } else {
             e.setGameId(gameRecord.getGameCode());
         }
         extractPointsChangeRepository.save(e);
