@@ -58,7 +58,7 @@ public class ShareProfitChange extends BaseEntity {
     /**
      * 游戏类型：1:WM,2:PG,3:CQ9
      */
-    @ApiModelProperty("游戏类型：1:WM,2:PG,3:CQ9,4:OBDJ")
+    @ApiModelProperty("游戏类型：1:WM,2:PG,3:CQ9,4:OBTY")
     private Integer gameType;
     public ShareProfitChange() {
     }

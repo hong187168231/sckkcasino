@@ -39,6 +39,9 @@ public class CompanyProxyDailyBusiness {
     @Autowired
     private GameRecordObdjService gameRecordObdjService;
 
+    @Autowired
+    private GameRecordObtyService gameRecordObtyService;
+
     //传入计算当天的时间  yyyy-MM-dd 格式
     @Transactional
     public void processDailyReport(String dayTime){
@@ -62,6 +65,12 @@ public class CompanyProxyDailyBusiness {
         List<CompanyOrderAmountVo> obdjStatisticsResult = gameRecordObdjService.getStatisticsResult(startTime, endTime);
         if(obdjStatisticsResult.size()>0){
             processingData(obdjStatisticsResult);
+        }
+
+        //查询电子游戏数据
+        List<CompanyOrderAmountVo> obTYStatisticsResult = gameRecordObtyService.getStatisticsResult(startTime, endTime);
+        if(obTYStatisticsResult.size()>0){
+            processingData(obTYStatisticsResult);
         }
 
         if(companyOrderAmountVoList.size() == 0 && statisticsResult.size()==0) {

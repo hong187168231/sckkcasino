@@ -54,6 +54,9 @@ public class LevelShareprofitItemService {
     @Autowired
     private GameRecordObdjService gameRecordObdjService;
 
+    @Autowired
+    private GameRecordObtyService gameRecordObtyService;
+
     /**
      *  处理各级代理分润入库
      * @param shareProfitBO
@@ -89,6 +92,8 @@ public class LevelShareprofitItemService {
                 gameRecordService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
             }else if(shareProfitBO.getGameType()==4){
                 gameRecordObdjService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
+            }else if(shareProfitBO.getGameType()==5){
+                gameRecordObtyService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
             }else {
                 gameRecordGoldenFService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
             }

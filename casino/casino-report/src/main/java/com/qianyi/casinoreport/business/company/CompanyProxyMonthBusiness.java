@@ -60,6 +60,9 @@ public class CompanyProxyMonthBusiness {
     @Autowired
     private MessageUtil messageUtil;
 
+    @Autowired
+    private GameRecordObtyService gameRecordObtyService;
+
 
     //传入计算当天的时间  yyyy-MM-dd 格式
     @Transactional
@@ -92,6 +95,14 @@ public class CompanyProxyMonthBusiness {
         List<CompanyProxyMonth> obdjThirdList = new ArrayList<>();
         List<CompanyOrderAmountVo> obdjResult = gameRecordObdjService.getStatisticsResult(startTime, endTime);
         obdjResult.forEach(item->processOrder(item,obdjFirstList,obdjSecondeList,obdjThirdList));
+
+        //查询电子游戏数据
+        List<CompanyProxyMonth> obtyFirstList= new ArrayList<>();
+        List<CompanyProxyMonth> obtySecondeList = new ArrayList<>();
+        List<CompanyProxyMonth> obtyThirdList = new ArrayList<>();
+        List<CompanyOrderAmountVo> obtyResult = gameRecordObtyService.getStatisticsResult(startTime, endTime);
+        obtyResult.forEach(item->processOrder(item,obtyFirstList,obtySecondeList,obtyThirdList));
+
 
         if(firstList.size() == 0 && firstList1.size()==0) {
             log.info("first level is no user");

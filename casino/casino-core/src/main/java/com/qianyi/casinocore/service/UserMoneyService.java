@@ -58,6 +58,10 @@ public class UserMoneyService {
 
     private String OBTY_recycleUrl = "/obtyGame/oneKeyRecoverApi?";
 
+    private String OBTY_refreshUrl = "/obtyGame/getBalanceApi?";
+
+    private String OBTY_recycleUrl = "/obtyGame/oneKeyRecoverApi?";
+
     public UserMoney findUserByUserIdUseLock(Long userId) {
         //return userMoneyRepository.findUserByUserIdUseLock(userId);
         return userMoneyRepository.findUserMoneyByUserId(userId);

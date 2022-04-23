@@ -196,6 +196,20 @@
             "url": "/user/oneOBRecoverApi"
           },
           {
+            "descritpion": "查询用户OB体育余额",
+            "englishName": "OBTY Balance",
+            "menuLevel": 3,
+            "name": "查询用户OB体育余额",
+            "url": "/user/refreshOBTY"
+          },
+          {
+            "descritpion": "一键回收用户OB体育余额",
+            "englishName": "Restore All OBTY Balance",
+            "menuLevel": 3,
+            "name": "一键回收用户OB体育余额",
+            "url": "/user/oneOBTYRecoverApi"
+          },
+          {
             "descritpion": "请求玩家再WM余额总余额",
             "englishName": "WM total balance",
             "menuLevel": 3,

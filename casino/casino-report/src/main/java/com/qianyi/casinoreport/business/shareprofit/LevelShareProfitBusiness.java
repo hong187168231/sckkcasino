@@ -44,6 +44,9 @@ public class LevelShareProfitBusiness {
     @Autowired
     private GameRecordObdjService gameRecordObdjService;
 
+    @Autowired
+    private GameRecordObtyService gameRecordObtyService;
+
     /**
      * 处理分润
      * @param shareProfitMqVo
@@ -63,6 +66,15 @@ public class LevelShareProfitBusiness {
                 gameRecord.setBetId(gameRecordObdj.getBetId() + "");
                 gameRecord.setUserId(gameRecordObdj.getUserId());
                 gameRecord.setValidbet(gameRecordObdj.getBetAmount().toString());
+                record=gameRecord;
+            }else if(shareProfitMqVo.getPlatform().equals(Constants.PLATFORM_OBTY)){
+                GameRecordObty gameRecordObty = gameRecordObtyService.findGameRecordById(shareProfitMqVo.getGameRecordId());
+                gameType=4;
+                GameRecord gameRecord=new GameRecord();
+                gameRecord.setCreateTime(gameRecordObty.getCreateTime());
+                gameRecord.setBetId(gameRecordObty.getOrderNo() + "");
+                gameRecord.setUserId(gameRecordObty.getUserId());
+                gameRecord.setValidbet(gameRecordObty.getOrderAmount().toString());
                 record=gameRecord;
             }else {
                 GameRecordGoldenF recordGoldenF = gameRecordGoldenFService.findGameRecordById(shareProfitMqVo.getGameRecordId());
@@ -158,7 +170,8 @@ public class LevelShareProfitBusiness {
        int recordAmount= gameRecordService.countByIdLessThanEqualAndUserId(record.getCreateTime(),userId);
        int goldenFAmount= gameRecordGoldenFService.countByIdLessThanEqualAndUserId(record.getCreateTime(),userId);
        int obdjAmount= gameRecordObdjService.countByIdLessThanEqualAndUserId(record.getCreateTime(),userId);
-        amount=recordAmount+goldenFAmount + obdjAmount;
+       int obtyAmount= gameRecordObtyService.countByIdLessThanEqualAndUserId(record.getCreateTime(),userId);
+        amount=recordAmount+goldenFAmount + obdjAmount + obtyAmount;
         if (amount==Constants.yes){
             return true;
         }
