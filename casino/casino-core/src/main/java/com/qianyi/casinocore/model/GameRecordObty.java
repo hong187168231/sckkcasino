@@ -82,5 +82,32 @@ public class GameRecordObty extends BaseEntity{
     @ApiModelProperty(value = "结算次数")
     private Integer settleTimes;
 
+    @ApiModelProperty("总代ID")
+    private Long firstProxy;
+
+    @ApiModelProperty("区域代理ID")
+    private Long secondProxy;
+
+    @ApiModelProperty("基层代理ID")
+    private Long thirdProxy;
+
+    @ApiModelProperty(value = "洗码状态：1：成功")
+    private Integer washCodeStatus;
+
+    @ApiModelProperty(value = "返利状态：1：成功")
+    private Integer rebateStatus;
+
+    @ApiModelProperty(value = "抽点状态: 0: 否 1: 是")
+    private Integer extractStatus;
+
+    @ApiModelProperty(value = "打码状态：1：成功")
+    private Integer codeNumStatus;
+
+    @ApiModelProperty(value = "分润状态：0:失败，>0：成功")
+    private Integer shareProfitStatus = Constants.no;
+
+    @ApiModelProperty(value = "游戏报表状态：0:失败，1：成功")
+    private Integer gameRecordStatus = Constants.no;
+
 
 }
