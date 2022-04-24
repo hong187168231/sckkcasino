@@ -33,7 +33,7 @@ public class GetWmTotalBalanceJob {
     @Value("${spring.profiles.active}")
     private String active;
 
-//    @Scheduled(cron = "0 0/3 * * * ?")
+    @Scheduled(cron = "0 0/3 * * * ?")
     public void tasks() {
         try {
             log.info("开始查询平台在WM的总余额");
