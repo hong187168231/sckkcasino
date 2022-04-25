@@ -348,7 +348,7 @@ public class WMController {
                 log.error("account:{},获取用户WM余额为null",account);
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
-            log.info("WM余额查询成功:account={},lang={},balance", account, lang, balance);
+            log.info("WM余额查询成功:account={},lang={},balance={}", account, lang, balance);
             return ResponseUtil.success(balance);
         } catch (Exception e) {
             e.printStackTrace();
