@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.business.ThirdGameBusiness;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
@@ -335,6 +336,7 @@ public class WMController {
     public ResponseEntity<BigDecimal> getWmBalanceApi(String account, Integer lang) {
         accountList.add(account);
         log.error("account请求集合，accountList={}",accountList.toString());
+        log.error("account请求集合，accountJsonList={}", JSON.toJSONString(accountList.toString()));
         //判断平台状态
         ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
