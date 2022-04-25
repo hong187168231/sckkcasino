@@ -19,6 +19,7 @@ import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.util.IpUtil;
+import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -323,8 +324,8 @@ public class WMController {
         }
     }
 
-    public static List<String> accountList=new ArrayList<>();
-    public static List<String> accountList1=new ArrayList<>();
+    @Autowired
+    private RedisUtil redisUtil;
 
     @ApiOperation("查询用户WM余额外部接口")
 //    @RequestLimit(limit = 1, timeout = 5)
@@ -335,8 +336,7 @@ public class WMController {
             @ApiImplicitParam(name = "lang", value = "语言", required = true),
     })
     public ResponseEntity<BigDecimal> getWmBalanceApi(String account, Integer lang) {
-        accountList.add(account);
-        log.error("account请求开始集合大小{}，accountList={}",accountList.size(),accountList.toString());
+        redisUtil.lSet("wmListBegin",account);
         //判断平台状态
         ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
@@ -357,8 +357,7 @@ public class WMController {
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
             log.info("WM余额查询成功:account={},lang={},balance={}", account, lang, balance);
-            accountList1.add(account);
-            log.error("account请求成功集合大小{}，accountList1={}",accountList1.size(),accountList1.toString());
+            redisUtil.lSet("wmListSuccess",account);
             return ResponseUtil.success(balance);
         } catch (Exception e) {
             e.printStackTrace();
