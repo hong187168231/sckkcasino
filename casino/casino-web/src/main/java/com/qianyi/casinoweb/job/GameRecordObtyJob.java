@@ -147,9 +147,7 @@ public class GameRecordObtyJob {
                 saveBatchDetail(gameRecordObtyVo.getDetailList());
                 //业务处理
                 business(Constants.PLATFORM_OBTY, gameRecord, platformConfig);
-            } catch (DataIntegrityViolationException e) {
-               log.info("保存OB体育游戏记录时报错GameRecordObty唯一索引异常，gameRecord={}",gameRecord.toString());
-            } catch (Exception e) {
+            }  catch (Exception e) {
                 e.printStackTrace();
                 log.error("保存OB体育游戏记录时报错,message={}", e.getMessage());
             }
