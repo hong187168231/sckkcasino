@@ -345,7 +345,7 @@ public class WMController {
         log.info("开始查询WM余额:account={},lang={}", account, lang);
         Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
         if (!ipWhiteCheck) {
-            return ResponseUtil.custom("ip禁止访问");
+//            return ResponseUtil.custom("ip禁止访问");
         }
         if (CasinoWebUtil.checkNull(account, lang)) {
             return ResponseUtil.parameterNotNull();
