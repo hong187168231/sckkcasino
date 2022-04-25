@@ -180,7 +180,7 @@ public class GameRecordObdjJob {
                 business(Constants.PLATFORM_OBDJ, gameRecord, platformConfig);
             } catch (Exception e) {
                 e.printStackTrace();
-                log.error("保存游戏记录时报错,message={},gameRecord={}", e.getMessage(), gameRecord);
+                log.error("保存游戏记录时报错,message={}", e.getMessage());
             }
         }
     }

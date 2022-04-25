@@ -151,7 +151,7 @@ public class GameRecordObtyJob {
                log.info("保存OB体育游戏记录时报错GameRecordObty唯一索引异常，gameRecord={}",gameRecord.toString());
             } catch (Exception e) {
                 e.printStackTrace();
-                log.error("保存OB体育游戏记录时报错,message={},gameRecord={}", e.getMessage(), gameRecord);
+                log.error("保存OB体育游戏记录时报错,message={}", e.getMessage());
             }
         }
     }
