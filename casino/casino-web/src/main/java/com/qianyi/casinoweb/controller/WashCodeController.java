@@ -110,7 +110,7 @@ public class WashCodeController {
                     flag = false;
                     break;
                     //PG/CQ9的洗码配置是配置到平台项上
-                } else if ((Constants.PLATFORM_PG.equals(change.getPlatform()) || Constants.PLATFORM_CQ9.equals(change.getPlatform())) && config.getGameId().equals(change.getPlatform())) {
+                } else if (!ObjectUtils.isEmpty(config.getGameId()) && config.getGameId().equals(change.getPlatform())) {
                     BeanUtils.copyProperties(change, washCodeVo);
                     washCodeVo.setRate(config.getRate() + "%");
                     setGameName(request, washCodeVo, config);
