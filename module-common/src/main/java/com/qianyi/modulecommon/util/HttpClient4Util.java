@@ -27,8 +27,8 @@ public class HttpClient4Util {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
         RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(1000).setConnectionRequestTimeout(500)
-                .setSocketTimeout(1000).build();
+                .setConnectTimeout(35000).setConnectionRequestTimeout(60000)
+                .setSocketTimeout(60000).build();
         httpGet.setConfig(requestConfig);
         CloseableHttpResponse response = null;
         try {

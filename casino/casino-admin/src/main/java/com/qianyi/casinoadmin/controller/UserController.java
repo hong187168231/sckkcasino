@@ -408,9 +408,8 @@ public class UserController {
                     }else {
                         Integer code = (Integer) jsonObject.get("code");
                         if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
-                            synchronized (this){
-                                list.add(new BigDecimal(jsonObject.get("data").toString()));
-                            }
+                            list.add(new BigDecimal(jsonObject.get("data").toString()));
+
                         }
                     }
                 }finally {
@@ -546,9 +545,7 @@ public class UserController {
                     }else {
                         Integer code = (Integer) jsonObject.get("code");
                         if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
-                            synchronized (this){
-                                list.add(new BigDecimal(jsonObject.get("data").toString()));
-                            }
+                            list.add(new BigDecimal(jsonObject.get("data").toString()));
                         }
                     }
                 }finally {
