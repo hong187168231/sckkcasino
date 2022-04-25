@@ -36,6 +36,7 @@ import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -386,6 +387,7 @@ public class UserController {
         }
     }
 
+
     @ApiOperation("请求玩家再WM余额总余额")
     @GetMapping("getWMMoneyTotal")
     public ResponseEntity getWMMoneyTotal(){
@@ -397,16 +399,20 @@ public class UserController {
         Condition condition = reentrantLock.newCondition();
         AtomicInteger atomicInteger = new AtomicInteger(allAcount.size());
         Vector<BigDecimal> list = new Vector<>();
+        ConcurrentHashMap<String, BigDecimal> hashMap = new ConcurrentHashMap();
+        log.info("WM三方账号集合长度：【{}】", allAcount.size());
         for (UserThird u:allAcount){
             threadPool.execute(() ->{
                 try {
                     JSONObject jsonObject = userMoneyService.getWMonetUser(u);
                     if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
                         list.add(BigDecimal.ZERO);
+                        hashMap.put(u.getId().toString(), BigDecimal.ZERO);
                     }else {
                         Integer code = (Integer) jsonObject.get("code");
                         if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
-                            list.add(new BigDecimal(jsonObject.get("data").toString()));
+                           list.add(new BigDecimal(jsonObject.get("data").toString()));
+                            hashMap.put(u.getId().toString(), new BigDecimal(jsonObject.get("data").toString()));
                         }
                     }
                 }finally {
@@ -416,9 +422,15 @@ public class UserController {
             });
         }
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
+        log.info("map余额结合：【{}】", hashMap);
+        log.info("WM三方账号余额集合数据值：【{}】", list);
+
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         return ResponseUtil.success(sum);
     }
+
+
+
 
     @ApiOperation("一键回收用户WM余额")
     @ApiImplicitParams({
@@ -460,7 +472,43 @@ public class UserController {
         for (UserThird u:allGoldenfAccount){
             threadPool.execute(() ->{
                 try {
-                    JSONObject jsonObject = userMoneyService.refreshPGAndCQ9(u);
+                    JSONObject jsonObject = userMoneyService.refreshPGAndCQ9UserId(u.getUserId().toString());
+                    if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+                        list.add(BigDecimal.ZERO);
+                    }else {
+                        Integer code = (Integer) jsonObject.get("code");
+                        if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
+                            synchronized (this){
+                                list.add(new BigDecimal(jsonObject.get("data").toString()));
+                            }
+                        }
+                    }
+                }finally {
+                    atomicInteger.decrementAndGet();
+                    BillThreadPool.toResume(reentrantLock, condition);
+                }
+            });
+        }
+        BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
+        BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        return ResponseUtil.success(sum);
+    }
+
+    @ApiOperation("查询玩家OB电竞总余额")
+    @GetMapping("refreshOBDJTotal")
+    public ResponseEntity refreshOBDJTotal(){
+        List<UserThird> allOBDJAccount = userThirdService.findAllOBDJAccount();
+        if (LoginUtil.checkNull(allOBDJAccount) || allOBDJAccount.size() == CommonConst.NUMBER_0){
+            return ResponseUtil.success(BigDecimal.ZERO);
+        }
+        ReentrantLock reentrantLock = new ReentrantLock();
+        Condition condition = reentrantLock.newCondition();
+        AtomicInteger atomicInteger = new AtomicInteger(allOBDJAccount.size());
+        Vector<BigDecimal> list = new Vector<>();
+        for (UserThird u:allOBDJAccount){
+            threadPool.execute(() ->{
+                try {
+                    JSONObject jsonObject = userMoneyService.refreshOB(u.getUserId());
                     if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
                         list.add(BigDecimal.ZERO);
                     }else {
@@ -479,6 +527,154 @@ public class UserController {
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         return ResponseUtil.success(sum);
     }
+
+    @ApiOperation("查询玩家OB体育总余额")
+    @GetMapping("refreshOBTYTotal")
+    public ResponseEntity refreshOBTYTotal(){
+        List<UserThird> allOBTYAccount = userThirdService.findAllOBTYAccount();
+        if (LoginUtil.checkNull(allOBTYAccount) || allOBTYAccount.size() == CommonConst.NUMBER_0){
+            return ResponseUtil.success(BigDecimal.ZERO);
+        }
+        ReentrantLock reentrantLock = new ReentrantLock();
+        Condition condition = reentrantLock.newCondition();
+        AtomicInteger atomicInteger = new AtomicInteger(allOBTYAccount.size());
+        Vector<BigDecimal> list = new Vector<>();
+        for (UserThird u:allOBTYAccount){
+            threadPool.execute(() ->{
+                try {
+                    JSONObject jsonObject = userMoneyService.refreshOBTY(u.getUserId());
+                    if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+                        list.add(BigDecimal.ZERO);
+                    }else {
+                        Integer code = (Integer) jsonObject.get("code");
+                        if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
+                            list.add(new BigDecimal(jsonObject.get("data").toString()));
+                        }
+                    }
+                }finally {
+                    atomicInteger.decrementAndGet();
+                    BillThreadPool.toResume(reentrantLock, condition);
+                }
+            });
+        }
+        BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
+        BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        return ResponseUtil.success(sum);
+    }
+
+    @ApiOperation("查询用户OB余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("refreshOB")
+    public ResponseEntity refreshOB(Long id){
+        UserThird third = userThirdService.findByUserId(id);
+        if (LoginUtil.checkNull(third) || ObjectUtils.isEmpty(third.getObdjAccount())){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
+        }
+        JSONObject jsonObject = userMoneyService.refreshOB(third.getUserId());
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("OB余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (LoginUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询OB余额失败");
+        }
+    }
+
+
+    @ApiOperation("一键回收用户OB余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("oneOBRecoverApi")
+    public ResponseEntity oneKeyOBRecoverApi(Long id){
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            return ResponseUtil.custom("客户不存在");
+        }
+        JSONObject jsonObject = userMoneyService.oneKeyOBRecoverApi(user);
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("回收OB余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                return ResponseUtil.success();
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("回收OB余额失败");
+        }
+    }
+
+
+    @ApiOperation("查询用户OB体育余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("refreshOBTY")
+    public ResponseEntity refreshOBTY(Long id){
+        UserThird third = userThirdService.findByUserId(id);
+        if (LoginUtil.checkNull(third) || ObjectUtils.isEmpty(third.getObtyAccount())){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
+        }
+        JSONObject jsonObject = userMoneyService.refreshOBTY(third.getUserId());
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("OB体育余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (LoginUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询OB体育余额失败");
+        }
+    }
+
+
+    @ApiOperation("一键回收用户OB体育余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("oneOBTYRecoverApi")
+    public ResponseEntity oneKeyOBTYRecoverApi(Long id){
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            return ResponseUtil.custom("客户不存在");
+        }
+        JSONObject jsonObject = userMoneyService.oneKeyOBTYRecoverApi(user);
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("回收OB体育余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                return ResponseUtil.success();
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("回收OB体育余额失败");
+        }
+    }
+
 
     @ApiOperation("查询用户PG/CQ9余额")
     @ApiImplicitParams({
