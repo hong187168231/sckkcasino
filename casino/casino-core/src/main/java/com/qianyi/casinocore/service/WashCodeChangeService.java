@@ -34,15 +34,19 @@ public class WashCodeChangeService {
 
     public List<WashCodeChange> getList(Long userId, String startTime, String endTime) {
         List<WashCodeChange> list =new ArrayList<>();
-        List<WashCodeChange> wmList = getWmList(Constants.PLATFORM_WM, userId, startTime, endTime);
-        List<WashCodeChange> pgList = getWmList(Constants.PLATFORM_PG, userId, startTime, endTime);
-        List<WashCodeChange> cq9List = getWmList(Constants.PLATFORM_CQ9, userId, startTime, endTime);
+        List<WashCodeChange> wmList = getWashCodeList(Constants.PLATFORM_WM, userId, startTime, endTime);
+        List<WashCodeChange> pgList = getWashCodeList(Constants.PLATFORM_PG, userId, startTime, endTime);
+        List<WashCodeChange> cq9List = getWashCodeList(Constants.PLATFORM_CQ9, userId, startTime, endTime);
+        List<WashCodeChange> obdjList = getWashCodeList(Constants.PLATFORM_OBDJ, userId, startTime, endTime);
+        List<WashCodeChange> obtyList = getWashCodeList(Constants.PLATFORM_OBTY, userId, startTime, endTime);
         list.addAll(wmList);
         list.addAll(pgList);
         list.addAll(cq9List);
+        list.addAll(obdjList);
+        list.addAll(obtyList);
         return list;
     }
-    public List<WashCodeChange> getWmList(String platform,Long userId, String startTime, String endTime) {
+    public List<WashCodeChange> getWashCodeList(String platform,Long userId, String startTime, String endTime) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<WashCodeChange> query = builder.createQuery(WashCodeChange.class);
         Root<WashCodeChange> root = query.from(WashCodeChange.class);
@@ -60,10 +64,10 @@ public class WashCodeChangeService {
         if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
             predicates.add(builder.between(root.get("createTime").as(String.class), startTime, endTime));
         }
-        if(Constants.PLATFORM_PG.equals(platform)||Constants.PLATFORM_CQ9.equals(platform)){
-            query.where(predicates.toArray(new Predicate[predicates.size()])).groupBy(root.get("platform"));
-        }else {
+        if(Constants.PLATFORM_WM.equals(platform)){
             query.where(predicates.toArray(new Predicate[predicates.size()])).groupBy(root.get("platform"), root.get("gameId"));
+        }else {
+            query.where(predicates.toArray(new Predicate[predicates.size()])).groupBy(root.get("platform"));
         }
         List<WashCodeChange> list = entityManager.createQuery(query).getResultList();
         return list;
