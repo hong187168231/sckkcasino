@@ -1,12 +1,9 @@
 package com.qianyi.casinoweb.controller;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.business.ThirdGameBusiness;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
@@ -19,7 +16,6 @@ import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.util.IpUtil;
-import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -324,9 +320,6 @@ public class WMController {
         }
     }
 
-    @Autowired
-    private RedisUtil redisUtil;
-
     @ApiOperation("查询用户WM余额外部接口")
 //    @RequestLimit(limit = 1, timeout = 5)
     @GetMapping("getWmBalanceApi")
@@ -336,7 +329,6 @@ public class WMController {
             @ApiImplicitParam(name = "lang", value = "语言", required = true),
     })
     public ResponseEntity<BigDecimal> getWmBalanceApi(String account, Integer lang) {
-        redisUtil.lSet("wmListBegin",account);
         //判断平台状态
         ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
@@ -345,7 +337,7 @@ public class WMController {
         log.info("开始查询WM余额:account={},lang={}", account, lang);
         Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
         if (!ipWhiteCheck) {
-//            return ResponseUtil.custom("ip禁止访问");
+            return ResponseUtil.custom("ip禁止访问");
         }
         if (CasinoWebUtil.checkNull(account, lang)) {
             return ResponseUtil.parameterNotNull();
@@ -357,7 +349,6 @@ public class WMController {
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
             log.info("WM余额查询成功:account={},lang={},balance={}", account, lang, balance);
-            redisUtil.lSet("wmListSuccess",account);
             return ResponseUtil.success(balance);
         } catch (Exception e) {
             e.printStackTrace();
