@@ -1,6 +1,8 @@
 package com.qianyi.casinoweb.controller;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -320,6 +322,8 @@ public class WMController {
         }
     }
 
+    public static List<String> accountList=new ArrayList<>();
+
     @ApiOperation("查询用户WM余额外部接口")
 //    @RequestLimit(limit = 1, timeout = 5)
     @GetMapping("getWmBalanceApi")
@@ -329,6 +333,8 @@ public class WMController {
             @ApiImplicitParam(name = "lang", value = "语言", required = true),
     })
     public ResponseEntity<BigDecimal> getWmBalanceApi(String account, Integer lang) {
+        accountList.add(account);
+        log.error("account请求集合，accountList={}",accountList.toString());
         //判断平台状态
         ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
