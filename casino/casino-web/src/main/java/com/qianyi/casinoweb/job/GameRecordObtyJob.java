@@ -269,9 +269,8 @@ public class GameRecordObtyJob {
         if (!ObjectUtils.isEmpty(item.getOrderAmount())) {
             gameRecord.setBet(item.getOrderAmount().toString());
         }
-        if (item.getProfitAmount() != null && item.getOrderAmount() != null) {
-            BigDecimal winLoss = item.getProfitAmount().subtract(item.getOrderAmount());
-            gameRecord.setWinLoss(winLoss.toString());
+        if (item.getProfitAmount() != null) {
+            gameRecord.setWinLoss(item.getProfitAmount().toString());
         }
         return gameRecord;
     }
