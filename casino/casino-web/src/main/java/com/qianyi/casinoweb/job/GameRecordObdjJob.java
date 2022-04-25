@@ -163,9 +163,9 @@ public class GameRecordObdjJob {
         for (GameRecordObdjVo gameRecordObdjVo : gameRecordList) {
             GameRecordObdj gameRecord = null;
             try {
-                //未结算,取消，撤销的数据丢弃
+                //未结算的数据丢弃
                 Integer betStatus = gameRecordObdjVo.getBetStatus();
-                if (betStatus == null || betStatus == 3 || betStatus == 4 || betStatus == 7) {
+                if (betStatus == null || betStatus == 3) {
                     continue;
                 }
                 gameRecord = save(gameRecordObdjVo);
