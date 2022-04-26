@@ -383,7 +383,7 @@ public class AuthController {
             //验证码校验
             boolean wangyidun = WangyiDunAuthUtil.verify(validate);
             if (!wangyidun) {
-//                return ResponseUtil.custom("验证码错误");
+                return ResponseUtil.custom("验证码错误");
             }
         }
         if (ObjectUtils.isEmpty(user.getDeviceId()) && !ObjectUtils.isEmpty(deviceId)) {
