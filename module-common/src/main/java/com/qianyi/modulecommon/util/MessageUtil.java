@@ -37,7 +37,7 @@ public class MessageUtil {
             String message = messageSource.getMessage(msgKey, null, locale);
             return message;
         } catch (Exception e) {
-            log.error("多语言获取失败，key:{}", msgKey);
+//            log.error("多语言获取失败，key:{}", msgKey);
             //e.printStackTrace();
             return msgKey;
         }
