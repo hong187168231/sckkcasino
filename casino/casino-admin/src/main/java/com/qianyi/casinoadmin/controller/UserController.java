@@ -421,6 +421,7 @@ public class UserController {
         }
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
         return ResponseUtil.success(sum);
     }
 
@@ -486,6 +487,7 @@ public class UserController {
         }
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
         return ResponseUtil.success(sum);
     }
 
@@ -520,6 +522,7 @@ public class UserController {
         }
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
         return ResponseUtil.success(sum);
     }
 
@@ -590,6 +593,7 @@ public class UserController {
         }
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
         return ResponseUtil.success(sum);
     }
 
