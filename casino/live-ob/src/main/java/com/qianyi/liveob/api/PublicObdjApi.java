@@ -62,7 +62,7 @@ public class PublicObdjApi {
         if (STATUS_TRUE.equals(entity.getStatus())) {
             return true;
         }
-        log.error("OB电竞创建玩家账号出错{}：", entity.getData());
+        log.error("OB电竞创建玩家账号出错{}", entity.getData());
         return false;
     }
 
@@ -85,7 +85,7 @@ public class PublicObdjApi {
         String sign = GenerateSignUtil.getMd5Sign(treeMap);
         treeMap.put("sign", sign);
         String splicingParams = GenerateSignUtil.getParams(treeMap);
-        log.info("OB电竞玩家登录参数{}：", splicingParams);
+        log.info("OB电竞玩家登录参数{}", splicingParams);
         String url = apiUrl + "/api/v2/member/login?" + splicingParams;
         String result = HttpClient4Util.doGet(url);
         log.info("OB电竞玩家登录结果{}", result);
@@ -108,7 +108,7 @@ public class PublicObdjApi {
         String sign = GenerateSignUtil.getMd5Sign(treeMap);
         treeMap.put("sign", sign);
         String splicingParams = GenerateSignUtil.getParams(treeMap);
-        log.info("OB电竞玩家获取余额参数{}：", splicingParams);
+        log.info("OB电竞玩家获取余额参数{}", splicingParams);
         String url = apiUrl + "/api/fund/getBalance?" + splicingParams;
         String result = HttpClient4Util.doGet(url);
         log.info("OB电竞玩家获取余额结果{}", result);
@@ -138,7 +138,7 @@ public class PublicObdjApi {
         String sign = GenerateSignUtil.getMd5Sign(treeMap);
         treeMap.put("sign", sign);
         String splicingParams = GenerateSignUtil.getParams(treeMap);
-        log.info("OB电竞玩家资金转入/转出参数{}：", splicingParams);
+        log.info("OB电竞玩家资金转入/转出参数{}", splicingParams);
         String url = apiUrl + "/api/fund/transfer?" + splicingParams;
         String result = HttpClient4Util.doGet(url);
         log.info("OB电竞玩家资金转入/转出结果{}", result);
@@ -179,7 +179,7 @@ public class PublicObdjApi {
                 .insert(21, GenerateSignUtil.getTwoRandom()).insert(38, GenerateSignUtil.getTwoRandom());
         treeMap.put("sign", sign.toString());
         String splicingParams = GenerateSignUtil.getParams(treeMap);
-        log.info("OB电竞玩家注单拉取参数{}：", splicingParams);
+        log.info("OB电竞玩家注单拉取参数{}", splicingParams);
         String url = recordUrl + "/v2/pull/order/queryScroll?" + splicingParams;
         String result = HttpClient4Util.doGet(url);
         log.info("OB电竞玩家注单拉取结果{}", result);
