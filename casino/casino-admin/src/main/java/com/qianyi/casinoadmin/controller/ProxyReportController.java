@@ -48,6 +48,9 @@ public class ProxyReportController {
     @Autowired
     private GameRecordGoldenFService gameRecordGoldenFService;
 
+    @Autowired
+    private UserGameRecordReportService userGameRecordReportService;
+
     public final static  SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
     public final static  SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -240,7 +243,7 @@ public class ProxyReportController {
             try {
                 Date start = formatter.parse(startTime);
                 Date end = formatter.parse(endTime);
-                threadPool.execute(() -> asyn(k,date,startTime,endTime,start,end,tier,id,user,list,reentrantLock, condition, atomicInteger));
+                threadPool.execute(() -> asynDayDetail(k,date,startTime,endTime,start,end,tier,id,user,list,reentrantLock, condition, atomicInteger));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -249,27 +252,27 @@ public class ProxyReportController {
         Collections.sort(list, new ProxyReportVo());
         return this.getDataDetail(list);
     }
-    private void asyn(Integer key,String date,String startTime,String endTime,Date startDate,Date endDate,Integer tier,Long id,User user,List<ProxyReportVo> list, ReentrantLock reentrantLock, Condition condition, AtomicInteger atomicInteger){
+    private void asynDayDetail(Integer key,String date,String startTime,String endTime,Date startDate,Date endDate,Integer tier,Long id,User user,List<ProxyReportVo> list, ReentrantLock reentrantLock, Condition condition, AtomicInteger atomicInteger){
         synchronized (key.toString().intern()){
             List<BigDecimal> allPerformances = new ArrayList<>();
             ProxyReportVo proxyReportVo = null;
             try {
                 if (tier == CommonConst.NUMBER_0){
-                    proxyReportVo = this.assemble(null,id,date,startTime,endTime,startDate,endDate,CommonConst.NUMBER_0);
+                    proxyReportVo = this.assembleDayDetail(null,id,date,startTime,endTime,startDate,endDate,CommonConst.NUMBER_0);
                     List<User> firstUsers = userService.findFirstUser(id);
                     if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
                         firstUsers.forEach(f ->{
-                            this.assemble(f.getId(),date,allPerformances);
+                            this.assembleDayDetail(f.getId(),date,allPerformances);
                         });
                         List<User> secondPid = userService.findBySecondPid(id);
                         if (!LoginUtil.checkNull(secondPid) && secondPid.size() > CommonConst.NUMBER_0){
                             secondPid.forEach(s ->{
-                                this.assemble(s.getId(),date,allPerformances);
+                                this.assembleDayDetail(s.getId(),date,allPerformances);
                             });
                             List<User> thirdPid = userService.findByThirdPid(id);
                             if (!LoginUtil.checkNull(thirdPid) && thirdPid.size() > CommonConst.NUMBER_0){
                                 thirdPid.forEach(t ->{
-                                    this.assemble(t.getId(),date,allPerformances);
+                                    this.assembleDayDetail(t.getId(),date,allPerformances);
                                 });
                             }
                         }
@@ -277,33 +280,33 @@ public class ProxyReportController {
                     proxyReportVo.setSort(key);
                     proxyReportVo.setAllPerformance(allPerformances.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
                 }else if (tier == CommonConst.NUMBER_1){
-                    proxyReportVo = this.assemble(id,user.getFirstPid(),date,startTime,endTime,startDate,endDate,CommonConst.NUMBER_1);
+                    proxyReportVo = this.assembleDayDetail(id,user.getFirstPid(),date,startTime,endTime,startDate,endDate,CommonConst.NUMBER_1);
                     List<User> firstUsers = userService.findFirstUser(id);
                     if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
                         firstUsers.forEach(f ->{
-                            this.assemble(f.getId(),date,allPerformances);
+                            this.assembleDayDetail(f.getId(),date,allPerformances);
                         });
                         List<User> secondPid = userService.findBySecondPid(id);
                         if (!LoginUtil.checkNull(secondPid) && secondPid.size() > CommonConst.NUMBER_0){
                             secondPid.forEach(s ->{
-                                this.assemble(s.getId(),date,allPerformances);
+                                this.assembleDayDetail(s.getId(),date,allPerformances);
                             });
                         }
                     }
                     proxyReportVo.setSort(key);
                     proxyReportVo.setAllPerformance(allPerformances.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
                 }else if (tier == CommonConst.NUMBER_2){
-                    proxyReportVo = this.assemble(id,user.getSecondPid(),date,startTime,endTime,startDate,endDate,CommonConst.NUMBER_2);
+                    proxyReportVo = this.assembleDayDetail(id,user.getSecondPid(),date,startTime,endTime,startDate,endDate,CommonConst.NUMBER_2);
                     List<User> firstUsers = userService.findFirstUser(id);
                     if (!LoginUtil.checkNull(firstUsers) && firstUsers.size() > CommonConst.NUMBER_0){
                         firstUsers.forEach(f ->{
-                            this.assemble(f.getId(),date,allPerformances);
+                            this.assembleDayDetail(f.getId(),date,allPerformances);
                         });
                     }
                     proxyReportVo.setSort(key);
                     proxyReportVo.setAllPerformance(allPerformances.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
                 }else {
-                    proxyReportVo = this.assemble(id,user.getThirdPid(),date,startTime,endTime,startDate,endDate,CommonConst.NUMBER_3);
+                    proxyReportVo = this.assembleDayDetail(id,user.getThirdPid(),date,startTime,endTime,startDate,endDate,CommonConst.NUMBER_3);
                     proxyReportVo.setSort(key);
                 }
                 list.add(proxyReportVo);
@@ -317,13 +320,16 @@ public class ProxyReportController {
         }
     }
 
-    private void  assemble(Long userId,String date,List<BigDecimal> allPerformances){
-        String startTime = date+start;
-        String endTime  = date+end;
-        GameRecord gameRecord = gameRecordService.findRecordRecordSum(userId, startTime, endTime);
-        allPerformances.add((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
+    private void  assembleDayDetail(Long userId,String date,List<BigDecimal> allPerformances){
+        //        String startTime = date+start;
+        //        String endTime  = date+end;
+        //        GameRecord gameRecord = gameRecordService.findRecordRecordSum(userId, startTime, endTime);
+        //        allPerformances.add((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
+
+        BigDecimal validbet = userGameRecordReportService.sumUserRunningWaterByUserId(date, date, userId);
+        allPerformances.add(validbet);
     }
-    private ProxyReportVo assemble(Long id,Long userId,String date,String startTime,String endTime,Date startDate,Date endDate,Integer tag){
+    private ProxyReportVo assembleDayDetail(Long id,Long userId,String date,String startTime,String endTime,Date startDate,Date endDate,Integer tag){
         ProxyReportVo proxyReportVo = new ProxyReportVo();
         proxyReportVo.setStaticsTimes(date);
         List<ShareProfitChange> shareProfitChanges = shareProfitChangeService.findAll(id,userId,startDate, endDate);
@@ -331,11 +337,15 @@ public class ProxyReportController {
         contribution = contribution.setScale(CommonConst.NUMBER_4, RoundingMode.HALF_UP);
         proxyReportVo.setContribution(contribution);
         if (tag != CommonConst.NUMBER_0){
-            GameRecord gameRecord = gameRecordService.findRecordRecordSum(id, startTime, endTime);
+            //            GameRecord gameRecord = gameRecordService.findRecordRecordSum(id, startTime, endTime);
             //wm有效投注
-            proxyReportVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
+            //            proxyReportVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
             //电子有效投注
-            proxyReportVo.setPerformance(gameRecordGoldenFService.findSumBetAmount(id,startTime,endTime).add(proxyReportVo.getPerformance()));
+            //            proxyReportVo.setPerformance(gameRecordGoldenFService.findSumBetAmount(id,startTime,endTime).add(proxyReportVo.getPerformance()));
+
+            BigDecimal validbet = userGameRecordReportService.sumUserRunningWaterByUserId(date, date, userId);
+            proxyReportVo.setPerformance(validbet);
+
             if (shareProfitChanges == null || shareProfitChanges.size() == CommonConst.NUMBER_0){
                 proxyReportVo.setCommission("0");
             }else {
@@ -352,10 +362,14 @@ public class ProxyReportController {
         ProxyReportVo proxyReportVo = new ProxyReportVo();
         proxyReportVo.setTier(tag);
         //wm有效投注
-        GameRecord gameRecord = gameRecordService.findRecordRecordSum(user.getId(), startTime+start, endTime+end);
-        proxyReportVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
+        //        GameRecord gameRecord = gameRecordService.findRecordRecordSum(user.getId(), startTime+start, endTime+end);
+        //        proxyReportVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
         //电子有效投注
-        proxyReportVo.setPerformance(gameRecordGoldenFService.findSumBetAmount(user.getId(),startTime+start,endTime+end).add(proxyReportVo.getPerformance()));
+        //        proxyReportVo.setPerformance(gameRecordGoldenFService.findSumBetAmount(user.getId(),startTime+start,endTime+end).add(proxyReportVo.getPerformance()));
+
+        BigDecimal validbet = userGameRecordReportService.sumUserRunningWaterByUserId(startTime, endTime, userId);
+        proxyReportVo.setPerformance(validbet);
+
         if (tag == CommonConst.NUMBER_0){
             proxyReportVo.setContribution(BigDecimal.ZERO);
         }else {

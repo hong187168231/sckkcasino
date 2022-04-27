@@ -203,6 +203,8 @@ public class GameRecord extends BaseEntity{
     @ApiModelProperty("基层代理ID")
     private Long thirdProxy;
 
+    @ApiModelProperty(value = "游戏报表状态：0:失败，1：成功")
+    private Integer gameRecordStatus = Constants.no;
     /**
      * PG/CQ9传递数据用
      */

@@ -65,7 +65,6 @@ public class CompanyProxyDetailController {
         if (CasinoProxyUtil.checkNull(startDate,endDate)){
             return ResponseUtil.custom("参数不合法");
         }
-        log.info("综合报表时间范围========>{}至{}",cn.hutool.core.date.DateUtil.formatDateTime(startDate),cn.hutool.core.date.DateUtil.formatDateTime(endDate));
         ProxyUser proxyUser = new ProxyUser();
         proxyUser.setProxyRole(proxyRole);
         proxyUser.setIsDelete(CommonConst.NUMBER_1);
@@ -94,22 +93,24 @@ public class CompanyProxyDetailController {
         }
         Page<ProxyUser> proxyUserPage = proxyUserService.findProxyUserPage(pageable,proxyUser,null,null);
         if (CasinoProxyUtil.checkNull(proxyUserPage) || proxyUserPage.getContent().size() == CommonConst.NUMBER_0){
-            log.info("综合报表没有查到代理");
             return ResponseUtil.success(new PageResultVO());
         }
         PageResultVO<CompanyProxyReportVo> pageResultVO = new PageResultVO(proxyUserPage);
         List<CompanyProxyReportVo> list = new LinkedList<>();
+
+        String startTime = DateUtil.getSimpleDateFormat1().format(startDate);
+        String endTime = DateUtil.getSimpleDateFormat1().format(endDate);
+
         //偏移12小时
         Date start = cn.hutool.core.date.DateUtil.offsetHour(startDate, 12);
         Date end = cn.hutool.core.date.DateUtil.offsetHour(endDate, 12);
         try {
             proxyUserPage.getContent().forEach(proxyUser1 -> {
-                CompanyProxyReportVo companyProxyReportVo = this.assembleData(proxyUser1,start,end);
+                CompanyProxyReportVo companyProxyReportVo = this.assembleData(proxyUser1,start,end,startTime,endTime);
                 list.add(companyProxyReportVo);
             });
             this.getCompanyProxyReportVos(list);
             pageResultVO.setContent(list);
-            log.info("综合报表查询结果{}",list);
             return ResponseUtil.success(pageResultVO);
 
         }catch (Exception ex){
@@ -163,7 +164,7 @@ public class CompanyProxyDetailController {
                 try {
                     Date start = DateUtil.getSimpleDateFormat().parse(today+startStr);
                     Date end = DateUtil.getSimpleDateFormat().parse(tomorrow+endStr);
-                    CompanyProxyReportVo companyProxyReportVo = this.assembleData(proxy,start,end);
+                    CompanyProxyReportVo companyProxyReportVo = this.assembleData(proxy,start,end,today,today);
                     companyProxyReportVo.setStaticsTimes(today);
                     list.add(companyProxyReportVo);
                 }catch (ParseException px){
@@ -177,14 +178,12 @@ public class CompanyProxyDetailController {
 
         return ResponseUtil.success(list);
     }
-    private CompanyProxyReportVo assembleData(ProxyUser byId,Date start,Date end){
+    private CompanyProxyReportVo assembleData(ProxyUser byId,Date start,Date end,String startTime,String endTime){
         ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
-        String startTime = cn.hutool.core.date.DateUtil.formatDateTime(start);
-        String endTime = cn.hutool.core.date.DateUtil.formatDateTime(end);
-        log.info("综合报表查询代理名{}时间范围========>{}至{}",byId.getUserName(),startTime,endTime);
         proxyHomePageReportService.chargeOrder(byId, start, end, proxyHomePageReport);
         proxyHomePageReportService.withdrawOrder(byId, start, end, proxyHomePageReport);
-        proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
+        //        proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
+        proxyHomePageReportService.findGameRecord(byId, startTime, endTime, proxyHomePageReport);
         proxyHomePageReportService.getNewUsers(byId, start, end, proxyHomePageReport);
         if (byId.getProxyRole() == CommonConst.NUMBER_1){
             proxyHomePageReportService.getNewSecondProxys(byId,start,end,proxyHomePageReport);
@@ -211,7 +210,6 @@ public class CompanyProxyDetailController {
         companyProxyReportVo.setUserName(byId.getUserName());
         companyProxyReportVo.setNickName(byId.getNickName());
         companyProxyReportVo.setProxyRole(byId.getProxyRole());
-        log.info("综合报表查询结果代理名{}结果{}",companyProxyReportVo.getUserName(),companyProxyReportVo,toString());
         return companyProxyReportVo;
     }
 

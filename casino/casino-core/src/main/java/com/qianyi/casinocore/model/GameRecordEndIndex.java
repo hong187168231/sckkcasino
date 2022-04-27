@@ -22,4 +22,10 @@ public class GameRecordEndIndex extends BaseEntity{
 
     @ApiModelProperty("CQ9电子注单id")
     private Long CQ9MaxId;
+
+    @ApiModelProperty("OBDJ注单id")
+    private Long OBDJMaxId;
+
+    @ApiModelProperty("OBTY注单id")
+    private Long OBTYMaxId;
 }

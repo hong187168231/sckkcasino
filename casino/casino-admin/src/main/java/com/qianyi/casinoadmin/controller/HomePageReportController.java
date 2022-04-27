@@ -79,6 +79,9 @@ public class HomePageReportController {
 
     @Autowired
     private WashCodeChangeService washCodeChangeService;
+
+    @Autowired
+    private ProxyGameRecordReportService proxyGameRecordReportService;
     @ApiOperation("查询首页报表")
     @GetMapping("/find")
     @ApiImplicitParams({
@@ -101,6 +104,9 @@ public class HomePageReportController {
             if (LoginUtil.checkNull(startDate,endDate)){//不传时间，统计所有
                 homePageReportVo = gameRecord(homePageReportVo);
             }else {//传时间，统计时间往后推12小时
+                String startTime = DateUtil.getSimpleDateFormat1().format(startDate);
+                String endTime = DateUtil.getSimpleDateFormat1().format(endDate);
+
                 Calendar nowTime = Calendar.getInstance();
                 nowTime.setTime(startDate);
                 nowTime.add(Calendar.HOUR, 12);
@@ -110,7 +116,7 @@ public class HomePageReportController {
                 nowTime.add(Calendar.HOUR, 12);
                 endDate = nowTime.getTime();
                 String endTimeStr = DateUtil.dateToPatten(endDate);
-                homePageReportVo = gameRecord(startTimeStr,endTimeStr,homePageReportVo);
+                homePageReportVo = gameRecord(startTimeStr,endTimeStr,homePageReportVo,startTime,endTime);
                 if (tag == CommonConst.NUMBER_1 || tag == CommonConst.NUMBER_2){
                     return ResponseUtil.success(this.getHomePageReportVo(homePageReportVo));
                 }
@@ -206,7 +212,7 @@ public class HomePageReportController {
                     String firstDay = DateUtil.dateToPatten1(calendar.getTime()) + start;
                     calendar.add(Calendar.DATE, 1);
                     String lastDay = DateUtil.dateToPatten1(calendar.getTime()) + end;
-                    this.gameRecordMoney(firstDay,lastDay,vo);
+                    this.gameRecordMoney(firstDay,lastDay,vo,vo.getStaticsTimes(),vo.getStaticsTimes());
                     //                    vo.setWinLossAmount(vo.getWinLossAmount().negate());
                     this.getHomePageReportVo(vo);
                     if (vo.getValidbetAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || vo.getChargeAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
@@ -311,20 +317,26 @@ public class HomePageReportController {
                 Date date = DateUtil.getSimpleDateFormatMonth().parse(time);
                 calendar.setTime(date);
                 calendar.set(Calendar.DAY_OF_MONTH,1);
-                String firstDay = DateUtil.dateToPatten1(calendar.getTime()) + start;
-                calendar.add(Calendar.YEAR, 1);
+                String startTimeStr = DateUtil.dateToPatten1(calendar.getTime());
+                String firstDay = startTimeStr + start;
+                calendar.add(Calendar.MONTH, 1);
                 String lastDay = DateUtil.dateToPatten1(calendar.getTime()) + end;
-                this.gameRecordMoney(firstDay,lastDay,vo);
+
+                calendar.add(Calendar.DATE, -1);
+                this.gameRecordMoney(firstDay,lastDay,vo,startTimeStr,DateUtil.dateToPatten1(calendar.getTime()));
                 this.findCompanyProxyDetails(new CompanyProxyMonth(),time,time,vo);
             }else if (tag == CommonConst.NUMBER_3){
                 Calendar calendar = Calendar.getInstance();
                 Date date = DateUtil.getSimpleDateFormatYear().parse(time);
                 calendar.setTime(date);
                 calendar.set(Calendar.DAY_OF_YEAR,1);
-                String firstDay = DateUtil.dateToPatten1(calendar.getTime()) + start;
+                String startTimeStr = DateUtil.dateToPatten1(calendar.getTime());
+                String firstDay = startTimeStr + start;
                 calendar.add(Calendar.YEAR, 1);
                 String lastDay = DateUtil.dateToPatten1(calendar.getTime()) + end;
-                this.gameRecordMoney(firstDay,lastDay,vo);
+
+                calendar.add(Calendar.DATE, -1);
+                this.gameRecordMoney(firstDay,lastDay,vo,startTimeStr,DateUtil.dateToPatten1(calendar.getTime()));
                 this.findCompanyProxyDetails(new CompanyProxyMonth(),time + startMonth,time + endMonth,vo);
             }
         }catch (ParseException ex){
@@ -397,18 +409,24 @@ public class HomePageReportController {
         BeanUtils.copyProperties(homePageReport, homePageReportVo);
         return homePageReportVo;
     }
-    private HomePageReportVo  gameRecordMoney(String startTime, String endTime, HomePageReportVo homePageReportVo){
+    private HomePageReportVo  gameRecordMoney(String startTime, String endTime, HomePageReportVo homePageReportVo,String startTimeStr,String endTimeStr){
         try {
-            Map<String, Object> gameRecordSum = gameRecordService.findSumBetAndWinLoss(startTime, endTime);
-            BigDecimal gameRecordValidbet = gameRecordSum.get("validbet") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("validbet").toString());
-            BigDecimal gameRecordWinLoss = gameRecordSum.get("winLoss") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("winLoss").toString());
+            //            Map<String, Object> gameRecordSum = gameRecordService.findSumBetAndWinLoss(startTime, endTime);
+            //            BigDecimal gameRecordValidbet = gameRecordSum.get("validbet") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("validbet").toString());
+            //            BigDecimal gameRecordWinLoss = gameRecordSum.get("winLoss") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("winLoss").toString());
+            //
+            //            Map<String, Object> gameRecordGoldenFSum = gameRecordGoldenFService.findSumBetAndWinLoss(startTime, endTime);
+            //            BigDecimal gameRecordGoldenFValidbet = gameRecordGoldenFSum.get("betAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("betAmount").toString());
+            //            BigDecimal gameRecordGoldenFWinLoss = gameRecordGoldenFSum.get("winAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("winAmount").toString());
+            //
+            //            homePageReportVo.setValidbetAmount(gameRecordValidbet.add(gameRecordGoldenFValidbet));
+            //            homePageReportVo.setWinLossAmount(BigDecimal.ZERO.subtract(gameRecordWinLoss).subtract(gameRecordGoldenFWinLoss));
 
-            Map<String, Object> gameRecordGoldenFSum = gameRecordGoldenFService.findSumBetAndWinLoss(startTime, endTime);
-            BigDecimal gameRecordGoldenFValidbet = gameRecordGoldenFSum.get("betAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("betAmount").toString());
-            BigDecimal gameRecordGoldenFWinLoss = gameRecordGoldenFSum.get("winAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("winAmount").toString());
-
-            homePageReportVo.setValidbetAmount(gameRecordValidbet.add(gameRecordGoldenFValidbet));
-            homePageReportVo.setWinLossAmount(BigDecimal.ZERO.subtract(gameRecordWinLoss).subtract(gameRecordGoldenFWinLoss));
+            Map<String, Object> gameRecordMap = proxyGameRecordReportService.findSumBetAndWinLoss(startTimeStr,endTimeStr);
+            //有效投注
+            homePageReportVo.setValidbetAmount(new BigDecimal(gameRecordMap.get("validAmount").toString()));
+            //输赢，以平台维度取反
+            homePageReportVo.setWinLossAmount(BigDecimal.ZERO.subtract(new BigDecimal(gameRecordMap.get("winLoss").toString())));
 
             BigDecimal extractPointsAmount = extractPointsChangeService.sumAmount(startTime, endTime);
             homePageReportVo.setExtractPointsAmount(extractPointsAmount);
@@ -427,17 +445,22 @@ public class HomePageReportController {
 
     private HomePageReportVo  gameRecord( HomePageReportVo homePageReportVo){
         try {
-            Map<String, Object> gameRecordSum = gameRecordService.findSumBetAndWinLoss();
-            BigDecimal gameRecordValidbet = gameRecordSum.get("validbet") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("validbet").toString());
-            BigDecimal gameRecordWinLoss = gameRecordSum.get("winLoss") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("winLoss").toString());
+            //            Map<String, Object> gameRecordSum = gameRecordService.findSumBetAndWinLoss();
+            //            BigDecimal gameRecordValidbet = gameRecordSum.get("validbet") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("validbet").toString());
+            //            BigDecimal gameRecordWinLoss = gameRecordSum.get("winLoss") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("winLoss").toString());
+            //
+            //            Map<String, Object> gameRecordGoldenFSum = gameRecordGoldenFService.findSumBetAndWinLoss();
+            //            BigDecimal gameRecordGoldenFValidbet = gameRecordGoldenFSum.get("betAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("betAmount").toString());
+            //            BigDecimal gameRecordGoldenFWinLoss = gameRecordGoldenFSum.get("winAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("winAmount").toString());
 
-            Map<String, Object> gameRecordGoldenFSum = gameRecordGoldenFService.findSumBetAndWinLoss();
-            BigDecimal gameRecordGoldenFValidbet = gameRecordGoldenFSum.get("betAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("betAmount").toString());
-            BigDecimal gameRecordGoldenFWinLoss = gameRecordGoldenFSum.get("winAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("winAmount").toString());
+            Map<String, Object> gameRecordMap = proxyGameRecordReportService.findSumBetAndWinLoss();
+            //活跃人数
+            homePageReportVo.setActiveUsers(Integer.parseInt(gameRecordMap.get("num").toString()));
+            //有效投注
+            homePageReportVo.setValidbetAmount(new BigDecimal(gameRecordMap.get("validAmount").toString()));
+            //输赢，以平台维度取反
+            homePageReportVo.setWinLossAmount(BigDecimal.ZERO.subtract(new BigDecimal(gameRecordMap.get("winLoss").toString())));
 
-            homePageReportVo.setValidbetAmount(gameRecordValidbet.add(gameRecordGoldenFValidbet));
-            homePageReportVo.setWinLossAmount(BigDecimal.ZERO.subtract(gameRecordWinLoss).subtract(gameRecordGoldenFWinLoss));
-            //            homePageReportVo.setWinLossAmount(gameRecordWinLoss.add(gameRecordGoldenFWinLoss));
             if (homePageReportVo.getValidbetAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || homePageReportVo.getChargeAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
                 homePageReportVo.setOddsRatio(homePageReportVo.getChargeAmount());
             }else {
@@ -452,12 +475,12 @@ public class HomePageReportController {
             BigDecimal washCodeAmount = washCodeChangeService.sumAmount();
             homePageReportVo.setWashCodeAmount(washCodeAmount);
 
-            Set<Long> gameRecordGoldenFUser = gameRecordGoldenFService.findGroupByUser();
-            Set<Long> gameRecordUser = gameRecordService.findGroupByUser();
-
-            gameRecordGoldenFUser.addAll(gameRecordUser);
-            homePageReportVo.setActiveUsers(gameRecordGoldenFUser.size());
-            gameRecordGoldenFUser.clear();
+            //            Set<Long> gameRecordGoldenFUser = gameRecordGoldenFService.findGroupByUser();
+            //            Set<Long> gameRecordUser = gameRecordService.findGroupByUser();
+            //
+            //            gameRecordGoldenFUser.addAll(gameRecordUser);
+            //            homePageReportVo.setActiveUsers(gameRecordGoldenFUser.size());
+            //            gameRecordGoldenFUser.clear();
             return homePageReportVo;
         }catch (Exception ex){
             log.error("统计三方游戏注单失败",ex);
@@ -465,26 +488,21 @@ public class HomePageReportController {
         return homePageReportVo;
     }
 
-    private HomePageReportVo  gameRecord(String startTime, String endTime, HomePageReportVo homePageReportVo){
+    private HomePageReportVo  gameRecord(String startTime, String endTime, HomePageReportVo homePageReportVo,String start, String end){
         try {
-            Map<String, Object> gameRecordSum = gameRecordService.findSumBetAndWinLoss(startTime, endTime);
-            BigDecimal gameRecordValidbet = gameRecordSum.get("validbet") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("validbet").toString());
-            BigDecimal gameRecordWinLoss = gameRecordSum.get("winLoss") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("winLoss").toString());
+            Map<String, Object> gameRecordMap = proxyGameRecordReportService.findSumBetAndWinLoss(start,end);
+            //活跃人数
+            homePageReportVo.setActiveUsers(Integer.parseInt(gameRecordMap.get("num").toString()));
+            //有效投注
+            homePageReportVo.setValidbetAmount(new BigDecimal(gameRecordMap.get("validAmount").toString()));
+            //输赢，以平台维度取反
+            homePageReportVo.setWinLossAmount(BigDecimal.ZERO.subtract(new BigDecimal(gameRecordMap.get("winLoss").toString())));
 
-            Map<String, Object> gameRecordGoldenFSum = gameRecordGoldenFService.findSumBetAndWinLoss(startTime, endTime);
-            BigDecimal gameRecordGoldenFValidbet = gameRecordGoldenFSum.get("betAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("betAmount").toString());
-            BigDecimal gameRecordGoldenFWinLoss = gameRecordGoldenFSum.get("winAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("winAmount").toString());
-
-            homePageReportVo.setValidbetAmount(gameRecordValidbet.add(gameRecordGoldenFValidbet));
-            homePageReportVo.setWinLossAmount(BigDecimal.ZERO.subtract(gameRecordWinLoss).subtract(gameRecordGoldenFWinLoss));
-            //            homePageReportVo.setWinLossAmount(gameRecordWinLoss.add(gameRecordGoldenFWinLoss));
             if (homePageReportVo.getValidbetAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || homePageReportVo.getChargeAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
                 homePageReportVo.setOddsRatio(homePageReportVo.getChargeAmount());
             }else {
                 homePageReportVo.setOddsRatio(homePageReportVo.getChargeAmount().divide(homePageReportVo.getValidbetAmount(), 2, RoundingMode.HALF_UP));
             }
-            Set<Long> gameRecordGoldenFUser = gameRecordGoldenFService.findGroupByUser(startTime, endTime);
-            Set<Long> gameRecordUser = gameRecordService.findGroupByUser(startTime, endTime);
 
             BigDecimal extractPointsAmount = extractPointsChangeService.sumAmount(startTime, endTime);
             homePageReportVo.setExtractPointsAmount(extractPointsAmount);
@@ -494,10 +512,6 @@ public class HomePageReportController {
 
             BigDecimal washCodeAmount = washCodeChangeService.sumAmount(startTime, endTime);
             homePageReportVo.setWashCodeAmount(washCodeAmount);
-
-            gameRecordGoldenFUser.addAll(gameRecordUser);
-            homePageReportVo.setActiveUsers(gameRecordGoldenFUser.size());
-            gameRecordGoldenFUser.clear();
             return homePageReportVo;
         }catch (Exception ex){
             log.error("统计三方游戏注单失败",ex);

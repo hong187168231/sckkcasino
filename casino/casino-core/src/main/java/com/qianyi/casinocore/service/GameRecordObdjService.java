@@ -1,10 +1,13 @@
 package com.qianyi.casinocore.service;
 
+import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.model.GameRecordObdj;
 import com.qianyi.casinocore.repository.GameRecordObdjRepository;
+import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +49,16 @@ public class GameRecordObdjService {
 
     public GameRecordObdj save(GameRecordObdj gameRecord) {
         return gameRecordObdjRepository.save(gameRecord);
+    }
+
+    public List<CompanyOrderAmountVo> getStatisticsResult(String startTime, String endTime){
+        List<Map<String,Object>> orderAmountVoList = gameRecordObdjRepository.getStatisticsResult(startTime,endTime);
+        String json = JSON.toJSONString(orderAmountVoList);
+        return JSON.parseArray(json,CompanyOrderAmountVo.class);
+    }
+
+    public int countByIdLessThanEqualAndUserId(Date createTime, Long userId) {
+        return gameRecordObdjRepository.countByIdLessThanEqualAndUserId(createTime,userId);
     }
 
     public GameRecordObdj findByBetId(Long betId){

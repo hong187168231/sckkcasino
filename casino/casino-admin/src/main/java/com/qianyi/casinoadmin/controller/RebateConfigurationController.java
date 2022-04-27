@@ -48,7 +48,7 @@ public class RebateConfigurationController {
         if (LoginUtil.checkNull(proxyWashCodeConfig)){
             return ResponseUtil.custom("参数必填");
         }
-        if (LoginUtil.checkNull(proxyWashCodeConfig.getCQ9Rate(),proxyWashCodeConfig.getPGRate(),proxyWashCodeConfig.getWMRate())){
+        if (LoginUtil.checkNull(proxyWashCodeConfig.getCQ9Rate(),proxyWashCodeConfig.getPGRate(),proxyWashCodeConfig.getWMRate(),proxyWashCodeConfig.getOBDJRate(),proxyWashCodeConfig.getOBTYRate())){
             return ResponseUtil.custom("参数必填");
         }
         if (proxyWashCodeConfig.getCQ9Rate().compareTo(new BigDecimal(CommonConst.NUMBER_100)) > 0 || proxyWashCodeConfig.getCQ9Rate().compareTo(BigDecimal.ZERO) < 0){
@@ -60,7 +60,12 @@ public class RebateConfigurationController {
         if (proxyWashCodeConfig.getPGRate().compareTo(new BigDecimal(CommonConst.NUMBER_100)) > 0 || proxyWashCodeConfig.getPGRate().compareTo(BigDecimal.ZERO) < 0){
             return ResponseUtil.custom("参数不合法");
         }
-
+        if (proxyWashCodeConfig.getOBDJRate().compareTo(new BigDecimal(CommonConst.NUMBER_100)) > 0 || proxyWashCodeConfig.getOBDJRate().compareTo(BigDecimal.ZERO) < 0){
+            return ResponseUtil.custom("参数不合法");
+        }
+        if (proxyWashCodeConfig.getOBTYRate().compareTo(new BigDecimal(CommonConst.NUMBER_100)) > 0 || proxyWashCodeConfig.getOBTYRate().compareTo(BigDecimal.ZERO) < 0){
+            return ResponseUtil.custom("参数不合法");
+        }
         RebateConfiguration byThirdProxy = rebateConfigurationService.findByUserIdAndType(0L, Constants.OVERALL_TYPE);
         if (!LoginUtil.checkNull(byThirdProxy)){
             proxyWashCodeConfig.setId(byThirdProxy.getId());

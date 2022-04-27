@@ -4,10 +4,7 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.ShareProfitChange;
 import com.qianyi.casinocore.model.UserRunningWater;
-import com.qianyi.casinocore.service.GameRecordGoldenFService;
-import com.qianyi.casinocore.service.GameRecordService;
-import com.qianyi.casinocore.service.ShareProfitChangeService;
-import com.qianyi.casinocore.service.UserRunningWaterService;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.casinocore.vo.CompanyProxyReportVo;
@@ -55,6 +52,9 @@ public class UserRunningWaterController {
     @Autowired
     private GameRecordGoldenFService gameRecordGoldenFService;
 
+    @Autowired
+    private UserGameRecordReportService userGameRecordReportService;
+
     public final static String start = " 00:00:00";
 
     public final static String end = " 23:59:59";
@@ -62,15 +62,15 @@ public class UserRunningWaterController {
     @ApiOperation("查询会员流水报表")
     @GetMapping("/find")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
-            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "userId", value = "会员id", required = true),
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
+        @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "userId", value = "会员id", required = true),
+        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<UserRunningWater> find(Integer pageSize, Integer pageCode, Long userId,
-                                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(userId)){
             return ResponseUtil.custom("参数必填");
         }
@@ -98,7 +98,7 @@ public class UserRunningWaterController {
             list.addAll(userRunningWaters);
             PageVo pageVO = new PageVo(pageCode,pageSize);
             PageResultVO<UserRunningWater> pageResultVO = (PageResultVO<UserRunningWater>) CommonUtil.handlePageResult(list, pageVO);
-//            list.clear();
+            //            list.clear();
             userRunningWaters.clear();
             return ResponseUtil.success(pageResultVO);
         }
@@ -111,14 +111,23 @@ public class UserRunningWaterController {
         String endTime = format + end;
         Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
         Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
-        BigDecimal validbet = gameRecordService.findGameRecords(userId, startTime, endTime);
-        BigDecimal betAmount = gameRecordGoldenFService.findSumBetAmount(userId, startTime, endTime);
-        if (!LoginUtil.checkNull(validbet) || betAmount.compareTo(BigDecimal.ZERO) != CommonConst.NUMBER_0){
+        //        BigDecimal validbet = gameRecordService.findGameRecords(userId, startTime, endTime);
+        //        BigDecimal betAmount = gameRecordGoldenFService.findSumBetAmount(userId, startTime, endTime);
+        //        if (!LoginUtil.checkNull(validbet) || betAmount.compareTo(BigDecimal.ZERO) != CommonConst.NUMBER_0){
+        //            runningWater = new UserRunningWater();
+        //            runningWater.setAmount(betAmount.add(validbet == null?BigDecimal.ZERO:validbet));
+        //            runningWater.setStaticsTimes(format);
+        //            runningWater.setCommission(BigDecimal.ZERO);
+        //        }
+        BigDecimal validbet = userGameRecordReportService.sumUserRunningWaterByUserId(format, format, userId);
+
+        if (validbet.compareTo(BigDecimal.ZERO) != CommonConst.NUMBER_0){
             runningWater = new UserRunningWater();
-            runningWater.setAmount(betAmount.add(validbet == null?BigDecimal.ZERO:validbet));
+            runningWater.setAmount(validbet);
             runningWater.setStaticsTimes(format);
             runningWater.setCommission(BigDecimal.ZERO);
         }
+
         List<ShareProfitChange> shareProfitChanges = shareProfitChangeService.findAll(userId,null, startDate, endDate);
         if (!LoginUtil.checkNull(shareProfitChanges) && shareProfitChanges.size() > CommonConst.NUMBER_0){
             BigDecimal contribution = shareProfitChanges.stream().map(ShareProfitChange::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);

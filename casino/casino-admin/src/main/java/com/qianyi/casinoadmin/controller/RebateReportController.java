@@ -10,10 +10,7 @@ import com.qianyi.casinocore.service.ReportService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.DTOUtil;
-import com.qianyi.casinocore.vo.PageResultVO;
-import com.qianyi.casinocore.vo.PersonReportVo;
-import com.qianyi.casinocore.vo.RebateReportTotalVo;
-import com.qianyi.casinocore.vo.RebateReportVo;
+import com.qianyi.casinocore.vo.*;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -49,32 +46,36 @@ public class RebateReportController {
     @Autowired
     private ProxyUserService proxyUserService;
 
-//    @NoAuthorization
+    //    @NoAuthorization
     @ApiOperation("查询个人返利报表")
     @GetMapping("/queryPersonReport")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
-            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "userName", value = "账号", required = false),
-            @ApiImplicitParam(name = "startTime", value = "起始时间查询", required = true),
-            @ApiImplicitParam(name = "endTime", value = "结束时间查询", required = true),
-            @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
-            @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
-            @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
-            @ApiImplicitParam(name = "tag", value = "1：投注笔数 2：投注金额 3：有效投注 4：返利总额 5：用户输赢金额", required = false),
+        @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "userName", value = "账号", required = false),
+        @ApiImplicitParam(name = "startTime", value = "起始时间查询", required = true),
+        @ApiImplicitParam(name = "endTime", value = "结束时间查询", required = true),
+        @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9、OBDJ ", required = false),
+        @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
+        @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
+        @ApiImplicitParam(name = "tag", value = "1：投注笔数 2：投注金额 3：有效投注 4：返利总额 5：用户输赢金额", required = false),
     })
     public ResponseEntity<PersonReportVo> queryPersonReport(
-            Integer pageSize,
-            Integer pageCode,
-            String userName,
-            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startTime,
-            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endTime,
-            String platform,
-            Integer sort,
-            Integer tag){
+        Integer pageSize,
+        Integer pageCode,
+        String userName,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startTime,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endTime,
+        String platform,
+        Integer sort,
+        Integer tag){
         if (LoginUtil.checkNull(startTime, endTime, pageSize, pageCode)){
             return ResponseUtil.custom("参数不合法");
         }
+
+        String orderTimeStart = "'"+DateUtil.formatDate(startTime)+"'";
+        String orderTimeEnd = "'"+DateUtil.formatDate(endTime)+"'";
+
         // 向后偏移12小时
         if (LoginUtil.checkNull(platform) || platform.equals("WM")){
             startTime = DateUtil.offsetHour(startTime, 12);
@@ -86,7 +87,7 @@ public class RebateReportController {
         if(StringUtils.hasLength(userName)){
             User user = userService.findByAccount(userName);
             if(user != null){
-                List<RebateReportVo> reportResult = userService.findRebateMap(platform,startTimeStr,endTimeStr,user.getId());
+                List<RebateReportVo> reportResult = userService.findRebateMap(platform,startTimeStr,endTimeStr,user.getId(),orderTimeStart,orderTimeEnd,"");
                 PageResultVO<RebateReportVo> mapPageResultVO = combinePage(reportResult, 1, pageCode, pageSize);
                 return ResponseUtil.success(getMap(mapPageResultVO));
             }
@@ -99,7 +100,7 @@ public class RebateReportController {
 
         try {
             String statement = getOrderByStatement(tag, sort);
-            reportResult = userService.findRebateMap(platform, startTimeStr, endTimeStr, page, pageSize, statement);
+            reportResult = userService.findRebateMap(platform, startTimeStr, endTimeStr, page, pageSize, statement,orderTimeStart,orderTimeEnd,"");
         } catch (Exception e) {
             return ResponseUtil.custom("查询失败");
         }
@@ -158,28 +159,30 @@ public class RebateReportController {
     }
 
     private PageResultVO<RebateReportVo> combinePage(List<RebateReportVo> reportResult, int totalElement, int page, int num){
-        PageResultVO<RebateReportVo>
-            pageResult = new PageResultVO<>(page, num, Long.parseLong(totalElement+""), reportResult);
+        PageResultVO<RebateReportVo> pageResult = new PageResultVO<>(page, num, Long.parseLong(totalElement+""), reportResult);
         return pageResult;
     }
 
-//    @NoAuthorization
+    //    @NoAuthorization
     @ApiOperation("查询个人返利报表总计")
     @GetMapping("/queryTotal")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
-            @ApiImplicitParam(name = "userName", value = "账号", required = false),
+        @ApiImplicitParam(name = "userName", value = "账号", required = false),
         @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
         @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<RebateReportTotalVo> queryTotal(
-            String userName,
-            String platform,
-            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        String userName,
+        String platform,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(startDate,endDate)){
             return ResponseUtil.custom("参数不合法");
         }
+
+        String orderTimeStart = "'"+DateUtil.formatDate(startDate)+"'";
+        String orderTimeEnd = "'"+DateUtil.formatDate(endDate)+"'";
 
         // 向后偏移12小时
         if (LoginUtil.checkNull(platform) || platform.equals("WM")){
@@ -195,11 +198,11 @@ public class RebateReportController {
             User user = userService.findByAccount(userName);
             if(user != null){
                 userId=user.getId();
-                List<RebateReportVo> maps = userService.findRebateMap(platform, startTime, endTime, userId);
+                List<RebateReportVo> maps = userService.findRebateMap(platform, startTime, endTime, userId,orderTimeStart,orderTimeEnd,"");
                 itemObject = DTOUtil.toDTO(maps.get(0), RebateReportTotalVo.class);
             }
         }else {
-            Map<String,Object> result = userService.findRebateMap(platform,startTime,endTime);
+            Map<String,Object> result = userService.findRebateMap(platform,startTime,endTime,orderTimeStart,orderTimeEnd,"");
             itemObject = DTOUtil.toDTO(result, RebateReportTotalVo.class);
         }
         return ResponseUtil.success(itemObject);

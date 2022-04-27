@@ -7,6 +7,7 @@ import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.ProxyWashCodeConfigVo;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -72,33 +73,41 @@ public class RebateUserConfigurationController {
         if (proxyWashCodeConfig.getPGRate().compareTo(new BigDecimal(CommonConst.NUMBER_100)) > 0 || proxyWashCodeConfig.getPGRate().compareTo(BigDecimal.ZERO) < 0){
             return ResponseUtil.custom("参数不合法");
         }
-
-
+        if (proxyWashCodeConfig.getOBDJRate().compareTo(new BigDecimal(CommonConst.NUMBER_100)) > 0 || proxyWashCodeConfig.getOBDJRate().compareTo(BigDecimal.ZERO) < 0){
+            return ResponseUtil.custom("参数不合法");
+        }
+        if (proxyWashCodeConfig.getOBTYRate().compareTo(new BigDecimal(CommonConst.NUMBER_100)) > 0 || proxyWashCodeConfig.getOBTYRate().compareTo(BigDecimal.ZERO) < 0){
+            return ResponseUtil.custom("参数不合法");
+        }
+        Boolean tag = false;
+        if (proxyWashCodeConfig.getPGRate().compareTo(BigDecimal.ZERO) == 0 &&
+            proxyWashCodeConfig.getCQ9Rate().compareTo(BigDecimal.ZERO) == 0 &&
+            proxyWashCodeConfig.getWMRate().compareTo(BigDecimal.ZERO) == 0 &&
+            proxyWashCodeConfig.getOBDJRate().compareTo(BigDecimal.ZERO) == 0 &&
+            proxyWashCodeConfig.getOBTYRate().compareTo(BigDecimal.ZERO) == 0){
+            tag = true;
+        }
         if (LoginUtil.checkNull(byThirdProxy)){
-            if (proxyWashCodeConfig.getPGRate().compareTo(BigDecimal.ZERO) == 0 &&
-                proxyWashCodeConfig.getCQ9Rate().compareTo(BigDecimal.ZERO) == 0 &&
-                proxyWashCodeConfig.getWMRate().compareTo(BigDecimal.ZERO) == 0){
+            if (tag){
                 return ResponseUtil.success();
             }
             byThirdProxy = new RebateConfiguration();
             byThirdProxy.setUserId(userId);
             byThirdProxy.setType(Constants.USER_TYPE);
         }else {
-            if (proxyWashCodeConfig.getPGRate().compareTo(BigDecimal.ZERO) == 0 &&
-                proxyWashCodeConfig.getCQ9Rate().compareTo(BigDecimal.ZERO) == 0 &&
-                proxyWashCodeConfig.getWMRate().compareTo(BigDecimal.ZERO) == 0){
+            if (tag){
                 rebateConfigurationService.delete(userId,byThirdProxy);
                 return ResponseUtil.success();
             }
         }
 
-
         byThirdProxy.setCQ9Rate(proxyWashCodeConfig.getCQ9Rate());
         byThirdProxy.setPGRate(proxyWashCodeConfig.getPGRate());
         byThirdProxy.setWMRate(proxyWashCodeConfig.getWMRate());
-
+        byThirdProxy.setOBDJRate(proxyWashCodeConfig.getOBDJRate());
+        byThirdProxy.setOBTYRate(proxyWashCodeConfig.getOBTYRate());
         rebateConfigurationService.save(byThirdProxy);
         return ResponseUtil.success();
-     }
+    }
 
 }

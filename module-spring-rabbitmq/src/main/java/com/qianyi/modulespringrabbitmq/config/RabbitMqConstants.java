@@ -17,7 +17,10 @@ public class RabbitMqConstants {
     public final static String CHARGEORDER_DIRECTQUEUE_DIRECTEXCHANGE = "charge.order.exchange";
     public final static String INGCHARGEORDER_DIRECT = "chargeOrderDev";
 
-
+    //代理报表
+    public final static String PROXYG_AMERECORD_REPORT_QUEUE = "proxy.report.queue";
+    public final static String PROXYG_AMERECORD_REPORT_DIRECTQUEUE_DIRECTEXCHANGE = "proxy.report.exchange";
+    public final static String PROXYG_AMERECORD_REPORT_DIRECT = "proxyReportDev";
 
 
     public final static String LEVEL_SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE = "level.profit.exchange";

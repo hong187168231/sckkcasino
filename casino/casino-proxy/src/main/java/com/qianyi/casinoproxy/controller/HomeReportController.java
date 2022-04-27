@@ -69,12 +69,15 @@ public class HomeReportController {
             if (CasinoProxyUtil.checkNull(startDate) || CasinoProxyUtil.checkNull(endDate)){
                 proxyHomePageReportVo = this.assembleData(byId,proxyHome);
             }else {
+                String startTime = DateUtil.getSimpleDateFormat1().format(startDate);
+                String endTime = DateUtil.getSimpleDateFormat1().format(endDate);
+
                 //偏移12小时
                 Date start = cn.hutool.core.date.DateUtil.offsetHour(startDate, 12);
                 Date end = cn.hutool.core.date.DateUtil.offsetHour(endDate, 12);
                 String startTimeStr = DateUtil.dateToPatten(start);
                 String endTimeStr = DateUtil.dateToPatten(end);
-                proxyHomePageReportVo = this.assembleData(byId,proxyHome,startTimeStr,endTimeStr);
+                proxyHomePageReportVo = this.assembleData(byId,proxyHome,startTimeStr,endTimeStr,startTime,endTime);
             }
             String startTime = startDate==null? null:DateUtil.getSimpleDateFormat1().format(startDate);
             String endTime =  endDate==null? null:DateUtil.getSimpleDateFormat1().format(endDate);
@@ -132,7 +135,7 @@ public class HomeReportController {
                     String endTime = DateUtil.dateToPatten1(calendar.getTime()) + end;
                     ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
                     try {
-                        vo = this.trendChartData(byId,proxyHomePageReport,startTime,endTime);
+                        vo = this.trendChartData(byId,proxyHomePageReport,startTime,endTime,staticsTimes,staticsTimes);
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
@@ -183,22 +186,27 @@ public class HomeReportController {
                 Date date = DateUtil.getSimpleDateFormatMonth().parse(time);
                 calendar.setTime(date);
                 calendar.set(Calendar.DAY_OF_MONTH,1);
-                String startTime = DateUtil.dateToPatten1(calendar.getTime()) + start;
+                String startTimeStr = DateUtil.dateToPatten1(calendar.getTime());
+                String startTime = startTimeStr + start;
                 calendar.add(Calendar.MONTH, 1);
                 String endTime = DateUtil.dateToPatten1(calendar.getTime()) + end;
 
+                calendar.add(Calendar.DATE, -1);
                 ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
-                vo = this.trendChartData(byId,proxyHomePageReport,startTime,endTime);
+                vo = this.trendChartData(byId,proxyHomePageReport,startTime,endTime,startTimeStr,DateUtil.dateToPatten1(calendar.getTime()));
             }else {
                 Calendar calendar = Calendar.getInstance();
                 Date date = DateUtil.getSimpleDateFormatYear().parse(time);
                 calendar.setTime(date);
                 calendar.set(Calendar.DAY_OF_YEAR,1);
-                String startTime = DateUtil.dateToPatten1(calendar.getTime()) + start;
+                String startTimeStr = DateUtil.dateToPatten1(calendar.getTime());
+                String startTime = startTimeStr + start;
                 calendar.add(Calendar.YEAR, 1);
                 String endTime = DateUtil.dateToPatten1(calendar.getTime()) + end;
+
+                calendar.add(Calendar.DATE, -1);
                 ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
-                vo = this.trendChartData(byId,proxyHomePageReport,startTime,endTime);
+                vo = this.trendChartData(byId,proxyHomePageReport,startTime,endTime,startTimeStr,DateUtil.dateToPatten1(calendar.getTime()));
             }
         }catch (ParseException px){
             log.error("proxy首页报表统计失败{}",px);
@@ -228,7 +236,7 @@ public class HomeReportController {
         proxyHomePageReportVo.setTotalProfit(profitAmount);
     }
 
-    private ProxyHomePageReportVo assembleData(ProxyUser byId,ProxyHomePageReport proxyHomePageReport,String startTime, String endTime)throws ParseException{
+    private ProxyHomePageReportVo assembleData(ProxyUser byId,ProxyHomePageReport proxyHomePageReport,String startTime, String endTime,String startTimeStr, String endTimeStr)throws ParseException{
         Date start = DateUtil.getSimpleDateFormat().parse(startTime);
         Date end = DateUtil.getSimpleDateFormat().parse(endTime);
         proxyHomePageReportService.chargeOrder(byId, start, end, proxyHomePageReport);
@@ -240,20 +248,20 @@ public class HomeReportController {
         }
         proxyHomePageReportService.getNewThirdProxys(byId,start, end,proxyHomePageReport);
 
-        proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
+        proxyHomePageReportService.findGameRecord(byId, startTimeStr, endTimeStr, proxyHomePageReport);
         ProxyHomePageReportVo proxyHomePageReportVo = new ProxyHomePageReportVo();
         BeanUtils.copyProperties(proxyHomePageReport, proxyHomePageReportVo);
         return proxyHomePageReportVo;
     }
 
-    private ProxyHomePageReportVo trendChartData(ProxyUser byId,ProxyHomePageReport proxyHomePageReport,String startTime, String endTime)throws ParseException{
+    private ProxyHomePageReportVo trendChartData(ProxyUser byId,ProxyHomePageReport proxyHomePageReport,String startTime, String endTime,String startTimeStr, String endTimeStr)throws ParseException{
         Date start = DateUtil.getSimpleDateFormat().parse(startTime);
         Date end = DateUtil.getSimpleDateFormat().parse(endTime);
         proxyHomePageReportService.chargeOrder(byId, start, end, proxyHomePageReport);
 
         proxyHomePageReportService.getNewUsers(byId, start, end, proxyHomePageReport);
 
-        proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
+        proxyHomePageReportService.findGameRecord(byId, startTimeStr, endTimeStr, proxyHomePageReport);
         ProxyHomePageReportVo proxyHomePageReportVo = new ProxyHomePageReportVo();
         BeanUtils.copyProperties(proxyHomePageReport, proxyHomePageReportVo);
         return proxyHomePageReportVo;

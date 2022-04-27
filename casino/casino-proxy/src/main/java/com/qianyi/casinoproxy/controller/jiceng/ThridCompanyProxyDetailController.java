@@ -59,11 +59,15 @@ public class ThridCompanyProxyDetailController {
             return ResponseUtil.success();
         }
         List<CompanyProxyReportVo> list = new LinkedList<>();
+
+        String startTime = DateUtil.getSimpleDateFormat1().format(startDate);
+        String endTime = DateUtil.getSimpleDateFormat1().format(endDate);
+
         //偏移12小时
         Date start = cn.hutool.core.date.DateUtil.offsetHour(startDate, 12);
         Date end = cn.hutool.core.date.DateUtil.offsetHour(endDate, 12);
         try {
-            CompanyProxyReportVo companyProxyReportVo = this.assembleData(proxy,start,end);
+            CompanyProxyReportVo companyProxyReportVo = this.assembleData(proxy,start,end,startTime,endTime);
             list.add(companyProxyReportVo);
             return ResponseUtil.success(this.getCompanyProxyReportVos(list));
         }catch (Exception ex){
@@ -108,7 +112,7 @@ public class ThridCompanyProxyDetailController {
                 try {
                     Date start = DateUtil.getSimpleDateFormat().parse(today+startStr);
                     Date end = DateUtil.getSimpleDateFormat().parse(tomorrow+endStr);
-                    CompanyProxyReportVo companyProxyReportVo = this.assembleData(proxy,start,end);
+                    CompanyProxyReportVo companyProxyReportVo = this.assembleData(proxy,start,end,today,today);
                     companyProxyReportVo.setStaticsTimes(today);
                     list.add(companyProxyReportVo);
                 }catch (ParseException px){
@@ -122,13 +126,13 @@ public class ThridCompanyProxyDetailController {
 
         return ResponseUtil.success(list);
     }
-    private CompanyProxyReportVo assembleData(ProxyUser byId,Date start,Date end){
+    private CompanyProxyReportVo assembleData(ProxyUser byId,Date start,Date end,String startTime,String endTime){
         ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
-        String startTime = cn.hutool.core.date.DateUtil.formatDateTime(start);
-        String endTime = cn.hutool.core.date.DateUtil.formatDateTime(end);
+
         proxyHomePageReportService.chargeOrder(byId, start, end, proxyHomePageReport);
         proxyHomePageReportService.withdrawOrder(byId, start, end, proxyHomePageReport);
-        proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
+        //        proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
+        proxyHomePageReportService.findGameRecord(byId, startTime, endTime, proxyHomePageReport);
         proxyHomePageReportService.getNewUsers(byId, start, end, proxyHomePageReport);
         CompanyProxyReportVo companyProxyReportVo = new CompanyProxyReportVo();
         companyProxyReportVo.setGroupPerformance(proxyHomePageReport.getValidbetAmount());

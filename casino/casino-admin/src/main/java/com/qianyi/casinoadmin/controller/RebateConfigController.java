@@ -35,7 +35,7 @@ public class RebateConfigController {
 
     @ApiOperation("查询全局代理返佣等级配置")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "gameType", value = "游戏类型：1:WM,2:PG,3:CQ9", required = true),
+        @ApiImplicitParam(name = "gameType", value = "游戏类型：1:WM,2:PG,3:CQ9,4:OBDJ", required = true),
     })
     @GetMapping("/findAll")
     public ResponseEntity<RebateConfig> findRegisterSwitchVo(Integer gameType){
@@ -45,9 +45,9 @@ public class RebateConfigController {
 
     @ApiOperation("编辑全局代理返佣等级配置")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "level", value = "返佣等级", required = true),
-            @ApiImplicitParam(name = "money", value = "业绩额度(整数)", required = true),
-            @ApiImplicitParam(name = "profit", value = "返佣比例", required = true),
+        @ApiImplicitParam(name = "level", value = "返佣等级", required = true),
+        @ApiImplicitParam(name = "money", value = "业绩额度(整数)", required = true),
+        @ApiImplicitParam(name = "profit", value = "返佣比例", required = true),
     })
     @PostMapping("/updateProxyRebate")
     public ResponseEntity updateRegisterSwitch(RebateConfig rebateConfig){

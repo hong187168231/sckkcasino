@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.install;
 
+import cn.hutool.log.Log;
 import com.qianyi.casinoadmin.install.file.*;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.*;
@@ -79,11 +80,13 @@ public class Initialization implements CommandLineRunner {
     private AccountChangeService accountChangeService;
     @Autowired
     private RebateConfigurationService rebateConfigurationService;
+    @Autowired
+    private ExtractPointsConfigService extractPointsConfigService;
 
     @Override
     public void run(String... args) throws Exception {
         log.info("初始化数据开始============================================》");
-//       this.saveBanner();
+        //       this.saveBanner();
         this.runPlatformConfig();
         this.saveBankInfo();
         this.runProxyRebateConfig();
@@ -100,19 +103,70 @@ public class Initialization implements CommandLineRunner {
         this.initializationTotalPlatformQuota();
 
         this.initProxyWashCodeConfig();
+
+        this.saveExtractPointsConfig();
+    }
+    //新增代理抽点配置
+    private void saveExtractPointsConfig(){
+        try {
+            log.info("初始化OBDJ代理抽点配置");
+            List<ExtractPointsConfig> obdj = extractPointsConfigService.findByPlatform(Constants.PLATFORM_OBDJ);
+            log.info("OBDJ代理抽点配置{}",obdj);
+            if (obdj == null || obdj.size() == 0){
+                log.info("OBDJ代理抽点配置进来了");
+                ExtractPointsConfig extractPointsConfig = new ExtractPointsConfig();
+                extractPointsConfig.setGameId(Constants.PLATFORM_OBDJ);
+                extractPointsConfig.setGameName("OB电竞");
+                extractPointsConfig.setPlatform(Constants.PLATFORM_OBDJ);
+                extractPointsConfig.setGameEnName(Constants.PLATFORM_OBDJ);
+                extractPointsConfig.setRate(BigDecimal.ZERO);
+                extractPointsConfig.setState(1);
+                extractPointsConfig.setCreateBy("0");
+                extractPointsConfig.setUpdateBy("0");
+                extractPointsConfigService.save(extractPointsConfig);
+                log.info("OBDJ代理抽点配置保存成功{}",extractPointsConfig);
+            }
+
+            log.info("初始化OBTY代理抽点配置");
+            List<ExtractPointsConfig> obty = extractPointsConfigService.findByPlatform(Constants.PLATFORM_OBTY);
+            log.info("OBTY代理抽点配置{}",obty);
+            if (obty == null || obty.size() == 0){
+                ExtractPointsConfig extractPointsConfig = new ExtractPointsConfig();
+                extractPointsConfig.setGameId(Constants.PLATFORM_OBTY);
+                extractPointsConfig.setGameName("OB体育");
+                extractPointsConfig.setPlatform(Constants.PLATFORM_OBTY);
+                extractPointsConfig.setGameEnName(Constants.PLATFORM_OBTY);
+                extractPointsConfig.setRate(BigDecimal.ZERO);
+                extractPointsConfig.setState(1);
+                extractPointsConfig.setCreateBy("0");
+                extractPointsConfig.setUpdateBy("0");
+                extractPointsConfigService.save(extractPointsConfig);
+                log.info("OBTY代理抽点配置保存成功{}",extractPointsConfig);
+            }
+        }catch (Exception ex){
+            log.error("初始化代理抽点配置失败{}",ex);
+        }
     }
 
     public void initProxyWashCodeConfig(){
-        RebateConfiguration byThirdProxy = rebateConfigurationService.findByUserIdAndType(0L,Constants.OVERALL_TYPE);
-        if (LoginUtil.checkNull(byThirdProxy)){
-            RebateConfiguration proxyWashCodeConfig = new RebateConfiguration();
-            proxyWashCodeConfig.setCQ9Rate(new BigDecimal(0.9));
-            proxyWashCodeConfig.setWMRate(new BigDecimal(0.9));
-            proxyWashCodeConfig.setPGRate(new BigDecimal(0.9));
-            proxyWashCodeConfig.setUserId(0L);
-            proxyWashCodeConfig.setType(Constants.OVERALL_TYPE);
-            rebateConfigurationService.save(proxyWashCodeConfig);
+        try {
+            log.info("初始化全局返利比例配置");
+            RebateConfiguration byThirdProxy = rebateConfigurationService.findByUserIdAndType(0L,Constants.OVERALL_TYPE);
+            if (LoginUtil.checkNull(byThirdProxy)){
+                RebateConfiguration proxyWashCodeConfig = new RebateConfiguration();
+                proxyWashCodeConfig.setCQ9Rate(new BigDecimal(0.9));
+                proxyWashCodeConfig.setWMRate(new BigDecimal(0.9));
+                proxyWashCodeConfig.setPGRate(new BigDecimal(0.9));
+                proxyWashCodeConfig.setOBDJRate(new BigDecimal(0.9));
+                proxyWashCodeConfig.setOBTYRate(new BigDecimal(0.9));
+                proxyWashCodeConfig.setUserId(0L);
+                proxyWashCodeConfig.setType(Constants.OVERALL_TYPE);
+                rebateConfigurationService.save(proxyWashCodeConfig);
+            }
+        }catch (Exception ex){
+            log.error("初始化全局返利比例配置失败{}",ex);
         }
+
 
     }
 
@@ -139,7 +193,7 @@ public class Initialization implements CommandLineRunner {
 
             platformConfig.setTotalPlatformQuota(amount);
             platformConfig.setHistoricalDataId(1);
-           platformConfigService.save(platformConfig);
+            platformConfigService.save(platformConfig);
 
         }
     }
@@ -150,11 +204,16 @@ public class Initialization implements CommandLineRunner {
             first.setGameRecordId(0L);
             first.setPGMaxId(0L);
             first.setCQ9MaxId(0L);
+            first.setOBDJMaxId(0L);
+            first.setOBTYMaxId(0L);
             gameRecordEndIndexService.save(first);
         }else {
             first.setGameRecordId(first.getGameRecordId()==null?0L:first.getGameRecordId());
             first.setPGMaxId(first.getPGMaxId()==null?0L:first.getPGMaxId());
             first.setCQ9MaxId(first.getCQ9MaxId()==null?0L:first.getCQ9MaxId());
+            first.setOBDJMaxId(first.getOBDJMaxId()==null?0L:first.getOBDJMaxId());
+            first.setOBTYMaxId(first.getOBTYMaxId()==null?0L:first.getOBTYMaxId());
+            gameRecordEndIndexService.save(first);
         }
     }
 
@@ -258,23 +317,38 @@ public class Initialization implements CommandLineRunner {
 
     //返佣配置
     public void saveReturnCommissionInfo(){
-
-        RebateConfig gameTypeTemp = rebateConfigService.findGameType(1);
-        if (gameTypeTemp==null){
-            RebateConfig all = rebateConfigService.findFirst();
-            if (all!=null && all.getGameType()==null){
-                all.setGameType(1);
-                rebateConfigService.save(all);
+        try {
+            log.info("初始全局代理返佣等级配置");
+            RebateConfig gameTypeTemp = rebateConfigService.findGameType(1);
+            if (gameTypeTemp==null){
+                RebateConfig all = rebateConfigService.findFirst();
+                if (all!=null && all.getGameType()==null){
+                    all.setGameType(1);
+                    rebateConfigService.save(all);
+                }
             }
+            RebateConfig gameType = rebateConfigService.findGameType(2);
+            if(gameType==null){
+                addRebateConfig(2);
+            }
+            RebateConfig gameType2 = rebateConfigService.findGameType(3);
+            if(gameType2==null){
+                addRebateConfig(3);
+            }
+            RebateConfig obdj = rebateConfigService.findGameType(4);
+            log.info("全局代理返佣等级配置obdj{}",obdj);
+            if(obdj==null){
+                addRebateConfig(4);
+            }
+            RebateConfig obty = rebateConfigService.findGameType(5);
+            log.info("全局代理返佣等级配置obty{}",obty);
+            if(obty==null){
+                addRebateConfig(5);
+            }
+        }catch (Exception ex){
+            log.error("初始全局代理返佣等级配置失败{}",ex);
         }
-        RebateConfig gameType = rebateConfigService.findGameType(2);
-        if(gameType==null){
-            addRebateConfig(2);
-        }
-        RebateConfig gameType2 = rebateConfigService.findGameType(3);
-        if(gameType2==null){
-            addRebateConfig(3);
-        }
+
     }
 
     public void addRebateConfig(Integer gameType){

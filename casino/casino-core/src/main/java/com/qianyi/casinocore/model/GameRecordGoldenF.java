@@ -86,4 +86,7 @@ public class GameRecordGoldenF extends BaseEntity {
 
     @ApiModelProperty(value = "分润状态：0:失败，>0：成功")
     private Integer shareProfitStatus = Constants.no;
+
+    @ApiModelProperty(value = "游戏报表状态：0:失败，1：成功")
+    private Integer gameRecordStatus = Constants.no;
 }

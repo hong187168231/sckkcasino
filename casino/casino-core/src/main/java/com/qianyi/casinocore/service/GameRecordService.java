@@ -262,6 +262,9 @@ public class GameRecordService {
             public Predicate toPredicate(Root<GameRecord> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 Predicate predicate = cb.conjunction();
                 List<Predicate> list = new ArrayList<Predicate>();
+                if (gameRecord.getId() != null) {
+                    list.add(cb.lessThanOrEqualTo(root.get("id").as(Long.class), gameRecord.getId()));
+                }
                 if (!CommonUtil.checkNull(gameRecord.getUser())) {
                     list.add(cb.equal(root.get("user").as(String.class), gameRecord.getUser()));
                 }
@@ -378,11 +381,20 @@ public class GameRecordService {
     public void updateRebateStatus(Long id,Integer rebateStatus){
         gameRecordRepository.updateRebateStatus(id,rebateStatus);
     }
+
+    public void updateGameRecordStatus(Long id, Integer status){
+        gameRecordRepository.updateGameRecordStatus(id,status);
+    }
+
     public List<GameRecord> findByCreateByAndIdGreaterThanEqualOrderByIdAsc(String createBy,Long id) {
         return gameRecordRepository.findByCreateByAndIdGreaterThanEqualOrderByIdAsc(createBy,id);
     }
 
     public GameRecord findByBetId(String betId) {
         return gameRecordRepository.findByBetId(betId);
+    }
+
+    public Long findMaxId(){
+        return gameRecordRepository.findMaxId();
     }
 }

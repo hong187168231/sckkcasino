@@ -46,8 +46,8 @@ public class ProxyRebateConfigController {
 
     @ApiOperation("查询代理返佣等级配置")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "当前详情页面代理id", required = true),
-            @ApiImplicitParam(name = "gameType", value = "游戏类型：1:WM,2:PG,3:CQ9", required = true),
+        @ApiImplicitParam(name = "id", value = "当前详情页面代理id", required = true),
+        @ApiImplicitParam(name = "gameType", value = "游戏类型：1:WM,2:PG,3:CQ9,4:OBDJ, 5,OBTY", required = true),
     })
     @GetMapping("/findAll")
     public ResponseEntity findAll(Long id,Integer gameType){
@@ -73,9 +73,9 @@ public class ProxyRebateConfigController {
     @NoAuthorization
     @ApiOperation("编辑代理返佣等级配置")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "proxyRebateConfig", value = "返佣等级对象", required = false),
-            @ApiImplicitParam(name = "tag", value = "0 启用全局 1 启用个人", required = true),
-            @ApiImplicitParam(name = "proxyUserId", value = "当前详情页面代理id", required = true),
+        @ApiImplicitParam(name = "proxyRebateConfig", value = "返佣等级对象", required = false),
+        @ApiImplicitParam(name = "tag", value = "0 启用全局 1 启用个人", required = true),
+        @ApiImplicitParam(name = "proxyUserId", value = "当前详情页面代理id", required = true),
     })
     @PostMapping("/updateProxyRebate")
     public ResponseEntity updateRegisterSwitch(ProxyRebateConfig proxyRebateConfig,Long proxyUserId,Integer tag){

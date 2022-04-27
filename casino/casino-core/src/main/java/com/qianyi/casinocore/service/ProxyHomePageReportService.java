@@ -20,7 +20,9 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -46,6 +48,12 @@ public class ProxyHomePageReportService {
     @Autowired
     private GameRecordGoldenFService gameRecordGoldenFService;
 
+    @Autowired
+    private CompanyProxyDetailService companyProxyDetailService;
+
+    @Autowired
+    private ProxyGameRecordReportService proxyGameRecordReportService;
+
     public ProxyHomePageReport save(ProxyHomePageReport proxyHomePageReport){
         return proxyHomePageReportRepository.save(proxyHomePageReport);
     }
@@ -58,34 +66,34 @@ public class ProxyHomePageReportService {
         return proxyHomePageReportRepository.findByProxyUserId(proxyUserId);
     }
 
-//    @Transactional
-//    public void updateFirstProxy(Long proxyUserId, Long firstProxy){
-//        proxyHomePageReportRepository.updateFirstProxy(proxyUserId,firstProxy);
-//    }
-//
-//    @Transactional
-//    public void updateSecondProxy(Long proxyUserId, Long secondProxy){
-//        proxyHomePageReportRepository.updateSecondProxy(proxyUserId,secondProxy);
-//    }
-//
-//    public ProxyHomePageReport findByProxyUserIdAndStaticsTimes(Long proxyUserId,String staticsTimes){
-//        return proxyHomePageReportRepository.findByProxyUserIdAndStaticsTimes(proxyUserId,staticsTimes);
-//    }
-//
-//    public List<ProxyHomePageReport> findHomePageReports(ProxyHomePageReport proxyHomePageReport,String startTime, String endTime) {
-//        Specification<ProxyHomePageReport> condition = this.getCondition(proxyHomePageReport,startTime,endTime);
-//        return proxyHomePageReportRepository.findAll(condition);
-//    }
-//
-//    public List<ProxyHomePageReport> findHomePageReports(List<Long> proxyUserId,ProxyHomePageReport proxyHomePageReport,String startTime, String endTime) {
-//        Specification<ProxyHomePageReport> condition = this.getCondition(proxyUserId,proxyHomePageReport,startTime,endTime);
-//        return proxyHomePageReportRepository.findAll(condition);
-//    }
-//
-//    public List<ProxyHomePageReport> findHomePageReports(ProxyHomePageReport proxyHomePageReport,String startTime, String endTime, Sort sort) {
-//        Specification<ProxyHomePageReport> condition = this.getCondition(proxyHomePageReport,startTime,endTime);
-//        return proxyHomePageReportRepository.findAll(condition,sort);
-//    }
+    //    @Transactional
+    //    public void updateFirstProxy(Long proxyUserId, Long firstProxy){
+    //        proxyHomePageReportRepository.updateFirstProxy(proxyUserId,firstProxy);
+    //    }
+    //
+    //    @Transactional
+    //    public void updateSecondProxy(Long proxyUserId, Long secondProxy){
+    //        proxyHomePageReportRepository.updateSecondProxy(proxyUserId,secondProxy);
+    //    }
+    //
+    //    public ProxyHomePageReport findByProxyUserIdAndStaticsTimes(Long proxyUserId,String staticsTimes){
+    //        return proxyHomePageReportRepository.findByProxyUserIdAndStaticsTimes(proxyUserId,staticsTimes);
+    //    }
+    //
+    //    public List<ProxyHomePageReport> findHomePageReports(ProxyHomePageReport proxyHomePageReport,String startTime, String endTime) {
+    //        Specification<ProxyHomePageReport> condition = this.getCondition(proxyHomePageReport,startTime,endTime);
+    //        return proxyHomePageReportRepository.findAll(condition);
+    //    }
+    //
+    //    public List<ProxyHomePageReport> findHomePageReports(List<Long> proxyUserId,ProxyHomePageReport proxyHomePageReport,String startTime, String endTime) {
+    //        Specification<ProxyHomePageReport> condition = this.getCondition(proxyUserId,proxyHomePageReport,startTime,endTime);
+    //        return proxyHomePageReportRepository.findAll(condition);
+    //    }
+    //
+    //    public List<ProxyHomePageReport> findHomePageReports(ProxyHomePageReport proxyHomePageReport,String startTime, String endTime, Sort sort) {
+    //        Specification<ProxyHomePageReport> condition = this.getCondition(proxyHomePageReport,startTime,endTime);
+    //        return proxyHomePageReportRepository.findAll(condition,sort);
+    //    }
 
     private Specification<ProxyHomePageReport> getCondition(ProxyHomePageReport proxyHomePageReport,String startTime, String endTime) {
         Specification<ProxyHomePageReport> specification = new Specification<ProxyHomePageReport>() {
@@ -247,74 +255,122 @@ public class ProxyHomePageReportService {
         return null;
     }
 
-    public void gameRecord(ProxyUser proxyUser,ProxyHomePageReport proxyHomePageReport){
+    public void sumGameRecord(ProxyUser proxyUser,String startTime,String endTime,ProxyHomePageReport proxyHomePageReport){
         try {
-            Set<Long> set = new HashSet<>();
+            GameRecord gameRecord = new GameRecord();
+            if (CommonUtil.setParameter(gameRecord,proxyUser)){
+                return;
+            }
+            long start = System.currentTimeMillis();
+            List<GameRecord> gameRecords = gameRecordService.findGameRecords(gameRecord, startTime, endTime);
+            //            if (gameRecord  == null || gameRecords.size() == CommonConst.NUMBER_0){
+            //                proxyHomePageReport.setValidbetAmount(BigDecimal.ZERO);
+            //                proxyHomePageReport.setWinLossAmount(BigDecimal.ZERO);
+            //                proxyHomePageReport.setActiveUsers(CommonConst.NUMBER_0);
+            //                return;
+            //            }
             BigDecimal validbetAmount = BigDecimal.ZERO;
             BigDecimal winLoss = BigDecimal.ZERO;
-            Map<String, Object> gameRecordMap = null;
-            Map<String, Object> gameRecordGoldenFMap = null;
-            Set<Long> gameRecordSet = null;
-            Set<Long> gameRecordGoldenFSet = null;
-            if (proxyUser.getProxyRole() == CommonConst.NUMBER_1){
-                gameRecordSet = gameRecordService.findGroupByFirst(proxyUser.getId());
-                gameRecordMap = gameRecordService.findSumBetAndWinLossByFirst( proxyUser.getId());
-                gameRecordGoldenFSet = gameRecordGoldenFService.findGroupByFirst(proxyUser.getId());
-                gameRecordGoldenFMap = gameRecordGoldenFService.findSumBetAndWinLossByFirst(proxyUser.getId());
-            }else if (proxyUser.getProxyRole() == CommonConst.NUMBER_2){
-                gameRecordSet = gameRecordService.findGroupBySecond(proxyUser.getId());
-                gameRecordMap = gameRecordService.findSumBetAndWinLossBySecond(proxyUser.getId());
-                gameRecordGoldenFSet = gameRecordGoldenFService.findGroupBySecond(proxyUser.getId());
-                gameRecordGoldenFMap = gameRecordGoldenFService.findSumBetAndWinLossBySecond(proxyUser.getId());
-            }else {
-                gameRecordSet = gameRecordService.findGroupByThird(proxyUser.getId());
-                gameRecordMap = gameRecordService.findSumBetAndWinLossByThird(proxyUser.getId());
-                gameRecordGoldenFSet = gameRecordGoldenFService.findGroupByThird( proxyUser.getId());
-                gameRecordGoldenFMap = gameRecordGoldenFService.findSumBetAndWinLossByThird(proxyUser.getId());
+            for (GameRecord g : gameRecords){
+                validbetAmount = validbetAmount.add(new BigDecimal(g.getValidbet()));
+                winLoss = winLoss.add(new BigDecimal(g.getWinLoss()));
             }
-            set.addAll(gameRecordSet);
-            set.addAll(gameRecordGoldenFSet);
-            validbetAmount = new BigDecimal(gameRecordMap.get("validbet").toString()).add(new BigDecimal(gameRecordGoldenFMap.get("betAmount").toString()));
-            winLoss = new BigDecimal(gameRecordMap.get("winLoss").toString()).add(new BigDecimal(gameRecordGoldenFMap.get("winAmount").toString()));
-            proxyHomePageReport.setValidbetAmount(validbetAmount);
-            proxyHomePageReport.setWinLossAmount(winLoss);
-            proxyHomePageReport.setActiveUsers(set.size());
-            set.clear();
+
+            Set<Long> gameRecordUserIds = gameRecords.stream().map(GameRecord::getUserId).collect(Collectors.toSet());
+            log.info("综合报表统计WM注单耗时{}",System.currentTimeMillis()-start);
+            start = System.currentTimeMillis();
+            GameRecordGoldenF gameRecordGoldenF =new GameRecordGoldenF();
+            if (CommonUtil.setParameter(gameRecordGoldenF,proxyUser)){
+                return;
+            }
+            List<GameRecordGoldenF> gameRecordGoldenFs = gameRecordGoldenFService.findGameRecordGoldenFs(gameRecordGoldenF, startTime, endTime);
+            BigDecimal betAmount = gameRecordGoldenFs.stream().map(GameRecordGoldenF::getBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal winAmount = gameRecordGoldenFs.stream().map(GameRecordGoldenF::getWinAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal subtract = winAmount.subtract(betAmount);
+
+            Set<Long> gameRecordGoldenFUserIds = gameRecordGoldenFs.stream().map(GameRecordGoldenF::getUserId).collect(Collectors.toSet());
+            log.info("综合报表统计电子笔数耗时{}",System.currentTimeMillis()-start);
+            gameRecordUserIds.addAll(gameRecordGoldenFUserIds);
+            proxyHomePageReport.setValidbetAmount(validbetAmount.add(betAmount));
+            proxyHomePageReport.setWinLossAmount(winLoss.add(subtract));
+            proxyHomePageReport.setActiveUsers(gameRecordUserIds.size());
+            gameRecords.clear();
+            gameRecordGoldenFs.clear();
         }catch (Exception ex){
             log.error("统计代理{}三方游戏注单失败{}",proxyUser.getUserName(),ex);
         }
     }
-//    public Set<Long> gameRecordAndActive(ProxyUser proxyUser, String startTime, String endTime, ProxyHomePageReport proxyHomePageReport){
-//        try {
-//            GameRecord gameRecord = new GameRecord();
-//            if (CommonUtil.setParameter(gameRecord,proxyUser)){
-//                return null;
-//            }
-//            List<GameRecord> gameRecords = gameRecordService.findGameRecords(gameRecord, startTime, endTime);
-//            if (gameRecord  == null || gameRecords.size() == CommonConst.NUMBER_0){
-//                proxyHomePageReport.setValidbetAmount(BigDecimal.ZERO);
-//                proxyHomePageReport.setWinLossAmount(BigDecimal.ZERO);
-//                return null;
-//            }
-//            BigDecimal validbetAmount = BigDecimal.ZERO;
-//            BigDecimal winLoss = BigDecimal.ZERO;
-//            for (GameRecord g : gameRecords){
-//                validbetAmount = validbetAmount.add(new BigDecimal(g.getValidbet()));
-//                winLoss = winLoss.add(new BigDecimal(g.getWinLoss()));
-//            }
-//            proxyHomePageReport.setValidbetAmount(validbetAmount);
-//            proxyHomePageReport.setWinLossAmount(winLoss);
-//            Set<Long> set = new HashSet<>();
-//            gameRecords.stream().filter(com.qianyi.modulecommon.util.CommonUtil.distinctByKey(GameRecord::getUserId)).forEach(game ->{
-//                set.add(game.getUserId());
-//            });
-//            gameRecords.clear();
-//            return set;
-//        }catch (Exception ex){
-//            log.error("统计代理{}三方游戏注单失败{}",proxyUser.getUserName(),ex);
-//        }
-//        return null;
-//    }
+
+    public void findGameRecord(ProxyUser proxyUser,String startTime,String endTime,ProxyHomePageReport proxyHomePageReport){
+        try {
+            Map<String, Object> gameRecordMap = null;
+            if (proxyUser.getProxyRole() == CommonConst.NUMBER_1){
+                gameRecordMap = proxyGameRecordReportService.findSumBetAndWinLossByFirst(startTime,endTime,proxyUser.getId());
+            }else if (proxyUser.getProxyRole() == CommonConst.NUMBER_2){
+                gameRecordMap = proxyGameRecordReportService.findSumBetAndWinLossBySecond(startTime,endTime,proxyUser.getId());
+            }else {
+                gameRecordMap = proxyGameRecordReportService.findSumBetAndWinLossByThird(startTime,endTime,proxyUser.getId());
+            }
+
+            proxyHomePageReport.setActiveUsers(Integer.parseInt(gameRecordMap.get("num").toString()));
+            proxyHomePageReport.setValidbetAmount(new BigDecimal(gameRecordMap.get("validAmount").toString()));
+            proxyHomePageReport.setWinLossAmount(new BigDecimal(gameRecordMap.get("winLoss").toString()));
+        }catch (Exception ex){
+            log.error("统计代理{}三方游戏注单失败{}",proxyUser.getUserName(),ex);
+        }
+    }
+
+    public void gameRecord(ProxyUser proxyUser,ProxyHomePageReport proxyHomePageReport){
+        try {
+            Map<String, Object> gameRecordMap = null;
+            if (proxyUser.getProxyRole() == CommonConst.NUMBER_1){
+                gameRecordMap = proxyGameRecordReportService.findSumBetAndWinLossByFirst(proxyUser.getId());
+            }else if (proxyUser.getProxyRole() == CommonConst.NUMBER_2){
+                gameRecordMap = proxyGameRecordReportService.findSumBetAndWinLossBySecond(proxyUser.getId());
+            }else {
+                gameRecordMap = proxyGameRecordReportService.findSumBetAndWinLossByThird(proxyUser.getId());
+            }
+            //活跃人数
+            proxyHomePageReport.setActiveUsers(Integer.parseInt(gameRecordMap.get("num").toString()));
+            //有效投注
+            proxyHomePageReport.setValidbetAmount(new BigDecimal(gameRecordMap.get("validAmount").toString()));
+            //输赢，以平台维度取反
+            proxyHomePageReport.setWinLossAmount(BigDecimal.ZERO.subtract(new BigDecimal(gameRecordMap.get("winLoss").toString())));
+        }catch (Exception ex){
+            log.error("统计代理{}三方游戏注单失败{}",proxyUser.getUserName(),ex);
+        }
+    }
+    //    public Set<Long> gameRecordAndActive(ProxyUser proxyUser, String startTime, String endTime, ProxyHomePageReport proxyHomePageReport){
+    //        try {
+    //            GameRecord gameRecord = new GameRecord();
+    //            if (CommonUtil.setParameter(gameRecord,proxyUser)){
+    //                return null;
+    //            }
+    //            List<GameRecord> gameRecords = gameRecordService.findGameRecords(gameRecord, startTime, endTime);
+    //            if (gameRecord  == null || gameRecords.size() == CommonConst.NUMBER_0){
+    //                proxyHomePageReport.setValidbetAmount(BigDecimal.ZERO);
+    //                proxyHomePageReport.setWinLossAmount(BigDecimal.ZERO);
+    //                return null;
+    //            }
+    //            BigDecimal validbetAmount = BigDecimal.ZERO;
+    //            BigDecimal winLoss = BigDecimal.ZERO;
+    //            for (GameRecord g : gameRecords){
+    //                validbetAmount = validbetAmount.add(new BigDecimal(g.getValidbet()));
+    //                winLoss = winLoss.add(new BigDecimal(g.getWinLoss()));
+    //            }
+    //            proxyHomePageReport.setValidbetAmount(validbetAmount);
+    //            proxyHomePageReport.setWinLossAmount(winLoss);
+    //            Set<Long> set = new HashSet<>();
+    //            gameRecords.stream().filter(com.qianyi.modulecommon.util.CommonUtil.distinctByKey(GameRecord::getUserId)).forEach(game ->{
+    //                set.add(game.getUserId());
+    //            });
+    //            gameRecords.clear();
+    //            return set;
+    //        }catch (Exception ex){
+    //            log.error("统计代理{}三方游戏注单失败{}",proxyUser.getUserName(),ex);
+    //        }
+    //        return null;
+    //    }
 
     public void getNewUsers(ProxyUser proxyUser,Date startDate,Date endDate,ProxyHomePageReport proxyHomePageReport){
         try {

@@ -257,19 +257,17 @@ public class UserService {
     }
 
     @SuppressWarnings("unchecked")
-    public List<PersonReportVo> findMap(String platform,String startTime,String endTime,Integer page,Integer pageSize,String sort)
+    public List<PersonReportVo> findMap(String platform,String startTime,String endTime,Integer page,Integer pageSize,String sort,String orderTimeStart,String orderTimeEnd,String proxy)
         throws Exception {
         startTime = "'"+startTime+"'";
         endTime = "'"+endTime+"'";
         String sql = "";
         if(StringUtils.isNullOrEmpty(platform)){
-            sql = MessageFormat.format(SqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString());
+            sql = MessageFormat.format(SqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString(),orderTimeStart,orderTimeEnd,proxy);
         }else if (platform.equals("WM")){
-            sql = MessageFormat.format(SqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'wm'");
-        }else if (platform.equals("PG")){
-            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'PG'");
-        }else {
-            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'CQ9'");
+            sql = MessageFormat.format(SqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'wm'",proxy);
+        }else{
+            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(),"'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
         }
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
@@ -278,18 +276,16 @@ public class UserService {
         return DTOUtil.map2DTO(mapList, PersonReportVo.class);
     }
     @SuppressWarnings("unchecked")
-    public List<PersonReportVo> findMap(String platform, String startTime, String endTime, Long userId){
+    public List<PersonReportVo> findMap(String platform, String startTime, String endTime, Long userId,String orderTimeStart,String orderTimeEnd,String proxy){
         startTime = "'"+startTime+"'";
         endTime = "'"+endTime+"'";
         String sql = "";
         if(StringUtils.isNullOrEmpty(platform)){
-            sql = MessageFormat.format(SqlConst.seleOneTotal,startTime,endTime,userId.toString());
+            sql = MessageFormat.format(SqlConst.seleOneTotal,startTime,endTime,userId.toString(),orderTimeStart,orderTimeEnd,proxy);
         }else if (platform.equals("WM")){
-            sql = MessageFormat.format(SqlConst.seleOneWm, startTime, endTime, userId.toString(), "'wm'");
-        }else if (platform.equals("PG")){
-            sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(), "'PG'");
-        }else {
-            sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"'CQ9'");
+            sql = MessageFormat.format(SqlConst.seleOneWm, startTime, endTime, userId.toString(), "'wm'",proxy);
+        }else{
+            sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(),"'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
         }
         //        log.info("\n" + sql);
         //        log.info("\n" + SqlConst.seleOneTotal);
@@ -315,23 +311,17 @@ public class UserService {
     );
 
     @SuppressWarnings("unchecked")
-    public Map<String,Object> findMap(String platform,String startTime,String endTime){
+    public Map<String,Object> findMap(String platform,String startTime,String endTime,String orderTimeStart,String orderTimeEnd,String proxy){
         startTime = "'"+startTime+"'";
         endTime = "'"+endTime+"'";
         String sql = "";
         if(StringUtils.isNullOrEmpty(platform)){
-            sql = MessageFormat.format(SqlConst.sumSql,startTime,endTime);
+            sql = MessageFormat.format(SqlConst.sumSql,startTime,endTime,orderTimeStart,orderTimeEnd, proxy);
         }else if (platform.equals("WM")){
-            sql = MessageFormat.format(SqlConst.WMSumSql,startTime, endTime, "'wm'");
-        }else if (platform.equals("PG")){
-            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime, endTime, "'PG'");
-        }else {
-            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime, endTime, "'CQ9'");
+            sql = MessageFormat.format(SqlConst.WMSumSql,startTime, endTime, "'wm'", proxy);
+        }else{
+            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime, endTime,"'"+platform+"'",orderTimeStart,orderTimeEnd, proxy);
         }
-        //        log.info("\n" + sql);
-        //        log.info("\n" + SqlConst.sumSql);
-        //        log.info("\n" + SqlConst.WMSumSql);
-        //        log.info("\n" + SqlConst.PGAndCQ9SumSql);
         Query countQuery = entityManager.createNativeQuery(sql);
         Object result = countQuery.getSingleResult();
         Map<String,Object> map = new HashMap<>();
@@ -381,19 +371,17 @@ public class UserService {
     }
 
     @SuppressWarnings("unchecked")
-    public List<RebateReportVo> findRebateMap(String platform,String startTime,String endTime,Integer page,Integer pageSize,String sort)
+    public List<RebateReportVo> findRebateMap(String platform,String startTime,String endTime,Integer page,Integer pageSize,String sort,String orderTimeStart,String orderTimeEnd,String proxy)
         throws Exception {
         startTime = "'"+startTime+"'";
         endTime = "'"+endTime+"'";
         String sql = "";
         if(StringUtils.isNullOrEmpty(platform)){
-            sql = MessageFormat.format(RebateSqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString());
+            sql = MessageFormat.format(RebateSqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString(),orderTimeStart,orderTimeEnd,proxy);
         }else if (platform.equals("WM")){
-            sql = MessageFormat.format(RebateSqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'wm'");
-        }else if (platform.equals("PG")){
-            sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'PG'");
-        }else {
-            sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'CQ9'");
+            sql = MessageFormat.format(RebateSqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'wm'",proxy);
+        }else{
+            sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
         }
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
@@ -401,18 +389,16 @@ public class UserService {
         return DTOUtil.map2DTO(mapList, RebateReportVo.class);
     }
     @SuppressWarnings("unchecked")
-    public List<RebateReportVo> findRebateMap(String platform, String startTime, String endTime, Long userId){
+    public List<RebateReportVo> findRebateMap(String platform, String startTime, String endTime, Long userId,String orderTimeStart,String orderTimeEnd,String proxy){
         startTime = "'"+startTime+"'";
         endTime = "'"+endTime+"'";
         String sql = "";
         if(StringUtils.isNullOrEmpty(platform)){
-            sql = MessageFormat.format(RebateSqlConst.seleOneTotal,startTime,endTime,userId.toString());
+            sql = MessageFormat.format(RebateSqlConst.seleOneTotal,startTime,endTime,userId.toString(),orderTimeStart,orderTimeEnd,proxy);
         }else if (platform.equals("WM")){
-            sql = MessageFormat.format(RebateSqlConst.seleOneWm, startTime, endTime, userId.toString(), "'wm'");
-        }else if (platform.equals("PG")){
-            sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(), "'PG'");
-        }else {
-            sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"'CQ9'");
+            sql = MessageFormat.format(RebateSqlConst.seleOneWm, startTime, endTime, userId.toString(), "'wm'",proxy);
+        }else{
+            sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(),  "'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
         }
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
@@ -434,18 +420,16 @@ public class UserService {
     );
 
     @SuppressWarnings("unchecked")
-    public Map<String,Object> findRebateMap(String platform,String startTime,String endTime){
+    public Map<String,Object> findRebateMap(String platform,String startTime,String endTime,String orderTimeStart,String orderTimeEnd,String proxy){
         startTime = "'"+startTime+"'";
         endTime = "'"+endTime+"'";
         String sql = "";
         if(StringUtils.isNullOrEmpty(platform)){
-            sql = MessageFormat.format(RebateSqlConst.sumSql,startTime,endTime);
+            sql = MessageFormat.format(RebateSqlConst.sumSql,startTime,endTime,orderTimeStart,orderTimeEnd,proxy);
         }else if (platform.equals("WM")){
-            sql = MessageFormat.format(RebateSqlConst.WMSumSql,startTime, endTime, "'wm'");
-        }else if (platform.equals("PG")){
-            sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql,startTime, endTime, "'PG'");
-        }else {
-            sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql,startTime, endTime, "'CQ9'");
+            sql = MessageFormat.format(RebateSqlConst.WMSumSql,startTime, endTime, "'wm'",proxy);
+        }else{
+            sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql,startTime, endTime,  "'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
         }
         Query countQuery = entityManager.createNativeQuery(sql);
         Object result = countQuery.getSingleResult();

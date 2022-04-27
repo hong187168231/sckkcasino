@@ -1,23 +1,28 @@
-package com.qianyi.casinocore.vo;
+package com.qianyi.casinocore.model;
 
-import com.qianyi.modulecommon.executor.JobSuperVo;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.persistence.Column;
+import javax.persistence.*;
 import java.math.BigDecimal;
 
 @Data
-public class ProxyGameRecordReportVo extends JobSuperVo{
+@Entity
+@ApiModel("代理游戏报表")
+@Table(indexes = {@Index(columnList = "firstProxy"),
+    @Index(columnList = "secondProxy"),@Index(columnList = "thirdProxy"),@Index(name="identity_index",columnList = "proxyGameRecordReportId",unique=true)})
+public class ProxyGameRecordReport{
 
-    @ApiModelProperty(value = "注单唯一标识")
-    private String orderId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ApiModelProperty("唯一标识")
+    private Long proxyGameRecordReportId;
 
     @ApiModelProperty(value = "会员id")
     private Long userId;
-
-    @ApiModelProperty(value = "游戏记录表ID")
-    private Long gameRecordId;
     /**
      * 投注金额
      */
@@ -30,11 +35,19 @@ public class ProxyGameRecordReportVo extends JobSuperVo{
     @ApiModelProperty(value = "有效下注")
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal validAmount;
+
+    @ApiModelProperty("投注笔数")
+    private Integer bettingNumber;
     /**
      * 输赢金额
      */
     @ApiModelProperty(value = "输赢金额")
     private BigDecimal winLoss;
+    /**
+     * 统计时间段
+     */
+    @ApiModelProperty(value = "统计时间段yyyy-MM-dd(以美东时间为维度统计一天)")
+    private String orderTimes;
 
     @ApiModelProperty("总代ID")
     private Long firstProxy;
@@ -44,10 +57,4 @@ public class ProxyGameRecordReportVo extends JobSuperVo{
 
     @ApiModelProperty("基层代理ID")
     private Long thirdProxy;
-
-    @ApiModelProperty(value = "下注时间yyyy-MM-dd HH:mm:ss")
-    private String orderTimes;
-
-    @ApiModelProperty(value = "平台:wm,PG,CQ9")
-    private String platform;
 }

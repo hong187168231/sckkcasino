@@ -346,6 +346,21 @@ public class DirectRabbitConfig {
     }
 
 
-
+    /**
+     * 代理报表消息MQ
+     * @return
+     */
+    @Bean
+    public Queue ProxyGameRecordReportQueue(){
+        return new Queue(RabbitMqConstants.PROXYG_AMERECORD_REPORT_QUEUE,true);
+    }
+    @Bean
+    public DirectExchange ProxyGameRecordReportExchange(){
+        return new DirectExchange(RabbitMqConstants.PROXYG_AMERECORD_REPORT_DIRECTQUEUE_DIRECTEXCHANGE,true,false);
+    }
+    @Bean
+    public Binding bindingProxyGameRecordReport(){
+        return BindingBuilder.bind(ProxyGameRecordReportQueue()).to(ProxyGameRecordReportExchange()).with(RabbitMqConstants.PROXYG_AMERECORD_REPORT_DIRECT);
+    }
 
 }

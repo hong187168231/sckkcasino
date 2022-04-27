@@ -3,6 +3,7 @@ package com.qianyi.casinocore.service;
 import com.qianyi.casinocore.co.extractpoints.ExtractPointsConfigCo;
 import com.qianyi.casinocore.model.ExtractPointsConfig;
 import com.qianyi.casinocore.repository.ExtractPointsConfigRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import org.springframework.util.StringUtils;
 
 
 import javax.persistence.criteria.Predicate;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
  * @since 2022 -02-21 12:54:42
  */
 @Service
+@Slf4j
 public class ExtractPointsConfigService {
 
     @Autowired
@@ -48,4 +51,13 @@ public class ExtractPointsConfigService {
         return list.stream().sorted(Comparator.comparing(ExtractPointsConfig::getGameEnName)).collect(Collectors.toList());
     }
 
+    public List<ExtractPointsConfig> findByPlatform(String platform){
+        return repository.findByPlatform(platform);
+    }
+
+    @Transactional
+    public ExtractPointsConfig save(ExtractPointsConfig extractPointsConfig){
+        ExtractPointsConfig save = repository.save(extractPointsConfig);
+        return save;
+    }
 }

@@ -5,8 +5,18 @@ import com.qianyi.casinocore.model.GameRecordGoldenF;
 import com.qianyi.casinocore.model.GameRecordGoldenfEndTime;
 import com.qianyi.casinocore.repository.GameRecordGoldenFRepository;
 import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
+import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -26,6 +36,10 @@ public class GameRecordGoldenFService {
 
     public void updateRebateStatus(Long id,Integer rebateStatus){
         gameRecordGoldenFRepository.updateRebateStatus(id,rebateStatus);
+    }
+
+    public void updateGameRecordStatus(Long id,Integer gameRecordStatus){
+        gameRecordGoldenFRepository.updateGameRecordStatus(id,gameRecordStatus);
     }
 
     public List<Map<String, Object>> findSumBetAmount(String startTime, String endTime){
@@ -128,4 +142,55 @@ public class GameRecordGoldenFService {
         return gameRecordGoldenFRepository.findGameRecordGoldenFByTraceId(traceId);
     }
 
+
+    public List<GameRecordGoldenF> findGameRecordGoldenFs(GameRecordGoldenF gameRecordGoldenF,String startTime,String endTime) {
+        Specification<GameRecordGoldenF> condition = getCondition(gameRecordGoldenF,startTime,endTime);
+        return gameRecordGoldenFRepository.findAll(condition);
+    }
+    /**
+     * 查询条件拼接，灵活添加条件
+     * @param
+     * @return
+     */
+    private Specification<GameRecordGoldenF> getCondition(GameRecordGoldenF gameRecordGoldenF,String startTime,String endTime) {
+        Specification<GameRecordGoldenF> specification = new Specification<GameRecordGoldenF>() {
+            @Override
+            public Predicate toPredicate(Root<GameRecordGoldenF> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                Predicate predicate = cb.conjunction();
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (gameRecordGoldenF.getId() != null) {
+                    list.add(cb.lessThanOrEqualTo(root.get("id").as(Long.class), gameRecordGoldenF.getId()));
+                }
+                if (gameRecordGoldenF.getUserId() != null) {
+                    list.add(cb.equal(root.get("userId").as(Long.class), gameRecordGoldenF.getUserId()));
+                }
+                if (gameRecordGoldenF.getFirstProxy() != null) {
+                    list.add(cb.equal(root.get("firstProxy").as(Long.class), gameRecordGoldenF.getFirstProxy()));
+                }
+                if (gameRecordGoldenF.getSecondProxy() != null) {
+                    list.add(cb.equal(root.get("secondProxy").as(Long.class), gameRecordGoldenF.getSecondProxy()));
+                }
+                if (gameRecordGoldenF.getThirdProxy() != null) {
+                    list.add(cb.equal(root.get("thirdProxy").as(Long.class), gameRecordGoldenF.getThirdProxy()));
+                }
+                if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
+                    list.add(
+                        cb.between(root.get("createAtStr").as(String.class), startTime, endTime)
+                    );
+                }
+                predicate = cb.and(list.toArray(new Predicate[list.size()]));
+                return predicate;
+            }
+        };
+        return specification;
+    }
+
+    public Page<GameRecordGoldenF> findGameRecordGoldenFPage(GameRecordGoldenF gameRecordGoldenF, Pageable pageable,String startBetTime,String endBetTime) {
+        Specification<GameRecordGoldenF> condition = getCondition(gameRecordGoldenF,startBetTime,endBetTime);
+        return gameRecordGoldenFRepository.findAll(condition, pageable);
+    }
+
+    public Long findMaxId(){
+        return gameRecordGoldenFRepository.findMaxId();
+    }
 }

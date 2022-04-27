@@ -36,6 +36,10 @@ public interface GameRecordGoldenFRepository extends JpaRepository<GameRecordGol
     @Query("update GameRecordGoldenF u set u.shareProfitStatus= u.shareProfitStatus+?2 where u.id=?1")
     void updateProfitStatus(Long id, Integer shareProfitStatus);
 
+    @Modifying(clearAutomatically = true)
+    @Query("update GameRecordGoldenF u set u.gameRecordStatus=?2 where u.id=?1")
+    void updateGameRecordStatus(Long id, Integer gameRecordStatus);
+
     @Query(value = "select first_proxy first_proxy ,second_proxy second_proxy ,third_proxy third_proxy,user_id as  userId,count(distinct user_id) player_num ,max(create_at_str) bet_time, sum(bet_amount) validbet ,(case WHEN vendor_code ='PG' THEN 2 ELSE 3 END) as gameType\n" +
         "from game_record_goldenf gr\n" +
         "where\n" +
@@ -53,8 +57,8 @@ public interface GameRecordGoldenFRepository extends JpaRepository<GameRecordGol
         "COUNT(1) num,SUM(g.bet_amount) bet,SUM(g.bet_amount) validbet,SUM(g.win_amount) win_loss," +
         " ifnull(SUM(w.amount),0) amount from game_record_goldenf g left join  " +
         "wash_code_change w  on  w.game_record_id = g.id and w.platform = ?3 " +
-            "LEFT JOIN  rebate_detail d on d.game_record_id=g.id  and d.platform = ?3 " +
-            " where g.id > ?1 and g.vendor_code = ?3 " +
+        "LEFT JOIN  rebate_detail d on d.game_record_id=g.id  and d.platform = ?3 " +
+        " where g.id > ?1 and g.vendor_code = ?3 " +
         " GROUP BY g.third_proxy,LEFT(g.create_at_str,?2)  ",nativeQuery = true)
     List<Map<String,Object>> queryGameRecords(Long id,Integer num,String platform);
 
@@ -119,4 +123,7 @@ public interface GameRecordGoldenFRepository extends JpaRepository<GameRecordGol
     int  countByIdLessThanEqualAndUserId(Date createTime, Long userId);
 
     GameRecordGoldenF findGameRecordGoldenFByTraceId(String traceId);
+
+    @Query(value = "select MAX(id) from game_record_goldenf",nativeQuery = true)
+    Long findMaxId();
 }

@@ -43,6 +43,10 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
     @Query("update GameRecord u set u.shareProfitStatus= u.shareProfitStatus+?2 where u.id=?1")
     void updateProfitStatus(Long id, Integer washCodeStatus);
 
+    @Modifying(clearAutomatically = true)
+    @Query("update GameRecord u set u.gameRecordStatus=?2 where u.id=?1")
+    void updateGameRecordStatus(Long id, Integer status);
+
     List<GameRecord> findByCreateByAndIdGreaterThanEqualOrderByIdAsc(String createBy,Long id);
 
     @Query(value = "select count(1) as amount  from game_record rg where rg.create_time <=?1 and rg.user_id=?2",nativeQuery = true)
@@ -71,8 +75,8 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
         "g.gid gid,COUNT(1) num,SUM(g.bet) bet,SUM(g.validbet) validbet,SUM(g.win_loss) win_loss," +
         " ifnull(SUM(w.amount),0) amount from game_record g left join  " +
         "wash_code_change w  on  w.game_record_id = g.id and w.platform = 'wm'  " +
-            "LEFT JOIN  rebate_detail d on d.game_record_id=g.id  and d.platform = 'wm' " +
-         " where g.id > ?1 " +
+        "LEFT JOIN  rebate_detail d on d.game_record_id=g.id  and d.platform = 'wm' " +
+        " where g.id > ?1 " +
         " GROUP BY g.third_proxy , LEFT(g.bet_time,?2)  ",nativeQuery = true)
     List<Map<String,Object>> queryGameRecords(Long id,Integer num);
 
@@ -129,4 +133,7 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
 
     @Query(value = "select ifnull(SUM(g.validbet),0) validbet,ifnull(SUM(g.win_loss),0) winLoss  from game_record g where  g.third_proxy = ?1",nativeQuery = true)
     Map<String, Object> findSumBetAndWinLossByThird(Long thirdProxy);
+
+    @Query(value = "select MAX(id) from game_record",nativeQuery = true)
+    Long findMaxId();
 }

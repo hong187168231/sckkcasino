@@ -23,7 +23,7 @@ public class GameRecordObtyService {
 
     }
 
- public int countByIdLessThanEqualAndUserId(Date createTime, Long userId) {
+    public int countByIdLessThanEqualAndUserId(Date createTime, Long userId) {
         return gameRecordObtyRepository.countByIdLessThanEqualAndUserId(createTime,userId);
     }
 

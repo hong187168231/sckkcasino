@@ -97,6 +97,9 @@ public class CompanyProxyDetailController {
             }
         }
 
+        String startTime = DateUtil.getSimpleDateFormat1().format(startDate);
+        String endTime = DateUtil.getSimpleDateFormat1().format(endDate);
+
         //偏移12小时
         Date start = cn.hutool.core.date.DateUtil.offsetHour(startDate, 12);
         Date end = cn.hutool.core.date.DateUtil.offsetHour(endDate, 12);
@@ -114,7 +117,7 @@ public class CompanyProxyDetailController {
         try {
             proxyUserPage.getContent().forEach(proxyUser1 -> {
                 CompanyProxyReportVo companyProxyReportVo = null;
-                companyProxyReportVo = this.assembleData(proxyUser1,start,end);
+                companyProxyReportVo = this.assembleData(proxyUser1,start,end,startTime,endTime);
                 list.add(companyProxyReportVo);
             });
             this.getCompanyProxyReportVos(list);
@@ -290,7 +293,7 @@ public class CompanyProxyDetailController {
                 try {
                     Date start = DateUtil.getSimpleDateFormat().parse(today+startStr);
                     Date end = DateUtil.getSimpleDateFormat().parse(tomorrow+endStr);
-                    CompanyProxyReportVo companyProxyReportVo = this.assembleData(proxy,start,end);
+                    CompanyProxyReportVo companyProxyReportVo = this.assembleData(proxy,start,end,today,today);
                     companyProxyReportVo.setStaticsTimes(today);
                     list.add(companyProxyReportVo);
                 }catch (ParseException px){
@@ -319,10 +322,9 @@ public class CompanyProxyDetailController {
         //        Collections.reverse(list);
         return ResponseUtil.success(list);
     }
-    private CompanyProxyReportVo assembleData(ProxyUser byId,Date startDate,Date endDate){
+    private CompanyProxyReportVo assembleData(ProxyUser byId,Date startDate,Date endDate,String startTime,String endTime){
         ProxyHomePageReport proxyHomePageReport = new ProxyHomePageReport();
-        String startTime = cn.hutool.core.date.DateUtil.formatDateTime(startDate);
-        String endTime = cn.hutool.core.date.DateUtil.formatDateTime(endDate);
+
         long start = System.currentTimeMillis();
         proxyHomePageReportService.chargeOrder(byId, startDate, endDate, proxyHomePageReport);
         log.info("综合报表统计充值耗时{}",System.currentTimeMillis()-start);
@@ -330,7 +332,9 @@ public class CompanyProxyDetailController {
         proxyHomePageReportService.withdrawOrder(byId, startDate, endDate, proxyHomePageReport);
         log.info("综合报表统计提现耗时{}",System.currentTimeMillis()-start);
         start = System.currentTimeMillis();
-        proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
+        //        proxyHomePageReportService.gameRecord(byId, startTime, endTime, proxyHomePageReport);
+        //        proxyHomePageReportService.sumGameRecord(byId, startTime, endTime, proxyHomePageReport);
+        proxyHomePageReportService.findGameRecord(byId, startTime, endTime, proxyHomePageReport);
         log.info("综合报表统计注单耗时{}",System.currentTimeMillis()-start);
         start = System.currentTimeMillis();
         proxyHomePageReportService.getNewUsers(byId, startDate, endDate, proxyHomePageReport);
