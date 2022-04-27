@@ -1,4 +1,4 @@
-casinoproxy.controller;
+package com.qianyi.casinoproxy.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
