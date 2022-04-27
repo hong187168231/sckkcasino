@@ -5,6 +5,7 @@ import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -24,6 +25,15 @@ public class ProxyWashCodeConfigVo implements Serializable {
     @ApiModelProperty(value = "CQ9返利比例")
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal CQ9Rate = BigDecimal.ZERO;
+
+    @ApiModelProperty(value = "OBDJRate返利比例")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    private BigDecimal OBDJRate = BigDecimal.ZERO;
+
+    @ApiModelProperty(value = "OBTY返利比例")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    private BigDecimal OBTYRate = BigDecimal.ZERO;
+
     //全局配置 userId=0
     @ApiModelProperty("基层代理ID")
     private Long userId;
