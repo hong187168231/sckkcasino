@@ -3,10 +3,7 @@ package com.qianyi.casinoproxy.controller;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.ShareProfitChange;
 import com.qianyi.casinocore.model.UserRunningWater;
-import com.qianyi.casinocore.service.GameRecordGoldenFService;
-import com.qianyi.casinocore.service.GameRecordService;
-import com.qianyi.casinocore.service.ShareProfitChangeService;
-import com.qianyi.casinocore.service.UserRunningWaterService;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
@@ -53,6 +50,9 @@ public class UserRunningWaterController {
 
     @Autowired
     private GameRecordGoldenFService gameRecordGoldenFService;
+
+    @Autowired
+    private UserGameRecordReportService userGameRecordReportService;
 
     public final static String start = " 00:00:00";
 
@@ -111,11 +111,11 @@ public class UserRunningWaterController {
         String endTime = format + end;
         Date startDate = DateUtil.getSimpleDateFormat().parse(startTime);
         Date endDate = DateUtil.getSimpleDateFormat().parse(endTime);
-        BigDecimal validbet = gameRecordService.findGameRecords(userId, startTime, endTime);
-        BigDecimal betAmount = gameRecordGoldenFService.findSumBetAmount(userId, startTime, endTime);
-        if (!CasinoProxyUtil.checkNull(validbet) || betAmount.compareTo(BigDecimal.ZERO) != CommonConst.NUMBER_0){
+        BigDecimal validbet = userGameRecordReportService.sumUserRunningWaterByUserId(format, format, userId);
+
+        if (validbet.compareTo(BigDecimal.ZERO) != CommonConst.NUMBER_0){
             runningWater = new UserRunningWater();
-            runningWater.setAmount(betAmount.add(validbet == null?BigDecimal.ZERO:validbet));
+            runningWater.setAmount(validbet);
             runningWater.setStaticsTimes(format);
             runningWater.setCommission(BigDecimal.ZERO);
         }
