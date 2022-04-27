@@ -2,7 +2,6 @@ package com.qianyi.casinoreport.business.shareprofit;
 
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
-import com.qianyi.casinocore.util.DateUtilX;
 import com.qianyi.casinocore.vo.ShareProfitBO;
 import com.qianyi.casinocore.vo.ShareProfitMqVo;
 import com.qianyi.casinoreport.util.ReportConstant;

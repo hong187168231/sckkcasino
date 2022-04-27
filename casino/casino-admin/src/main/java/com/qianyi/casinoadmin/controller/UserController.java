@@ -562,40 +562,6 @@ public class UserController {
         return ResponseUtil.success(sum);
     }
 
-    @ApiOperation("查询玩家OB电竞总余额")
-    @GetMapping("refreshOBDJTotal")
-    public ResponseEntity refreshOBDJTotal(){
-        List<UserThird> allOBDJAccount = userThirdService.findAllOBDJAccount();
-        if (LoginUtil.checkNull(allOBDJAccount) || allOBDJAccount.size() == CommonConst.NUMBER_0){
-            return ResponseUtil.success(BigDecimal.ZERO);
-        }
-        ReentrantLock reentrantLock = new ReentrantLock();
-        Condition condition = reentrantLock.newCondition();
-        AtomicInteger atomicInteger = new AtomicInteger(allOBDJAccount.size());
-        Vector<BigDecimal> list = new Vector<>();
-        for (UserThird u:allOBDJAccount){
-            threadPool.execute(() ->{
-                try {
-                    JSONObject jsonObject = userMoneyService.refreshPGAndCQ9(u);
-                    if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
-                        list.add(BigDecimal.ZERO);
-                    }else {
-                        Integer code = (Integer) jsonObject.get("code");
-                        if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
-                            list.add(new BigDecimal(jsonObject.get("data").toString()));
-                        }
-                    }
-                }finally {
-                    atomicInteger.decrementAndGet();
-                    BillThreadPool.toResume(reentrantLock, condition);
-                }
-            });
-        }
-        BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
-        BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-        sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
-        return ResponseUtil.success(sum);
-    }
 
     @ApiOperation("查询用户OB余额")
     @ApiImplicitParams({
