@@ -9,6 +9,7 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.service.UserThirdService;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -37,9 +38,9 @@ public class UserThirdController {
     @ApiOperation("根据我方用户账号查询三方账号")
     @GetMapping("/findUserThird")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userAccount", value = "用户账号", required = true),
-            @ApiImplicitParam(name = "tag", value = "tag 0 用我方账号查第三方账号 ,1 第三方账号查我方账号", required = true),
-            @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG/CQ9", required = false),
+        @ApiImplicitParam(name = "userAccount", value = "用户账号", required = true),
+        @ApiImplicitParam(name = "tag", value = "tag 0 用我方账号查第三方账号 ,1 第三方账号查我方账号", required = true),
+        @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG/CQ9", required = false),
     })
     public ResponseEntity findUserThird(String userAccount,Integer tag,String platform){
         if (LoginUtil.checkNull(tag,userAccount)){
@@ -75,11 +76,18 @@ public class UserThirdController {
                     jsonObject.put("platform","PG/CQ9");
                     json.add(jsonObject);
                 }
-                if (!LoginUtil.checkNull(userThird.getObAccount())){
+                if (!LoginUtil.checkNull(userThird.getObdjAccount())){
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("account",user.getAccount());
-                    jsonObject.put("thirdAccount",userThird.getObAccount());
-                    jsonObject.put("platform","OB");
+                    jsonObject.put("thirdAccount",userThird.getObdjAccount());
+                    jsonObject.put("platform",Constants.PLATFORM_OBDJ);
+                    json.add(jsonObject);
+                }
+                if (!LoginUtil.checkNull(userThird.getObtyAccount())){
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("account",user.getAccount());
+                    jsonObject.put("thirdAccount",userThird.getObtyAccount());
+                    jsonObject.put("platform",Constants.PLATFORM_OBTY);
                     json.add(jsonObject);
                 }
             }else if (platform.equals("WM")){
@@ -88,11 +96,17 @@ public class UserThirdController {
                 jsonObject.put("thirdAccount",userThird.getAccount());
                 jsonObject.put("platform","WM");
                 json.add(jsonObject);
-            }else if(platform.equals("OBDJ")){
+            }else if(platform.equals(Constants.PLATFORM_OBDJ)){
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("account",user.getAccount());
-                jsonObject.put("thirdAccount",userThird.getObAccount());
-                jsonObject.put("platform","OBDJ");
+                jsonObject.put("thirdAccount",userThird.getObdjAccount());
+                jsonObject.put("platform",Constants.PLATFORM_OBDJ);
+                json.add(jsonObject);
+            }else if(platform.equals(Constants.PLATFORM_OBTY)){
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("account",user.getAccount());
+                jsonObject.put("thirdAccount",userThird.getObtyAccount());
+                jsonObject.put("platform",Constants.PLATFORM_OBTY);
                 json.add(jsonObject);
             }else {
                 JSONObject jsonObject = new JSONObject();
@@ -130,7 +144,7 @@ public class UserThirdController {
                     json.add(jsonObject);
                     return ResponseUtil.success(json);
                 }
-                userThird =  userThirdService.findByObAccount(userAccount);
+                userThird =  userThirdService.findByObdjAccount(userAccount);
                 if(!LoginUtil.checkNull(userThird)){
                     user = userService.findById(userThird.getUserId());
                     if (LoginUtil.checkNull(user)){
@@ -138,8 +152,22 @@ public class UserThirdController {
                     }
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("account",user.getAccount());
-                    jsonObject.put("thirdAccount",userThird.getObAccount());
-                    jsonObject.put("platform","OBDJ");
+                    jsonObject.put("thirdAccount",userThird.getObdjAccount());
+                    jsonObject.put("platform",Constants.PLATFORM_OBDJ);
+                    json.add(jsonObject);
+                    return ResponseUtil.success(json);
+                }
+
+                userThird =  userThirdService.findByObtyAccount(userAccount);
+                if(!LoginUtil.checkNull(userThird)){
+                    user = userService.findById(userThird.getUserId());
+                    if (LoginUtil.checkNull(user)){
+                        return ResponseUtil.success();
+                    }
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("account",user.getAccount());
+                    jsonObject.put("thirdAccount",userThird.getObtyAccount());
+                    jsonObject.put("platform",Constants.PLATFORM_OBTY);
                     json.add(jsonObject);
                     return ResponseUtil.success(json);
                 }
@@ -158,8 +186,8 @@ public class UserThirdController {
                 jsonObject.put("thirdAccount",userThird.getAccount());
                 jsonObject.put("platform","WM");
                 json.add(jsonObject);
-            }else if(platform.equals("OBDJ")){
-                userThird =  userThirdService.findByGoldenfAccount(userAccount);
+            }else if(platform.equals(Constants.PLATFORM_OBDJ)){
+                userThird =  userThirdService.findByObdjAccount(userAccount);
                 if (LoginUtil.checkNull(userThird)){
                     return ResponseUtil.success();
                 }
@@ -169,8 +197,22 @@ public class UserThirdController {
                 }
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("account",user.getAccount());
-                jsonObject.put("thirdAccount",userThird.getObAccount());
-                jsonObject.put("platform","OBDJ");
+                jsonObject.put("thirdAccount",userThird.getObdjAccount());
+                jsonObject.put("platform",Constants.PLATFORM_OBDJ);
+                json.add(jsonObject);
+            }else if(platform.equals(Constants.PLATFORM_OBTY)){
+                userThird =  userThirdService.findByObtyAccount(userAccount);
+                if (LoginUtil.checkNull(userThird)){
+                    return ResponseUtil.success();
+                }
+                user = userService.findById(userThird.getUserId());
+                if (LoginUtil.checkNull(user)){
+                    return ResponseUtil.success();
+                }
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("account",user.getAccount());
+                jsonObject.put("thirdAccount",userThird.getObtyAccount());
+                jsonObject.put("platform",Constants.PLATFORM_OBTY);
                 json.add(jsonObject);
             }else {
                 userThird =  userThirdService.findByGoldenfAccount(userAccount);

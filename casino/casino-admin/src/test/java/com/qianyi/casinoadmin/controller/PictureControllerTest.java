@@ -71,8 +71,8 @@ public class PictureControllerTest {
     public void findMap(){
 //        List<Map<String, Object>> map = userService.findMap("WM", "2021-11-01 00:00:00", "2022-11-01 00:00:00", 60844L);
 //        System.out.println(map.size());
-        Map<String, Object> wm = userService.findMap("WM", "2022-02-18 00:00:00", "2022-02-18 23:59:59");
-        System.out.println(wm);
+//        Map<String, Object> wm = userService.findMap("WM", "2022-02-18 00:00:00", "2022-02-18 23:59:59");
+//        System.out.println(wm);
     }
 
     @Test

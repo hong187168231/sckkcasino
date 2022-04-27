@@ -13,6 +13,8 @@ import com.qianyi.casinocore.util.DTOUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.PersonReportTotalVo;
 import com.qianyi.casinocore.vo.PersonReportVo;
+import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -48,32 +50,47 @@ public class ReportController {
     @Autowired
     private ProxyUserService proxyUserService;
 
-//    @NoAuthorization
+    public static final List<String> platforms = new ArrayList<>();
+
+    static {
+        platforms.add("WM");
+        platforms.add("PG");
+        platforms.add("CQ9");
+        platforms.add(Constants.PLATFORM_OBDJ);
+        platforms.add(Constants.PLATFORM_OBTY);
+    }
+
+    //    @NoAuthorization
     @ApiOperation("查询个人报表")
     @GetMapping("/queryPersonReport")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
-            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "userName", value = "账号", required = false),
-            @ApiImplicitParam(name = "startTime", value = "起始时间查询", required = true),
-            @ApiImplicitParam(name = "endTime", value = "结束时间查询", required = true),
-            @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
-            @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
-            @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
-            @ApiImplicitParam(name = "tag", value = "1：投注笔数 2：投注金额 3：有效投注 4：洗码发放 5：用户输赢金额", required = false),
+        @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "userName", value = "账号", required = false),
+        @ApiImplicitParam(name = "startTime", value = "起始时间查询", required = true),
+        @ApiImplicitParam(name = "endTime", value = "结束时间查询", required = true),
+        @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
+        @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
+        @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
+        @ApiImplicitParam(name = "tag", value = "1：投注笔数 2：投注金额 3：有效投注 4：洗码发放 5：用户输赢金额", required = false),
     })
     public ResponseEntity<PersonReportVo> queryPersonReport(
-            Integer pageSize,
-            Integer pageCode,
-            String userName,
-            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startTime,
-            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endTime,
-            String platform,
-            Integer sort,
-            Integer tag){
+        Integer pageSize,
+        Integer pageCode,
+        String userName,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startTime,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endTime,
+        String platform,
+        Integer sort,
+        Integer tag){
         if (LoginUtil.checkNull(startTime, endTime, pageSize, pageCode)){
             return ResponseUtil.custom("参数不合法");
         }
+
+        String orderTimeStart = "'"+DateUtil.formatDate(startTime)+"'";
+        String orderTimeEnd = "'"+DateUtil.formatDate(endTime)+"'";
+
+
         // 向后偏移12小时
         if (LoginUtil.checkNull(platform) || platform.equals("WM")){
             startTime = DateUtil.offsetHour(startTime, 12);
@@ -86,7 +103,7 @@ public class ReportController {
         if(StringUtils.hasLength(userName)){
             User user = userService.findByAccount(userName);
             if(user != null){
-                List<PersonReportVo> reportResult = userService.findMap(platform,startTimeStr,endTimeStr,user.getId());
+                List<PersonReportVo> reportResult = userService.findMap(platform,startTimeStr,endTimeStr,user.getId(),orderTimeStart,orderTimeEnd,"");
                 PageResultVO<PersonReportVo> mapPageResultVO = combinePage(reportResult, 1, pageCode, pageSize);
                 return ResponseUtil.success(getMap(mapPageResultVO));
             }
@@ -99,7 +116,7 @@ public class ReportController {
 
         try {
             String statement = getOrderByStatement(tag, sort);
-            reportResult = userService.findMap(platform, startTimeStr, endTimeStr, page, pageSize, statement);
+            reportResult = userService.findMap(platform, startTimeStr, endTimeStr, page, pageSize, statement,orderTimeStart,orderTimeEnd,"");
         } catch (Exception e) {
             return ResponseUtil.custom("查询失败");
         }
@@ -162,23 +179,26 @@ public class ReportController {
         return pageResult;
     }
 
-//    @NoAuthorization
+    //    @NoAuthorization
     @ApiOperation("查询个人报表总计")
     @GetMapping("/queryTotal")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
-            @ApiImplicitParam(name = "userName", value = "账号", required = false),
+        @ApiImplicitParam(name = "userName", value = "账号", required = false),
         @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
         @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<PersonReportTotalVo> queryTotal(
-            String userName,
-            String platform,
-            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        String userName,
+        String platform,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(startDate,endDate)){
             return ResponseUtil.custom("参数不合法");
         }
+
+        String orderTimeStart = "'"+DateUtil.formatDate(startDate)+"'";
+        String orderTimeEnd = "'"+DateUtil.formatDate(endDate)+"'";
 
         // 向后偏移12小时
         if (LoginUtil.checkNull(platform) || platform.equals("WM")){
@@ -194,11 +214,11 @@ public class ReportController {
             User user = userService.findByAccount(userName);
             if(user != null){
                 userId=user.getId();
-                List<PersonReportVo> maps = userService.findMap(platform, startTime, endTime, userId);
+                List<PersonReportVo> maps = userService.findMap(platform, startTime, endTime, userId,orderTimeStart,orderTimeEnd,"");
                 itemObject = DTOUtil.toDTO(maps.get(0), PersonReportTotalVo.class);
             }
         }else {
-            Map<String,Object> result = userService.findMap(platform,startTime,endTime);
+            Map<String,Object> result = userService.findMap(platform,startTime,endTime,orderTimeStart,orderTimeEnd,"");
             itemObject = DTOUtil.toDTO(result, PersonReportTotalVo.class);
         }
         return ResponseUtil.success(itemObject);
@@ -217,4 +237,11 @@ public class ReportController {
         historyTotal.setAvg_benefit(new BigDecimal(result.get("avg_benefit").toString()).setScale(2, RoundingMode.HALF_UP));
         return historyTotal;
     }*/
+
+    @ApiOperation("查询平台列表")
+    @GetMapping("/getData")
+    @NoAuthorization
+    public ResponseEntity getData(){
+        return ResponseUtil.success(platforms);
+    }
 }

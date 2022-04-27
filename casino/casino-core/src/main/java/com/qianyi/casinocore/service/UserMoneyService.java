@@ -50,6 +50,14 @@ public class UserMoneyService {
 
     private String PG_recycleUrl = "/golednf/oneKeyRecoverApi?";
 
+    private String OB_refreshUrl = "/obdjGame/getBalanceApi?";
+
+    private String OB_recycleUrl = "/obdjGame/oneKeyRecoverApi?";
+
+    private String OBTY_refreshUrl = "/obtyGame/getBalanceApi?";
+
+    private String OBTY_recycleUrl = "/obtyGame/oneKeyRecoverApi?";
+
     public UserMoney findUserByUserIdUseLock(Long userId) {
         //return userMoneyRepository.findUserByUserIdUseLock(userId);
         return userMoneyRepository.findUserMoneyByUserId(userId);
@@ -319,6 +327,8 @@ public class UserMoneyService {
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
         } catch (Exception e) {
+            e.printStackTrace();
+            log.error("出现异常:{}", e.getMessage());
             return null;
         }
     }
@@ -337,6 +347,28 @@ public class UserMoneyService {
             return null;
         }
     }
+
+    /**
+     * 查询欧博余额
+     * @param userId
+     * @return
+     */
+    public JSONObject refreshOB(Long userId) {
+        try {
+            String param = "userId={0}";
+            param = MessageFormat.format(param,userId.toString());
+            PlatformConfig first = platformConfigService.findFirst();
+            String WMurl = first == null?"":first.getWebConfiguration();
+            WMurl = WMurl + OB_refreshUrl;
+            String s = HttpClient4Util.get(WMurl + param);
+            log.info("{}查询OB余额web接口返回{}",userId,s);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public JSONObject refreshPGAndCQ9(Long userId) {
         try {
             String param = "userId={0}";
@@ -346,6 +378,21 @@ public class UserMoneyService {
             WMurl = WMurl + PG_refreshUrl;
             String s = HttpClient4Util.get(WMurl + param);
             log.info("{}查询PG余额web接口返回{}",userId,s);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public JSONObject refreshPGAndCQ9UserId(String userId) {
+        try {
+            String param = "userId={0}";
+            param = MessageFormat.format(param, userId);
+            PlatformConfig first = platformConfigService.findFirst();
+            String WMurl = first == null?"":first.getWebConfiguration();
+            WMurl = WMurl + PG_refreshUrl;
+            String s = HttpClient4Util.get(WMurl + param);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
         } catch (Exception e) {
@@ -377,6 +424,54 @@ public class UserMoneyService {
             WMurl = WMurl + PG_recycleUrl;
             String s = HttpClient4Util.get(WMurl + param);
             log.info("{}回收PG余额web接口返回{}",user.getAccount(),s);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public JSONObject oneKeyOBRecoverApi(User user){
+        try {
+            String param = "userId={0}";
+            param = MessageFormat.format(param,user.getId().toString());
+            PlatformConfig first = platformConfigService.findFirst();
+            String WMurl = first == null?"":first.getWebConfiguration();
+            WMurl = WMurl + OB_recycleUrl;
+            String s = HttpClient4Util.get(WMurl + param);
+            log.info("{}回收OB电竞余额web接口返回{}",user.getAccount(),s);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public JSONObject refreshOBTY(Long userId) {
+        try {
+            String param = "userId={0}";
+            param = MessageFormat.format(param,userId.toString());
+            PlatformConfig first = platformConfigService.findFirst();
+            String WMurl = first == null?"":first.getWebConfiguration();
+            WMurl = WMurl + OBTY_refreshUrl;
+            String s = HttpClient4Util.get(WMurl + param);
+            log.info("{}查询OB体育web接口返回{}",userId,s);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public JSONObject oneKeyOBTYRecoverApi(User user) {
+        try {
+            String param = "userId={0}";
+            param = MessageFormat.format(param,user.getId().toString());
+            PlatformConfig first = platformConfigService.findFirst();
+            String WMurl = first == null?"":first.getWebConfiguration();
+            WMurl = WMurl + OBTY_recycleUrl;
+            String s = HttpClient4Util.get(WMurl + param);
+            log.info("{}回收OB体育余额web接口返回{}",user.getAccount(),s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
         } catch (Exception e) {
