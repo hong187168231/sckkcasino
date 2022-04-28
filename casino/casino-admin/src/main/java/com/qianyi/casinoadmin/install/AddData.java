@@ -46,29 +46,23 @@ public class AddData implements CommandLineRunner {
     public static final Integer num = 50000;
     @Override
     public void run(String... args) throws Exception {
-//        new Thread(()->{
-//            beginWM1();
-//        }).start();
-        //        new Thread(()->{
-        //            beginWM2();
-        //        }).start();
-//        new Thread(()->{
-//            beginPG1();
-//        }).start();
-        //        new Thread(()->{
-        //            beginPG2();
-        //        }).start();
+        log.info("AddData转移数据开始");
         List<ProxyGameRecordReport> all = proxyGameRecordReportService.findAll();
+        log.info("取到报表数据all{}",all);
         if (all == null || all.isEmpty()){
             Long gameRecordMaxId = gameRecordService.findMaxId();
+            log.info("取到gameRecordMaxId{}",gameRecordMaxId);
             if (gameRecordMaxId != null && gameRecordMaxId.longValue() != 0L){
+                log.info("开始执行方法recursionWm");
                 new Thread(()->{
                     recursionWm(1,pageSize,gameRecordMaxId);
                 }).start();
             }
 
             Long gameRecordGoldenFMaxId = gameRecordGoldenFService.findMaxId();
+            log.info("取到gameRecordGoldenFMaxId{}",gameRecordGoldenFMaxId);
             if (gameRecordGoldenFMaxId != null && gameRecordGoldenFMaxId.longValue() != 0L){
+                log.info("开始执行方法recursionPg");
                 new Thread(()->{
                     recursionPg(1,pageSize,gameRecordGoldenFMaxId);
                 }).start();
