@@ -224,6 +224,20 @@
             "url": "/user/refreshPGTotal"
           },
           {
+            "descritpion": "查询玩家OBDJ总余额",
+            "englishName": "Search OBDJ player total balance",
+            "menuLevel": 3,
+            "name": "查询玩家OBDJ总余额",
+            "url": "/user/refreshOBDJTotal"
+          },
+          {
+            "descritpion": "查询玩家OBTY总余额",
+            "englishName": "Search OBTY player total balance",
+            "menuLevel": 3,
+            "name": "查询玩家OBTY总余额",
+            "url": "/user/refreshOBTYTotal"
+          },
+          {
             "descritpion": "当前查询结果总计",
             "englishName": "Total Of Current Query Results",
             "menuLevel": 3,
