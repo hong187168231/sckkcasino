@@ -144,7 +144,7 @@ public class RebateSqlConst {
     u.account ,
     u.third_proxy ,
     u.id,
-    ifnull(main_t.num,0)+ num,
+    ifnull(main_t.num,0) num,
     ifnull(main_t.bet_amount,0) bet_amount ,
     ifnull(main_t.validbet,0) validbet ,
     ifnull(main_t.win_loss,0) win_loss ,
