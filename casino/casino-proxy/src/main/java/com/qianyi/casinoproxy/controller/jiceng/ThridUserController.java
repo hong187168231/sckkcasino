@@ -304,6 +304,63 @@ public class ThridUserController {
         }
     }
 
+    @ApiOperation("查询用户OB余额")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("refreshOB")
+    public ResponseEntity refreshOB(Long id){
+        UserThird third = userThirdService.findByUserId(id);
+        if (CasinoProxyUtil.checkNull(third) || ObjectUtils.isEmpty(third.getGoldenfAccount())){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
+        }
+        JSONObject jsonObject = userMoneyService.refreshOB(third.getUserId());
+        if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("OB余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (CasinoProxyUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询OB余额失败");
+        }
+    }
+
+    @ApiOperation("查询用户OB体育余额")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("refreshOBTY")
+    public ResponseEntity refreshOBTY(Long id){
+        UserThird third = userThirdService.findByUserId(id);
+        if (CasinoProxyUtil.checkNull(third) || ObjectUtils.isEmpty(third.getObtyAccount())){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
+        }
+        JSONObject jsonObject = userMoneyService.refreshOBTY(third.getUserId());
+        if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("OB体育余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (CasinoProxyUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询OB体育余额失败");
+        }
+    }
 //    public void setWMMoney(List<User> userList) {
 //
 //        log.info("query WM money data：【{}】 ", userList);
