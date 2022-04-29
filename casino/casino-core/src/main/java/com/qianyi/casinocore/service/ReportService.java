@@ -21,6 +21,18 @@ public class ReportService {
         return companyProxyMonthRepository.queryAllTotalElement(startTime,endTime);
     }
 
+    public int queryAllByFirst(Long first){
+        return companyProxyMonthRepository.queryAllByFirst(first);
+    }
+
+    public int queryAllBySecond(Long second){
+        return companyProxyMonthRepository.queryAllBySecond(second);
+    }
+
+    public int queryAllByThird(Long third){
+        return companyProxyMonthRepository.queryAllByThird(third);
+    }
+
     public List<Map<String,Object>> queryPersonReport(long user_id ,String startTime,String endTime){
         return companyProxyMonthRepository.queryPersonReport(user_id, startTime, endTime);
     }
