@@ -339,7 +339,7 @@ public class UserMoneyService {
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null?"":first.getWebConfiguration();
             WMurl = WMurl + recycleUrl;
-            String s = HttpClient4Util.get(WMurl + param);
+            String s = HttpClient4Util.getWeb(WMurl + param);
             log.info("{}回收余额web接口返回{}",user.getAccount(),s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
@@ -422,7 +422,7 @@ public class UserMoneyService {
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null?"":first.getWebConfiguration();
             WMurl = WMurl + PG_recycleUrl;
-            String s = HttpClient4Util.get(WMurl + param);
+            String s = HttpClient4Util.getWeb(WMurl + param);
             log.info("{}回收PG余额web接口返回{}",user.getAccount(),s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
@@ -438,7 +438,7 @@ public class UserMoneyService {
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null?"":first.getWebConfiguration();
             WMurl = WMurl + OB_recycleUrl;
-            String s = HttpClient4Util.get(WMurl + param);
+            String s = HttpClient4Util.getWeb(WMurl + param);
             log.info("{}回收OB电竞余额web接口返回{}",user.getAccount(),s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
@@ -470,7 +470,7 @@ public class UserMoneyService {
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null?"":first.getWebConfiguration();
             WMurl = WMurl + OBTY_recycleUrl;
-            String s = HttpClient4Util.get(WMurl + param);
+            String s = HttpClient4Util.getWeb(WMurl + param);
             log.info("{}回收OB体育余额web接口返回{}",user.getAccount(),s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;

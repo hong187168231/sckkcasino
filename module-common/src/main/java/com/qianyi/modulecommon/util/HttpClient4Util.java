@@ -1,6 +1,9 @@
 package com.qianyi.modulecommon.util;
 
 
+import com.mysql.cj.util.StringUtils;
+import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.config.LocaleConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -14,7 +17,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -30,6 +36,33 @@ public class HttpClient4Util {
                 .setConnectTimeout(35000).setConnectionRequestTimeout(60000)
                 .setSocketTimeout(60000).build();
         httpGet.setConfig(requestConfig);
+        CloseableHttpResponse response = null;
+        try {
+            response = httpclient.execute(httpGet);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        HttpEntity entity = response.getEntity();//得到请求回来的数据
+        String s = EntityUtils.toString(entity, "UTF-8");
+        log.info("get请求返回参数{}",s);
+        return s;
+    }
+
+    public static String getWeb(String url) throws Exception {
+        log.info("get请求参数{}",url);
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet(url);
+        RequestConfig requestConfig = RequestConfig.custom()
+            .setConnectTimeout(35000).setConnectionRequestTimeout(60000)
+            .setSocketTimeout(60000).build();
+        httpGet.setConfig(requestConfig);
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String language = request.getHeader(Constants.LANGUAGE);
+        if (StringUtils.isNullOrEmpty(language) || language.equals(LocaleConfig.en_US.toString())){
+            httpGet.setHeader(Constants.LANGUAGE,"en_US");
+        }else if (language.equals(LocaleConfig.zh_CN.toString())){
+            httpGet.setHeader(Constants.LANGUAGE,"zh_CN");
+        }
         CloseableHttpResponse response = null;
         try {
             response = httpclient.execute(httpGet);
