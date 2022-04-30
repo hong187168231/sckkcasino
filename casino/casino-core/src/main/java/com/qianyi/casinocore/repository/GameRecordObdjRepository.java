@@ -48,12 +48,12 @@ public interface GameRecordObdjRepository extends JpaRepository<GameRecordObdj, 
         + "         where g.id > ?1  and  g.bet_status in (5,6,8,9,10) \n" + "   GROUP BY g.third_proxy,LEFT(g.set_str_time,?2) ",nativeQuery = true)
     List<Map<String,Object>> queryGameRecords(Long id,Integer num);
 
-    @Query(value = "select first_proxy first_proxy ,second_proxy second_proxy ,third_proxy third_proxy, user_id as  userId,count(distinct user_id) player_num ,max(bet_date_time) bet_time, sum(bet_amount) validbet,1 as gameType \n" +
-        "from game_record_obdj gr\n" +
-        "where\n" +
-        "set_str_time between ?1 and ?2\n" +
-        "and third_proxy is not null \n" +
-        "group by third_proxy,user_id,second_proxy,first_proxy ",nativeQuery = true)
+    @Query(value = "select first_proxy first_proxy ,second_proxy second_proxy ,third_proxy third_proxy, user_id as  userId,count(distinct user_id) player_num ,max(bet_str_time) bet_time, sum(bet_amount) validbet,1 as gameType \n" +
+            "from game_record_obdj gr\n" +
+            "where\n" +
+            "set_str_time between ?1 and ?2\n" +
+            "and third_proxy is not null \n" +
+            "group by third_proxy,user_id,second_proxy,first_proxy ",nativeQuery = true)
     List<Map<String, Object>> getStatisticsResult(String startTime, String endTime);
 
     @Query(value = "select count(1) as amount  from game_record_obdj rg where rg.bet_str_time <=?1 and rg.user_id=?2",nativeQuery = true)
