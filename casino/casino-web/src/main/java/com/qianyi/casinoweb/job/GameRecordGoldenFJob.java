@@ -227,19 +227,23 @@ public class GameRecordGoldenFJob {
      * 改变用户实时余额
      */
     private void changeUserBalance(GameRecordGoldenF gameRecordGoldenF) {
-        BigDecimal betAmount = gameRecordGoldenF.getBetAmount();
-        BigDecimal winAmount = gameRecordGoldenF.getWinAmount();
-        if (betAmount == null || winAmount == null) {
-            return;
-        }
-        Long userId = gameRecordGoldenF.getUserId();
-        //下注金额大于0，扣减
-        if (betAmount.compareTo(BigDecimal.ZERO) == 1) {
-            userMoneyBusiness.subBalance(userId, betAmount);
-        }
-        //派彩金额大于0，增加
-        if (winAmount.compareTo(BigDecimal.ZERO) == 1) {
-            userMoneyBusiness.addBalance(userId, winAmount);
+        try {
+            BigDecimal betAmount = gameRecordGoldenF.getBetAmount();
+            BigDecimal winAmount = gameRecordGoldenF.getWinAmount();
+            if (betAmount == null || winAmount == null) {
+                return;
+            }
+            Long userId = gameRecordGoldenF.getUserId();
+            //下注金额大于0，扣减
+            if (betAmount.compareTo(BigDecimal.ZERO) == 1) {
+                userMoneyBusiness.subBalance(userId, betAmount);
+            }
+            //派彩金额大于0，增加
+            if (winAmount.compareTo(BigDecimal.ZERO) == 1) {
+                userMoneyBusiness.addBalance(userId, winAmount);
+            }
+        }catch (Exception e){
+            log.error("改变用户实时余额时报错，msg={}",e.getMessage());
         }
     }
 

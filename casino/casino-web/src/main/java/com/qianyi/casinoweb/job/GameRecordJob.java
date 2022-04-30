@@ -222,18 +222,22 @@ public class GameRecordJob {
      * @param result
      */
     private void changeUserBalance(Long userId, String result) {
-        if (ObjectUtils.isEmpty(result)) {
-            return;
-        }
-        BigDecimal amount = new BigDecimal(result);
-        if (amount.compareTo(BigDecimal.ZERO) == 0) {
-            return;
-        }
-        //大于0加钱
-        if (amount.compareTo(BigDecimal.ZERO) == 1) {
-            userMoneyBusiness.addBalance(userId, amount);
-        } else {
-            userMoneyBusiness.subBalance(userId, amount.abs());
+        try {
+            if (ObjectUtils.isEmpty(result)) {
+                return;
+            }
+            BigDecimal amount = new BigDecimal(result);
+            if (amount.compareTo(BigDecimal.ZERO) == 0) {
+                return;
+            }
+            //大于0加钱
+            if (amount.compareTo(BigDecimal.ZERO) == 1) {
+                userMoneyBusiness.addBalance(userId, amount);
+            } else {
+                userMoneyBusiness.subBalance(userId, amount.abs());
+            }
+        }catch (Exception e){
+            log.error("改变用户实时余额时报错，msg={}",e.getMessage());
         }
     }
 

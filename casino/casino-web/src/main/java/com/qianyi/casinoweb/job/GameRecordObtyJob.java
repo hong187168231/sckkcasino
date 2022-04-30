@@ -143,10 +143,10 @@ public class GameRecordObtyJob {
                 if (gameRecord == null) {
                     continue;
                 }
-                //保存明细数据
-                saveBatchDetail(gameRecordObtyVo.getDetailList());
                 //业务处理
                 business(Constants.PLATFORM_OBTY, gameRecord, platformConfig);
+                //保存明细数据
+                saveBatchDetail(gameRecordObtyVo.getDetailList());
             }  catch (Exception e) {
                 e.printStackTrace();
                 log.error("保存OB体育游戏记录时报错,message={}", e.getMessage());
@@ -181,19 +181,23 @@ public class GameRecordObtyJob {
      * 改变用户实时余额
      */
     private void changeUserBalance(GameRecordObty gameRecordObty) {
-        BigDecimal betAmount = gameRecordObty.getOrderAmount();
-        BigDecimal winAmount = gameRecordObty.getProfitAmount();
-        if (betAmount == null || winAmount == null) {
-            return;
-        }
-        Long userId = gameRecordObty.getUserId();
-        //下注金额大于0，扣减
-        if (betAmount.compareTo(BigDecimal.ZERO) == 1) {
-            userMoneyBusiness.subBalance(userId, betAmount);
-        }
-        //派彩金额大于0，增加
-        if (winAmount.compareTo(BigDecimal.ZERO) == 1) {
-            userMoneyBusiness.addBalance(userId, winAmount);
+        try {
+            BigDecimal betAmount = gameRecordObty.getOrderAmount();
+            BigDecimal winAmount = gameRecordObty.getProfitAmount();
+            if (betAmount == null || winAmount == null) {
+                return;
+            }
+            Long userId = gameRecordObty.getUserId();
+            //下注金额大于0，扣减
+            if (betAmount.compareTo(BigDecimal.ZERO) == 1) {
+                userMoneyBusiness.subBalance(userId, betAmount);
+            }
+            //派彩金额大于0，增加
+            if (winAmount.compareTo(BigDecimal.ZERO) == 1) {
+                userMoneyBusiness.addBalance(userId, winAmount);
+            }
+        }catch (Exception e){
+            log.error("改变用户实时余额时报错，msg={}",e.getMessage());
         }
     }
 

@@ -172,12 +172,12 @@ public class GameRecordObdjJob {
                 if (gameRecord == null) {
                     continue;
                 }
+                //业务处理
+                business(Constants.PLATFORM_OBDJ, gameRecord, platformConfig);
                 //保存明细数据
                 saveBatchDetail(data, gameRecord.getBetId());
                 //保存赛事信息
                 saveTournament(data, gameRecord.getTournamentId());
-                //业务处理
-                business(Constants.PLATFORM_OBDJ, gameRecord, platformConfig);
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("保存游戏记录时报错,message={}", e.getMessage());
@@ -217,19 +217,23 @@ public class GameRecordObdjJob {
      * 改变用户实时余额
      */
     private void changeUserBalance(GameRecordObdj gameRecordObdj) {
-        BigDecimal betAmount = gameRecordObdj.getBetAmount();
-        BigDecimal winAmount = gameRecordObdj.getWinAmount();
-        if (betAmount == null || winAmount == null) {
-            return;
-        }
-        Long userId = gameRecordObdj.getUserId();
-        //下注金额大于0，扣减
-        if (betAmount.compareTo(BigDecimal.ZERO) == 1) {
-            userMoneyBusiness.subBalance(userId, betAmount);
-        }
-        //派彩金额大于0，增加
-        if (winAmount.compareTo(BigDecimal.ZERO) == 1) {
-            userMoneyBusiness.addBalance(userId, winAmount);
+        try {
+            BigDecimal betAmount = gameRecordObdj.getBetAmount();
+            BigDecimal winAmount = gameRecordObdj.getWinAmount();
+            if (betAmount == null || winAmount == null) {
+                return;
+            }
+            Long userId = gameRecordObdj.getUserId();
+            //下注金额大于0，扣减
+            if (betAmount.compareTo(BigDecimal.ZERO) == 1) {
+                userMoneyBusiness.subBalance(userId, betAmount);
+            }
+            //派彩金额大于0，增加
+            if (winAmount.compareTo(BigDecimal.ZERO) == 1) {
+                userMoneyBusiness.addBalance(userId, winAmount);
+            }
+        }catch (Exception e){
+            log.error("改变用户实时余额时报错，msg={}",e.getMessage());
         }
     }
 
@@ -312,19 +316,23 @@ public class GameRecordObdjJob {
     }
 
     private void saveTournament(JSONObject data, Long tournamentId) {
-        if (ObjectUtils.isEmpty(tournamentId)) {
-            return;
+        try {
+            if (ObjectUtils.isEmpty(tournamentId)) {
+                return;
+            }
+            String tournamentStr = data.getString("tournament");
+            if (ObjectUtils.isEmpty(tournamentStr)) {
+                return;
+            }
+            JSONObject jsonObject = JSONObject.parseObject(tournamentStr);
+            String tournamentName = jsonObject.getString(tournamentId.toString());
+            GameRecordObdjTournament tournament = new GameRecordObdjTournament();
+            tournament.setTournamentId(tournamentId);
+            tournament.setTournamentName(tournamentName);
+            gameRecordObdjTournamentService.save(tournament);
+        }catch (Exception e){
+            log.error("保存GameRecordObdjTournament时报错，message={}",e.getMessage());
         }
-        String tournamentStr = data.getString("tournament");
-        if (ObjectUtils.isEmpty(tournamentStr)) {
-            return;
-        }
-        JSONObject jsonObject = JSONObject.parseObject(tournamentStr);
-        String tournamentName = jsonObject.getString(tournamentId.toString());
-        GameRecordObdjTournament tournament = new GameRecordObdjTournament();
-        tournament.setTournamentId(tournamentId);
-        tournament.setTournamentName(tournamentName);
-        gameRecordObdjTournamentService.save(tournament);
     }
 
     private GameRecord combineGameRecord(GameRecordObdj item) {
