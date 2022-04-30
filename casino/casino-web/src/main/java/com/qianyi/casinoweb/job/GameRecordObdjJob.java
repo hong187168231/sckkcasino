@@ -223,14 +223,15 @@ public class GameRecordObdjJob {
             if (betAmount == null || winAmount == null) {
                 return;
             }
+            BigDecimal winLossAmount = winAmount.subtract(betAmount);
             Long userId = gameRecordObdj.getUserId();
             //下注金额大于0，扣减
             if (betAmount.compareTo(BigDecimal.ZERO) == 1) {
                 userMoneyBusiness.subBalance(userId, betAmount);
             }
             //派彩金额大于0，增加
-            if (winAmount.compareTo(BigDecimal.ZERO) == 1) {
-                userMoneyBusiness.addBalance(userId, winAmount);
+            if (winLossAmount.compareTo(BigDecimal.ZERO) == 1) {
+                userMoneyBusiness.addBalance(userId, winLossAmount);
             }
         }catch (Exception e){
             log.error("改变用户实时余额时报错，msg={}",e.getMessage());
