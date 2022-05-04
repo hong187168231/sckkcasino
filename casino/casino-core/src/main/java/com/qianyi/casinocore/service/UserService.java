@@ -262,14 +262,27 @@ public class UserService {
         startTime = "'"+startTime+"'";
         endTime = "'"+endTime+"'";
         String sql = "";
+        //        if(StringUtils.isNullOrEmpty(platform)){
+        //            sql = MessageFormat.format(SqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString(),orderTimeStart,orderTimeEnd,proxy);
+        //        }else if (platform.equals("WM")){
+        //            sql = MessageFormat.format(SqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'wm'",proxy);
+        //        }else{
+        //            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(),"'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
+        //        }
         if(StringUtils.isNullOrEmpty(platform)){
             sql = MessageFormat.format(SqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString(),orderTimeStart,orderTimeEnd,proxy);
         }else if (platform.equals("WM")){
             sql = MessageFormat.format(SqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'wm'",proxy);
+        }else if (platform.equals("OBDJ")){
+            sql = MessageFormat.format(SqlConst.obdjSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'OBDJ'",proxy);
+        }else if (platform.equals("OBTY")){
+            sql = MessageFormat.format(SqlConst.obtySql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'OBTY'",proxy);
+        }else if (platform.equals("PG")){
+            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'PG'",proxy);
         }else{
-            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(),"'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
+            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'CQ9'",proxy);
         }
-        log.info(sql);
+//        log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
         List<Map<String, Object>> mapList = parsePersonReportMapList(resultList);
@@ -280,17 +293,27 @@ public class UserService {
         startTime = "'"+startTime+"'";
         endTime = "'"+endTime+"'";
         String sql = "";
+        //        if(StringUtils.isNullOrEmpty(platform)){
+        //            sql = MessageFormat.format(SqlConst.seleOneTotal,startTime,endTime,userId.toString(),orderTimeStart,orderTimeEnd,proxy);
+        //        }else if (platform.equals("WM")){
+        //            sql = MessageFormat.format(SqlConst.seleOneWm, startTime, endTime, userId.toString(), "'wm'",proxy);
+        //        }else{
+        //            sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(),"'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
+        //        }
         if(StringUtils.isNullOrEmpty(platform)){
             sql = MessageFormat.format(SqlConst.seleOneTotal,startTime,endTime,userId.toString(),orderTimeStart,orderTimeEnd,proxy);
         }else if (platform.equals("WM")){
             sql = MessageFormat.format(SqlConst.seleOneWm, startTime, endTime, userId.toString(), "'wm'",proxy);
-        }else{
-            sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(),"'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
+        }else if (platform.equals("OBDJ")){
+            sql = MessageFormat.format(SqlConst.seleOneObdj,startTime, endTime, userId.toString(), "'OBDJ'",proxy);
+        }else if (platform.equals("OBTY")){
+            sql = MessageFormat.format(SqlConst.seleOneObty,startTime, endTime, userId.toString(), "'OBTY'",proxy);
+        }else if (platform.equals("PG")){
+            sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(), "'PG'",proxy);
+        } else{
+            sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"'CQ9'",proxy);
         }
-        //        log.info("\n" + sql);
-        //        log.info("\n" + SqlConst.seleOneTotal);
-        //        log.info("\n" + SqlConst.seleOneWm);
-        //        log.info("\n" + SqlConst.seleOnePgOrCq9Sql);
+//        log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
         List<Map<String, Object>> mapList = parsePersonReportMapList(resultList);
@@ -315,13 +338,27 @@ public class UserService {
         startTime = "'"+startTime+"'";
         endTime = "'"+endTime+"'";
         String sql = "";
+        //        if(StringUtils.isNullOrEmpty(platform)){
+        //            sql = MessageFormat.format(SqlConst.sumSql,startTime,endTime,orderTimeStart,orderTimeEnd, proxy);
+        //        }else if (platform.equals("WM")){
+        //            sql = MessageFormat.format(SqlConst.WMSumSql,startTime, endTime, "'wm'", proxy);
+        //        }else{
+        //            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime, endTime,"'"+platform+"'",orderTimeStart,orderTimeEnd, proxy);
+        //        }
         if(StringUtils.isNullOrEmpty(platform)){
             sql = MessageFormat.format(SqlConst.sumSql,startTime,endTime,orderTimeStart,orderTimeEnd, proxy);
         }else if (platform.equals("WM")){
             sql = MessageFormat.format(SqlConst.WMSumSql,startTime, endTime, "'wm'", proxy);
+        }else if (platform.equals("OBDJ")){
+            sql = MessageFormat.format(SqlConst.obdjSumSql,startTime, endTime, "'OBDJ'", proxy);
+        }else if (platform.equals("OBTY")){
+            sql = MessageFormat.format(SqlConst.obtySumSql,startTime, endTime, "'OBTY'", proxy);
+        }else if (platform.equals("PG")){
+            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime, endTime, "'PG'", proxy);
         }else{
-            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime, endTime,"'"+platform+"'",orderTimeStart,orderTimeEnd, proxy);
+            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime, endTime, "'CQ9'", proxy);
         }
+//        log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         Object result = countQuery.getSingleResult();
         Map<String,Object> map = new HashMap<>();
@@ -376,13 +413,27 @@ public class UserService {
         startTime = "'"+startTime+"'";
         endTime = "'"+endTime+"'";
         String sql = "";
+        //        if(StringUtils.isNullOrEmpty(platform)){
+        //            sql = MessageFormat.format(RebateSqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString(),orderTimeStart,orderTimeEnd,proxy);
+        //        }else if (platform.equals("WM")){
+        //            sql = MessageFormat.format(RebateSqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'wm'",proxy);
+        //        }else{
+        //            sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
+        //        }
         if(StringUtils.isNullOrEmpty(platform)){
             sql = MessageFormat.format(RebateSqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString(),orderTimeStart,orderTimeEnd,proxy);
         }else if (platform.equals("WM")){
             sql = MessageFormat.format(RebateSqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'wm'",proxy);
+        }else if (platform.equals("OBDJ")){
+            sql = MessageFormat.format(RebateSqlConst.obdjSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'OBDJ'",proxy);
+        }else if (platform.equals("OBTY")){
+            sql = MessageFormat.format(RebateSqlConst.obtySql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'OBTY'",proxy);
+        }else if (platform.equals("PG")){
+            sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'PG'",proxy);
         }else{
-            sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
+            sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'CQ9'",proxy);
         }
+//        log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
         List<Map<String, Object>> mapList = parseRebateReportMapList(resultList);
@@ -393,13 +444,27 @@ public class UserService {
         startTime = "'"+startTime+"'";
         endTime = "'"+endTime+"'";
         String sql = "";
+        //        if(StringUtils.isNullOrEmpty(platform)){
+        //            sql = MessageFormat.format(RebateSqlConst.seleOneTotal,startTime,endTime,userId.toString(),orderTimeStart,orderTimeEnd,proxy);
+        //        }else if (platform.equals("WM")){
+        //            sql = MessageFormat.format(RebateSqlConst.seleOneWm, startTime, endTime, userId.toString(), "'wm'",proxy);
+        //        }else{
+        //            sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(),  "'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
+        //        }
         if(StringUtils.isNullOrEmpty(platform)){
             sql = MessageFormat.format(RebateSqlConst.seleOneTotal,startTime,endTime,userId.toString(),orderTimeStart,orderTimeEnd,proxy);
         }else if (platform.equals("WM")){
             sql = MessageFormat.format(RebateSqlConst.seleOneWm, startTime, endTime, userId.toString(), "'wm'",proxy);
+        }else if (platform.equals("OBDJ")){
+            sql = MessageFormat.format(RebateSqlConst.seleOneObdj, startTime, endTime, userId.toString(), "'OBDJ'",proxy);
+        }else if (platform.equals("OBTY")){
+            sql = MessageFormat.format(RebateSqlConst.seleOneObty, startTime, endTime, userId.toString(), "'OBTY'",proxy);
+        }else if (platform.equals("PG")){
+            sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(), "'PG'",proxy);
         }else{
-            sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(),  "'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
+            sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"'CQ9'",proxy);
         }
+//        log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
         List<Map<String, Object>> mapList = parseRebateReportMapList(resultList);
@@ -424,13 +489,27 @@ public class UserService {
         startTime = "'"+startTime+"'";
         endTime = "'"+endTime+"'";
         String sql = "";
+        //        if(StringUtils.isNullOrEmpty(platform)){
+        //            sql = MessageFormat.format(RebateSqlConst.sumSql,startTime,endTime,orderTimeStart,orderTimeEnd,proxy);
+        //        }else if (platform.equals("WM")){
+        //            sql = MessageFormat.format(RebateSqlConst.WMSumSql,startTime, endTime, "'wm'",proxy);
+        //        }else{
+        //            sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql,startTime, endTime,  "'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
+        //        }
         if(StringUtils.isNullOrEmpty(platform)){
             sql = MessageFormat.format(RebateSqlConst.sumSql,startTime,endTime,orderTimeStart,orderTimeEnd,proxy);
         }else if (platform.equals("WM")){
             sql = MessageFormat.format(RebateSqlConst.WMSumSql,startTime, endTime, "'wm'",proxy);
+        }else if (platform.equals("OBDJ")){
+            sql = MessageFormat.format(RebateSqlConst.obdjSumSql,startTime, endTime, "'OBDJ'",proxy);
+        }else if (platform.equals("OBTY")){
+            sql = MessageFormat.format(RebateSqlConst.obtySumSql,startTime, endTime, "'OBTY'",proxy);
+        }else if (platform.equals("PG")){
+            sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql,startTime, endTime, "'PG'",proxy);
         }else{
-            sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql,startTime, endTime,  "'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
+            sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql,startTime, endTime, "'CQ9'",proxy);
         }
+        log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         Object result = countQuery.getSingleResult();
         Map<String,Object> map = new HashMap<>();
