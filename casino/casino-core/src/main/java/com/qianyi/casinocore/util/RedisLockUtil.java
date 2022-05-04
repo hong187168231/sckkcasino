@@ -18,7 +18,7 @@ public class RedisLockUtil {
     public static final String PROXY_GAME_RECORD_REPORT_BUSINESS ="proxyGameRecordReportBusiness:{0}";
 
     //分布式锁过期时间s可以根据自己的业务调整
-    private static final Long LOCK_REDIS_TIMEOUT = 200L;
+    private static final Long LOCK_REDIS_TIMEOUT = 10L;
 
     //分布式锁休眠 至 再次尝试获取的 等待时间 ms 可以根据自己的业务调整
     public static final Long LOCK_REDIS_WAIT = 500L;
