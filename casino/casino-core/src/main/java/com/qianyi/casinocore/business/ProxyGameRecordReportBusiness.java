@@ -52,9 +52,11 @@ public class ProxyGameRecordReportBusiness {
         }
         String value = proxyGameRecordReportVo.getPlatform() + proxyGameRecordReportVo.getGameRecordId().toString();
         String key = MessageFormat.format(RedisLockUtil.PROXY_GAME_RECORD_REPORT_BUSINESS,value);
+        Boolean lock = false;
         try {
-            Boolean lock = redisLockUtil.getLock(key, value);
+            lock = redisLockUtil.getLock(key, value);
             if (lock){
+                log.info("取到redis锁{}",key);
                 if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_WM)){
                     GameRecord gameRecord = gameRecordService.findGameRecordById(proxyGameRecordReportVo.getGameRecordId());
                     if (gameRecord == null || gameRecord.getGameRecordStatus() == Constants.yes){
@@ -123,7 +125,10 @@ public class ProxyGameRecordReportBusiness {
         }catch (Exception ex){
             log.error("代理报表异步处理异常需要人工补单,注单标识{}={}",proxyGameRecordReportVo.getPlatform(),proxyGameRecordReportVo.getGameRecordId());
         }finally {
-            redisLockUtil.releaseLock(key, value);
+            if (lock){
+                log.info("释放redis锁{}",key);
+                redisLockUtil.releaseLock(key, value);
+            }
         }
     }
 }
