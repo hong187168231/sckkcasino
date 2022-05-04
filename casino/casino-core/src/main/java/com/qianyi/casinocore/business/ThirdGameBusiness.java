@@ -174,7 +174,7 @@ public class ThirdGameBusiness {
         if (entity == null) {
             log.error("WM加扣点失败,远程请求异常,userId:{},account={},money={}", userId, user.getAccount(), recoverMoney);
             //异步记录错误订单并重试补偿
-            errorOrderService.syncSaveErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, recoverMoney, AccountChangeEnum.RECOVERY, Constants.PLATFORM_WM_BIG);
+//            errorOrderService.syncSaveErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, recoverMoney, AccountChangeEnum.RECOVERY, Constants.PLATFORM_WM_BIG);
             return ResponseUtil.custom("回收失败,请联系客服");
         }
         if (entity.getErrorCode() != 0) {
@@ -231,7 +231,7 @@ public class ThirdGameBusiness {
         if (transfer == null) {
             log.error("OB电竞扣点失败,远程请求异常,userId:{},account={},money={}", userId, user.getAccount(), balance);
             //异步记录错误订单
-            errorOrderService.syncSaveErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, balance, AccountChangeEnum.OBDJ_OUT, Constants.PLATFORM_OBDJ);
+//            errorOrderService.syncSaveErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, balance, AccountChangeEnum.OBDJ_OUT, Constants.PLATFORM_OBDJ);
             return ResponseUtil.custom("回收失败,请联系客服");
         }
         if (PublicObdjApi.STATUS_FALSE.equals(transfer.getStatus())) {
@@ -289,7 +289,7 @@ public class ThirdGameBusiness {
         if (transfer == null) {
             log.error("OB体育扣点失败,远程请求异常,userId:{},account={},money={}", userId, user.getAccount(), balance);
             //异步记录错误订单
-            errorOrderService.syncSaveErrorOrder(third.getObtyAccount(), user.getId(), user.getAccount(), orderNo, balance, AccountChangeEnum.OBTY_OUT, Constants.PLATFORM_OBTY);
+//            errorOrderService.syncSaveErrorOrder(third.getObtyAccount(), user.getId(), user.getAccount(), orderNo, balance, AccountChangeEnum.OBTY_OUT, Constants.PLATFORM_OBTY);
             return ResponseUtil.custom("回收失败,请联系客服");
         }
         if (!transfer.getStatus()) {

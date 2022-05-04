@@ -62,6 +62,8 @@ public class GoldenFController {
     @Autowired
     private AdGamesService adGamesService;
     @Autowired
+    private ErrorOrderService errorOrderService;
+    @Autowired
     @Qualifier("accountChangeJob")
     private AsyncService asyncService;
     @Value("${project.goldenf.currency:null}")
@@ -187,6 +189,8 @@ public class GoldenFController {
         double amount = userCenterMoney.doubleValue();
         PublicGoldenFApi.ResponseEntity entity = goldenFApi.transferIn(playerName, amount, orderNo, null);
         if (entity == null) {
+            User user = userService.findById(userId);
+            errorOrderService.syncSaveErrorOrder(playerName, userId, user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.PG_CQ9_IN, Constants.PLATFORM_PG_CQ9);
             log.error("userId:{},进游戏加扣点失败", userId);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
