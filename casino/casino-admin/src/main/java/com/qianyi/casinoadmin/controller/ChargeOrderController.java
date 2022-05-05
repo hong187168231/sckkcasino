@@ -140,6 +140,13 @@ public class ChargeOrderController {
                 });
             }
             pageResultVO.setContent(chargeOrderVoList);
+            userIds.clear();
+            collect.clear();
+            userList.clear();
+            all.clear();
+            bankcardMap.clear();
+            bankInfoIds.clear();
+            bankInfos.clear();
         }
         return ResponseUtil.success(pageResultVO);
     }
