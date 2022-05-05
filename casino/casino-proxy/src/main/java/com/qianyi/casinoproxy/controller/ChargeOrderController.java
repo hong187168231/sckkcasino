@@ -118,6 +118,11 @@ public class ChargeOrderController {
                 });
             }
             pageResultVO.setContent(chargeOrderVoList);
+            userIds.clear();
+            collect.clear();
+            userList.clear();
+            all.clear();
+            bankcardMap.clear();
         }
         return ResponseUtil.success(pageResultVO);
     }
