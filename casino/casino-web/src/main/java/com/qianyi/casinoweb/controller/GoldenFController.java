@@ -149,6 +149,10 @@ public class GoldenFController {
             log.error("userId:{},进游戏获取gameUrl失败", third.getUserId());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
+        if ("1035".equals(entity.getErrorCode())){
+            log.error("userId:{},errorCode={},errorMsg={}", third.getUserId(), entity.getErrorCode(), entity.getErrorMessage());
+            return ResponseUtil.custom("当前游戏维护中,请选择其他游戏");
+        }
         if (!ObjectUtils.isEmpty(entity.getErrorCode())) {
             log.error("userId:{},errorCode={},errorMsg={}", third.getUserId(), entity.getErrorCode(), entity.getErrorMessage());
             return ResponseUtil.custom("服务器异常,请重新操作");
