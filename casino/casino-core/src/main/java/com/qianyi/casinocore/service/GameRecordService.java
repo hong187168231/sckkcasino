@@ -133,6 +133,11 @@ public class GameRecordService {
 
         List<Predicate> predicates = new ArrayList();
 
+        if (game.getUserId() != null) {
+            predicates.add(
+                builder.equal(root.get("userId").as(Integer.class), game.getUserId())
+            );
+        }
         if (!CommonUtil.checkNull(game.getBetId())) {
             predicates.add(
                 builder.equal(root.get("betId").as(String.class), game.getBetId())
