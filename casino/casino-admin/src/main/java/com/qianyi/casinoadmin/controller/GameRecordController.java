@@ -1,8 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
-import com.qianyi.casinoadmin.model.HomePageReport;
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.model.CompanyProxyMonth;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.GameRecordTotalVo;
 import com.qianyi.casinocore.vo.GameRecordVo;
@@ -25,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -119,75 +118,75 @@ public class GameRecordController {
         return ResponseUtil.success(pageResultVO);
     }
 
-    @ApiOperation("分页查询三方游戏注单总计")
-    @GetMapping("/findGameRecordTotal")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
-            @ApiImplicitParam(name = "betId", value = "注单号", required = false),
-            @ApiImplicitParam(name = "gname", value = "游戏名称", required = false),
-            @ApiImplicitParam(name = "gid", value = "游戏类型", required = false),
-            @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
-            @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
-            @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
-    })
-    @NoAuthorization
-    public ResponseEntity<GameRecordTotalVo> findGameRecordTotal(String user, String betId,
-                                                                 String gname, Integer gid, String account, Integer tag,
-                                                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
-        GameRecord game = new GameRecord();
-        Long userId = null;
-        if (!LoginUtil.checkNull(account)){
-            User byAccount = userService.findByAccount(account);
-            if (LoginUtil.checkNull(byAccount)){
-                return ResponseUtil.custom("用户不存在");
-            }
-            userId = byAccount.getId();
-        }
-        game.setUserId(userId);
-        game.setBetId(betId);
-        game.setGname(gname);
-        game.setGid(gid);
-        game.setUser(user);
-        List<GameRecord> gameRecordList;
-        if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
-            String startTime = DateUtil.getSimpleDateFormat().format(startDate);
-            String endTime = DateUtil.getSimpleDateFormat().format(endDate);
-            if (LoginUtil.checkNull(tag) || tag == CommonConst.NUMBER_0){
-                gameRecordList = gameRecordService.findGameRecordList(game,startTime,endTime,null,null);
-            }else {
-                gameRecordList = gameRecordService.findGameRecordList(game,null,null,startTime,endTime);
-            }
-        }else {
-            gameRecordList = gameRecordService.findGameRecordList(game,null,null,null,null);
-        }
-        BigDecimal bet=BigDecimal.ZERO;
-        BigDecimal validbet=BigDecimal.ZERO;
-        BigDecimal winLoss=BigDecimal.ZERO;
-        if(gameRecordList != null && gameRecordList.size() > 0){
-            List<Map<BigDecimal, Object>> list = new ArrayList<>();
-            gameRecordList.stream().forEach(info ->{
-                list.add(new HashMap(1) {{
-                    put("validbet", new BigDecimal(info.getValidbet()));
-                    put("bet", new BigDecimal(info.getBet()));
-                    put("winLoss", new BigDecimal(info.getWinLoss()));
-                }});
-            });
-             bet = list.stream().map(item -> { { return new BigDecimal(item.get("bet").toString());}}).reduce(BigDecimal.ZERO, BigDecimal::add);
-            validbet = list.stream().map(item -> { { return new BigDecimal(item.get("validbet").toString());}}).reduce(BigDecimal.ZERO, BigDecimal::add);
-            winLoss = list.stream().map(item -> { { return new BigDecimal(item.get("winLoss").toString());}}).reduce(BigDecimal.ZERO, BigDecimal::add);
-        }
-        GameRecordTotalVo gameRecordTotalVo=new GameRecordTotalVo();
-        gameRecordTotalVo.setBet(bet);
-        gameRecordTotalVo.setValidbet(validbet);
-        gameRecordTotalVo.setWinLoss(winLoss);
-        return ResponseUtil.success(gameRecordTotalVo);
-    }
+//    @ApiOperation("分页查询三方游戏注单总计")
+//    @GetMapping("/findGameRecordTotal")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+//            @ApiImplicitParam(name = "betId", value = "注单号", required = false),
+//            @ApiImplicitParam(name = "gname", value = "游戏名称", required = false),
+//            @ApiImplicitParam(name = "gid", value = "游戏类型", required = false),
+//            @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+//            @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+//            @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+//            @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
+//    })
+//    @NoAuthorization
+//    public ResponseEntity<GameRecordTotalVo> findGameRecordTotal(String user, String betId,
+//                                                                 String gname, Integer gid, String account, Integer tag,
+//                                                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+//                                                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+//        GameRecord game = new GameRecord();
+//        Long userId = null;
+//        if (!LoginUtil.checkNull(account)){
+//            User byAccount = userService.findByAccount(account);
+//            if (LoginUtil.checkNull(byAccount)){
+//                return ResponseUtil.custom("用户不存在");
+//            }
+//            userId = byAccount.getId();
+//        }
+//        game.setUserId(userId);
+//        game.setBetId(betId);
+//        game.setGname(gname);
+//        game.setGid(gid);
+//        game.setUser(user);
+//        List<GameRecord> gameRecordList;
+//        if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
+//            String startTime = DateUtil.getSimpleDateFormat().format(startDate);
+//            String endTime = DateUtil.getSimpleDateFormat().format(endDate);
+//            if (LoginUtil.checkNull(tag) || tag == CommonConst.NUMBER_0){
+//                gameRecordList = gameRecordService.findGameRecordList(game,startTime,endTime,null,null);
+//            }else {
+//                gameRecordList = gameRecordService.findGameRecordList(game,null,null,startTime,endTime);
+//            }
+//        }else {
+//            gameRecordList = gameRecordService.findGameRecordList(game,null,null,null,null);
+//        }
+//        BigDecimal bet=BigDecimal.ZERO;
+//        BigDecimal validbet=BigDecimal.ZERO;
+//        BigDecimal winLoss=BigDecimal.ZERO;
+//        if(gameRecordList != null && gameRecordList.size() > 0){
+//            List<Map<BigDecimal, Object>> list = new ArrayList<>();
+//            gameRecordList.stream().forEach(info ->{
+//                list.add(new HashMap(1) {{
+//                    put("validbet", new BigDecimal(info.getValidbet()));
+//                    put("bet", new BigDecimal(info.getBet()));
+//                    put("winLoss", new BigDecimal(info.getWinLoss()));
+//                }});
+//            });
+//             bet = list.stream().map(item -> { { return new BigDecimal(item.get("bet").toString());}}).reduce(BigDecimal.ZERO, BigDecimal::add);
+//            validbet = list.stream().map(item -> { { return new BigDecimal(item.get("validbet").toString());}}).reduce(BigDecimal.ZERO, BigDecimal::add);
+//            winLoss = list.stream().map(item -> { { return new BigDecimal(item.get("winLoss").toString());}}).reduce(BigDecimal.ZERO, BigDecimal::add);
+//        }
+//        GameRecordTotalVo gameRecordTotalVo=new GameRecordTotalVo();
+//        gameRecordTotalVo.setBet(bet);
+//        gameRecordTotalVo.setValidbet(validbet);
+//        gameRecordTotalVo.setWinLoss(winLoss);
+//        return ResponseUtil.success(gameRecordTotalVo);
+//    }
 
     /**
      * 统计三方游戏注单
-     *
+     *findRecordRecordSum
      * @param user 会员账号
      * @param betId 注单号
      * @param gname 游戏名称
@@ -195,7 +194,7 @@ public class GameRecordController {
      * @return
      */
     @ApiOperation("统计三方游戏注单")
-    @GetMapping("/findRecordRecordSum")
+    @GetMapping("/findGameRecordTotal")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
             @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
@@ -207,7 +206,7 @@ public class GameRecordController {
             @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
     })
     @NoAuthorization
-    public ResponseEntity findRecordRecordSum(String user,String betId,String gname,Integer gid,String account,Integer tag,
+    public ResponseEntity<GameRecordTotalVo> findRecordRecordSum(String user,String betId,String gname,Integer gid,String account,Integer tag,
                                               @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                               @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         GameRecord game = new GameRecord();
@@ -222,17 +221,31 @@ public class GameRecordController {
         game.setBetId(betId);
         game.setGname(gname);
         game.setGid(gid);
+        GameRecord recordRecordSum;
         if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
             String startTime = DateUtil.getSimpleDateFormat().format(startDate);
             String endTime = DateUtil.getSimpleDateFormat().format(endDate);
+
             if (LoginUtil.checkNull(tag) || tag == CommonConst.NUMBER_0){
-                return ResponseUtil.success(gameRecordService.findRecordRecordSum(game,startTime,endTime,null,null));
+                recordRecordSum = gameRecordService.findRecordRecordSum(game, startTime, endTime, null, null);
             }else {
-                return ResponseUtil.success(gameRecordService.findRecordRecordSum(game,null,null,startTime,endTime));
+                recordRecordSum = gameRecordService.findRecordRecordSum(game,null,null,startTime,endTime);
             }
         }else {
-            return ResponseUtil.success(gameRecordService.findRecordRecordSum(game,null,null,null,null));
+            recordRecordSum = gameRecordService.findRecordRecordSum(game,null,null,null,null);
         }
-
+        GameRecordTotalVo gameRecordTotalVo = new GameRecordTotalVo();
+        if (!LoginUtil.checkNull(recordRecordSum)){
+            if (StringUtils.hasText(recordRecordSum.getBet())){
+                gameRecordTotalVo.setBet(new BigDecimal(recordRecordSum.getBet()));
+            }
+            if (StringUtils.hasText(recordRecordSum.getValidbet())){
+                gameRecordTotalVo.setValidbet(new BigDecimal(recordRecordSum.getValidbet()));
+            }
+            if (StringUtils.hasText(recordRecordSum.getBet())){
+                gameRecordTotalVo.setWinLoss(new BigDecimal(recordRecordSum.getWinLoss()));
+            }
+        }
+        return ResponseUtil.success(recordRecordSum);
     }
 }
