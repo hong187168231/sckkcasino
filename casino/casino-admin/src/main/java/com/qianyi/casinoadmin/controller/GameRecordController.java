@@ -246,6 +246,6 @@ public class GameRecordController {
                 gameRecordTotalVo.setWinLoss(new BigDecimal(recordRecordSum.getWinLoss()));
             }
         }
-        return ResponseUtil.success(recordRecordSum);
+        return ResponseUtil.success(gameRecordTotalVo);
     }
 }
