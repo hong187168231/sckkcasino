@@ -109,5 +109,13 @@ public class GameRecordObty extends BaseEntity{
     @ApiModelProperty(value = "游戏报表状态：0:失败，1：成功")
     private Integer gameRecordStatus = Constants.no;
 
+    public GameRecordObty(BigDecimal profitAmount,BigDecimal orderAmount,BigDecimal settleAmount){
+        this.profitAmount = profitAmount==null?BigDecimal.ZERO:profitAmount;
+        this.orderAmount = orderAmount==null?BigDecimal.ZERO:orderAmount;
+        this.settleAmount = settleAmount==null?BigDecimal.ZERO:settleAmount;
+    }
 
+    public GameRecordObty(){
+
+    }
 }

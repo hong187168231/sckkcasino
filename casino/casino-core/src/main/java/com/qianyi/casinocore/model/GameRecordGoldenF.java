@@ -89,4 +89,13 @@ public class GameRecordGoldenF extends BaseEntity {
 
     @ApiModelProperty(value = "游戏报表状态：0:失败，1：成功")
     private Integer gameRecordStatus = Constants.no;
+
+    public GameRecordGoldenF(BigDecimal betAmount,BigDecimal validbet){
+        this.betAmount = betAmount==null?BigDecimal.ZERO:betAmount;
+        this.winAmount = validbet==null?BigDecimal.ZERO:validbet;
+    }
+
+    public GameRecordGoldenF(){
+
+    }
 }
