@@ -124,13 +124,11 @@ public class UserThirdController {
         Set<String> findByUserIdKeys = redisUtil.getKeysByPrex("userThird::*");
         for (String key : findByUserIdKeys) {
             Map<String, Object> map = new HashMap<>();
-            String account = key.substring(key.lastIndexOf("::") + 2, key.length());
-            if (ObjectUtils.isEmpty(account)){
+            if (key.contains("findByAccount") || key.contains("findByGoldenfAccount") || key.contains("findByObdjAccount") || key.contains("findByObtyAccount")) {
                 continue;
             }
-            Pattern pattern = Pattern.compile("[0-9]*");
-            boolean matches = pattern.matcher(account).matches();
-            if (!matches){
+            String account = key.substring(key.lastIndexOf("::") + 2, key.length());
+            if (ObjectUtils.isEmpty(account)){
                 continue;
             }
             UserThird third = userThirdService.findByUserId(Long.parseLong(account));
