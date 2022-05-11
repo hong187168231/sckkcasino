@@ -34,46 +34,59 @@ public class TransferProxyUserInit implements CommandLineRunner {
 //    public static final String firstProxy1Name = "zhenhao01dai";
 
     public static final String secondProxy1Name = "zhenhao01dai04";
+
+    public static final String firstProxy2Name = "chun888ZD";
+    public static final String secondProxy2Name = "ajiaoQD";
+
+    public static final String firstProxy3Name = "mrhope";
+    public static final String secondProxy3Name = "simaQD";
     @Override
     public void run(String... args) throws Exception {
-
-
-
-        ProxyUser firstProxy1 = proxyUserService.findByUserName(firstProxy1Name);
-        if (LoginUtil.checkNull(firstProxy1) || firstProxy1.getProxyRole() != CommonConst.NUMBER_1){
-            log.error("找不到总代{}",firstProxy1Name);
+//        ProxyUser firstProxy1 = proxyUserService.findByUserName(firstProxy1Name);
+//        if (LoginUtil.checkNull(firstProxy1) || firstProxy1.getProxyRole() != CommonConst.NUMBER_1){
+//            log.error("找不到总代{}",firstProxy1Name);
+//        }else {
+//            ProxyUser secondProxy1 = proxyUserService.findByUserName(secondProxy1Name);
+//            if (!LoginUtil.checkNull(secondProxy1) && secondProxy1.getProxyRole() == CommonConst.NUMBER_2){
+//                if (secondProxy1.getFirstProxy().longValue() == firstProxy1.getId().longValue()){
+//                    log.info("已经是改总代下级不能转移");
+//                }else {
+//                    log.info("开始转移{}",secondProxy1Name);
+//                    secondProxyToFirstProxy(secondProxy1,firstProxy1);
+//                }
+//            }
+//        }
+        ProxyUser firstProxy2 = proxyUserService.findByUserName(firstProxy2Name);
+        if (LoginUtil.checkNull(firstProxy2) || firstProxy2.getProxyRole() != CommonConst.NUMBER_1){
+            log.error("找不到总代{}",firstProxy2Name);
         }else {
-            ProxyUser secondProxy1 = proxyUserService.findByUserName(secondProxy1Name);
-            if (!LoginUtil.checkNull(secondProxy1) && secondProxy1.getProxyRole() == CommonConst.NUMBER_2){
-                if (secondProxy1.getFirstProxy().longValue() == firstProxy1.getId().longValue()){
+            ProxyUser secondProxy2 = proxyUserService.findByUserName(secondProxy2Name);
+            if (!LoginUtil.checkNull(secondProxy2) && secondProxy2.getProxyRole() == CommonConst.NUMBER_2){
+                if (secondProxy2.getFirstProxy().longValue() == firstProxy2.getId().longValue()){
                     log.info("已经是改总代下级不能转移");
                 }else {
-                    log.info("开始转移{}",secondProxy1Name);
-                    secondProxyToFirstProxy(secondProxy1,firstProxy1);
+                    log.info("开始转移{}",secondProxy2Name);
+                    secondProxyToFirstProxy(secondProxy2,firstProxy2);
                 }
+
             }
         }
-//        ProxyUser chun888ZD = proxyUserService.findByUserName("chun888ZD");
-//        if (LoginUtil.checkNull(chun888ZD) || chun888ZD.getProxyRole() != CommonConst.NUMBER_1){
-//            log.error("找不到总代chun888ZD");
-//        }else {
-//            ProxyUser ajiaoQD = proxyUserService.findByUserName("ajiaoQD");
-//            if (!LoginUtil.checkNull(ajiaoQD) && ajiaoQD.getProxyRole() == CommonConst.NUMBER_2){
-//                log.info("开始转移ajiaoQD");
-//                secondProxyToFirstProxy(ajiaoQD,chun888ZD);
-//            }
-//        }
-//
-//        ProxyUser mrhope = proxyUserService.findByUserName("mrhope");
-//        if (LoginUtil.checkNull(mrhope) || mrhope.getProxyRole() != CommonConst.NUMBER_1){
-//            log.error("找不到总代mrhope");
-//        }else {
-//            ProxyUser simaQD = proxyUserService.findByUserName("simaQD");
-//            if (!LoginUtil.checkNull(simaQD) && simaQD.getProxyRole() == CommonConst.NUMBER_2){
-//                log.info("开始转移simaQD");
-//                secondProxyToFirstProxy(simaQD,mrhope);
-//            }
-//        }
+
+        ProxyUser firstProxy3 = proxyUserService.findByUserName(firstProxy3Name);
+        if (LoginUtil.checkNull(firstProxy3) || firstProxy3.getProxyRole() != CommonConst.NUMBER_1){
+            log.error("找不到总代{}",firstProxy3Name);
+        }else {
+            ProxyUser secondProxy3 = proxyUserService.findByUserName(secondProxy3Name);
+            if (!LoginUtil.checkNull(secondProxy3) && secondProxy3.getProxyRole() == CommonConst.NUMBER_2){
+                if (secondProxy3.getFirstProxy().longValue() == firstProxy3.getId().longValue()){
+                    log.info("已经是改总代下级不能转移");
+                }else {
+                    log.info("开始转移{}",secondProxy3Name);
+                    secondProxyToFirstProxy(secondProxy3,firstProxy3);
+                }
+
+            }
+        }
 
     }
 
