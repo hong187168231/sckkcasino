@@ -1,5 +1,6 @@
 package com.qianyi.casinoweb.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.repository.UserThirdRepository;
 import com.qianyi.casinocore.service.UserThirdService;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/userThird")
@@ -55,7 +57,7 @@ public class UserThirdController {
             }
         }
         notMatch.put(Constants.PLATFORM_WM_BIG, wmNotMatchList);
-        log.error("WM不匹配的账号:{}",wmNotMatchList);
+        log.error("WM不匹配的账号:{}",JSON.toJSONString(wmNotMatchList));
 
         //比对所有goldenf账号
         List<Map<String, Object>> goldenfNotMatchList = new ArrayList<>();
@@ -75,7 +77,7 @@ public class UserThirdController {
             }
         }
         notMatch.put(Constants.PLATFORM_PG_CQ9, goldenfNotMatchList);
-        log.error("goldenF不匹配的账号:{}",goldenfNotMatchList);
+        log.error("goldenF不匹配的账号:{}",JSON.toJSONString(goldenfNotMatchList));
 
         //比对所有obdj账号
         List<Map<String, Object>> obdjNotMatchList = new ArrayList<>();
@@ -95,7 +97,7 @@ public class UserThirdController {
             }
         }
         notMatch.put(Constants.PLATFORM_OBDJ, obdjNotMatchList);
-        log.error("OBDJ不匹配的账号:{}",obdjNotMatchList);
+        log.error("OBDJ不匹配的账号:{}",JSON.toJSONString(obdjNotMatchList));
 
         //比对所有obty账号
         List<Map<String, Object>> obtyNotMatchList = new ArrayList<>();
@@ -115,7 +117,35 @@ public class UserThirdController {
             }
         }
         notMatch.put(Constants.PLATFORM_OBTY, obtyNotMatchList);
-        log.error("OBTY不匹配的账号:{}",obtyNotMatchList);
+        log.error("OBTY不匹配的账号:{}",JSON.toJSONString(obtyNotMatchList));
+
+        //比对所有findByUserId账号
+        List<Map<String, Object>> findByUserIdNotMatchList = new ArrayList<>();
+        Set<String> findByUserIdKeys = redisUtil.getKeysByPrex("userThird::*");
+        for (String key : findByUserIdKeys) {
+            Map<String, Object> map = new HashMap<>();
+            String account = key.substring(key.lastIndexOf("::") + 2, key.length());
+            if (ObjectUtils.isEmpty(account)){
+                continue;
+            }
+            Pattern pattern = Pattern.compile("[0-9]*");
+            boolean matches = pattern.matcher(account).matches();
+            if (!matches){
+                continue;
+            }
+            UserThird third = userThirdService.findByUserId(Long.parseLong(account));
+            if (ObjectUtils.isEmpty(third)) {
+                continue;
+            }
+            UserThird userThird = userThirdRepository.findByUserId(third.getUserId());
+            if (ObjectUtils.isEmpty(userThird) || !third.getId().equals(userThird.getId())) {
+                map.put("db", userThird);
+                map.put("cache", third);
+                findByUserIdNotMatchList.add(map);
+            }
+        }
+        notMatch.put("findByUserId", findByUserIdNotMatchList);
+        log.error("findByUserId不匹配的账号:{}",JSON.toJSONString(findByUserIdNotMatchList));
         return ResponseUtil.success(notMatch);
     }
 }
