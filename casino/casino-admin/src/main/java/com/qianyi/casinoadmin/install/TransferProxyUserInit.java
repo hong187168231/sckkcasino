@@ -30,8 +30,8 @@ public class TransferProxyUserInit implements CommandLineRunner {
     @Autowired
     private ProxyCommissionService proxyCommissionService;
 
-//    public static final String firstProxy1Name = "ror";
-    public static final String firstProxy1Name = "zhenhao01dai";
+    public static final String firstProxy1Name = "ror";
+//    public static final String firstProxy1Name = "zhenhao01dai";
 
     public static final String secondProxy1Name = "zhenhao01dai04";
     @Override
@@ -45,8 +45,12 @@ public class TransferProxyUserInit implements CommandLineRunner {
         }else {
             ProxyUser secondProxy1 = proxyUserService.findByUserName(secondProxy1Name);
             if (!LoginUtil.checkNull(secondProxy1) && secondProxy1.getProxyRole() == CommonConst.NUMBER_2){
-                log.info("开始转移{}",secondProxy1Name);
-                secondProxyToFirstProxy(secondProxy1,firstProxy1);
+                if (secondProxy1.getFirstProxy().longValue() == firstProxy1.getId().longValue()){
+                    log.info("已经是改总代下级不能转移");
+                }else {
+                    log.info("开始转移{}",secondProxy1Name);
+                    secondProxyToFirstProxy(secondProxy1,firstProxy1);
+                }
             }
         }
 //        ProxyUser chun888ZD = proxyUserService.findByUserName("chun888ZD");
@@ -101,9 +105,11 @@ public class TransferProxyUserInit implements CommandLineRunner {
             });
             userList.clear();
         }
-        secondProxy.setFirstProxy(firstProxy.getId());
-        proxyUserService.save(secondProxy);
+
         proxyUserService.subProxyUsersNum(secondProxy.getFirstProxy(),proxyUsers.size()+1);
         proxyUserService.addProxyUsersNum(firstProxy.getId(),proxyUsers.size()+1);
+        secondProxy.setFirstProxy(firstProxy.getId());
+        proxyUserService.save(secondProxy);
+
     }
 }
