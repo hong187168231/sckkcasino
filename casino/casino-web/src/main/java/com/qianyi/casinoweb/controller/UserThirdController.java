@@ -131,6 +131,11 @@ public class UserThirdController {
             if (ObjectUtils.isEmpty(account)){
                 continue;
             }
+            Pattern pattern = Pattern.compile("[0-9]*");
+            boolean matches = pattern.matcher(account).matches();
+            if (!matches){
+                continue;
+            }
             UserThird third = userThirdService.findByUserId(Long.parseLong(account));
             if (ObjectUtils.isEmpty(third)) {
                 continue;
