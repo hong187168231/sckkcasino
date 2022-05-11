@@ -30,7 +30,9 @@ public class TransferProxyUserInit implements CommandLineRunner {
     @Autowired
     private ProxyCommissionService proxyCommissionService;
 
-    public static final String firstProxy1Name = "ror";
+//    public static final String firstProxy1Name = "ror";
+    public static final String firstProxy1Name = "zhenhao01dai";
+
     public static final String secondProxy1Name = "zhenhao01dai04";
     @Override
     public void run(String... args) throws Exception {
@@ -99,8 +101,9 @@ public class TransferProxyUserInit implements CommandLineRunner {
             });
             userList.clear();
         }
-
-        proxyUserService.subProxyUsersNum(secondProxy.getFirstProxy(),1);
-        proxyUserService.addProxyUsersNum(firstProxy.getId(),1);
+        secondProxy.setFirstProxy(firstProxy.getId());
+        proxyUserService.save(secondProxy);
+        proxyUserService.subProxyUsersNum(secondProxy.getFirstProxy(),proxyUsers.size()+1);
+        proxyUserService.addProxyUsersNum(firstProxy.getId(),proxyUsers.size()+1);
     }
 }
