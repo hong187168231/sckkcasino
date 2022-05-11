@@ -93,34 +93,37 @@ public class WMController {
         }
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
-        UserThird third = userThirdService.findByUserId(authId);
-        //未注册自动注册到第三方
-        if (third == null|| ObjectUtils.isEmpty(third.getAccount())) {
-            String account = UUID.randomUUID().toString();
-            account = account.replaceAll("-", "");
-            if (account.length() > 30) {
-                account = account.substring(0, 30);
-            }
-            String password = authId + "qianyi";
+        UserThird third = null;
+        synchronized (authId) {
+            third = userThirdService.findByUserId(authId);
+            //未注册自动注册到第三方
+            if (third == null || ObjectUtils.isEmpty(third.getAccount())) {
+                String account = UUID.randomUUID().toString();
+                account = account.replaceAll("-", "");
+                if (account.length() > 30) {
+                    account = account.substring(0, 30);
+                }
+                String password = authId + "qianyi";
 
-            boolean register = wmApi.register(account, password, account, null, null, "", null);
-            if (!register) {
-                log.error("WM注册账号失败");
-                return ResponseUtil.custom("服务器异常,请重新操作");
-            }
+                boolean register = wmApi.register(account, password, account, null, null, "", null);
+                if (!register) {
+                    log.error("WM注册账号失败");
+                    return ResponseUtil.custom("服务器异常,请重新操作");
+                }
 
-            if (third == null) {
-                third = new UserThird();
-                third.setUserId(authId);
-            }
-            third.setAccount(account);
-            third.setPassword(password);
-            try {
-                userThirdService.save(third);
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.error("本地注册账号失败{}", e.getMessage());
-                return ResponseUtil.custom("服务器异常,请重新操作");
+                if (third == null) {
+                    third = new UserThird();
+                    third.setUserId(authId);
+                }
+                third.setAccount(account);
+                third.setPassword(password);
+                try {
+                    userThirdService.save(third);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    log.error("本地注册账号失败{}", e.getMessage());
+                    return ResponseUtil.custom("服务器异常,请重新操作");
+                }
             }
         }
         User user = userService.findById(authId);
