@@ -42,7 +42,7 @@ public class TransferProxyUserInit implements CommandLineRunner {
             log.error("找不到总代{}",firstProxy1Name);
         }else {
             ProxyUser secondProxy1 = proxyUserService.findByUserName(secondProxy1Name);
-            if (!LoginUtil.checkNull(secondProxy1) && secondProxy1.getProxyRole() == CommonConst.NUMBER_1){
+            if (!LoginUtil.checkNull(secondProxy1) && secondProxy1.getProxyRole() == CommonConst.NUMBER_2){
                 log.info("开始转移{}",secondProxy1Name);
                 secondProxyToFirstProxy(secondProxy1,firstProxy1);
             }
@@ -52,7 +52,7 @@ public class TransferProxyUserInit implements CommandLineRunner {
 //            log.error("找不到总代chun888ZD");
 //        }else {
 //            ProxyUser ajiaoQD = proxyUserService.findByUserName("ajiaoQD");
-//            if (!LoginUtil.checkNull(ajiaoQD) && ajiaoQD.getProxyRole() == CommonConst.NUMBER_1){
+//            if (!LoginUtil.checkNull(ajiaoQD) && ajiaoQD.getProxyRole() == CommonConst.NUMBER_2){
 //                log.info("开始转移ajiaoQD");
 //                secondProxyToFirstProxy(ajiaoQD,chun888ZD);
 //            }
@@ -63,7 +63,7 @@ public class TransferProxyUserInit implements CommandLineRunner {
 //            log.error("找不到总代mrhope");
 //        }else {
 //            ProxyUser simaQD = proxyUserService.findByUserName("simaQD");
-//            if (!LoginUtil.checkNull(simaQD) && simaQD.getProxyRole() == CommonConst.NUMBER_1){
+//            if (!LoginUtil.checkNull(simaQD) && simaQD.getProxyRole() == CommonConst.NUMBER_2){
 //                log.info("开始转移simaQD");
 //                secondProxyToFirstProxy(simaQD,mrhope);
 //            }
