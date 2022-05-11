@@ -56,37 +56,37 @@ public class TransferProxyUserInit implements CommandLineRunner {
 //                }
 //            }
 //        }
-        ProxyUser firstProxy2 = proxyUserService.findByUserName(firstProxy2Name);
-        if (LoginUtil.checkNull(firstProxy2) || firstProxy2.getProxyRole() != CommonConst.NUMBER_1){
-            log.error("找不到总代{}",firstProxy2Name);
-        }else {
-            ProxyUser secondProxy2 = proxyUserService.findByUserName(secondProxy2Name);
-            if (!LoginUtil.checkNull(secondProxy2) && secondProxy2.getProxyRole() == CommonConst.NUMBER_2){
-                if (secondProxy2.getFirstProxy().longValue() == firstProxy2.getId().longValue()){
-                    log.info("已经是改总代下级不能转移");
-                }else {
-                    log.info("开始转移{}",secondProxy2Name);
-                    secondProxyToFirstProxy(secondProxy2,firstProxy2);
-                }
-
-            }
-        }
-
-        ProxyUser firstProxy3 = proxyUserService.findByUserName(firstProxy3Name);
-        if (LoginUtil.checkNull(firstProxy3) || firstProxy3.getProxyRole() != CommonConst.NUMBER_1){
-            log.error("找不到总代{}",firstProxy3Name);
-        }else {
-            ProxyUser secondProxy3 = proxyUserService.findByUserName(secondProxy3Name);
-            if (!LoginUtil.checkNull(secondProxy3) && secondProxy3.getProxyRole() == CommonConst.NUMBER_2){
-                if (secondProxy3.getFirstProxy().longValue() == firstProxy3.getId().longValue()){
-                    log.info("已经是改总代下级不能转移");
-                }else {
-                    log.info("开始转移{}",secondProxy3Name);
-                    secondProxyToFirstProxy(secondProxy3,firstProxy3);
-                }
-
-            }
-        }
+//        ProxyUser firstProxy2 = proxyUserService.findByUserName(firstProxy2Name);
+//        if (LoginUtil.checkNull(firstProxy2) || firstProxy2.getProxyRole() != CommonConst.NUMBER_1){
+//            log.error("找不到总代{}",firstProxy2Name);
+//        }else {
+//            ProxyUser secondProxy2 = proxyUserService.findByUserName(secondProxy2Name);
+//            if (!LoginUtil.checkNull(secondProxy2) && secondProxy2.getProxyRole() == CommonConst.NUMBER_2){
+//                if (secondProxy2.getFirstProxy().longValue() == firstProxy2.getId().longValue()){
+//                    log.info("已经是改总代下级不能转移");
+//                }else {
+//                    log.info("开始转移{}",secondProxy2Name);
+//                    secondProxyToFirstProxy(secondProxy2,firstProxy2);
+//                }
+//
+//            }
+//        }
+//
+//        ProxyUser firstProxy3 = proxyUserService.findByUserName(firstProxy3Name);
+//        if (LoginUtil.checkNull(firstProxy3) || firstProxy3.getProxyRole() != CommonConst.NUMBER_1){
+//            log.error("找不到总代{}",firstProxy3Name);
+//        }else {
+//            ProxyUser secondProxy3 = proxyUserService.findByUserName(secondProxy3Name);
+//            if (!LoginUtil.checkNull(secondProxy3) && secondProxy3.getProxyRole() == CommonConst.NUMBER_2){
+//                if (secondProxy3.getFirstProxy().longValue() == firstProxy3.getId().longValue()){
+//                    log.info("已经是改总代下级不能转移");
+//                }else {
+//                    log.info("开始转移{}",secondProxy3Name);
+//                    secondProxyToFirstProxy(secondProxy3,firstProxy3);
+//                }
+//
+//            }
+//        }
 
     }
 
