@@ -89,37 +89,37 @@ public class TransferProxyUserInit implements CommandLineRunner {
 //            }
 //        }
 
-        ProxyUser secondProxy4 = proxyUserService.findByUserName(secondProxy4Name);
-        if (LoginUtil.checkNull(secondProxy4) || secondProxy4.getProxyRole() != CommonConst.NUMBER_2){
-            log.error("找不到区代{}",secondProxy4Name);
-        }else {
-            ProxyUser thirdProxy4 = proxyUserService.findByUserName(thirdProxy4Name);
-            if (!LoginUtil.checkNull(thirdProxy4) && thirdProxy4.getProxyRole() == CommonConst.NUMBER_3){
-                if (thirdProxy4.getSecondProxy().longValue() == secondProxy4.getId().longValue()){
-                    log.info("已经是该区域代下级不能转移");
-                }else {
-                    log.info("开始转移{}",thirdProxy4Name);
-                    thirdProxyToSecondProxy(thirdProxy4,secondProxy4);
-                }
-
-            }
-        }
-
-        ProxyUser secondProxy5 = proxyUserService.findByUserName(secondProxy5Name);
-        if (LoginUtil.checkNull(secondProxy5) || secondProxy5.getProxyRole() != CommonConst.NUMBER_2){
-            log.error("找不到区代{}",secondProxy5Name);
-        }else {
-            ProxyUser thirdProxy5 = proxyUserService.findByUserName(thirdProxy5Name);
-            if (!LoginUtil.checkNull(thirdProxy5) && thirdProxy5.getProxyRole() == CommonConst.NUMBER_3){
-                if (thirdProxy5.getSecondProxy().longValue() == secondProxy5.getId().longValue()){
-                    log.info("已经是该区域代下级不能转移");
-                }else {
-                    log.info("开始转移{}",thirdProxy5Name);
-                    thirdProxyToSecondProxy(thirdProxy5,secondProxy5);
-                }
-
-            }
-        }
+//        ProxyUser secondProxy4 = proxyUserService.findByUserName(secondProxy4Name);
+//        if (LoginUtil.checkNull(secondProxy4) || secondProxy4.getProxyRole() != CommonConst.NUMBER_2){
+//            log.error("找不到区代{}",secondProxy4Name);
+//        }else {
+//            ProxyUser thirdProxy4 = proxyUserService.findByUserName(thirdProxy4Name);
+//            if (!LoginUtil.checkNull(thirdProxy4) && thirdProxy4.getProxyRole() == CommonConst.NUMBER_3){
+//                if (thirdProxy4.getSecondProxy().longValue() == secondProxy4.getId().longValue()){
+//                    log.info("已经是该区域代下级不能转移");
+//                }else {
+//                    log.info("开始转移{}",thirdProxy4Name);
+//                    thirdProxyToSecondProxy(thirdProxy4,secondProxy4);
+//                }
+//
+//            }
+//        }
+//
+//        ProxyUser secondProxy5 = proxyUserService.findByUserName(secondProxy5Name);
+//        if (LoginUtil.checkNull(secondProxy5) || secondProxy5.getProxyRole() != CommonConst.NUMBER_2){
+//            log.error("找不到区代{}",secondProxy5Name);
+//        }else {
+//            ProxyUser thirdProxy5 = proxyUserService.findByUserName(thirdProxy5Name);
+//            if (!LoginUtil.checkNull(thirdProxy5) && thirdProxy5.getProxyRole() == CommonConst.NUMBER_3){
+//                if (thirdProxy5.getSecondProxy().longValue() == secondProxy5.getId().longValue()){
+//                    log.info("已经是该区域代下级不能转移");
+//                }else {
+//                    log.info("开始转移{}",thirdProxy5Name);
+//                    thirdProxyToSecondProxy(thirdProxy5,secondProxy5);
+//                }
+//
+//            }
+//        }
     }
 
     private void thirdProxyToSecondProxy(ProxyUser thirdProxy,ProxyUser secondProxy){
