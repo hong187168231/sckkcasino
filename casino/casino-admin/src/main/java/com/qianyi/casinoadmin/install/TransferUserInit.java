@@ -59,7 +59,7 @@ public class TransferUserInit implements CommandLineRunner {
     private void transferUser(List<String> users,String proxyName){
         ProxyUser proxyUser = proxyUserService.findByUserName(proxyName);
         if (LoginUtil.checkNull(proxyUser)){
-            log.info("没有找到这个代理转移结束");
+            log.info("没有找到这个代理转移结束{}",proxyName);
             return;
         }
         if (proxyUser.getProxyRole() != CommonConst.NUMBER_3){
