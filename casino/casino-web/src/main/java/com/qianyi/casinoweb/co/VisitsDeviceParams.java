@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-@ApiModel("访问设备列表")
+@ApiModel("设备信息")
 public class VisitsDeviceParams {
 
     @ApiModelProperty(value = "设备厂商")

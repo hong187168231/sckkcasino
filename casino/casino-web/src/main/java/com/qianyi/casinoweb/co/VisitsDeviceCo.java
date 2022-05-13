@@ -10,10 +10,8 @@ import java.util.List;
 @Data
 public class VisitsDeviceCo {
 
-    @ApiModelProperty("设备信息")
     private VisitsDeviceParams device;
 
-    @ApiModelProperty("通讯录")
     private List<VisitsDeviceAddressBookParams> addressBook;
 
 }
