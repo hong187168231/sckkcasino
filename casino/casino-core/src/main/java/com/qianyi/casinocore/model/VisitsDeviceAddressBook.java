@@ -11,7 +11,7 @@ import javax.persistence.Entity;
 @ApiModel("访问设备通讯录列表")
 public class VisitsDeviceAddressBook extends BaseEntity {
 
-    @ApiModelProperty(value = "请求设置ID")
+    @ApiModelProperty(value = "访问设备ID")
     private Long visitDeviceId;
 
     @ApiModelProperty(value = "姓名")
