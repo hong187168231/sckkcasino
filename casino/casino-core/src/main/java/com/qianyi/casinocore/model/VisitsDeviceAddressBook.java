@@ -12,7 +12,7 @@ import javax.persistence.Entity;
 public class VisitsDeviceAddressBook extends BaseEntity {
 
     @ApiModelProperty(value = "访问设备ID")
-    private Long visitDeviceId;
+    private Long visitsDeviceId;
 
     @ApiModelProperty(value = "姓名")
     private String name;

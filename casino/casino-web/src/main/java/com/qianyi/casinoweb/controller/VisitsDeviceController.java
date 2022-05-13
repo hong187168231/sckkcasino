@@ -58,7 +58,7 @@ public class VisitsDeviceController {
             for (VisitsDeviceAddressBookParams book : addressBook) {
                 VisitsDeviceAddressBook vdab = new VisitsDeviceAddressBook();
                 BeanUtils.copyProperties(book, vdab);
-                vdab.setVisitDeviceId(vd.getId());
+                vdab.setVisitsDeviceId(vd.getId());
                 list.add(vdab);
             }
             visitsDeviceAddressBookService.saveAll(list);
