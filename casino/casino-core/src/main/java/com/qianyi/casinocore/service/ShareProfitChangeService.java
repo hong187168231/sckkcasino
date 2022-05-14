@@ -108,4 +108,8 @@ public class ShareProfitChangeService {
         List<ShareProfitChange> list = entityManager.createQuery(query).getResultList();
         return list;
     }
+
+    public List<Map<String, Object>> getMapSumAmount(String startTime, String endTime){
+        return shareProfitChangeRepository.getMapSumAmount(startTime,endTime);
+    }
 }

@@ -56,4 +56,8 @@ public class ProxyGameRecordReportService {
     public Map<String, Object> findSumBetAndWinLoss(){
         return proxyGameRecordReportRepository.findSumBetAndWinLoss();
     }
+
+    public List<Map<String, Object>> findBetAndWinLoss(String startTime,String endTime){
+        return proxyGameRecordReportRepository.findBetAndWinLoss(startTime,endTime);
+    }
 }

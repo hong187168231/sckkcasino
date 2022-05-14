@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 抽点记录
@@ -78,5 +79,9 @@ public class ExtractPointsChangeService {
 
     public BigDecimal sumAmount(){
         return repository.sumAmount();
+    }
+
+    public List<Map<String, Object>> getMapSumAmount(String startTime, String endTime){
+        return repository.getMapSumAmount(startTime,endTime);
     }
 }
