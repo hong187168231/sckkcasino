@@ -55,8 +55,8 @@ public class TransferUserInit implements CommandLineRunner {
         proxy1.add("X045JD");
         proxy1.add("X043JD");
 
-        proxy1.add("test01proxy11");
-        proxy1.add("tong78901");
+//        proxy1.add("test01proxy11");
+//        proxy1.add("tong78901");
 
     }
     private static String proxy1Name = "companyJD";
