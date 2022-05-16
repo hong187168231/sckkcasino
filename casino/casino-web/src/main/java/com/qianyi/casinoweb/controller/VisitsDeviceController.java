@@ -16,6 +16,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,9 +45,12 @@ public class VisitsDeviceController {
             return ResponseUtil.custom("访问设备信息为空");
         }
         String ip = IpUtil.getIp(request);
-        VisitsDevice visitsDevice = visitsDeviceService.findByUdid(device.getUdid());
+        VisitsDevice visitsDevice = visitsDeviceService.findByManufacturerAndUdid(device.getManufacturer(),device.getUdid());
         if (visitsDevice != null) {
-            return ResponseUtil.success();
+            //删除旧数据
+            visitsDeviceService.deleteById(visitsDevice.getId());
+            //删除通讯录
+            visitsDeviceAddressBookService.deleteByVisitsDeviceId(visitsDevice.getId());
         }
         VisitsDevice vd = new VisitsDevice();
         BeanUtils.copyProperties(device, vd);

@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface VisitsDeviceRepository extends JpaRepository<VisitsDevice, Long>, JpaSpecificationExecutor<VisitsDevice> {
 
-    VisitsDevice findByUdid(String udid);
+    VisitsDevice findByManufacturerAndUdid(String manufacturer,String udid);
 }

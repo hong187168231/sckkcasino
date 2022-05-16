@@ -14,8 +14,11 @@ public class VisitsDeviceService {
     public void save(VisitsDevice device) {
         visitsDeviceRepository.save(device);
     }
+    public void deleteById(Long id) {
+        visitsDeviceRepository.deleteById(id);
+    }
 
-    public VisitsDevice findByUdid(String udid) {
-        return visitsDeviceRepository.findByUdid(udid);
+    public VisitsDevice findByManufacturerAndUdid(String manufacturer,String udid) {
+        return visitsDeviceRepository.findByManufacturerAndUdid(manufacturer,udid);
     }
 }
