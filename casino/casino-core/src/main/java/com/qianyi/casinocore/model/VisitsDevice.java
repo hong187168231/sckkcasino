@@ -22,4 +22,7 @@ public class VisitsDevice extends BaseEntity {
 
     @ApiModelProperty(value = "系统版本号")
     private String version;
+
+    @ApiModelProperty(value = "设备编码")
+    private String udid;
 }

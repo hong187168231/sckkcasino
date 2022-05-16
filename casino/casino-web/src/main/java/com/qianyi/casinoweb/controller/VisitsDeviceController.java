@@ -44,7 +44,7 @@ public class VisitsDeviceController {
             return ResponseUtil.custom("访问设备信息为空");
         }
         String ip = IpUtil.getIp(request);
-        VisitsDevice visitsDevice = visitsDeviceService.findByIpAndManufacturerAndModel(ip, device.getManufacturer(), device.getModel());
+        VisitsDevice visitsDevice = visitsDeviceService.findByUdid(device.getUdid());
         if (visitsDevice != null) {
             return ResponseUtil.success();
         }

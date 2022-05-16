@@ -11,11 +11,11 @@ public class VisitsDeviceService {
     @Autowired
     private VisitsDeviceRepository visitsDeviceRepository;
 
-    public VisitsDevice findByIpAndManufacturerAndModel(String ip, String manufacturer, String model) {
-        return visitsDeviceRepository.findByIpAndManufacturerAndModel(ip, manufacturer, model);
-    }
-
     public void save(VisitsDevice device) {
         visitsDeviceRepository.save(device);
+    }
+
+    public VisitsDevice findByUdid(String udid) {
+        return visitsDeviceRepository.findByUdid(udid);
     }
 }
