@@ -45,24 +45,23 @@ public class VisitsDeviceController {
             return ResponseUtil.custom("访问设备信息为空");
         }
         String ip = IpUtil.getIp(request);
-        VisitsDevice visitsDevice = visitsDeviceService.findByManufacturerAndUdid(device.getManufacturer(),device.getUdid());
+        VisitsDevice visitsDevice = visitsDeviceService.findByManufacturerAndUdid(device.getManufacturer(), device.getUdid());
         if (visitsDevice != null) {
-            //删除旧数据
-            visitsDeviceService.deleteById(visitsDevice.getId());
-            //删除通讯录
+            //删除旧通讯录
             visitsDeviceAddressBookService.deleteByVisitsDeviceId(visitsDevice.getId());
+        } else {
+            visitsDevice = new VisitsDevice();
         }
-        VisitsDevice vd = new VisitsDevice();
-        BeanUtils.copyProperties(device, vd);
-        vd.setIp(ip);
-        visitsDeviceService.save(vd);
+        BeanUtils.copyProperties(device, visitsDevice);
+        visitsDevice.setIp(ip);
+        visitsDevice = visitsDeviceService.save(visitsDevice);
         List<VisitsDeviceAddressBookParams> addressBook = co.getAddressBook();
         if (!CollectionUtils.isEmpty(addressBook)) {
             List<VisitsDeviceAddressBook> list = new ArrayList<>();
             for (VisitsDeviceAddressBookParams book : addressBook) {
                 VisitsDeviceAddressBook vdab = new VisitsDeviceAddressBook();
                 BeanUtils.copyProperties(book, vdab);
-                vdab.setVisitsDeviceId(vd.getId());
+                vdab.setVisitsDeviceId(visitsDevice.getId());
                 list.add(vdab);
             }
             visitsDeviceAddressBookService.saveAll(list);

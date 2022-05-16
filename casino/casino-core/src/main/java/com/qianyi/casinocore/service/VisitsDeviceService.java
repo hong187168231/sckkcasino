@@ -11,8 +11,8 @@ public class VisitsDeviceService {
     @Autowired
     private VisitsDeviceRepository visitsDeviceRepository;
 
-    public void save(VisitsDevice device) {
-        visitsDeviceRepository.save(device);
+    public VisitsDevice save(VisitsDevice device) {
+        return visitsDeviceRepository.save(device);
     }
     public void deleteById(Long id) {
         visitsDeviceRepository.deleteById(id);
