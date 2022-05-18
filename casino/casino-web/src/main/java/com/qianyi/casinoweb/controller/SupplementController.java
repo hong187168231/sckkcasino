@@ -60,11 +60,11 @@ public class SupplementController {
             @ApiImplicitParam(name = "secretkey", value = "秘钥", required = true),
     })
     public ResponseEntity wmSupplement(String secretkey, String startTime, String endTime) {
-        boolean checkNull = CasinoWebUtil.checkNull(startTime, endTime);
+        boolean checkNull = CasinoWebUtil.checkNull(secretkey,startTime, endTime);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
-        if (!Constants.PLATFORM_WM_BIG.equals(secretkey)) {
+        if (!Constants.CASINO_WEB.equals(secretkey)) {
             return ResponseUtil.custom("秘钥错误");
         }
         SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -162,14 +162,18 @@ public class SupplementController {
     @ApiOperation("goldenF平台手动补单")
     @NoAuthentication
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "secretkey", value = "秘钥", required = true),
             @ApiImplicitParam(name = "startTime", value = "开始时间,13位时间戳", required = true),
             @ApiImplicitParam(name = "endTime", value = "结束时间,13位时间戳", required = true),
             @ApiImplicitParam(name = "vendorCode", value = "产品代码：PG/CQ9", required = true),
     })
-    public ResponseEntity goldenFSupplement(String vendorCode, Long startTime, Long endTime) {
-        boolean checkNull = CasinoWebUtil.checkNull(vendorCode,startTime, endTime);
+    public ResponseEntity goldenFSupplement(String secretkey, String vendorCode, Long startTime, Long endTime) {
+        boolean checkNull = CasinoWebUtil.checkNull(secretkey,vendorCode,startTime, endTime);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
+        }
+        if (!Constants.CASINO_WEB.equals(secretkey)) {
+            return ResponseUtil.custom("秘钥错误");
         }
         if (!Constants.PLATFORM_PG.equals(vendorCode) && !Constants.PLATFORM_CQ9.equals(vendorCode)) {
             return ResponseUtil.custom("产品代码错误");
