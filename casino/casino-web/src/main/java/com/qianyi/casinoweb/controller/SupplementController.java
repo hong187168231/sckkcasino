@@ -60,21 +60,17 @@ public class SupplementController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "startTime", value = "开始时间,格式为:yyyy-MM-dd HH:mm:ss", required = true),
             @ApiImplicitParam(name = "endTime", value = "结束时间,格式为:yyyy-MM-dd HH:mm:ss", required = true),
-            @ApiImplicitParam(name = "secretkey", value = "秘钥", required = true),
             @ApiImplicitParam(name = "platform", value = "平台：WM,PG,CQ9", required = true),
     })
-    public ResponseEntity wmSupplement(String secretkey, String platform, String startTime, String endTime) {
-        log.info("后台开始补单,secretkey={},platform={},startTime={},endTime={}",secretkey,platform,startTime,endTime);
+    public ResponseEntity supplementByPlatform(String platform, String startTime, String endTime) {
+        log.info("后台开始补单,platform={},startTime={},endTime={}",platform,startTime,endTime);
         Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
         if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
-        boolean checkNull = CasinoWebUtil.checkNull(secretkey, platform, startTime, endTime);
+        boolean checkNull = CasinoWebUtil.checkNull(platform, startTime, endTime);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
-        }
-        if (!Constants.CASINO_WEB.equals(secretkey)) {
-            return ResponseUtil.custom("秘钥错误");
         }
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         df.setLenient(false);//表示严格验证
@@ -101,12 +97,12 @@ public class SupplementController {
             SimpleDateFormat wm = new SimpleDateFormat("yyyyMMddHHmmss");
             String wmStartTime = wm.format(startDateTime);
             String wmEndTime = wm.format(endDateTime);
-            ResponseEntity response = wmSupplement(secretkey, wmStartTime, wmEndTime);
+            ResponseEntity response = wmSupplement(Constants.CASINO_WEB, wmStartTime, wmEndTime);
             return response;
         } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
             Long goldenfStartTime = startDateTime.getTime();
             Long goldenfEndTime = endDateTime.getTime();
-            ResponseEntity response = goldenFSupplement(secretkey, platform, goldenfStartTime, goldenfEndTime);
+            ResponseEntity response = goldenFSupplement(Constants.CASINO_WEB, platform, goldenfStartTime, goldenfEndTime);
             return response;
         }else {
             return ResponseUtil.custom(platform+"平台不支持补单");
