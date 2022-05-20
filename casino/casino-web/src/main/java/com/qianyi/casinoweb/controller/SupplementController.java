@@ -109,7 +109,7 @@ public class SupplementController {
             ResponseEntity response = goldenFSupplement(secretkey, platform, goldenfStartTime, goldenfEndTime);
             return response;
         }else {
-            return ResponseUtil.custom(platform+"平台不允许补单");
+            return ResponseUtil.custom(platform+"平台不支持补单");
         }
     }
 
