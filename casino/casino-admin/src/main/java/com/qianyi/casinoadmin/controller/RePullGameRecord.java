@@ -37,8 +37,8 @@ public class RePullGameRecord {
     @ApiOperation("补历史注单")
     @GetMapping("pullGameRecordDate")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = true),
-            @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = true),
+            @ApiImplicitParam(name = "startDate", value = "开始时间", required = true),
+            @ApiImplicitParam(name = "endDate", value = "结束时间", required = true),
             @ApiImplicitParam(name = "platform", value = "平台：WM,PG,CQ9", required = true)
     })
     public ResponseEntity pullGameRecordDate(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
