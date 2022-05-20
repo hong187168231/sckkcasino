@@ -89,7 +89,7 @@ public class SupplementController {
                 return ResponseUtil.custom("开始时间不能大于结束时间");
             }
             long diff = endTimeNum - startTimeNum;
-            //WM报表资料只保留60天。
+            //后台只补单时间区间不能超过1天
             long days = diff / (1000 * 60 * 60 * 24);
             if (days > 1) {
                 return ResponseUtil.custom("补单时间范围不能超过1天");
