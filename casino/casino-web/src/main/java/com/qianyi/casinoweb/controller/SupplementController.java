@@ -2,6 +2,7 @@ package com.qianyi.casinoweb.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.qianyi.casinocore.business.ThirdGameBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinocore.service.PlatformConfigService;
@@ -50,6 +51,67 @@ public class SupplementController {
     private GameRecordJob gameRecordJob;
     @Autowired
     private GameRecordGoldenFJob gameRecordGoldenFJob;
+    @Autowired
+    private ThirdGameBusiness thirdGameBusiness;
+
+    @GetMapping("/supplementByPlatform")
+    @ApiOperation("后台根据平台手动补单")
+    @NoAuthentication
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "startTime", value = "开始时间,格式为:yyyy-MM-dd HH:mm:ss", required = true),
+            @ApiImplicitParam(name = "endTime", value = "结束时间,格式为:yyyy-MM-dd HH:mm:ss", required = true),
+            @ApiImplicitParam(name = "secretkey", value = "秘钥", required = true),
+            @ApiImplicitParam(name = "platform", value = "平台：WM,PG,CQ9", required = true),
+    })
+    public ResponseEntity wmSupplement(String secretkey, String platform, String startTime, String endTime) {
+        log.info("后台开始补单,secretkey={},platform={},startTime={},endTime={}",secretkey,platform,startTime,endTime);
+        Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
+        if (!ipWhiteCheck) {
+            return ResponseUtil.custom("ip禁止访问");
+        }
+        boolean checkNull = CasinoWebUtil.checkNull(secretkey, platform, startTime, endTime);
+        if (checkNull) {
+            return ResponseUtil.parameterNotNull();
+        }
+        if (!Constants.CASINO_WEB.equals(secretkey)) {
+            return ResponseUtil.custom("秘钥错误");
+        }
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        df.setLenient(false);//表示严格验证
+        Date startDateTime = null;
+        Date endDateTime = null;
+        try {
+            startDateTime = df.parse(startTime);
+            endDateTime = df.parse(endTime);
+            long startTimeNum = startDateTime.getTime();
+            long endTimeNum = endDateTime.getTime();
+            if (endTimeNum < startTimeNum) {
+                return ResponseUtil.custom("开始时间不能大于结束时间");
+            }
+            long diff = endTimeNum - startTimeNum;
+            //WM报表资料只保留60天。
+            long days = diff / (1000 * 60 * 60 * 24);
+            if (days > 1) {
+                return ResponseUtil.custom("补单时间范围不能超过1天");
+            }
+        } catch (ParseException e) {
+            return ResponseUtil.custom("startTime或endTime时间格式填写错误,,格式为:yyyy-MM-dd HH:mm:ss");
+        }
+        if (Constants.PLATFORM_WM_BIG.equals(platform)) {
+            SimpleDateFormat wm = new SimpleDateFormat("yyyyMMddHHmmss");
+            String wmStartTime = wm.format(startDateTime);
+            String wmEndTime = wm.format(endDateTime);
+            ResponseEntity response = wmSupplement(secretkey, wmStartTime, wmEndTime);
+            return response;
+        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
+            Long goldenfStartTime = startDateTime.getTime();
+            Long goldenfEndTime = endDateTime.getTime();
+            ResponseEntity response = goldenFSupplement(secretkey, platform, goldenfStartTime, goldenfEndTime);
+            return response;
+        }else {
+            return ResponseUtil.custom(platform+"平台不允许补单");
+        }
+    }
 
     @GetMapping("/wm")
     @ApiOperation("WM平台手动补单")
