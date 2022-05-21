@@ -246,6 +246,12 @@ public class SupplementController {
         if (range <= 0) {
             return ResponseUtil.custom("结束时间大于开始时间");
         }
+        long diff = new Date().getTime() - startTime;
+        //WM报表资料只保留60天。
+        long days = diff / (1000 * 60 * 60 * 24);
+        if (days > 60) {
+            return ResponseUtil.custom("仅允许补单60天内的数据");
+        }
         log.info("{}", range);
         Long num = range / (4 * 60 * 1000);
         log.info("num is {}", num);
