@@ -5,6 +5,7 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.DateUtil;
@@ -34,7 +35,16 @@ public class RePullGameRecord {
 
     private String rePullDataUrl = "/supplement/supplementByPlatform?";
 
-    @ApiOperation("补历史注单")
+    /**
+     * 1分钟只能请求一次
+     *
+     * @param startDate
+     * @param endDate
+     * @param platform
+     * @return
+     */
+    @RequestLimit(limit = 1,timeout = 60)
+    @ApiOperation("补历史注单(1分钟一次)")
     @GetMapping("pullGameRecordDate")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "startDate", value = "开始时间", required = true),
