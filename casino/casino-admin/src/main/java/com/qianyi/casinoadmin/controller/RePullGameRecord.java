@@ -43,8 +43,8 @@ public class RePullGameRecord {
      * @param platform
      * @return
      */
-    @RequestLimit(limit = 1,timeout = 60)
-    @ApiOperation("补历史注单(1分钟一次)")
+    @RequestLimit(limit = 3,timeout = 60)
+    @ApiOperation("补历史注单(1分钟三次)")
     @GetMapping("pullGameRecordDate")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "startDate", value = "开始时间", required = true),
