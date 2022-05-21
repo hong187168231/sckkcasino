@@ -145,6 +145,7 @@ public class SupplementController {
         List<String> list = new ArrayList<>();
         //第三方要求拉取数据时间范围不能大于1天，大于1天，取开始时间的后一天为结束时间
         getDateTimeReport(list, startTime, endTime, df);
+        log.info("WM补单完成,timeList={}", JSON.toJSONString(list));
         return ResponseUtil.success(list);
     }
 
@@ -240,7 +241,7 @@ public class SupplementController {
             return ResponseUtil.custom("时间格式错误");
         }
         List<GoldenFTimeVO> timeVOS = new ArrayList<>();
-        log.info("{},{}", startTime, endTime);
+        log.info("开始时间:{},结束时间:{}", startTime, endTime);
         Long range = endTime - startTime;
         if (range <= 0) {
             return ResponseUtil.custom("结束时间大于开始时间");
@@ -259,6 +260,7 @@ public class SupplementController {
         }
         log.info("{}", timeVOS);
         gameRecordGoldenFJob.supplementPullGameRecord(vendorCode,timeVOS);
+        log.info("{}补单完成,timeList={}", vendorCode,JSON.toJSONString(timeVOS));
         return ResponseUtil.success(timeVOS);
     }
 }
