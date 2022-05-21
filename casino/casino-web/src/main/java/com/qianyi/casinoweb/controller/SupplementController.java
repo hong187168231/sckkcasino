@@ -66,7 +66,7 @@ public class SupplementController {
         log.info("后台开始补单,platform={},startTime={},endTime={}",platform,startTime,endTime);
         Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
         if (!ipWhiteCheck) {
-            return ResponseUtil.custom("ip禁止访问");
+//            return ResponseUtil.custom("ip禁止访问");
         }
         boolean checkNull = CasinoWebUtil.checkNull(platform, startTime, endTime);
         if (checkNull) {
