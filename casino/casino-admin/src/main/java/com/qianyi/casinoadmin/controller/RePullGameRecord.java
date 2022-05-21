@@ -60,7 +60,7 @@ public class RePullGameRecord {
             if(numDay >= CommonConst.NUMBER_1){
                 return ResponseUtil.custom("参数不合法");
             }
-            int maxNum = DateUtil.daysBetween(startDate, endDate);
+            int maxNum = DateUtil.daysBetween(startDate, new Date());
             if(maxNum > CommonConst.NUMBER_30){
                 return ResponseUtil.custom("参数不合法");
             }
