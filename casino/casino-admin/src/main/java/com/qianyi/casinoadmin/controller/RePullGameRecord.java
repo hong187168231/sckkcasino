@@ -78,7 +78,7 @@ public class RePullGameRecord {
             log.info("平台【{}】，开始时间：【{}】，结束时间：【{}】查询web接口返回【{}】", platform, startDate, endDate, s);
             JSONObject jsonObject = JSONObject.parseObject(s);
             if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
-                return ResponseUtil.custom("查询WM余额失败");
+                return ResponseUtil.custom("拉取数据失败");
             }
             Integer code = (Integer) jsonObject.get("code");
             if (code == CommonConst.NUMBER_0){
