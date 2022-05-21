@@ -60,10 +60,7 @@ public class RePullGameRecord {
             if(numDay >= CommonConst.NUMBER_1){
                 return ResponseUtil.custom("参数不合法");
             }
-            int maxNum = DateUtil.daysBetween(startDate, new Date());
-            if(maxNum > CommonConst.NUMBER_30){
-                return ResponseUtil.custom("参数不合法");
-            }
+
             PlatformConfig first = platformConfigService.findFirst();
             String rePullGameurl = first == null?"":first.getWebConfiguration();
             rePullGameurl = rePullGameurl + rePullDataUrl;
