@@ -63,6 +63,9 @@ public class RePullGameRecord {
 
             PlatformConfig first = platformConfigService.findFirst();
             String rePullGameurl = first == null?"":first.getWebConfiguration();
+            if(LoginUtil.checkNull(rePullGameurl)){
+                return ResponseUtil.custom("web域名错误");
+            }
             rePullGameurl = rePullGameurl + rePullDataUrl;
             String param = "startTime={0}&endTime={1}&platform={2}";
             String startStr = DateUtil.dateToPatten(startDate);
