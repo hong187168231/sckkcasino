@@ -165,12 +165,12 @@ public class SupplementController {
                 Date afterDate = after.getTime();
                 endTimeNew = df.format(afterDate);
                 //下面开始时间前移2分钟，结束时间也要前移2分钟
+                startTime = getBeforeDateTime(df,startTime,overlap);
                 endTimeNew = getBeforeDateTime(df,endTimeNew,overlap);
             } else {
                 endTimeNew = endTime;
             }
-            //开始时间往前2分钟，重叠两分钟的时间区间
-            startTime = getBeforeDateTime(df,startTime,overlap);
+
             timeMsg = startTime + "到" + endTimeNew;
             log.info("开始拉取{}的注单记录", timeMsg);
             String result = wmApi.getDateTimeReport(null, startTime, endTimeNew, 0, 1, 2, null, null);
