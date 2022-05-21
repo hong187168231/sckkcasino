@@ -64,7 +64,7 @@ public class RePullGameRecord {
             endTineStr = endTineStr.replaceAll(":", "%3A").replaceAll(" ", "%20");
 
             param = MessageFormat.format(param,startStr,endTineStr,platform);
-            String s = HttpClient4Util.get(rePullGameurl + param);
+            String s = HttpClient4Util.getWeb(rePullGameurl + param);
             log.info("平台【{}】，开始时间：【{}】，结束时间：【{}】查询web接口返回【{}】", platform, startDate, endDate, s);
             JSONObject jsonObject = JSONObject.parseObject(s);
             if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
