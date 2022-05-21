@@ -42,7 +42,7 @@ public class RePullGameRecord {
             @ApiImplicitParam(name = "platform", value = "平台：WM,PG,CQ9", required = true)
     })
     public ResponseEntity pullGameRecordDate(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                             @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate,
+                                             @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate,
                                              String platform){
 
         try {
@@ -57,8 +57,13 @@ public class RePullGameRecord {
             PlatformConfig first = platformConfigService.findFirst();
             String rePullGameurl = first == null?"":first.getWebConfiguration();
             rePullGameurl = rePullGameurl + rePullDataUrl;
-            String param = "platform={0}&startTime={1}&endTime={2} ";
-            param = MessageFormat.format(param,platform,startDate,endDate);
+            String param = "startTime={0}&endTime={1}&platform={2}";
+            String startStr = DateUtil.dateToPatten(startDate);
+            String endTineStr = DateUtil.dateToPatten(endDate);
+            startStr = startStr.replaceAll(":", "%3A").replaceAll(" ", "%20");
+            endTineStr = endTineStr.replaceAll(":", "%3A").replaceAll(" ", "%20");
+
+            param = MessageFormat.format(param,startStr,endTineStr,platform);
             String s = HttpClient4Util.get(rePullGameurl + param);
             log.info("平台【{}】，开始时间：【{}】，结束时间：【{}】查询web接口返回【{}】", platform, startDate, endDate, s);
             JSONObject jsonObject = JSONObject.parseObject(s);

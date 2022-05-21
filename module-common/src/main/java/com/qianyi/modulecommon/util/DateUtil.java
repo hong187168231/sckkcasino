@@ -26,6 +26,8 @@ public class DateUtil {
 
     public static final String format = "HH:mm:ss";
 
+    public static final String YYYYMMDD_HHmmSS = "yyyyMMdd%20HH%3Amm%3ASS";
+
     public static  Date startTime;
 
     public static  Date endTime;
