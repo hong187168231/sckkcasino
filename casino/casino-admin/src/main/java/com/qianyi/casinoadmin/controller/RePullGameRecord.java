@@ -79,13 +79,9 @@ public class RePullGameRecord {
             }
             Integer code = (Integer) jsonObject.get("code");
             if (code == CommonConst.NUMBER_0){
-                if (LoginUtil.checkNull(jsonObject.get("data"))){
-                    return ResponseUtil.success(CommonConst.NUMBER_0);
-                }
                 return ResponseUtil.success(jsonObject.get("data"));
-            }else {
-                return ResponseUtil.custom(jsonObject.get("msg").toString());
             }
+            return ResponseUtil.custom(jsonObject.get("msg").toString());
 
         } catch (Exception e) {
             e.printStackTrace();
