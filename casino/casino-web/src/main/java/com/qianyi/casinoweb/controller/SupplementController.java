@@ -190,7 +190,7 @@ public class SupplementController {
                 }
             }
         } catch (Exception e) {
-            log.error("{}游戏记录拉取异常", timeMsg);
+            log.error("{}游戏记录拉取异常,msg={}", timeMsg,e.getMessage());
             list.add(timeMsg + "游戏记录拉取异常");
             e.printStackTrace();
         }
