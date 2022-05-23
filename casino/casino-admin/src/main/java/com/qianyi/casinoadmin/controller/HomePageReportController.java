@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import com.qianyi.casinoadmin.service.HomePageReportService;
 import com.qianyi.casinoadmin.task.HomePageReportTask;
 import com.qianyi.casinoadmin.util.LoginUtil;
@@ -190,7 +191,9 @@ public class HomePageReportController {
                 list.add(homePageReportVo);
             }
             Sort sort=Sort.by("id").descending();
-            List<HomePageReport> homePageReports = homePageReportService.findHomePageReports(sort,DateUtil.getSimpleDateFormat1().format(startDate), DateUtil.getSimpleDateFormat1().format(endDate));
+            String formatStart = DateUtil.getSimpleDateFormat1().format(startDate);
+            String formatEnd = DateUtil.getSimpleDateFormat1().format(endDate);
+            List<HomePageReport> homePageReports = homePageReportService.findHomePageReports(sort,formatStart, formatEnd);
             if (LoginUtil.checkNull(homePageReports) || homePageReports.size() == CommonConst.NUMBER_0){
                 return ResponseUtil.success(list);
             }
@@ -200,20 +203,25 @@ public class HomePageReportController {
                 list.add(vo);
             });
             if (LoginUtil.checkNull(tag) || tag == CommonConst.NUMBER_1){
+                // 向后偏移12小时
+                startDate = cn.hutool.core.date.DateUtil.offsetHour(startDate, 12);
+                endDate = cn.hutool.core.date.DateUtil.offsetHour(endDate, 12);
+                String startTimeStr = cn.hutool.core.date.DateUtil.formatDateTime(startDate);
+                String endTimeStr = cn.hutool.core.date.DateUtil.formatDateTime(endDate);
+                Map<String, Map<String, BigDecimal>> betMap = this.getBetMap(formatStart, formatEnd);
+                Map<String, BigDecimal> pointsChangeMap = this.getPointsChangeMap(startTimeStr, endTimeStr);
+                Map<String, BigDecimal> shareProfitMap = this.getShareProfitMap(startTimeStr, endTimeStr);
+                Map<String, BigDecimal> washCodeMap = this.getWashCodeMap(startTimeStr, endTimeStr);
                 list.forEach(vo -> {
-                    Calendar calendar = Calendar.getInstance();
-                    Date date = null;
-                    try {
-                        date = DateUtil.getSimpleDateFormat1().parse(vo.getStaticsTimes());
-                    } catch (ParseException e) {
-                        e.printStackTrace();
+                    String staticsTimes = vo.getStaticsTimes();
+                    Map<String, BigDecimal> stringBigDecimalMap = betMap.get(staticsTimes);
+                    if (CollUtil.isNotEmpty(stringBigDecimalMap)){
+                        vo.setValidbetAmount(stringBigDecimalMap.get("validAmount"));
+                        vo.setWinLossAmount(stringBigDecimalMap.get("winLoss"));
                     }
-                    calendar.setTime(date);
-                    String firstDay = DateUtil.dateToPatten1(calendar.getTime()) + start;
-                    calendar.add(Calendar.DATE, 1);
-                    String lastDay = DateUtil.dateToPatten1(calendar.getTime()) + end;
-                    this.gameRecordMoney(firstDay,lastDay,vo,vo.getStaticsTimes(),vo.getStaticsTimes());
-                    //                    vo.setWinLossAmount(vo.getWinLossAmount().negate());
+                    vo.setExtractPointsAmount(pointsChangeMap.get(staticsTimes)==null?BigDecimal.ZERO:pointsChangeMap.get(staticsTimes));
+                    vo.setShareAmount(shareProfitMap.get(staticsTimes)==null?BigDecimal.ZERO:shareProfitMap.get(staticsTimes));
+                    vo.setWashCodeAmount(washCodeMap.get(staticsTimes)==null?BigDecimal.ZERO:washCodeMap.get(staticsTimes));
                     this.getHomePageReportVo(vo);
                     if (vo.getValidbetAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || vo.getChargeAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
                         vo.setOddsRatio(vo.getChargeAmount());
@@ -223,6 +231,29 @@ public class HomePageReportController {
                     }
                     vo.setTime(vo.getStaticsTimes());
                 });
+
+                //                list.forEach(vo -> {
+                //                    Calendar calendar = Calendar.getInstance();
+                //                    Date date = null;
+                //                    try {
+                //                        date = DateUtil.getSimpleDateFormat1().parse(vo.getStaticsTimes());
+                //                    } catch (ParseException e) {
+                //                        e.printStackTrace();
+                //                    }
+                //                    calendar.setTime(date);
+                //                    String firstDay = DateUtil.dateToPatten1(calendar.getTime()) + start;
+                //                    calendar.add(Calendar.DATE, 1);
+                //                    String lastDay = DateUtil.dateToPatten1(calendar.getTime()) + end;
+                //                    this.gameRecordMoney(firstDay,lastDay,vo,vo.getStaticsTimes(),vo.getStaticsTimes());
+                //                    this.getHomePageReportVo(vo);
+                //                    if (vo.getValidbetAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || vo.getChargeAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
+                //                        vo.setOddsRatio(vo.getChargeAmount());
+                //                    }else {
+                //                        BigDecimal divide = vo.getChargeAmount().divide(vo.getValidbetAmount(), 4, RoundingMode.HALF_UP);
+                //                        vo.setOddsRatio(divide);
+                //                    }
+                //                    vo.setTime(vo.getStaticsTimes());
+                //                });
                 Collections.reverse(list);
                 return ResponseUtil.success(list);
             }else if (tag == CommonConst.NUMBER_2){
@@ -442,6 +473,78 @@ public class HomePageReportController {
         }
         return homePageReportVo;
     }
+
+    private Map<String, Map<String, BigDecimal>>  getBetMap(String startTimeStr,String endTimeStr){
+        Map<String, Map<String, BigDecimal>> map = new HashMap<>();
+        try {
+            List<Map<String, Object>> betAndWinLoss = proxyGameRecordReportService.findBetAndWinLoss(startTimeStr, endTimeStr);
+            if (CollUtil.isNotEmpty(betAndWinLoss)) {
+                betAndWinLoss.forEach(list->{
+                    Map<String, BigDecimal> betMap = new HashMap<>();
+                    betMap.put("validAmount",new BigDecimal(list.get("validAmount").toString()));
+                    betMap.put("winLoss",BigDecimal.ZERO.subtract(new BigDecimal(list.get("winLoss").toString())));
+                    map.put(list.get("orderTimes").toString(),betMap);
+                });
+            }
+            //有效投注
+            //            homePageReportVo.setValidbetAmount(new BigDecimal(gameRecordMap.get("validAmount").toString()));
+            //            //输赢，以平台维度取反
+            //            homePageReportVo.setWinLossAmount(BigDecimal.ZERO.subtract(new BigDecimal(gameRecordMap.get("winLoss").toString())));
+            return map;
+        }catch (Exception ex){
+            log.error("走势图统计三方游戏注单失败",ex);
+        }
+        return map;
+    }
+
+    private Map<String, BigDecimal>  getPointsChangeMap(String startTime,String endTime){
+        Map<String, BigDecimal> map = new HashMap<>();
+        try {
+            List<Map<String, Object>> mapSumAmount = extractPointsChangeService.getMapSumAmount(startTime, endTime);
+            if (CollUtil.isNotEmpty(mapSumAmount)) {
+                mapSumAmount.forEach(list->{
+                    map.put(list.get("orderTimes").toString(),new BigDecimal(list.get("amount").toString()));
+                });
+            }
+            return map;
+        }catch (Exception ex){
+            log.error("走势图统计抽点失败",ex);
+        }
+        return map;
+    }
+
+    private Map<String, BigDecimal>  getShareProfitMap(String startTime,String endTime){
+        Map<String, BigDecimal> map = new HashMap<>();
+        try {
+            List<Map<String, Object>> mapSumAmount = shareProfitChangeService.getMapSumAmount(startTime, endTime);
+            if (CollUtil.isNotEmpty(mapSumAmount)) {
+                mapSumAmount.forEach(list->{
+                    map.put(list.get("orderTimes").toString(),new BigDecimal(list.get("amount").toString()));
+                });
+            }
+            return map;
+        }catch (Exception ex){
+            log.error("走势图统计人人代失败",ex);
+        }
+        return map;
+    }
+
+    private Map<String, BigDecimal>  getWashCodeMap(String startTime,String endTime){
+        Map<String, BigDecimal> map = new HashMap<>();
+        try {
+            List<Map<String, Object>> mapSumAmount = washCodeChangeService.getMapSumAmount(startTime, endTime);
+            if (CollUtil.isNotEmpty(mapSumAmount)) {
+                mapSumAmount.forEach(list->{
+                    map.put(list.get("orderTimes").toString(),new BigDecimal(list.get("amount").toString()));
+                });
+            }
+            return map;
+        }catch (Exception ex){
+            log.error("走势图统计洗码失败",ex);
+        }
+        return map;
+    }
+
 
     private HomePageReportVo  gameRecord( HomePageReportVo homePageReportVo){
         try {

@@ -22,4 +22,9 @@ public interface ShareProfitChangeRepository extends JpaRepository<ShareProfitCh
 
     @Query(value = "select ifnull(sum(s.amount),0) amount from share_profit_change s  ",nativeQuery = true)
     BigDecimal sumAmount();
+
+    @Query(value = "select LEFT(date_sub(e.bet_time, interval 12 hour),10) as orderTimes,ifnull(sum(amount),0) as amount  from "
+        + "share_profit_change e where e.bet_time >= ?1 and e.bet_time <= ?2 "
+        + "GROUP BY LEFT(date_sub(e.bet_time, interval 12 hour),10);\n",nativeQuery = true)
+    List<Map<String, Object>> getMapSumAmount(String startTime, String endTime);
 }

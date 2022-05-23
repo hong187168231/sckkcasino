@@ -103,4 +103,8 @@ public class WashCodeChangeService {
         };
         return specification;
     }
+
+    public List<Map<String, Object>> getMapSumAmount(String startTime, String endTime){
+        return washCodeChangeRepository.getMapSumAmount(startTime,endTime);
+    }
 }

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 public interface ProxyGameRecordReportRepository extends JpaRepository<ProxyGameRecordReport,Long>,
@@ -55,4 +56,8 @@ public interface ProxyGameRecordReportRepository extends JpaRepository<ProxyGame
     @Query(value = "select COUNT(1) num,ifnull(SUM(validAmount),0) validAmount,ifnull(SUM(winLoss),0) winLoss from (select SUM(p.valid_amount) "
         + "validAmount,SUM(p.win_loss) winLoss from proxy_game_record_report p GROUP BY p.user_id) a",nativeQuery = true)
     Map<String, Object> findSumBetAndWinLoss();
+
+    @Query(value = "select p.order_times as orderTimes ,SUM(p.valid_amount) validAmount,SUM(p.win_loss) winLoss from proxy_game_record_report p "
+        + "where p.order_times BETWEEN ?1 and ?2 GROUP BY p.order_times",nativeQuery = true)
+    List<Map<String, Object>> findBetAndWinLoss(String startTime,String endTime);
 }
