@@ -402,4 +402,32 @@ public class GameRecordService {
     public Long findMaxId(){
         return gameRecordRepository.findMaxId();
     }
+
+    public List<GameRecord> findGameRecord(GameRecord gameRecord,String startTime,String endTime)  {
+        Specification<GameRecord> condition = getConditionGameRecord(gameRecord,startTime,endTime);
+
+        return gameRecordRepository.findAll(condition);
+    }
+
+    private Specification<GameRecord> getConditionGameRecord(GameRecord gameRecord, String startTime, String endTime) {
+        Specification<GameRecord> specification = new Specification<GameRecord>() {
+            @Override
+            public Predicate toPredicate(Root<GameRecord> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                Predicate predicate = cb.conjunction();
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (gameRecord.getGameRecordStatus() != null) {
+                    list.add(cb.equal(root.get("gameRecordStatus").as(Integer.class), gameRecord.getGameRecordStatus()));
+                }
+
+                if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
+                    list.add(
+                        cb.between(root.get("createTime").as(String.class), startTime, endTime)
+                    );
+                }
+                predicate = cb.and(list.toArray(new Predicate[list.size()]));
+                return predicate;
+            }
+        };
+        return specification;
+    }
 }

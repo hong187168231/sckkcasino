@@ -169,6 +169,21 @@ public class GameRecordGoldenFService {
                 if (gameRecordGoldenF.getUserId() != null) {
                     list.add(cb.equal(root.get("userId").as(Long.class), gameRecordGoldenF.getUserId()));
                 }
+                if (!CommonUtil.checkNull(gameRecordGoldenF.getPlayerName())) {
+                    list.add(cb.equal(root.get("playerName").as(String.class), gameRecordGoldenF.getPlayerName()));
+                }
+                if (!CommonUtil.checkNull(gameRecordGoldenF.getVendorCode())) {
+                    list.add(cb.equal(root.get("vendorCode").as(String.class), gameRecordGoldenF.getVendorCode()));
+                }
+                if (!CommonUtil.checkNull(gameRecordGoldenF.getGameCode())) {
+                    list.add(cb.equal(root.get("gameCode").as(String.class), gameRecordGoldenF.getGameCode()));
+                }
+                if (!CommonUtil.checkNull(gameRecordGoldenF.getBetId())) {
+                    list.add(cb.equal(root.get("betId").as(String.class), gameRecordGoldenF.getBetId()));
+                }
+                if (!CommonUtil.checkNull(gameRecordGoldenF.getParentBetId())) {
+                    list.add(cb.equal(root.get("parentBetId").as(String.class), gameRecordGoldenF.getParentBetId()));
+                }
                 if (gameRecordGoldenF.getFirstProxy() != null) {
                     list.add(cb.equal(root.get("firstProxy").as(Long.class), gameRecordGoldenF.getFirstProxy()));
                 }
@@ -197,6 +212,34 @@ public class GameRecordGoldenFService {
 
     public Long findMaxId(){
         return gameRecordGoldenFRepository.findMaxId();
+    }
+
+    public List<GameRecordGoldenF> findGameRecord(GameRecordGoldenF gameRecord,String startTime,String endTime)  {
+        Specification<GameRecordGoldenF> condition = getConditionGameRecord(gameRecord,startTime,endTime);
+
+        return gameRecordGoldenFRepository.findAll(condition);
+    }
+
+    private Specification<GameRecordGoldenF> getConditionGameRecord(GameRecordGoldenF gameRecord, String startTime, String endTime) {
+        Specification<GameRecordGoldenF> specification = new Specification<GameRecordGoldenF>() {
+            @Override
+            public Predicate toPredicate(Root<GameRecordGoldenF> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                Predicate predicate = cb.conjunction();
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (gameRecord.getGameRecordStatus() != null) {
+                    list.add(cb.equal(root.get("gameRecordStatus").as(Integer.class), gameRecord.getGameRecordStatus()));
+                }
+
+                if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
+                    list.add(
+                        cb.between(root.get("createTime").as(String.class), startTime, endTime)
+                    );
+                }
+                predicate = cb.and(list.toArray(new Predicate[list.size()]));
+                return predicate;
+            }
+        };
+        return specification;
     }
 
     public  GameRecordGoldenF  findRecordRecordSum(GameRecordGoldenF gameRecordGoldenF,String startSetTime,String endSetTime) {
@@ -250,4 +293,5 @@ public class GameRecordGoldenFService {
         GameRecordGoldenF singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
     }
+
 }

@@ -18,6 +18,10 @@ public final class TaskConst {
      */
     public final static String HOME_PAGE_REPORT_NEW = "0 0 12 * * ?";
     /**
+     * 每天12.20执行
+     */
+    public final static String GAME_RECORD_REPORT_TASK = "0 20 12 * * ?";
+    /**
      * 每日零点五十分
      */
     public final static String PROXY_HOME_PAGE_REPORT = "0 50 0 * * ?";

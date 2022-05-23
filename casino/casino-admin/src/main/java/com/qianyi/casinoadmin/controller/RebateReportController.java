@@ -57,7 +57,7 @@ public class RebateReportController {
         @ApiImplicitParam(name = "endTime", value = "结束时间查询", required = true),
         @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9、OBDJ ", required = false),
         @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
-        @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
+        @ApiImplicitParam(name = "time", value = "1 北京时间 2 美东时间", required = false),
         @ApiImplicitParam(name = "tag", value = "1：投注笔数 2：投注金额 3：有效投注 4：返利总额 5：用户输赢金额", required = false),
     })
     public ResponseEntity<PersonReportVo> queryPersonReport(
@@ -68,6 +68,7 @@ public class RebateReportController {
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endTime,
         String platform,
         Integer sort,
+        Integer time,
         Integer tag){
         if (LoginUtil.checkNull(startTime, endTime, pageSize, pageCode)){
             return ResponseUtil.custom("参数不合法");
@@ -76,11 +77,19 @@ public class RebateReportController {
         String orderTimeStart = "'"+DateUtil.formatDate(startTime)+"'";
         String orderTimeEnd = "'"+DateUtil.formatDate(endTime)+"'";
 
-        // 向后偏移12小时
-        if (LoginUtil.checkNull(platform) || platform.equals("WM")){
-            startTime = DateUtil.offsetHour(startTime, 12);
-            endTime = DateUtil.offsetHour(endTime, 12);
+        if (LoginUtil.checkNull(time)){
+            // 向后偏移12小时
+            if (LoginUtil.checkNull(platform) || platform.equals("WM")){
+                startTime = DateUtil.offsetHour(startTime, 12);
+                endTime = DateUtil.offsetHour(endTime, 12);
+            }
+        }else {
+            if (time == CommonConst.NUMBER_2){
+                startTime = DateUtil.offsetHour(startTime, 12);
+                endTime = DateUtil.offsetHour(endTime, 12);
+            }
         }
+
         String startTimeStr = DateUtil.formatDateTime(startTime);
         String endTimeStr = DateUtil.formatDateTime(endTime);
 
@@ -169,12 +178,14 @@ public class RebateReportController {
     @ApiImplicitParams({
         @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
         @ApiImplicitParam(name = "userName", value = "账号", required = false),
+        @ApiImplicitParam(name = "time", value = "1 北京时间 2 美东时间", required = false),
         @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
         @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<RebateReportTotalVo> queryTotal(
         String userName,
         String platform,
+        Integer time,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(startDate,endDate)){
@@ -184,11 +195,19 @@ public class RebateReportController {
         String orderTimeStart = "'"+DateUtil.formatDate(startDate)+"'";
         String orderTimeEnd = "'"+DateUtil.formatDate(endDate)+"'";
 
-        // 向后偏移12小时
-        if (LoginUtil.checkNull(platform) || platform.equals("WM")){
-            startDate = DateUtil.offsetHour(startDate, 12);
-            endDate = DateUtil.offsetHour(endDate, 12);
+        if (LoginUtil.checkNull(time)){
+            // 向后偏移12小时
+            if (LoginUtil.checkNull(platform) || platform.equals("WM")){
+                startDate = DateUtil.offsetHour(startDate, 12);
+                endDate = DateUtil.offsetHour(endDate, 12);
+            }
+        }else {
+            if (time == CommonConst.NUMBER_2){
+                startDate = DateUtil.offsetHour(startDate, 12);
+                endDate = DateUtil.offsetHour(endDate, 12);
+            }
         }
+
         String startTime = DateUtil.formatDateTime(startDate);
         String endTime = DateUtil.formatDateTime(endDate);
 

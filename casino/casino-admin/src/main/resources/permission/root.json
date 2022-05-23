@@ -890,6 +890,20 @@
         ]
       },
       {
+        "descritpion": "用户设备记录",
+        "englishName": "Accessing the Device List",
+        "menuLevel": 2,
+        "name": "用户设备记录",
+        "url": "/visitsDevice/findPage"
+      },
+      {
+        "descritpion": "补三方注单",
+        "englishName": "Pull Game History",
+        "menuLevel": 2,
+        "name": "补三方注单",
+        "url": "/rePullGameRecord/pullGameRecordDate"
+      },
+      {
         "descritpion": "PC端轮播图配置",
         "englishName": "PC Cover Edit",
         "menuLevel": 2,
@@ -1410,6 +1424,35 @@
             "englishName": "Did the game modify",
             "menuLevel": 3,
             "name": "PG游戏状态修改",
+            "url": "/adGame/updateDomainName"
+          }
+        ]
+      },      {
+        "descritpion": "OB游戏管理",
+        "englishName": "OB game management",
+        "menuLevel": 2,
+        "name": "OB电子游戏管理",
+        "url": "/adGame/platformListOB",
+        "children": [
+          {
+            "descritpion": "游戏列表",
+            "englishName": "Game listing",
+            "menuLevel": 3,
+            "name": "OB游戏列表",
+            "url": "/adGame/findGameList"
+          },
+          {
+            "descritpion": "平台是否维护",
+            "englishName": "Platform under maintenance",
+            "menuLevel": 3,
+            "name": "OB平台是否维护",
+            "url": "/adGame/updatePlatformStatus"
+          },
+          {
+            "descritpion": "游戏状态修改",
+            "englishName": "Did the game modify",
+            "menuLevel": 3,
+            "name": "OB游戏状态修改",
             "url": "/adGame/updateDomainName"
           }
         ]
