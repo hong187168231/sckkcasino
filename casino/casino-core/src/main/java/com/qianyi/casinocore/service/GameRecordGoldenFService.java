@@ -13,6 +13,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -25,6 +27,9 @@ public class GameRecordGoldenFService {
 
     @Autowired
     private GameRecordGoldenFRepository gameRecordGoldenFRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public void updateCodeNumStatus(Long id,Integer codeNumStatus){
         gameRecordGoldenFRepository.updateCodeNumStatus(id,codeNumStatus);
@@ -192,5 +197,57 @@ public class GameRecordGoldenFService {
 
     public Long findMaxId(){
         return gameRecordGoldenFRepository.findMaxId();
+    }
+
+    public  GameRecordGoldenF  findRecordRecordSum(GameRecordGoldenF gameRecordGoldenF,String startSetTime,String endSetTime) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<GameRecordGoldenF> query = cb.createQuery(GameRecordGoldenF.class);
+        Root<GameRecordGoldenF> root = query.from(GameRecordGoldenF.class);
+
+        query.multiselect(
+            cb.sum(root.get("betAmount").as(BigDecimal.class)).alias("betAmount"),
+            cb.sum(root.get("winAmount").as(BigDecimal.class)).alias("winAmount")
+        );
+
+        List<Predicate> list = new ArrayList();
+
+        if (gameRecordGoldenF.getUserId() != null) {
+            list.add(cb.equal(root.get("userId").as(Long.class), gameRecordGoldenF.getUserId()));
+        }
+        if (!CommonUtil.checkNull(gameRecordGoldenF.getPlayerName())) {
+            list.add(cb.equal(root.get("playerName").as(String.class), gameRecordGoldenF.getPlayerName()));
+        }
+        if (!CommonUtil.checkNull(gameRecordGoldenF.getVendorCode())) {
+            list.add(cb.equal(root.get("vendorCode").as(String.class), gameRecordGoldenF.getVendorCode()));
+        }
+        if (!CommonUtil.checkNull(gameRecordGoldenF.getGameCode())) {
+            list.add(cb.equal(root.get("gameCode").as(String.class), gameRecordGoldenF.getGameCode()));
+        }
+        if (!CommonUtil.checkNull(gameRecordGoldenF.getBetId())) {
+            list.add(cb.equal(root.get("betId").as(String.class), gameRecordGoldenF.getBetId()));
+        }
+        if (!CommonUtil.checkNull(gameRecordGoldenF.getParentBetId())) {
+            list.add(cb.equal(root.get("parentBetId").as(String.class), gameRecordGoldenF.getParentBetId()));
+        }
+        if (gameRecordGoldenF.getFirstProxy() != null) {
+            list.add(cb.equal(root.get("firstProxy").as(Long.class), gameRecordGoldenF.getFirstProxy()));
+        }
+        if (gameRecordGoldenF.getSecondProxy() != null) {
+            list.add(cb.equal(root.get("secondProxy").as(Long.class), gameRecordGoldenF.getSecondProxy()));
+        }
+        if (gameRecordGoldenF.getThirdProxy() != null) {
+            list.add(cb.equal(root.get("thirdProxy").as(Long.class), gameRecordGoldenF.getThirdProxy()));
+        }
+        if (!ObjectUtils.isEmpty(startSetTime) && !ObjectUtils.isEmpty(endSetTime)) {
+            list.add(
+                cb.between(root.get("createAtStr").as(String.class), startSetTime, endSetTime)
+            );
+        }
+        query
+            .where(list.toArray(new Predicate[list.size()]));
+        //                .groupBy(root.get("conversionStepCode"))
+        //                .orderBy(builder.desc(root.get("contactUserNums")));
+        GameRecordGoldenF singleResult = entityManager.createQuery(query).getSingleResult();
+        return singleResult;
     }
 }

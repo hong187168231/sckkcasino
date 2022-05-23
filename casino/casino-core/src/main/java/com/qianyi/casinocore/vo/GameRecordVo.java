@@ -100,4 +100,7 @@ public class GameRecordVo implements Serializable {
         this.secondProxy = gameRecord.getSecondProxy();
         this.thirdProxy = gameRecord.getThirdProxy();
     }
+
+    public GameRecordVo() {
+    }
 }
