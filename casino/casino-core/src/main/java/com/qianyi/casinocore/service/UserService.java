@@ -569,4 +569,8 @@ public class UserService {
     public Set<Long> findUserByRegisterDomainName(String registerDomainName,String startTime,String endTime){
         return userRepository.findUserByRegisterDomainName(registerDomainName,startTime,endTime);
     }
+
+    public List<User> findByAccountUpper(String account) {
+        return userRepository.findByAccountUpper(account);
+    }
 }

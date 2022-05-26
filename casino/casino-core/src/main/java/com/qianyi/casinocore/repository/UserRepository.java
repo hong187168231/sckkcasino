@@ -24,6 +24,9 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Query(value = "select * from User u where u.id = ? ",nativeQuery = true)
     User findUserByUserIdUse(Long userId);
 
+    @Query(value = "SELECT * FROM user u WHERE UPPER(u.account) = UPPER(?)",nativeQuery = true)
+    List<User> findByAccountUpper(String account);
+
     @Modifying
     @Query("update User u set u.isFirstBet= ?2 where u.id=?1")
     void updateIsFirstBet(Long id, Integer washCodeStatus);
@@ -52,4 +55,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     @Query(value = "select u.id  from user u  where u.register_domain_name = ?1 and u.create_time >= ?2 and u.create_time <= ?3",nativeQuery = true)
     Set<Long> findUserByRegisterDomainName(String registerDomainName,String startTime,String endTime);
+
+
 }

@@ -790,8 +790,8 @@ public class UserController {
         if (!account.matches(RegexEnum.ACCOUNT.getRegex())){
             return ResponseUtil.custom("账号格式错误");
         }
-        User us = userService.findByAccount(account);
-        if(us != null){
+        List<User> us = userService.findByAccountUpper(account);
+        if(!us.isEmpty()){
             return ResponseUtil.custom("账户已存在");
         }
 
