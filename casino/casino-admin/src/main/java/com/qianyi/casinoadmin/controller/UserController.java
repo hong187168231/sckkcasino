@@ -89,7 +89,7 @@ public class UserController {
     @Autowired
     private MessageUtil messageUtil;
 
-    private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_10);
+    private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_30);
 
     @ApiOperation("查询代理下级的用户数据")
     @ApiImplicitParams({
@@ -391,6 +391,7 @@ public class UserController {
     @ApiOperation("请求玩家再WM余额总余额")
     @GetMapping("getWMMoneyTotal")
     public ResponseEntity getWMMoneyTotal(){
+        long start = System.currentTimeMillis();
         List<UserThird> allAcount = userThirdService.findAllAcount();
         if (LoginUtil.checkNull(allAcount) || allAcount.size() == CommonConst.NUMBER_0){
             return ResponseUtil.success(BigDecimal.ZERO);
@@ -421,6 +422,7 @@ public class UserController {
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+        log.info("请求wm总余额总时间{}",System.currentTimeMillis()-start);
         return ResponseUtil.success(sum);
     }
 
@@ -456,6 +458,7 @@ public class UserController {
     @ApiOperation("查询玩家PG/CQ9总余额")
     @GetMapping("refreshPGTotal")
     public ResponseEntity refreshPGTotal(){
+        long start = System.currentTimeMillis();
         List<UserThird> allGoldenfAccount = userThirdService.findAllGoldenfAccount();
         if (LoginUtil.checkNull(allGoldenfAccount) || allGoldenfAccount.size() == CommonConst.NUMBER_0){
             return ResponseUtil.success(BigDecimal.ZERO);
@@ -487,12 +490,14 @@ public class UserController {
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+        log.info("请求PG/CQ9总余额总时间{}",System.currentTimeMillis()-start);
         return ResponseUtil.success(sum);
     }
 
     @ApiOperation("查询玩家OB电竞总余额")
     @GetMapping("refreshOBDJTotal")
     public ResponseEntity refreshOBDJTotal(){
+        long start = System.currentTimeMillis();
         List<UserThird> allOBDJAccount = userThirdService.findAllOBDJAccount();
         if (LoginUtil.checkNull(allOBDJAccount) || allOBDJAccount.size() == CommonConst.NUMBER_0){
             return ResponseUtil.success(BigDecimal.ZERO);
@@ -522,12 +527,14 @@ public class UserController {
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+        log.info("请求OBDJ总余额总时间{}",System.currentTimeMillis()-start);
         return ResponseUtil.success(sum);
     }
 
     @ApiOperation("查询玩家OB体育总余额")
     @GetMapping("refreshOBTYTotal")
     public ResponseEntity refreshOBTYTotal(){
+        long start = System.currentTimeMillis();
         List<UserThird> allOBTYAccount = userThirdService.findAllOBTYAccount();
         if (LoginUtil.checkNull(allOBTYAccount) || allOBTYAccount.size() == CommonConst.NUMBER_0){
             return ResponseUtil.success(BigDecimal.ZERO);
@@ -556,6 +563,7 @@ public class UserController {
         }
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        log.info("请求OBTY总余额总时间{}",System.currentTimeMillis()-start);
         return ResponseUtil.success(sum);
     }
 
