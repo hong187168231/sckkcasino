@@ -69,19 +69,26 @@ public class GameRecordGoldenFJob {
         } else {
             pullGameRecord(Constants.PLATFORM_CQ9);
         }
+        PlatformGame sabaPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_SABASPORT);
+        if (sabaPlatformGame != null && sabaPlatformGame.getGameStatus() == 2) {
+            log.info("后台已关闭沙巴体育,无需拉单,platformGame={}", sabaPlatformGame);
+        } else {
+            pullGameRecord(Constants.PLATFORM_SABASPORT);
+        }
     }
 
     private void pullGameRecord(String vendorCode) {
-        //从数据库获取最近的拉单时间和平台
-        // 获取 starttime
-//        Long startTime = 1644588300000l;
-//        Long endTime = 1644588600000l;
-        List<GoldenFTimeVO> timeVOS = getTimes(vendorCode);
-        timeVOS.forEach(item -> {
-            log.info("{},开始拉取{}到{}的注单数据", vendorCode, item.getStartTime(), item.getEndTime());
-            excutePull(true,vendorCode, item.getStartTime(), item.getEndTime());
-            log.info("{},{}到{}数据拉取完成", vendorCode, item.getStartTime(), item.getEndTime());
-        });
+        try {
+            //从数据库获取最近的拉单时间和平台
+            List<GoldenFTimeVO> timeVOS = getTimes(vendorCode);
+            timeVOS.forEach(item -> {
+                log.info("{},开始拉取{}到{}的注单数据", vendorCode, item.getStartTime(), item.getEndTime());
+                excutePull(true, vendorCode, item.getStartTime(), item.getEndTime());
+                log.info("{},{}到{}数据拉取完成", vendorCode, item.getStartTime(), item.getEndTime());
+            });
+        } catch (Exception e) {
+            log.error("拉取注单时报错,vendorCode={},msg={}", vendorCode, e.getMessage());
+        }
     }
 
     /**

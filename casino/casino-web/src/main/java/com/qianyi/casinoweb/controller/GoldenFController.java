@@ -11,6 +11,7 @@ import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.vo.MaintenanceGameVo;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
 import com.qianyi.livegoldenf.constants.LanguageEnum;
+import com.qianyi.livegoldenf.constants.WalletCodeEnum;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.executor.AsyncService;
@@ -27,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -73,7 +75,7 @@ public class GoldenFController {
 //    @RequestLimit(limit = 1, timeout = 5)
     @PostMapping("/openGame")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9", required = true),
+            @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = true),
             @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = true),
     })
     public ResponseEntity openGame(String vendorCode, String gameCode, HttpServletRequest request) {
@@ -117,7 +119,14 @@ public class GoldenFController {
             }
         }
         //回收其他游戏的余额
-        thirdGameBusiness.oneKeyRecoverOtherGame(authId,Constants.PLATFORM_PG_CQ9);
+        //适配之前的游戏
+        String platform = Constants.PLATFORM_PG_CQ9;
+        AccountChangeEnum changeEnum = AccountChangeEnum.PG_CQ9_IN;
+        if (Constants.PLATFORM_SABASPORT.equals(vendorCode)) {
+            platform = Constants.PLATFORM_SABASPORT;
+            changeEnum = AccountChangeEnum.SABASPORT_IN;
+        }
+        thirdGameBusiness.oneKeyRecoverOtherGame(authId,platform);
         //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
         UserMoney userMoney = userMoneyService.findByUserId(authId);
         BigDecimal userCenterMoney = BigDecimal.ZERO;
@@ -125,24 +134,16 @@ public class GoldenFController {
             userCenterMoney = userMoney.getMoney();
         }
 
-//        if (platformConfig != null && platformConfig.getWmMoney() != null) {
-//            BigDecimal wmMoney = platformConfig.getWmMoney();
-//            if (wmMoney != null && wmMoney.compareTo(BigDecimal.ZERO) == 1) {
-//                if (wmMoney.compareTo(userCenterMoney) == -1) {
-//                    userCenterMoney = wmMoney;
-//                }
-//            }
-//        }
         String goldenfAccount = third.getGoldenfAccount();
         if (userCenterMoney.compareTo(BigDecimal.ZERO) == 1) {
             String orderNo = orderService.getOrderNo();
             //加点
-            ResponseEntity responseEntity = transferIn(goldenfAccount, authId, userCenterMoney, orderNo);
+            ResponseEntity responseEntity = transferIn(vendorCode, goldenfAccount, authId, userCenterMoney, orderNo, platform, changeEnum);
             if (responseEntity != null) {
                 return responseEntity;
             }
             //记录账变
-            saveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, "自动转入PG/CQ9");
+            saveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, platform, changeEnum);
         }
         //开游戏
         String language = request.getHeader(Constants.LANGUAGE);
@@ -165,8 +166,12 @@ public class GoldenFController {
         return ResponseUtil.success(gameUrl);
     }
 
-    public void saveAccountChange(Long userId, BigDecimal amount, BigDecimal amountBefore, BigDecimal amountAfter, Integer type, String orderNo, String remark) {
+    public void saveAccountChange(Long userId, BigDecimal amount, BigDecimal amountBefore, BigDecimal amountAfter, Integer type, String orderNo, String platform, AccountChangeEnum changeEnum) {
         User user = userService.findById(userId);
+        String remark = "自动转入PG/CQ9";
+        if (Constants.PLATFORM_SABASPORT.equals(platform)) {
+            remark = "自动转入SABASPORT";
+        }
         Order order = new Order();
         order.setMoney(amount);
         order.setUserId(userId);
@@ -174,7 +179,7 @@ public class GoldenFController {
         order.setType(type);
         order.setState(Constants.order_wait);
         order.setNo(orderNo);
-        order.setGamePlatformName(Constants.PLATFORM_PG_CQ9);
+        order.setGamePlatformName(platform);
         order.setFirstProxy(user.getFirstProxy());
         order.setSecondProxy(user.getSecondProxy());
         order.setThirdProxy(user.getThirdProxy());
@@ -183,21 +188,22 @@ public class GoldenFController {
         //账变中心记录账变
         AccountChangeVo vo = new AccountChangeVo();
         vo.setUserId(userId);
-        vo.setChangeEnum(AccountChangeEnum.PG_CQ9_IN);
+        vo.setChangeEnum(changeEnum);
         vo.setAmount(amount.negate());
         vo.setAmountBefore(amountBefore);
         vo.setAmountAfter(amountAfter);
         asyncService.executeAsync(vo);
     }
 
-    public ResponseEntity transferIn(String playerName, Long userId, BigDecimal userCenterMoney, String orderNo) {
+    public ResponseEntity transferIn(String vendorCode, String playerName, Long userId, BigDecimal userCenterMoney, String orderNo, String platform, AccountChangeEnum changeEnum) {
         //优先扣减本地的钱
         userMoneyService.subMoney(userId, userCenterMoney);
         double amount = userCenterMoney.doubleValue();
-        PublicGoldenFApi.ResponseEntity entity = goldenFApi.transferIn(playerName, amount, orderNo, null);
+        String walletCode = WalletCodeEnum.getWalletCodeByVendorCode(vendorCode);
+        PublicGoldenFApi.ResponseEntity entity = goldenFApi.transferIn(playerName, amount, orderNo, walletCode);
         if (entity == null) {
             User user = userService.findById(userId);
-            errorOrderService.syncSaveErrorOrder(playerName, userId, user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.PG_CQ9_IN, Constants.PLATFORM_PG_CQ9);
+            errorOrderService.syncSaveErrorOrder(playerName, userId, user.getAccount(), orderNo, userCenterMoney, changeEnum, platform);
             log.error("userId:{},进游戏加扣点失败", userId);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
@@ -208,7 +214,7 @@ public class GoldenFController {
         }
         //三方强烈建议提值/充值后使用 5.9 获取单个玩家的转账记录 进一步确认交易是否成功，避免造成金额损失
         long time = System.currentTimeMillis();
-        PublicGoldenFApi.ResponseEntity playerTransactionRecord = goldenFApi.getPlayerTransactionRecord(playerName, time, time, null, orderNo, null);
+        PublicGoldenFApi.ResponseEntity playerTransactionRecord = goldenFApi.getPlayerTransactionRecord(playerName, time, time, walletCode, orderNo, null);
         if (playerTransactionRecord == null) {
             log.error("userId:{},进游戏查询转账记录失败", userId);
             return ResponseUtil.custom("服务器异常,请重新操作");
@@ -226,7 +232,7 @@ public class GoldenFController {
         return null;
     }
 
-    @ApiOperation("PG游戏试玩,CQ9不支持试玩")
+    @ApiOperation("PG游戏试玩,CQ9,沙巴不支持试玩")
     @PostMapping("/openGameDemo")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9", required = true),
@@ -243,7 +249,7 @@ public class GoldenFController {
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
             return response;
         }
-        if (Constants.PLATFORM_CQ9.equals(vendorCode)) {
+        if (!Constants.PLATFORM_PG.equals(vendorCode)) {
             return ResponseUtil.custom("游戏不支持试玩");
         }
         //开游戏
@@ -265,27 +271,29 @@ public class GoldenFController {
 
     @ApiOperation("查询当前登录用户PG/CQ9余额")
     @GetMapping("/getBalance")
-    public ResponseEntity<BigDecimal> getBalance() {
+    @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = false)
+    public ResponseEntity<BigDecimal> getBalance(String vendorCode) {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
         if (third == null || ObjectUtils.isEmpty(third.getGoldenfAccount())) {
             return ResponseUtil.success(BigDecimal.ZERO);
         }
-        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getBalanceGoldenF(third.getGoldenfAccount(), authId);
+        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getBalanceGoldenF(third.getGoldenfAccount(), authId, vendorCode);
         if (responseEntity.getData() != null) {
             responseEntity.setData(responseEntity.getData().setScale(2, BigDecimal.ROUND_HALF_UP));
         }
         return responseEntity;
     }
 
-    @ApiOperation("查询用户PG/CQ9余额外部接口")
+    @ApiOperation("查询用户PG/CQ9/SABASPORT余额外部接口")
     @GetMapping("/getBalanceApi")
     @NoAuthentication
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "用户ID", required = true)
+            @ApiImplicitParam(name = "userId", value = "用户ID", required = true),
+            @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = false)
     })
-    public ResponseEntity<BigDecimal> getBalanceApi(Long userId) {
+    public ResponseEntity<BigDecimal> getBalanceApi(Long userId,String vendorCode) {
         log.info("开始查询PG/CQ9余额:userId={}", userId);
         Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
         if (!ipWhiteCheck) {
@@ -298,28 +306,32 @@ public class GoldenFController {
         if (third == null || ObjectUtils.isEmpty(third.getGoldenfAccount())) {
             return ResponseUtil.custom("当前用户暂未进入过游戏");
         }
-        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getBalanceGoldenF(third.getGoldenfAccount(), userId);
+        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getBalanceGoldenF(third.getGoldenfAccount(), userId, vendorCode);
         return responseEntity;
     }
 
-    @ApiOperation("一键回收当前登录用户PG/CQ9余额")
+    @ApiOperation("一键回收当前登录用户PG/CQ9/SABASPORT余额")
     @GetMapping("/oneKeyRecover")
-    public ResponseEntity oneKeyRecover() {
+    @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = false)
+    public ResponseEntity oneKeyRecover(String vendorCode) {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
-        return thirdGameBusiness.oneKeyRecoverGoldenF(userId);
+        return thirdGameBusiness.oneKeyRecoverGoldenF(userId,vendorCode);
     }
 
-    @ApiOperation("一键回收用户PG/CQ9余额外部接口")
+    @ApiOperation("一键回收用户PG/CQ9/SABASPORT余额外部接口")
     @GetMapping("/oneKeyRecoverApi")
     @NoAuthentication
-    @ApiImplicitParam(name = "userId", value = "用户ID", required = true)
-    public ResponseEntity oneKeyRecoverApi(Long userId) {
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId", value = "用户ID", required = true),
+            @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = false)
+    })
+    public ResponseEntity oneKeyRecoverApi(Long userId,String vendorCode) {
         Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
         if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
-        return thirdGameBusiness.oneKeyRecoverGoldenF(userId);
+        return thirdGameBusiness.oneKeyRecoverGoldenF(userId,vendorCode);
     }
 /*
 
@@ -362,30 +374,31 @@ public class GoldenFController {
 */
 
 
-    @ApiOperation("查询WM,PG,CQ9隐藏、维护状态的游戏")
+    @ApiOperation("查询WM,PG,CQ9,OB电竞,OB体育,沙巴体育，隐藏、维护状态的游戏")
     @GetMapping("/maintenanceGameList")
     @NoAuthentication
     public ResponseEntity<List<MaintenanceGameVo>> maintenanceGameList() {
+        List<PlatformGame> platformGameList = platformGameService.findAll();
         List<MaintenanceGameVo> list = new ArrayList<>();
-        MaintenanceGameVo wm = getMaintenanceGame(Constants.PLATFORM_WM_BIG);
-        list.add(wm);
-        MaintenanceGameVo pg = getMaintenanceGame(Constants.PLATFORM_PG);
-        list.add(pg);
-        MaintenanceGameVo cq9 = getMaintenanceGame(Constants.PLATFORM_CQ9);
-        list.add(cq9);
+        if (CollectionUtils.isEmpty(platformGameList)) {
+            return ResponseUtil.success(list);
+        }
+        for (PlatformGame platformGame : platformGameList) {
+            MaintenanceGameVo vo = getMaintenanceGame(platformGame);
+            list.add(vo);
+        }
         return ResponseUtil.success(list);
     }
 
-    private MaintenanceGameVo getMaintenanceGame(String gamePlatformName) {
+    private MaintenanceGameVo getMaintenanceGame(PlatformGame platformGame) {
         MaintenanceGameVo vo = new MaintenanceGameVo();
-        vo.setGamePlatformName(gamePlatformName);
-        PlatformGame platformGame = platformGameService.findByGamePlatformName(gamePlatformName);
+        vo.setGamePlatformName(platformGame.getGamePlatformName());
         vo.setPlatformStatus(platformGame.getGameStatus());
         //维护关闭状态的游戏
         List<Integer> gameStatusList = new ArrayList<>();
         gameStatusList.add(0);
         gameStatusList.add(2);
-        List<AdGame> gameList = adGamesService.findByGamePlatformNameAndGamesStatusIn(gamePlatformName, gameStatusList);
+        List<AdGame> gameList = adGamesService.findByGamePlatformNameAndGamesStatusIn(platformGame.getGamePlatformName(), gameStatusList);
         vo.setGameList(gameList);
         return vo;
     }

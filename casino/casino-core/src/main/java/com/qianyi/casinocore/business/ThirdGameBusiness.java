@@ -7,6 +7,7 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
+import com.qianyi.livegoldenf.constants.WalletCodeEnum;
 import com.qianyi.liveob.api.PublicObdjApi;
 import com.qianyi.liveob.api.PublicObtyApi;
 import com.qianyi.livewm.api.PublicWMApi;
@@ -67,38 +68,41 @@ public class ThirdGameBusiness {
     @Value("${project.ipWhite:null}")
     private String ipWhite;
 
-    public ResponseEntity oneKeyRecoverGoldenF(Long userId) {
-        ResponseEntity pgEnable = checkPlatformStatus(Constants.PLATFORM_PG);
-        ResponseEntity cq9Enable = checkPlatformStatus(Constants.PLATFORM_CQ9);
-        if (pgEnable.getCode() != ResponseCode.SUCCESS.getCode() && cq9Enable.getCode() != ResponseCode.SUCCESS.getCode()) {
-            log.info("后台开启PG/CQ9维护，禁止回收，pgResponse={},cq9Response={}", pgEnable, cq9Enable);
-            return pgEnable;
-        }
-        log.info("开始回收PG/CQ9余额，userId={}", userId);
+    public ResponseEntity oneKeyRecoverGoldenF(Long userId,String vendorCode) {
+        log.info("开始回收PG/CQ9/SABASPORT余额，userId={},vendorCode={}", userId,vendorCode);
         if (userId == null) {
             return ResponseUtil.parameterNotNull();
         }
         UserThird third = userThirdService.findByUserId(userId);
         if (third == null || ObjectUtils.isEmpty(third.getGoldenfAccount())) {
-            return ResponseUtil.custom("PG/CQ9余额为0");
+            return ResponseUtil.custom("PG/CQ9/SABASPORT余额为0");
         }
-        ResponseEntity<BigDecimal> responseEntity = getBalanceGoldenF(third.getGoldenfAccount(), userId);
+        ResponseEntity<BigDecimal> responseEntity = getBalanceGoldenF(third.getGoldenfAccount(), userId,vendorCode);
         if (responseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
             return responseEntity;
         }
         BigDecimal balance = responseEntity.getData();
         if (balance.compareTo(BigDecimal.ONE) == -1) {
-            log.info("userId:{},balance={},PG/CQ9金额小于1，不可回收", userId, balance);
-            return ResponseUtil.custom("PG/CQ9余额小于1,不可回收");
+            log.info("userId:{},balance={},PG/CQ9/SABASPORT金额小于1，不可回收", userId, balance);
+            return ResponseUtil.custom("PG/CQ9/SABASPORT余额小于1,不可回收");
         }
         String orderNo = orderService.getOrderNo();
         String goldenfAccount = third.getGoldenfAccount();
         //调用提值接口扣减余额  存在精度问题，只回收整数部分
         BigDecimal recoverMoney = balance.setScale(0, BigDecimal.ROUND_DOWN);
-        PublicGoldenFApi.ResponseEntity transferOut = goldenFApi.transferOut(goldenfAccount, recoverMoney.doubleValue(), orderNo, null);
+        String walletCode = WalletCodeEnum.getWalletCodeByVendorCode(vendorCode);
+        PublicGoldenFApi.ResponseEntity transferOut = goldenFApi.transferOut(goldenfAccount, recoverMoney.doubleValue(), orderNo, walletCode);
+        AccountChangeEnum changeEnum = AccountChangeEnum.PG_CQ9_OUT;
+        String platform = Constants.PLATFORM_PG_CQ9;
+        String remark="自动转出PG/CQ9";
+        if (Constants.PLATFORM_SABASPORT.equals(vendorCode)) {
+            changeEnum = AccountChangeEnum.SABASPORT_OUT;
+            platform = Constants.PLATFORM_SABASPORT;
+            remark="自动转出SABASPORT";
+        }
         if (transferOut == null) {
             User user = userService.findById(userId);
-            errorOrderService.syncSaveErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, recoverMoney, AccountChangeEnum.PG_CQ9_OUT, Constants.PLATFORM_PG_CQ9);
+            errorOrderService.syncSaveErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, recoverMoney, changeEnum, platform);
             log.error("userId:{},键回收当前登录用户PG/CQ9余额失败", userId);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
@@ -108,7 +112,7 @@ public class ThirdGameBusiness {
         }
         //三方强烈建议提值/充值后使用 5.9 获取单个玩家的转账记录 进一步确认交易是否成功，避免造成金额损失
         long time = System.currentTimeMillis();
-        PublicGoldenFApi.ResponseEntity playerTransactionRecord = goldenFApi.getPlayerTransactionRecord(goldenfAccount, time, time, null, orderNo, null);
+        PublicGoldenFApi.ResponseEntity playerTransactionRecord = goldenFApi.getPlayerTransactionRecord(goldenfAccount, time, time, walletCode, orderNo, null);
         if (playerTransactionRecord == null) {
             log.error("userId:{},PG/CQ9进游戏查询转账记录失败,远程请求异常", userId);
             return ResponseUtil.custom("服务器异常,请重新操作");
@@ -132,8 +136,8 @@ public class ThirdGameBusiness {
         userMoneyService.addMoney(userId, recoverMoney);
         //记录账变
         User user = userService.findById(userId);
-        saveAccountChange(Constants.PLATFORM_PG_CQ9,userId, recoverMoney, userMoney.getMoney(), recoverMoney.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.PG_CQ9_OUT,"自动转出PG/CQ9", user);
-        log.info("PG/CQ9余额回收成功，userId={}", userId);
+        saveAccountChange(platform,userId, recoverMoney, userMoney.getMoney(), recoverMoney.add(userMoney.getMoney()), 1, orderNo, changeEnum,remark, user);
+        log.info("PG/CQ9/SABASPORT余额回收成功，userId={},vendorCode={}", userId,vendorCode);
         return ResponseUtil.success();
     }
 
@@ -333,8 +337,9 @@ public class ThirdGameBusiness {
         return ResponseUtil.success();
     }
 
-    public ResponseEntity<BigDecimal> getBalanceGoldenF(String account, Long userId) {
-        PublicGoldenFApi.ResponseEntity playerBalance = goldenFApi.getPlayerBalance(account, null);
+    public ResponseEntity<BigDecimal> getBalanceGoldenF(String account, Long userId,String vendorCode) {
+        String walletCode = WalletCodeEnum.getWalletCodeByVendorCode(vendorCode);
+        PublicGoldenFApi.ResponseEntity playerBalance = goldenFApi.getPlayerBalance(account, walletCode);
         if (playerBalance == null) {
             log.error("userId:{},查询GoldenF余额失败", userId);
             return ResponseUtil.custom("服务器异常,请重新操作");
@@ -385,24 +390,36 @@ public class ThirdGameBusiness {
      */
     public ResponseEntity oneKeyRecoverOtherGame(Long userId,String platform) {
         List<CompletableFuture> completableFutures = new ArrayList<>();
-        if (!Constants.PLATFORM_WM_BIG.equals(platform)){
-            CompletableFuture<Void> oneKeyRecoverWm = CompletableFuture.runAsync(() -> {oneKeyRecoverWm(userId);}, executor);
+        if (!Constants.PLATFORM_WM_BIG.equals(platform)) {
+            CompletableFuture<Void> oneKeyRecoverWm = CompletableFuture.runAsync(() -> {
+                oneKeyRecoverWm(userId);
+            }, executor);
             completableFutures.add(oneKeyRecoverWm);
         }
-        if (!Constants.PLATFORM_PG_CQ9.equals(platform)){
-            CompletableFuture<Void> oneKeyRecoverGoldenF = CompletableFuture.runAsync(() -> {oneKeyRecoverGoldenF(userId);}, executor);
+        if (!Constants.PLATFORM_PG_CQ9.equals(platform)) {
+            CompletableFuture<Void> oneKeyRecoverGoldenF = CompletableFuture.runAsync(() -> {
+                oneKeyRecoverGoldenF(userId,Constants.PLATFORM_PG_CQ9);
+            }, executor);
             completableFutures.add(oneKeyRecoverGoldenF);
         }
-        if (!Constants.PLATFORM_OBDJ.equals(platform)){
+        if (!Constants.PLATFORM_SABASPORT.equals(platform)) {
+            CompletableFuture<Void> oneKeyRecoverGoldenF = CompletableFuture.runAsync(() -> {
+                oneKeyRecoverGoldenF(userId,Constants.PLATFORM_SABASPORT);
+            }, executor);
+            completableFutures.add(oneKeyRecoverGoldenF);
+        }
+        if (!Constants.PLATFORM_OBDJ.equals(platform)) {
             CompletableFuture<Void> oneKeyRecoverObdj = CompletableFuture.runAsync(() -> {
-                oneKeyRecoverObdj(userId);}, executor);
+                oneKeyRecoverObdj(userId);
+            }, executor);
             completableFutures.add(oneKeyRecoverObdj);
         }
-        if (!Constants.PLATFORM_OBTY.equals(platform)){
-            CompletableFuture<Void> oneKeyRecoverObty = CompletableFuture.runAsync(() -> {
-                oneKeyRecoverObty(userId);}, executor);
-            completableFutures.add(oneKeyRecoverObty);
-        }
+//        if (!Constants.PLATFORM_OBTY.equals(platform)) {
+//            CompletableFuture<Void> oneKeyRecoverObty = CompletableFuture.runAsync(() -> {
+//                oneKeyRecoverObty(userId);
+//            }, executor);
+//            completableFutures.add(oneKeyRecoverObty);
+//        }
         //等待所有子线程计算完成
         CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[completableFutures.size()])).join();
         return ResponseUtil.success();

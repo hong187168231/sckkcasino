@@ -22,6 +22,8 @@ public enum AccountChangeEnum {
     OBDJ_OUT(14, "OBDJOUT","OB电竞转出"),
     OBTY_IN(15, "OBTYIN","OB体育转入"),
     OBTY_OUT(16, "OBTYOUT","OB体育转出"),
+    SABASPORT_IN(17, "SABASPORTIN","沙巴体育转入"),
+    SABASPORT_OUT(18, "SABASPORTOUT","沙巴体育转出"),
     ;
 
     private Integer type;
