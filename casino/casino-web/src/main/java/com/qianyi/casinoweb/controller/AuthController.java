@@ -213,13 +213,13 @@ public class AuthController {
             return ResponseUtil.custom("当前IP注册帐号数量超过上限");
         }
 
-        User user = userService.findByAccount(account);
-        if (user != null && !CommonUtil.checkNull(user.getPassword())) {
+        List<User> userList = userService.findByAccountUpper (account);
+        if (!CollectionUtils.isEmpty(userList)) {
             return ResponseUtil.custom("该帐号已存在");
         }
         //设置user基本参数
         String inviteCodeNew = generateInviteCodeRunner.getInviteCode();
-        user = User.setBaseUser(account, CasinoWebUtil.bcrypt(password), phone, ip,inviteCodeNew);
+        User user = User.setBaseUser(account, CasinoWebUtil.bcrypt(password), phone, ip,inviteCodeNew);
         //设置父级
         setParent(inviteCode, inviteType, user,source);
         Long firstPid = user.getFirstPid();
