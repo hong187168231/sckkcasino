@@ -79,7 +79,7 @@ public class ThirdGameBusiness {
         }
         if (Constants.PLATFORM_SABASPORT.equals(vendorCode)){
             ResponseEntity sabaEnable = checkPlatformStatus(Constants.PLATFORM_SABASPORT);
-            if (sabaEnable.getCode() != ResponseCode.SUCCESS.getCode() && sabaEnable.getCode() != ResponseCode.SUCCESS.getCode()) {
+            if (sabaEnable.getCode() != ResponseCode.SUCCESS.getCode()) {
                 log.info("后台开启SABASPORT维护，禁止回收，pgResponse={}", sabaEnable);
                 return sabaEnable;
             }
