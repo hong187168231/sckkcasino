@@ -69,6 +69,10 @@ public class ThirdGameBusiness {
     private String ipWhite;
 
     public ResponseEntity oneKeyRecoverGoldenF(Long userId,String vendorCode) {
+        log.info("开始回收{}余额，userId={}", vendorCode,userId);
+        if (ObjectUtils.isEmpty(userId) || ObjectUtils.isEmpty(vendorCode)) {
+            return ResponseUtil.parameterNotNull();
+        }
         if (Constants.PLATFORM_PG_CQ9.equals(vendorCode)){
             ResponseEntity pgEnable = checkPlatformStatus(Constants.PLATFORM_PG);
             ResponseEntity cq9Enable = checkPlatformStatus(Constants.PLATFORM_CQ9);
@@ -83,10 +87,6 @@ public class ThirdGameBusiness {
                 log.info("后台开启SABASPORT维护，禁止回收，sabaResponse={}", sabaEnable);
                 return sabaEnable;
             }
-        }
-        log.info("开始回收{}余额，userId={}", vendorCode,userId);
-        if (userId == null) {
-            return ResponseUtil.parameterNotNull();
         }
         UserThird third = userThirdService.findByUserId(userId);
         if (third == null || ObjectUtils.isEmpty(third.getGoldenfAccount())) {
