@@ -80,17 +80,17 @@ public class ThirdGameBusiness {
         if (Constants.PLATFORM_SABASPORT.equals(vendorCode)){
             ResponseEntity sabaEnable = checkPlatformStatus(Constants.PLATFORM_SABASPORT);
             if (sabaEnable.getCode() != ResponseCode.SUCCESS.getCode()) {
-                log.info("后台开启SABASPORT维护，禁止回收，pgResponse={}", sabaEnable);
+                log.info("后台开启SABASPORT维护，禁止回收，sabaResponse={}", sabaEnable);
                 return sabaEnable;
             }
         }
-        log.info("开始回收PG/CQ9/SABASPORT余额，userId={},vendorCode={}", userId,vendorCode);
+        log.info("开始回收{}余额，userId={}", vendorCode,userId);
         if (userId == null) {
             return ResponseUtil.parameterNotNull();
         }
         UserThird third = userThirdService.findByUserId(userId);
         if (third == null || ObjectUtils.isEmpty(third.getGoldenfAccount())) {
-            return ResponseUtil.custom("PG/CQ9/SABASPORT余额为0");
+            return ResponseUtil.custom(vendorCode + "余额为0");
         }
         ResponseEntity<BigDecimal> responseEntity = getBalanceGoldenF(third.getGoldenfAccount(), userId,vendorCode);
         if (responseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
@@ -98,8 +98,8 @@ public class ThirdGameBusiness {
         }
         BigDecimal balance = responseEntity.getData();
         if (balance.compareTo(BigDecimal.ONE) == -1) {
-            log.info("userId:{},balance={},PG/CQ9/SABASPORT金额小于1，不可回收", userId, balance);
-            return ResponseUtil.custom("PG/CQ9/SABASPORT余额小于1,不可回收");
+            log.info("userId:{},balance={},{}金额小于1，不可回收", userId, balance,vendorCode);
+            return ResponseUtil.custom(vendorCode + "余额小于1,不可回收");
         }
         String orderNo = orderService.getOrderNo();
         String goldenfAccount = third.getGoldenfAccount();
@@ -118,22 +118,22 @@ public class ThirdGameBusiness {
         if (transferOut == null) {
             User user = userService.findById(userId);
             errorOrderService.syncSaveErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, recoverMoney, changeEnum, platform);
-            log.error("userId:{},键回收当前登录用户PG/CQ9余额失败", userId);
+            log.error("userId:{},一键回收当前登录用户{}余额失败", userId,vendorCode);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         if (!ObjectUtils.isEmpty(transferOut.getErrorCode())) {
-            log.error("PG/CQ9余额回收失败,userId:{},errorCode={},errorMsg={}", userId, transferOut.getErrorCode(), transferOut.getErrorMessage());
+            log.error("{}余额回收失败,userId:{},errorCode={},errorMsg={}", vendorCode,userId, transferOut.getErrorCode(), transferOut.getErrorMessage());
             return ResponseUtil.custom("回收失败,请联系客服");
         }
         //三方强烈建议提值/充值后使用 5.9 获取单个玩家的转账记录 进一步确认交易是否成功，避免造成金额损失
         long time = System.currentTimeMillis();
         PublicGoldenFApi.ResponseEntity playerTransactionRecord = goldenFApi.getPlayerTransactionRecord(goldenfAccount, time, time, walletCode, orderNo, null);
         if (playerTransactionRecord == null) {
-            log.error("userId:{},PG/CQ9进游戏查询转账记录失败,远程请求异常", userId);
+            log.error("userId:{},{}一键回收余额查询转账记录失败,远程请求异常", userId,vendorCode);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         if (!ObjectUtils.isEmpty(playerTransactionRecord.getErrorCode())) {
-            log.error("PG/CQ9进游戏查询转账记录失败,userId:{},errorCode={},errorMsg={}", userId, playerTransactionRecord.getErrorCode(), playerTransactionRecord.getErrorMessage());
+            log.error("{}一键回收余额查询转账记录失败,userId:{},errorCode={},errorMsg={}", vendorCode,userId, playerTransactionRecord.getErrorCode(), playerTransactionRecord.getErrorMessage());
             return ResponseUtil.custom("回收失败,请联系客服");
         }
         JSONObject jsonData = JSONObject.parseObject(playerTransactionRecord.getData());
@@ -152,7 +152,7 @@ public class ThirdGameBusiness {
         //记录账变
         User user = userService.findById(userId);
         saveAccountChange(platform,userId, recoverMoney, userMoney.getMoney(), recoverMoney.add(userMoney.getMoney()), 1, orderNo, changeEnum,remark, user);
-        log.info("PG/CQ9/SABASPORT余额回收成功，userId={},vendorCode={}", userId,vendorCode);
+        log.info("{}余额回收成功，userId={}", vendorCode,userId);
         return ResponseUtil.success();
     }
 
@@ -472,13 +472,13 @@ public class ThirdGameBusiness {
         }
         PlatformGame platformGame = platformGameService.findByGamePlatformName(vendorCode);
         if (platformGame == null) {
-            return ResponseUtil.customBefore(vendorCode, "平台不存在");
+            return ResponseUtil.custom("平台不存在");
         }
         if (platformGame.getGameStatus() == 0) {
-            return ResponseUtil.customBefore(vendorCode, "平台维护中");
+            return ResponseUtil.custom("平台维护中");
         }
         if (platformGame.getGameStatus() == 2) {
-            return ResponseUtil.customBefore(vendorCode, "平台已关闭");
+            return ResponseUtil.custom("平台已关闭");
         }
         return ResponseUtil.success();
     }

@@ -235,7 +235,7 @@ public class GoldenFController {
     @ApiOperation("PG游戏试玩,CQ9,沙巴不支持试玩")
     @PostMapping("/openGameDemo")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9", required = true),
+            @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = true),
             @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = true),
     })
     @NoAuthentication
@@ -269,7 +269,7 @@ public class GoldenFController {
         return ResponseUtil.success(gameUrl);
     }
 
-    @ApiOperation("查询当前登录用户PG/CQ9余额")
+    @ApiOperation("查询当前登录用户PG/CQ9/SABASPORT余额")
     @GetMapping("/getBalance")
     @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = false)
     public ResponseEntity<BigDecimal> getBalance(String vendorCode) {
