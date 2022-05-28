@@ -93,7 +93,7 @@ public class UserMoneyBusiness {
         }
         if (Constants.PLATFORM_WM.equals(platform)) {
             gameRecordService.updateCodeNumStatus(record.getId(), Constants.yes);
-        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
+        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)|| Constants.PLATFORM_SABASPORT.equals(platform)) {
             gameRecordGoldenFService.updateCodeNumStatus(record.getId(), Constants.yes);
         } else if(Constants.PLATFORM_OBDJ.equals(platform)){
             gameRecordObdjService.updateCodeNumStatus(record.getId(), Constants.yes);
@@ -175,7 +175,7 @@ public class UserMoneyBusiness {
         }
         if (Constants.PLATFORM_WM.equals(platform)) {
             gameRecordService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
-        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
+        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)|| Constants.PLATFORM_SABASPORT.equals(platform)) {
             gameRecordGoldenFService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
         } else if (Constants.PLATFORM_OBDJ.equals(platform)) {
             gameRecordObdjService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
@@ -344,7 +344,7 @@ public class UserMoneyBusiness {
         //更新返利状态
         if (Constants.PLATFORM_WM.equals(platform)) {
             gameRecordService.updateRebateStatus(record.getId(), Constants.yes);
-        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
+        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)|| Constants.PLATFORM_SABASPORT.equals(platform)) {
             gameRecordGoldenFService.updateRebateStatus(record.getId(), Constants.yes);
         } else if (Constants.PLATFORM_OBDJ.equals(platform)) {
             gameRecordObdjService.updateRebateStatus(record.getId(), Constants.yes);

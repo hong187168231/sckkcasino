@@ -444,7 +444,7 @@ public class ExtractPointsConfigBusiness {
         // 更新抽点状态
         if (Constants.PLATFORM_WM.equals(platform)) {
             gameRecordRepository.updateExtractStatus(gameRecord.getId(), Constants.yes);
-        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
+        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)|| Constants.PLATFORM_SABASPORT.equals(platform)) {
             gameRecordGoldenFRepository.updateExtractStatus(gameRecord.getId(), Constants.yes);
         } else if (Constants.PLATFORM_OBDJ.equals(platform)) {
             gameRecordObdjService.updateExtractStatus(gameRecord.getId(), Constants.yes);
