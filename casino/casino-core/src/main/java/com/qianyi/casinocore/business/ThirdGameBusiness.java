@@ -69,6 +69,21 @@ public class ThirdGameBusiness {
     private String ipWhite;
 
     public ResponseEntity oneKeyRecoverGoldenF(Long userId,String vendorCode) {
+        if (Constants.PLATFORM_PG_CQ9.equals(vendorCode)){
+            ResponseEntity pgEnable = checkPlatformStatus(Constants.PLATFORM_PG);
+            ResponseEntity cq9Enable = checkPlatformStatus(Constants.PLATFORM_CQ9);
+            if (pgEnable.getCode() != ResponseCode.SUCCESS.getCode() && cq9Enable.getCode() != ResponseCode.SUCCESS.getCode()) {
+                log.info("后台开启PG/CQ9维护，禁止回收，pgResponse={},cq9Response={}", pgEnable, cq9Enable);
+                return pgEnable;
+            }
+        }
+        if (Constants.PLATFORM_SABASPORT.equals(vendorCode)){
+            ResponseEntity sabaEnable = checkPlatformStatus(Constants.PLATFORM_SABASPORT);
+            if (sabaEnable.getCode() != ResponseCode.SUCCESS.getCode() && sabaEnable.getCode() != ResponseCode.SUCCESS.getCode()) {
+                log.info("后台开启SABASPORT维护，禁止回收，pgResponse={}", sabaEnable);
+                return sabaEnable;
+            }
+        }
         log.info("开始回收PG/CQ9/SABASPORT余额，userId={},vendorCode={}", userId,vendorCode);
         if (userId == null) {
             return ResponseUtil.parameterNotNull();
