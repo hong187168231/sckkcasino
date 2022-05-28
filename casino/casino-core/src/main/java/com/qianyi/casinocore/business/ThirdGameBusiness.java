@@ -70,7 +70,7 @@ public class ThirdGameBusiness {
 
     public ResponseEntity oneKeyRecoverGoldenF(Long userId,String vendorCode) {
         log.info("开始回收{}余额，userId={}", vendorCode,userId);
-        if (ObjectUtils.isEmpty(userId) || ObjectUtils.isEmpty(vendorCode)) {
+        if (ObjectUtils.isEmpty(userId)) {
             return ResponseUtil.parameterNotNull();
         }
         if (Constants.PLATFORM_PG_CQ9.equals(vendorCode)){
