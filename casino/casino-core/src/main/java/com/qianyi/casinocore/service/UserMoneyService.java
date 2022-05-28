@@ -8,6 +8,7 @@ import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.repository.UserMoneyRepository;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.HttpClient4Util;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -332,6 +333,35 @@ public class UserMoneyService {
             return null;
         }
     }
+
+    public JSONObject getSABAonetUser(UserThird third) {
+        User byId = userService.findById(third.getUserId());
+        Integer lang;
+        if (byId == null){
+            lang = 0;
+        }else {
+            lang = byId.getLanguage();
+        }
+        if (lang == null) {
+            lang = 0;
+        }
+        try {
+            String param = "account={0}&lang={1}&vendorCode={2}";
+            param = MessageFormat.format(param,third.getAccount(),lang.toString(), Constants.PLATFORM_SABASPORT);
+            PlatformConfig first = platformConfigService.findFirst();
+            String SABA = first == null?"":first.getWebConfiguration();
+            SABA = SABA + refreshUrl;
+            String s = HttpClient4Util.get(SABA + param);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("出现异常:{}", e.getMessage());
+            return null;
+        }
+    }
+
+
     public JSONObject oneKeyRecover(User user){
         try {
             String param = "userId={0}";
@@ -385,6 +415,38 @@ public class UserMoneyService {
         }
     }
 
+    public JSONObject refreshSABA(Long userId) {
+        try {
+            String param = "userId={0}&vendorCode={1}";
+            param = MessageFormat.format(param,userId.toString(), Constants.PLATFORM_SABASPORT);
+            PlatformConfig first = platformConfigService.findFirst();
+            String WMurl = first == null?"":first.getWebConfiguration();
+            WMurl = WMurl + PG_refreshUrl;
+            String s = HttpClient4Util.get(WMurl + param);
+            log.info("{}查询PG余额web接口返回{}",userId,s);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public JSONObject oneKeySABAApi(User user){
+        try {
+            String param = "userId={0}&vendorCode={1}";
+            param = MessageFormat.format(param,user.getId().toString(), Constants.PLATFORM_SABASPORT);
+            PlatformConfig first = platformConfigService.findFirst();
+            String WMurl = first == null?"":first.getWebConfiguration();
+            WMurl = WMurl + PG_recycleUrl;
+            String s = HttpClient4Util.getWeb(WMurl + param);
+            log.info("{}回收PG余额web接口返回{}",user.getAccount(),s);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public JSONObject refreshPGAndCQ9UserId(String userId) {
         try {
             String param = "userId={0}";
@@ -400,10 +462,10 @@ public class UserMoneyService {
         }
     }
 
-    public JSONObject refreshPGAndCQ9(UserThird userThird) {
+    public JSONObject refreshSABAUserId(String userId) {
         try {
-            String param = "userId={0}";
-            param = MessageFormat.format(param,userThird.getUserId().toString());
+            String param = "userId={0}&vendorCode={1}";
+            param = MessageFormat.format(param, userId, Constants.PLATFORM_SABASPORT);
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null?"":first.getWebConfiguration();
             WMurl = WMurl + PG_refreshUrl;
@@ -414,6 +476,7 @@ public class UserMoneyService {
             return null;
         }
     }
+
 
     public JSONObject oneKeyRecoverApi(User user){
         try {

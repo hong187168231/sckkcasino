@@ -18,6 +18,7 @@ import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.MessageUtil;
+import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -87,9 +88,12 @@ public class UserController {
     PlatformConfigService platformConfigService;
 
     @Autowired
+    private RedisUtil redisUtil;
+
+    @Autowired
     private MessageUtil messageUtil;
 
-    private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_30);
+    private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_10);
 
     @ApiOperation("查询代理下级的用户数据")
     @ApiImplicitParams({
@@ -391,7 +395,12 @@ public class UserController {
     @ApiOperation("请求玩家再WM余额总余额")
     @GetMapping("getWMMoneyTotal")
     public ResponseEntity getWMMoneyTotal(){
-        long start = System.currentTimeMillis();
+        String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_WM_BIG;
+        Object wmBalance = redisUtil.get(key);
+        if(!LoginUtil.checkNull(wmBalance)){
+            return ResponseUtil.success(wmBalance);
+        }
+
         List<UserThird> allAcount = userThirdService.findAllAcount();
         if (LoginUtil.checkNull(allAcount) || allAcount.size() == CommonConst.NUMBER_0){
             return ResponseUtil.success(BigDecimal.ZERO);
@@ -404,13 +413,13 @@ public class UserController {
             threadPool.execute(() ->{
                 try {
                     JSONObject jsonObject = userMoneyService.getWMonetUser(u);
+
                     if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
                         list.add(BigDecimal.ZERO);
                     }else {
                         Integer code = (Integer) jsonObject.get("code");
                         if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
-                            list.add(new BigDecimal(jsonObject.get("data").toString()));
-
+                           list.add(new BigDecimal(jsonObject.get("data").toString()));
                         }
                     }
                 }finally {
@@ -420,9 +429,9 @@ public class UserController {
             });
         }
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
+
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
-        log.info("请求wm总余额总时间{}",System.currentTimeMillis()-start);
         return ResponseUtil.success(sum);
     }
 
@@ -458,7 +467,12 @@ public class UserController {
     @ApiOperation("查询玩家PG/CQ9总余额")
     @GetMapping("refreshPGTotal")
     public ResponseEntity refreshPGTotal(){
-        long start = System.currentTimeMillis();
+        String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_PG;
+        Object pgBalance = redisUtil.get(key);
+        if(!LoginUtil.checkNull(pgBalance)){
+            return ResponseUtil.success(pgBalance);
+        }
+
         List<UserThird> allGoldenfAccount = userThirdService.findAllGoldenfAccount();
         if (LoginUtil.checkNull(allGoldenfAccount) || allGoldenfAccount.size() == CommonConst.NUMBER_0){
             return ResponseUtil.success(BigDecimal.ZERO);
@@ -490,14 +504,18 @@ public class UserController {
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
-        log.info("请求PG/CQ9总余额总时间{}",System.currentTimeMillis()-start);
         return ResponseUtil.success(sum);
     }
 
     @ApiOperation("查询玩家OB电竞总余额")
     @GetMapping("refreshOBDJTotal")
     public ResponseEntity refreshOBDJTotal(){
-        long start = System.currentTimeMillis();
+        String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_OBDJ;
+        Object obdjBalance = redisUtil.get(key);
+        if(!LoginUtil.checkNull(obdjBalance)){
+            return ResponseUtil.success(obdjBalance);
+        }
+
         List<UserThird> allOBDJAccount = userThirdService.findAllOBDJAccount();
         if (LoginUtil.checkNull(allOBDJAccount) || allOBDJAccount.size() == CommonConst.NUMBER_0){
             return ResponseUtil.success(BigDecimal.ZERO);
@@ -527,14 +545,18 @@ public class UserController {
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
-        log.info("请求OBDJ总余额总时间{}",System.currentTimeMillis()-start);
         return ResponseUtil.success(sum);
     }
 
     @ApiOperation("查询玩家OB体育总余额")
     @GetMapping("refreshOBTYTotal")
     public ResponseEntity refreshOBTYTotal(){
-        long start = System.currentTimeMillis();
+        String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_OBTY;
+        Object obtyBalance = redisUtil.get(key);
+        if(!LoginUtil.checkNull(obtyBalance)){
+            return ResponseUtil.success(obtyBalance);
+        }
+
         List<UserThird> allOBTYAccount = userThirdService.findAllOBTYAccount();
         if (LoginUtil.checkNull(allOBTYAccount) || allOBTYAccount.size() == CommonConst.NUMBER_0){
             return ResponseUtil.success(BigDecimal.ZERO);
@@ -563,10 +585,9 @@ public class UserController {
         }
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-        log.info("请求OBTY总余额总时间{}",System.currentTimeMillis()-start);
+        sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
         return ResponseUtil.success(sum);
     }
-
 
     @ApiOperation("查询用户OB余额")
     @ApiImplicitParams({
@@ -736,43 +757,106 @@ public class UserController {
             return ResponseUtil.custom("回收PG/CQ9余额失败");
         }
     }
-    //    public void setWMMoney(List<User> userList) {
-    //
-    //        log.info("query WM money data：【{}】 ", userList);
-    //        List<CompletableFuture<User>> completableFutures = new ArrayList<>();
-    //        for (User user : userList) {
-    //            UserThird third = userThirdService.findByUserId(user.getId());
-    //            if (third == null) {
-    //                continue;
-    //            }
-    //            CompletableFuture<User> completableFuture =  CompletableFuture.supplyAsync(() -> {
-    //                return getWMonetUser(user, third);
-    //            });
-    //            completableFutures.add(completableFuture);
-    //        }
-    //        CompletableFuture<Void> voidCompletableFuture = CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[]{}));
-    //        try {
-    //            voidCompletableFuture.join();
-    //        }catch (Exception e){
-    //            //打印日志
-    //            log.error("query User WM money error：【{}】", e);
-    //        }
-    //    }
 
-    //    private User getWMonetUser(User user, UserThird third) {
-    //        Integer lang = user.getLanguage();
-    //        if (lang == null) {
-    //            lang = 0;
-    //        }
-    //        BigDecimal balance = null;
-    //        try {
-    //            balance = wmApi.getBalance(third.getAccount(), lang);
-    //        } catch (Exception e) {
-    //            e.printStackTrace();
-    //        }
-    //        user.setWmMoney(balance);
-    //        return user;
-    //    }
+
+    @ApiOperation("查询玩家沙巴总余额")
+    @GetMapping("refreshSABATotal")
+    public ResponseEntity refreshSABATotal(){
+        String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_SABASPORT;
+        Object pgBalance = redisUtil.get(key);
+        if(!LoginUtil.checkNull(pgBalance)){
+            return ResponseUtil.success(pgBalance);
+        }
+
+        List<UserThird> allGoldenfAccount = userThirdService.findAllGoldenfAccount();
+        if (LoginUtil.checkNull(allGoldenfAccount) || allGoldenfAccount.size() == CommonConst.NUMBER_0){
+            return ResponseUtil.success(BigDecimal.ZERO);
+        }
+        ReentrantLock reentrantLock = new ReentrantLock();
+        Condition condition = reentrantLock.newCondition();
+        AtomicInteger atomicInteger = new AtomicInteger(allGoldenfAccount.size());
+        Vector<BigDecimal> list = new Vector<>();
+        for (UserThird u:allGoldenfAccount){
+            threadPool.execute(() ->{
+                try {
+                    JSONObject jsonObject = userMoneyService.refreshSABAUserId(u.getUserId().toString());
+                    if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+                        list.add(BigDecimal.ZERO);
+                    }else {
+                        Integer code = (Integer) jsonObject.get("code");
+                        if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
+                            synchronized (this){
+                                list.add(new BigDecimal(jsonObject.get("data").toString()));
+                            }
+                        }
+                    }
+                }finally {
+                    atomicInteger.decrementAndGet();
+                    BillThreadPool.toResume(reentrantLock, condition);
+                }
+            });
+        }
+        BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
+        BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+        return ResponseUtil.success(sum);
+    }
+
+
+    @ApiOperation("查询用户沙巴体育余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("refreshSABA")
+    public ResponseEntity refreshSABA(Long id){
+        UserThird third = userThirdService.findByUserId(id);
+        if (LoginUtil.checkNull(third) || ObjectUtils.isEmpty(third.getGoldenfAccount())){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
+        }
+        JSONObject jsonObject = userMoneyService.refreshSABA(third.getUserId());
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("查询沙巴余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (LoginUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询沙巴余额失败");
+        }
+    }
+
+    @ApiOperation("一键回收用户沙巴余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("recoverySABABalance")
+    public ResponseEntity recoverySABABalance(Long id){
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            return ResponseUtil.custom("客户不存在");
+        }
+        JSONObject jsonObject = userMoneyService.oneKeySABAApi(user);
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("回收沙巴余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                return ResponseUtil.success();
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("回收沙巴余额失败");
+        }
+    }
 
     @ApiOperation("添加用户")
     @ApiImplicitParams({

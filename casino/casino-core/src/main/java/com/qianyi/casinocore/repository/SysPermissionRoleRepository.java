@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.List;
 
 public interface SysPermissionRoleRepository extends JpaRepository<SysPermissionRole, Long>, JpaSpecificationExecutor<SysPermissionRole> {
-    List<SysPermissionRole> findByRoleId(Long id);
+    List<SysPermissionRole> findByRoleIdOrderByNameDesc(Long id);
 
     void deleteByRoleId(Long id);
 }

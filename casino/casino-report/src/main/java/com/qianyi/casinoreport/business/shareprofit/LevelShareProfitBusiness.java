@@ -68,7 +68,7 @@ public class LevelShareProfitBusiness {
                 record=gameRecord;
             }else if(shareProfitMqVo.getPlatform().equals(Constants.PLATFORM_OBTY)){
                 GameRecordObty gameRecordObty = gameRecordObtyService.findGameRecordById(shareProfitMqVo.getGameRecordId());
-                gameType=4;
+                gameType=5;
                 GameRecord gameRecord=new GameRecord();
                 gameRecord.setCreateTime(gameRecordObty.getCreateTime());
                 gameRecord.setBetId(gameRecordObty.getOrderNo() + "");
@@ -91,6 +91,9 @@ public class LevelShareProfitBusiness {
                 }
                 if (shareProfitMqVo.getPlatform().equals("CQ9")){
                     gameType=3;
+                }
+                if (shareProfitMqVo.getPlatform().equals("SABA")){
+                    gameType=6;
                 }
             }
 

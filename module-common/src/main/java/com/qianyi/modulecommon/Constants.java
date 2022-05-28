@@ -108,6 +108,8 @@ public class Constants {
     public static final String REDIS_SMSCODE = "sms::code::";
     //redis ip单位时间请求次数限制前缀
     public static final String REDIS_IPLIMIT = "ipLimit::";
+    //三方总余额redis缓存可以
+    public static final String REDIS_THRID_SUMBALANCE = "thridBalance::";
     //redis批量邀请码
     public static final String REDIS_INVITECODELIST= "inviteCodeList";
     //redis推广贷补充数据标识
@@ -132,6 +134,7 @@ public class Constants {
     public static final Long WEB_REFRESH_TTL = 60 * 60L * 24;//秒
     public static final Long ADMIN_REFRESH_TTL = 60 * 60L * 24;//秒
     public static final Long PROXY_REFRESH_TTL = 60 * 60L * 24;//秒
+    public static final Long THIRD_BALANCE_TTL = 15 * 60L;//15分钟
 
     public static final String LANGUAGE_CN= "zh-cn"; //中文
     public static final String LANGUAGE_EH= "eh"; //泰语

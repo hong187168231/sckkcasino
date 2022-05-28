@@ -182,6 +182,20 @@
             "url": "/user/oneKeyRecoverApi"
           },
           {
+            "descritpion": "查询用户沙巴余额",
+            "englishName": "SABA Balance",
+            "menuLevel": 3,
+            "name": "查询用户沙巴余额",
+            "url": "/user/refreshSABA"
+          },
+          {
+            "descritpion": "一键回收用户沙巴余额",
+            "englishName": "Restore All SABA Balance",
+            "menuLevel": 3,
+            "name": "一键回收用户沙巴余额",
+            "url": "/user/recoverySABABalance"
+          },
+          {
             "descritpion": "查询用户OB余额",
             "englishName": "OB Balance",
             "menuLevel": 3,
@@ -236,6 +250,13 @@
             "menuLevel": 3,
             "name": "查询玩家OBTY总余额",
             "url": "/user/refreshOBTYTotal"
+          },
+          {
+            "descritpion": "查询玩家沙巴总余额",
+            "englishName": "Search SABA player total balance",
+            "menuLevel": 3,
+            "name": "查询玩家沙巴总余额",
+            "url": "/user/refreshSABATotal"
           },
           {
             "descritpion": "当前查询结果总计",

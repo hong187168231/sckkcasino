@@ -23,7 +23,7 @@ public class SysPermissionRoleService {
     private SysPermissionRoleRepository sysPermissionRoleRepository;
 
     public List<SysPermissionRole> findByRoleId(Long id) {
-        return sysPermissionRoleRepository.findByRoleId(id);
+        return sysPermissionRoleRepository.findByRoleIdOrderByNameDesc(id);
     }
 
     public void saveAll(List<SysPermissionRole> sysPermissionRoleList) {

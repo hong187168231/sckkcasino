@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @ApiModel("用户分润MQ实体")
 public class ShareProfitMqVo implements Serializable {
 
-    @ApiModelProperty(value = "平台:wm,PG,CQ9,OBDJ,OBTY")
+    @ApiModelProperty(value = "平台:wm,PG,CQ9,OBDJ,OBTY,SABA")
     private String platform;
     @ApiModelProperty(value = "用户ID")
     private Long userId;

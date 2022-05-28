@@ -38,9 +38,9 @@ public class UserThirdController {
     @ApiOperation("根据我方用户账号查询三方账号")
     @GetMapping("/findUserThird")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userAccount", value = "用户账号", required = true),
-            @ApiImplicitParam(name = "tag", value = "tag 0 用我方账号查第三方账号 ,1 第三方账号查我方账号", required = true),
-            @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG/CQ9,OBDJ,OBTY", required = false),
+        @ApiImplicitParam(name = "userAccount", value = "用户账号", required = true),
+        @ApiImplicitParam(name = "tag", value = "tag 0 用我方账号查第三方账号 ,1 第三方账号查我方账号", required = true),
+        @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG/CQ9,OBDJ,OBTY,SABA", required = false),
     })
     public ResponseEntity<UserThirdVo> findUserThird(String userAccount,Integer tag,String platform){
         if (CasinoProxyUtil.checkNull(tag,userAccount)){
@@ -234,4 +234,3 @@ public class UserThirdController {
     }
 
 }
-
