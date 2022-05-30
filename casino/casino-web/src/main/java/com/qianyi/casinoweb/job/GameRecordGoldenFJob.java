@@ -285,13 +285,23 @@ public class GameRecordGoldenFJob {
 
 
     private GameRecord combineGameRecord(GameRecordGoldenF item) {
-        AdGame adGame = adGamesService.findByGamePlatformNameAndGameCode(item.getVendorCode(), item.getGameCode());
+        //沙巴体育的gameCode和列表提供的不一致,沙巴只有一款游戏，写死适配下
+        String gameCode = item.getGameCode();
+        String gameName = null;
+        if (Constants.PLATFORM_SABASPORT.equals(item.getVendorCode())) {
+            gameName = "SABA体育";
+        } else {
+            AdGame adGame = adGamesService.findByGamePlatformNameAndGameCode(item.getVendorCode(), item.getGameCode());
+            if (adGame != null) {
+                gameName = adGame.getGameName();
+            }
+        }
         GameRecord gameRecord = new GameRecord();
         gameRecord.setBetId(item.getBetId());
         gameRecord.setValidbet(item.getBetAmount().toString());
         gameRecord.setUserId(item.getUserId());
-        gameRecord.setGameCode(adGame.getGameCode());
-        gameRecord.setGname(adGame.getGameName());
+        gameRecord.setGameCode(gameCode);
+        gameRecord.setGname(gameName);
         gameRecord.setBetTime(item.getCreateAtStr());
         gameRecord.setId(item.getId());
         gameRecord.setFirstProxy(item.getFirstProxy());
