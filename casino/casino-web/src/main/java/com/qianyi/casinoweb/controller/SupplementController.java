@@ -60,7 +60,7 @@ public class SupplementController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "startTime", value = "开始时间,格式为:yyyy-MM-dd HH:mm:ss", required = true),
             @ApiImplicitParam(name = "endTime", value = "结束时间,格式为:yyyy-MM-dd HH:mm:ss", required = true),
-            @ApiImplicitParam(name = "platform", value = "平台：WM,PG,CQ9", required = true),
+            @ApiImplicitParam(name = "platform", value = "平台：WM,PG,CQ9,SABASPORT", required = true),
     })
     public ResponseEntity supplementByPlatform(String platform, String startTime, String endTime) {
         log.info("后台开始补单,platform={},startTime={},endTime={}",platform,startTime,endTime);
@@ -99,7 +99,7 @@ public class SupplementController {
             String wmEndTime = wm.format(endDateTime);
             ResponseEntity response = wmSupplement(Constants.CASINO_WEB, wmStartTime, wmEndTime);
             return response;
-        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)) {
+        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)|| Constants.PLATFORM_SABASPORT.equals(platform)) {
             Long goldenfStartTime = startDateTime.getTime();
             Long goldenfEndTime = endDateTime.getTime();
             ResponseEntity response = goldenFSupplement(Constants.CASINO_WEB, platform, goldenfStartTime, goldenfEndTime);
@@ -224,7 +224,7 @@ public class SupplementController {
             @ApiImplicitParam(name = "secretkey", value = "秘钥", required = true),
             @ApiImplicitParam(name = "startTime", value = "开始时间,13位时间戳", required = true),
             @ApiImplicitParam(name = "endTime", value = "结束时间,13位时间戳", required = true),
-            @ApiImplicitParam(name = "vendorCode", value = "产品代码：PG/CQ9", required = true),
+            @ApiImplicitParam(name = "vendorCode", value = "产品代码：PG/CQ9/SABASPORT", required = true),
     })
     public ResponseEntity goldenFSupplement(String secretkey, String vendorCode, Long startTime, Long endTime) {
         boolean checkNull = CasinoWebUtil.checkNull(secretkey,vendorCode,startTime, endTime);
@@ -234,7 +234,7 @@ public class SupplementController {
         if (!Constants.CASINO_WEB.equals(secretkey)) {
             return ResponseUtil.custom("秘钥错误");
         }
-        if (!Constants.PLATFORM_PG.equals(vendorCode) && !Constants.PLATFORM_CQ9.equals(vendorCode)) {
+        if (!Constants.PLATFORM_PG.equals(vendorCode) && !Constants.PLATFORM_CQ9.equals(vendorCode)&& !Constants.PLATFORM_SABASPORT.equals(vendorCode)) {
             return ResponseUtil.custom("产品代码错误");
         }
         if (startTime.toString().length() != 13 || endTime.toString().length() != 13) {

@@ -214,9 +214,9 @@ public class GameRecordGoldenFJob {
             item.setFirstProxy(user.getFirstProxy());
             item.setSecondProxy(user.getSecondProxy());
             item.setThirdProxy(user.getThirdProxy());
-            if (item.getCreatedAt() == null)
-                log.info("{}", item);
-            item.setCreateAtStr(DateUtil.timeStamp2Date(item.getCreatedAt(), ""));
+            if (item.getCreatedAt() != null){
+                item.setCreateAtStr(DateUtil.timeStamp2Date(item.getCreatedAt(), ""));
+            }
             saveToDB(item, platformConfig);
         });
     }
