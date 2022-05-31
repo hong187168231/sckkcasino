@@ -49,6 +49,9 @@ public class UserThirdController {
         if (tag != CommonConst.NUMBER_0 && tag != CommonConst.NUMBER_1){
             return ResponseUtil.custom("参数不合法");
         }
+        if(tag == CommonConst.NUMBER_1 && CasinoProxyUtil.checkNull(platform)){
+            return ResponseUtil.custom("参数不合法");
+        }
         User user;
         UserThird userThird;
         JSONArray json = new JSONArray();
