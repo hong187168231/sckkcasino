@@ -73,7 +73,7 @@ public class UserThirdController {
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("account",user.getAccount());
                     jsonObject.put("thirdAccount",userThird.getGoldenfAccount());
-                    jsonObject.put("platform","PG/CQ9");
+                    jsonObject.put("platform","PG/CQ9/SABA");
                     json.add(jsonObject);
                 }
                 if (!CasinoProxyUtil.checkNull(userThird.getObdjAccount())){
@@ -112,7 +112,7 @@ public class UserThirdController {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("account",user.getAccount());
                 jsonObject.put("thirdAccount",userThird.getGoldenfAccount());
-                jsonObject.put("platform","PG/CQ9");
+                jsonObject.put("platform","PG/CQ9/SABA");
                 json.add(jsonObject);
             }
         }else{
@@ -140,7 +140,7 @@ public class UserThirdController {
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("account",user.getAccount());
                     jsonObject.put("thirdAccount",userThird.getGoldenfAccount());
-                    jsonObject.put("platform","PG/CQ9");
+                    jsonObject.put("platform","PG/CQ9/SABA");
                     json.add(jsonObject);
                     return ResponseUtil.success(json);
                 }
@@ -225,7 +225,7 @@ public class UserThirdController {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("account",user.getAccount());
                 jsonObject.put("thirdAccount",userThird.getGoldenfAccount());
-                jsonObject.put("platform","PG/CQ9");
+                jsonObject.put("platform","PG/CQ9/SABA");
                 json.add(jsonObject);
             }
 
