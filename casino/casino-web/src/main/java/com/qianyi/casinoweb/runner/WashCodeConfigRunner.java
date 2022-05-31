@@ -1,6 +1,8 @@
 package com.qianyi.casinoweb.runner;
 
+import com.qianyi.casinocore.model.PlatformGame;
 import com.qianyi.casinocore.model.WashCodeConfig;
+import com.qianyi.casinocore.service.PlatformGameService;
 import com.qianyi.casinocore.service.WashCodeConfigService;
 import com.qianyi.modulecommon.Constants;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,8 @@ public class WashCodeConfigRunner implements CommandLineRunner {
 
     @Autowired
     private WashCodeConfigService washCodeConfigService;
+    @Autowired
+    private PlatformGameService platformGameService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -79,7 +83,14 @@ public class WashCodeConfigRunner implements CommandLineRunner {
         codeConfig.setGameId(gameId);
         codeConfig.setGameName(gameName);
         codeConfig.setGameEnName(gameEnName);
+        if (Constants.PLATFORM_OBDJ.equals(platform) || Constants.PLATFORM_OBTY.equals(platform)) {
+            platform = Constants.PLATFORM_OB;
+        }
         codeConfig.setState(Constants.open);
+        PlatformGame platformGame = platformGameService.findByGamePlatformName(platform);
+        if (platformGame != null && platformGame.getGameStatus() == 2) {
+            codeConfig.setState(Constants.close);
+        }
         return codeConfig;
     }
 }

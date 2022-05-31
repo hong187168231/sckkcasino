@@ -12,6 +12,7 @@ import com.qianyi.casinoweb.util.DeviceUtil;
 import com.qianyi.liveob.api.PublicObtyApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
+import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -53,6 +54,11 @@ public class ObtyGameController {
     @ApiOperation("开游戏")
     @PostMapping("/openGame")
     public ResponseEntity<String> openGame(HttpServletRequest request) {
+        //判断平台和游戏状态
+        ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(Constants.PLATFORM_OB, Constants.PLATFORM_OBTY);
+        if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return response;
+        }
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = null;

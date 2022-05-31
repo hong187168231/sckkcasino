@@ -68,6 +68,12 @@ public class ThirdGameBusiness {
     private String ipWhite;
 
     public ResponseEntity oneKeyRecoverGoldenF(Long userId) {
+        ResponseEntity pgEnable = checkPlatformStatus(Constants.PLATFORM_PG);
+        ResponseEntity cq9Enable = checkPlatformStatus(Constants.PLATFORM_CQ9);
+        if (pgEnable.getCode() != ResponseCode.SUCCESS.getCode() && cq9Enable.getCode() != ResponseCode.SUCCESS.getCode()) {
+            log.info("后台开启PG/CQ9维护，禁止回收，pgResponse={},cq9Response={}", pgEnable, cq9Enable);
+            return pgEnable;
+        }
         log.info("开始回收PG/CQ9余额，userId={}", userId);
         if (userId == null) {
             return ResponseUtil.parameterNotNull();
@@ -132,6 +138,11 @@ public class ThirdGameBusiness {
     }
 
     public ResponseEntity oneKeyRecoverWm(Long userId) {
+        ResponseEntity response = checkPlatformStatus(Constants.PLATFORM_WM_BIG);
+        if (response.getCode() != ResponseCode.SUCCESS.getCode()){
+            log.info("后台开启WM维护，禁止回收，response={}",response);
+            return response;
+        }
         log.info("开始回收wm余额，userId={}", userId);
         if (userId == null) {
             return ResponseUtil.parameterNotNull();
@@ -198,6 +209,11 @@ public class ThirdGameBusiness {
     }
 
     public ResponseEntity oneKeyRecoverObdj(Long userId) {
+        ResponseEntity obdjEnable = checkPlatformAndGameStatus(Constants.PLATFORM_OB, Constants.PLATFORM_OBDJ);
+        if (obdjEnable.getCode() != ResponseCode.SUCCESS.getCode()){
+            log.info("后台开启OBDJ维护，禁止回收，response={}",obdjEnable);
+            return obdjEnable;
+        }
         log.info("开始回收OB电竞余额，userId={}", userId);
         if (userId == null) {
             return ResponseUtil.parameterNotNull();
@@ -255,6 +271,11 @@ public class ThirdGameBusiness {
     }
 
     public ResponseEntity oneKeyRecoverObty(Long userId) {
+        ResponseEntity obtyEnable = checkPlatformAndGameStatus(Constants.PLATFORM_OB, Constants.PLATFORM_OBTY);
+        if (obtyEnable.getCode() != ResponseCode.SUCCESS.getCode()){
+            log.info("后台开启OBTY维护，禁止回收，response={}",obtyEnable);
+            return obtyEnable;
+        }
         log.info("开始回收OB体育余额，userId={}", userId);
         if (userId == null) {
             return ResponseUtil.parameterNotNull();

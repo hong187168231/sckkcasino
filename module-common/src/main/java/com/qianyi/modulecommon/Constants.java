@@ -83,6 +83,7 @@ public class Constants {
     public final static String PLATFORM_PG = "PG";
     public final static String PLATFORM_CQ9 = "CQ9";
     public final static String PLATFORM_PG_CQ9 = "PG/CQ9";
+    public final static String PLATFORM_OB = "OB";
     public final static String PLATFORM_OBDJ = "OBDJ";
     public final static String PLATFORM_OBTY = "OBTY";
     //校验数字

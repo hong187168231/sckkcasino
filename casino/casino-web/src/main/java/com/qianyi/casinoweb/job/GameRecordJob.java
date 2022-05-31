@@ -53,12 +53,19 @@ public class GameRecordJob {
     GameRecordAsyncOper gameRecordAsyncOper;
     @Autowired
     UserMoneyBusiness userMoneyBusiness;
+    @Autowired
+    PlatformGameService platformGameService;
     @Value("${spring.profiles.active}")
     String active;
 
     //每隔5分钟执行一次
     @Scheduled(cron = "0 0/5 * * * ?")
     public void pullGameRecord() {
+        PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_WM_BIG);
+        if (platformGame != null && platformGame.getGameStatus() == 2) {
+            log.info("后台已关闭WM,无需拉单,platformGame={}",platformGame);
+            return;
+        }
         log.info("定时器开始拉取游戏记录");
         String timeMsg = null;
         try {

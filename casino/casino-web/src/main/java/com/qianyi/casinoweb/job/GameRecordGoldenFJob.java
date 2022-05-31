@@ -57,8 +57,18 @@ public class GameRecordGoldenFJob {
     //每隔2分钟执行一次
     @Scheduled(cron = "0 0/2 * * * ?")
     public void pullGoldenF() {
-        pullGameRecord(Constants.PLATFORM_PG);
-        pullGameRecord(Constants.PLATFORM_CQ9);
+        PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
+        if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
+            log.info("后台已关闭PG,无需拉单,platformGame={}", pgPlatformGame);
+        } else {
+            pullGameRecord(Constants.PLATFORM_PG);
+        }
+        PlatformGame cq9PlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_CQ9);
+        if (cq9PlatformGame != null && cq9PlatformGame.getGameStatus() == 2) {
+            log.info("后台已关闭CQ9,无需拉单,platformGame={}", cq9PlatformGame);
+        } else {
+            pullGameRecord(Constants.PLATFORM_CQ9);
+        }
     }
 
     private void pullGameRecord(String vendorCode) {

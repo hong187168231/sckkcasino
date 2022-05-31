@@ -56,10 +56,24 @@ public class GameRecordObdjJob {
     private GameRecordAsyncOper gameRecordAsyncOper;
     @Autowired
     private UserMoneyBusiness userMoneyBusiness;
+    @Autowired
+    private AdGamesService adGamesService;
+    @Autowired
+    private PlatformGameService platformGameService;
 
     //每隔6分钟执行一次
     @Scheduled(cron = "0 0/6 * * * ?")
     public void pullGameRecord() {
+        PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
+        if (platformGame != null && platformGame.getGameStatus() == 2) {
+            log.info("后台已关闭OB平台,无需拉单,platformGame={}", platformGame);
+            return;
+        }
+        AdGame adGame = adGamesService.findByGamePlatformNameAndGameCode(Constants.PLATFORM_OB, Constants.PLATFORM_OBDJ);
+        if (adGame != null && adGame.getGamesStatus() == 2) {
+            log.info("后台已关闭OB电竞,无需拉单,adGame={}",adGame);
+            return;
+        }
         log.info("定时器开始拉取OB电竞注单记录");
         GameRecordObEndTime gameRecordObEndTime = gameRecordObEndTimeService.findFirstByVendorCodeAndStatusOrderByEndTimeDesc(Constants.PLATFORM_OBDJ, Constants.yes);
         Long time = gameRecordObEndTime == null ? null : gameRecordObEndTime.getEndTime();
