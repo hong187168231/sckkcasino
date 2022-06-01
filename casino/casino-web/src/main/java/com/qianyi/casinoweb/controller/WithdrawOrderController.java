@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -58,13 +59,26 @@ public class WithdrawOrderController {
             startTime = DateUtil.getMonthAgoStartTime(-1);
             endTime = DateUtil.getEndTime(0);
         }
-        Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, userId,status,startTime,endTime);
+        List<Integer> statusList = new ArrayList();
+        if (status != null) {
+            if (status == 0) {
+                statusList.add(0);
+                statusList.add(6);
+                statusList.add(7);
+            } else if (status == 1) {
+                statusList.add(1);
+            } else if (status == 2) {
+                statusList.add(2);
+                statusList.add(8);
+            }
+        }
+        Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, userId,statusList,startTime,endTime);
         List<WithdrawOrder> content = withdrawOrderPage.getContent();
         if (!CollectionUtils.isEmpty(content)) {
             for (WithdrawOrder withdrawOrder : content) {
                 Integer orderStatus = withdrawOrder.getStatus();
                 //总控和代理的操作为人工操作
-                if (orderStatus != null && (orderStatus == 4 || orderStatus == 5)) {
+                if (orderStatus != null && (orderStatus == 4 || orderStatus == 5 || orderStatus == 6 || orderStatus == 7 || orderStatus == 8)) {
                     withdrawOrder.setRemitType(4);
                 }
             }
