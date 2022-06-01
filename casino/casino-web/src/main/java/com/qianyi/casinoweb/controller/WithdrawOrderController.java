@@ -59,6 +59,7 @@ public class WithdrawOrderController {
             startTime = DateUtil.getMonthAgoStartTime(-1);
             endTime = DateUtil.getEndTime(0);
         }
+        //合并状态
         List<Integer> statusList = new ArrayList();
         if (status != null) {
             if (status == 0) {
@@ -78,8 +79,16 @@ public class WithdrawOrderController {
             for (WithdrawOrder withdrawOrder : content) {
                 Integer orderStatus = withdrawOrder.getStatus();
                 //总控和代理的操作为人工操作
-                if (orderStatus != null && (orderStatus == 4 || orderStatus == 5 || orderStatus == 6 || orderStatus == 7 || orderStatus == 8)) {
-                    withdrawOrder.setRemitType(4);
+                if (orderStatus != null ){
+                    if (orderStatus == 4 || orderStatus == 5 || orderStatus == 6 || orderStatus == 7 || orderStatus == 8) {
+                        withdrawOrder.setRemitType(4);
+                    }
+                    //合并状态
+                    if (orderStatus == 6 || orderStatus == 7) {
+                        withdrawOrder.setStatus(0);
+                    } else if (orderStatus == 8) {
+                        withdrawOrder.setStatus(2);
+                    }
                 }
             }
         }
