@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -68,12 +69,40 @@ public class AdGameInitialization implements CommandLineRunner {
      */
     private void addPlatformGame() {
         List<PlatformGame> platformGameList = platformGameService.findAll();
+
         if(platformGameList == null || platformGameList.isEmpty()){
             List<PlatformGame> platformGames = new ArrayList<>();
             platformGames.add(new PlatformGame("WM", 1));
             platformGames.add(new PlatformGame("PG", 1));
             platformGames.add(new PlatformGame("CQ9", 1));
+            platformGames.add(new PlatformGame("OB", 1));
             platformGameService.saveAll(platformGames);
+        }
+
+
+        List<PlatformGame> platforms = new ArrayList<>();
+        List<String> collect = platformGameList.stream().map(PlatformGame::getGamePlatformName).collect(Collectors.toList());
+        if(!collect.contains("OB")) {
+            platforms.add(new PlatformGame("OB", 1));
+            platformGameService.saveAll(platforms);
+            AdGame obdjGame = new AdGame("OB", "OBDJ", "欧博电竞", "OBDJ", 1);
+            AdGame obtyGame = new AdGame("OB", "OBTY", "欧博体育", "OBTY", 1);
+            List<AdGame> adGameList = new ArrayList<>();
+            adGameList.add(obdjGame);
+            adGameList.add(obtyGame);
+            adGamesService.saveAll(adGameList);
+
+        }
+        if(!collect.contains("SABASPORT")) {
+            platforms.add(new PlatformGame("SABASPORT", 2));
+            platformGameService.saveAll(platforms);
+            AdGame obdjGame = new AdGame("SABASPORT", "sabasport_pc", "SABA体育(PC)", "SABASPORT(PC)", 1);
+            AdGame obtyGame = new AdGame("SABASPORT", "sabasport_h5", "SABA体育(H5)", "SABASPORT(H5)", 1);
+            List<AdGame> adGameList = new ArrayList<>();
+            adGameList.add(obdjGame);
+            adGameList.add(obtyGame);
+            adGamesService.saveAll(adGameList);
+
         }
 
     }
