@@ -369,6 +369,8 @@ public class UserMoneyBusiness {
             rate = rebateConfiguration.getPGRate();
         } else if (Constants.PLATFORM_CQ9.equals(platform)) {
             rate = rebateConfiguration.getCQ9Rate();
+        } else if (Constants.PLATFORM_SABASPORT.equals(platform)) {
+            rate = rebateConfiguration.getSABASPORTRate();
         } else if (Constants.PLATFORM_OBDJ.equals(platform)) {
             rate = rebateConfiguration.getOBDJRate();
         } else if (Constants.PLATFORM_OBTY.equals(platform)) {
