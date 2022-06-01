@@ -390,7 +390,7 @@ public class UserMoneyService {
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null?"":first.getWebConfiguration();
             WMurl = WMurl + OB_refreshUrl;
-            String s = HttpClient4Util.get(WMurl + param);
+            String s = HttpClient4Util.getWeb(WMurl + param);
             log.info("{}查询OB余额web接口返回{}",userId,s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
