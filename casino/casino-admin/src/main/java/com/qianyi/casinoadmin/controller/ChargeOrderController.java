@@ -83,6 +83,7 @@ public class ChargeOrderController {
             @ApiImplicitParam(name = "startDate", value = "起始时间", required = false),
             @ApiImplicitParam(name = "endDate", value = "结束时间", required = false),
     })
+    @NoAuthorization
     @GetMapping("/chargeOrderList")
     public ResponseEntity<ChargeOrderVo> chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String orderNo,
                                                          String account,Integer type,

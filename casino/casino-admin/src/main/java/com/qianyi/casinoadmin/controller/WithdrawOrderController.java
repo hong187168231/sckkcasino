@@ -71,6 +71,7 @@ public class WithdrawOrderController {
             @ApiImplicitParam(name = "bankName", value = "银行名称", required = false),
             @ApiImplicitParam(name = "type", value = "会员类型:0、公司会员，1、渠道会员", required = false),
     })
+    @NoAuthorization
     @GetMapping("/withdrawList")
     public ResponseEntity<WithdrawOrderVo> withdrawList(Integer pageSize,Integer pageCode, Integer status, String account,
                                                         String no, String bankId,Integer type,String realName,String bankName,
