@@ -80,7 +80,7 @@ public class WithdrawOrderController {
                 Integer orderStatus = withdrawOrder.getStatus();
                 //总控和代理的操作为人工操作
                 if (orderStatus != null ){
-                    if (orderStatus == 4 || orderStatus == 5 || orderStatus == 6 || orderStatus == 7 || orderStatus == 8) {
+                    if (orderStatus == 4 || orderStatus == 5) {
                         withdrawOrder.setRemitType(4);
                     }
                     //合并状态
