@@ -96,11 +96,11 @@ public class AdGameInitialization implements CommandLineRunner {
         if(!collect.contains("SABASPORT")) {
             platforms.add(new PlatformGame("SABASPORT", 2));
             platformGameService.saveAll(platforms);
-            AdGame obdjGame = new AdGame("SABASPORT", "sabasport_pc", "SABA体育(PC)", "SABASPORT(PC)", 1);
-            AdGame obtyGame = new AdGame("SABASPORT", "sabasport_h5", "SABA体育(H5)", "SABASPORT(H5)", 1);
+            AdGame sbpcGame = new AdGame("SABASPORT", "sabasport_pc", "SABA体育(PC)", "SABASPORT(PC)", 1);
+            AdGame sbh5Game = new AdGame("SABASPORT", "sabasport_h5", "SABA体育(H5)", "SABASPORT(H5)", 1);
             List<AdGame> adGameList = new ArrayList<>();
-            adGameList.add(obdjGame);
-            adGameList.add(obtyGame);
+            adGameList.add(sbpcGame);
+            adGameList.add(sbh5Game);
             adGamesService.saveAll(adGameList);
 
         }
