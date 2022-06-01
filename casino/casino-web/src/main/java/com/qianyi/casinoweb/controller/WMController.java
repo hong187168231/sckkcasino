@@ -294,10 +294,10 @@ public class WMController {
     @GetMapping("getWmBalance")
     public ResponseEntity<BigDecimal> getWmBalance() {
         //判断平台状态
-        ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
-        if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
-            return response;
-        }
+//        ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
+//        if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+//            return response;
+//        }
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
@@ -333,10 +333,10 @@ public class WMController {
     })
     public ResponseEntity<BigDecimal> getWmBalanceApi(String account, Integer lang) {
         //判断平台状态
-        ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
-        if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
-            return response;
-        }
+//        ResponseEntity response = thirdGameBusiness.checkPlatformStatus(Constants.PLATFORM_WM_BIG);
+//        if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+//            return response;
+//        }
         log.info("开始查询WM余额:account={},lang={}", account, lang);
         Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
         if (!ipWhiteCheck) {
