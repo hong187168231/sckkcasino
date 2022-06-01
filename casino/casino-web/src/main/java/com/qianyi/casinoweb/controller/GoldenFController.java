@@ -294,7 +294,7 @@ public class GoldenFController {
             @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = false)
     })
     public ResponseEntity<BigDecimal> getBalanceApi(Long userId,String vendorCode) {
-        log.info("开始查询PG/CQ9余额:userId={}", userId);
+        log.info("开始查询{}余额:userId={}", vendorCode,userId);
         Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
         if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
@@ -333,46 +333,6 @@ public class GoldenFController {
         }
         return thirdGameBusiness.oneKeyRecoverGoldenF(userId,vendorCode);
     }
-/*
-
-    @ApiOperation("WM,PG/CQ9游戏列表")
-    @GetMapping("/gameList")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "vendorCode", value = "产品代码:WM,PG,CQ9", required = true),
-            @ApiImplicitParam(name = "gameName", value = "游戏名称", required = false),
-    })
-    @NoAuthentication
-    public ResponseEntity<List<AdGame>> gameList(String vendorCode, String gameName, HttpServletRequest request) {
-        if (CasinoWebUtil.checkNull(vendorCode)) {
-            return ResponseUtil.parameterNotNull();
-        }
-        PlatformGame platformGame = platformGameService.findByGamePlatformName(vendorCode);
-        if (platformGame == null) {
-            return ResponseUtil.custom("产品不存在");
-        }
-        if (platformGame.getGameStatus() == 0) {
-            return ResponseUtil.custom("产品维护中");
-        }
-        List<AdGame> gameList = new ArrayList<>();
-        List<Integer> gameStatus = new ArrayList<>();
-        gameStatus.add(0);
-        gameStatus.add(1);
-        if (ObjectUtils.isEmpty(gameName)) {
-            gameList = adGamesService.findByGamePlatformNameAndGamesStatusIn(vendorCode, gameStatus);
-        } else {
-            gameList = adGamesService.findByGamePlatformNameAndGameNameLikeAndGamesStatusIn(vendorCode, gameName, gameStatus);
-        }
-        String language = request.getHeader(Constants.LANGUAGE);
-        if (Locale.CHINA.toString().equals(language)) {
-            return ResponseUtil.success(gameList);
-        }
-        for (AdGame adGame : gameList) {
-            adGame.setGameName(adGame.getGameEnName());
-        }
-        return ResponseUtil.success(gameList);
-    }
-*/
-
 
     @ApiOperation("查询WM,PG,CQ9,OB电竞,OB体育,沙巴体育，隐藏、维护状态的游戏")
     @GetMapping("/maintenanceGameList")

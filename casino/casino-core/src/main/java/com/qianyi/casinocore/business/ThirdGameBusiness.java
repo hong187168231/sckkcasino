@@ -69,6 +69,10 @@ public class ThirdGameBusiness {
     private String ipWhite;
 
     public ResponseEntity oneKeyRecoverGoldenF(Long userId,String vendorCode) {
+        //适配PG/CQ9
+        if (ObjectUtils.isEmpty(vendorCode)) {
+            vendorCode = Constants.PLATFORM_PG_CQ9;
+        }
         log.info("开始回收{}余额，userId={}", vendorCode,userId);
         if (ObjectUtils.isEmpty(userId)) {
             return ResponseUtil.parameterNotNull();
