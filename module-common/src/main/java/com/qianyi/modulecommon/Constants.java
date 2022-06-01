@@ -87,6 +87,8 @@ public class Constants {
     public final static String PLATFORM_OBDJ = "OBDJ";
     public final static String PLATFORM_OBTY = "OBTY";
     public final static String PLATFORM_SABASPORT = "SABASPORT";
+
+    public final static String[] PLATFORM_ARRAY = {PLATFORM_WM, PLATFORM_PG, PLATFORM_CQ9, PLATFORM_OBDJ, PLATFORM_OBTY, PLATFORM_SABASPORT};
     //校验数字
     public static final String regex = "^[0-9]*$";
     //校验手机号

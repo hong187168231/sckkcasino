@@ -34,18 +34,10 @@ public class WashCodeChangeService {
 
     public List<WashCodeChange> getList(Long userId, String startTime, String endTime) {
         List<WashCodeChange> list =new ArrayList<>();
-        List<WashCodeChange> wmList = getWashCodeList(Constants.PLATFORM_WM, userId, startTime, endTime);
-        List<WashCodeChange> pgList = getWashCodeList(Constants.PLATFORM_PG, userId, startTime, endTime);
-        List<WashCodeChange> cq9List = getWashCodeList(Constants.PLATFORM_CQ9, userId, startTime, endTime);
-        List<WashCodeChange> sabaList = getWashCodeList(Constants.PLATFORM_SABASPORT, userId, startTime, endTime);
-        List<WashCodeChange> obdjList = getWashCodeList(Constants.PLATFORM_OBDJ, userId, startTime, endTime);
-        List<WashCodeChange> obtyList = getWashCodeList(Constants.PLATFORM_OBTY, userId, startTime, endTime);
-        list.addAll(wmList);
-        list.addAll(pgList);
-        list.addAll(cq9List);
-        list.addAll(sabaList);
-        list.addAll(obdjList);
-        list.addAll(obtyList);
+        for (String platform : Constants.PLATFORM_ARRAY) {
+            List<WashCodeChange> dataList = getWashCodeList(platform, userId, startTime, endTime);
+            list.addAll(dataList);
+        }
         return list;
     }
     public List<WashCodeChange> getWashCodeList(String platform,Long userId, String startTime, String endTime) {

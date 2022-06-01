@@ -38,11 +38,14 @@ public class UserWashCodeConfigService {
 
     public List<WashCodeConfig> getWashCodeConfig(String platform,Long userId) {
         //先查询用户级的洗码配置
-        List<UserWashCodeConfig> codeConfigs = userWashCodeConfigRepository.findByUserIdAndPlatformAndState(userId, platform,Constants.open);
+        List<UserWashCodeConfig> codeConfigs = userWashCodeConfigRepository.findByUserIdAndPlatform(userId, platform);
         if (!CollectionUtils.isEmpty(codeConfigs)) {
             List<WashCodeConfig> list = new ArrayList<>();
             WashCodeConfig config = null;
             for (UserWashCodeConfig codeConfig : codeConfigs) {
+                if (codeConfig.getState() != Constants.open) {
+                    continue;
+                }
                 config = new WashCodeConfig();
                 BeanUtils.copyProperties(codeConfig, config);
                 list.add(config);
@@ -55,21 +58,12 @@ public class UserWashCodeConfigService {
     }
 
     public List<WashCodeConfig> getWashCodeConfig(Long userId) {
-        //先查询用户级的洗码配置
-        List<UserWashCodeConfig> codeConfigs = userWashCodeConfigRepository.findByUserIdAndState(userId, Constants.open);
-        if (!CollectionUtils.isEmpty(codeConfigs)) {
-            List<WashCodeConfig> list = new ArrayList<>();
-            WashCodeConfig config = null;
-            for (UserWashCodeConfig codeConfig : codeConfigs) {
-                config = new WashCodeConfig();
-                BeanUtils.copyProperties(codeConfig, config);
-                list.add(config);
-            }
-            return list;
+        List<WashCodeConfig> washCodeList = new ArrayList<>();
+        for (String platform : Constants.PLATFORM_ARRAY) {
+            List<WashCodeConfig> washCodeConfig = getWashCodeConfig(platform, userId);
+            washCodeList.addAll(washCodeConfig);
         }
-        //先查询全局洗码配置
-        List<WashCodeConfig> configs = washCodeConfigService.findByState(Constants.open);
-        return configs;
+        return washCodeList;
     }
 
     public WashCodeConfig getWashCodeConfigByUserIdAndGameId(String platform,Long userId,String gameId) {
