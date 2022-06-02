@@ -175,6 +175,9 @@ public class GameRecordGoldenFService {
                 if (!CommonUtil.checkNull(gameRecordGoldenF.getVendorCode())) {
                     list.add(cb.equal(root.get("vendorCode").as(String.class), gameRecordGoldenF.getVendorCode()));
                 }
+                if (!CommonUtil.checkNull(gameRecordGoldenF.getTransType())) {
+                    list.add(cb.equal(root.get("transType").as(String.class), gameRecordGoldenF.getTransType()));
+                }
                 if (!CommonUtil.checkNull(gameRecordGoldenF.getGameCode())) {
                     list.add(cb.equal(root.get("gameCode").as(String.class), gameRecordGoldenF.getGameCode()));
                 }
@@ -262,6 +265,9 @@ public class GameRecordGoldenFService {
         }
         if (!CommonUtil.checkNull(gameRecordGoldenF.getVendorCode())) {
             list.add(cb.equal(root.get("vendorCode").as(String.class), gameRecordGoldenF.getVendorCode()));
+        }
+        if (!CommonUtil.checkNull(gameRecordGoldenF.getTransType())) {
+            list.add(cb.equal(root.get("transType").as(String.class), gameRecordGoldenF.getTransType()));
         }
         if (!CommonUtil.checkNull(gameRecordGoldenF.getGameCode())) {
             list.add(cb.equal(root.get("gameCode").as(String.class), gameRecordGoldenF.getGameCode()));
