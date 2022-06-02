@@ -87,11 +87,38 @@ public class PlatformGameController {
         return ResponseUtil.success();
     }
 
+    @GetMapping("/platformListOB")
+    @ApiOperation("平台列表OB")
+    public ResponseEntity<PlatformGame> platformListOB() {
+        List<PlatformGame> platformGames =  platformGameService.findAll();
+        if(platformGames != null && !platformGames.isEmpty()){
+            for (PlatformGame platformGame : platformGames) {
+                if(platformGame.getGamePlatformName().equals(Constants.PLATFORM_OB)){
+                    return ResponseUtil.success(platformGame);
+                }
+            }
+        }
+        return ResponseUtil.success();
+    }
+
+    @GetMapping("/platformListSBTY")
+    @ApiOperation("平台列表沙巴体育")
+    public ResponseEntity<PlatformGame> platformListSBTY() {
+        List<PlatformGame> platformGames =  platformGameService.findAll();
+        if(platformGames != null && !platformGames.isEmpty()){
+            for (PlatformGame platformGame : platformGames) {
+                if(platformGame.getGamePlatformName().equals(Constants.PLATFORM_SABASPORT)){
+                    return ResponseUtil.success(platformGame);
+                }
+            }
+        }
+        return ResponseUtil.success();
+    }
 
     @ApiOperation("三方平台维护")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "id", required = true),
-            @ApiImplicitParam(name = "gameStatus", value = "平台状态：0：维护，1：正常，2：隐藏", required = true)
+        @ApiImplicitParam(name = "id", value = "id", required = true),
+        @ApiImplicitParam(name = "gameStatus", value = "平台状态：0：维护，1：正常，2：隐藏", required = true)
     })
     @PostMapping("/updatePlatformStatus")
     public ResponseEntity<PlatformGame> updatePlatformStatus(Long id,Integer gameStatus){
@@ -109,11 +136,11 @@ public class PlatformGameController {
     @GetMapping("/findGameList")
     @ApiOperation("游戏列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
-            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "gamePlatformName", value = "平台名称名称", required = true),
-            @ApiImplicitParam(name = "gameName", value = "游戏名称", required = false),
-            @ApiImplicitParam(name = "gamesStatus", value = "是否维护 0：维护 1：正常, 2：隐藏", required = false)
+        @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "gamePlatformName", value = "平台名称名称", required = true),
+        @ApiImplicitParam(name = "gameName", value = "游戏名称", required = false),
+        @ApiImplicitParam(name = "gamesStatus", value = "是否维护 0：维护 1：正常, 2：隐藏", required = false)
     })
     public ResponseEntity<AdGame> findGameList(Integer pageSize, Integer pageCode,String gamePlatformName, String gameName, Integer gamesStatus) {
         if (LoginUtil.checkNull(gamePlatformName)) {
@@ -138,8 +165,8 @@ public class PlatformGameController {
 
     @ApiOperation("游戏维护")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "gameIdList", value = "id集合", required = true),
-            @ApiImplicitParam(name = "gameStatus", value = "平台状态：0：维护，1：正常, 2:隐藏", required = true)
+        @ApiImplicitParam(name = "gameIdList", value = "id集合", required = true),
+        @ApiImplicitParam(name = "gameStatus", value = "平台状态：0：维护，1：正常, 2:隐藏", required = true)
     })
     @PostMapping("/updateDomainName")
     public ResponseEntity<AdGame> updateGameStatus(@RequestBody List<String> gameIdList, Integer gameStatus){
