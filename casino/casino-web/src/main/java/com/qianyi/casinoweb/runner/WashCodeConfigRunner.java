@@ -70,11 +70,11 @@ public class WashCodeConfigRunner implements CommandLineRunner {
         list.add(setData(Constants.PLATFORM_WM,"112", "温州牌九", "Wenzhou Pai Gow"));
         list.add(setData(Constants.PLATFORM_WM,"113", "二八杠", "Mahjong tiles"));
         list.add(setData(Constants.PLATFORM_WM,"128", "安達巴哈", "AndarBahar"));
-        list.add(setData(Constants.PLATFORM_PG,"PG", "PG", "PG"));
-        list.add(setData(Constants.PLATFORM_CQ9,"CQ9", "CQ9", "CQ9"));
-        list.add(setData(Constants.PLATFORM_OBDJ,"OBDJ", "OB电竞", "OB eSports"));
-        list.add(setData(Constants.PLATFORM_OBTY,"OBTY", "OB体育", "OB Sports"));
-        list.add(setData(Constants.PLATFORM_SABASPORT,"SABASPORT", "沙巴体育", "SABASPORT"));
+        list.add(setData(Constants.PLATFORM_PG,Constants.PLATFORM_PG, "PG", "PG"));
+        list.add(setData(Constants.PLATFORM_CQ9,Constants.PLATFORM_CQ9, "CQ9", "CQ9"));
+        list.add(setData(Constants.PLATFORM_OBDJ,Constants.PLATFORM_OBDJ, "OB电竞", "OB eSports"));
+        list.add(setData(Constants.PLATFORM_OBTY,Constants.PLATFORM_OBTY, "OB体育", "OB Sports"));
+        list.add(setData(Constants.PLATFORM_SABASPORT,Constants.PLATFORM_SABASPORT, "沙巴体育", "SABASPORT"));
         return list;
     }
 
