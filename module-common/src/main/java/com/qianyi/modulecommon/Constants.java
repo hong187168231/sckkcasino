@@ -28,6 +28,8 @@ public class Constants {
     public final static Integer CODENUMCHANGE_CHARGE = 2;//充值2
     public final static Integer CODENUMCHANGE_MASTERCONTROL = 3;//总控上分3
     public final static Integer CODENUMCHANGE_PROXY = 4;//代理上分4
+    public final static Integer WITHDRAWORDER_MASTERCONTROL = 5;//总控下分
+    public final static Integer WITHDRAWORDER_PROXY = 6;//代理下分
 
     //充值订单状态
     public final static Integer chargeOrder_wait = 0;//原始状态，未接单
@@ -39,14 +41,17 @@ public class Constants {
     //提现订单状态 1：通过，2：拒绝，3：冻结
     public final static Integer withdrawOrder_wait = 0;//原始状态，未接单
     public final static Integer withdrawOrder_success = 1;//确认成功
-    public final static Integer withdrawOrder_fail = 2;//拒绝
+    public final static Integer withdrawOrder_fail = 2;//审核拒绝
     public final static Integer withdrawOrder_freeze = 3;//冻结
     public final static Integer withdrawOrder_masterControl = 4;//总控下分
     public final static Integer withdrawOrder_proxy = 5;//代理下分
+    public final static Integer review_the_order = 6;//审核接单
+    public final static Integer pass_the_audit = 7;//审核通过
+    public final static Integer paragraph_to_refuse = 8;//出款拒绝
     /** 单个用户银行卡最大绑定数量 */
     public final static Integer BANK_USER_BOUND_MAX = 6;
 
-    
+
     //会员状态
     public final static Integer USER_NORMAL = 1; //正常
     public final static Integer USER_LOCK_ACCOUNT = 2; //冻结账户
