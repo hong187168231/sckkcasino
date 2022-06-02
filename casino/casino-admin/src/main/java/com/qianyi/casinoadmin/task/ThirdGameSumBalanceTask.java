@@ -42,6 +42,9 @@ public class ThirdGameSumBalanceTask {
     private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_10);
 
 
+    /**
+     * year要求10分钟跑一次
+     */
     @Scheduled(cron = TaskConst.BACK_GAME_ORDER)
     public void create(){
         //查询WM总余额
