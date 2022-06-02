@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModel;
@@ -10,6 +11,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 @Entity
@@ -18,7 +20,7 @@ public class WithdrawOrder extends BaseEntity {
 
     @ApiModelProperty(value = "用户id")
     private Long userId;
-    @ApiModelProperty(value = "状态 0: 未确认 1：通过，2：拒绝，4.总控下分 5.代理下分")
+    @ApiModelProperty(value = "状态 0: 未确认 1：通过，2：审核拒绝，4.总控下分 5.代理下分 6.审核接单(审核中) 7.审核通过 8 出款拒绝")
     private Integer status;
     @ApiModelProperty(value = "订单号")
     private String no;
@@ -51,7 +53,10 @@ public class WithdrawOrder extends BaseEntity {
     @ApiModelProperty(value = "收款方式 1银行卡 2支付宝 3微信 4人工操作")
     private Integer remitType;
 
-    @ApiModelProperty(value = "备注")
+    @ApiModelProperty(value = "审核备注")
+    private String auditRemark;
+
+    @ApiModelProperty(value = "出款备注")
     private String remark;
 
     @ApiModelProperty("总代ID")
@@ -63,11 +68,25 @@ public class WithdrawOrder extends BaseEntity {
     @ApiModelProperty("基层代理ID")
     private Long thirdProxy;
 
-    @ApiModelProperty("审核人")
+    @ApiModelProperty("财务出款人")
     private String lastModifier;
 
     @ApiModelProperty("会员类型:0、公司会员，1、渠道会员")
     private Integer type;
+
+    @ApiModelProperty("审核人Id")
+    private Long auditId = 0L;
+
+    //    @ApiModelProperty("出款人Id")
+    //    private Long withdraw = 0L;
+
+    @ApiModelProperty("审核时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date auditTime;
+
+    @ApiModelProperty("出款时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date withdrawTime;
 
     public WithdrawOrder(){
     }

@@ -55,6 +55,12 @@ public class SysUserService {
         return userList;
     }
 
+    public List<SysUser> findAllLong(List<Long> sysUserIds) {
+        Specification<SysUser> condition = getConditionLong(sysUserIds);
+        List<SysUser> userList = sysUserRepository.findAll(condition);
+        return userList;
+    }
+
     private Specification<SysUser> getCondition(List<String> sysUserIds) {
         Specification<SysUser> specification = new Specification<SysUser>() {
             @Override
@@ -70,6 +76,26 @@ public class SysUserService {
                         }catch (Exception e){
                             continue;
                         }
+                    }
+                    list.add(cb.and(cb.and(in)));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
+    }
+
+    private Specification<SysUser> getConditionLong(List<Long> sysUserIds) {
+        Specification<SysUser> specification = new Specification<SysUser>() {
+            @Override
+            public Predicate toPredicate(Root<SysUser> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                Predicate predicate = cb.conjunction();
+                if (sysUserIds != null && sysUserIds.size() > 0) {
+                    Path<Object> userId = root.get("id");
+                    CriteriaBuilder.In<Object> in = cb.in(userId);
+                    for (Long id : sysUserIds) {
+                        in.value(id);
                     }
                     list.add(cb.and(cb.and(in)));
                 }

@@ -27,6 +27,8 @@ public class GameRecordObdjVo implements Serializable {
     private String oddName;
     @ApiModelProperty(value = "第几局")
     private Integer round;
+    @ApiModelProperty(value = "注单号")
+    private Long betId;
     @ApiModelProperty(value = "赔率")
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal odd;

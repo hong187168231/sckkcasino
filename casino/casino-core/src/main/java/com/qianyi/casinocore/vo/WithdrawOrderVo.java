@@ -43,7 +43,9 @@ public class WithdrawOrderVo implements Serializable {
     private Integer remitType;
     @ApiModelProperty("会员类型:0、公司会员，1、渠道会员")
     private Integer type;
-    @ApiModelProperty(value = "备注")
+    @ApiModelProperty(value = "审核备注")
+    private String auditRemark;
+    @ApiModelProperty(value = "出款备注")
     private String remark;
     @ApiModelProperty("创建时间")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -55,6 +57,17 @@ public class WithdrawOrderVo implements Serializable {
     private Date updateTime;
     @ApiModelProperty("最后修改人")
     private String updateBy;
+    @ApiModelProperty("出款操作人")
+    private String lastModifier;
+    @ApiModelProperty("出款时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date withdrawTime;
+    @ApiModelProperty("审核操作人")
+    private String auditIdModifier;
+    @ApiModelProperty("审核时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date auditTime;
+
     public WithdrawOrderVo(WithdrawOrder withdrawOrder){
         this.id = withdrawOrder.getId();
         this.userId = withdrawOrder.getUserId();
@@ -66,11 +79,15 @@ public class WithdrawOrderVo implements Serializable {
         this.remitType = withdrawOrder.getRemitType();
         this.status = withdrawOrder.getStatus();
         this.type = withdrawOrder.getType();
+        this.auditRemark = withdrawOrder.getAuditRemark();
         this.remark = withdrawOrder.getRemark();
         this.createBy = withdrawOrder.getCreateBy();
         this.createTime =withdrawOrder.getCreateTime();
-        this.updateBy = withdrawOrder.getLastModifier();
+        this.updateBy = withdrawOrder.getUpdateBy();
         this.updateTime = withdrawOrder.getUpdateTime();
+        this.lastModifier = withdrawOrder.getLastModifier();
+        this.withdrawTime = withdrawOrder.getWithdrawTime();
+        this.auditTime = withdrawOrder.getAuditTime();
     }
     public WithdrawOrderVo(){
 

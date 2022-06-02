@@ -143,6 +143,23 @@ public class Initialization implements CommandLineRunner {
                 extractPointsConfigService.save(extractPointsConfig);
                 log.info("OBTY代理抽点配置保存成功{}",extractPointsConfig);
             }
+
+            log.info("初始化SABASPORT代理抽点配置");
+            List<ExtractPointsConfig> sbty = extractPointsConfigService.findByPlatform(Constants.PLATFORM_SABASPORT);
+            log.info("SABASPORT代理抽点配置{}",sbty);
+            if (sbty == null || sbty.size() == 0){
+                ExtractPointsConfig extractPointsConfig = new ExtractPointsConfig();
+                extractPointsConfig.setGameId(Constants.PLATFORM_SABASPORT);
+                extractPointsConfig.setGameName("沙巴体育");
+                extractPointsConfig.setPlatform(Constants.PLATFORM_SABASPORT);
+                extractPointsConfig.setGameEnName(Constants.PLATFORM_SABASPORT);
+                extractPointsConfig.setRate(BigDecimal.ZERO);
+                extractPointsConfig.setState(1);
+                extractPointsConfig.setCreateBy("0");
+                extractPointsConfig.setUpdateBy("0");
+                extractPointsConfigService.save(extractPointsConfig);
+                log.info("SABASPORT代理抽点配置保存成功{}",extractPointsConfig);
+            }
         }catch (Exception ex){
             log.error("初始化代理抽点配置失败{}",ex);
         }
@@ -159,6 +176,7 @@ public class Initialization implements CommandLineRunner {
                 proxyWashCodeConfig.setPGRate(new BigDecimal(0.9));
                 proxyWashCodeConfig.setOBDJRate(new BigDecimal(0.9));
                 proxyWashCodeConfig.setOBTYRate(new BigDecimal(0.9));
+                proxyWashCodeConfig.setSABASPORTRate(new BigDecimal(0.9));
                 proxyWashCodeConfig.setUserId(0L);
                 proxyWashCodeConfig.setType(Constants.OVERALL_TYPE);
                 rebateConfigurationService.save(proxyWashCodeConfig);
@@ -206,6 +224,7 @@ public class Initialization implements CommandLineRunner {
             first.setCQ9MaxId(0L);
             first.setOBDJMaxId(0L);
             first.setOBTYMaxId(0L);
+            first.setSABASPORTMaxId(0L);
             gameRecordEndIndexService.save(first);
         }else {
             first.setGameRecordId(first.getGameRecordId()==null?0L:first.getGameRecordId());
@@ -213,6 +232,7 @@ public class Initialization implements CommandLineRunner {
             first.setCQ9MaxId(first.getCQ9MaxId()==null?0L:first.getCQ9MaxId());
             first.setOBDJMaxId(first.getOBDJMaxId()==null?0L:first.getOBDJMaxId());
             first.setOBTYMaxId(first.getOBTYMaxId()==null?0L:first.getOBTYMaxId());
+            first.setSABASPORTMaxId(first.getSABASPORTMaxId()==null?0L:first.getSABASPORTMaxId());
             gameRecordEndIndexService.save(first);
         }
     }
@@ -344,6 +364,11 @@ public class Initialization implements CommandLineRunner {
             log.info("全局代理返佣等级配置obty{}",obty);
             if(obty==null){
                 addRebateConfig(5);
+            }
+            RebateConfig sbty = rebateConfigService.findGameType(6);
+            log.info("全局代理返佣等级配置sbty{}",sbty);
+            if(sbty==null){
+                addRebateConfig(6);
             }
         }catch (Exception ex){
             log.error("初始全局代理返佣等级配置失败{}",ex);

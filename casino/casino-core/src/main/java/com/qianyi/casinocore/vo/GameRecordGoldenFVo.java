@@ -27,6 +27,8 @@ public class GameRecordGoldenFVo implements Serializable {
     private String betId;
     @ApiModelProperty(value = "游戏代码")
     private String gameCode;
+    @ApiModelProperty(value = "交易类型")
+    private String transType;
     @ApiModelProperty(value = "下注金额")
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal betAmount;

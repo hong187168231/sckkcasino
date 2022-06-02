@@ -53,11 +53,12 @@ public class ReportController {
     public static final List<String> platforms = new ArrayList<>();
 
     static {
-        platforms.add("WM");
-        platforms.add("PG");
-        platforms.add("CQ9");
+        platforms.add(Constants.PLATFORM_WM_BIG);
+        platforms.add(Constants.PLATFORM_PG);
+        platforms.add(Constants.PLATFORM_CQ9);
         platforms.add(Constants.PLATFORM_OBDJ);
         platforms.add(Constants.PLATFORM_OBTY);
+        platforms.add(Constants.PLATFORM_SABASPORT);
     }
 
     //    @NoAuthorization

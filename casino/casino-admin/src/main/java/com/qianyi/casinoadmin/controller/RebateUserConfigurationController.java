@@ -79,12 +79,16 @@ public class RebateUserConfigurationController {
         if (proxyWashCodeConfig.getOBTYRate().compareTo(new BigDecimal(CommonConst.NUMBER_100)) > 0 || proxyWashCodeConfig.getOBTYRate().compareTo(BigDecimal.ZERO) < 0){
             return ResponseUtil.custom("参数不合法");
         }
+        if (proxyWashCodeConfig.getSABASPORTRate().compareTo(new BigDecimal(CommonConst.NUMBER_100)) > 0 || proxyWashCodeConfig.getSABASPORTRate().compareTo(BigDecimal.ZERO) < 0){
+            return ResponseUtil.custom("参数不合法");
+        }
         Boolean tag = false;
         if (proxyWashCodeConfig.getPGRate().compareTo(BigDecimal.ZERO) == 0 &&
             proxyWashCodeConfig.getCQ9Rate().compareTo(BigDecimal.ZERO) == 0 &&
             proxyWashCodeConfig.getWMRate().compareTo(BigDecimal.ZERO) == 0 &&
             proxyWashCodeConfig.getOBDJRate().compareTo(BigDecimal.ZERO) == 0 &&
-            proxyWashCodeConfig.getOBTYRate().compareTo(BigDecimal.ZERO) == 0){
+            proxyWashCodeConfig.getOBTYRate().compareTo(BigDecimal.ZERO) == 0 &&
+            proxyWashCodeConfig.getSABASPORTRate().compareTo(BigDecimal.ZERO) == 0){
             tag = true;
         }
         if (LoginUtil.checkNull(byThirdProxy)){
@@ -106,6 +110,7 @@ public class RebateUserConfigurationController {
         byThirdProxy.setWMRate(proxyWashCodeConfig.getWMRate());
         byThirdProxy.setOBDJRate(proxyWashCodeConfig.getOBDJRate());
         byThirdProxy.setOBTYRate(proxyWashCodeConfig.getOBTYRate());
+        byThirdProxy.setSABASPORTRate(proxyWashCodeConfig.getSABASPORTRate());
         rebateConfigurationService.save(byThirdProxy);
         return ResponseUtil.success();
     }

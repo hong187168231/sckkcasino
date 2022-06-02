@@ -9,6 +9,7 @@ import com.qianyi.casinocore.util.RebateSqlConst;
 import com.qianyi.casinocore.util.SqlConst;
 import com.qianyi.casinocore.vo.PersonReportVo;
 import com.qianyi.casinocore.vo.RebateReportVo;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -272,14 +273,16 @@ public class UserService {
         if(StringUtils.isNullOrEmpty(platform)){
             //            sql = MessageFormat.format(SqlConst.totalSqlReport, startTime, endTime, sort, page.toString(), pageSize.toString(),orderTimeStart,orderTimeEnd,proxy);//走报表
             sql = MessageFormat.format(SqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString(),proxy);
-        }else if (platform.equals("WM")){
+        }else if (platform.equals(Constants.PLATFORM_WM_BIG)){
             sql = MessageFormat.format(SqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'wm'",proxy);
-        }else if (platform.equals("OBDJ")){
+        }else if (platform.equals(Constants.PLATFORM_OBDJ)){
             sql = MessageFormat.format(SqlConst.obdjSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'OBDJ'",proxy);
-        }else if (platform.equals("OBTY")){
+        }else if (platform.equals(Constants.PLATFORM_OBTY)){
             sql = MessageFormat.format(SqlConst.obtySql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'OBTY'",proxy);
-        }else if (platform.equals("PG")){
+        }else if (platform.equals(Constants.PLATFORM_PG)){
             sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'PG'",proxy);
+        }else if (platform.equals(Constants.PLATFORM_SABASPORT)){
+            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'SABASPORT'",proxy);
         }else{
             sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'CQ9'",proxy);
         }
@@ -305,15 +308,17 @@ public class UserService {
             //走报表
             //            sql = MessageFormat.format(SqlConst.seleOneTotalReport,startTime,endTime,userId.toString(),orderTimeStart,orderTimeEnd,proxy);
             sql = MessageFormat.format(SqlConst.seleOneTotal,startTime,endTime,userId.toString(),proxy);
-        }else if (platform.equals("WM")){
+        }else if (platform.equals(Constants.PLATFORM_WM_BIG)){
             sql = MessageFormat.format(SqlConst.seleOneWm, startTime, endTime, userId.toString(), "'wm'",proxy);
-        }else if (platform.equals("OBDJ")){
+        }else if (platform.equals(Constants.PLATFORM_OBDJ)){
             sql = MessageFormat.format(SqlConst.seleOneObdj,startTime, endTime, userId.toString(), "'OBDJ'",proxy);
-        }else if (platform.equals("OBTY")){
+        }else if (platform.equals(Constants.PLATFORM_OBTY)){
             sql = MessageFormat.format(SqlConst.seleOneObty,startTime, endTime, userId.toString(), "'OBTY'",proxy);
-        }else if (platform.equals("PG")){
+        }else if (platform.equals(Constants.PLATFORM_PG)){
             sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(), "'PG'",proxy);
-        } else{
+        }else if (platform.equals(Constants.PLATFORM_SABASPORT)){
+            sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(), "'SABASPORT'",proxy);
+        }else{
             sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"'CQ9'",proxy);
         }
         log.info(sql);
@@ -352,14 +357,16 @@ public class UserService {
             //走报表
             //            sql = MessageFormat.format(SqlConst.sumSqlReport,startTime,endTime,orderTimeStart,orderTimeEnd, proxy);
             sql = MessageFormat.format(SqlConst.sumSql,startTime,endTime, proxy);
-        }else if (platform.equals("WM")){
+        }else if (platform.equals(Constants.PLATFORM_WM_BIG)){
             sql = MessageFormat.format(SqlConst.WMSumSql,startTime, endTime, "'wm'", proxy);
-        }else if (platform.equals("OBDJ")){
+        }else if (platform.equals(Constants.PLATFORM_OBDJ)){
             sql = MessageFormat.format(SqlConst.obdjSumSql,startTime, endTime, "'OBDJ'", proxy);
-        }else if (platform.equals("OBTY")){
+        }else if (platform.equals(Constants.PLATFORM_OBTY)){
             sql = MessageFormat.format(SqlConst.obtySumSql,startTime, endTime, "'OBTY'", proxy);
-        }else if (platform.equals("PG")){
+        }else if (platform.equals(Constants.PLATFORM_PG)){
             sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime, endTime, "'PG'", proxy);
+        }else if (platform.equals(Constants.PLATFORM_SABASPORT)){
+            sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime, endTime, "'SABASPORT'", proxy);
         }else{
             sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql,startTime, endTime, "'CQ9'", proxy);
         }
@@ -428,14 +435,16 @@ public class UserService {
         if(StringUtils.isNullOrEmpty(platform)){
             //            sql = MessageFormat.format(RebateSqlConst.totalSqlReport, startTime, endTime, sort, page.toString(), pageSize.toString(),orderTimeStart,orderTimeEnd,proxy);
             sql = MessageFormat.format(RebateSqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString(),proxy);
-        }else if (platform.equals("WM")){
+        }else if (platform.equals(Constants.PLATFORM_WM_BIG)){
             sql = MessageFormat.format(RebateSqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'wm'",proxy);
-        }else if (platform.equals("OBDJ")){
+        }else if (platform.equals(Constants.PLATFORM_OBDJ)){
             sql = MessageFormat.format(RebateSqlConst.obdjSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'OBDJ'",proxy);
-        }else if (platform.equals("OBTY")){
+        }else if (platform.equals(Constants.PLATFORM_OBTY)){
             sql = MessageFormat.format(RebateSqlConst.obtySql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'OBTY'",proxy);
-        }else if (platform.equals("PG")){
+        }else if (platform.equals(Constants.PLATFORM_PG)){
             sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'PG'",proxy);
+        }else if (platform.equals(Constants.PLATFORM_SABASPORT)){
+            sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'SABASPORT'",proxy);
         }else{
             sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'CQ9'",proxy);
         }
@@ -460,14 +469,16 @@ public class UserService {
         if(StringUtils.isNullOrEmpty(platform)){
             //            sql = MessageFormat.format(RebateSqlConst.seleOneTotalReport,startTime,endTime,userId.toString(),orderTimeStart,orderTimeEnd,proxy);
             sql = MessageFormat.format(RebateSqlConst.seleOneTotal,startTime,endTime,userId.toString(),proxy);
-        }else if (platform.equals("WM")){
+        }else if (platform.equals(Constants.PLATFORM_WM_BIG)){
             sql = MessageFormat.format(RebateSqlConst.seleOneWm, startTime, endTime, userId.toString(), "'wm'",proxy);
-        }else if (platform.equals("OBDJ")){
+        }else if (platform.equals(Constants.PLATFORM_OBDJ)){
             sql = MessageFormat.format(RebateSqlConst.seleOneObdj, startTime, endTime, userId.toString(), "'OBDJ'",proxy);
-        }else if (platform.equals("OBTY")){
+        }else if (platform.equals(Constants.PLATFORM_OBTY)){
             sql = MessageFormat.format(RebateSqlConst.seleOneObty, startTime, endTime, userId.toString(), "'OBTY'",proxy);
-        }else if (platform.equals("PG")){
+        }else if (platform.equals(Constants.PLATFORM_PG)){
             sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(), "'PG'",proxy);
+        }else if (platform.equals(Constants.PLATFORM_SABASPORT)){
+            sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(), "'SABASPORT'",proxy);
         }else{
             sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql,startTime,endTime,userId.toString(),"'CQ9'",proxy);
         }
@@ -506,14 +517,16 @@ public class UserService {
         if(StringUtils.isNullOrEmpty(platform)){
             //            sql = MessageFormat.format(RebateSqlConst.sumSqlReport,startTime,endTime,orderTimeStart,orderTimeEnd,proxy);
             sql = MessageFormat.format(RebateSqlConst.sumSql,startTime,endTime,proxy);
-        }else if (platform.equals("WM")){
+        }else if (platform.equals(Constants.PLATFORM_WM_BIG)){
             sql = MessageFormat.format(RebateSqlConst.WMSumSql,startTime, endTime, "'wm'",proxy);
-        }else if (platform.equals("OBDJ")){
+        }else if (platform.equals(Constants.PLATFORM_OBDJ)){
             sql = MessageFormat.format(RebateSqlConst.obdjSumSql,startTime, endTime, "'OBDJ'",proxy);
-        }else if (platform.equals("OBTY")){
+        }else if (platform.equals(Constants.PLATFORM_OBTY)){
             sql = MessageFormat.format(RebateSqlConst.obtySumSql,startTime, endTime, "'OBTY'",proxy);
-        }else if (platform.equals("PG")){
+        }else if (platform.equals(Constants.PLATFORM_PG)){
             sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql,startTime, endTime, "'PG'",proxy);
+        }else if (platform.equals(Constants.PLATFORM_SABASPORT)){
+            sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql,startTime, endTime, "'SABASPORT'",proxy);
         }else{
             sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql,startTime, endTime, "'CQ9'",proxy);
         }

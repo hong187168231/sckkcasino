@@ -5,13 +5,13 @@ import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.util.QRCodeUtil;
+import com.qianyi.casinocore.vo.ChainedAddressVo;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class ExpandController {
     private ProxyUserService proxyUserService;
     @ApiOperation("获取推广链接")
     @GetMapping("getChainedAddress")
-    public ResponseEntity getChainedAddress(){
+    public ResponseEntity<ChainedAddressVo> getChainedAddress(){
         Long authId = CasinoProxyUtil.getAuthId();
         ProxyUser byId = proxyUserService.findById(authId);
         if (CasinoProxyUtil.checkNull(byId) || byId.getProxyRole() != CommonConst.NUMBER_3){
@@ -43,6 +43,14 @@ public class ExpandController {
         }
         String domain = platformConfig.getProxyConfiguration();
         String url = domain + "/" + Constants.INVITE_TYPE_PROXY + "/" + byId.getProxyCode();
-        return ResponseUtil.success(url);
+        ChainedAddressVo chainedAddressVo = new ChainedAddressVo();
+        chainedAddressVo.setUrl(url);
+        try {
+            chainedAddressVo.setQrCode(QRCodeUtil.getQRCodeImageByBase64(url,null,null));
+        }catch (Exception ex) {
+            log.error("二维码转化异常{}",ex);
+            return ResponseUtil.custom("查询失败");
+        }
+        return ResponseUtil.success(chainedAddressVo);
     }
 }

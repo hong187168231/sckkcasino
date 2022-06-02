@@ -209,19 +209,20 @@ public class GameRecordController {
         @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = false),
         @ApiImplicitParam(name = "parentBetId", value = "父主单号", required = false),
         @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "transType", value = "Stake:下注 Payoff:派彩", required = false),
         @ApiImplicitParam(name = "startDate", value = "查询结算起始时间", required = false),
         @ApiImplicitParam(name = "endDate", value = "查询结算结束时间", required = false),
     })
     @NoAuthorization
     public ResponseEntity<GameRecordGoldenFVo> findPgGameRecordPage(Integer pageSize, Integer pageCode,
-        String user, String betId, String gameCode,String parentBetId,String account,
+        String user, String betId, String gameCode,String parentBetId,String account,String transType,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         GameRecordGoldenF gameRecordGoldenF = new GameRecordGoldenF();
         gameRecordGoldenF.setVendorCode(Constants.PLATFORM_PG);
         Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
-        return selectPGOrCQ9(gameRecordGoldenF,pageable,user,betId,gameCode,parentBetId,account,startDate,endDate);
+        return selectPGOrCQ9(gameRecordGoldenF,pageable,user,betId,gameCode,parentBetId,account,startDate,endDate,transType);
     }
 
     /**
@@ -240,16 +241,17 @@ public class GameRecordController {
         @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = false),
         @ApiImplicitParam(name = "parentBetId", value = "父主单号", required = false),
         @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "transType", value = "Stake:下注 Payoff:派彩", required = false),
         @ApiImplicitParam(name = "startDate", value = "查询结算起始时间", required = false),
         @ApiImplicitParam(name = "endDate", value = "查询结算结束时间", required = false),
     })
     @NoAuthorization
     public ResponseEntity<GameRecordGoldenFTotalVo> findPgGameRecordTotal(String user, String betId, String gameCode,String parentBetId,String account,
-        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,String transType,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         GameRecordGoldenF gameRecordGoldenF = new GameRecordGoldenF();
         gameRecordGoldenF.setVendorCode(Constants.PLATFORM_PG);
-        return selectPGOrCQ9Total(gameRecordGoldenF,user,betId,gameCode,parentBetId,account,startDate,endDate);
+        return selectPGOrCQ9Total(gameRecordGoldenF,user,betId,gameCode,parentBetId,account,startDate,endDate,transType);
     }
 
     /**
@@ -268,16 +270,17 @@ public class GameRecordController {
         @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = false),
         @ApiImplicitParam(name = "parentBetId", value = "父主单号", required = false),
         @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "transType", value = "Stake:下注 Payoff:派彩", required = false),
         @ApiImplicitParam(name = "startDate", value = "查询结算起始时间", required = false),
         @ApiImplicitParam(name = "endDate", value = "查询结算结束时间", required = false),
     })
     @NoAuthorization
     public ResponseEntity<GameRecordGoldenFTotalVo> findCq9GameRecordTotal(String user, String betId, String gameCode,String parentBetId,String account,
-        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,String transType,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         GameRecordGoldenF gameRecordGoldenF = new GameRecordGoldenF();
         gameRecordGoldenF.setVendorCode(Constants.PLATFORM_CQ9);
-        return selectPGOrCQ9Total(gameRecordGoldenF,user,betId,gameCode,parentBetId,account,startDate,endDate);
+        return selectPGOrCQ9Total(gameRecordGoldenF,user,betId,gameCode,parentBetId,account,startDate,endDate,transType);
     }
     /**
      * 分页查询CQ9游戏注单
@@ -297,23 +300,86 @@ public class GameRecordController {
         @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = false),
         @ApiImplicitParam(name = "parentBetId", value = "父主单号", required = false),
         @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "transType", value = "Stake:下注 Payoff:派彩", required = false),
         @ApiImplicitParam(name = "startDate", value = "查询结算起始时间", required = false),
         @ApiImplicitParam(name = "endDate", value = "查询结算结束时间", required = false),
     })
     @NoAuthorization
     public ResponseEntity<GameRecordGoldenFVo> findCq9GameRecordPage(Integer pageSize, Integer pageCode,
-        String user, String betId, String gameCode,String parentBetId,String account,
+        String user, String betId, String gameCode,String parentBetId,String account,String transType,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         GameRecordGoldenF gameRecordGoldenF = new GameRecordGoldenF();
         gameRecordGoldenF.setVendorCode(Constants.PLATFORM_CQ9);
         Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
-        return selectPGOrCQ9(gameRecordGoldenF,pageable,user,betId,gameCode,parentBetId,account,startDate,endDate);
+        return selectPGOrCQ9(gameRecordGoldenF,pageable,user,betId,gameCode,parentBetId,account,startDate,endDate,transType);
+    }
+
+    /**
+     * 统计SBTY游戏注单
+     *
+     * @param user 会员账号
+     * @param betId 注单号
+     * @param gameCode 游戏代码
+     * @return
+     */
+    @ApiOperation("统计SBTY游戏注单")
+    @GetMapping("/findSbtyGameRecordTotal")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+        @ApiImplicitParam(name = "betId", value = "注单号", required = false),
+        @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = false),
+        @ApiImplicitParam(name = "parentBetId", value = "父主单号", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "transType", value = "Stake:下注 Payoff:派彩", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询结算起始时间", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结算结束时间", required = false),
+    })
+    @NoAuthorization
+    public ResponseEntity<GameRecordGoldenFTotalVo> findSbtyGameRecordTotal(String user, String betId, String gameCode,String parentBetId,String account,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,String transType,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+        GameRecordGoldenF gameRecordGoldenF = new GameRecordGoldenF();
+        gameRecordGoldenF.setVendorCode(Constants.PLATFORM_SABASPORT);
+        return selectPGOrCQ9Total(gameRecordGoldenF,user,betId,gameCode,parentBetId,account,startDate,endDate,transType);
+    }
+    /**
+     * 分页查询SBTY游戏注单
+     *
+     * @param user 会员账号
+     * @param betId 注单号
+     * @param gameCode 游戏代码
+     * @return
+     */
+    @ApiOperation("分页查询SBTY游戏注单")
+    @GetMapping("/findSbtyGameRecordPage")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+        @ApiImplicitParam(name = "betId", value = "注单号", required = false),
+        @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = false),
+        @ApiImplicitParam(name = "parentBetId", value = "父主单号", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "transType", value = "Stake:下注 Payoff:派彩", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询结算起始时间", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结算结束时间", required = false),
+    })
+    @NoAuthorization
+    public ResponseEntity<GameRecordGoldenFVo> findSbtyGameRecordPage(Integer pageSize, Integer pageCode,
+        String user, String betId, String gameCode,String parentBetId,String account,String transType,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+        GameRecordGoldenF gameRecordGoldenF = new GameRecordGoldenF();
+        gameRecordGoldenF.setVendorCode(Constants.PLATFORM_SABASPORT);
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        return selectPGOrCQ9(gameRecordGoldenF,pageable,user,betId,gameCode,parentBetId,account,startDate,endDate,transType);
     }
 
     private ResponseEntity<GameRecordGoldenFTotalVo> selectPGOrCQ9Total(GameRecordGoldenF gameRecordGoldenF,String user,
-        String betId, String gameCode,String parentBetId,String account,Date startDate,Date endDate){
+        String betId, String gameCode,String parentBetId,String account,Date startDate,Date endDate,String transType){
         gameRecordGoldenF.setPlayerName(user);
         gameRecordGoldenF.setBetId(betId);
         gameRecordGoldenF.setGameCode(gameCode);
@@ -344,11 +410,12 @@ public class GameRecordController {
     }
 
     private ResponseEntity<GameRecordGoldenFVo> selectPGOrCQ9(GameRecordGoldenF gameRecordGoldenF,Pageable pageable,String user,
-        String betId, String gameCode,String parentBetId,String account,Date startDate,Date endDate){
+        String betId, String gameCode,String parentBetId,String account,Date startDate,Date endDate,String transType){
         gameRecordGoldenF.setPlayerName(user);
         gameRecordGoldenF.setBetId(betId);
         gameRecordGoldenF.setGameCode(gameCode);
         gameRecordGoldenF.setParentBetId(parentBetId);
+        gameRecordGoldenF.setTransType(transType);
         Long userId = null;
         if (!LoginUtil.checkNull(account)){
             User byAccount = userService.findByAccount(account);
