@@ -189,6 +189,17 @@ public class WithdrawBusiness {
             withdrawOrder.setThirdProxy(user.getThirdProxy());
             withdrawOrder.setType(user.getType());
         }
+        PlatformConfig first = platformConfigService.findFirst();
+        if (first != null) {
+            // 得到手续费
+            BigDecimal serviceCharge = first.getWithdrawServiceCharge(withdrawOrder.getWithdrawMoney());
+            BigDecimal practicalAmount = withdrawOrder.getWithdrawMoney().subtract(serviceCharge);
+            withdrawOrder.setServiceCharge(serviceCharge);
+            withdrawOrder.setPracticalAmount(practicalAmount);
+        } else {
+            withdrawOrder.setServiceCharge(BigDecimal.ZERO);
+            withdrawOrder.setPracticalAmount(money);
+        }
         return withdrawOrder;
     }
 
