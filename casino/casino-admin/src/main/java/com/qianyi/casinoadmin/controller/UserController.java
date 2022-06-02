@@ -1208,9 +1208,9 @@ public class UserController {
         //            return ResponseUtil.custom("代理会员不能操作");
         //        }
         Long userId = LoginUtil.getLoginUserId();
-        SysUser sysUser = sysUserService.findById(userId);
-        String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
-        ResponseEntity responseEntity = withdrawBusiness.updateWithdrawAndUser(user, id, money, bankId, Constants.withdrawOrder_masterControl, lastModifier, remark);
+        //        SysUser sysUser = sysUserService.findById(userId);
+        //        String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
+        ResponseEntity responseEntity = withdrawBusiness.updateWithdrawAndUser(user, id, money, bankId, Constants.withdrawOrder_masterControl, userId, remark);
         if (responseEntity.getCode()==CommonConst.NUMBER_0){
             platformConfigService.backstage(CommonConst.NUMBER_1,new BigDecimal(withdrawMoney));
         }
