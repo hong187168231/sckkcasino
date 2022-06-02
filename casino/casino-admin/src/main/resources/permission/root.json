@@ -554,6 +554,38 @@
         ]
       },
       {
+        "descritpion": "财务出款",
+        "englishName": "Financial out money",
+        "menuLevel": 2,
+        "name": "财务出款",
+        "url": "/withdrawPay/findPage",
+        "children": [
+          {
+            "descritpion": "出款审核",
+            "englishName": "Audit",
+            "menuLevel": 3,
+            "name": "出款审核",
+            "url": "/withdrawPay/pay"
+          }
+        ]
+      },
+      {
+        "descritpion": "风控审核",
+        "englishName": "Withdrawal History",
+        "menuLevel": 2,
+        "name": "风控审核",
+        "url": "/withdrawAudit/findPage",
+        "children": [
+          {
+            "descritpion": "风控审核",
+            "englishName": "Audit",
+            "menuLevel": 3,
+            "name": "风控审核",
+            "url": "/withdrawAudit/audit"
+          }
+        ]
+      },
+      {
         "descritpion": "异常订单",
         "englishName": "Abnormal order",
         "menuLevel": 2,
@@ -1474,6 +1506,35 @@
             "englishName": "Did the game modify",
             "menuLevel": 3,
             "name": "OB游戏状态修改",
+            "url": "/adGame/updateDomainName"
+          }
+        ]
+      },{
+        "descritpion": "SBTY游戏管理",
+        "englishName": "SBTY game management",
+        "menuLevel": 2,
+        "name": "沙巴体育游戏管理",
+        "url": "/adGame/platformListSBTY",
+        "children": [
+          {
+            "descritpion": "游戏列表",
+            "englishName": "Game listing",
+            "menuLevel": 3,
+            "name": "SBTY游戏列表",
+            "url": "/adGame/findGameList"
+          },
+          {
+            "descritpion": "平台是否维护",
+            "englishName": "Platform under maintenance",
+            "menuLevel": 3,
+            "name": "SBTY平台是否维护",
+            "url": "/adGame/updatePlatformStatus"
+          },
+          {
+            "descritpion": "游戏状态修改",
+            "englishName": "Did the game modify",
+            "menuLevel": 3,
+            "name": "SBTY游戏状态修改",
             "url": "/adGame/updateDomainName"
           }
         ]

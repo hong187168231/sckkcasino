@@ -28,6 +28,7 @@ public class GameRecordTaskNew {
         gameRecordReportService.saveGameRecordReportCQ9();
         gameRecordReportService.saveGameRecordReportOBDJ();
         gameRecordReportService.saveGameRecordReportOBTY();
+        gameRecordReportService.saveGameRecordReportSABASPORT();
         log.info("每小时报表统计结束end=============================================》");
     }
 }
