@@ -120,7 +120,7 @@ public class WithdrawBusiness {
                     withdrawOrderService.saveOrder(withdrawOrder);
                     log.info("通过提现userId {} 订单号 {} withdrawMoney is {}, practicalAmount is {}",
                         withdrawOrder.getUserId(), withdrawOrder.getNo(), money, withdrawOrder.getPracticalAmount());
-                    return ResponseUtil.success(withdrawOrder.getPracticalAmount());
+                    return ResponseUtil.success(withdrawOrder.getPracticalAmount()==null?money:withdrawOrder.getPracticalAmount());
                 } else if (status == Constants.paragraph_to_refuse) {// 拒绝
                     if (this.moneyback(withdrawOrder,Constants.paragraph_to_refuse)) {
                         return ResponseUtil.custom("退款失败");
