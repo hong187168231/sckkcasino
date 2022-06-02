@@ -12,6 +12,7 @@ import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.MessageUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -35,6 +36,9 @@ public class AccountChangeController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private MessageUtil messageUtil;
     /**
      * 分页查询用户账变
      *
@@ -46,17 +50,17 @@ public class AccountChangeController {
     @ApiOperation("分页查询用户账变")
     @GetMapping("/findAccountChangePage")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
-            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
-            @ApiImplicitParam(name = "type", value = "账变类型", required = false),
-            @ApiImplicitParam(name = "account", value = "会员账号", required = false),
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
+        @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
+        @ApiImplicitParam(name = "type", value = "账变类型", required = false),
+        @ApiImplicitParam(name = "account", value = "会员账号", required = false),
+        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<AccountChangeBackVo> findAccountChangePage(Integer pageSize, Integer pageCode, String type, String account, String orderNo,
-                                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         Sort sort = Sort.by("id").descending();
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         AccountChange accountChange = new AccountChange();
@@ -108,7 +112,7 @@ public class AccountChangeController {
         AccountChangeEnum[] values = AccountChangeEnum.values();
         Map<Integer,String> map = new HashMap<>();
         for (AccountChangeEnum accountChangeEnum:values){
-            map.put(accountChangeEnum.getType(),accountChangeEnum.getName());
+            map.put(accountChangeEnum.getType(),messageUtil.get(accountChangeEnum.getName()));
         }
         return ResponseUtil.success(map);
     }
