@@ -413,6 +413,6 @@ public class WithdrawOrderService {
 
     @Transactional
     public void updateWithdrawOrderAuditId(Long auditId){
-//        withdrawOrderRepository.updateWithdrawOrderAuditId(auditId);
+        withdrawOrderRepository.updateWithdrawOrderAuditId(auditId);
     }
 }
