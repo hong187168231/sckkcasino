@@ -31,7 +31,6 @@ public class ThridUserBalanceSumService {
     @Autowired
     private UserMoneyService userMoneyService;
 
-    @Async
     public void setRedisSABAMoneyTotal(List<UserThird> sabaThird) {
         if (LoginUtil.checkNull(sabaThird) || sabaThird.size() == CommonConst.NUMBER_0){
             return ;
@@ -68,7 +67,6 @@ public class ThridUserBalanceSumService {
         redisUtil.set(key, sum, Constants.THIRD_BALANCE_TTL);
     }
 
-    @Async
     public void setRedisOBTYMoneyTotal(List<UserThird> obtyThird) {
         if (LoginUtil.checkNull(obtyThird) || obtyThird.size() == CommonConst.NUMBER_0){
             return;
@@ -102,7 +100,6 @@ public class ThridUserBalanceSumService {
         redisUtil.set(key, sum, Constants.THIRD_BALANCE_TTL);
     }
 
-    @Async
     public void setRedisOBDJMoneyTotal(List<UserThird> obdjThird) {
         if (LoginUtil.checkNull(obdjThird) || obdjThird.size() == CommonConst.NUMBER_0){
             return;
@@ -173,7 +170,6 @@ public class ThridUserBalanceSumService {
     }
 
 
-    @Async
     public void setRedisWMMoneyTotal(List<UserThird> wmThird){
         if (LoginUtil.checkNull(wmThird) || wmThird.size() == CommonConst.NUMBER_0){
             return ;

@@ -26,8 +26,6 @@ public class ThirdGameSumBalanceTask {
     private ThridUserBalanceSumService thridUserBalanceSumService;
 
 
-
-
     /**
      * year要求10分钟跑一次
      */
@@ -46,15 +44,39 @@ public class ThirdGameSumBalanceTask {
         //异步方法，查询三方总余额，缓存到redis
 
         //WM总余额
-        thridUserBalanceSumService.setRedisWMMoneyTotal(wmThird);
+        try {
+            thridUserBalanceSumService.setRedisWMMoneyTotal(wmThird);
+        }catch (Exception e){
+            log.error("WM余额查询失败：【{}】", e.getMessage());
+        }
+
         //PG/CQ9总余额
-        thridUserBalanceSumService.setRedisPGMoneyTotal(pgCq9Third);
+        try {
+            thridUserBalanceSumService.setRedisPGMoneyTotal(pgCq9Third);
+        }catch (Exception e){
+            log.error("CQ9余额查询失败：【{}】", e.getMessage());
+        }
+
         //查询OB电竞总余额
-        thridUserBalanceSumService.setRedisOBDJMoneyTotal(obdjThird);
+        try {
+            thridUserBalanceSumService.setRedisOBDJMoneyTotal(obdjThird);
+        }catch (Exception e){
+            log.error("OBDJ余额查询失败：【{}】", e.getMessage());
+        }
+
         //查询OB体育总余额
-        thridUserBalanceSumService.setRedisOBTYMoneyTotal(obtyThird);
+        try {
+            thridUserBalanceSumService.setRedisOBTYMoneyTotal(obtyThird);
+        }catch  (Exception e){
+            log.error("OBTY余额查询失败：【{}】", e.getMessage());
+        }
+
         //查询沙巴体育总余额
-        thridUserBalanceSumService.setRedisSABAMoneyTotal(sabaThird);
+        try {
+            thridUserBalanceSumService.setRedisSABAMoneyTotal(sabaThird);
+        }catch (Exception e){
+            log.error("沙巴余额查询失败：【{}】", e.getMessage());
+        }
 
     }
 
