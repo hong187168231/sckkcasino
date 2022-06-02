@@ -1114,6 +1114,7 @@
     "children": [
       {
         "descritpion": "第三方资金明细",
+        "englishName": "Details of third-party Funds",
         "menuLevel": 2,
         "name": "第三方资金明细",
         "url": "/order/findOrderList"
