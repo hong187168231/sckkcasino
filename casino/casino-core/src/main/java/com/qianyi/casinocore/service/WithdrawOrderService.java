@@ -262,8 +262,8 @@ public class WithdrawOrderService {
         };
         return specification;
     }
-    public Page<WithdrawOrder> findUserPage(Pageable pageable, Long userId,Integer status, String startTime, String endTime) {
-        Specification<WithdrawOrder> condition = this.getCondition(userId,status,startTime,endTime);
+    public Page<WithdrawOrder> findUserPage(Pageable pageable, Long userId,List<Integer> statusList, String startTime, String endTime) {
+        Specification<WithdrawOrder> condition = this.getCondition(userId,statusList,startTime,endTime);
         return withdrawOrderRepository.findAll(condition, pageable);
     }
     private Specification<WithdrawOrder> getCondition(Long userId,List<Integer> statusList, String startTime, String endTime) {
@@ -413,6 +413,6 @@ public class WithdrawOrderService {
 
     @Transactional
     public void updateWithdrawOrderAuditId(Long auditId){
-        withdrawOrderRepository.updateWithdrawOrderAuditId(auditId);
+//        withdrawOrderRepository.updateWithdrawOrderAuditId(auditId);
     }
 }
