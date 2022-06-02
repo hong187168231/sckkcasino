@@ -66,10 +66,10 @@ public class WithdrawOrderService {
         Specification<WithdrawOrder> condition = this.getCondition(withdrawOrder,startDate,endDate,ids);
         return withdrawOrderRepository.findAll(condition, pageable);
     }
-//    public List<WithdrawOrder> findListByUpdate( WithdrawOrder withdrawOrder,Date startDate,Date endDate) {
-//        Specification<WithdrawOrder> condition = this.getConditionByUpdate(withdrawOrder,startDate,endDate);
-//        return withdrawOrderRepository.findAll(condition);
-//    }
+    //    public List<WithdrawOrder> findListByUpdate( WithdrawOrder withdrawOrder,Date startDate,Date endDate) {
+    //        Specification<WithdrawOrder> condition = this.getConditionByUpdate(withdrawOrder,startDate,endDate);
+    //        return withdrawOrderRepository.findAll(condition);
+    //    }
 
     /**
      * 查询所有成功的取款订单
@@ -81,12 +81,12 @@ public class WithdrawOrderService {
             Predicate predicate = cb.conjunction();
             List<Predicate> list = new ArrayList<>();
             list.add(
-                    cb.or(
-                            // 1：通过
-                            cb.equal(root.get("status").as(Integer.class), 1),
-                            // 4.总控下分
-                            cb.equal(root.get("status").as(Integer.class), 4)
-                    )
+                cb.or(
+                    // 1：通过
+                    cb.equal(root.get("status").as(Integer.class), 1),
+                    // 4.总控下分
+                    cb.equal(root.get("status").as(Integer.class), 4)
+                )
             );
             if (co.getStartDate() != null) {
                 list.add(cb.greaterThanOrEqualTo(root.get("updateTime").as(Date.class), co.getStartDate()));
@@ -112,46 +112,46 @@ public class WithdrawOrderService {
         return withdrawOrderRepository.findAll(condition);
     }
 
-//    private Specification<WithdrawOrder> getConditionByUpdate(WithdrawOrder withdrawOrder,Date startDate,Date endDate) {
-//        Specification<WithdrawOrder> specification = new Specification<WithdrawOrder>() {
-//            List<Predicate> list = new ArrayList<Predicate>();
-//            @Override
-//            public Predicate toPredicate(Root<WithdrawOrder> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-//                if (!CommonUtil.checkNull(withdrawOrder.getNo())) {
-//                    list.add(cb.equal(root.get("no").as(String.class), withdrawOrder.getNo()));
-//                }
-//                if(!CommonUtil.checkNull(withdrawOrder.getBankId())){
-//                    list.add(cb.equal(root.get("bankId").as(String.class), withdrawOrder.getBankId()));
-//                }
-//                if(withdrawOrder.getStatus() != null){
-//                    list.add(cb.equal(root.get("status").as(Integer.class), withdrawOrder.getStatus()));
-//                }
-//                if(withdrawOrder.getType() != null){
-//                    list.add(cb.equal(root.get("type").as(Integer.class), withdrawOrder.getType()));
-//                }
-//                if(withdrawOrder.getUserId() != null){
-//                    list.add(cb.equal(root.get("userId").as(Long.class), withdrawOrder.getUserId()));
-//                }
-//                if (withdrawOrder.getFirstProxy() != null) {
-//                    list.add(cb.equal(root.get("firstProxy").as(Long.class), withdrawOrder.getFirstProxy()));
-//                }
-//                if (withdrawOrder.getSecondProxy() != null) {
-//                    list.add(cb.equal(root.get("secondProxy").as(Long.class), withdrawOrder.getSecondProxy()));
-//                }
-//                if (withdrawOrder.getThirdProxy() != null) {
-//                    list.add(cb.equal(root.get("thirdProxy").as(Long.class), withdrawOrder.getThirdProxy()));
-//                }
-//                if (startDate != null) {
-//                    list.add(cb.greaterThanOrEqualTo(root.get("updateTime").as(Date.class), startDate));
-//                }
-//                if (endDate != null) {
-//                    list.add(cb.lessThanOrEqualTo(root.get("updateTime").as(Date.class),endDate));
-//                }
-//                return cb.and(list.toArray(new Predicate[list.size()]));
-//            }
-//        };
-//        return specification;
-//    }
+    //    private Specification<WithdrawOrder> getConditionByUpdate(WithdrawOrder withdrawOrder,Date startDate,Date endDate) {
+    //        Specification<WithdrawOrder> specification = new Specification<WithdrawOrder>() {
+    //            List<Predicate> list = new ArrayList<Predicate>();
+    //            @Override
+    //            public Predicate toPredicate(Root<WithdrawOrder> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+    //                if (!CommonUtil.checkNull(withdrawOrder.getNo())) {
+    //                    list.add(cb.equal(root.get("no").as(String.class), withdrawOrder.getNo()));
+    //                }
+    //                if(!CommonUtil.checkNull(withdrawOrder.getBankId())){
+    //                    list.add(cb.equal(root.get("bankId").as(String.class), withdrawOrder.getBankId()));
+    //                }
+    //                if(withdrawOrder.getStatus() != null){
+    //                    list.add(cb.equal(root.get("status").as(Integer.class), withdrawOrder.getStatus()));
+    //                }
+    //                if(withdrawOrder.getType() != null){
+    //                    list.add(cb.equal(root.get("type").as(Integer.class), withdrawOrder.getType()));
+    //                }
+    //                if(withdrawOrder.getUserId() != null){
+    //                    list.add(cb.equal(root.get("userId").as(Long.class), withdrawOrder.getUserId()));
+    //                }
+    //                if (withdrawOrder.getFirstProxy() != null) {
+    //                    list.add(cb.equal(root.get("firstProxy").as(Long.class), withdrawOrder.getFirstProxy()));
+    //                }
+    //                if (withdrawOrder.getSecondProxy() != null) {
+    //                    list.add(cb.equal(root.get("secondProxy").as(Long.class), withdrawOrder.getSecondProxy()));
+    //                }
+    //                if (withdrawOrder.getThirdProxy() != null) {
+    //                    list.add(cb.equal(root.get("thirdProxy").as(Long.class), withdrawOrder.getThirdProxy()));
+    //                }
+    //                if (startDate != null) {
+    //                    list.add(cb.greaterThanOrEqualTo(root.get("updateTime").as(Date.class), startDate));
+    //                }
+    //                if (endDate != null) {
+    //                    list.add(cb.lessThanOrEqualTo(root.get("updateTime").as(Date.class),endDate));
+    //                }
+    //                return cb.and(list.toArray(new Predicate[list.size()]));
+    //            }
+    //        };
+    //        return specification;
+    //    }
 
     private Specification<WithdrawOrder> getCondition(WithdrawOrder withdrawOrder,Date startDate,Date endDate,List<Long> ids) {
         Specification<WithdrawOrder> specification = new Specification<WithdrawOrder>() {
@@ -233,9 +233,9 @@ public class WithdrawOrderService {
                 if(!CommonUtil.checkNull(withdrawOrder.getBankId())){
                     list.add(cb.equal(root.get("bankId").as(String.class), withdrawOrder.getBankId()));
                 }
-//                if(withdrawOrder.getStatus() != null){
-//                    list.add(cb.equal(root.get("status").as(Integer.class), withdrawOrder.getStatus()));
-//                }
+                //                if(withdrawOrder.getStatus() != null){
+                //                    list.add(cb.equal(root.get("status").as(Integer.class), withdrawOrder.getStatus()));
+                //                }
                 if(withdrawOrder.getType() != null){
                     list.add(cb.equal(root.get("type").as(Integer.class), withdrawOrder.getType()));
                 }
@@ -301,50 +301,50 @@ public class WithdrawOrderService {
         Root<WithdrawOrder> root = query.from(WithdrawOrder.class);
 
         query.multiselect(
-                builder.sum(root.get("withdrawMoney").as(BigDecimal.class)).alias("withdrawMoney"),
-                builder.sum(root.get("practicalAmount").as(BigDecimal.class)).alias("practicalAmount"),
-                builder.sum(root.get("serviceCharge").as(BigDecimal.class)).alias("serviceCharge")
+            builder.sum(root.get("withdrawMoney").as(BigDecimal.class)).alias("withdrawMoney"),
+            builder.sum(root.get("practicalAmount").as(BigDecimal.class)).alias("practicalAmount"),
+            builder.sum(root.get("serviceCharge").as(BigDecimal.class)).alias("serviceCharge")
         );
         List<Predicate> predicates = new ArrayList();
 
         if (withdrawOrder.getStatus() != null) {
             predicates.add(
-                    builder.equal(root.get("status").as(Integer.class), withdrawOrder.getStatus())
+                builder.equal(root.get("status").as(Integer.class), withdrawOrder.getStatus())
             );
         }
         if (withdrawOrder.getType() != null) {
             predicates.add(
-                    builder.equal(root.get("type").as(Integer.class), withdrawOrder.getType())
+                builder.equal(root.get("type").as(Integer.class), withdrawOrder.getType())
             );
         }
         if (withdrawOrder.getUserId() != null) {
             predicates.add(
-                    builder.equal(root.get("userId").as(Long.class), withdrawOrder.getUserId())
+                builder.equal(root.get("userId").as(Long.class), withdrawOrder.getUserId())
             );
         }
         if (!CommonUtil.checkNull(withdrawOrder.getNo())) {
             predicates.add(
-                    builder.equal(root.get("no").as(String.class), withdrawOrder.getNo())
+                builder.equal(root.get("no").as(String.class), withdrawOrder.getNo())
             );
         }
         if (!CommonUtil.checkNull(withdrawOrder.getBankId())) {
             predicates.add(
-                    builder.equal(root.get("bankId").as(String.class), withdrawOrder.getBankId())
+                builder.equal(root.get("bankId").as(String.class), withdrawOrder.getBankId())
             );
         }
         if (withdrawOrder.getFirstProxy() != null) {
             predicates.add(
-                    builder.equal(root.get("firstProxy").as(Long.class), withdrawOrder.getFirstProxy())
+                builder.equal(root.get("firstProxy").as(Long.class), withdrawOrder.getFirstProxy())
             );
         }
         if (withdrawOrder.getSecondProxy() != null) {
             predicates.add(
-                    builder.equal(root.get("secondProxy").as(Long.class), withdrawOrder.getSecondProxy())
+                builder.equal(root.get("secondProxy").as(Long.class), withdrawOrder.getSecondProxy())
             );
         }
         if (withdrawOrder.getThirdProxy() != null) {
             predicates.add(
-                    builder.equal(root.get("thirdProxy").as(Long.class), withdrawOrder.getThirdProxy())
+                builder.equal(root.get("thirdProxy").as(Long.class), withdrawOrder.getThirdProxy())
             );
         }
         if (startDate != null) {
@@ -354,9 +354,9 @@ public class WithdrawOrderService {
             predicates.add(builder.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDatee));
         }
         query
-                .where(predicates.toArray(new Predicate[predicates.size()]));
-//                .groupBy(root.get("conversionStepCode"))
-//                .orderBy(builder.desc(root.get("contactUserNums")));
+            .where(predicates.toArray(new Predicate[predicates.size()]));
+        //                .groupBy(root.get("conversionStepCode"))
+        //                .orderBy(builder.desc(root.get("contactUserNums")));
         WithdrawOrder singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
     }

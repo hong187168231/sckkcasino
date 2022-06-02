@@ -26,4 +26,8 @@ public interface WithdrawOrderRepository extends JpaRepository<WithdrawOrder,Lon
 
     @Query(value = "select IFNULL(SUM(withdraw_money),0) from withdraw_order where `status` in (4,5)",nativeQuery = true)
     BigDecimal sumWithdrawMoney();
+
+    @Modifying
+    @Query(value = "update withdraw_order w set w.audit_id = ?1 where  w.audit_id is null ",nativeQuery = true)
+    void updateWithdrawOrderAuditId(Long auditId);
 }
