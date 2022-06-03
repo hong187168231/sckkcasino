@@ -6,6 +6,7 @@ import com.qianyi.modulecommon.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import javax.persistence.EntityManager;
@@ -33,14 +34,27 @@ public class WashCodeChangeService {
     }
 
     public List<WashCodeChange> getList(Long userId, String startTime, String endTime) {
-        List<WashCodeChange> list =new ArrayList<>();
+        //wm和其他游戏洗码配置不一样，单独分开
+        List<WashCodeChange> list = new ArrayList<>();
+        List<String> wmPlatform = new ArrayList<>();
+        wmPlatform.add(Constants.PLATFORM_WM);
+        List<WashCodeChange> wmDataList = getWashCodeList(wmPlatform, userId, startTime, endTime, 0);
+        list.addAll(wmDataList);
+        //查询其他平台的
+        List<String> otherPlatform = new ArrayList<>();
         for (String platform : Constants.PLATFORM_ARRAY) {
-            List<WashCodeChange> dataList = getWashCodeList(platform, userId, startTime, endTime);
-            list.addAll(dataList);
+            if (Constants.PLATFORM_WM.equals(platform)) {
+                continue;
+            }
+            otherPlatform.add(platform);
+        }
+        if (!CollectionUtils.isEmpty(otherPlatform)) {
+            List<WashCodeChange> otherDataList = getWashCodeList(otherPlatform, userId, startTime, endTime, 1);
+            list.addAll(otherDataList);
         }
         return list;
     }
-    public List<WashCodeChange> getWashCodeList(String platform,Long userId, String startTime, String endTime) {
+    public List<WashCodeChange> getWashCodeList(List<String> platformList,Long userId, String startTime, String endTime,int groupBy) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<WashCodeChange> query = builder.createQuery(WashCodeChange.class);
         Root<WashCodeChange> root = query.from(WashCodeChange.class);
@@ -54,13 +68,17 @@ public class WashCodeChangeService {
 
         List<Predicate> predicates = new ArrayList();
         predicates.add(builder.equal(root.get("userId").as(Long.class), userId));
-        predicates.add(builder.equal(root.get("platform").as(String.class), platform));
+        CriteriaBuilder.In<Object> in = builder.in(root.get("platform"));
+        for (String platform : platformList) {
+            in.value(platform);
+        }
+        predicates.add(builder.and(builder.and(in)));
         if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
             predicates.add(builder.between(root.get("createTime").as(String.class), startTime, endTime));
         }
-        if(Constants.PLATFORM_WM.equals(platform)){
+        if (groupBy == 0) {
             query.where(predicates.toArray(new Predicate[predicates.size()])).groupBy(root.get("platform"), root.get("gameId"));
-        }else {
+        } else {
             query.where(predicates.toArray(new Predicate[predicates.size()])).groupBy(root.get("platform"));
         }
         List<WashCodeChange> list = entityManager.createQuery(query).getResultList();

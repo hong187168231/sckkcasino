@@ -45,4 +45,8 @@ public class WashCodeConfigService {
     public List<List<WashCodeConfig>> findWashCodeConfigAll(WashCodeConfig washCodeConfig) {
         return null;
     }
+
+    public List<WashCodeConfig> findByStateAndPlatformIn(Integer state, List<String> platformList) {
+        return washCodeConfigRepository.findByStateAndPlatformIn(state,platformList);
+    }
 }

@@ -15,4 +15,6 @@ public interface UserWashCodeConfigRepository extends JpaRepository<UserWashCode
     List<UserWashCodeConfig> findByUserIdAndState(Long userId, Integer state);
 
     List<UserWashCodeConfig> findByUserId(Long userId);
+
+    List<UserWashCodeConfig> findByUserIdAndPlatformIn(Long userId, List<String> platformList);
 }

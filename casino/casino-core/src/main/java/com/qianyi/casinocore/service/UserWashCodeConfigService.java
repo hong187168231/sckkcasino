@@ -11,10 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class UserWashCodeConfigService {
@@ -59,9 +56,31 @@ public class UserWashCodeConfigService {
 
     public List<WashCodeConfig> getWashCodeConfig(Long userId) {
         List<WashCodeConfig> washCodeList = new ArrayList<>();
+        List<String> platformList = new ArrayList<>();
         for (String platform : Constants.PLATFORM_ARRAY) {
-            List<WashCodeConfig> washCodeConfig = getWashCodeConfig(platform, userId);
-            washCodeList.addAll(washCodeConfig);
+            platformList.add(platform);
+        }
+        List<UserWashCodeConfig> washCodeConfigList = userWashCodeConfigRepository.findByUserIdAndPlatformIn(userId, platformList);
+        for (UserWashCodeConfig codeConfig : washCodeConfigList) {
+            //筛选用户级别没有配置的平台
+            Iterator<String> configIterator = platformList.iterator();
+            while (configIterator.hasNext()) {
+                String platform = configIterator.next();
+                if (platform.equals(codeConfig.getPlatform())) {
+                    configIterator.remove();
+                }
+            }
+            WashCodeConfig config = null;
+            if (codeConfig.getState() != Constants.open) {
+                continue;
+            }
+            config = new WashCodeConfig();
+            BeanUtils.copyProperties(codeConfig, config);
+            washCodeList.add(config);
+        }
+        if (!CollectionUtils.isEmpty(platformList)) {
+            List<WashCodeConfig> configList = washCodeConfigService.findByStateAndPlatformIn(Constants.open, platformList);
+            washCodeList.addAll(configList);
         }
         return washCodeList;
     }
