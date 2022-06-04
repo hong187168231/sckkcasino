@@ -1,7 +1,10 @@
 package com.qianyi.modulecommon.reponse;
 
+import lombok.Data;
+
 import java.io.Serializable;
 
+@Data
 public class ResponseEntity<T> implements Serializable {
 
 	private static final long serialVersionUID = 6073226655373040149L;
