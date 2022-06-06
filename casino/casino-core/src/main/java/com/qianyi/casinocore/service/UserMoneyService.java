@@ -350,7 +350,7 @@ public class UserMoneyService {
             param = MessageFormat.format(param,third.getAccount(),lang.toString(), Constants.PLATFORM_SABASPORT);
             PlatformConfig first = platformConfigService.findFirst();
             String SABA = first == null?"":first.getWebConfiguration();
-            SABA = SABA + refreshUrl;
+            SABA = SABA + PG_refreshUrl;
             String s = HttpClient4Util.get(SABA + param);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
