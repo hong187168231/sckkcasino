@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -51,23 +52,26 @@ public class InTimeReportController {
     @ApiOperation("查询代理报表")
     @GetMapping("/find")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
-            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
-            @ApiImplicitParam(name = "agentMark", value = "代理标识", required = false),
-            @ApiImplicitParam(name = "agentId", value = "总代id", required = false),
-//            @ApiImplicitParam(name = "gid", value = "游戏类别编号 百家乐:101 龙虎:102 轮盘:103 骰宝:104 牛牛:105 番摊:107 色碟:108 鱼虾蟹:110 炸金花:111 安达巴哈:128", required = false),
-            @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
+        @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
+        @ApiImplicitParam(name = "agentMark", value = "代理标识", required = false),
+        @ApiImplicitParam(name = "agentId", value = "总代id", required = false),
+        //            @ApiImplicitParam(name = "gid", value = "游戏类别编号 百家乐:101 龙虎:102 轮盘:103 骰宝:104 牛牛:105 番摊:107 色碟:108 鱼虾蟹:110 炸金花:111 安达巴哈:128", required = false),
+        @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
+        @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
+        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
     public ResponseEntity<GameRecordReportVo> find(Integer pageSize, Integer pageCode, String userName,Boolean agentMark,Integer agentId, String platform, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                   @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
-        if (LoginUtil.checkNull(startDate) ||  LoginUtil.checkNull(endDate)){
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        if (LoginUtil.checkNull(startDate,endDate,agentMark)){
             return ResponseUtil.custom("参数不合法");
         }
         Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        if (agentMark){
+            pageable = PageRequest.of(0, 1000,sort);
+        }
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);
         calendar.add(Calendar.HOUR, 12);
@@ -106,9 +110,9 @@ public class InTimeReportController {
                 vo.setHasChildren(finalMark);
                 BeanUtils.copyProperties(gameRecordReport1,vo);
                 vo.setAmount(vo.getAmount().setScale(2, RoundingMode.HALF_UP));
-//                if (gameRecordReport1.getFirstProxy().equals(CommonConst.LONG_0)){
-//                    vo.setAccount(messageUtil.get("公司"));
-//                }
+                //                if (gameRecordReport1.getFirstProxy().equals(CommonConst.LONG_0)){
+                //                    vo.setAccount(messageUtil.get("公司"));
+                //                }
                 if (vo.getUserAmount()==null){
                     vo.setUserAmount(BigDecimal.ZERO);
                 }
@@ -128,20 +132,20 @@ public class InTimeReportController {
             pageResultVO.setContent(gameRecordReportVos);
         }
         return ResponseUtil.success(pageResultVO);
-        }
+    }
 
     @ApiOperation("查询代理报表统计")
     @GetMapping("/findSum")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
+        @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
         //            @ApiImplicitParam(name = "gid", value = "游戏类别编号 百家乐:101 龙虎:102 轮盘:103 骰宝:104 牛牛:105 番摊:107 色碟:108 鱼虾蟹:110 炸金花:111 安达巴哈:128", required = false),
         @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
         @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
+        @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
     @NoAuthentication
     public ResponseEntity findSum( String userName,String platform,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (LoginUtil.checkNull(startDate) ||  LoginUtil.checkNull(endDate)){
             return ResponseUtil.custom("参数不合法");
         }

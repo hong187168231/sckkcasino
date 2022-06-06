@@ -26,10 +26,10 @@ public class TransferUserInit implements CommandLineRunner {
     private ProxyUserService proxyUserService;
 
     private static List<String> users1 = new ArrayList<>();
-    private static String proxyName1 = "xiaojieJD";
+    private static String proxyName1 = "haotiandl";
 
     static {
-//        users1.add("DH6666");
+        users1.add("xinghe8866");
 //        users1.add("SENGLY5555");
 //        users1.add("Sarun5555");
 //        users1.add("Samnang2022");
@@ -38,9 +38,9 @@ public class TransferUserInit implements CommandLineRunner {
     }
 
     private static List<String> users2 = new ArrayList<>();
-    private static String proxyName2 = "yadaJD";
+    private static String proxyName2 = "taisendl";
     static {
-//        users2.add("HokRatha7878");
+        users2.add("jinli8866");
 //        users2.add("SENG99");
 //        users2.add("volvo888");
 //        users2.add("coco168");
@@ -64,8 +64,8 @@ public class TransferUserInit implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         log.info("初始化转移会员开始============================================》");
-//        transferUser(users1,proxyName1);
-//        transferUser(users2,proxyName2);
+        transferUser(users1,proxyName1);
+        transferUser(users2,proxyName2);
 //        proxyTransferUser(proxy1,proxy1Name);
         log.info("初始化转移会员结束============================================》");
     }
@@ -112,28 +112,28 @@ public class TransferUserInit implements CommandLineRunner {
         }
     }
 
-//    private void transferUser(List<String> users,String proxyName){
-//        ProxyUser proxyUser = proxyUserService.findByUserName(proxyName);
-//        if (LoginUtil.checkNull(proxyUser)){
-//            log.info("没有找到这个代理转移结束{}",proxyName);
-//            return;
-//        }
-//        if (proxyUser.getProxyRole() != CommonConst.NUMBER_3){
-//            log.info("只有基层代理可以转移会员");
-//            return;
-//        }
-//        for (String str:users){
-//            User byAccount = userService.findByAccount(str);
-//            if (LoginUtil.checkNull(byAccount)){
-//                log.info("没有找到这个会员{}",str);
-//                continue;
-//            }
-//            log.info("被转移会员账号{}总代{}区代{}基代{}",byAccount.getAccount(),byAccount.getFirstProxy(),byAccount.getSecondProxy(),byAccount.getThirdProxy());
-//            byAccount.setFirstProxy(proxyUser.getFirstProxy());
-//            byAccount.setSecondProxy(proxyUser.getSecondProxy());
-//            byAccount.setThirdProxy(proxyUser.getId());
-//            userService.save(byAccount);
-//            log.info("转移之后会员账号{}总代{}区代{}基代{}",byAccount.getAccount(),byAccount.getFirstProxy(),byAccount.getSecondProxy(),byAccount.getThirdProxy());
-//        }
-//    }
+    private void transferUser(List<String> users,String proxyName){
+        ProxyUser proxyUser = proxyUserService.findByUserName(proxyName);
+        if (LoginUtil.checkNull(proxyUser)){
+            log.info("没有找到这个代理转移结束{}",proxyName);
+            return;
+        }
+        if (proxyUser.getProxyRole() != CommonConst.NUMBER_3){
+            log.info("只有基层代理可以转移会员");
+            return;
+        }
+        for (String str:users){
+            User byAccount = userService.findByAccount(str);
+            if (LoginUtil.checkNull(byAccount)){
+                log.info("没有找到这个会员{}",str);
+                continue;
+            }
+            log.info("被转移会员账号{}总代{}区代{}基代{}",byAccount.getAccount(),byAccount.getFirstProxy(),byAccount.getSecondProxy(),byAccount.getThirdProxy());
+            byAccount.setFirstProxy(proxyUser.getFirstProxy());
+            byAccount.setSecondProxy(proxyUser.getSecondProxy());
+            byAccount.setThirdProxy(proxyUser.getId());
+            userService.save(byAccount);
+            log.info("转移之后会员账号{}总代{}区代{}基代{}",byAccount.getAccount(),byAccount.getFirstProxy(),byAccount.getSecondProxy(),byAccount.getThirdProxy());
+        }
+    }
 }
