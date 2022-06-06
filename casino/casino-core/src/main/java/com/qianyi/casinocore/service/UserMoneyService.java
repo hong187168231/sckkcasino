@@ -335,28 +335,17 @@ public class UserMoneyService {
     }
 
     public JSONObject getSABAonetUser(UserThird third) {
-        User byId = userService.findById(third.getUserId());
-        Integer lang;
-        if (byId == null){
-            lang = 0;
-        }else {
-            lang = byId.getLanguage();
-        }
-        if (lang == null) {
-            lang = 0;
-        }
+
         try {
-            String param = "account={0}&lang={1}&vendorCode={2}";
-            param = MessageFormat.format(param,third.getAccount(),lang.toString(), Constants.PLATFORM_SABASPORT);
+            String param = "userId={0}&vendorCode={1}";
+            param = MessageFormat.format(param, third.getUserId(), Constants.PLATFORM_SABASPORT);
             PlatformConfig first = platformConfigService.findFirst();
-            String SABA = first == null?"":first.getWebConfiguration();
-            SABA = SABA + PG_refreshUrl;
-            String s = HttpClient4Util.get(SABA + param);
+            String WMurl = first == null?"":first.getWebConfiguration();
+            WMurl = WMurl + PG_refreshUrl;
+            String s = HttpClient4Util.get(WMurl + param);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error("出现异常:{}", e.getMessage());
             return null;
         }
     }
