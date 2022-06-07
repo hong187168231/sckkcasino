@@ -163,6 +163,9 @@ public class WMController {
                 errorOrderService.syncSaveErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.WM_IN, Constants.PLATFORM_WM_BIG);
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
+            if (entity.getErrorCode() == 911) {
+                return ResponseUtil.custom("当前游戏维护中,请选择其他游戏");
+            }
             if (entity.getErrorCode() != 0) {
                 log.error("进游戏加扣点失败,userId:{},account:{},money:{},errorCode={},errorMsg={}",third.getUserId(),user.getAccount(),userCenterMoney, entity.getErrorCode(), entity.getErrorMessage());
                 //三方加扣点失败再把钱加回来
