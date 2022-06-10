@@ -26,10 +26,10 @@ public class TransferUserInit implements CommandLineRunner {
     private ProxyUserService proxyUserService;
 
     private static List<String> users1 = new ArrayList<>();
-    private static String proxyName1 = "haotiandl";
+    private static String proxyName1 = "ZB03JD";
 
     static {
-        users1.add("xinghe8866");
+        users1.add("chenge88");
 //        users1.add("SENGLY5555");
 //        users1.add("Sarun5555");
 //        users1.add("Samnang2022");
@@ -37,16 +37,11 @@ public class TransferUserInit implements CommandLineRunner {
 //        users1.add("bongvina005");
     }
 
-    private static List<String> users2 = new ArrayList<>();
-    private static String proxyName2 = "taisendl";
-    static {
-        users2.add("jinli8866");
-//        users2.add("SENG99");
-//        users2.add("volvo888");
-//        users2.add("coco168");
-//        users2.add("ahyokh168");
-//        users1.add("bongvina005");
-    }
+//    private static List<String> users2 = new ArrayList<>();
+//    private static String proxyName2 = "taisendl";
+//    static {
+//        users2.add("jinli8866");
+//    }
 
     private static List<String> proxy1 = new ArrayList<>();
 
@@ -65,7 +60,7 @@ public class TransferUserInit implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("初始化转移会员开始============================================》");
         transferUser(users1,proxyName1);
-        transferUser(users2,proxyName2);
+//        transferUser(users2,proxyName2);
 //        proxyTransferUser(proxy1,proxy1Name);
         log.info("初始化转移会员结束============================================》");
     }
