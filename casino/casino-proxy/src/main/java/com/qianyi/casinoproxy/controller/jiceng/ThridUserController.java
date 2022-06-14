@@ -444,8 +444,8 @@ public class ThridUserController {
         if (!account.matches(RegexEnum.ACCOUNT.getRegex())){
             return ResponseUtil.custom("账号请输入6~15位数字或字母");
         }
-        User us = userService.findByAccount(account);
-        if(us != null){
+        List<User> us = userService.findByAccountUpper(account);
+        if(!us.isEmpty()){
             return ResponseUtil.custom("账户已存在");
         }
         Long authId = CasinoProxyUtil.getAuthId();
