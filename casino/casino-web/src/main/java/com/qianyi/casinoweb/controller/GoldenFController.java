@@ -204,7 +204,7 @@ public class GoldenFController {
         if (entity == null) {
             User user = userService.findById(userId);
             errorOrderService.syncSaveErrorOrder(playerName, userId, user.getAccount(), orderNo, userCenterMoney, changeEnum, platform);
-            log.error("userId:{},进游戏加扣点失败", userId);
+            log.error("userId:{},money={{},进游戏加扣点失败", userId,userCenterMoney);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         if (!ObjectUtils.isEmpty(entity.getErrorCode())) {
@@ -216,7 +216,9 @@ public class GoldenFController {
         long time = System.currentTimeMillis();
         PublicGoldenFApi.ResponseEntity playerTransactionRecord = goldenFApi.getPlayerTransactionRecord(playerName, time, time, walletCode, orderNo, null);
         if (playerTransactionRecord == null) {
-            log.error("userId:{},进游戏查询转账记录失败", userId);
+            User user = userService.findById(userId);
+            errorOrderService.syncSaveErrorOrder(playerName, userId, user.getAccount(), orderNo, userCenterMoney, changeEnum, platform);
+            log.error("userId:{},money={},进游戏查询转账记录失败", userId,userCenterMoney);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         if (!ObjectUtils.isEmpty(playerTransactionRecord.getErrorCode())) {

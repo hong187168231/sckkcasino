@@ -121,19 +121,21 @@ public class ThirdGameBusiness {
         }
         if (transferOut == null) {
             User user = userService.findById(userId);
-            errorOrderService.syncSaveErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, recoverMoney, changeEnum, platform);
-            log.error("userId:{},一键回收当前登录用户{}余额失败", userId,vendorCode);
+            errorOrderService.syncSaveErrorOrder(goldenfAccount, user.getId(), user.getAccount(), orderNo, recoverMoney, changeEnum, platform);
+            log.error("userId:{},money={},一键回收当前登录用户{}余额失败", userId,recoverMoney,vendorCode);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         if (!ObjectUtils.isEmpty(transferOut.getErrorCode())) {
-            log.error("{}余额回收失败,userId:{},errorCode={},errorMsg={}", vendorCode,userId, transferOut.getErrorCode(), transferOut.getErrorMessage());
+            log.error("{}余额回收失败,userId:{},money={},errorCode={},errorMsg={}", vendorCode,userId,recoverMoney, transferOut.getErrorCode(), transferOut.getErrorMessage());
             return ResponseUtil.custom("回收失败,请联系客服");
         }
         //三方强烈建议提值/充值后使用 5.9 获取单个玩家的转账记录 进一步确认交易是否成功，避免造成金额损失
         long time = System.currentTimeMillis();
         PublicGoldenFApi.ResponseEntity playerTransactionRecord = goldenFApi.getPlayerTransactionRecord(goldenfAccount, time, time, walletCode, orderNo, null);
         if (playerTransactionRecord == null) {
-            log.error("userId:{},{}一键回收余额查询转账记录失败,远程请求异常", userId,vendorCode);
+            User user = userService.findById(userId);
+            errorOrderService.syncSaveErrorOrder(goldenfAccount, user.getId(), user.getAccount(), orderNo, recoverMoney, changeEnum, platform);
+            log.error("userId:{},money={},{}一键回收余额查询转账记录失败,远程请求异常", userId,recoverMoney,vendorCode);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         if (!ObjectUtils.isEmpty(playerTransactionRecord.getErrorCode())) {
@@ -272,7 +274,7 @@ public class ThirdGameBusiness {
         if (transfer == null) {
             log.error("OB电竞扣点失败,远程请求异常,userId:{},account={},money={}", userId, user.getAccount(), balance);
             //异步记录错误订单
-            errorOrderService.syncSaveErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, balance, AccountChangeEnum.OBDJ_OUT, Constants.PLATFORM_OBDJ);
+            errorOrderService.syncSaveErrorOrder(third.getObdjAccount(), user.getId(), user.getAccount(), orderNo, balance, AccountChangeEnum.OBDJ_OUT, Constants.PLATFORM_OBDJ);
             return ResponseUtil.custom("回收失败,请联系客服");
         }
         if (PublicObdjApi.STATUS_FALSE.equals(transfer.getStatus())) {
