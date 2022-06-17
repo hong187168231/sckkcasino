@@ -78,6 +78,12 @@ public class ProxyUser extends BaseEntity {
     private Integer proxyRole;
 
     /**
+     * 所属公司，只有总代才能分配公司
+     */
+    @ApiModelProperty("所属公司，只有总代才能分配公司")
+    private Integer companyId;
+
+    /**
      * 区域代理ID
      */
     @ApiModelProperty("区域代理ID")
