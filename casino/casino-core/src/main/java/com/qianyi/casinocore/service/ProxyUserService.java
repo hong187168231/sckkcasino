@@ -216,4 +216,38 @@ public class ProxyUserService {
     public ProxyUser findByProxyCode(String inviteCode) {
         return proxyUserRepository.findByProxyCode(inviteCode);
     }
+
+    public List<ProxyUser> findFistProUser(List<Long> proxyList) {
+        Specification<ProxyUser> condition = getFirstConditions(proxyList);
+        List<ProxyUser> proxyUserList = proxyUserRepository.findAll(condition);
+        return proxyUserList;
+    }
+
+    private Specification<ProxyUser> getFirstConditions(List<Long> userIds) {
+        Specification<ProxyUser> specification = new Specification<ProxyUser>() {
+            @Override
+            public Predicate toPredicate(Root<ProxyUser> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (userIds != null && userIds.size() > 0) {
+                    Path<Object> userId = root.get("firstProxy");
+                    CriteriaBuilder.In<Object> in = cb.in(userId);
+                    for (Long id : userIds) {
+                        try {
+                            in.value(Long.valueOf(id));
+                        }catch (Exception ex){
+                            continue;
+                        }
+                    }
+                    list.add(cb.and(cb.and(in)));
+                }
+                return cb.and(list.toArray(new Predicate[list.size()]));
+            }
+        };
+        return specification;
+    }
+
+    @CacheEvict(allEntries = true)
+    public void saveList(List<ProxyUser> proxyUserList) {
+        proxyUserRepository.saveAll(proxyUserList);
+    }
 }

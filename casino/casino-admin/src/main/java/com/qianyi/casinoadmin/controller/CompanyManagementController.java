@@ -2,11 +2,11 @@ package com.qianyi.casinoadmin.controller;
 
 
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.model.BankInfo;
 import com.qianyi.casinocore.model.CompanyManagement;
+import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.service.CompanyManagementService;
+import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -14,9 +14,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,9 +29,12 @@ public class CompanyManagementController {
     @Autowired
     private CompanyManagementService companyManagementService;
 
+    @Autowired
+    private ProxyUserService proxyUserService;
+
     @ApiOperation("公司列表")
     @GetMapping("/findCompany")
-    public ResponseEntity<CompanyManagement> findCompany(Long id, String companyName){
+    public ResponseEntity<CompanyManagement> findCompany(){
         return ResponseUtil.success(companyManagementService.findAll());
     }
 
@@ -60,4 +61,37 @@ public class CompanyManagementController {
         return ResponseUtil.success(companyManagement);
     }
 
+    @ApiOperation("设置总代所属公司")
+    @PostMapping("/setPeoxyCompany")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "公司Id" , required = true),
+            @ApiImplicitParam(name = "proxyId", value = "代理Id" , required = true),
+    })
+    public ResponseEntity setPeoxyCompany(Long id, @RequestBody List<Long> proxyList){
+        CompanyManagement companyManagement = companyManagementService.findById(id);
+        if(companyManagement == null){
+            return ResponseUtil.custom("公司不存在");
+        }
+        List<ProxyUser> proxyUser = proxyUserService.findFistProUser(proxyList);
+        if(proxyUser.isEmpty()){
+            return ResponseUtil.custom("代理不存在");
+        }
+        proxyUser.stream().forEach(P -> P.setCompanyId(id));
+
+        proxyUserService.saveList(proxyUser);
+        return ResponseUtil.success();
+    }
+
+    @ApiOperation("删除公司")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "公司Id" , required = true)
+    })
+    @PostMapping("/deleteCompany")
+    public ResponseEntity deleteCompany(Long id, String companyName){
+        CompanyManagement companyManagement = companyManagementService.findById(id);
+        if(companyManagement == null){
+            return ResponseUtil.custom("公司不存在");
+        }
+      return null;
+    }
 }
