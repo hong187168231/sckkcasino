@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -110,8 +111,14 @@ public class ErrorOrderController {
             ResponseUtil.custom("参数不合法");
         }
         ErrorOrder order = errorOrderService.findErrorOrderByIdUseLock(id);
-        if(order !=null && order.getStatus()==status){
+        if (Objects.isNull(order)){
             return ResponseUtil.custom("订单不存在或已被处理");
+        }
+        if (order.getStatus()==status){
+            return ResponseUtil.custom("订单不存在或已被处理");
+        }
+        if (order.getStatus()==CommonConst.NUMBER_1){
+            return ResponseUtil.custom("自动补单不能处理");
         }
         if (status==CommonConst.NUMBER_4){
             //人工上分
