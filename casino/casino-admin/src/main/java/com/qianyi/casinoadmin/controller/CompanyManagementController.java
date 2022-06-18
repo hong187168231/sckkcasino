@@ -2,13 +2,13 @@ package com.qianyi.casinoadmin.controller;
 
 
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.model.CompanyProxyMonth;
 import com.qianyi.casinocore.service.CompanyProxyMonthService;
 import com.qianyi.casinocore.vo.CompanyVo;
 import com.qianyi.casinocore.model.CompanyManagement;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.service.CompanyManagementService;
 import com.qianyi.casinocore.service.ProxyUserService;
+import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -18,7 +18,10 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,8 +43,9 @@ public class CompanyManagementController {
     private CompanyProxyMonthService companyProxyMonthService;
 
 
-    @ApiOperation("查询公司下代理统计数据")
-    @GetMapping("/findProxyCompanyDetail")
+
+    @ApiOperation("公司列表")
+    @GetMapping("/findCompany")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "companyName", value = "公司名称", required = false),
             @ApiImplicitParam(name = "startDate", value = "起始时间", required = true),
@@ -49,8 +53,9 @@ public class CompanyManagementController {
     })
     public ResponseEntity<CompanyVo> findProxyCompanyDetail(String companyName, String startDate, String endDate){
         //查询出来各公司下面总代数量
-        List<CompanyVo> companyVos = companyManagementService.findGroupByCount(companyName);
+        List<Map> groupByCount = companyManagementService.findGroupByCount(companyName);
 
+        List<CompanyVo> companyVos = getCompanyVos(groupByCount);
         //查询总佣金
         if(companyVos.isEmpty()){
             return ResponseUtil.success();
@@ -61,22 +66,45 @@ public class CompanyManagementController {
         List<Long> proxyIdList = proxyUserService.findByCompanyIdList(idList);
 
 
-        List<CompanyVo> companySum = companyProxyMonthService.sumCompanyProxyMonth(proxyIdList);
-        companySum.forEach(companyVo -> {
-            companyVos.forEach(companyVo1 -> {
+        List<Map> companySumMap = companyProxyMonthService.sumCompanyProxyMonth(proxyIdList, startDate, endDate);
+
+        List<CompanyVo> companySum = getCompanyVosMap(companySumMap);
+        companyVos.forEach(companyVo -> {
+            companySum.forEach(companyVo1 -> {
                 if(companyVo1.getId() == companyVo.getId()){
-                    companyVo.setProxyNum(companyVo1.getProxyNum());
+                    companyVo.setProxyCommission(companyVo1.getProxyCommission());
+                    companyVo.setProxyOextract(companyVo1.getProxyOextract());
+                    companyVo.setCreateDate(companyVo1.getCreateDate());
+                    companyVo.setCreateName(companyVo1.getCreateName());
                 }
             });
         });
-        return ResponseUtil.success(companySum);
+        return ResponseUtil.success(companyVos);
     }
 
+    private List<CompanyVo> getCompanyVosMap(List<Map> companySumMap) {
+        List<CompanyVo> companyVos = new ArrayList<>();
+        for (Map map : companySumMap) {
+            CompanyVo companyVo = CompanyVo.builder().id(Long.parseLong(map.get("id").toString()))
+                .createDate(map.get("createName") + "")
+                .createDate(map.get("createDate") + "")
+                .proxyOextract(BigDecimal.valueOf(Double.parseDouble(map.get("proxyOextract") + "")))
+                .proxyCommission(BigDecimal.valueOf(Double.parseDouble(map.get("proxyCommission") + ""))).build();
+            companyVos.add(companyVo);
+        }
+        return companyVos;
+    }
 
-    @ApiOperation("公司列表")
-    @GetMapping("/findCompany")
-    public ResponseEntity<CompanyManagement> findCompany(){
-        return ResponseUtil.success(companyManagementService.findAll());
+    private List<CompanyVo> getCompanyVos(List<Map> groupByCount) {
+        List<CompanyVo> companyVos = new ArrayList<>();
+        for (Map map : groupByCount) {
+            CompanyVo companyVo = CompanyVo.builder()
+            .id(Long.parseLong(map.get("id").toString()))
+            .proxyNum(Integer.parseInt(map.get("proxyNum").toString()))
+            .companyName(map.get("companyName") + "").build();
+            companyVos.add(companyVo);
+        }
+        return companyVos;
     }
 
 

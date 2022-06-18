@@ -149,7 +149,7 @@ public class CompanyProxyMonthService {
         return specification;
     }
 
-    public List<CompanyVo> sumCompanyProxyMonth(List<Long> idList) {
-        return companyProxyMonthRepository.sumCompanyProxyMonth(idList);
+    public List<Map> sumCompanyProxyMonth(List<Long> idList, String startDate, String endDate) {
+        return companyProxyMonthRepository.sumCompanyProxyMonth(idList, startDate, endDate);
     }
 }

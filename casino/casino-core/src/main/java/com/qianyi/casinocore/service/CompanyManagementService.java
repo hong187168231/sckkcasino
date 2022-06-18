@@ -83,7 +83,7 @@ public class CompanyManagementService {
         return specification;
     }
 
-    public List<CompanyVo> findGroupByCount(String companyName) {
+    public List<Map> findGroupByCount(String companyName) {
         return repository.findGroupByCount(companyName);
     }
 }

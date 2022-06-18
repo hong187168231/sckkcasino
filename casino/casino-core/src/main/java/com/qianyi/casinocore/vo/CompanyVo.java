@@ -1,11 +1,13 @@
 package com.qianyi.casinocore.vo;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+@Builder
 @Data
 public class CompanyVo implements Serializable {
     private static final long serialVersionUID = 2208529825210480975L;
@@ -18,11 +20,15 @@ public class CompanyVo implements Serializable {
 
     private String createDate;
 
-    private Integer proxyNum;
+    @Builder.Default
+    private Integer proxyNum = 0;
 
     @ApiModelProperty(value = "抽点")
-    private BigDecimal proxyOextract;
+    @Builder.Default
+    private BigDecimal proxyOextract = BigDecimal.ZERO;
+
     @ApiModelProperty(value = "佣金")
-    private BigDecimal proxyCommission;
+    @Builder.Default
+    private BigDecimal proxyCommission = BigDecimal.ZERO;
 
 }
