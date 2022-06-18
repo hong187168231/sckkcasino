@@ -93,20 +93,22 @@ public class ErrorOrderService {
 
 
     @Async("asyncExecutor")
-    public void syncSaveErrorOrder(String thirdAccount, Long userId, String account, String orderNo, BigDecimal money, AccountChangeEnum ChangeEnum, String platform) {
-        log.info("开始记录异常订单，userId:{},account:{},money:{}",userId,account,money);
+    public void syncSaveErrorOrder(String thirdAccount, Long userId, String account, String orderNo, BigDecimal money, AccountChangeEnum changeEnum, String platform) {
+        log.info("开始记录异常订单，userId:{},account:{},money:{}", userId, account, money);
         ErrorOrder errorOrder = new ErrorOrder();
         errorOrder.setUserId(userId);
         errorOrder.setUserName(account);
         errorOrder.setStatus(0);
         errorOrder.setOrderNo(orderNo);
         errorOrder.setMoney(money.abs());
-        errorOrder.setType(ChangeEnum.getType());
+        errorOrder.setType(changeEnum.getType());
         errorOrder.setPlatform(platform);
         ErrorOrder order = errorOrderRepository.save(errorOrder);
-        log.info("异常订单保存成功，errorOrder:{}",errorOrder.toString());
-        //尝试3次补单
-        supplementBusiness.trySupplement(order, thirdAccount);
+        log.info("异常订单保存成功，errorOrder:{}", errorOrder.toString());
+        //WM尝试3次补单
+        if (changeEnum.getType() == AccountChangeEnum.WM_IN.getType() || changeEnum.getType() == AccountChangeEnum.RECOVERY.getType()) {
+            supplementBusiness.tryWMSupplement(order, thirdAccount);
+        }
     }
 
     public void save(ErrorOrder errorOrder) {

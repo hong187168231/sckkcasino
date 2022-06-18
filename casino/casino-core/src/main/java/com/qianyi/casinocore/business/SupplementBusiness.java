@@ -40,7 +40,7 @@ public class SupplementBusiness {
      * @param errorOrder
      * @param thirdAccount
      */
-    public void trySupplement(ErrorOrder errorOrder, String thirdAccount) {
+    public void tryWMSupplement(ErrorOrder errorOrder, String thirdAccount) {
         String orderNo = errorOrder.getOrderNo();
         int requestNum = 0;
         while (true) {
@@ -62,7 +62,7 @@ public class SupplementBusiness {
                     //转入wm时，wm查询无记录说明wm加点失败，要把本地的钱加回来，
                     if (errorOrder.getType() == AccountChangeEnum.WM_IN.getType()) {
                         //更新错误订单表状态
-                        Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + errorOrder.getMoney() + ",转入WM时加点失败,加回本地额度");
+                        Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + errorOrder.getMoney().stripTrailingZeros().toPlainString() + ",转入WM时加点失败,加回本地额度");
                         if (count > 0) {
                             //加回额度
                             addMoney(errorOrder.getUserId(), errorOrder.getMoney());
@@ -92,7 +92,7 @@ public class SupplementBusiness {
                                 //以WM额度为准
                                 BigDecimal money = new BigDecimal(vo.getMoney()).abs();
                                 //更新错误订单表状态
-                                Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + money + ",转出WM时扣点成功,加回本地额度");
+                                Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + money.stripTrailingZeros().toPlainString() + ",转出WM时扣点成功,加回本地额度");
                                 if (count > 0) {
                                     //加回额度
                                     addMoney(errorOrder.getUserId(), money);
