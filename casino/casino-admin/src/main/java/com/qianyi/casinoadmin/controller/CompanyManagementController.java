@@ -2,11 +2,13 @@ package com.qianyi.casinoadmin.controller;
 
 
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.model.CompanyProxyMonth;
+import com.qianyi.casinocore.service.CompanyProxyMonthService;
+import com.qianyi.casinocore.vo.CompanyVo;
 import com.qianyi.casinocore.model.CompanyManagement;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.service.CompanyManagementService;
 import com.qianyi.casinocore.service.ProxyUserService;
-import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -17,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 代理中心公司管理
@@ -31,6 +35,43 @@ public class CompanyManagementController {
 
     @Autowired
     private ProxyUserService proxyUserService;
+
+    @Autowired
+    private CompanyProxyMonthService companyProxyMonthService;
+
+
+    @ApiOperation("查询公司下代理统计数据")
+    @GetMapping("/findProxyCompanyDetail")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "companyName", value = "公司名称", required = false),
+            @ApiImplicitParam(name = "startDate", value = "起始时间", required = true),
+            @ApiImplicitParam(name = "endDate", value = "结束时间", required = true),
+    })
+    public ResponseEntity<CompanyVo> findProxyCompanyDetail(String companyName, String startDate, String endDate){
+        //查询出来各公司下面总代数量
+        List<CompanyVo> companyVos = companyManagementService.findGroupByCount(companyName);
+
+        //查询总佣金
+        if(companyVos.isEmpty()){
+            return ResponseUtil.success();
+        }
+
+        //得到总代Id集合
+        Set<Long> idList = companyVos.stream().map(CompanyVo::getId).collect(Collectors.toSet());
+        List<Long> proxyIdList = proxyUserService.findByCompanyIdList(idList);
+
+
+        List<CompanyVo> companySum = companyProxyMonthService.sumCompanyProxyMonth(proxyIdList);
+        companySum.forEach(companyVo -> {
+            companyVos.forEach(companyVo1 -> {
+                if(companyVo1.getId() == companyVo.getId()){
+                    companyVo.setProxyNum(companyVo1.getProxyNum());
+                }
+            });
+        });
+        return ResponseUtil.success(companySum);
+    }
+
 
     @ApiOperation("公司列表")
     @GetMapping("/findCompany")
@@ -87,11 +128,17 @@ public class CompanyManagementController {
             @ApiImplicitParam(name = "id", value = "公司Id" , required = true)
     })
     @PostMapping("/deleteCompany")
-    public ResponseEntity deleteCompany(Long id, String companyName){
+    public ResponseEntity deleteCompany(Long id){
         CompanyManagement companyManagement = companyManagementService.findById(id);
         if(companyManagement == null){
             return ResponseUtil.custom("公司不存在");
         }
-      return null;
+        //查询次公司下是否有代理
+        int count = proxyUserService.findByCompanyId(id);
+        if(count > 0){
+            return ResponseUtil.custom("请先转移代理");
+        }
+        companyManagementService.deleteId(id);
+        return ResponseUtil.success();
     }
 }

@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.repository;
 
 import com.qianyi.casinocore.model.CompanyProxyMonth;
+import com.qianyi.casinocore.vo.CompanyVo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -9,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyMonth,Long>, JpaSpecificationExecutor<CompanyProxyMonth> {
 
@@ -297,4 +299,23 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
         "  where bet_time >= ?1 and bet_time <= ?2\n"
         ,nativeQuery = true)
     Map<String,Object> queryReportAll(String startTime,String endTime);
+
+    @Query(value = "SELECT\n" +
+            "\tco.id AS id,\n" +
+            "\tco.company_name AS companyName,\n" +
+            "\tco.update_time AS createDate,\n" +
+            "\tsy.user_name AS createName,\n" +
+            "\tsum( cm.profit_amount ) AS proxyCommission,\n" +
+            "\tsum( cm.extract_points_amount ) AS proxyOextract \n" +
+            "FROM\n" +
+            "\tcompany_management co\n" +
+            "\tLEFT JOIN sys_user sy ON co.update_by = sy.id\n" +
+            "\tLEFT JOIN proxy_user pr ON co.id = pr.company_id \n" +
+            "\tAND pr.proxy_role = 1\n" +
+            "\tLEFT JOIN company_proxy_month cm ON pr.id = cm.first_proxy \n" +
+            "WHERE\n" +
+            "\tco.id IN ( ? 1 ) \n" +
+            "GROUP BY\n" +
+            "\tco.id", nativeQuery = true)
+    List<CompanyVo> sumCompanyProxyMonth(List<Long> idList);
 }

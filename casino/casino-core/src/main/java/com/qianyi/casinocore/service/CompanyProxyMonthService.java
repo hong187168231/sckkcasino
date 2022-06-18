@@ -5,6 +5,7 @@ import com.qianyi.casinocore.model.CompanyProxyDetail;
 import com.qianyi.casinocore.model.CompanyProxyMonth;
 import com.qianyi.casinocore.repository.CompanyProxyMonthRepository;
 import com.qianyi.casinocore.util.DTOUtil;
+import com.qianyi.casinocore.vo.CompanyVo;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -146,5 +147,9 @@ public class CompanyProxyMonthService {
             }
         };
         return specification;
+    }
+
+    public List<CompanyVo> sumCompanyProxyMonth(List<Long> idList) {
+        return companyProxyMonthRepository.sumCompanyProxyMonth(idList);
     }
 }

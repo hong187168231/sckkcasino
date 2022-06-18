@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.*;
 
 import javax.persistence.LockModeType;
 import javax.transaction.Transactional;
+import java.util.List;
+import java.util.Set;
 
 public interface ProxyUserRepository extends JpaRepository<ProxyUser,Long>, JpaSpecificationExecutor<ProxyUser> {
 
@@ -41,4 +43,10 @@ public interface ProxyUserRepository extends JpaRepository<ProxyUser,Long>, JpaS
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     ProxyUser  findProxyUserById(Long id);
+
+    List<ProxyUser> findByCompanyId(Long id);
+
+    @Query(value = "select pr.id from proxy_user pr where pr.company_id in (?1) and proxy_role = 1;",nativeQuery = true)
+    List<Long> findByCompanyIdList(Set<Long> idList);
+
 }

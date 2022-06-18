@@ -15,10 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @CacheConfig(cacheNames = {"proxyUser"})
@@ -249,5 +246,14 @@ public class ProxyUserService {
     @CacheEvict(allEntries = true)
     public void saveList(List<ProxyUser> proxyUserList) {
         proxyUserRepository.saveAll(proxyUserList);
+    }
+
+    public int findByCompanyId(Long id) {
+        List<ProxyUser> proxyUserList = proxyUserRepository.findByCompanyId(id);
+        return proxyUserList.size();
+    }
+
+    public List<Long> findByCompanyIdList(Set<Long> idList) {
+        return proxyUserRepository.findByCompanyIdList(idList);
     }
 }
