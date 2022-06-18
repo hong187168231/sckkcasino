@@ -86,8 +86,6 @@ public class CompanyManagementController {
         List<CompanyVo> companyVos = new ArrayList<>();
         for (Map map : companySumMap) {
             CompanyVo companyVo = CompanyVo.builder().id(Long.parseLong(map.get("id").toString()))
-                .createDate(map.get("createName") + "")
-                .createDate(map.get("createDate") + "")
                 .proxyOextract(BigDecimal.valueOf(Double.parseDouble(map.get("proxyOextract") + "")))
                 .proxyCommission(BigDecimal.valueOf(Double.parseDouble(map.get("proxyCommission") + ""))).build();
             companyVos.add(companyVo);
@@ -101,7 +99,9 @@ public class CompanyManagementController {
             CompanyVo companyVo = CompanyVo.builder()
             .id(Long.parseLong(map.get("id").toString()))
             .proxyNum(Integer.parseInt(map.get("proxyNum").toString()))
-            .companyName(map.get("companyName") + "").build();
+            .companyName(map.get("companyName") + "")
+            .createDate(map.get("createDate") + "")
+            .createName(map.get("createName") + "").build();
             companyVos.add(companyVo);
         }
         return companyVos;
