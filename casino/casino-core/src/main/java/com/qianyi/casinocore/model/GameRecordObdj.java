@@ -11,7 +11,9 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table(name ="game_record_obdj",uniqueConstraints={@UniqueConstraint(columnNames={"betId"})})
+@Table(name ="game_record_obdj",uniqueConstraints={@UniqueConstraint(columnNames={"betId"})},indexes = {
+    @Index(columnList = "betStatus"),@Index(columnList = "setStrTime"),@Index(columnList = "userId")
+})
 @ApiModel("OB电竞游戏记录")
 public class GameRecordObdj extends BaseEntity{
 

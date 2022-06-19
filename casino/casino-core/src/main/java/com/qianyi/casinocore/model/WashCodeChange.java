@@ -13,7 +13,8 @@ import java.math.BigDecimal;
 @Entity
 @Data
 @ApiModel("洗码明细表")
-@Table(name ="wash_code_change",uniqueConstraints={@UniqueConstraint(columnNames={"platform","gameRecordId"})},indexes = {@Index(columnList = "userId,platform,createTime")})
+@Table(name ="wash_code_change",uniqueConstraints={@UniqueConstraint(columnNames={"platform","gameRecordId"})},
+	indexes = {@Index(columnList = "userId,platform,createTime"),@Index(columnList = "platform"),@Index(columnList = "createTime")})
 public class WashCodeChange extends BaseEntity {
 
 	@ApiModelProperty(value = "用户ID")

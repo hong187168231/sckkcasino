@@ -5,15 +5,14 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 import java.math.BigDecimal;
 
 @Data
 @Entity
-@Table(name ="game_record_obty",uniqueConstraints={@UniqueConstraint(columnNames={"orderNo"})})
+@Table(name ="game_record_obty",uniqueConstraints={@UniqueConstraint(columnNames={"orderNo"})},indexes = {
+    @Index(columnList = "settleStrTime"),@Index(columnList = "userId")
+})
 @ApiModel("OB体育游戏记录")
 public class GameRecordObty extends BaseEntity{
 

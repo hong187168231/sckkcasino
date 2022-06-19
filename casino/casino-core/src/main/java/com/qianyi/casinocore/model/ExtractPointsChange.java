@@ -5,17 +5,15 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
 @Data
 @ApiModel("洗码明细表")
 @NoArgsConstructor
-@Table(name ="extract_points_change",uniqueConstraints={@UniqueConstraint(columnNames={"platform","gameRecordId"})})
+@Table(name ="extract_points_change",uniqueConstraints={@UniqueConstraint(columnNames={"platform","gameRecordId"})},
+    indexes = {@Index(columnList = "platform"),@Index(columnList = "createTime"),@Index(columnList = "userId")})
 public class ExtractPointsChange extends BaseEntity{
 
     @ApiModelProperty(value = "抽点金额")

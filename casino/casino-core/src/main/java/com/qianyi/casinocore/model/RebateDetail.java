@@ -4,9 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.math.BigDecimal;
 
 /**
@@ -15,7 +13,8 @@ import java.math.BigDecimal;
 @Entity
 @Data
 @ApiModel("注单返利详情")
-@Table(name = "rebate_detail")
+@Table(name = "rebate_detail",uniqueConstraints={@UniqueConstraint(columnNames={"platform","gameRecordId"})},
+    indexes = {@Index(columnList = "platform"),@Index(columnList = "createTime"),@Index(columnList = "userId")})
 public class RebateDetail extends BaseEntity {
 
     @ApiModelProperty(value = "用户ID")

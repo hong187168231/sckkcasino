@@ -7,15 +7,14 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
 @Entity
 @ApiModel("提币订单")
+@Table(indexes = {@Index(columnList = "userId"),@Index(columnList = "updateTime"),@Index(columnList = "status")})
 public class WithdrawOrder extends BaseEntity {
 
     @ApiModelProperty(value = "用户id")
