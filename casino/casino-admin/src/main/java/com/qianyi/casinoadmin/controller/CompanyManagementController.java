@@ -42,7 +42,16 @@ public class CompanyManagementController {
     @Autowired
     private CompanyProxyMonthService companyProxyMonthService;
 
-
+    @NoAuthentication
+    @ApiOperation("公司下具体总代人员")
+    @GetMapping("/findCompanyRole")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "公司ID", required = true)
+    })
+    public ResponseEntity findCompanyRole(Long id){
+        List<String> list = proxyUserService.findByCompanyRole(id);
+        return ResponseUtil.success(list);
+    }
 
     @ApiOperation("公司列表")
     @GetMapping("/findCompany")

@@ -256,4 +256,8 @@ public class ProxyUserService {
     public List<Long> findByCompanyIdList(Set<Long> idList) {
         return proxyUserRepository.findByCompanyIdList(idList);
     }
+
+    public List<String> findByCompanyRole(Long id) {
+        return proxyUserRepository.findByCompanyRole(id);
+    }
 }

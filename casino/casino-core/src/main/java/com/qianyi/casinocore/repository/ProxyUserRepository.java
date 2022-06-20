@@ -49,4 +49,7 @@ public interface ProxyUserRepository extends JpaRepository<ProxyUser,Long>, JpaS
     @Query(value = "select pr.id from proxy_user pr where pr.company_id in (?1) and proxy_role = 1;",nativeQuery = true)
     List<Long> findByCompanyIdList(Set<Long> idList);
 
+    @Query(value = "select pr.user_name as userName from proxy_user pr where pr.company_id in (?1) and proxy_role = 1;",nativeQuery = true)
+    List<String> findByCompanyRole(Long id);
+
 }
