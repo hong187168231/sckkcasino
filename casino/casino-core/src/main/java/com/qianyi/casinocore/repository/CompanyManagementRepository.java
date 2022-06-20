@@ -16,7 +16,7 @@ public interface CompanyManagementRepository  extends JpaRepository<CompanyManag
             "\tsy.user_name AS createName,\n" +
             "\tco.company_name AS companyName,\n" +
             "\tco.create_time as createDate,\n" +
-            "\tcount( 1 ) AS proxyNum \n" +
+            "\tcount(pr.id) AS proxyNum \n" +
             "FROM\n" +
             "\tcompany_management co\n" +
             "\tLEFT JOIN sys_user sy on co.update_by = sy.id \n" +
