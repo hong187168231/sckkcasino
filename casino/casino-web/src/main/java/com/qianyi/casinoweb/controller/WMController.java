@@ -164,6 +164,9 @@ public class WMController {
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
             if (entity.getErrorCode() == 911) {
+                log.error("游戏维护进游戏加扣点失败,userId:{},account:{},money:{},errorCode={},errorMsg={}",third.getUserId(),user.getAccount(),userCenterMoney, entity.getErrorCode(), entity.getErrorMessage());
+                //三方加扣点失败再把钱加回来
+                userMoneyService.addMoney(authId, userCenterMoney);
                 return ResponseUtil.custom("当前游戏维护中,请选择其他游戏");
             }
             if (entity.getErrorCode() != 0) {
