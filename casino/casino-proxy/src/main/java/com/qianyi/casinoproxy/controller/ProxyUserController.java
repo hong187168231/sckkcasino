@@ -347,6 +347,9 @@ public class ProxyUserController {
         }
         Integer proxyRole = byId.getProxyRole() + CommonConst.NUMBER_1;
         ProxyUser proxyUser = new ProxyUser();
+        if(byId.getCompanyId() != null){
+            proxyUser.setCompanyId(byId.getCompanyId());
+        }
         if (byId.getProxyRole() == CommonConst.NUMBER_1){
             proxyUser.setFirstProxy(byId.getId());
         }else {
