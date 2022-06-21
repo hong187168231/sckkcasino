@@ -19,7 +19,7 @@ public interface CompanyManagementRepository  extends JpaRepository<CompanyManag
             "\tcount(pr.id) AS proxyNum \n" +
             "FROM\n" +
             "\tcompany_management co\n" +
-            "\tLEFT JOIN sys_user sy on co.update_by = sy.id \n" +
+            "\tLEFT JOIN sys_user sy on co.create_by = sy.id \n" +
             "\tLEFT JOIN proxy_user pr ON co.id = pr.company_id \n" +
             "\tAND proxy_role = 1 \n" +
             "WHERE\n" +
