@@ -11,6 +11,7 @@ import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.DateUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -83,8 +84,6 @@ public class CompanyManagementController {
                 if(companyVo1.getId() == companyVo.getId()){
                     companyVo.setProxyCommission(companyVo1.getProxyCommission());
                     companyVo.setProxyOextract(companyVo1.getProxyOextract());
-                    companyVo.setCreateDate(companyVo1.getCreateDate());
-                    companyVo.setCreateName(companyVo1.getCreateName());
                 }
             });
         });
@@ -105,12 +104,17 @@ public class CompanyManagementController {
     private List<CompanyVo> getCompanyVos(List<Map> groupByCount) {
         List<CompanyVo> companyVos = new ArrayList<>();
         for (Map map : groupByCount) {
+            String createDate = map.get("createDate") + "";
+           if(!LoginUtil.checkNull(createDate)){
+               createDate = createDate.substring(0, createDate.lastIndexOf("."));
+           }
             CompanyVo companyVo = CompanyVo.builder()
             .id(Long.parseLong(map.get("id").toString()))
             .proxyNum(Integer.parseInt(map.get("proxyNum").toString()))
             .companyName(map.get("companyName") + "")
-            .createDate(map.get("createDate") + "")
+            .createDate(createDate)
             .createName(map.get("createName") + "").build();
+
             companyVos.add(companyVo);
         }
         return companyVos;
