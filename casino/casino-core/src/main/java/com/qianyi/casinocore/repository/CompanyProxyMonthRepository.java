@@ -314,7 +314,7 @@ public interface CompanyProxyMonthRepository extends JpaRepository<CompanyProxyM
             "\tAND pr.proxy_role = 1\n" +
             "\tLEFT JOIN company_proxy_month cm ON pr.id = cm.first_proxy \n" +
             "WHERE\n" +
-            "\tco.id IN (?1 ) \n" +
+            "\tcm.first_proxy IN (?1 ) \n" +
             "\tand statics_times BETWEEN ?2 and ?3\n" +
             "GROUP BY\n" +
             "\tco.id", nativeQuery = true)
