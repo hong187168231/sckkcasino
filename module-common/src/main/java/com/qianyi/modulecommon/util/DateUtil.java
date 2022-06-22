@@ -76,6 +76,11 @@ public class DateUtil {
         return nowTime.getTime();
     }
 
+    public static Date getToday(){
+        Calendar nowTime = Calendar.getInstance();
+        return nowTime.getTime();
+    }
+
     public static String today() {
         return today(patten);
     }

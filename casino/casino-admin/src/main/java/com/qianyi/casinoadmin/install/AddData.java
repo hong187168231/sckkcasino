@@ -63,7 +63,7 @@ public class AddData implements CommandLineRunner {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        Map<Integer,String> mapDate = CommonUtil.findDates("D", startDate, DateUtil.getYesterday());
+        Map<Integer,String> mapDate = CommonUtil.findDates("D", startDate, DateUtil.getToday());
         mapDate.forEach((k,v)->{
             userGameRecordReportService.comparison(v);
             proxyGameRecordReportService.comparison(v);
