@@ -158,6 +158,9 @@ public class ProxyUserService {
                 if (proxyUser.getSecondProxy() != null) {
                     list.add(cb.equal(root.get("secondProxy").as(Long.class), proxyUser.getSecondProxy()));
                 }
+                if (proxyUser.getCompanyId() != null) {
+                    list.add(cb.equal(root.get("companyId").as(Long.class), proxyUser.getCompanyId()));
+                }
                 if (startDate != null) {
                     list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
                 }
