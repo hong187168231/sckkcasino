@@ -68,8 +68,8 @@ public class TransferProxyUserInit implements CommandLineRunner {
 //            }
 //        }
 
-        this.secondProxyToFirstProxy();
-        this.thirdProxyToSecondProxy();
+//        this.secondProxyToFirstProxy();
+//        this.thirdProxyToSecondProxy();
     }
 
     private void thirdProxyToSecondProxy(){

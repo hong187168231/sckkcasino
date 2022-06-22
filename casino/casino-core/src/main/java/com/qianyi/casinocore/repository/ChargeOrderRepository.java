@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 public interface ChargeOrderRepository extends JpaRepository<ChargeOrder,Long>, JpaSpecificationExecutor<ChargeOrder> {
@@ -19,13 +20,14 @@ public interface ChargeOrderRepository extends JpaRepository<ChargeOrder,Long>, 
 
     Integer countByUserIdAndStatus(Long userId,int status);
 
-
-
     @Modifying
     @Query(value = "update charge_order c set c.remark = ?1 where   c.id = ?2",nativeQuery = true)
     void updateChargeOrdersRemark(String remark,Long id);
 
-
     @Query(value = "select IFNULL( SUM(charge_amount),0) from charge_order where `status` in (1,4,5)",nativeQuery = true)
     BigDecimal sumChargeAmount();
+
+    @Modifying(clearAutomatically = true)
+    @Query("update ChargeOrder c set c.remark=?2,c.lastModifier=?3,c.status=?4,c.betRate=?5,c.updateTime=?6 where c.id=?1")
+    void updateChargeOrder(Long id, String remark,String lastModifier,Integer status,BigDecimal betRate,Date updateTime);
 }
