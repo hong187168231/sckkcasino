@@ -97,7 +97,7 @@ public class ProxyGameRecordReportBusiness {
                         proxyGameRecordReportVo.getSecondProxy(),proxyGameRecordReportVo.getThirdProxy(),proxyGameRecordReportVo.getBetAmount());
                 }
 
-                Long userGameRecordReportId = CommonUtil.toHash(orderTimes+proxyGameRecordReportVo.getUserId().toString()+proxyGameRecordReportVo.getPlatform());
+
                 //            if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_WM)){//会员报表单单wm使用美东时间
                 //                userGameRecordReportService.updateKey(userGameRecordReportId,proxyGameRecordReportVo.getUserId(),orderTimes,
                 //                    proxyGameRecordReportVo.getValidAmount(),proxyGameRecordReportVo.getWinLoss(),proxyGameRecordReportVo.getBetAmount(),proxyGameRecordReportVo.getPlatform());
@@ -107,8 +107,9 @@ public class ProxyGameRecordReportBusiness {
                 //                    proxyGameRecordReportVo.getValidAmount(),proxyGameRecordReportVo.getWinLoss(),proxyGameRecordReportVo.getBetAmount(),proxyGameRecordReportVo.getPlatform());
                 //            }
 
-                orderTimes = DateUtil.dateToPatten1(date);
-                userGameRecordReportService.updateKey(userGameRecordReportId,proxyGameRecordReportVo.getUserId(),orderTimes,
+                String userGameTimes = DateUtil.dateToPatten1(date);
+                Long userGameRecordReportId = CommonUtil.toHash(userGameTimes+proxyGameRecordReportVo.getUserId().toString()+proxyGameRecordReportVo.getPlatform());
+                userGameRecordReportService.updateKey(userGameRecordReportId,proxyGameRecordReportVo.getUserId(),userGameTimes,
                     proxyGameRecordReportVo.getValidAmount(),proxyGameRecordReportVo.getWinLoss(),proxyGameRecordReportVo.getBetAmount(),proxyGameRecordReportVo.getPlatform());
 
                 //更新注单状态
