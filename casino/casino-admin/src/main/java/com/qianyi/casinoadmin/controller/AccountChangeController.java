@@ -102,16 +102,4 @@ public class AccountChangeController {
         }
         return ResponseUtil.success(pageResultVO);
     }
-
-    @ApiOperation("查询账变类型")
-    @GetMapping("/getData")
-    @NoAuthorization
-    public ResponseEntity getData(){
-        AccountChangeEnum[] values = AccountChangeEnum.values();
-        Map<Integer,String> map = new HashMap<>();
-        for (AccountChangeEnum accountChangeEnum:values){
-            map.put(accountChangeEnum.getType(),messageUtil.get(accountChangeEnum.getName()));
-        }
-        return ResponseUtil.success(map);
-    }
 }
