@@ -26,6 +26,8 @@ public class CompanyProxyMonthVo implements Serializable {
     private String nickName;
     @ApiModelProperty(value = "代理角色 1：总代理 2：区域代理 3：基层代理")
     private Integer proxyRole;
+    @ApiModelProperty(value = "公司名称")
+    private String companyName;
     @ApiModelProperty(value = "统计时段")
     private String staticsTimes;
     @ApiModelProperty(value = "创造业绩的玩家数")
@@ -49,7 +51,7 @@ public class CompanyProxyMonthVo implements Serializable {
 
     @ApiModelProperty(value = "抽点金额")
     @JsonSerialize(using = Decimal2AndNullSerializer.class, nullsUsing = Decimal2AndNullSerializer.class)
-    private BigDecimal extractPointsAmount;
+    private BigDecimal extractPointsAmount = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "代理所得总额")
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)

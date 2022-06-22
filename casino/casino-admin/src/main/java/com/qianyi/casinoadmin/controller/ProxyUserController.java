@@ -120,12 +120,11 @@ public class ProxyUserController {
         List<ProxyCommission> proxyCommissions = proxyCommissionService.findProxyUser(proxyIds);
         if (proxyUserList != null && proxyUserList.size() > 0) {
             List<ProxyUserVo> userVoList = new LinkedList();
-            Set<Long> companyIds = proxyUserList.stream().filter(item -> item.getProxyRole() == CommonConst.NUMBER_1)
-                .map(ProxyUser::getCompanyId).collect(Collectors.toSet());
+            Set<Long> companyIds = proxyUserList.stream().map(ProxyUser::getCompanyId).collect(Collectors.toSet());
             List<CompanyManagement> companyManagementList =
                 companyManagementService.findCompanyManagementList(companyIds);
-            Map<Long, String> maps = companyManagementList.stream().collect(Collectors.toMap(CompanyManagement::getId,
-                CompanyManagement::getCompanyName, (key1, key2) -> key2));
+            Map<Long, String> maps = companyManagementList.stream().collect(
+                Collectors.toMap(CompanyManagement::getId, CompanyManagement::getCompanyName, (key1, key2) -> key2));
             List<Long> firstProxyIds =
                 proxyUserList.stream().filter(item -> item.getProxyRole() != CommonConst.NUMBER_1)
                     .map(ProxyUser::getFirstProxy).collect(Collectors.toList());
@@ -172,12 +171,12 @@ public class ProxyUserController {
                             proxyUserVo.setCommissionRatio(commissionRatio);
                         }
                     });
+                    proxyUserVo.setCompanyName(maps.get(u.getCompanyId()));
                     User user = new User();
                     if (u.getProxyRole() == CommonConst.NUMBER_1) {
                         user.setFirstProxy(u.getId());
                         Long userCount = userService.findUserCount(user, null, null);
                         proxyUserVo.setUsersNum(Math.toIntExact(userCount));
-                        proxyUserVo.setCompanyName(maps.get(u.getCompanyId()));
                     } else if (u.getProxyRole() == CommonConst.NUMBER_2) {
                         user.setSecondProxy(u.getId());
                         Long userCount = userService.findUserCount(user, null, null);
@@ -228,8 +227,7 @@ public class ProxyUserController {
         @ApiImplicitParam(name = "nickName", value = "用户昵称", required = false),
         @ApiImplicitParam(name = "id", value = "选中列id", required = false),
         @ApiImplicitParam(name = "tag", value = "tag 1:总代 2:区域代 3:基层", required = true),
-        @ApiImplicitParam(name = "companyId", value = "公司id", required = false),
-    })
+        @ApiImplicitParam(name = "companyId", value = "公司id", required = false),})
     @PostMapping("saveProxyUser")
     @Transactional
     public ResponseEntity saveProxyUser(String userName, String nickName, Long id, Integer tag, Long companyId) {
@@ -248,17 +246,13 @@ public class ProxyUserController {
         }
         ProxyUser proxyUser = new ProxyUser();
 
-        if(companyId != null && tag == CommonConst.NUMBER_1){
-            CompanyManagement companyManagement = companyManagementService.findById(id);
-            if(companyManagement == null){
+        if (companyId != null && tag == CommonConst.NUMBER_1) {
+            CompanyManagement companyManagement = companyManagementService.findById(companyId);
+            if (companyManagement == null) {
                 return ResponseUtil.custom("公司不存在");
-            }else{
+            } else {
                 proxyUser.setCompanyId(companyManagement.getId());
             }
-        }
-
-        if(tag != CommonConst.NUMBER_1 && byUserName.getCompanyId() != null){
-            proxyUser.setCompanyId(byUserName.getCompanyId());
         }
         proxyUser.setUserName(userName);
         proxyUser.setNickName(nickName);
@@ -286,6 +280,7 @@ public class ProxyUserController {
             }
             proxyUser.setProxyRole(CommonConst.NUMBER_2);
             proxyUser.setFirstProxy(proxy.getId());
+            proxyUser.setCompanyId(proxy.getCompanyId());
         } else {
             if (LoginUtil.checkNull(id)) {
                 return ResponseUtil.custom("参数不合法");
@@ -302,6 +297,7 @@ public class ProxyUserController {
             proxyUser.setProxyRole(CommonConst.NUMBER_3);
             proxyUser.setFirstProxy(proxy.getFirstProxy());
             proxyUser.setSecondProxy(proxy.getId());
+            proxyUser.setCompanyId(proxy.getCompanyId());
         }
 
         ProxyUser saveProxyUser = proxyUserService.save(proxyUser);

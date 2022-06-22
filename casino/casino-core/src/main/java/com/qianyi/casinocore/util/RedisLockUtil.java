@@ -17,6 +17,10 @@ public class RedisLockUtil {
 
     public static final String PROXY_GAME_RECORD_REPORT_BUSINESS ="proxyGameRecordReportBusiness:{0}";
 
+    public static final String WITHDRAW_AUDIT_ORDER ="withdrawAuditOrder:{0}";
+
+    public static final String CHARGEORDER_ORDER ="chargeOrder:{0}";
+
     //分布式锁过期时间s可以根据自己的业务调整
     private static final Long LOCK_REDIS_TIMEOUT = 10L;
 

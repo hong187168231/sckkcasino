@@ -271,8 +271,8 @@ public class UserService {
         //            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(),"'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
         //        }
         if(StringUtils.isNullOrEmpty(platform)){
-            //            sql = MessageFormat.format(SqlConst.totalSqlReport, startTime, endTime, sort, page.toString(), pageSize.toString(),orderTimeStart,orderTimeEnd,proxy);//走报表
-            sql = MessageFormat.format(SqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString(),proxy);
+            sql = MessageFormat.format(SqlConst.totalSqlReport, startTime, endTime, sort, page.toString(), pageSize.toString(),orderTimeStart,orderTimeEnd,proxy);//走报表
+            //            sql = MessageFormat.format(SqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString(),proxy);
         }else if (platform.equals(Constants.PLATFORM_WM_BIG)){
             sql = MessageFormat.format(SqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'wm'",proxy);
         }else if (platform.equals(Constants.PLATFORM_OBDJ)){
@@ -292,6 +292,43 @@ public class UserService {
         List<Map<String, Object>> mapList = parsePersonReportMapList(resultList);
         return DTOUtil.map2DTO(mapList, PersonReportVo.class);
     }
+
+    @SuppressWarnings("unchecked")
+    public List<PersonReportVo> findMapExport(String platform,String startTime,String endTime,String sort,String orderTimeStart,String orderTimeEnd,String proxy)
+        throws Exception {
+        startTime = "'"+startTime+"'";
+        endTime = "'"+endTime+"'";
+        String sql = "";
+        //        if(StringUtils.isNullOrEmpty(platform)){
+        //            sql = MessageFormat.format(SqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString(),orderTimeStart,orderTimeEnd,proxy);
+        //        }else if (platform.equals("WM")){
+        //            sql = MessageFormat.format(SqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'wm'",proxy);
+        //        }else{
+        //            sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(),"'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
+        //        }
+        if(StringUtils.isNullOrEmpty(platform)){
+            sql = MessageFormat.format(SqlConst.exportTotalSqlReport, startTime, endTime, sort,orderTimeStart,orderTimeEnd,proxy);//走报表
+            //            sql = MessageFormat.format(SqlConst.exportTotalSql, startTime, endTime, sort,proxy);
+        }else if (platform.equals(Constants.PLATFORM_WM_BIG)){
+            sql = MessageFormat.format(SqlConst.exportWmSql,startTime, endTime, sort,"'wm'",proxy);
+        }else if (platform.equals(Constants.PLATFORM_OBDJ)){
+            sql = MessageFormat.format(SqlConst.exportObdjSql,startTime, endTime, sort, "'OBDJ'",proxy);
+        }else if (platform.equals(Constants.PLATFORM_OBTY)){
+            sql = MessageFormat.format(SqlConst.exportObtySql,startTime, endTime, sort,"'OBTY'",proxy);
+        }else if (platform.equals(Constants.PLATFORM_PG)){
+            sql = MessageFormat.format(SqlConst.exportPgOrCq9Sql,startTime, endTime, sort, "'PG'",proxy);
+        }else if (platform.equals(Constants.PLATFORM_SABASPORT)){
+            sql = MessageFormat.format(SqlConst.exportPgOrCq9Sql,startTime, endTime, sort, "'SABASPORT'",proxy);
+        }else{
+            sql = MessageFormat.format(SqlConst.exportPgOrCq9Sql,startTime, endTime, sort,"'CQ9'",proxy);
+        }
+        log.info(sql);
+        Query countQuery = entityManager.createNativeQuery(sql);
+        List<Object> resultList = countQuery.getResultList();
+        List<Map<String, Object>> mapList = parsePersonReportMapList(resultList);
+        return DTOUtil.map2DTO(mapList, PersonReportVo.class);
+    }
+
     @SuppressWarnings("unchecked")
     public List<PersonReportVo> findMap(String platform, String startTime, String endTime, Long userId,String orderTimeStart,String orderTimeEnd,String proxy){
         startTime = "'"+startTime+"'";
@@ -306,8 +343,8 @@ public class UserService {
         //        }
         if(StringUtils.isNullOrEmpty(platform)){
             //走报表
-            //            sql = MessageFormat.format(SqlConst.seleOneTotalReport,startTime,endTime,userId.toString(),orderTimeStart,orderTimeEnd,proxy);
-            sql = MessageFormat.format(SqlConst.seleOneTotal,startTime,endTime,userId.toString(),proxy);
+            sql = MessageFormat.format(SqlConst.seleOneTotalReport,startTime,endTime,userId.toString(),orderTimeStart,orderTimeEnd,proxy);
+            //            sql = MessageFormat.format(SqlConst.seleOneTotal,startTime,endTime,userId.toString(),proxy);
         }else if (platform.equals(Constants.PLATFORM_WM_BIG)){
             sql = MessageFormat.format(SqlConst.seleOneWm, startTime, endTime, userId.toString(), "'wm'",proxy);
         }else if (platform.equals(Constants.PLATFORM_OBDJ)){
@@ -355,8 +392,8 @@ public class UserService {
         //        }
         if(StringUtils.isNullOrEmpty(platform)){
             //走报表
-            //            sql = MessageFormat.format(SqlConst.sumSqlReport,startTime,endTime,orderTimeStart,orderTimeEnd, proxy);
-            sql = MessageFormat.format(SqlConst.sumSql,startTime,endTime, proxy);
+            sql = MessageFormat.format(SqlConst.sumSqlReport,startTime,endTime,orderTimeStart,orderTimeEnd, proxy);
+            //            sql = MessageFormat.format(SqlConst.sumSql,startTime,endTime, proxy);
         }else if (platform.equals(Constants.PLATFORM_WM_BIG)){
             sql = MessageFormat.format(SqlConst.WMSumSql,startTime, endTime, "'wm'", proxy);
         }else if (platform.equals(Constants.PLATFORM_OBDJ)){
@@ -433,8 +470,8 @@ public class UserService {
         //            sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
         //        }
         if(StringUtils.isNullOrEmpty(platform)){
-            //            sql = MessageFormat.format(RebateSqlConst.totalSqlReport, startTime, endTime, sort, page.toString(), pageSize.toString(),orderTimeStart,orderTimeEnd,proxy);
-            sql = MessageFormat.format(RebateSqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString(),proxy);
+            sql = MessageFormat.format(RebateSqlConst.totalSqlReport, startTime, endTime, sort, page.toString(), pageSize.toString(),orderTimeStart,orderTimeEnd,proxy);
+            //            sql = MessageFormat.format(RebateSqlConst.totalSql, startTime, endTime, sort, page.toString(), pageSize.toString(),proxy);
         }else if (platform.equals(Constants.PLATFORM_WM_BIG)){
             sql = MessageFormat.format(RebateSqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'wm'",proxy);
         }else if (platform.equals(Constants.PLATFORM_OBDJ)){
@@ -448,12 +485,40 @@ public class UserService {
         }else{
             sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(), pageSize.toString(), "'CQ9'",proxy);
         }
-        log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
         List<Map<String, Object>> mapList = parseRebateReportMapList(resultList);
         return DTOUtil.map2DTO(mapList, RebateReportVo.class);
     }
+
+    @SuppressWarnings("unchecked")
+    public List<RebateReportVo> findRebateMapExport(String platform,String startTime,String endTime,String sort,String orderTimeStart,String orderTimeEnd,String proxy)
+        throws Exception {
+        startTime = "'"+startTime+"'";
+        endTime = "'"+endTime+"'";
+        String sql = "";
+        if(StringUtils.isNullOrEmpty(platform)){
+            sql = MessageFormat.format(RebateSqlConst.exportTotalSqlReport, startTime, endTime, sort,orderTimeStart,orderTimeEnd,proxy);
+            //            sql = MessageFormat.format(RebateSqlConst.exportTotalSql, startTime, endTime, sort,proxy);
+        }else if (platform.equals(Constants.PLATFORM_WM_BIG)){
+            sql = MessageFormat.format(RebateSqlConst.exportWmSql,startTime, endTime, sort,"'wm'",proxy);
+        }else if (platform.equals(Constants.PLATFORM_OBDJ)){
+            sql = MessageFormat.format(RebateSqlConst.exportObdjSql,startTime, endTime, sort,"'OBDJ'",proxy);
+        }else if (platform.equals(Constants.PLATFORM_OBTY)){
+            sql = MessageFormat.format(RebateSqlConst.exportObtySql,startTime, endTime, sort,"'OBTY'",proxy);
+        }else if (platform.equals(Constants.PLATFORM_PG)){
+            sql = MessageFormat.format(RebateSqlConst.exportPgOrCq9Sql,startTime, endTime, sort,"'PG'",proxy);
+        }else if (platform.equals(Constants.PLATFORM_SABASPORT)){
+            sql = MessageFormat.format(RebateSqlConst.exportPgOrCq9Sql,startTime, endTime, sort,"'SABASPORT'",proxy);
+        }else{
+            sql = MessageFormat.format(RebateSqlConst.exportPgOrCq9Sql,startTime, endTime, sort,"'CQ9'",proxy);
+        }
+        Query countQuery = entityManager.createNativeQuery(sql);
+        List<Object> resultList = countQuery.getResultList();
+        List<Map<String, Object>> mapList = parseRebateReportMapList(resultList);
+        return DTOUtil.map2DTO(mapList, RebateReportVo.class);
+    }
+
     @SuppressWarnings("unchecked")
     public List<RebateReportVo> findRebateMap(String platform, String startTime, String endTime, Long userId,String orderTimeStart,String orderTimeEnd,String proxy){
         startTime = "'"+startTime+"'";
@@ -467,8 +532,8 @@ public class UserService {
         //            sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql,startTime, endTime, userId.toString(),  "'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
         //        }
         if(StringUtils.isNullOrEmpty(platform)){
-            //            sql = MessageFormat.format(RebateSqlConst.seleOneTotalReport,startTime,endTime,userId.toString(),orderTimeStart,orderTimeEnd,proxy);
-            sql = MessageFormat.format(RebateSqlConst.seleOneTotal,startTime,endTime,userId.toString(),proxy);
+            sql = MessageFormat.format(RebateSqlConst.seleOneTotalReport,startTime,endTime,userId.toString(),orderTimeStart,orderTimeEnd,proxy);
+            //            sql = MessageFormat.format(RebateSqlConst.seleOneTotal,startTime,endTime,userId.toString(),proxy);
         }else if (platform.equals(Constants.PLATFORM_WM_BIG)){
             sql = MessageFormat.format(RebateSqlConst.seleOneWm, startTime, endTime, userId.toString(), "'wm'",proxy);
         }else if (platform.equals(Constants.PLATFORM_OBDJ)){
@@ -515,8 +580,8 @@ public class UserService {
         //            sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql,startTime, endTime,  "'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
         //        }
         if(StringUtils.isNullOrEmpty(platform)){
-            //            sql = MessageFormat.format(RebateSqlConst.sumSqlReport,startTime,endTime,orderTimeStart,orderTimeEnd,proxy);
-            sql = MessageFormat.format(RebateSqlConst.sumSql,startTime,endTime,proxy);
+            sql = MessageFormat.format(RebateSqlConst.sumSqlReport,startTime,endTime,orderTimeStart,orderTimeEnd,proxy);
+            //            sql = MessageFormat.format(RebateSqlConst.sumSql,startTime,endTime,proxy);
         }else if (platform.equals(Constants.PLATFORM_WM_BIG)){
             sql = MessageFormat.format(RebateSqlConst.WMSumSql,startTime, endTime, "'wm'",proxy);
         }else if (platform.equals(Constants.PLATFORM_OBDJ)){

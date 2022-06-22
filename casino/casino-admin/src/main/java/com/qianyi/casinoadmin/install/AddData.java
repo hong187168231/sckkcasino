@@ -1,11 +1,14 @@
 package com.qianyi.casinoadmin.install;
 
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.GameRecordGoldenF;
 import com.qianyi.casinocore.model.ProxyGameRecordReport;
 import com.qianyi.casinocore.service.GameRecordGoldenFService;
 import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinocore.service.ProxyGameRecordReportService;
+import com.qianyi.casinocore.service.UserGameRecordReportService;
+import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.casinocore.util.UserPasswordUtil;
 import com.qianyi.casinocore.vo.ProxyGameRecordReportVo;
 import com.qianyi.modulecommon.executor.AsyncService;
@@ -19,11 +22,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -41,34 +47,57 @@ public class AddData implements CommandLineRunner {
     @Autowired
     private ProxyGameRecordReportService proxyGameRecordReportService;
 
+    @Autowired
+    private UserGameRecordReportService userGameRecordReportService;
+
     private static final Integer pageSize = 1000;
 
     public static final Integer num = 50000;
     @Override
     public void run(String... args) throws Exception {
-//        log.info("AddData转移数据开始");
-//        List<ProxyGameRecordReport> all = proxyGameRecordReportService.findAll();
-//        log.info("取到报表数据all{}",all);
-//        if (all == null || all.isEmpty()){
-//            Long gameRecordMaxId = gameRecordService.findMaxId();
-//            log.info("取到gameRecordMaxId{}",gameRecordMaxId);
-//            if (gameRecordMaxId != null && gameRecordMaxId.longValue() != 0L){
-//                log.info("开始执行方法recursionWm");
-//                new Thread(()->{
-//                    recursionWm(1,pageSize,gameRecordMaxId);
-//                }).start();
-//            }
-//
-//            Long gameRecordGoldenFMaxId = gameRecordGoldenFService.findMaxId();
-//            log.info("取到gameRecordGoldenFMaxId{}",gameRecordGoldenFMaxId);
-//            if (gameRecordGoldenFMaxId != null && gameRecordGoldenFMaxId.longValue() != 0L){
-//                log.info("开始执行方法recursionPg");
-//                new Thread(()->{
-//                    recursionPg(1,pageSize,gameRecordGoldenFMaxId);
-//                }).start();
-//            }
-//
-//        }
+        log.info("初始化计算数据开始==============================================>");
+        long startTime = System.currentTimeMillis();
+        Date startDate = null;
+        try {
+            startDate = DateUtil.getDate("2022-01-31");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Map<Integer,String> mapDate = CommonUtil.findDates("D", startDate, DateUtil.getYesterday());
+        mapDate.forEach((k,v)->{
+            userGameRecordReportService.comparison(v);
+            proxyGameRecordReportService.comparison(v);
+        });
+        log.info("初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
+        //        new Thread(()->{
+        //            beginWM1();
+        //        }).start();
+        //        new Thread(()->{
+        //            beginWM2();
+        //        }).start();
+        //        new Thread(()->{
+        //            beginPG1();
+        //        }).start();
+        //        new Thread(()->{
+        //            beginPG2();
+        //        }).start();
+        //        List<ProxyGameRecordReport> all = proxyGameRecordReportService.findAll();
+        //        if (all == null || all.isEmpty()){
+        //            Long gameRecordMaxId = gameRecordService.findMaxId();
+        //            if (gameRecordMaxId != null && gameRecordMaxId.longValue() != 0L){
+        //                new Thread(()->{
+        //                    recursionWm(1,pageSize,gameRecordMaxId);
+        //                }).start();
+        //            }
+        //
+        //            Long gameRecordGoldenFMaxId = gameRecordGoldenFService.findMaxId();
+        //            if (gameRecordGoldenFMaxId != null && gameRecordGoldenFMaxId.longValue() != 0L){
+        //                new Thread(()->{
+        //                    recursionPg(1,pageSize,gameRecordGoldenFMaxId);
+        //                }).start();
+        //            }
+        //
+        //        }
     }
 
     private void recursionWm(Integer pageCode,Integer pageSize,Long maxId){
@@ -142,7 +171,7 @@ public class AddData implements CommandLineRunner {
         for (int i=0;i<=num;i++){
             byBetId.setId(null);
             byBetId.setUserId(60951L);
-            byBetId.setBetId(UserPasswordUtil.getRandomPwd()+ UserPasswordUtil.getRandomPwd());
+            byBetId.setBetId(UserPasswordUtil.getRandomPwd()+UserPasswordUtil.getRandomPwd());
             byBetId.setBetTime(DateUtil.dateToPatten(new Date()));
             gameRecordService.save(byBetId);
         }
@@ -153,7 +182,7 @@ public class AddData implements CommandLineRunner {
         for (int i=0;i<=num;i++){
             byBetId.setId(null);
             byBetId.setUserId(60952L);
-            byBetId.setBetId(UserPasswordUtil.getRandomPwd()+ UserPasswordUtil.getRandomPwd());
+            byBetId.setBetId(UserPasswordUtil.getRandomPwd()+UserPasswordUtil.getRandomPwd());
             byBetId.setBetTime(DateUtil.dateToPatten(new Date()));
             gameRecordService.save(byBetId);
         }
@@ -168,7 +197,7 @@ public class AddData implements CommandLineRunner {
             gameRecordById.setId(null);
             gameRecordById.setUserId(60835L);
             gameRecordById.setCreateAtStr(format);
-            gameRecordById.setTraceId(UserPasswordUtil.getRandomPwd()+ UserPasswordUtil.getRandomPwd());
+            gameRecordById.setTraceId(UserPasswordUtil.getRandomPwd()+UserPasswordUtil.getRandomPwd());
             gameRecordById.setCreateAtStr(DateUtil.dateToPatten(new Date()));
             gameRecordGoldenFService.save(gameRecordById);
         }
@@ -181,7 +210,7 @@ public class AddData implements CommandLineRunner {
             gameRecordById.setId(null);
             gameRecordById.setUserId(60834L);
             gameRecordById.setCreateAtStr(format);
-            gameRecordById.setTraceId(UserPasswordUtil.getRandomPwd()+ UserPasswordUtil.getRandomPwd());
+            gameRecordById.setTraceId(UserPasswordUtil.getRandomPwd()+UserPasswordUtil.getRandomPwd());
             gameRecordById.setCreateAtStr(DateUtil.dateToPatten(new Date()));
             gameRecordGoldenFService.save(gameRecordById);
         }

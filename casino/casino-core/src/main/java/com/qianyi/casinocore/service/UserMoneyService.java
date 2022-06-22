@@ -37,7 +37,6 @@ public class UserMoneyService {
     @Autowired
     private UserMoneyRepository userMoneyRepository;
 
-
     @Autowired
     private UserService userService;
     @Autowired
@@ -114,6 +113,21 @@ public class UserMoneyService {
             userMoneyRepository.addMoney(userId, money);
         }
     }
+    /**
+     * 增加实时余额和打码量
+     * @param userId 用户id
+     * @param money 余额
+     * @param codeNum 打码量
+     * @param balance 实时余额
+     */
+    @CacheEvict(key = "#userId")
+    @Transactional
+    public void addBalanceAndCodeNumAndMoney(Long userId, BigDecimal money,BigDecimal codeNum,BigDecimal balance,Integer isFirst) {
+        synchronized (userId) {
+            userMoneyRepository.addBalanceAndCodeNumAndMoney(userId, money,codeNum,balance,isFirst);
+        }
+    }
+
 
     /**
      *

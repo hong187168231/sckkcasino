@@ -25,6 +25,8 @@ public class CompanyProxyReportVo implements Serializable, Comparable<BigDecimal
     private String nickName;
     @ApiModelProperty(value = "代理角色 1：总代理 2：区域代理 3：基层代理")
     private Integer proxyRole;
+    @ApiModelProperty(value = "公司名称")
+    private String companyName;
     @ApiModelProperty(value = "上级代理账号")
     private String superiorProxyAccount;
     @ApiModelProperty(value = "新增下级代理")

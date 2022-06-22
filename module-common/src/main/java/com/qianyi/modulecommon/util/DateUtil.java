@@ -10,7 +10,7 @@ import java.util.Date;
  */
 public class DateUtil {
 
-    private static String patten = "yyyy-MM-dd HH:mm:ss";
+    public static String patten = "yyyy-MM-dd HH:mm:ss";
 
     private static String patten1 = "yyyy-MM-dd";
 
@@ -58,6 +58,22 @@ public class DateUtil {
 
     public static String today(String patten) {
         return getSimpleDateFormat(patten).format(new Date());
+    }
+
+    public static String dateToString(Date time, String formatterType) {
+        SimpleDateFormat formatter = new SimpleDateFormat(formatterType); //定义将日期格式要换成的格式
+        return formatter.format(time);
+    }
+
+    public static Date getDate(String patten) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat(patten1); //定义将日期格式要换成的格式
+        return formatter.parse(patten);
+    }
+
+    public static Date getYesterday(){
+        Calendar nowTime = Calendar.getInstance();
+        nowTime.add(Calendar.DATE, -1);
+        return nowTime.getTime();
     }
 
     public static String today() {

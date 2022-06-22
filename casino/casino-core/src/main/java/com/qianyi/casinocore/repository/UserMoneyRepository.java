@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 
 public interface UserMoneyRepository extends JpaRepository<UserMoney,Long>, JpaSpecificationExecutor<UserMoney> {
 
-//    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    //    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query(value = "select * from user_money u where u.user_id = ? for update",nativeQuery = true)
     UserMoney findUserByUserIdUseLock(Long userId);
 
@@ -61,4 +61,8 @@ public interface UserMoneyRepository extends JpaRepository<UserMoney,Long>, JpaS
     @Modifying(clearAutomatically = true)
     @Query("update UserMoney u set u.balance=u.balance-?2 where u.userId=?1")
     void subBalance(Long userId, BigDecimal balance);
+
+    @Modifying(clearAutomatically = true)
+    @Query("update UserMoney u set u.money=u.money+?2,u.codeNum=u.codeNum+?3,u.balance=u.balance+?4,u.isFirst=?5 where u.userId=?1")
+    void addBalanceAndCodeNumAndMoney(Long userId, BigDecimal money,BigDecimal codeNum,BigDecimal balance,Integer isFirst);
 }

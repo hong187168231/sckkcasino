@@ -453,6 +453,36 @@
         ]
       },
       {
+        "descritpion": "公司管理",
+        "englishName": "company management",
+        "menuLevel": 2,
+        "name": "公司管理",
+        "url": "/company/findCompany",
+        "children": [
+          {
+            "descritpion": "新增公司",
+            "englishName": "The new company",
+            "menuLevel": 3,
+            "name": "新增公司",
+            "url": "/company/saveCompany"
+          },
+          {
+            "descritpion": "设置总代所属公司",
+            "englishName": "Setting",
+            "menuLevel": 3,
+            "name": "设置总代所属公司",
+            "url": "/company/setPeoxyCompany"
+          },
+          {
+            "descritpion": "删除公司",
+            "englishName": "delete",
+            "menuLevel": 3,
+            "name": "删除公司",
+            "url": "/company/deleteCompany"
+          }
+        ]
+      },
+      {
         "descritpion": "代理后台日报表",
         "englishName": "All Report",
         "menuLevel": 2,

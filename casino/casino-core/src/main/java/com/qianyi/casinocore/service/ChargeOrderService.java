@@ -34,6 +34,7 @@ public class ChargeOrderService {
         statusList.add(4);
     }
 
+
     public ChargeOrder saveOrder(ChargeOrder entity){
         return chargeOrderRepository.save(entity);
     }
@@ -48,6 +49,10 @@ public class ChargeOrderService {
         return chargeOrderRepository.findAll(condition);
     }
 
+    @Transactional
+    public void updateChargeOrder(Long id, String remark,String lastModifier,Integer status,BigDecimal betRate,Date updateTime){
+        chargeOrderRepository.updateChargeOrder(id,remark,lastModifier,status,betRate,updateTime);
+    }
     /**
      * 查询所有成功的充值订单
      * @param co
@@ -58,12 +63,12 @@ public class ChargeOrderService {
             Predicate predicate = cb.conjunction();
             List<Predicate> list = new ArrayList<>();
             list.add(
-                    cb.or(
-                            // 1.成功
-                            cb.equal(root.get("status").as(Integer.class), 1),
-                            // 4.总控上分
-                            cb.equal(root.get("status").as(Integer.class), 4)
-                    )
+                cb.or(
+                    // 1.成功
+                    cb.equal(root.get("status").as(Integer.class), 1),
+                    // 4.总控上分
+                    cb.equal(root.get("status").as(Integer.class), 4)
+                )
             );
             if (co.getStartDate() != null) {
                 list.add(cb.greaterThanOrEqualTo(root.get("updateTime").as(Date.class), co.getStartDate()));
@@ -238,43 +243,43 @@ public class ChargeOrderService {
         Root<ChargeOrder> root = query.from(ChargeOrder.class);
 
         query.multiselect(
-                builder.sum(root.get("chargeAmount").as(BigDecimal.class)).alias("chargeAmount")
+            builder.sum(root.get("chargeAmount").as(BigDecimal.class)).alias("chargeAmount")
         );
         List<Predicate> predicates = new ArrayList();
 
         if (chargeOrder.getStatus() != null) {
             predicates.add(
-                    builder.equal(root.get("status").as(Integer.class), chargeOrder.getStatus())
+                builder.equal(root.get("status").as(Integer.class), chargeOrder.getStatus())
             );
         }
         if (chargeOrder.getType() != null) {
             predicates.add(
-                    builder.equal(root.get("type").as(Integer.class), chargeOrder.getType())
+                builder.equal(root.get("type").as(Integer.class), chargeOrder.getType())
             );
         }
         if (chargeOrder.getUserId() != null) {
             predicates.add(
-                    builder.equal(root.get("userId").as(Long.class), chargeOrder.getUserId())
+                builder.equal(root.get("userId").as(Long.class), chargeOrder.getUserId())
             );
         }
         if (!CommonUtil.checkNull(chargeOrder.getOrderNo())) {
             predicates.add(
-                    builder.equal(root.get("orderNo").as(String.class), chargeOrder.getOrderNo())
+                builder.equal(root.get("orderNo").as(String.class), chargeOrder.getOrderNo())
             );
         }
         if (chargeOrder.getFirstProxy() != null) {
             predicates.add(
-                    builder.equal(root.get("firstProxy").as(Long.class), chargeOrder.getFirstProxy())
+                builder.equal(root.get("firstProxy").as(Long.class), chargeOrder.getFirstProxy())
             );
         }
         if (chargeOrder.getSecondProxy() != null) {
             predicates.add(
-                    builder.equal(root.get("secondProxy").as(Long.class), chargeOrder.getSecondProxy())
+                builder.equal(root.get("secondProxy").as(Long.class), chargeOrder.getSecondProxy())
             );
         }
         if (chargeOrder.getThirdProxy() != null) {
             predicates.add(
-                    builder.equal(root.get("thirdProxy").as(Long.class), chargeOrder.getThirdProxy())
+                builder.equal(root.get("thirdProxy").as(Long.class), chargeOrder.getThirdProxy())
             );
         }
         if (startDate != null) {
@@ -284,9 +289,9 @@ public class ChargeOrderService {
             predicates.add(builder.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDatee));
         }
         query
-                .where(predicates.toArray(new Predicate[predicates.size()]));
-//                .groupBy(root.get("conversionStepCode"))
-//                .orderBy(builder.desc(root.get("contactUserNums")));
+            .where(predicates.toArray(new Predicate[predicates.size()]));
+        //                .groupBy(root.get("conversionStepCode"))
+        //                .orderBy(builder.desc(root.get("contactUserNums")));
         ChargeOrder singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
     }
@@ -332,7 +337,6 @@ public class ChargeOrderService {
         ChargeOrder singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
     }
-
     public BigDecimal sumChargeAmount(){
         return chargeOrderRepository.sumChargeAmount();
     }
@@ -364,4 +368,5 @@ public class ChargeOrderService {
         List<ChargeOrder> counts = entityManager.createQuery(criteriaQuery).getResultList();
         return counts;
     }
+
 }
