@@ -63,11 +63,11 @@ public class AddData implements CommandLineRunner {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        Map<Integer,String> mapDate = CommonUtil.findDates("D", startDate, DateUtil.getToday());
-        mapDate.forEach((k,v)->{
-            userGameRecordReportService.comparison(v);
-            proxyGameRecordReportService.comparison(v);
-        });
+//        Map<Integer,String> mapDate = CommonUtil.findDates("D", startDate, DateUtil.getYesterday());
+//        mapDate.forEach((k,v)->{
+//            userGameRecordReportService.comparison(v);
+//            proxyGameRecordReportService.comparison(v);
+//        });
         log.info("初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
         //        new Thread(()->{
         //            beginWM1();
