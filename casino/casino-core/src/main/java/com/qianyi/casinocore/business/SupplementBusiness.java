@@ -183,7 +183,7 @@ public class SupplementBusiness {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                log.error("查询WM交易记录时异常,msg={}", e.getMessage());
+                log.error("查询goldenf交易记录时异常,msg={}", e.getMessage());
             }
         }
     }
