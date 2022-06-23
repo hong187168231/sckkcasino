@@ -200,7 +200,7 @@ public class GoldenFController {
         userMoneyService.subMoney(userId, userCenterMoney);
         double amount = userCenterMoney.doubleValue();
         String walletCode = WalletCodeEnum.getWalletCodeByVendorCode(vendorCode);
-        PublicGoldenFApi.ResponseEntity entity = null;
+        PublicGoldenFApi.ResponseEntity entity = goldenFApi.transferIn(playerName, amount, orderNo, walletCode);
         if (entity == null) {
             User user = userService.findById(userId);
             errorOrderService.syncGoldenFSaveErrorOrder(playerName, userId, user.getAccount(), orderNo, userCenterMoney, changeEnum, platform,walletCode);
@@ -221,15 +221,15 @@ public class GoldenFController {
             log.error("userId:{},money={},进游戏查询转账记录失败", userId,userCenterMoney);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
-        if (!ObjectUtils.isEmpty(playerTransactionRecord.getErrorCode())) {
+        String errorCode = playerTransactionRecord.getErrorCode();
+        if (!ObjectUtils.isEmpty(errorCode)) {
             log.error("userId:{},errorCode={},errorMsg={}", userId, playerTransactionRecord.getErrorCode(), playerTransactionRecord.getErrorMessage());
-            return ResponseUtil.custom("加点失败,请联系客服");
-        }
-        JSONObject jsonData = JSONObject.parseObject(playerTransactionRecord.getData());
-        JSONArray translogs = jsonData.getJSONArray("translogs");
-        if (translogs.size() == 0) {
-            userMoneyService.addMoney(userId, userCenterMoney);
-            return ResponseUtil.custom("加点失败,请联系客服");
+            if ("9402".equals(errorCode)) {
+                userMoneyService.addMoney(userId, userCenterMoney);
+                return ResponseUtil.custom("加点失败,请联系客服");
+            } else {
+                return ResponseUtil.custom("加点失败,请联系客服");
+            }
         }
         return null;
     }

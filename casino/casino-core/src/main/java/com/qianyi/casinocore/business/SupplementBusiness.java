@@ -137,31 +137,35 @@ public class SupplementBusiness {
                 if (playerTransactionRecord == null) {
                     continue;
                 }
-                if (!ObjectUtils.isEmpty(playerTransactionRecord.getErrorCode())) {
-                    log.error("goldenf远程确认转账记录异常，errorOrder:{},playerTransactionRecord={}", errorOrder.toString(), playerTransactionRecord.toString());
-                    continue;
+                String errorCode = playerTransactionRecord.getErrorCode();
+                if (!ObjectUtils.isEmpty(errorCode)) {
+                    //查询无记录
+                    if ("9402".equals(errorCode)) {
+                        Integer orderType = errorOrder.getType();
+                        //转入goldenF时，goldenF查询无记录说明goldenF加点失败，要把本地的钱加回来，
+                        if (orderType == AccountChangeEnum.PG_CQ9_IN.getType() || orderType == AccountChangeEnum.SABASPORT_IN.getType()) {
+                            //更新错误订单表状态
+                            Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + errorOrder.getMoney().stripTrailingZeros().toPlainString() + ",转入" + errorOrder.getPlatform() + "时加点失败,加回本地额度");
+                            if (count > 0) {
+                                //加回额度
+                                addMoney(errorOrder.getUserId(), errorOrder.getMoney());
+                                //记录账变
+                                saveAccountChange(errorOrder, errorOrder.getMoney());
+                            }
+                        } else if (orderType == AccountChangeEnum.PG_CQ9_OUT.getType() || orderType == AccountChangeEnum.SABASPORT_OUT.getType()) {
+                            //转出goldenF时，是先扣减goldenF的钱再加回本地，goldenF查询无记录说明没有扣点成功，本地也不用把钱加回来,更新状态就行
+                            updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转出" + errorOrder.getPlatform() + "时扣点失败,额度未丢失");
+                        }
+                        break;
+                    } else {
+                        log.error("goldenf远程确认转账记录异常，errorOrder:{},playerTransactionRecord={}", errorOrder.toString(), playerTransactionRecord.toString());
+                        continue;
+                    }
                 }
                 JSONObject jsonData = JSONObject.parseObject(playerTransactionRecord.getData());
                 JSONArray translogs = jsonData.getJSONArray("translogs");
-                //查询无记录
-                if (translogs.size() == 0) {
-                    Integer orderType = errorOrder.getType();
-                    //转入goldenF时，goldenF查询无记录说明goldenF加点失败，要把本地的钱加回来，
-                    if (orderType == AccountChangeEnum.PG_CQ9_IN.getType() || orderType == AccountChangeEnum.SABASPORT_IN.getType()) {
-                        //更新错误订单表状态
-                        Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + errorOrder.getMoney().stripTrailingZeros().toPlainString() + ",转入" + errorOrder.getPlatform() + "时加点失败,加回本地额度");
-                        if (count > 0) {
-                            //加回额度
-                            addMoney(errorOrder.getUserId(), errorOrder.getMoney());
-                            //记录账变
-                            saveAccountChange(errorOrder, errorOrder.getMoney());
-                        }
-                    } else if (orderType == AccountChangeEnum.PG_CQ9_OUT.getType() || orderType == AccountChangeEnum.SABASPORT_OUT.getType()) {
-                        //转出goldenF时，是先扣减goldenF的钱再加回本地，goldenF查询无记录说明没有扣点成功，本地也不用把钱加回来,更新状态就行
-                        updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转出" + errorOrder.getPlatform() + "时扣点失败,额度未丢失");
-                    }
-                    break;
-                } else {
+                //查询有记录
+                if (translogs.size() > 0) {
                     Integer orderType = errorOrder.getType();
                     //转入goldenF时，goldenF查询有记录说明goldenF加点成功，无需加回本地余额
                     if (orderType == AccountChangeEnum.PG_CQ9_IN.getType() || orderType == AccountChangeEnum.SABASPORT_IN.getType()) {

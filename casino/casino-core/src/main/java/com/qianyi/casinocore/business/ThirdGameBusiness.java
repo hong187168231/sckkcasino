@@ -110,7 +110,7 @@ public class ThirdGameBusiness {
         //调用提值接口扣减余额  存在精度问题，只回收整数部分
         BigDecimal recoverMoney = balance.setScale(0, BigDecimal.ROUND_DOWN);
         String walletCode = WalletCodeEnum.getWalletCodeByVendorCode(vendorCode);
-        PublicGoldenFApi.ResponseEntity transferOut = null;
+        PublicGoldenFApi.ResponseEntity transferOut = goldenFApi.transferOut(goldenfAccount, recoverMoney.doubleValue(), orderNo, walletCode);
         AccountChangeEnum changeEnum = AccountChangeEnum.PG_CQ9_OUT;
         String platform = Constants.PLATFORM_PG_CQ9;
         String remark="自动转出PG/CQ9";
