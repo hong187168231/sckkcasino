@@ -1,21 +1,27 @@
 package com.qianyi.casinocore.business;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.AccountChange;
 import com.qianyi.casinocore.model.ErrorOrder;
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.repository.ErrorOrderRepository;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinocore.vo.WmMemberTradeReportVo;
+import com.qianyi.livegoldenf.api.PublicGoldenFApi;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.executor.AsyncService;
+import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -28,6 +34,8 @@ public class SupplementBusiness {
     private PublicWMApi wmApi;
     @Autowired
     private UserMoneyService userMoneyService;
+    @Autowired
+    private PublicGoldenFApi goldenFApi;
     @Autowired
     private ErrorOrderRepository errorOrderRepository;
     @Autowired
@@ -101,6 +109,74 @@ public class SupplementBusiness {
                                 }
                             }
                             break;
+                        }
+                    }
+                    break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("查询WM交易记录时异常,msg={}", e.getMessage());
+            }
+        }
+    }
+
+
+    public void tryGoldenFSupplement(ErrorOrder errorOrder, String thirdAccount, String walletCode) {
+        String orderNo = errorOrder.getOrderNo();
+        int requestNum = 0;
+        while (true) {
+            try {
+                if (requestNum >= 3) {
+                    log.error("goldenf尝试3次补单失败,errorOrder={}", errorOrder.toString());
+                    break;
+                }
+                requestNum++;
+                Thread.sleep(30 * 1000);
+                long time = System.currentTimeMillis();
+                PublicGoldenFApi.ResponseEntity playerTransactionRecord = goldenFApi.getPlayerTransactionRecord(thirdAccount, time, time, walletCode, orderNo, null);
+                if (playerTransactionRecord == null) {
+                    continue;
+                }
+                if (!ObjectUtils.isEmpty(playerTransactionRecord.getErrorCode())) {
+                    log.error("goldenf远程确认转账记录异常，errorOrder:{},playerTransactionRecord={}", errorOrder.toString(), playerTransactionRecord.toString());
+                    continue;
+                }
+                JSONObject jsonData = JSONObject.parseObject(playerTransactionRecord.getData());
+                JSONArray translogs = jsonData.getJSONArray("translogs");
+                //查询无记录
+                if (translogs.size() == 0) {
+                    Integer orderType = errorOrder.getType();
+                    //转入goldenF时，goldenF查询无记录说明goldenF加点失败，要把本地的钱加回来，
+                    if (orderType == AccountChangeEnum.PG_CQ9_IN.getType() || orderType == AccountChangeEnum.SABASPORT_IN.getType()) {
+                        //更新错误订单表状态
+                        Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + errorOrder.getMoney().stripTrailingZeros().toPlainString() + ",转入" + errorOrder.getPlatform() + "时加点失败,加回本地额度");
+                        if (count > 0) {
+                            //加回额度
+                            addMoney(errorOrder.getUserId(), errorOrder.getMoney());
+                            //记录账变
+                            saveAccountChange(errorOrder, errorOrder.getMoney());
+                        }
+                    } else if (orderType == AccountChangeEnum.PG_CQ9_OUT.getType() || orderType == AccountChangeEnum.SABASPORT_OUT.getType()) {
+                        //转出goldenF时，是先扣减goldenF的钱再加回本地，goldenF查询无记录说明没有扣点成功，本地也不用把钱加回来,更新状态就行
+                        updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转出" + errorOrder.getPlatform() + "时扣点失败,额度未丢失");
+                    }
+                    break;
+                } else {
+                    Integer orderType = errorOrder.getType();
+                    //转入goldenF时，goldenF查询有记录说明goldenF加点成功，无需加回本地余额
+                    if (orderType == AccountChangeEnum.PG_CQ9_IN.getType() || orderType == AccountChangeEnum.SABASPORT_IN.getType()) {
+                        //更新错误订单表状态
+                        updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转入" + errorOrder.getPlatform() + "时加点成功,额度未丢失");
+                    } else if (orderType == AccountChangeEnum.PG_CQ9_OUT.getType() || orderType == AccountChangeEnum.SABASPORT_OUT.getType()) {
+                        //转出goldenF时，是先扣减goldenF的钱再加回本地，goldenF查询有记录说明扣点成功，本地的把钱加回来
+                        BigDecimal money = errorOrder.getMoney();
+                        //更新错误订单表状态
+                        Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + money.stripTrailingZeros().toPlainString() + ",转出" + errorOrder.getPlatform() + "时扣点成功,加回本地额度");
+                        if (count > 0) {
+                            //加回额度
+                            addMoney(errorOrder.getUserId(), money);
+                            //记录账变
+                            saveAccountChange(errorOrder, money);
                         }
                     }
                     break;

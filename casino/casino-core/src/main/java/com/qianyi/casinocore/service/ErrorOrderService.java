@@ -94,6 +94,20 @@ public class ErrorOrderService {
 
     @Async("asyncExecutor")
     public void syncSaveErrorOrder(String thirdAccount, Long userId, String account, String orderNo, BigDecimal money, AccountChangeEnum changeEnum, String platform) {
+        ErrorOrder order = saveErrorOrder(userId,account,orderNo,money,changeEnum,platform);
+        //WM尝试3次补单
+        if (changeEnum.getType() == AccountChangeEnum.WM_IN.getType() || changeEnum.getType() == AccountChangeEnum.RECOVERY.getType()) {
+            supplementBusiness.tryWMSupplement(order, thirdAccount);
+        }
+    }
+
+    @Async("asyncExecutor")
+    public void syncGoldenFSaveErrorOrder(String thirdAccount, Long userId, String account, String orderNo, BigDecimal money, AccountChangeEnum changeEnum, String platform,String walletCode) {
+        ErrorOrder order = saveErrorOrder(userId, account, orderNo, money, changeEnum, platform);
+        supplementBusiness.tryGoldenFSupplement(order, thirdAccount,walletCode);
+    }
+
+    public ErrorOrder saveErrorOrder(Long userId, String account, String orderNo, BigDecimal money, AccountChangeEnum changeEnum, String platform){
         log.info("开始记录异常订单，userId:{},account:{},money:{}", userId, account, money);
         ErrorOrder errorOrder = new ErrorOrder();
         errorOrder.setUserId(userId);
@@ -105,10 +119,7 @@ public class ErrorOrderService {
         errorOrder.setPlatform(platform);
         ErrorOrder order = errorOrderRepository.save(errorOrder);
         log.info("异常订单保存成功，errorOrder:{}", errorOrder.toString());
-        //WM尝试3次补单
-        if (changeEnum.getType() == AccountChangeEnum.WM_IN.getType() || changeEnum.getType() == AccountChangeEnum.RECOVERY.getType()) {
-            supplementBusiness.tryWMSupplement(order, thirdAccount);
-        }
+        return order;
     }
 
     public void save(ErrorOrder errorOrder) {

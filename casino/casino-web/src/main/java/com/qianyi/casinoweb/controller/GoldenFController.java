@@ -200,10 +200,10 @@ public class GoldenFController {
         userMoneyService.subMoney(userId, userCenterMoney);
         double amount = userCenterMoney.doubleValue();
         String walletCode = WalletCodeEnum.getWalletCodeByVendorCode(vendorCode);
-        PublicGoldenFApi.ResponseEntity entity = goldenFApi.transferIn(playerName, amount, orderNo, walletCode);
+        PublicGoldenFApi.ResponseEntity entity = null;
         if (entity == null) {
             User user = userService.findById(userId);
-            errorOrderService.syncSaveErrorOrder(playerName, userId, user.getAccount(), orderNo, userCenterMoney, changeEnum, platform);
+            errorOrderService.syncGoldenFSaveErrorOrder(playerName, userId, user.getAccount(), orderNo, userCenterMoney, changeEnum, platform,walletCode);
             log.error("userId:{},money={{},进游戏加扣点失败", userId,userCenterMoney);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
@@ -217,7 +217,7 @@ public class GoldenFController {
         PublicGoldenFApi.ResponseEntity playerTransactionRecord = goldenFApi.getPlayerTransactionRecord(playerName, time, time, walletCode, orderNo, null);
         if (playerTransactionRecord == null) {
             User user = userService.findById(userId);
-            errorOrderService.syncSaveErrorOrder(playerName, userId, user.getAccount(), orderNo, userCenterMoney, changeEnum, platform);
+            errorOrderService.syncGoldenFSaveErrorOrder(playerName, userId, user.getAccount(), orderNo, userCenterMoney, changeEnum, platform,walletCode);
             log.error("userId:{},money={},进游戏查询转账记录失败", userId,userCenterMoney);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }

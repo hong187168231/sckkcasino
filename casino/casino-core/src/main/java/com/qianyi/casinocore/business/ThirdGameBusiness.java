@@ -110,7 +110,7 @@ public class ThirdGameBusiness {
         //调用提值接口扣减余额  存在精度问题，只回收整数部分
         BigDecimal recoverMoney = balance.setScale(0, BigDecimal.ROUND_DOWN);
         String walletCode = WalletCodeEnum.getWalletCodeByVendorCode(vendorCode);
-        PublicGoldenFApi.ResponseEntity transferOut = goldenFApi.transferOut(goldenfAccount, recoverMoney.doubleValue(), orderNo, walletCode);
+        PublicGoldenFApi.ResponseEntity transferOut = null;
         AccountChangeEnum changeEnum = AccountChangeEnum.PG_CQ9_OUT;
         String platform = Constants.PLATFORM_PG_CQ9;
         String remark="自动转出PG/CQ9";
@@ -121,7 +121,7 @@ public class ThirdGameBusiness {
         }
         if (transferOut == null) {
             User user = userService.findById(userId);
-            errorOrderService.syncSaveErrorOrder(goldenfAccount, user.getId(), user.getAccount(), orderNo, recoverMoney, changeEnum, platform);
+            errorOrderService.syncGoldenFSaveErrorOrder(goldenfAccount, user.getId(), user.getAccount(), orderNo, recoverMoney, changeEnum, platform,walletCode);
             log.error("userId:{},money={},一键回收当前登录用户{}余额失败", userId,recoverMoney,vendorCode);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
@@ -134,7 +134,7 @@ public class ThirdGameBusiness {
         PublicGoldenFApi.ResponseEntity playerTransactionRecord = goldenFApi.getPlayerTransactionRecord(goldenfAccount, time, time, walletCode, orderNo, null);
         if (playerTransactionRecord == null) {
             User user = userService.findById(userId);
-            errorOrderService.syncSaveErrorOrder(goldenfAccount, user.getId(), user.getAccount(), orderNo, recoverMoney, changeEnum, platform);
+            errorOrderService.syncGoldenFSaveErrorOrder(goldenfAccount, user.getId(), user.getAccount(), orderNo, recoverMoney, changeEnum, platform,walletCode);
             log.error("userId:{},money={},{}一键回收余额查询转账记录失败,远程请求异常", userId,recoverMoney,vendorCode);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
