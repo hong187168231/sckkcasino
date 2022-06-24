@@ -148,7 +148,11 @@ public class GoldenFController {
         //开游戏
         String language = request.getHeader(Constants.LANGUAGE);
         String languageCode = LanguageEnum.getLanguageCode(language);
-        PublicGoldenFApi.ResponseEntity entity = goldenFApi.startGame(goldenfAccount, gameCode, languageCode, null);
+        String oddstype = null;
+        if (Constants.PLATFORM_SABASPORT.equals(platform)) {
+            oddstype = "1";//欧洲盘
+        }
+        PublicGoldenFApi.ResponseEntity entity = goldenFApi.startGame(goldenfAccount, gameCode, languageCode, null,oddstype);
         if (entity == null) {
             log.error("userId:{},进游戏获取gameUrl失败", third.getUserId());
             return ResponseUtil.custom("服务器异常,请重新操作");

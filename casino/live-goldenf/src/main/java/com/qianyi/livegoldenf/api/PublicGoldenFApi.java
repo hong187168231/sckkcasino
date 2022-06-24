@@ -88,7 +88,7 @@ public class PublicGoldenFApi {
      * @param limit     游戏限红（选填）目前仅支援MGPLUS真人视讯、SBO
      * @return
      */
-    public ResponseEntity startGame(String palerName, String gameCode, String language, String limit) {
+    public ResponseEntity startGame(String palerName, String gameCode, String language, String limit, String oddstype) {
         String url = apiUrl + "/Launch";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
@@ -100,6 +100,9 @@ public class PublicGoldenFApi {
         }
         if (!ObjectUtils.isEmpty(limit)) {
             params.put("limit", limit);
+        }
+        if (!ObjectUtils.isEmpty(oddstype)) {
+            params.put("oddstype", oddstype);
         }
         log.info("启动游戏参数{}：", JSONObject.toJSONString(params));
         String result = HttpClient4Util.doPost(url, params);
