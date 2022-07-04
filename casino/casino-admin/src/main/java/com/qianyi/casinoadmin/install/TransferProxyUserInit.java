@@ -72,11 +72,13 @@ public class TransferProxyUserInit implements CommandLineRunner {
 //        this.thirdProxyToSecondProxy();
 
         ProxyUser secondProxy = proxyUserService.findByUserName(secondProxyName);
+        log.info("查询secondProxy代理{}",secondProxy);
         if (LoginUtil.checkNull(secondProxy) || secondProxy.getProxyRole() != CommonConst.NUMBER_2){
             log.error("找不到区域代{}",secondProxyName);
             return;
         }
         ProxyUser toSecondProxy = proxyUserService.findByUserName(toSecondProxyName);
+        log.info("查询toSecondProxy代理{}",toSecondProxy);
         if (LoginUtil.checkNull(toSecondProxy) || toSecondProxy.getProxyRole() != CommonConst.NUMBER_2){
             log.error("找不到区域代{}",toSecondProxyName);
             return;
