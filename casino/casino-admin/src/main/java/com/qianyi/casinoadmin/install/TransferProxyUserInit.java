@@ -47,8 +47,8 @@ public class TransferProxyUserInit implements CommandLineRunner {
 //    public static final String secondProxy5Name = "ajiaoQD";
 //    public static final String thirdProxy5Name = "ajiaoJD";
 
-    public static final String secondProxyName = "wow2";
-    public static final String toSecondProxyName = "ror2";
+    public static final String secondProxyName = "azongQD";
+    public static final String toSecondProxyName = "xiaojie";
 //
 //    public static final String thirdProxy6Name = "D018JD";
     @Override
@@ -274,9 +274,12 @@ public class TransferProxyUserInit implements CommandLineRunner {
             });
             userList.clear();
         }
-        proxyUserService.subProxyUsersNum(secondProxy.getFirstProxy(),proxyUsers.size());
+
         proxyUserService.makeZero(secondProxy.getId());
         proxyUserService.addProxyUsersNum(toSecondProxy.getId(),proxyUsers.size());
-        proxyUserService.addProxyUsersNum(toSecondProxy.getFirstProxy(),proxyUsers.size());
+        if (secondProxy.getFirstProxy().longValue() != toSecondProxy.getFirstProxy().longValue()){
+            proxyUserService.subProxyUsersNum(secondProxy.getFirstProxy(),proxyUsers.size());
+            proxyUserService.addProxyUsersNum(toSecondProxy.getFirstProxy(),proxyUsers.size());
+        }
     }
 }
