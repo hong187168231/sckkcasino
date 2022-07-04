@@ -47,7 +47,7 @@ public class TransferProxyUserInit implements CommandLineRunner {
 //    public static final String secondProxy5Name = "ajiaoQD";
 //    public static final String thirdProxy5Name = "ajiaoJD";
 
-    public static final String secondProxyName = "wow";
+    public static final String secondProxyName = "wow2";
     public static final String toSecondProxyName = "ror2";
 //
 //    public static final String thirdProxy6Name = "D018JD";
