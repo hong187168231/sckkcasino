@@ -30,25 +30,25 @@ public class TransferProxyUserInit implements CommandLineRunner {
     @Autowired
     private ProxyCommissionService proxyCommissionService;
 
-    public static final String firstProxy1Name = "ror";
+//    public static final String firstProxy1Name = "ror";
 //    public static final String firstProxy1Name = "zhenhao01dai";
 
-    public static final String secondProxy1Name = "zhenhao01dai04";
+//    public static final String secondProxy1Name = "zhenhao01dai04";
+//
+//    public static final String firstProxy2Name = "chun888ZD";
+//    public static final String secondProxy2Name = "ajiaoQD";
+//
+//    public static final String firstProxy3Name = "mrhope";
+//    public static final String secondProxy3Name = "simaQD";
+//
+//    public static final String secondProxy4Name = "simaQD";
+//    public static final String thirdProxy4Name = "simaJD";
+//
+//    public static final String secondProxy5Name = "ajiaoQD";
+//    public static final String thirdProxy5Name = "ajiaoJD";
 
-    public static final String firstProxy2Name = "chun888ZD";
-    public static final String secondProxy2Name = "ajiaoQD";
-
-    public static final String firstProxy3Name = "mrhope";
-    public static final String secondProxy3Name = "simaQD";
-
-    public static final String secondProxy4Name = "simaQD";
-    public static final String thirdProxy4Name = "simaJD";
-
-    public static final String secondProxy5Name = "ajiaoQD";
-    public static final String thirdProxy5Name = "ajiaoJD";
-
-//    public static final String secondProxy6Name = "zhenhao01dai03";
-//    public static final String secondProxy6Name = "ror1";
+    public static final String secondProxyName = "wow";
+    public static final String toSecondProxyName = "ror2";
 //
 //    public static final String thirdProxy6Name = "D018JD";
     @Override
@@ -70,6 +70,19 @@ public class TransferProxyUserInit implements CommandLineRunner {
 
 //        this.secondProxyToFirstProxy();
 //        this.thirdProxyToSecondProxy();
+
+        ProxyUser secondProxy = proxyUserService.findByUserName(secondProxyName);
+        if (LoginUtil.checkNull(secondProxy) || secondProxy.getProxyRole() != CommonConst.NUMBER_2){
+            log.error("找不到区域代{}",secondProxyName);
+            return;
+        }
+        ProxyUser toSecondProxy = proxyUserService.findByUserName(toSecondProxyName);
+        if (LoginUtil.checkNull(toSecondProxy) || toSecondProxy.getProxyRole() != CommonConst.NUMBER_2){
+            log.error("找不到区域代{}",toSecondProxyName);
+            return;
+        }
+        this.secondProxyToSecondProxy(secondProxy,toSecondProxy);
+
     }
 
     private void thirdProxyToSecondProxy(){
@@ -228,5 +241,40 @@ public class TransferProxyUserInit implements CommandLineRunner {
         secondProxy.setFirstProxy(firstProxy.getId());
         proxyUserService.save(secondProxy);
 
+    }
+
+    private void secondProxyToSecondProxy(ProxyUser secondProxy,ProxyUser toSecondProxy){
+        ProxyUser proxyUser = new ProxyUser();
+        proxyUser.setSecondProxy(secondProxy.getId());
+        proxyUser.setProxyRole(CommonConst.NUMBER_3);
+        List<ProxyUser> proxyUsers = proxyUserService.findProxyUserList(proxyUser);
+        if(proxyUsers == null || proxyUsers.size() == CommonConst.NUMBER_0){
+            log.info("转移代理被转移者id{}账号{}无下级",secondProxy.getId(),secondProxy.getUserName());
+            return ;
+        }
+        log.info("转移代理被转移者id{} 下级数量{}",proxyUser.getSecondProxy(),proxyUsers.size());
+        proxyUsers.forEach(proxyUser1 -> {
+            proxyUser1.setFirstProxy(toSecondProxy.getFirstProxy());
+            proxyUser1.setSecondProxy(toSecondProxy.getId());
+            proxyUserService.save(proxyUser1);
+        });
+
+        //查询会员并转移
+        User user = new User();
+        user.setSecondProxy(secondProxy.getId());
+        List<User> userList = userService.findUserList(user, null, null);
+        if (userList != null || userList.size() >= CommonConst.NUMBER_1){
+            log.info("转移代理被转移者id{} 会员数量{}",proxyUser.getSecondProxy(),userList.size());
+            userList.forEach(user1 -> {
+                user1.setFirstProxy(toSecondProxy.getFirstProxy());
+                user1.setSecondProxy(toSecondProxy.getId());
+                userService.save(user1);
+            });
+            userList.clear();
+        }
+        proxyUserService.subProxyUsersNum(secondProxy.getFirstProxy(),proxyUsers.size());
+        proxyUserService.makeZero(secondProxy.getId());
+        proxyUserService.addProxyUsersNum(toSecondProxy.getId(),proxyUsers.size());
+        proxyUserService.addProxyUsersNum(toSecondProxy.getFirstProxy(),proxyUsers.size());
     }
 }

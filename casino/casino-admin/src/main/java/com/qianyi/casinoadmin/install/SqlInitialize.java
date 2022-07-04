@@ -44,10 +44,10 @@ public class SqlInitialize  implements CommandLineRunner {
         //        }
         //        withdrawOrderService.updateWithdrawOrderAuditId(0L);
 
-        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
-        first.setSABASPORTMaxId(0L);
-        gameRecordEndIndexService.save(first);
-        gameRecordReportNewService.deleteByPlatform(Constants.PLATFORM_SABASPORT);
-        gameRecordReportNewService.saveGameRecordReportSABASPORT();
+//        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
+//        first.setSABASPORTMaxId(0L);
+//        gameRecordEndIndexService.save(first);
+//        gameRecordReportNewService.deleteByPlatform(Constants.PLATFORM_SABASPORT);
+//        gameRecordReportNewService.saveGameRecordReportSABASPORT();
     }
 }
