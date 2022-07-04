@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -294,6 +295,7 @@ public class CollectionBankcardController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "id", required = true)
     })
+    @Transactional
     public ResponseEntity deleteBankInfo(Long id){
         CollectionBankcard collectionBankcard = collectionBankcardService.findById(id);
         if(LoginUtil.checkNull(collectionBankcard)){
@@ -310,7 +312,7 @@ public class CollectionBankcardController {
         }
         List<CollectionBankcard> collectionBankcards = new ArrayList<>();
         int sort = CommonConst.NUMBER_0;
-        for (CollectionBankcard bankcard : collectionBankcards) {
+        for (CollectionBankcard bankcard : collectionBankcardList) {
             if(id == bankcard.getId()){
                 sort = bankcard.getSortId();
             }
