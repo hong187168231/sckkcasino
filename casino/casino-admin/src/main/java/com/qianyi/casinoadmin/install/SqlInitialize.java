@@ -1,9 +1,13 @@
 package com.qianyi.casinoadmin.install;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.model.GameRecordEndIndex;
 import com.qianyi.casinocore.model.SysPermission;
+import com.qianyi.casinocore.service.GameRecordEndIndexService;
+import com.qianyi.casinocore.service.GameRecordReportNewService;
 import com.qianyi.casinocore.service.SysPermissionService;
 import com.qianyi.casinocore.service.WithdrawOrderService;
+import com.qianyi.modulecommon.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -17,8 +21,14 @@ public class SqlInitialize  implements CommandLineRunner {
     //    @Autowired
     //    private SysPermissionService sysPermissionService;
 
+    //    @Autowired
+    //    private WithdrawOrderService withdrawOrderService;
+
     @Autowired
-    private WithdrawOrderService withdrawOrderService;
+    private GameRecordEndIndexService gameRecordEndIndexService;
+
+    @Autowired
+    private GameRecordReportNewService gameRecordReportNewService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -32,6 +42,12 @@ public class SqlInitialize  implements CommandLineRunner {
         //            sysPermission2.setName("代理报表");
         //            sysPermissionService.save(sysPermission2);
         //        }
-        withdrawOrderService.updateWithdrawOrderAuditId(0L);
+        //        withdrawOrderService.updateWithdrawOrderAuditId(0L);
+
+        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
+        first.setSABASPORTMaxId(0L);
+        gameRecordEndIndexService.save(first);
+        gameRecordReportNewService.deleteByPlatform(Constants.PLATFORM_SABASPORT);
+        gameRecordReportNewService.saveGameRecordReportSABASPORT();
     }
 }

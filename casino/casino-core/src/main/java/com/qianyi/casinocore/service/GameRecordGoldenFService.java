@@ -81,6 +81,10 @@ public class GameRecordGoldenFService {
         return gameRecordGoldenFRepository.queryGameRecords(id,num,platform);
     }
 
+    public List<Map<String,Object>> queryGameRecordsBySb(Long id,Integer num,String platform){
+        return gameRecordGoldenFRepository.queryGameRecordsBySb(id,num,platform);
+    }
+
     public BigDecimal findSumBetAmount(Long userId,String startTime,String endTime){
         return gameRecordGoldenFRepository.findSumBetAmount(userId,startTime,endTime);
     }
@@ -232,10 +236,15 @@ public class GameRecordGoldenFService {
                 if (gameRecord.getGameRecordStatus() != null) {
                     list.add(cb.equal(root.get("gameRecordStatus").as(Integer.class), gameRecord.getGameRecordStatus()));
                 }
-
+                if (!CommonUtil.checkNull(gameRecord.getVendorCode())) {
+                    list.add(cb.equal(root.get("vendorCode").as(String.class), gameRecord.getVendorCode()));
+                }
+                if (!CommonUtil.checkNull(gameRecord.getTransType())) {
+                    list.add(cb.equal(root.get("transType").as(String.class), gameRecord.getTransType()));
+                }
                 if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
                     list.add(
-                        cb.between(root.get("createTime").as(String.class), startTime, endTime)
+                        cb.between(root.get("createAtStr").as(String.class), startTime, endTime)
                     );
                 }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));

@@ -68,18 +68,23 @@ public interface ProxyGameRecordReportRepository extends JpaRepository<ProxyGame
     void deleteByOrderTimes(String orderTimes);
 
     @Query(value = "SELECT a.user_id user_id,a.first_proxy first_proxy,a.second_proxy second_proxy,a.third_proxy third_proxy,a.num num,a.bet_amount bet_amount,"
-        + "a.validbet validbet,a.win_loss win_loss from (select u.id user_id,u.first_proxy first_proxy,u.second_proxy second_proxy,u.third_proxy third_proxy,"
-        + "ifnull(main_t.num,0)+ifnull(goldenf_t.num,0)+ifnull(grobdj_t.num,0)+ifnull(grobty_t.num,0) num,ifnull(main_t.bet_amount,0)+ifnull(goldenf_t.bet_amount,0)"
-        + "+ifnull(grobdj_t.bet_amount,0)+ifnull(grobty_t.bet_amount,0) bet_amount ,ifnull(main_t.validbet,0)+ifnull(goldenf_t.bet_amount,0)"
-        + "+ifnull(grobdj_t.bet_amount,0)+ifnull(grobty_t.bet_amount,0) validbet ,ifnull(main_t.win_loss,0)+ifnull(goldenf_t.win_loss,0)+ifnull(grobdj_t.win_loss,0)"
-        + "+ifnull(grobty_t.win_loss,0) win_loss from user u left join (select user_id ,count(1) num,sum(bet)   bet_amount,sum(validbet) validbet,sum(win_loss) win_loss "
-        + "from game_record gr where bet_time >= ?1 and bet_time <= ?2 group by user_id)main_t on u.id = main_t.user_id "
-        + "left join (select user_id ,count(1) num,sum(bet_amount) bet_amount,sum(win_amount-bet_amount) win_loss from game_record_goldenf grg "
-        + "where create_at_str >= ?1 and create_at_str <= ?2 group by user_id) goldenf_t on u.id = goldenf_t.user_id "
-        + "left join (select user_id ,count(1) num,sum(bet_amount) bet_amount,sum(win_amount-bet_amount) win_loss from game_record_obdj grobdj "
-        + "where bet_status in (5,6,8,9,10) and set_str_time >= ?1 and set_str_time <= ?2 group by user_id) grobdj_t "
-        + "on u.id = grobdj_t.user_id left join (select user_id,count(1) num,sum(order_amount) bet_amount,sum(profit_amount) win_loss from game_record_obty grobty "
-        + "where settle_str_time >= ?1 and settle_str_time <= ?2 group by user_id) grobty_t on u.id = grobty_t.user_id) a "
-        + "where num > 0; ;",nativeQuery = true)
+        + "a.validbet validbet,a.win_loss win_loss FROM(SELECT u.id user_id,u.first_proxy first_proxy,u.second_proxy second_proxy,u.third_proxy third_proxy,"
+        + "ifnull( main_t.num, 0 )+ ifnull( goldenf_t.num, 0 )+ ifnull( goldenf_sb.num, 0)+ ifnull( grobdj_t.num, 0 )+ ifnull( grobty_t.num, 0 ) num,"
+        + "ifnull( main_t.bet_amount, 0 )+ ifnull( goldenf_t.bet_amount, 0 )+ ifnull( goldenf_sb.bet_amount, 0 )+ ifnull( grobdj_t.bet_amount, 0 )+ "
+        + "ifnull( grobty_t.bet_amount, 0 ) bet_amount,ifnull( main_t.validbet, 0 )+ ifnull( goldenf_t.bet_amount, 0 )+ ifnull( goldenf_sb.bet_amount,0)+ "
+        + "ifnull( grobdj_t.bet_amount, 0 )+ ifnull( grobty_t.bet_amount, 0 ) validbet,ifnull( main_t.win_loss, 0 )+ ifnull( goldenf_t.win_loss, 0 )+ "
+        + "ifnull( goldenf_sb.win_loss, 0 )+ ifnull( grobdj_t.win_loss, 0 )+ ifnull( grobty_t.win_loss, 0 ) win_loss FROM USER u "
+        + "LEFT JOIN (SELECT user_id,count( 1 ) num,sum( bet ) bet_amount,sum( validbet ) validbet,sum( win_loss ) win_loss FROM game_record gr "
+        + "WHERE  bet_time >= ?1 AND bet_time <= ?2 GROUP BY user_id ) main_t ON u.id = main_t.user_id "
+        + "LEFT JOIN (SELECT user_id,count( 1 ) num,sum( bet_amount ) bet_amount,sum( win_amount - bet_amount ) win_loss FROM game_record_goldenf grg "
+        + "WHERE create_at_str >= ?1 AND create_at_str <= ?2 And vendor_code in ('PG','CQ9') "
+        + "GROUP BY user_id ) goldenf_t ON u.id = goldenf_t.user_id LEFT JOIN (SELECT user_id,count( 1 ) num,sum( bet_amount ) bet_amount,"
+        + "sum( win_amount - bet_amount ) win_loss FROM game_record_goldenf WHERE create_at_str >= ?1 AND create_at_str <= ?2 "
+        + "AND vendor_code = 'SABASPORT' AND trans_type = 'Payoff'  GROUP BY user_id ) goldenf_sb ON u.id = goldenf_sb.user_id "
+        + "LEFT JOIN (SELECT user_id,count( 1 ) num,sum( bet_amount ) bet_amount,sum( win_amount - bet_amount ) win_loss FROM game_record_obdj grobdj "
+        + "WHERE bet_status IN ( 5, 6, 8, 9, 10 ) AND set_str_time >= ?1 AND set_str_time <= ?2 "
+        + "GROUP BY user_id ) grobdj_t ON u.id = grobdj_t.user_id LEFT JOIN (SELECT user_id,count( 1 ) num,sum( order_amount ) bet_amount,"
+        + "sum( profit_amount ) win_loss FROM game_record_obty grobty WHERE settle_str_time >= ?1 AND settle_str_time <= ?2 "
+        + "GROUP BY user_id ) grobty_t ON u.id = grobty_t.user_id ) a WHERE num > 0;",nativeQuery = true)
     List<Map<String, Object>> findTotal(String startTime,String endTime);
 }

@@ -295,7 +295,7 @@ public class GameRecordReportNewService {
             return;
         }
         log.info("得到SABASPORT注单下标{}",first.getSABASPORTMaxId());
-        List<Map<String, Object>> reportResult = gameRecordGoldenFService.queryGameRecords(first.getSABASPORTMaxId(), 13,Constants.PLATFORM_SABASPORT);
+        List<Map<String, Object>> reportResult = gameRecordGoldenFService.queryGameRecordsBySb(first.getSABASPORTMaxId(), 13,Constants.PLATFORM_SABASPORT);
         try {
             if (reportResult == null || reportResult.size() == CommonConst.NUMBER_0){
                 return;
@@ -522,5 +522,10 @@ public class GameRecordReportNewService {
             .where(predicates.toArray(new Predicate[predicates.size()]));
         GameRecordReportNew singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
+    }
+
+    @Transactional
+    public void deleteByPlatform(String platform){
+        gameRecordReport01Repository.deleteByPlatform(platform);
     }
 }

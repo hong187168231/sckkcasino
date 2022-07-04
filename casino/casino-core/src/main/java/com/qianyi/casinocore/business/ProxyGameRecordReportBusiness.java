@@ -82,6 +82,10 @@ public class ProxyGameRecordReportBusiness {
                         log.error("电子注单状态异常{}",proxyGameRecordReportVo.getGameRecordId());
                         return;
                     }
+                    //sb体育未结算的不计算报表
+                    if (gameRecordById.getVendorCode().equals(Constants.PLATFORM_SABASPORT) && !gameRecordById.getTransType().equals("Payoff")){
+                        return;
+                    }
                 }
                 Date date = DateUtil.getSimpleDateFormat().parse(proxyGameRecordReportVo.getOrderTimes());
                 Date americaDate = cn.hutool.core.date.DateUtil.offsetHour(date, -12);//转为美东时间保存,代理报表全部用美东时间
@@ -96,16 +100,6 @@ public class ProxyGameRecordReportBusiness {
                         orderTimes,proxyGameRecordReportVo.getValidAmount(),proxyGameRecordReportVo.getWinLoss(),proxyGameRecordReportVo.getFirstProxy(),
                         proxyGameRecordReportVo.getSecondProxy(),proxyGameRecordReportVo.getThirdProxy(),proxyGameRecordReportVo.getBetAmount());
                 }
-
-
-                //            if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_WM)){//会员报表单单wm使用美东时间
-                //                userGameRecordReportService.updateKey(userGameRecordReportId,proxyGameRecordReportVo.getUserId(),orderTimes,
-                //                    proxyGameRecordReportVo.getValidAmount(),proxyGameRecordReportVo.getWinLoss(),proxyGameRecordReportVo.getBetAmount(),proxyGameRecordReportVo.getPlatform());
-                //            }else {
-                //                orderTimes = DateUtil.dateToPatten1(date);
-                //                userGameRecordReportService.updateKey(userGameRecordReportId,proxyGameRecordReportVo.getUserId(),orderTimes,
-                //                    proxyGameRecordReportVo.getValidAmount(),proxyGameRecordReportVo.getWinLoss(),proxyGameRecordReportVo.getBetAmount(),proxyGameRecordReportVo.getPlatform());
-                //            }
 
                 String userGameTimes = DateUtil.dateToPatten1(date);
                 Long userGameRecordReportId = CommonUtil.toHash(userGameTimes+proxyGameRecordReportVo.getUserId().toString()+proxyGameRecordReportVo.getPlatform());

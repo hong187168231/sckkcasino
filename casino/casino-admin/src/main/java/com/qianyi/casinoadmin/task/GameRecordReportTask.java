@@ -100,12 +100,32 @@ public class GameRecordReportTask {
         if (gameRecords != null && gameRecords.size() >= 1) {
             proxyGameRecordReportVos = assemblyGameRecord(proxyGameRecordReportVos, gameRecords);
         }
-        GameRecordGoldenF gameRecordGoldenF = new GameRecordGoldenF();
-        gameRecordGoldenF.setGameRecordStatus(0);
-        List<GameRecordGoldenF> gameRecordGoldenFs =
-            gameRecordGoldenFService.findGameRecord(gameRecordGoldenF, startTime, endTime);
-        if (gameRecordGoldenFs != null && gameRecordGoldenFs.size() >= 1) {
-            proxyGameRecordReportVos = assemblyGameRecordGoldenF(proxyGameRecordReportVos, gameRecordGoldenFs);
+        GameRecordGoldenF pg = new GameRecordGoldenF();
+        pg.setGameRecordStatus(0);
+        pg.setVendorCode(Constants.PLATFORM_PG);
+        List<GameRecordGoldenF> pgs =
+            gameRecordGoldenFService.findGameRecord(pg, startTime, endTime);
+        if (pgs != null && pgs.size() >= 1) {
+            proxyGameRecordReportVos = assemblyGameRecordGoldenF(proxyGameRecordReportVos, pgs);
+        }
+
+        GameRecordGoldenF cq9 = new GameRecordGoldenF();
+        cq9.setGameRecordStatus(0);
+        cq9.setVendorCode(Constants.PLATFORM_CQ9);
+        List<GameRecordGoldenF> cq9s =
+            gameRecordGoldenFService.findGameRecord(cq9, startTime, endTime);
+        if (cq9s != null && cq9s.size() >= 1) {
+            proxyGameRecordReportVos = assemblyGameRecordGoldenF(proxyGameRecordReportVos, cq9s);
+        }
+
+        GameRecordGoldenF sb = new GameRecordGoldenF();
+        sb.setGameRecordStatus(0);
+        sb.setVendorCode(Constants.PLATFORM_SABASPORT);
+        sb.setTransType("Payoff");
+        List<GameRecordGoldenF> sbs =
+            gameRecordGoldenFService.findGameRecord(sb, startTime, endTime);
+        if (sbs != null && sbs.size() >= 1) {
+            proxyGameRecordReportVos = assemblyGameRecordGoldenF(proxyGameRecordReportVos, sbs);
         }
 
         GameRecordObdj gameRecordObdj = new GameRecordObdj();

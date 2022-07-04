@@ -18,4 +18,7 @@ public interface GameRecordReportNewRepository  extends JpaRepository<GameRecord
     void updateKey(Long gameRecordReportId,String staticsTimes,BigDecimal betAmount,BigDecimal validAmount,BigDecimal winLossAmount,
         BigDecimal amount,Integer bettingNumber,Long firstProxy,Long secondProxy,Long thirdProxy,String platform,BigDecimal surplusAmount,BigDecimal userAmount);
 
+    @Modifying
+    @Query(value = "DELETE from game_record_report_new where platform = ?1 ;",nativeQuery = true)
+    void deleteByPlatform(String platform);
 }

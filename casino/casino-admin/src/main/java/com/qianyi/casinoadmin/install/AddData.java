@@ -59,15 +59,15 @@ public class AddData implements CommandLineRunner {
         long startTime = System.currentTimeMillis();
         Date startDate = null;
         try {
-            startDate = DateUtil.getDate("2022-01-31");
+            startDate = DateUtil.getDate("2022-04-3");
         } catch (ParseException e) {
             e.printStackTrace();
         }
-//        Map<Integer,String> mapDate = CommonUtil.findDates("D", startDate, DateUtil.getYesterday());
-//        mapDate.forEach((k,v)->{
-//            userGameRecordReportService.comparison(v);
-//            proxyGameRecordReportService.comparison(v);
-//        });
+        Map<Integer,String> mapDate = CommonUtil.findDates("D", startDate, DateUtil.getYesterday());
+        mapDate.forEach((k,v)->{
+            userGameRecordReportService.comparison(v);
+            proxyGameRecordReportService.comparison(v);
+        });
         log.info("初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
         //        new Thread(()->{
         //            beginWM1();

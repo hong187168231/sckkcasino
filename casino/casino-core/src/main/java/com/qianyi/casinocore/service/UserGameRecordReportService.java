@@ -63,63 +63,15 @@ public class UserGameRecordReportService {
 
             List<Map<String, Object>> pg = userGameRecordReportRepository.findPg(startTime, endTime);
             this.addData(pg, dayTime, Constants.PLATFORM_PG);
-            // if ( CollUtil.isNotEmpty(pg)){
-            // pg.forEach(map -> {
-            // UserGameRecordReport userGameRecordReport = new UserGameRecordReport();
-            //
-            // userGameRecordReport.setOrderTimes(dayTime);
-            // userGameRecordReport.setUserId(Long.parseLong(map.get("user_id").toString()));
-            // userGameRecordReport.setBettingNumber(Integer.parseInt(map.get("num").toString()));
-            // userGameRecordReport.setBetAmount(new BigDecimal(map.get("bet_amount").toString()));
-            // userGameRecordReport.setValidAmount(new BigDecimal(map.get("bet_amount").toString()));
-            // userGameRecordReport.setWinLoss(new BigDecimal(map.get("win_loss").toString()));
-            // Long userGameRecordReportId = CommonUtil
-            // .toHash(dayTime+userGameRecordReport.getUserId().toString()+userGameRecordReport.getPlatform());
-            // userGameRecordReport.setUserGameRecordReportId(userGameRecordReportId);
-            // this.save(userGameRecordReport);
-            // });
-            // pg.clear();
-            // }
+
+            List<Map<String, Object>> sb = userGameRecordReportRepository.findSb(startTime, endTime);
+            this.addData(sb, dayTime, Constants.PLATFORM_PG);
 
             List<Map<String, Object>> obdj = userGameRecordReportRepository.findObdj(startTime, endTime);
             this.addData(obdj, dayTime, Constants.PLATFORM_OBDJ);
-            // if ( CollUtil.isNotEmpty(obdj)){
-            // obdj.forEach(map -> {
-            // UserGameRecordReport userGameRecordReport = new UserGameRecordReport();
-            // userGameRecordReport.setPlatform(Constants.PLATFORM_OBDJ);
-            // userGameRecordReport.setOrderTimes(dayTime);
-            // userGameRecordReport.setUserId(Long.parseLong(map.get("user_id").toString()));
-            // userGameRecordReport.setBettingNumber(Integer.parseInt(map.get("num").toString()));
-            // userGameRecordReport.setBetAmount(new BigDecimal(map.get("bet_amount").toString()));
-            // userGameRecordReport.setValidAmount(new BigDecimal(map.get("bet_amount").toString()));
-            // userGameRecordReport.setWinLoss(new BigDecimal(map.get("win_loss").toString()));
-            // Long userGameRecordReportId = CommonUtil
-            // .toHash(dayTime+userGameRecordReport.getUserId().toString()+userGameRecordReport.getPlatform());
-            // userGameRecordReport.setUserGameRecordReportId(userGameRecordReportId);
-            // this.save(userGameRecordReport);
-            // });
-            // obdj.clear();
-            // }
 
             List<Map<String, Object>> obty = userGameRecordReportRepository.findObty(startTime, endTime);
             this.addData(obty, dayTime, Constants.PLATFORM_OBTY);
-            // if ( CollUtil.isNotEmpty(obty)){
-            // obty.forEach(map -> {
-            // UserGameRecordReport userGameRecordReport = new UserGameRecordReport();
-            // userGameRecordReport.setPlatform(Constants.PLATFORM_OBTY);
-            // userGameRecordReport.setOrderTimes(dayTime);
-            // userGameRecordReport.setUserId(Long.parseLong(map.get("user_id").toString()));
-            // userGameRecordReport.setBettingNumber(Integer.parseInt(map.get("num").toString()));
-            // userGameRecordReport.setBetAmount(new BigDecimal(map.get("bet_amount").toString()));
-            // userGameRecordReport.setValidAmount(new BigDecimal(map.get("bet_amount").toString()));
-            // userGameRecordReport.setWinLoss(new BigDecimal(map.get("win_loss").toString()));
-            // Long userGameRecordReportId = CommonUtil
-            // .toHash(dayTime+userGameRecordReport.getUserId().toString()+userGameRecordReport.getPlatform());
-            // userGameRecordReport.setUserGameRecordReportId(userGameRecordReportId);
-            // this.save(userGameRecordReport);
-            // });
-            // obty.clear();
-            // }
         }
     }
 
