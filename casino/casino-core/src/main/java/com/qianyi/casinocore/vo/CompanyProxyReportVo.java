@@ -44,6 +44,9 @@ public class CompanyProxyReportVo implements Serializable, Comparable<BigDecimal
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty("团队业绩(流水)")
     private BigDecimal groupPerformance = BigDecimal.ZERO;
+    @ApiModelProperty(value = "输赢金额")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    private BigDecimal winLossAmount = BigDecimal.ZERO;
     @ApiModelProperty("统计日期")
     private String staticsTimes;
 

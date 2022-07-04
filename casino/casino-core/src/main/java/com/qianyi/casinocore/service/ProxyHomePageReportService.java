@@ -314,7 +314,7 @@ public class ProxyHomePageReportService {
 
             proxyHomePageReport.setActiveUsers(Integer.parseInt(gameRecordMap.get("num").toString()));
             proxyHomePageReport.setValidbetAmount(new BigDecimal(gameRecordMap.get("validAmount").toString()));
-            proxyHomePageReport.setWinLossAmount(new BigDecimal(gameRecordMap.get("winLoss").toString()));
+            proxyHomePageReport.setWinLossAmount(new BigDecimal(gameRecordMap.get("winLoss").toString()).negate());
         }catch (Exception ex){
             log.error("统计代理{}三方游戏注单失败{}",proxyUser.getUserName(),ex);
         }

@@ -239,6 +239,14 @@ public class ReportController {
                 log.error("查询会员报表失败");
             }
             list = getMap(reportResult);
+
+            if(Objects.nonNull(list)){
+                Map<String, Object> result =
+                    userService.findMap(platform, startTimeStr, endTimeStr, orderTimeStart, orderTimeEnd, "");
+                PersonReportVo item = DTOUtil.toDTO(result, PersonReportVo.class);
+                item.setAccount("总计");
+                list.add(item);
+            }
         }
         String[] title =
             {"会员账号", "基层代理", "投注笔数", "投注金额", "有效投注", "贡献代理抽点", "用户输赢", "平台盈亏结算(毛利1)", "累计人人贷佣金", "提款手续费", "总结算(毛利2)"};

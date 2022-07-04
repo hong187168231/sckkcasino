@@ -59,7 +59,7 @@ public class AddData implements CommandLineRunner {
         long startTime = System.currentTimeMillis();
         Date startDate = null;
         try {
-            startDate = DateUtil.getDate("2022-04-3");
+            startDate = DateUtil.getDate("2022-04-30");
         } catch (ParseException e) {
             e.printStackTrace();
         }

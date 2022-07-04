@@ -244,6 +244,14 @@ public class RebateReportController {
                 log.error("查询会员返利报表失败");
             }
             list = getMap(reportResult);
+
+            if (Objects.nonNull(list)){
+                Map<String, Object> result =
+                    userService.findRebateMap(platform, startTimeStr, endTimeStr, orderTimeStart, orderTimeEnd, "");
+                RebateReportVo item = DTOUtil.toDTO(result, RebateReportVo.class);
+                item.setAccount("总计");
+                list.add(item);
+            }
         }
         String[] title = {"会员账号", "基层代理", "投注笔数", "投注金额", "有效投注", "平台返利", "代理返利", "会员返利", "用户输赢", "平台盈亏结算(毛利1)",
             "提款手续费", "总结算(毛利2)"};
