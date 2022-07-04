@@ -244,7 +244,7 @@ public class GameRecordGoldenFService {
                 }
                 if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
                     list.add(
-                        cb.between(root.get("createAtStr").as(String.class), startTime, endTime)
+                        cb.between(root.get("createTime").as(String.class), startTime, endTime)
                     );
                 }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));
