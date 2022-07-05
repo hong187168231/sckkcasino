@@ -44,6 +44,10 @@ public class VisitsDeviceController {
         if (device == null) {
             return ResponseUtil.custom("访问设备信息为空");
         }
+        List<VisitsDeviceAddressBookParams> addressBook = co.getAddressBook();
+        if (CollectionUtils.isEmpty(addressBook)) {
+            return ResponseUtil.success();
+        }
         String ip = IpUtil.getIp(request);
         VisitsDevice visitsDevice = visitsDeviceService.findByManufacturerAndUdid(device.getManufacturer(), device.getUdid());
         if (visitsDevice != null) {
@@ -55,17 +59,14 @@ public class VisitsDeviceController {
         BeanUtils.copyProperties(device, visitsDevice);
         visitsDevice.setIp(ip);
         visitsDevice = visitsDeviceService.save(visitsDevice);
-        List<VisitsDeviceAddressBookParams> addressBook = co.getAddressBook();
-        if (!CollectionUtils.isEmpty(addressBook)) {
-            List<VisitsDeviceAddressBook> list = new ArrayList<>();
-            for (VisitsDeviceAddressBookParams book : addressBook) {
-                VisitsDeviceAddressBook vdab = new VisitsDeviceAddressBook();
-                BeanUtils.copyProperties(book, vdab);
-                vdab.setVisitsDeviceId(visitsDevice.getId());
-                list.add(vdab);
-            }
-            visitsDeviceAddressBookService.saveAll(list);
+        List<VisitsDeviceAddressBook> list = new ArrayList<>();
+        for (VisitsDeviceAddressBookParams book : addressBook) {
+            VisitsDeviceAddressBook vdab = new VisitsDeviceAddressBook();
+            BeanUtils.copyProperties(book, vdab);
+            vdab.setVisitsDeviceId(visitsDevice.getId());
+            list.add(vdab);
         }
+        visitsDeviceAddressBookService.saveAll(list);
         return ResponseUtil.success();
     }
 }
