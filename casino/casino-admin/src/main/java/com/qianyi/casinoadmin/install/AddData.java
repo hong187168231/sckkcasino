@@ -11,6 +11,7 @@ import com.qianyi.casinocore.service.UserGameRecordReportService;
 import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.casinocore.util.UserPasswordUtil;
 import com.qianyi.casinocore.vo.ProxyGameRecordReportVo;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -57,18 +58,24 @@ public class AddData implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("初始化计算数据开始==============================================>");
         long startTime = System.currentTimeMillis();
-//        Date startDate = null;
-//        try {
-//            startDate = DateUtil.getDate("2022-04-30");
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//        Map<Integer,String> mapDate = CommonUtil.findDates("D", startDate, DateUtil.getYesterday());
-//        mapDate.forEach((k,v)->{
-//            userGameRecordReportService.comparison(v);
-//            proxyGameRecordReportService.comparison(v);
-//        });
+
+        proxyGameRecordReportService.deleteByOrderTimes("2022-05-15",DateUtil.getYesterdayString());
+        userGameRecordReportService.deleteByPlatform(Constants.PLATFORM_SABASPORT);
+
+        Date startDate = null;
+        try {
+            startDate = DateUtil.getDate("2022-04-30");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Map<Integer,String> mapDate = CommonUtil.findDates("D", startDate, DateUtil.getYesterday());
+        mapDate.forEach((k,v)->{
+            userGameRecordReportService.comparison(v);
+            proxyGameRecordReportService.comparison(v);
+        });
         log.info("初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
+
+
         //        new Thread(()->{
         //            beginWM1();
         //        }).start();

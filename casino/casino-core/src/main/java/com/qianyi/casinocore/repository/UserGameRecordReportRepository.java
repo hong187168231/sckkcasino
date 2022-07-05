@@ -56,10 +56,12 @@ public interface UserGameRecordReportRepository extends JpaRepository<UserGameRe
         + "GROUP BY grg.vendor_code,grg.user_id ;",nativeQuery = true)
     List<Map<String, Object>> findPg(String startTime,String endTime);
 
-    @Query(value = "select user_id user_id,vendor_code vendor_code, count(1) num,sum(bet_amount) bet_amount,sum(bet_amount) validbet,sum(win_amount-bet_amount) win_loss "
-        + "from game_record_goldenf grg where create_at_str >= ?1 and create_at_str <= ?2 AND vendor_code = 'SABASPORT' AND trans_type = 'Payoff'"
-        + "GROUP BY grg.vendor_code,grg.user_id ;",nativeQuery = true)
-    List<Map<String, Object>> findSb(String startTime,String endTime);
+    @Query(value = "SELECT off.user_id user_id,off.vendor_code vendor_code,count( 1 ) num,SUM( sk.bet_amount ) bet_amount,"
+        + "SUM( sk.bet_amount ) validbet,sum( off.win_amount - sk.bet_amount ) win_loss FROM game_record_goldenf off "
+        + "LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = ?3 AND trans_type = 'Stake') sk "
+        + "ON off.bet_id = sk.bet_id WHERE off.vendor_code = ?3 AND off.trans_type = 'Payoff' AND off.create_at_str "
+        + "BETWEEN ?1 AND ?2  GROUP BY user_id",nativeQuery = true)
+    List<Map<String, Object>> findSb(String startTime,String endTime,String vendorCode);
 
     @Query(value = "select user_id user_id,count(1) num,sum(order_amount) bet_amount,sum(order_amount) validbet,sum(profit_amount) win_loss from game_record_obty grg "
         + "where settle_str_time >= ?1 and settle_str_time <= ?2 group by user_id ;",nativeQuery = true)
@@ -69,4 +71,8 @@ public interface UserGameRecordReportRepository extends JpaRepository<UserGameRe
         + "where bet_status in (5,6,8,9,10) and set_str_time >= ?1 and set_str_time <= ?2"
         + " group by user_id ;",nativeQuery = true)
     List<Map<String, Object>> findObdj(String startTime,String endTime);
+
+    @Modifying
+    @Query(value = "DELETE from user_game_record_report where platform = ?1 ;",nativeQuery = true)
+    void deleteByPlatform(String platform);
 }

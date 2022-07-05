@@ -136,4 +136,10 @@ public interface GameRecordGoldenFRepository extends JpaRepository<GameRecordGol
 
     @Query(value = "select MAX(id) from game_record_goldenf",nativeQuery = true)
     Long findMaxId();
+
+    GameRecordGoldenF findByBetIdAndTransTypeAndVendorCode(String betId, String transType,String vendorCode);
+
+    @Modifying(clearAutomatically = true)
+    @Query("update GameRecordGoldenF u set u.gameRecordStatus=?3 where u.betId=?1 and u.vendorCode=?2")
+    void updateGameRecordStatus(String betId,String vendorCode,Integer gameRecordStatus);
 }

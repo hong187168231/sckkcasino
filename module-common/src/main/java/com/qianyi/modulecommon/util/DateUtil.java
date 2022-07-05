@@ -76,13 +76,15 @@ public class DateUtil {
         return nowTime.getTime();
     }
 
-    public static Date getToday(){
-        Calendar nowTime = Calendar.getInstance();
-        return nowTime.getTime();
-    }
-
     public static String today() {
         return today(patten);
+    }
+
+    public static String getYesterdayString(){
+        Calendar nowTime = Calendar.getInstance();
+        nowTime.add(Calendar.DATE, -1);
+        SimpleDateFormat formatter = new SimpleDateFormat(patten1);
+        return formatter.format(nowTime.getTime());
     }
 
     static{

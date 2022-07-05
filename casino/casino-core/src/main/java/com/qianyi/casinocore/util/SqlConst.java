@@ -524,15 +524,21 @@ public class SqlConst {
         -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0) total_amount,
     ifnull(ec.water, 0) all_water
     from user u left join (
-        select user_id ,
-        count(1) num,
-    sum(bet_amount) bet_amount,
-    sum(win_amount-bet_amount) win_loss
-    from game_record_goldenf grg
-        where
-    vendor_code = {5} and trans_type = {7} and  create_at_str between {0} and {1}
-    group by user_id
-              ) goldenf_t on u.id = goldenf_t.user_id
+        SELECT
+            off.user_id user_id,
+        count( 1 ) num,
+    SUM( sk.bet_amount ) bet_amount,
+    sum( off.win_amount - sk.bet_amount ) win_loss
+    FROM
+    game_record_goldenf off
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {5} AND trans_type = {8} ) sk ON off.bet_id = sk.bet_id
+        WHERE
+    off.vendor_code = {5}
+    AND off.trans_type = {7}
+    AND off.create_at_str BETWEEN {0}
+    AND {1}
+    GROUP BY
+    user_id) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(amount) wash_amount
@@ -637,15 +643,21 @@ public class SqlConst {
         -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0) total_amount,
     ifnull(ec.water, 0) all_water
     from user u left join (
-        select user_id ,
-        count(1) num,
-    sum(bet_amount) bet_amount,
-    sum(win_amount-bet_amount) win_loss
-    from game_record_goldenf grg
-        where
-    vendor_code = {3} and trans_type = {5} and create_at_str between {0} and {1}
-    group by user_id
-              ) goldenf_t on u.id = goldenf_t.user_id
+        SELECT
+            off.user_id user_id,
+        count( 1 ) num,
+    SUM( sk.bet_amount ) bet_amount,
+    sum( off.win_amount - sk.bet_amount ) win_loss
+    FROM
+    game_record_goldenf off
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {3} AND trans_type = {6} ) sk ON off.bet_id = sk.bet_id
+        WHERE
+    off.vendor_code = {3}
+    AND off.trans_type = {5}
+    AND off.create_at_str BETWEEN {0}
+    AND {1}
+    GROUP BY
+    user_id) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(amount) wash_amount
@@ -1168,14 +1180,21 @@ public class SqlConst {
     sum(ifnull(ec.water, 0)) all_water
     from user u
     left join (
-        select user_id ,
-        count(1) num,
-    sum(bet_amount) bet_amount,
-    sum(win_amount-bet_amount) win_loss
-    from game_record_goldenf grg
-    where vendor_code = {3}  and trans_type = {5}  and create_at_str between {0} and {1}
-    group by user_id
-                ) goldenf_t on u.id = goldenf_t.user_id
+        SELECT
+            off.user_id user_id,
+        count( 1 ) num,
+    SUM( sk.bet_amount ) bet_amount,
+    sum( off.win_amount - sk.bet_amount ) win_loss
+    FROM
+    game_record_goldenf off
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {3} AND trans_type = {6} ) sk ON off.bet_id = sk.bet_id
+        WHERE
+    off.vendor_code = {3}
+    AND off.trans_type = {5}
+    AND off.create_at_str BETWEEN {0}
+    AND {1}
+    GROUP BY
+    user_id) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(amount) wash_amount
@@ -1686,15 +1705,21 @@ public class SqlConst {
     sum(ifnull(ec.water, 0)) all_water
     from user u
     left join (
-        select user_id ,
-        count(1) num,
-    sum(bet_amount) bet_amount,
-    sum(win_amount-bet_amount) win_loss
-    from game_record_goldenf grg
-    where vendor_code = {2} and trans_type = {4}
-    and create_at_str between {0} and {1}
-    group by user_id
-                   ) goldenf_t on u.id = goldenf_t.user_id
+        SELECT
+            off.user_id user_id,
+        count( 1 ) num,
+    SUM( sk.bet_amount ) bet_amount,
+    sum( off.win_amount - sk.bet_amount ) win_loss
+    FROM
+    game_record_goldenf off
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {2} AND trans_type = {5} ) sk ON off.bet_id = sk.bet_id
+        WHERE
+    off.vendor_code = {2}
+    AND off.trans_type = {4}
+    AND off.create_at_str BETWEEN {0}
+    AND {1}
+    GROUP BY
+    user_id) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(amount) wash_amount

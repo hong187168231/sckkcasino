@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import javax.persistence.EntityManager;
@@ -309,4 +310,12 @@ public class GameRecordGoldenFService {
         return singleResult;
     }
 
+    public GameRecordGoldenF findByBetIdAndTransTypeAndVendorCode(String betId, String transType,String vendorCode){
+        return gameRecordGoldenFRepository.findByBetIdAndTransTypeAndVendorCode(betId,transType,vendorCode);
+    }
+
+    @Transactional
+    public void updateGameRecordStatus(String betId,String vendorCode,Integer gameRecordStatus){
+        gameRecordGoldenFRepository.updateGameRecordStatus(betId,vendorCode,gameRecordStatus);
+    }
 }

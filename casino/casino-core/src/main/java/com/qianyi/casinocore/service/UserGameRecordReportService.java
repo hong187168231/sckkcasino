@@ -64,7 +64,7 @@ public class UserGameRecordReportService {
             List<Map<String, Object>> pg = userGameRecordReportRepository.findPg(startTime, endTime);
             this.addData(pg, dayTime, Constants.PLATFORM_PG);
 
-            List<Map<String, Object>> sb = userGameRecordReportRepository.findSb(startTime, endTime);
+            List<Map<String, Object>> sb = userGameRecordReportRepository.findSb(startTime, endTime,Constants.PLATFORM_SABASPORT);
             this.addData(sb, dayTime, Constants.PLATFORM_PG);
 
             List<Map<String, Object>> obdj = userGameRecordReportRepository.findObdj(startTime, endTime);
@@ -101,5 +101,10 @@ public class UserGameRecordReportService {
         } catch (Exception ex) {
             log.error("会员报表计算失败日期{}Platform{}", dayTime, platform);
         }
+    }
+
+    @Transactional
+    public void deleteByPlatform(String platform){
+        userGameRecordReportRepository.deleteByPlatform(platform);
     }
 }

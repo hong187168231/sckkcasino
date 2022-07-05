@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
 import java.util.Date;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -82,9 +83,26 @@ public class ProxyGameRecordReportBusiness {
                         log.error("电子注单状态异常{}",proxyGameRecordReportVo.getGameRecordId());
                         return;
                     }
-                    //sb体育未结算的不计算报表
-                    if (gameRecordById.getVendorCode().equals(Constants.PLATFORM_SABASPORT) && !gameRecordById.getTransType().equals("Payoff")){
-                        return;
+                    if (gameRecordById.getVendorCode().equals(Constants.PLATFORM_SABASPORT)){
+                        if (gameRecordById.getTransType().equals("Payoff")){
+                            GameRecordGoldenF stake = gameRecordGoldenFService
+                                .findByBetIdAndTransTypeAndVendorCode(gameRecordById.getBetId(), "Stake",
+                                    Constants.PLATFORM_SABASPORT);
+                            if (Objects.isNull(stake) || stake.getGameRecordStatus() == Constants.yes){
+                                log.error("沙巴体育注单Stake状态异常{}",proxyGameRecordReportVo.getGameRecordId());
+                                return;
+                            }
+                            proxyGameRecordReportVo = getProxyGameRecordReportVo(gameRecordById,stake);
+                        }else {
+                            GameRecordGoldenF payoff = gameRecordGoldenFService
+                                .findByBetIdAndTransTypeAndVendorCode(gameRecordById.getBetId(), "Payoff",
+                                    Constants.PLATFORM_SABASPORT);
+                            if (Objects.isNull(payoff) || payoff.getGameRecordStatus() == Constants.yes){
+                                log.info("沙巴体育注单未结算不计算{}",proxyGameRecordReportVo.getGameRecordId());
+                                return;
+                            }
+                            proxyGameRecordReportVo = getProxyGameRecordReportVo(payoff,gameRecordById);
+                        }
                     }
                 }
                 Date date = DateUtil.getSimpleDateFormat().parse(proxyGameRecordReportVo.getOrderTimes());
@@ -113,6 +131,8 @@ public class ProxyGameRecordReportBusiness {
                     gameRecordObdjService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_OBTY)){
                     gameRecordObtyService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
+                }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_SABASPORT)){
+                    gameRecordGoldenFService.updateGameRecordStatus(proxyGameRecordReportVo.getBetId(),Constants.PLATFORM_SABASPORT,Constants.yes);
                 }else {
                     gameRecordGoldenFService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }
@@ -125,5 +145,21 @@ public class ProxyGameRecordReportBusiness {
                 redisLockUtil.releaseLock(key, value);
             }
         }
+    }
+    private ProxyGameRecordReportVo getProxyGameRecordReportVo(GameRecordGoldenF payoff,GameRecordGoldenF stake){
+        ProxyGameRecordReportVo vo = new ProxyGameRecordReportVo();
+        vo.setGameRecordId(payoff.getId());
+        vo.setOrderId(payoff.getTraceId());
+        vo.setFirstProxy(payoff.getFirstProxy());
+        vo.setSecondProxy(payoff.getSecondProxy());
+        vo.setThirdProxy(payoff.getThirdProxy());
+        vo.setOrderTimes(payoff.getCreateAtStr());
+        vo.setUserId(payoff.getUserId());
+        vo.setValidAmount(stake.getBetAmount());
+        vo.setWinLoss(payoff.getWinAmount().subtract(stake.getBetAmount()));
+        vo.setBetAmount(stake.getBetAmount());
+        vo.setPlatform(payoff.getVendorCode());
+        vo.setBetId(payoff.getBetId());
+        return vo;
     }
 }

@@ -50,4 +50,7 @@ public class ProxyGameRecordReportVo extends JobSuperVo{
 
     @ApiModelProperty(value = "平台:wm,PG,CQ9")
     private String platform;
+
+    @ApiModelProperty
+    private String betId;
 }
