@@ -64,11 +64,10 @@ public interface GameRecordGoldenFRepository extends JpaRepository<GameRecordGol
 
     @Query(value = "select MAX(g.id) maxId,ifnull(SUM(d.user_amount), 0 ) as user_amount,ifnull(SUM(d.surplus_amount), 0 ) as surplus_amount,LEFT(g.create_at_str,?2) set_time,ifnull(g.first_proxy,0) first_proxy," +
         "ifnull(g.second_proxy,0) second_proxy,ifnull(g.third_proxy,0) third_proxy," +
-        "COUNT(1) num,SUM(h.bet_amount) bet,SUM(h.bet_amount) validbet,SUM(g.win_amount) win_loss," +
+        "COUNT(1) num,SUM(hs.bet_amount) bet,SUM(hs.bet_amount) validbet,SUM(g.win_amount) win_loss," +
         " ifnull(SUM(w.amount),0) amount from game_record_goldenf g" +
-            "left join game_record_goldenf h on g.bet_id = h.bet_id and h.trans_type = 'Stake'  " +
             " left join wash_code_change w  on  w.game_record_id = g.id and w.platform = ?3 " +
-        "LEFT JOIN  rebate_detail d on d.game_record_id=g.id  and d.platform = ?3 " +
+        "LEFT JOIN  rebate_detail d on d.game_record_id=g.id  and d.platform = ?3  LEFT JOIN game_record_goldenf hs on g.bet_id = hs.bet_id and hs.trans_type = 'Stake'  " +
         " where g.id > ?1 and g.vendor_code = ?3 and g.trans_type  = 'Payoff' " +
         " GROUP BY g.third_proxy,LEFT(g.create_at_str,?2)  ",nativeQuery = true)
     List<Map<String,Object>> queryGameRecordsBySb(Long id,Integer num,String platform);
