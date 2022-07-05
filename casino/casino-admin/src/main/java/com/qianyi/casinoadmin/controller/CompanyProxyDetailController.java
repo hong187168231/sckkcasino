@@ -51,6 +51,9 @@ public class CompanyProxyDetailController {
     @Autowired
     private CompanyManagementService companyManagementService;
 
+    @Autowired
+    private GameRecordReportNewService gameRecordReportNewService;
+
     public final static String startStr = " 12:00:00";
 
     public final static String endStr = " 11:59:59";
@@ -109,6 +112,9 @@ public class CompanyProxyDetailController {
         Date start = cn.hutool.core.date.DateUtil.offsetHour(startDate, 12);
         Date end = cn.hutool.core.date.DateUtil.offsetHour(endDate, 12);
 
+        String startTimeHH = DateUtil.dateToPatten2(start);// yyyy-MM-dd HH 查询对账报表
+        String endTimeHH = DateUtil.dateToPatten2(end);
+
         if (!LoginUtil.checkNull(content)) {
             return this.getComparatorResult(proxyUser, content, sort, startDate, endDate, pageSize, pageCode);
         }
@@ -128,6 +134,7 @@ public class CompanyProxyDetailController {
             proxyUserPage.getContent().forEach(proxyUser1 -> {
                 CompanyProxyReportVo companyProxyReportVo = null;
                 companyProxyReportVo = this.assembleData(proxyUser1, start, end, startTime, endTime);
+                companyProxyReportVo = this.sumWashCodeChange(proxyUser1, startTimeHH, endTimeHH, companyProxyReportVo);
                 companyProxyReportVo.setCompanyName(maps.get(proxyUser1.getCompanyId()));
                 list.add(companyProxyReportVo);
             });
@@ -361,6 +368,9 @@ public class CompanyProxyDetailController {
         if (byId.getProxyRole() != CommonConst.NUMBER_3) {
             proxyHomePageReportService.getNewThirdProxys(byId, startDate, endDate, proxyHomePageReport);
         }
+
+        // 洗码统计
+
         CompanyProxyReportVo companyProxyReportVo = new CompanyProxyReportVo();
         BeanUtils.copyProperties(proxyHomePageReport, companyProxyReportVo);
         companyProxyReportVo.setGroupPerformance(proxyHomePageReport.getValidbetAmount());
@@ -425,5 +435,18 @@ public class CompanyProxyDetailController {
             proxyUsers.clear();
         }
         return list;
+    }
+
+    private CompanyProxyReportVo sumWashCodeChange(ProxyUser byId, String startTimeHH, String endTimeHH,
+        CompanyProxyReportVo companyProxyReportVo) {
+        GameRecordReportNew gameRecordReportNew = new GameRecordReportNew();
+        if (CommonUtil.setParameter(gameRecordReportNew, byId)) {
+            return companyProxyReportVo;
+        }
+        GameRecordReportNew gameRecordReportNewSum =
+            gameRecordReportNewService.findGameRecordReportNewSum(gameRecordReportNew, startTimeHH, endTimeHH);
+        companyProxyReportVo
+            .setWinLossAmount(companyProxyReportVo.getWinLossAmount().subtract(gameRecordReportNewSum.getAmount()));
+        return companyProxyReportVo;
     }
 }

@@ -1,7 +1,9 @@
 package com.qianyi.casinoproxy.controller;
 
+import com.qianyi.casinocore.model.GameRecordReportNew;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.UserRunningWater;
+import com.qianyi.casinocore.service.GameRecordReportNewService;
 import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.service.UserRunningWaterService;
 import com.qianyi.casinocore.util.CommonConst;
@@ -44,6 +46,9 @@ public class CompanyProxyDetailController {
 
     @Autowired
     private ProxyHomePageReportService proxyHomePageReportService;
+
+    @Autowired
+    private GameRecordReportNewService gameRecordReportNewService;
 
     public final static String startStr = " 12:00:00";
 
@@ -104,9 +109,13 @@ public class CompanyProxyDetailController {
         //偏移12小时
         Date start = cn.hutool.core.date.DateUtil.offsetHour(startDate, 12);
         Date end = cn.hutool.core.date.DateUtil.offsetHour(endDate, 12);
+
+        String startTimeHH = DateUtil.dateToPatten2(start);// yyyy-MM-dd HH 查询对账报表
+        String endTimeHH = DateUtil.dateToPatten2(end);
         try {
             proxyUserPage.getContent().forEach(proxyUser1 -> {
                 CompanyProxyReportVo companyProxyReportVo = this.assembleData(proxyUser1,start,end,startTime,endTime);
+                companyProxyReportVo = this.sumWashCodeChange(proxyUser1, startTimeHH, endTimeHH, companyProxyReportVo);
                 list.add(companyProxyReportVo);
             });
             this.getCompanyProxyReportVos(list);
@@ -228,5 +237,18 @@ public class CompanyProxyDetailController {
             proxyUsers.clear();
         }
         return list;
+    }
+
+    private CompanyProxyReportVo sumWashCodeChange(ProxyUser byId, String startTimeHH, String endTimeHH,
+        CompanyProxyReportVo companyProxyReportVo) {
+        GameRecordReportNew gameRecordReportNew = new GameRecordReportNew();
+        if (CommonUtil.setParameter(gameRecordReportNew, byId)) {
+            return companyProxyReportVo;
+        }
+        GameRecordReportNew gameRecordReportNewSum =
+            gameRecordReportNewService.findGameRecordReportNewSum(gameRecordReportNew, startTimeHH, endTimeHH);
+        companyProxyReportVo
+            .setWinLossAmount(companyProxyReportVo.getWinLossAmount().subtract(gameRecordReportNewSum.getAmount()));
+        return companyProxyReportVo;
     }
 }

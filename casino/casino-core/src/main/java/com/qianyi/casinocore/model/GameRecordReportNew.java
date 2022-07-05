@@ -94,4 +94,8 @@ public class GameRecordReportNew extends BaseEntity{
         this.userAmount = userAmount;
         this.surplusAmount = surplusAmount;
     }
+
+    public GameRecordReportNew(BigDecimal amount){
+        this.amount = amount==null?BigDecimal.ZERO:amount;
+    }
 }

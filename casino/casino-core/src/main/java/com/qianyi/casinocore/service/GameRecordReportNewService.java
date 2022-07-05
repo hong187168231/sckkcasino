@@ -528,4 +528,41 @@ public class GameRecordReportNewService {
     public void deleteByPlatform(String platform){
         gameRecordReport01Repository.deleteByPlatform(platform);
     }
+
+
+    public  GameRecordReportNew  findGameRecordReportNewSum(GameRecordReportNew game,String startBetTime,String endBetTime) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<GameRecordReportNew> query = builder.createQuery(GameRecordReportNew.class);
+        Root<GameRecordReportNew> root = query.from(GameRecordReportNew.class);
+
+        query.multiselect(
+            builder.sum(root.get("amount").as(BigDecimal.class)).alias("amount")
+        );
+
+        List<Predicate> predicates = new ArrayList();
+        if (game.getFirstProxy() != null) {
+            predicates.add(
+                builder.equal(root.get("firstProxy").as(Long.class), game.getFirstProxy())
+            );
+        }
+        if (game.getSecondProxy() != null) {
+            predicates.add(
+                builder.equal(root.get("secondProxy").as(Long.class), game.getSecondProxy())
+            );
+        }
+        if (game.getThirdProxy() != null) {
+            predicates.add(
+                builder.equal(root.get("thirdProxy").as(Long.class), game.getThirdProxy())
+            );
+        }
+        if (!ObjectUtils.isEmpty(startBetTime) && !ObjectUtils.isEmpty(endBetTime)) {
+            predicates.add(
+                builder.between(root.get("staticsTimes").as(String.class), startBetTime, endBetTime)
+            );
+        }
+        query
+            .where(predicates.toArray(new Predicate[predicates.size()]));
+        GameRecordReportNew singleResult = entityManager.createQuery(query).getSingleResult();
+        return singleResult;
+    }
 }
