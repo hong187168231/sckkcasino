@@ -141,4 +141,9 @@ public class ProxyGameRecordReportService {
     public void deleteByOrderTimes(String startTime,String endTime){
         proxyGameRecordReportRepository.deleteByOrderTimes(startTime,endTime);
     }
+
+    @Transactional
+    public void deleteByOrderTimes(String orderTimes){
+        proxyGameRecordReportRepository.deleteByOrderTimes(orderTimes);
+    }
 }

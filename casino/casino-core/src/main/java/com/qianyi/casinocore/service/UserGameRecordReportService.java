@@ -107,4 +107,9 @@ public class UserGameRecordReportService {
     public void deleteByPlatform(String platform){
         userGameRecordReportRepository.deleteByPlatform(platform);
     }
+
+    @Transactional
+    public void deleteByOrderTimes(String orderTimes){
+        userGameRecordReportRepository.deleteByOrderTimes(orderTimes);
+    }
 }

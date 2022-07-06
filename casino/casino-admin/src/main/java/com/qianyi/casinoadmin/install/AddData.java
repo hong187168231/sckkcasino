@@ -58,21 +58,24 @@ public class AddData implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("初始化计算数据开始==============================================>");
         long startTime = System.currentTimeMillis();
-//
-//        proxyGameRecordReportService.deleteByOrderTimes("2022-05-15",DateUtil.getYesterdayString());
-//        userGameRecordReportService.deleteByPlatform(Constants.PLATFORM_SABASPORT);
-//
-//        Date startDate = null;
-//        try {
-//            startDate = DateUtil.getDate("2022-04-30");
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//        Map<Integer,String> mapDate = CommonUtil.findDates("D", startDate, DateUtil.getYesterday());
-//        mapDate.forEach((k,v)->{
-//            userGameRecordReportService.comparison(v);
-//            proxyGameRecordReportService.comparison(v);
-//        });
+
+        //        proxyGameRecordReportService.deleteByOrderTimes("2022-05-15",DateUtil.getYesterdayString());
+        //        userGameRecordReportService.deleteByPlatform(Constants.PLATFORM_SABASPORT);
+
+        proxyGameRecordReportService.deleteByOrderTimes("2022-07-05");
+        userGameRecordReportService.deleteByOrderTimes("2022-07-05");
+
+        Date startDate = null;
+        try {
+            startDate = DateUtil.getDate("2022-07-05");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Map<Integer,String> mapDate = CommonUtil.findDates("D", startDate, DateUtil.getYesterday());
+        mapDate.forEach((k,v)->{
+            userGameRecordReportService.comparison(v);
+            proxyGameRecordReportService.comparison(v);
+        });
         log.info("初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
 
 

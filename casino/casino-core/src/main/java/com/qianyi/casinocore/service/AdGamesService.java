@@ -36,6 +36,14 @@ public class AdGamesService {
         return adGameRepository.findByGamePlatformNameAndGameCode(gamePlatformName,gameCode);
     }
 
+    public AdGame findByGamePlatformNameAndGameEnName(String gamePlatformName,String gameEnName){
+        return adGameRepository.findByGamePlatformNameAndGameEnName(gamePlatformName,gameEnName);
+    }
+
+    public AdGame findByGamePlatformNameAndGameName(String gamePlatformName,String gameName){
+        return adGameRepository.findByGamePlatformNameAndGameName(gamePlatformName,gameName);
+    }
+
     @Cacheable(key = "#root.methodName+'::'+#p0")
     public List<AdGame> findByGamePlatformNameAndGamesStatusIn(String gamePlatformName,List<Integer> gameStatus) {
         return adGameRepository.findByGamePlatformNameAndGamesStatusIn(gamePlatformName, gameStatus);
@@ -79,6 +87,11 @@ public class AdGamesService {
     @CacheEvict(allEntries = true)
     public void saveAll(List<AdGame> adGameList) {
         adGameRepository.saveAll(adGameList);
+    }
+
+    @CacheEvict(allEntries = true)
+    public void save(AdGame adGame) {
+        adGameRepository.save(adGame);
     }
 
     public Long fontCount() {

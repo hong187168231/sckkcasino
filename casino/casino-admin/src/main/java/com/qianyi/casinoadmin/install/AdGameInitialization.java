@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.install;
 
 import com.qianyi.casinoadmin.util.ExcelUtils;
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.AdGame;
 import com.qianyi.casinocore.model.PlatformGame;
 import com.qianyi.casinocore.service.AdGamesService;
@@ -29,13 +30,64 @@ public class AdGameInitialization implements CommandLineRunner {
     private PlatformGameService platformGameService;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         addPlatformGame();
 
         long count = adGamesService.fontCount();
         if(count > 0){
-            return;
+            try {
+                updateAdGame();
+            }catch (Exception ex){
+                log.error("修改游戏代码失败",ex);
+            }
+        }else {
+            try {
+                addAdGame();
+            }catch (Exception ex){
+                log.error("新增游戏代码失败",ex);
+            }
         }
+
+    }
+
+    private void updateAdGame() throws Exception {
+        InputStream inputStream = this.getClass().getResourceAsStream("/excleTemplate/gameList.xlsx");
+        XSSFWorkbook xssfSheets = new XSSFWorkbook(inputStream);
+        List<List<String>> lists = ExcelUtils.readExcelContentList(xssfSheets);
+        for (List<String> list : lists) {
+            AdGame adGame = new AdGame();
+            for (int i = 0; i < list.size(); i++) {
+                if(i == 1){
+                    adGame.setGameName(list.get(i).trim());
+                }
+                if(i == 2){
+                    adGame.setGameCode(list.get(i).trim());
+                }
+                if(i == 3){
+                    adGame.setGamesStatus(Integer.parseInt(list.get(i)));
+                }
+                if(i == 4){
+                    adGame.setGameEnName(list.get(i).trim());
+                }
+                if(i == 5){
+                    adGame.setGamePlatformName(list.get(i).trim());
+                }
+            }
+            AdGame game =
+                adGamesService.findByGamePlatformNameAndGameName(adGame.getGamePlatformName(), adGame.getGameName());
+            if (LoginUtil.checkNull(game)){
+                adGamesService.save(adGame);
+            }else{
+                if (!adGame.getGameCode().equals(game.getGameCode())){
+                    game.setGameCode(adGame.getGameCode());
+                    adGamesService.save(game);
+                }
+            }
+        }
+    }
+
+    //新增平台游戏代码
+    private void addAdGame() throws Exception {
         InputStream inputStream = this.getClass().getResourceAsStream("/excleTemplate/gameList.xlsx");
         XSSFWorkbook xssfSheets = new XSSFWorkbook(inputStream);
         List<List<String>> lists = ExcelUtils.readExcelContentList(xssfSheets);
