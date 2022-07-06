@@ -22,10 +22,10 @@ public class SqlInitialize  implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
-        first.setSABASPORTMaxId(0L);
-        gameRecordEndIndexService.save(first);
-        gameRecordReportNewService.deleteByPlatform(Constants.PLATFORM_SABASPORT);
-        gameRecordReportNewService.saveGameRecordReportSABASPORT();
+//        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
+//        first.setSABASPORTMaxId(0L);
+//        gameRecordEndIndexService.save(first);
+//        gameRecordReportNewService.deleteByPlatform(Constants.PLATFORM_SABASPORT);
+//        gameRecordReportNewService.saveGameRecordReportSABASPORT();
     }
 }
