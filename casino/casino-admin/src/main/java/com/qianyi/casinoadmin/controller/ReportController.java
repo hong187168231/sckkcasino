@@ -263,12 +263,13 @@ public class ReportController {
             content[i][2] = obj.getNum().toString();
             content[i][3] = obj.getBetAmount().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
             content[i][4] = obj.getValidbet().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
-            content[i][5] = obj.getAllWater().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
-            content[i][6] = obj.getWinLoss().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
-            content[i][7] = obj.getAvgBenefit().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
-            content[i][8] = obj.getAllProfitAmount().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
-            content[i][9] = obj.getServiceCharge().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
-            content[i][10] = obj.getTotalAmount().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+            content[i][5] = obj.getWashAmount().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+            content[i][6] = obj.getAllWater().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+            content[i][7] = obj.getWinLoss().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+            content[i][8] = obj.getAvgBenefit().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+            content[i][9] = obj.getAllProfitAmount().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+            content[i][10] = obj.getServiceCharge().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+            content[i][11] = obj.getTotalAmount().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
         }
         // 创建HSSFWorkbook
         HSSFWorkbook wb = ExcelUtil.getHSSFWorkbook(sheetName, title, content, null);
