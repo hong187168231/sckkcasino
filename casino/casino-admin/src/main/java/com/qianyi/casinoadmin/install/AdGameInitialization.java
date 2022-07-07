@@ -36,7 +36,7 @@ public class AdGameInitialization implements CommandLineRunner {
         long count = adGamesService.fontCount();
         if(count > 0){
             try {
-                updateAdGame();
+//                updateAdGame();
             }catch (Exception ex){
                 log.error("修改游戏代码失败",ex);
             }
