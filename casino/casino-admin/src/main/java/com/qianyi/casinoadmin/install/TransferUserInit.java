@@ -26,7 +26,7 @@ public class TransferUserInit implements CommandLineRunner {
     private ProxyUserService proxyUserService;
 
     private static List<String> users1 = new ArrayList<>();
-    private static String proxyName1 = "taisendl";
+    private static String thirdProxyName1 = "taisendl";
 
     static {
         users1.add("laoliu8866");
@@ -59,7 +59,7 @@ public class TransferUserInit implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         log.info("初始化转移会员开始============================================》");
-        transferUser(users1,proxyName1);
+        transferUser(users1,thirdProxyName1);
 //        transferUser(users2,proxyName2);
 //        proxyTransferUser(proxy1,proxy1Name);
         log.info("初始化转移会员结束============================================》");
