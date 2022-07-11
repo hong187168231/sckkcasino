@@ -39,7 +39,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     where 1=1{6} {2}
@@ -84,7 +84,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     where 1=1{4} {2}
@@ -128,7 +128,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     where  1=1{7} {2}
@@ -200,7 +200,7 @@ public class RebateSqlConst {
     //        select user_id ,
     //        sum(ifnull(service_charge,0)) service_charge
     //    from withdraw_order wo
-    //    where update_time >= {0} and update_time <= {1}
+    //    where status = 1 and withdraw_time >= {0} and withdraw_time <= {1}
     //    group by user_id
     //                ) withdraw_t on u.id = withdraw_t.user_id
     //    where  1=1{5} {2}
@@ -245,7 +245,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     where  1=1{5} {2}
@@ -316,7 +316,7 @@ public class RebateSqlConst {
     //        select user_id ,
     //        sum(ifnull(service_charge,0)) service_charge
     //    from withdraw_order wo
-    //    where update_time >= {0} and update_time <= {1}
+    //    where status = 1 and withdraw_time >= {0} and withdraw_time <= {1}
     //    group by user_id
     //                ) withdraw_t on u.id = withdraw_t.user_id
     //    where  1=1{3} {2}
@@ -362,7 +362,7 @@ public class RebateSqlConst {
     //        select user_id ,
     //        sum(ifnull(service_charge,0)) service_charge
     //    from withdraw_order wo
-    //    where update_time >= {0} and update_time <= {1}
+    //    where status = 1 and withdraw_time >= {0} and withdraw_time <= {1}
     //    group by user_id
     //                ) withdraw_t on u.id = withdraw_t.user_id
     //    where  1=1{8} {2}
@@ -407,7 +407,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     where  1=1{6} {2}
@@ -458,7 +458,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     where  1=1{6} {2}
@@ -504,7 +504,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     where  1=1{4} {2}
@@ -555,7 +555,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     where  1=1{4} {2}
@@ -599,7 +599,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     where  1=1{6} {2}
@@ -644,7 +644,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     where  1=1{4} {2}
@@ -688,7 +688,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     where  1=1{6} {2}
@@ -732,7 +732,7 @@ public class RebateSqlConst {
     left join (
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
-    from withdraw_order wo
+    from status = 1 and withdraw_time wo
     where update_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
@@ -778,7 +778,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     where u.id = {2}{5}
@@ -849,7 +849,7 @@ public class RebateSqlConst {
     //        select user_id ,
     //        sum(ifnull(service_charge,0)) service_charge
     //    from withdraw_order wo
-    //    where update_time >= {0} and update_time <= {1}
+    //    where status = 1 and withdraw_time >= {0} and withdraw_time <= {1}
     //    group by user_id
     //                ) withdraw_t on u.id = withdraw_t.user_id
     //    where u.id = {2}{3}
@@ -897,7 +897,7 @@ public class RebateSqlConst {
     //        select user_id ,
     //        sum(ifnull(service_charge,0)) service_charge
     //    from withdraw_order wo
-    //    where update_time >= {0} and update_time <= {1}
+    //    where status = 1 and withdraw_time >= {0} and withdraw_time <= {1}
     //    group by user_id
     //                ) withdraw_t on u.id = withdraw_t.user_id
     //    where u.id = {2}{6}
@@ -941,7 +941,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     where 1=1 and u.id = {2}{4}
@@ -992,7 +992,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     where 1=1 and u.id = {2}{4}
@@ -1036,7 +1036,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     where 1=1 and u.id = {2}{4}
@@ -1080,7 +1080,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     where 1=1 and u.id = {2}{4}
@@ -1126,7 +1126,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     where u.id = {2}{4}
@@ -1167,7 +1167,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                ) withdraw_t on u.id = withdraw_t.user_id{4}
             """;
@@ -1235,7 +1235,7 @@ public class RebateSqlConst {
     //        select user_id ,
     //        sum(ifnull(service_charge,0)) service_charge
     //    from withdraw_order wo
-    //    where update_time >= {0} and update_time <= {1}
+    //    where status = 1 and withdraw_time >= {0} and withdraw_time <= {1}
     //    group by user_id
     //               ) withdraw_t on u.id = withdraw_t.user_id{2}
     //            """;
@@ -1276,7 +1276,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                    ) withdraw_t on u.id = withdraw_t.user_id{3}
             """;
@@ -1319,7 +1319,7 @@ public class RebateSqlConst {
     //        select user_id ,
     //        sum(ifnull(service_charge,0)) service_charge
     //    from withdraw_order wo
-    //    where update_time >= {0} and update_time <= {1}
+    //    where status = 1 and withdraw_time >= {0} and withdraw_time <= {1}
     //    group by user_id
     //                   ) withdraw_t on u.id = withdraw_t.user_id{5}
     //            """;
@@ -1360,7 +1360,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                    ) withdraw_t on u.id = withdraw_t.user_id{3}
             """;
@@ -1407,7 +1407,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                    ) withdraw_t on u.id = withdraw_t.user_id{3}
             """;
@@ -1447,7 +1447,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                    ) withdraw_t on u.id = withdraw_t.user_id{3}
             """;
@@ -1488,7 +1488,7 @@ public class RebateSqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                    ) withdraw_t on u.id = withdraw_t.user_id{3}
             """;

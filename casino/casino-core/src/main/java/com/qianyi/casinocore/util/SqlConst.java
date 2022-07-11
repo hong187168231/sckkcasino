@@ -37,7 +37,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -95,7 +95,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -150,7 +150,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -233,7 +233,7 @@ public class SqlConst {
     //        select user_id ,
     //        sum(ifnull(service_charge,0)) service_charge
     //    from withdraw_order wo
-    //    where update_time >= {0} and update_time <= {1}
+    //    where status = 1 and withdraw_time >= {0} and withdraw_time <= {1}
     //    group by user_id
     //                ) withdraw_t on u.id = withdraw_t.user_id
     //    left join (
@@ -289,7 +289,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -371,7 +371,7 @@ public class SqlConst {
     //        select user_id ,
     //        sum(ifnull(service_charge,0)) service_charge
     //    from withdraw_order wo
-    //    where update_time >= {0} and update_time <= {1}
+    //    where status = 1 and withdraw_time >= {0} and withdraw_time <= {1}
     //    group by user_id
     //                ) withdraw_t on u.id = withdraw_t.user_id
     //    left join (
@@ -429,7 +429,7 @@ public class SqlConst {
     //        select user_id ,
     //        sum(ifnull(service_charge,0)) service_charge
     //    from withdraw_order wo
-    //    where update_time >= {0} and update_time <= {1}
+    //    where status = 1 and withdraw_time >= {0} and withdraw_time <= {1}
     //    group by user_id
     //                ) withdraw_t on u.id = withdraw_t.user_id
     //    left join (
@@ -487,7 +487,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -550,7 +550,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -607,7 +607,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -669,7 +669,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -725,7 +725,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -782,7 +782,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -837,7 +837,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -893,7 +893,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -948,7 +948,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -1031,7 +1031,7 @@ public class SqlConst {
     //        select user_id ,
     //        sum(ifnull(service_charge,0)) service_charge
     //    from withdraw_order wo
-    //    where update_time >= {0} and update_time <= {1}
+    //    where status = 1 and withdraw_time >= {0} and withdraw_time <= {1}
     //    group by user_id
     //                ) withdraw_t on u.id = withdraw_t.user_id
     //    left join (
@@ -1089,7 +1089,7 @@ public class SqlConst {
     //        select user_id ,
     //        sum(ifnull(service_charge,0)) service_charge
     //    from withdraw_order wo
-    //    where update_time >= {0} and update_time <= {1}
+    //    where status = 1 and withdraw_time >= {0} and withdraw_time <= {1}
     //    group by user_id
     //                ) withdraw_t on u.id = withdraw_t.user_id
     //    left join (
@@ -1144,7 +1144,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -1206,7 +1206,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -1261,7 +1261,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -1316,7 +1316,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -1373,7 +1373,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -1428,7 +1428,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -1508,7 +1508,7 @@ public class SqlConst {
     //        select user_id ,
     //        sum(ifnull(service_charge,0)) service_charge
     //    from withdraw_order wo
-    //    where update_time >= {0} and update_time <= {1}
+    //    where status = 1 and withdraw_time >= {0} and withdraw_time <= {1}
     //    group by user_id
     //               ) withdraw_t on u.id = withdraw_t.user_id
     //    left join (
@@ -1562,7 +1562,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                    ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -1616,7 +1616,7 @@ public class SqlConst {
     //        select user_id ,
     //        sum(ifnull(service_charge,0)) service_charge
     //    from withdraw_order wo
-    //    where update_time >= {0} and update_time <= {1}
+    //    where status = 1 and withdraw_time >= {0} and withdraw_time <= {1}
     //    group by user_id
     //                   ) withdraw_t on u.id = withdraw_t.user_id
     //    left join (
@@ -1671,7 +1671,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                    ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -1731,7 +1731,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                    ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -1784,7 +1784,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                    ) withdraw_t on u.id = withdraw_t.user_id
     left join (
@@ -1837,7 +1837,7 @@ public class SqlConst {
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where update_time between {0} and {1}
+    where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                    ) withdraw_t on u.id = withdraw_t.user_id
     left join (

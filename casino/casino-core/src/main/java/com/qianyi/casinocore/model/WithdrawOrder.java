@@ -14,7 +14,7 @@ import java.util.Date;
 @Data
 @Entity
 @ApiModel("提币订单")
-@Table(indexes = {@Index(columnList = "userId"),@Index(columnList = "updateTime"),@Index(columnList = "status")})
+@Table(indexes = {@Index(columnList = "userId"),@Index(columnList = "withdrawTime"),@Index(columnList = "status")})
 public class WithdrawOrder extends BaseEntity {
 
     @ApiModelProperty(value = "用户id")

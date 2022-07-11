@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Entity
 @ApiModel("代理游戏报表")
 @Table(indexes = {@Index(columnList = "firstProxy"),
-    @Index(columnList = "secondProxy"),@Index(columnList = "thirdProxy"),@Index(name="identity_index",columnList = "proxyGameRecordReportId",unique=true)})
+    @Index(columnList = "secondProxy"),@Index(columnList = "thirdProxy"),@Index(columnList = "orderTimes"),@Index(name="identity_index",columnList = "proxyGameRecordReportId",unique=true)})
 public class ProxyGameRecordReport{
 
     @Id
