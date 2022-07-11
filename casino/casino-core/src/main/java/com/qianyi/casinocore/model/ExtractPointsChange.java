@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Data
-@ApiModel("洗码明细表")
+@ApiModel("抽点明细表")
 @NoArgsConstructor
 @Table(name ="extract_points_change",uniqueConstraints={@UniqueConstraint(columnNames={"platform","gameRecordId"})},
     indexes = {@Index(columnList = "platform"),@Index(columnList = "createTime"),@Index(columnList = "userId")})
