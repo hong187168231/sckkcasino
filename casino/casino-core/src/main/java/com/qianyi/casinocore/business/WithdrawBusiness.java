@@ -88,7 +88,7 @@ public class WithdrawBusiness {
     @Transactional
     public ResponseEntity payWithdraw(Long id, String lastModifier,Integer status, String remark) {
         String value = id.toString();
-        String key = MessageFormat.format(RedisLockUtil.PROXY_GAME_RECORD_REPORT_BUSINESS, value);
+        String key = MessageFormat.format(RedisLockUtil.WITHDRAW_AUDIT_ORDER, value);
         Boolean lock = false;
         try {
             lock = redisLockUtil.getLock(key, value);
@@ -120,11 +120,12 @@ public class WithdrawBusiness {
                     withdrawOrderService.saveOrder(withdrawOrder);
                     log.info("通过提现userId {} 订单号 {} withdrawMoney is {}, practicalAmount is {}",
                         withdrawOrder.getUserId(), withdrawOrder.getNo(), money, withdrawOrder.getPracticalAmount());
-                    return ResponseUtil.success(withdrawOrder.getPracticalAmount()==null?money:withdrawOrder.getPracticalAmount());
+                    return ResponseUtil.success(withdrawOrder);
                 } else if (status == Constants.paragraph_to_refuse) {// 拒绝
                     if (this.moneyback(withdrawOrder,Constants.paragraph_to_refuse)) {
                         return ResponseUtil.custom("退款失败");
                     }
+                    return ResponseUtil.success(withdrawOrder);
                 } else {
                     return ResponseUtil.custom("参数不合法");
                 }
@@ -140,13 +141,12 @@ public class WithdrawBusiness {
                 redisLockUtil.releaseLock(key, value);
             }
         }
-        return ResponseUtil.success();
     }
 
     @Transactional
     public ResponseEntity auditWithdraw(Long id, Long operator, Integer status, String remark) {
         String value = id.toString();
-        String key = MessageFormat.format(RedisLockUtil.PROXY_GAME_RECORD_REPORT_BUSINESS, value);
+        String key = MessageFormat.format(RedisLockUtil.WITHDRAW_AUDIT_ORDER, value);
         Boolean lock = false;
         try {
             lock = redisLockUtil.getLock(key, value);
@@ -168,18 +168,6 @@ public class WithdrawBusiness {
                         || withdrawOrder.getAuditId().longValue() != operator.longValue()) {
                         return ResponseUtil.custom("订单已被处理");
                     }
-                    //                    BigDecimal money = withdrawOrder.getWithdrawMoney();
-                    //                    PlatformConfig first = platformConfigService.findFirst();
-                    //                    if (first != null) {
-                    //                        // 得到手续费
-                    //                        BigDecimal serviceCharge = first.getWithdrawServiceCharge(withdrawOrder.getWithdrawMoney());
-                    //                        BigDecimal practicalAmount = withdrawOrder.getWithdrawMoney().subtract(serviceCharge);
-                    //                        withdrawOrder.setServiceCharge(serviceCharge);
-                    //                        withdrawOrder.setPracticalAmount(practicalAmount);
-                    //                    } else {
-                    //                        withdrawOrder.setServiceCharge(BigDecimal.ZERO);
-                    //                        withdrawOrder.setPracticalAmount(money);
-                    //                    }
                     withdrawOrder.setAuditTime(new Date());
                     withdrawOrder.setStatus(Constants.pass_the_audit);
                     withdrawOrder.setAuditRemark(remark);
@@ -203,6 +191,7 @@ public class WithdrawBusiness {
                     if (this.moneyback(withdrawOrder,Constants.withdrawOrder_fail)) {
                         return ResponseUtil.custom("退款失败");
                     }
+                    return ResponseUtil.success(withdrawOrder);
                 } else {
                     return ResponseUtil.custom("参数不合法");
                 }
@@ -491,7 +480,7 @@ public class WithdrawBusiness {
             withdrawOrderService.saveOrder(withdrawOrder);
             log.info("通过提现userId {} 订单号 {} withdrawMoney is {}, practicalAmount is {}", withdrawOrder.getUserId(),
                 withdrawOrder.getNo(), money, withdrawOrder.getWithdrawMoney());
-            return ResponseUtil.success(withdrawOrder.getPracticalAmount());
+            return ResponseUtil.success(withdrawOrder);
         }
         // 对用户数据进行行锁
         UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
@@ -509,7 +498,7 @@ public class WithdrawBusiness {
             amountBefore, userMoney.getMoney());
         log.info("拒绝提现userId {} 订单号 {} withdrawMoney is {}, money is {}", userMoney.getUserId(), withdrawOrder.getNo(),
             money, userMoney.getMoney());
-        return ResponseUtil.success();
+        return ResponseUtil.success(withdrawOrder);
     }
 
     // private void saveAccountChang(AccountChangeEnum changeEnum, Long userId, BigDecimal amount, BigDecimal

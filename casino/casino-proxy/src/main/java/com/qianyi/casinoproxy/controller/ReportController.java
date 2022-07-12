@@ -1,5 +1,6 @@
 package com.qianyi.casinoproxy.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import com.qianyi.casinocore.exception.BusinessException;
 import com.qianyi.casinocore.model.ProxyUser;
@@ -7,6 +8,7 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.service.ReportService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.util.BillThreadPool;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.DTOUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
@@ -29,11 +31,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Api(tags = "报表中心")
 @Slf4j
@@ -49,6 +52,8 @@ public class ReportController {
 
     @Autowired
     private ProxyUserService proxyUserService;
+
+    private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_10);
 
     public static final List<String> platforms = new ArrayList<>();
 
@@ -68,29 +73,29 @@ public class ReportController {
         platforms.add(Constants.PLATFORM_OBTY);
     }
 
-//    @NoAuthorization
+    //    @NoAuthorization
     @ApiOperation("查询个人报表")
     @GetMapping("/queryPersonReport")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
-            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "userName", value = "账号", required = false),
-            @ApiImplicitParam(name = "startTime", value = "起始时间查询", required = true),
-            @ApiImplicitParam(name = "endTime", value = "结束时间查询", required = true),
-            @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
-            @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
-            @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
-            @ApiImplicitParam(name = "tag", value = "1：投注笔数 2：投注金额 3：有效投注 4：洗码发放 5：用户输赢金额", required = false),
+        @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "userName", value = "账号", required = false),
+        @ApiImplicitParam(name = "startTime", value = "起始时间查询", required = true),
+        @ApiImplicitParam(name = "endTime", value = "结束时间查询", required = true),
+        @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
+        @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
+        @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
+        @ApiImplicitParam(name = "tag", value = "1：投注笔数 2：投注金额 3：有效投注 4：洗码发放 5：用户输赢金额", required = false),
     })
     public ResponseEntity<PersonReportVo> queryPersonReport(
-            Integer pageSize,
-            Integer pageCode,
-            String userName,
-            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startTime,
-            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endTime,
-            String platform,
-            Integer sort,
-            Integer tag){
+        Integer pageSize,
+        Integer pageCode,
+        String userName,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startTime,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endTime,
+        String platform,
+        Integer sort,
+        Integer tag){
         if (CasinoProxyUtil.checkNull(startTime, endTime, pageSize, pageCode)){
             return ResponseUtil.custom("参数不合法");
         }
@@ -136,7 +141,13 @@ public class ReportController {
 
         try {
             String statement = getOrderByStatement(tag, sort);
-            reportResult = userService.findMap(platform, startTimeStr, endTimeStr, page, pageSize, statement,orderTimeStart,orderTimeEnd,proxy);
+            //            reportResult = userService.findMap(platform, startTimeStr, endTimeStr, page, pageSize, statement,orderTimeStart,orderTimeEnd,proxy);
+
+            if (Objects.nonNull(tag) && tag == CommonConst.NUMBER_4){
+                reportResult = this.findWashOrderBy(platform,startTimeStr,endTimeStr,page,pageSize,statement,orderTimeStart,orderTimeEnd,proxy);
+            }else {
+                reportResult = this.findBetOrderBy(platform,startTimeStr,endTimeStr,page,pageSize,statement,orderTimeStart,orderTimeEnd,proxy);
+            }
         } catch (Exception e) {
             return ResponseUtil.custom("查询失败");
         }
@@ -151,6 +162,84 @@ public class ReportController {
         }
         PageResultVO<PersonReportVo> mapPageResultVO = combinePage(reportResult, totalElement, pageCode, pageSize);
         return ResponseUtil.success(getMap(mapPageResultVO));
+    }
+
+    private List<PersonReportVo> findWashOrderBy(String platform, String startTimeStr,
+        String endTimeStr, Integer page, Integer pageSize, String statement, String orderTimeStart, String orderTimeEnd,String proxy) {
+        List<PersonReportVo> reportResult = userService.findMapWash(platform, startTimeStr, endTimeStr, page, pageSize, statement, proxy);
+        if (CollUtil.isNotEmpty(reportResult)) {
+            ReentrantLock reentrantLock = new ReentrantLock();
+            Condition condition = reentrantLock.newCondition();
+            AtomicInteger atomicInteger = new AtomicInteger(reportResult.size());
+            Vector<PersonReportVo> list = new Vector<>();
+            for (PersonReportVo per : reportResult) {
+                threadPool.execute(() -> {
+                    try {
+                        PersonReportVo vo =
+                            userService.findMapWash(platform, startTimeStr, endTimeStr, per.getId().toString(),orderTimeStart,orderTimeEnd);
+                        per.setNum(vo.getNum());
+                        per.setBetAmount(vo.getBetAmount());
+                        per.setValidbet(vo.getValidbet());
+                        per.setWinLoss(vo.getWinLoss());
+                        per.setServiceCharge(vo.getServiceCharge());
+                        per.setAllProfitAmount(vo.getAllProfitAmount());
+                        per.setAllWater(vo.getAllWater());
+                        BigDecimal avgBenefit = per.getWinLoss().add(per.getWashAmount()).add(per.getAllWater());
+                        per.setAvgBenefit(avgBenefit.negate());
+                        per.setTotalAmount(
+                            per.getAvgBenefit().subtract(per.getAllProfitAmount()).add(per.getServiceCharge()));
+                        list.add(per);
+                    } catch (Exception ex) {
+                        log.error("异步查询报表异常", ex);
+                    } finally {
+                        atomicInteger.decrementAndGet();
+                        BillThreadPool.toResume(reentrantLock, condition);
+                    }
+                });
+            }
+            BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
+            reportResult = list;
+            Collections.sort(reportResult, (o1, o2) -> -o2.getSort().compareTo(o1.getSort()));
+        }
+        return reportResult;
+    }
+
+    private List<PersonReportVo> findBetOrderBy(String platform, String startTimeStr,
+        String endTimeStr, Integer page, Integer pageSize, String statement, String orderTimeStart, String orderTimeEnd,String proxy) {
+        List<PersonReportVo> reportResult = userService.findMapBet(platform, startTimeStr, endTimeStr, page, pageSize, statement,
+            orderTimeStart, orderTimeEnd, proxy);
+        if (CollUtil.isNotEmpty(reportResult)) {
+            ReentrantLock reentrantLock = new ReentrantLock();
+            Condition condition = reentrantLock.newCondition();
+            AtomicInteger atomicInteger = new AtomicInteger(reportResult.size());
+            Vector<PersonReportVo> list = new Vector<>();
+            for (PersonReportVo per : reportResult) {
+                threadPool.execute(() -> {
+                    try {
+                        PersonReportVo vo =
+                            userService.findMapBet(platform, startTimeStr, endTimeStr, per.getId().toString());
+                        per.setWashAmount(vo.getWashAmount());
+                        per.setServiceCharge(vo.getServiceCharge());
+                        per.setAllProfitAmount(vo.getAllProfitAmount());
+                        per.setAllWater(vo.getAllWater());
+                        BigDecimal avgBenefit = per.getWinLoss().add(per.getWashAmount()).add(per.getAllWater());
+                        per.setAvgBenefit(avgBenefit.negate());
+                        per.setTotalAmount(
+                            per.getAvgBenefit().subtract(per.getAllProfitAmount()).add(per.getServiceCharge()));
+                        list.add(per);
+                    } catch (Exception ex) {
+                        log.error("异步查询报表异常", ex);
+                    } finally {
+                        atomicInteger.decrementAndGet();
+                        BillThreadPool.toResume(reentrantLock, condition);
+                    }
+                });
+            }
+            BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
+            reportResult = list;
+            Collections.sort(reportResult, (o1, o2) -> -o2.getSort().compareTo(o1.getSort()));
+        }
+        return reportResult;
     }
 
     // 获取 order by 语句
@@ -202,25 +291,24 @@ public class ReportController {
     }
 
     private PageResultVO<PersonReportVo> combinePage(List<PersonReportVo> reportResult, int totalElement, int page, int num){
-        PageResultVO<PersonReportVo>
-            pageResult = new PageResultVO<>(page, num, Long.parseLong(totalElement+""), reportResult);
+        PageResultVO<PersonReportVo> pageResult = new PageResultVO<>(page, num, Long.parseLong(totalElement+""), reportResult);
         return pageResult;
     }
 
-//    @NoAuthorization
+    //    @NoAuthorization
     @ApiOperation("查询个人报表总计")
     @GetMapping("/queryTotal")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
-            @ApiImplicitParam(name = "userName", value = "账号", required = false),
+        @ApiImplicitParam(name = "userName", value = "账号", required = false),
         @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
         @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
     })
     public ResponseEntity<PersonReportTotalVo> queryTotal(
-            String userName,
-            String platform,
-            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+        String userName,
+        String platform,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (CasinoProxyUtil.checkNull(startDate,endDate)){
             return ResponseUtil.custom("参数不合法");
         }

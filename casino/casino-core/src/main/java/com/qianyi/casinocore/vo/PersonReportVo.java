@@ -9,11 +9,14 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
 @ApiModel
-public class PersonReportVo {
+public class PersonReportVo implements Serializable, Comparable<Integer> {
+
+    private static final long serialVersionUID = -6548948465465305179L;
 
     @ApiModelProperty(value = "num")
     private Integer num;
@@ -39,7 +42,7 @@ public class PersonReportVo {
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @JsonProperty("all_profit_amount")
-    @ApiModelProperty(value = "用户输赢金额")
+    @ApiModelProperty(value = "人人代返佣")
     private BigDecimal allProfitAmount;
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
@@ -74,10 +77,28 @@ public class PersonReportVo {
     @ApiModelProperty(value = "洗码金额")
     private BigDecimal washAmount;
 
+    //    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    //    @JsonProperty("other_amount")
+    //    @ApiModelProperty(value = "用户返利金额")
+    //    private BigDecimal otherAmount;
+    //
+    //    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    //    @JsonProperty("rebate_amount")
+    //    @ApiModelProperty(value = "平台返利金额")
+    //    private BigDecimal rebateAmount;
+
     @ApiModelProperty(value = "账号")
     private String account;
 
     @JsonProperty("all_water")
     @ApiModelProperty(value = "贡献代理抽点, 表示该用户，对上级代理贡献的抽点金额")
     private BigDecimal allWater;
+
+    @ApiModelProperty(value = "排序字段")
+    private Integer sort;
+
+    @Override
+    public int compareTo(Integer o) {
+        return 0;
+    }
 }

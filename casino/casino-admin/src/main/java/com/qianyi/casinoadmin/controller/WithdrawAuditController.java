@@ -7,11 +7,14 @@ import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.WithdrawOrder;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.BillThreadPool;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.WithdrawOrderVo;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -51,10 +54,12 @@ public class WithdrawAuditController {
     @Autowired
     private BankInfoService bankInfoService;
 
-    @Autowired
-    private SysUserService sysUserService;
-
     public static List<Integer> status = new ArrayList<>();
+
+    @Autowired
+    private RedisUtil redisUtil;
+
+    private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_3);
 
     static {
         status.add(CommonConst.NUMBER_6);// 审核接单
@@ -191,6 +196,23 @@ public class WithdrawAuditController {
             return ResponseUtil.custom("参数不合法");
         }
         Long operator = LoginUtil.getLoginUserId();
-        return withdrawBusiness.auditWithdraw(id, operator, status, remark);
+        ResponseEntity responseEntity = withdrawBusiness.auditWithdraw(id, operator, status, remark);
+        if (responseEntity.getCode() == CommonConst.NUMBER_0 && status == Constants.withdrawOrder_fail){
+            Object data = responseEntity.getData();
+            WithdrawOrder withdrawOrder = (WithdrawOrder)data;
+            threadPool.execute(() -> this.asynDeleRedis(withdrawOrder.getUserId().toString()));
+        }
+        return responseEntity;
+    }
+
+    private void asynDeleRedis(String userId){
+        log.info("提现风控异步删除缓存{}开始",userId);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            log.error("提现风控异步删除缓存异常",ex);
+        }
+        Boolean b = redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+        log.info("提现风控异步删除缓存{}结束{}",userId,b);
     }
 }

@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.exception.BusinessException;
@@ -8,13 +9,13 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.service.ReportService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.util.BillThreadPool;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.DTOUtil;
 import com.qianyi.casinocore.util.ExcelUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.PersonReportTotalVo;
 import com.qianyi.casinocore.vo.PersonReportVo;
-import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -29,17 +30,18 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 @Api(tags = "报表中心")
@@ -56,6 +58,8 @@ public class ReportController {
 
     @Autowired
     private ProxyUserService proxyUserService;
+
+    private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_10);
 
     // @NoAuthorization
     @ApiOperation("查询个人报表")
@@ -107,14 +111,99 @@ public class ReportController {
         List<PersonReportVo> reportResult = null;
         try {
             String statement = getOrderByStatement(tag, sort);
-            reportResult = userService.findMap(platform, startTimeStr, endTimeStr, page, pageSize, statement,
-                orderTimeStart, orderTimeEnd, "");
+            // reportResult = userService.findMap(platform, startTimeStr, endTimeStr, page, pageSize, statement,
+            // orderTimeStart, orderTimeEnd, "");
+
+            if (Objects.nonNull(tag) && tag == CommonConst.NUMBER_4){
+                reportResult = this.findWashOrderBy(platform,startTimeStr,endTimeStr,page,pageSize,statement,orderTimeStart,orderTimeEnd);
+            }else {
+                reportResult = this.findBetOrderBy(platform,startTimeStr,endTimeStr,page,pageSize,statement,orderTimeStart,orderTimeEnd);
+            }
+
         } catch (Exception e) {
             return ResponseUtil.custom("查询失败");
         }
         int totalElement = reportService.queryTotalElement(startTimeStr, endTimeStr);
         PageResultVO<PersonReportVo> mapPageResultVO = combinePage(reportResult, totalElement, pageCode, pageSize);
         return ResponseUtil.success(getMap(mapPageResultVO));
+    }
+
+    private List<PersonReportVo> findWashOrderBy(String platform, String startTimeStr,
+        String endTimeStr, Integer page, Integer pageSize, String statement, String orderTimeStart, String orderTimeEnd) {
+        List<PersonReportVo> reportResult = userService.findMapWash(platform, startTimeStr, endTimeStr, page, pageSize, statement, "");
+        if (CollUtil.isNotEmpty(reportResult)) {
+            ReentrantLock reentrantLock = new ReentrantLock();
+            Condition condition = reentrantLock.newCondition();
+            AtomicInteger atomicInteger = new AtomicInteger(reportResult.size());
+            Vector<PersonReportVo> list = new Vector<>();
+            for (PersonReportVo per : reportResult) {
+                threadPool.execute(() -> {
+                    try {
+                        PersonReportVo vo =
+                            userService.findMapWash(platform, startTimeStr, endTimeStr, per.getId().toString(),orderTimeStart,orderTimeEnd);
+                        per.setNum(vo.getNum());
+                        per.setBetAmount(vo.getBetAmount());
+                        per.setValidbet(vo.getValidbet());
+                        per.setWinLoss(vo.getWinLoss());
+                        per.setServiceCharge(vo.getServiceCharge());
+                        per.setAllProfitAmount(vo.getAllProfitAmount());
+                        per.setAllWater(vo.getAllWater());
+                        BigDecimal avgBenefit = per.getWinLoss().add(per.getWashAmount()).add(per.getAllWater());
+                        per.setAvgBenefit(avgBenefit.negate());
+                        per.setTotalAmount(
+                            per.getAvgBenefit().subtract(per.getAllProfitAmount()).add(per.getServiceCharge()));
+                        list.add(per);
+                    } catch (Exception ex) {
+                        log.error("异步查询报表异常", ex);
+                    } finally {
+                        atomicInteger.decrementAndGet();
+                        BillThreadPool.toResume(reentrantLock, condition);
+                    }
+                });
+            }
+            BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
+            reportResult = list;
+            Collections.sort(reportResult, (o1, o2) -> -o2.getSort().compareTo(o1.getSort()));
+        }
+        return reportResult;
+    }
+
+    private List<PersonReportVo> findBetOrderBy(String platform, String startTimeStr,
+        String endTimeStr, Integer page, Integer pageSize, String statement, String orderTimeStart, String orderTimeEnd) {
+        List<PersonReportVo> reportResult = userService.findMapBet(platform, startTimeStr, endTimeStr, page, pageSize, statement,
+            orderTimeStart, orderTimeEnd, "");
+        if (CollUtil.isNotEmpty(reportResult)) {
+            ReentrantLock reentrantLock = new ReentrantLock();
+            Condition condition = reentrantLock.newCondition();
+            AtomicInteger atomicInteger = new AtomicInteger(reportResult.size());
+            Vector<PersonReportVo> list = new Vector<>();
+            for (PersonReportVo per : reportResult) {
+                threadPool.execute(() -> {
+                    try {
+                        PersonReportVo vo =
+                            userService.findMapBet(platform, startTimeStr, endTimeStr, per.getId().toString());
+                        per.setWashAmount(vo.getWashAmount());
+                        per.setServiceCharge(vo.getServiceCharge());
+                        per.setAllProfitAmount(vo.getAllProfitAmount());
+                        per.setAllWater(vo.getAllWater());
+                        BigDecimal avgBenefit = per.getWinLoss().add(per.getWashAmount()).add(per.getAllWater());
+                        per.setAvgBenefit(avgBenefit.negate());
+                        per.setTotalAmount(
+                            per.getAvgBenefit().subtract(per.getAllProfitAmount()).add(per.getServiceCharge()));
+                        list.add(per);
+                    } catch (Exception ex) {
+                        log.error("异步查询报表异常", ex);
+                    } finally {
+                        atomicInteger.decrementAndGet();
+                        BillThreadPool.toResume(reentrantLock, condition);
+                    }
+                });
+            }
+            BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
+            reportResult = list;
+            Collections.sort(reportResult, (o1, o2) -> -o2.getSort().compareTo(o1.getSort()));
+        }
+        return reportResult;
     }
 
     // 获取 order by 语句
@@ -177,7 +266,7 @@ public class ReportController {
                     continue;
                 }
                 ProxyUser proxyUser = map.get(Long.valueOf(item.getThirdProxy()));
-                item.setThirdProxyName( proxyUser == null ? "" : proxyUser.getUserName());
+                item.setThirdProxyName(proxyUser == null ? "" : proxyUser.getUserName());
             }
         }
         return content;
@@ -240,7 +329,7 @@ public class ReportController {
             }
             list = getMap(reportResult);
 
-            if(Objects.nonNull(list)){
+            if (Objects.nonNull(list)) {
                 Map<String, Object> result =
                     userService.findMap(platform, startTimeStr, endTimeStr, orderTimeStart, orderTimeEnd, "");
                 PersonReportVo item = DTOUtil.toDTO(result, PersonReportVo.class);
@@ -248,8 +337,8 @@ public class ReportController {
                 list.add(item);
             }
         }
-        String[] title =
-            {"会员账号", "基层代理", "投注笔数", "投注金额", "有效投注","总洗码", "贡献代理抽点", "用户输赢", "平台盈亏结算(毛利1)", "累计人人贷佣金", "提款手续费", "总结算(毛利2)"};
+        String[] title = {"会员账号", "基层代理", "投注笔数", "投注金额", "有效投注", "总洗码", "贡献代理抽点", "用户输赢", "平台盈亏结算(毛利1)", "累计人人贷佣金",
+            "提款手续费", "总结算(毛利2)"};
         // excel文件名
         String fileName = "会员总报表" + System.currentTimeMillis() + ".xls";
         // sheet名
@@ -290,12 +379,11 @@ public class ReportController {
     public void setResponseHeader(HttpServletResponse response, String fileName) {
         try {
             fileName = URLEncoder.encode(fileName, "UTF-8");
-            fileName = new String(fileName.getBytes("utf-8"),"ISO-8859-1");
+            fileName = new String(fileName.getBytes("utf-8"), "ISO-8859-1");
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/vnd.ms-excel");
             response.setHeader("content-disposition",
-                "attachment;filename=" +
-                    new String(fileName.getBytes("utf-8"),"ISO-8859-1" )+ ".xls");
+                "attachment;filename=" + new String(fileName.getBytes("utf-8"), "ISO-8859-1") + ".xls");
         } catch (Exception ex) {
             ex.printStackTrace();
         }

@@ -4,11 +4,14 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.business.WithdrawBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.BillThreadPool;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.WithdrawOrderVo;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -25,10 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -55,7 +55,13 @@ public class WithdrawPayController {
     @Autowired
     private SysUserService sysUserService;
 
-    @Autowired PlatformConfigService platformConfigService;
+    @Autowired
+    PlatformConfigService platformConfigService;
+
+    @Autowired
+    private RedisUtil redisUtil;
+
+    private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_3);
 
     // public static List<Integer> status = new ArrayList<>();
     //
@@ -193,10 +199,27 @@ public class WithdrawPayController {
         SysUser sysUser = sysUserService.findById(userId);
         String lastModifier = (sysUser == null || sysUser.getUserName() == null) ? "" : sysUser.getUserName();
         ResponseEntity responseEntity = withdrawBusiness.payWithdraw(id, lastModifier, status, remark);
-        if (responseEntity.getCode() == CommonConst.NUMBER_0 && status == CommonConst.NUMBER_1) {
+
+        if (responseEntity.getCode() == CommonConst.NUMBER_0){
             Object data = responseEntity.getData();
-            platformConfigService.backstage(CommonConst.NUMBER_1, new BigDecimal(String.valueOf(data)));
+            WithdrawOrder withdrawOrder = (WithdrawOrder)data;
+            if(status == Constants.withdrawOrder_success){
+                platformConfigService.backstage(CommonConst.NUMBER_1, withdrawOrder.getPracticalAmount());
+            }else if (status == Constants.paragraph_to_refuse){
+                threadPool.execute(() -> this.asynDeleRedis(withdrawOrder.getUserId().toString()));
+            }
         }
         return responseEntity;
+    }
+
+    private void asynDeleRedis(String userId){
+        log.info("提现审核异步删除缓存{}开始",userId);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            log.error("提现审核异步删除缓存异常",ex);
+        }
+        Boolean b = redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+        log.info("提现审核异步删除缓存{}结束{}",userId,b);
     }
 }

@@ -40,6 +40,8 @@ public class ChargeOrderBusiness {
 
     @Autowired
     private UserMoneyService userMoneyService;
+    @Autowired
+    private PlatformConfigService platformConfigService;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -164,7 +166,7 @@ public class ChargeOrderBusiness {
         this.saveAccountChang(changeEnum, userId, chargeOrder, totalMoney);
         // 发送充值消息
         this.sendMessage(userId, isFirst, chargeOrder);
-        return ResponseUtil.success(chargeOrder.getChargeAmount());
+        return ResponseUtil.success(chargeOrder);
     }
 
     private ResponseEntity saveSystemOrder(String orderNo, ChargeOrder chargeOrder, Integer status,

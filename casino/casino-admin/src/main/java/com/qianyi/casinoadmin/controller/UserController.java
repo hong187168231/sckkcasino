@@ -1115,6 +1115,7 @@ public class UserController {
         }
         ResponseEntity responseEntity = chargeOrderBusiness.saveOrderSuccess(user, chargeOrder, Constants.chargeOrder_masterControl, Constants.remitType_general, Constants.CODENUMCHANGE_MASTERCONTROL);
         if(responseEntity.getCode()==CommonConst.NUMBER_0){
+            threadPool.execute(() -> this.asynDeleRedis(chargeOrder.getUserId().toString()));
             platformConfigService.backstage(CommonConst.NUMBER_0, new BigDecimal(chargeAmount));
         }
         return responseEntity;
@@ -1169,9 +1170,21 @@ public class UserController {
         }
         ResponseEntity responseEntity = chargeOrderBusiness.saveSystemOrderSuccess(orderNo,user, chargeOrder, Constants.chargeOrder_masterControl, Constants.remitType_general, Constants.CODENUMCHANGE_MASTERCONTROL);
         if(responseEntity.getCode()==CommonConst.NUMBER_0){
+            threadPool.execute(() -> this.asynDeleRedis(chargeOrder.getUserId().toString()));
             platformConfigService.backstage(CommonConst.NUMBER_0, new BigDecimal(chargeAmount));
         }
         return responseEntity;
+    }
+
+    private void asynDeleRedis(String userId){
+        log.info("后台异步删除缓存{}开始",userId);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            log.error("后台异步删除缓存异常",ex);
+        }
+        Boolean b = redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+        log.info("后台异步删除缓存{}结束{}",userId,b);
     }
     /**
      * 后台新增提现订单
@@ -1212,6 +1225,7 @@ public class UserController {
         //        String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
         ResponseEntity responseEntity = withdrawBusiness.updateWithdrawAndUser(user, id, money, bankId, Constants.withdrawOrder_masterControl, userId, remark);
         if (responseEntity.getCode()==CommonConst.NUMBER_0){
+            threadPool.execute(() -> this.asynDeleRedis(id.toString()));
             platformConfigService.backstage(CommonConst.NUMBER_1,new BigDecimal(withdrawMoney));
         }
         return responseEntity;

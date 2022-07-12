@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -20,6 +21,8 @@ public class RedisUtil {
     public RedisUtil(RedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
+
+    public static String USERMONEY_KEY = "userMoney::";
 
     /**
      * 指定缓存失效时间
@@ -114,6 +117,18 @@ public class RedisUtil {
         return key == null ? null : redisTemplate.opsForValue().get(key);
     }
 
+    /**
+     * 普通缓存删除
+     *
+     * @param key 键
+     * @return 值
+     */
+    public Boolean delete(String key) {
+        if (StringUtils.hasLength(key)){
+            return redisTemplate.delete(key);
+        }
+        return false;
+    }
     /**
      * 普通缓存放入
      *
