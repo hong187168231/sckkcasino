@@ -13,6 +13,11 @@ public final class TaskConst {
     /**
      * 每三十分钟执行一次
      */
+    public final static String GAME_BALANCE_ORDER = "0 0/15 * * * ? ";
+
+    /**
+     * 每三十分钟执行一次
+     */
     public final static String BACK_GAME_ORDER = "0 0/30 * * * ? ";
     /**
      * 每日凌晨一点

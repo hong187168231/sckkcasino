@@ -29,7 +29,7 @@ public class ThirdGameSumBalanceTask {
     /**
      * year要求10分钟跑一次
      */
-    @Scheduled(cron = TaskConst.BACK_GAME_ORDER)
+    @Scheduled(cron = TaskConst.GAME_BALANCE_ORDER)
     public void create(){
         //查询WM总余额
         List<UserThird> allAcount = userThirdService.findAllAcount();
