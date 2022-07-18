@@ -547,6 +547,42 @@ public class UserService {
         return map;
     }
 
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> findMapSum(String platform, String startTime, String endTime, String orderTimeStart,
+        String orderTimeEnd) {
+        startTime = "'" + startTime + "'";
+        endTime = "'" + endTime + "'";
+        String sql = "";
+        if (StringUtils.isNullOrEmpty(platform)) {
+            // 走报表
+            sql = MessageFormat.format(SqlNewConst.sumSqlReport, startTime, endTime, orderTimeStart, orderTimeEnd);
+        } else if (platform.equals(Constants.PLATFORM_WM_BIG)) {
+            sql = MessageFormat.format(SqlNewConst.WMSumSql, startTime, endTime, "'wm'");
+        } else if (platform.equals(Constants.PLATFORM_OBDJ)) {
+            sql = MessageFormat.format(SqlNewConst.obdjSumSql, startTime, endTime, "'OBDJ'");
+        } else if (platform.equals(Constants.PLATFORM_OBTY)) {
+            sql = MessageFormat.format(SqlNewConst.obtySumSql, startTime, endTime, "'OBTY'");
+        } else if (platform.equals(Constants.PLATFORM_PG)) {
+            sql = MessageFormat.format(SqlNewConst.PGAndCQ9SumSql, startTime, endTime, "'PG'");
+        } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
+            sql = MessageFormat.format(SqlNewConst.sabasportSumSql, startTime, endTime, "'SABASPORT'","'Payoff'","'Stake'");
+        } else {
+            sql = MessageFormat.format(SqlNewConst.PGAndCQ9SumSql, startTime, endTime, "'CQ9'");
+        }
+        log.info(sql);
+        Query countQuery = entityManager.createNativeQuery(sql);
+        Object result = countQuery.getSingleResult();
+        Map<String, Object> map = new HashMap<>();
+        Object[] obj = (Object[])result;
+        for (int i = 0; i < PERSON_REPORT_TOTAL_FIELD_LIST.size(); i++) {
+            String field = PERSON_REPORT_TOTAL_FIELD_LIST.get(i);
+            Object value = obj[i];
+            map.put(field, value);
+        }
+        return map;
+    }
+
+
     private static final List<String> PERSON_REPORT_VO_FIELD_LIST =
         Arrays.asList("account", "third_proxy", "id", "num", "bet_amount", "validbet", "win_loss", "wash_amount",
             "service_charge", "all_profit_amount", "avg_benefit", "total_amount", "all_water");

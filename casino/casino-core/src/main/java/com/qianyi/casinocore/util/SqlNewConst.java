@@ -572,4 +572,223 @@ public class SqlNewConst {
     AND {1}
 	) t4
         """;
+
+    public static String sumSqlReport = """
+    select sum(ifnull(main_t.num,0)) num,
+    sum(ifnull(main_t.bet_amount,0)) bet_amount ,
+    sum(ifnull(main_t.validbet,0)) validbet ,
+    sum(ifnull(main_t.win_loss,0)) win_loss ,
+    sum(ifnull(wash_t.wash_amount,0)) wash_amount,
+    sum(ifnull(withdraw_t.service_charge,0)) service_charge,
+    sum(ifnull(pr.amount,0)) all_profit_amount,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0))) avg_benefit,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,
+    sum(ifnull(ec.water, 0)) all_water from
+        (select
+            SUM(betting_number) num,
+    sum(bet_amount) bet_amount,
+    sum(valid_amount) validbet ,
+    sum(win_loss) win_loss
+    from proxy_game_record_report gr
+    where order_times between {2} and {3}) main_t,
+        (select
+    sum(amount) wash_amount
+    from wash_code_change wcc
+    where create_time between {0} and {1}) wash_t,
+        (select
+    sum(ifnull(service_charge,0)) service_charge
+    from withdraw_order wo
+    where status = 1 and withdraw_time between {0} and {1}) withdraw_t,
+        (select
+    sum(amount) amount from share_profit_change spc
+    where bet_time between {0} and {1}) pr,
+        (SELECT
+    SUM(amount) as water
+    FROM extract_points_change
+    where create_time between {0} and {1}) ec;
+        """;
+
+    public static String WMSumSql = """
+    select sum(ifnull(main_t.num,0)) num,
+    sum(ifnull(main_t.bet_amount,0)) bet_amount ,
+    sum(ifnull(main_t.validbet,0)) validbet ,
+    sum(ifnull(main_t.win_loss,0)) win_loss ,
+    sum(ifnull(wash_t.wash_amount,0)) wash_amount,
+    sum(ifnull(withdraw_t.service_charge,0)) service_charge,
+    sum(ifnull(pr.amount,0)) all_profit_amount,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water, 0))) avg_benefit,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0) +ifnull(withdraw_t.service_charge,0)) total_amount,
+    ifnull(ec.water, 0) all_water
+    from
+        (select
+            count(1) num,
+    sum(bet) bet_amount,
+    sum(validbet) validbet ,
+    sum(win_loss) win_loss
+    from game_record gr
+    where bet_time between {0} and {1}) main_t,
+        (select
+    sum(amount) wash_amount
+    from wash_code_change wcc
+    where platform = {2} and create_time between {0} and {1}) wash_t,
+        (select
+    sum(ifnull(service_charge,0)) service_charge
+    from withdraw_order wo
+    where status = 1 and withdraw_time between {0} and {1}) withdraw_t,
+        (select
+    sum(amount) amount from share_profit_change spc
+    where bet_time between {0} and {1}) pr,
+        (SELECT
+    SUM(amount) as water
+    FROM extract_points_change
+    where platform = {2} and create_time between {0} and {1}) ec;
+        """;
+
+    public static String obdjSumSql = """
+    select sum(ifnull(main_t.num,0)) num,
+    sum(ifnull(main_t.bet_amount,0)) bet_amount ,
+    sum(ifnull(main_t.validbet,0)) validbet ,
+    sum(ifnull(main_t.win_loss,0)) win_loss ,
+    sum(ifnull(wash_t.wash_amount,0)) wash_amount,
+    sum(ifnull(withdraw_t.service_charge,0)) service_charge,
+    sum(ifnull(pr.amount,0)) all_profit_amount,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0))) avg_benefit,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,
+    sum(ifnull(ec.water, 0)) all_water from
+        (select
+            count(1) num,
+    sum(bet_amount) bet_amount,
+    sum(bet_amount) validbet,
+    sum(win_amount-bet_amount) win_loss
+    from game_record_obdj grg
+    where bet_status in (5,6,8,9,10) and set_str_time between {0} and {1}) main_t,
+        (select
+    sum(amount) wash_amount
+    from wash_code_change wcc
+    where platform = {2} and create_time between {0} and {1}) wash_t,
+        (select
+    sum(ifnull(service_charge,0)) service_charge
+    from withdraw_order wo
+    where status = 1 and withdraw_time between {0} and {1}) withdraw_t,
+        (select
+    sum(amount) amount
+    from share_profit_change spc
+    where bet_time between {0} and {1}) pr,
+        (SELECT
+    SUM(amount) as water
+    FROM extract_points_change
+    where platform = {2} and create_time between {0} and {1}) ec;
+        """;
+
+    public static String obtySumSql = """
+    select sum(ifnull(main_t.num,0)) num,
+    sum(ifnull(main_t.bet_amount,0)) bet_amount ,
+    sum(ifnull(main_t.validbet,0)) validbet ,
+    sum(ifnull(main_t.win_loss,0)) win_loss ,
+    sum(ifnull(wash_t.wash_amount,0)) wash_amount,
+    sum(ifnull(withdraw_t.service_charge,0)) service_charge,
+    sum(ifnull(pr.amount,0)) all_profit_amount,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0))) avg_benefit,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,
+    sum(ifnull(ec.water, 0)) all_water from
+        (select
+            count(1) num,
+    sum(order_amount) bet_amount,
+    sum(order_amount) validbet,
+    sum(profit_amount) win_loss
+    from game_record_obty grg
+    where settle_str_time between {0} and {1}) main_t,
+        (select
+    sum(amount) wash_amount
+    from wash_code_change wcc
+    where platform = {2} and create_time between {0} and {1}) wash_t,
+        (select
+    sum(ifnull(service_charge,0)) service_charge
+    from withdraw_order wo
+    where status = 1 and withdraw_time between {0} and {1}) withdraw_t,
+        (select
+    sum(amount) amount
+    from share_profit_change spc
+    where bet_time between {0} and {1}) pr,
+        (SELECT
+    SUM(amount) as water
+    FROM extract_points_change
+    where platform = {2} and create_time between {0} and {1}) ec;
+        """;
+
+    public static String PGAndCQ9SumSql = """
+    select sum(ifnull(main_t.num,0)) num,
+    sum(ifnull(main_t.bet_amount,0)) bet_amount ,
+    sum(ifnull(main_t.validbet,0)) validbet ,
+    sum(ifnull(main_t.win_loss,0)) win_loss ,
+    sum(ifnull(wash_t.wash_amount,0)) wash_amount,
+    sum(ifnull(withdraw_t.service_charge,0)) service_charge,
+    sum(ifnull(pr.amount,0)) all_profit_amount,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0))) avg_benefit,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,
+    sum(ifnull(ec.water, 0)) all_water from
+        (select
+            count(1) num,
+    sum(bet_amount) bet_amount,
+    sum(bet_amount) validbet,
+    sum(win_amount-bet_amount) win_loss
+    from game_record_goldenf grg
+    where vendor_code = {2}
+    and create_at_str between {0} and {1}) main_t,
+        (select
+    sum(amount) wash_amount
+    from wash_code_change wcc
+    where platform = {2} and create_time between {0} and {1}) wash_t,
+        (select
+    sum(ifnull(service_charge,0)) service_charge
+    from withdraw_order wo
+    where status = 1 and withdraw_time between {0} and {1}) withdraw_t,
+        (select
+    sum(amount) amount from share_profit_change spc
+    where bet_time between {0} and {1}) pr,
+        (SELECT
+    SUM(amount) as water
+    FROM extract_points_change
+    where platform = {2} and create_time between {0} and {1}) ec;
+        """;
+
+    public static String sabasportSumSql = """
+    select sum(ifnull(main_t.num,0)) num,
+    sum(ifnull(main_t.bet_amount,0)) bet_amount ,
+    sum(ifnull(main_t.validbet,0)) validbet ,
+    sum(ifnull(main_t.win_loss,0)) win_loss ,
+    sum(ifnull(wash_t.wash_amount,0)) wash_amount,
+    sum(ifnull(withdraw_t.service_charge,0)) service_charge,
+    sum(ifnull(pr.amount,0)) all_profit_amount,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0))) avg_benefit,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,
+    sum(ifnull(ec.water, 0)) all_water from
+        (SELECT
+            count( 1 ) num,
+    SUM( sk.bet_amount ) bet_amount,
+    SUM( sk.bet_amount ) validbet,
+    sum( off.win_amount - sk.bet_amount ) win_loss
+    FROM
+    game_record_goldenf off
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {2} AND trans_type = {4}) sk ON off.bet_id = sk.bet_id
+        WHERE
+    off.vendor_code = {2}
+    AND off.trans_type = {3}
+    AND off.create_at_str BETWEEN {0} and {1}) main_t,
+        (select
+    sum(amount) wash_amount
+    from wash_code_change wcc
+    where platform = {2} and create_time between {0} and {1}) wash_t,
+        (select
+    sum(ifnull(service_charge,0)) service_charge
+    from withdraw_order wo
+    where status = 1 and withdraw_time between {0} and {1}) withdraw_t,
+        (select
+    sum(amount) amount from share_profit_change spc
+    where bet_time between {0} and {1}) pr,
+        (SELECT
+    SUM(amount) as water
+    FROM extract_points_change
+    where platform = {2} and create_time between {0} and {1}) ec;
+        """;
 }

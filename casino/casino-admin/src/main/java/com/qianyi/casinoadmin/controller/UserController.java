@@ -157,47 +157,59 @@ public class UserController {
      */
     @ApiOperation("用户列表总计")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "account", value = "用户名", required = false),
-            @ApiImplicitParam(name = "proxyAccount", value = "代理线", required = false),
-            @ApiImplicitParam(name = "state", value = "1：启用，其他：禁用", required = false),
-            @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false)
+        @ApiImplicitParam(name = "account", value = "用户名", required = false),
+        @ApiImplicitParam(name = "proxyAccount", value = "代理线", required = false),
+        @ApiImplicitParam(name = "state", value = "1：启用，其他：禁用", required = false),
+        @ApiImplicitParam(name = "startDate", value = "注册起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "注册结束时间查询", required = false)
     })
     @GetMapping("findUserTotal")
     public ResponseEntity<UserTotalVo> findUserTotal(String account, String proxyAccount, Integer state,
-                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
-                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         //后续扩展加参数。
-        User user = new User();
-        user.setAccount(account);
-        user.setState(state);
-        if (!LoginUtil.checkNull(proxyAccount)){
-            ProxyUser byUserName = proxyUserService.findByUserName(proxyAccount);
-            if (LoginUtil.checkNull(byUserName)){
-                return ResponseUtil.success(BigDecimal.ZERO);
-            }
-            if (byUserName.getProxyRole() == CommonConst.NUMBER_1){
-                user.setFirstProxy(byUserName.getId());
-            }else if (byUserName.getProxyRole() == CommonConst.NUMBER_2){
-                user.setSecondProxy(byUserName.getId());
-            }else {
-                user.setThirdProxy(byUserName.getId());
-            }
-        }
-        List<User> userList = userService.findUserList(user, startDate, endDate);
         UserTotalVo userTotalVo=new UserTotalVo();
-        if(userList != null && userList.size() > 0){
-            List<Long> userIds = userList.stream().map(User::getId).collect(Collectors.toList());
-            List<UserMoney> all = userMoneyService.findAll(userIds);
-            BigDecimal sum = all.stream().map(UserMoney::getMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
-            BigDecimal washCode = all.stream().map(UserMoney::getWashCode).reduce(BigDecimal.ZERO, BigDecimal::add);
-            userTotalVo.setMoney(sum);
-            userTotalVo.setWashCode(washCode);
+        userTotalVo.setMoney(BigDecimal.ZERO);
+        userTotalVo.setWashCode(BigDecimal.ZERO);
+        if (LoginUtil.checkNull(proxyAccount) && LoginUtil.checkNull(account) && LoginUtil.checkNull(startDate) && LoginUtil.checkNull(endDate)){
+            UserMoney userMoneySum = userMoneyService.findUserMoneySum(new UserMoney());
+            if (LoginUtil.checkNull(userMoneySum)){
+                return ResponseUtil.success(userTotalVo);
+            }
+            userTotalVo.setMoney(userMoneySum.getMoney());
+            userTotalVo.setWashCode(userMoneySum.getWashCode());
+            return ResponseUtil.success(userTotalVo);
+        }else {
+            User user = new User();
+            user.setAccount(account);
+            if (!LoginUtil.checkNull(proxyAccount)){
+                ProxyUser byUserName = proxyUserService.findByUserName(proxyAccount);
+                if (LoginUtil.checkNull(byUserName)){
+                    return ResponseUtil.success(userTotalVo);
+                }
+                if (byUserName.getProxyRole() == CommonConst.NUMBER_1){
+                    user.setFirstProxy(byUserName.getId());
+                }else if (byUserName.getProxyRole() == CommonConst.NUMBER_2){
+                    user.setSecondProxy(byUserName.getId());
+                }else {
+                    user.setThirdProxy(byUserName.getId());
+                }
+            }
+            List<User> userList = userService.findUserList(user, startDate, endDate);
+
+            if(userList != null && userList.size() > 0){
+                log.info("用户列表总计查询user数据{}",userList.size());
+                List<Long> userIds = userList.stream().map(User::getId).collect(Collectors.toList());
+                List<UserMoney> all = userMoneyService.findAll(userIds);
+                BigDecimal sum = all.stream().map(UserMoney::getMoney).reduce(BigDecimal.ZERO, BigDecimal::add);
+                BigDecimal washCode = all.stream().map(UserMoney::getWashCode).reduce(BigDecimal.ZERO, BigDecimal::add);
+                userTotalVo.setMoney(sum);
+                userTotalVo.setWashCode(washCode);
+                return ResponseUtil.success(userTotalVo);
+            }
             return ResponseUtil.success(userTotalVo);
         }
-        return ResponseUtil.success(BigDecimal.ZERO);
     }
-
 
 
         /**

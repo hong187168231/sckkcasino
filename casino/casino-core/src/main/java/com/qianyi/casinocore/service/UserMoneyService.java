@@ -22,6 +22,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
@@ -37,8 +39,12 @@ public class UserMoneyService {
     @Autowired
     private UserMoneyRepository userMoneyRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Autowired
     private UserService userService;
+
     @Autowired
     private PlatformConfigService platformConfigService;
 
@@ -543,5 +549,23 @@ public class UserMoneyService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public  UserMoney  findUserMoneySum(UserMoney userMoney) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<UserMoney> query = builder.createQuery(UserMoney.class);
+        Root<UserMoney> root = query.from(UserMoney.class);
+
+        query.multiselect(
+            builder.sum(root.get("money").as(BigDecimal.class)).alias("money"),
+            builder.sum(root.get("washCode").as(BigDecimal.class)).alias("washCode")
+        );
+
+        List<Predicate> predicates = new ArrayList();
+
+        query
+            .where(predicates.toArray(new Predicate[predicates.size()]));
+        UserMoney singleResult = entityManager.createQuery(query).getSingleResult();
+        return singleResult;
     }
 }

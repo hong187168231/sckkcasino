@@ -435,7 +435,7 @@ public class ReportController {
             }
         } else {
             Map<String, Object> result =
-                userService.findMap(platform, startTime, endTime, orderTimeStart, orderTimeEnd, "");
+                userService.findMapSum(platform, startTime, endTime, orderTimeStart, orderTimeEnd);
             itemObject = DTOUtil.toDTO(result, PersonReportTotalVo.class);
         }
         return ResponseUtil.success(itemObject);

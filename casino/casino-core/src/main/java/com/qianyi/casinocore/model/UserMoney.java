@@ -57,4 +57,13 @@ public class UserMoney extends BaseEntity{
         }
         return defaultVal;
     }
+
+    public UserMoney(){
+
+    }
+
+    public UserMoney(BigDecimal money,BigDecimal washCode){
+        this.money = money==null?BigDecimal.ZERO:money;
+        this.washCode = washCode==null?BigDecimal.ZERO:washCode;
+    }
 }
