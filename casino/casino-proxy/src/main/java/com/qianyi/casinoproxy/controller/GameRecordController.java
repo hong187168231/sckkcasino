@@ -1,32 +1,32 @@
 package com.qianyi.casinoproxy.controller;
 
-import com.qianyi.casinocore.model.GameRecord;
-import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.service.GameRecordService;
-import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.casinocore.vo.GameRecordVo;
-import com.qianyi.casinocore.vo.PageResultVO;
+import com.qianyi.casinocore.vo.*;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
+import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
-import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.DateUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,9 +40,19 @@ public class GameRecordController {
     private GameRecordService gameRecordService;
 
     @Autowired
+    private GameRecordObdjService gameRecordObdjService;
+
+    @Autowired
+    private GameRecordObtyService gameRecordObtyService;
+
+    @Autowired
+    private GameRecordGoldenFService gameRecordGoldenFService;
+
+    @Autowired
     private UserService userService;
+
     /**
-     * 分页查询三方游戏注单
+     * 分页查询WM游戏注单
      *
      * @param user 会员账号
      * @param betId 注单号
@@ -50,64 +60,64 @@ public class GameRecordController {
      * @param gid 游戏类型
      * @return
      */
-    @ApiOperation("分页查询三方游戏注单")
+    @ApiOperation("分页查询WM游戏注单")
     @GetMapping("/findGameRecordPage")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
-            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
-            @ApiImplicitParam(name = "betId", value = "注单号", required = false),
-            @ApiImplicitParam(name = "gname", value = "游戏名称", required = false),
-            @ApiImplicitParam(name = "gid", value = "游戏类型", required = false),
-            @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
-            @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
-            @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
-    })
-    public ResponseEntity<GameRecordVo> findGameRecordPage(Integer pageSize, Integer pageCode, String user, String betId,
-                                                         String gname,Integer gid,String account,Integer tag,
-                                                           @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                           @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+    @ApiImplicitParams({@ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+        @ApiImplicitParam(name = "betId", value = "注单号", required = false),
+        @ApiImplicitParam(name = "gname", value = "游戏名称", required = false),
+        @ApiImplicitParam(name = "gid", value = "游戏类型", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),})
+    public ResponseEntity<GameRecordVo> findGameRecordPage(Integer pageSize, Integer pageCode, String user,
+        String betId, String gname, Integer gid, String account, Integer tag,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate) {
         Sort sort = Sort.by("id").descending();
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
         GameRecord game = new GameRecord();
         if (CasinoProxyUtil.setParameter(game)){
             return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
         }
+        Long userId = null;
+        if (!CasinoProxyUtil.checkNull(account)) {
+            User byAccount = userService.findByAccount(account);
+            if (CasinoProxyUtil.checkNull(byAccount)) {
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        game.setUserId(userId);
         game.setBetId(betId);
         game.setGname(gname);
         game.setGid(gid);
         game.setUser(user);
-        if (!CasinoProxyUtil.checkNull(account)){
-            User byAccount = userService.findByAccount(account);
-            if (CasinoProxyUtil.checkNull(byAccount)){
-                return ResponseUtil.custom("用户不存在");
-            }
-            game.setUserId( byAccount.getId());
-        }
         Page<GameRecord> gameRecordPage;
         if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
             String startTime = DateUtil.getSimpleDateFormat().format(startDate);
             String endTime = DateUtil.getSimpleDateFormat().format(endDate);
-            if (CasinoProxyUtil.checkNull(tag) || tag == CommonConst.NUMBER_0){
-                gameRecordPage = gameRecordService.findGameRecordPage(game, pageable,startTime,endTime,null,null);
-            }else {
-                gameRecordPage = gameRecordService.findGameRecordPage(game, pageable,null,null,startTime,endTime);
+            if (CasinoProxyUtil.checkNull(tag) || tag == CommonConst.NUMBER_0) {
+                gameRecordPage = gameRecordService.findGameRecordPage(game, pageable, startTime, endTime, null, null);
+            } else {
+                gameRecordPage = gameRecordService.findGameRecordPage(game, pageable, null, null, startTime, endTime);
             }
-        }else {
-            gameRecordPage = gameRecordService.findGameRecordPage(game, pageable,null,null,null,null);
+        } else {
+            gameRecordPage = gameRecordService.findGameRecordPage(game, pageable, null, null, null, null);
         }
-        PageResultVO<GameRecordVo> pageResultVO =new PageResultVO(gameRecordPage);
+        PageResultVO<GameRecordVo> pageResultVO = new PageResultVO(gameRecordPage);
         List<GameRecord> content = gameRecordPage.getContent();
-        if(content != null && content.size() > 0){
+        if (content != null && content.size() > 0) {
             List<GameRecordVo> gameRecordVoList = new LinkedList<>();
             List<Long> userIds = content.stream().map(GameRecord::getUserId).collect(Collectors.toList());
             List<User> userList = userService.findAll(userIds);
-            if(userList != null){
-                content.stream().forEach(gameRecord ->{
+            if (userList != null) {
+                content.stream().forEach(gameRecord -> {
                     GameRecordVo gameRecordVo = new GameRecordVo(gameRecord);
-                    userList.stream().forEach(u->{
-                        if (u.getId().equals(gameRecord.getUserId())){
+                    userList.stream().forEach(u -> {
+                        if (u.getId().equals(gameRecord.getUserId())) {
                             gameRecordVo.setAccount(u.getAccount());
                         }
                     });
@@ -118,8 +128,9 @@ public class GameRecordController {
         }
         return ResponseUtil.success(pageResultVO);
     }
+
     /**
-     * 统计三方游戏注单
+     * 统计三方游戏注单 findRecordRecordSum
      *
      * @param user 会员账号
      * @param betId 注单号
@@ -128,24 +139,26 @@ public class GameRecordController {
      * @return
      */
     @ApiOperation("统计三方游戏注单")
-    @GetMapping("/findRecordRecordSum")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
-            @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
-            @ApiImplicitParam(name = "betId", value = "注单号", required = false),
-            @ApiImplicitParam(name = "gname", value = "游戏名称", required = false),
-            @ApiImplicitParam(name = "gid", value = "游戏类型", required = false),
-            @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
-            @ApiImplicitParam(name = "startDate", value = "注查询起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
-    })
-    public ResponseEntity findRecordRecordSum(String user,String betId,String gname,Integer gid,String account,Integer tag,
-                                              @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
-                                              @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+    @GetMapping("/findGameRecordTotal")
+    @ApiImplicitParams({@ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "betId", value = "注单号", required = false),
+        @ApiImplicitParam(name = "gname", value = "游戏名称", required = false),
+        @ApiImplicitParam(name = "gid", value = "游戏类型", required = false),
+        @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),})
+    @NoAuthorization
+    public ResponseEntity<GameRecordTotalVo> findRecordRecordSum(String user, String betId, String gname, Integer gid,
+        String account, Integer tag, @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate) {
         GameRecord game = new GameRecord();
-        if (!CasinoProxyUtil.checkNull(account)){
+        if (CasinoProxyUtil.setParameter(game)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        if (!CasinoProxyUtil.checkNull(account)) {
             User byAccount = userService.findByAccount(account);
-            if (CasinoProxyUtil.checkNull(byAccount)){
+            if (CasinoProxyUtil.checkNull(byAccount)) {
                 return ResponseUtil.custom("用户不存在");
             }
             game.setUserId(byAccount.getId());
@@ -154,20 +167,611 @@ public class GameRecordController {
         game.setBetId(betId);
         game.setGname(gname);
         game.setGid(gid);
-        if (CasinoProxyUtil.setParameter(game)){
-            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
-        }
+        GameRecord recordRecordSum;
         if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
             String startTime = DateUtil.getSimpleDateFormat().format(startDate);
             String endTime = DateUtil.getSimpleDateFormat().format(endDate);
-            if (CasinoProxyUtil.checkNull(tag) || tag == CommonConst.NUMBER_0){
-                return ResponseUtil.success(gameRecordService.findRecordRecordSum(game,startTime,endTime,null,null));
-            }else {
-                return ResponseUtil.success(gameRecordService.findRecordRecordSum(game,null,null,startTime,endTime));
+
+            if (CasinoProxyUtil.checkNull(tag) || tag == CommonConst.NUMBER_0) {
+                recordRecordSum = gameRecordService.findRecordRecordSum(game, startTime, endTime, null, null);
+            } else {
+                recordRecordSum = gameRecordService.findRecordRecordSum(game, null, null, startTime, endTime);
             }
-        }else {
-            return ResponseUtil.success(gameRecordService.findRecordRecordSum(game,null,null,null,null));
+        } else {
+            recordRecordSum = gameRecordService.findRecordRecordSum(game, null, null, null, null);
         }
+        GameRecordTotalVo gameRecordTotalVo = new GameRecordTotalVo();
+        if (!CasinoProxyUtil.checkNull(recordRecordSum)) {
+            if (StringUtils.hasText(recordRecordSum.getBet())) {
+                gameRecordTotalVo.setBet(new BigDecimal(recordRecordSum.getBet()));
+            }
+            if (StringUtils.hasText(recordRecordSum.getValidbet())) {
+                gameRecordTotalVo.setValidbet(new BigDecimal(recordRecordSum.getValidbet()));
+            }
+            if (StringUtils.hasText(recordRecordSum.getBet())) {
+                gameRecordTotalVo.setWinLoss(new BigDecimal(recordRecordSum.getWinLoss()));
+            }
+        }
+        return ResponseUtil.success(gameRecordTotalVo);
     }
 
+    /**
+     * 分页查询PG游戏注单
+     *
+     * @param user 会员账号
+     * @param betId 注单号
+     * @param gameCode 游戏代码
+     * @return
+     */
+    @ApiOperation("分页查询PG游戏注单")
+    @GetMapping("/findPgGameRecordPage")
+    @ApiImplicitParams({@ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+        @ApiImplicitParam(name = "betId", value = "注单号", required = false),
+        @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = false),
+        @ApiImplicitParam(name = "parentBetId", value = "父主单号", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "transType", value = "Stake:下注 Payoff:派彩", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询结算起始时间", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结算结束时间", required = false),})
+    @NoAuthorization
+    public ResponseEntity<GameRecordGoldenFVo> findPgGameRecordPage(Integer pageSize, Integer pageCode, String user,
+        String betId, String gameCode, String parentBetId, String account, String transType,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate) {
+        GameRecordGoldenF gameRecordGoldenF = new GameRecordGoldenF();
+        if (CasinoProxyUtil.setParameter(gameRecordGoldenF)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        gameRecordGoldenF.setVendorCode(Constants.PLATFORM_PG);
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
+        return selectPGOrCQ9(gameRecordGoldenF, pageable, user, betId, gameCode, parentBetId, account, startDate,
+            endDate, transType);
+    }
+
+    /**
+     * 统计PG游戏注单
+     *
+     * @param user 会员账号
+     * @param betId 注单号
+     * @param gameCode 游戏代码
+     * @return
+     */
+    @ApiOperation("统计PG游戏注单")
+    @GetMapping("/findPgGameRecordTotal")
+    @ApiImplicitParams({@ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+        @ApiImplicitParam(name = "betId", value = "注单号", required = false),
+        @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = false),
+        @ApiImplicitParam(name = "parentBetId", value = "父主单号", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "transType", value = "Stake:下注 Payoff:派彩", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询结算起始时间", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结算结束时间", required = false),})
+    @NoAuthorization
+    public ResponseEntity<GameRecordGoldenFTotalVo> findPgGameRecordTotal(String user, String betId, String gameCode,
+        String parentBetId, String account, @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
+        String transType, @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate) {
+        GameRecordGoldenF gameRecordGoldenF = new GameRecordGoldenF();
+        if (CasinoProxyUtil.setParameter(gameRecordGoldenF)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        gameRecordGoldenF.setVendorCode(Constants.PLATFORM_PG);
+        return selectPGOrCQ9Total(gameRecordGoldenF, user, betId, gameCode, parentBetId, account, startDate, endDate,
+            transType);
+    }
+
+    /**
+     * 统计CQ9游戏注单
+     *
+     * @param user 会员账号
+     * @param betId 注单号
+     * @param gameCode 游戏代码
+     * @return
+     */
+    @ApiOperation("统计CQ9游戏注单")
+    @GetMapping("/findCq9GameRecordTotal")
+    @ApiImplicitParams({@ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+        @ApiImplicitParam(name = "betId", value = "注单号", required = false),
+        @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = false),
+        @ApiImplicitParam(name = "parentBetId", value = "父主单号", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "transType", value = "Stake:下注 Payoff:派彩", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询结算起始时间", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结算结束时间", required = false),})
+    @NoAuthorization
+    public ResponseEntity<GameRecordGoldenFTotalVo> findCq9GameRecordTotal(String user, String betId, String gameCode,
+        String parentBetId, String account, @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
+        String transType, @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate) {
+        GameRecordGoldenF gameRecordGoldenF = new GameRecordGoldenF();
+        if (CasinoProxyUtil.setParameter(gameRecordGoldenF)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        gameRecordGoldenF.setVendorCode(Constants.PLATFORM_CQ9);
+        return selectPGOrCQ9Total(gameRecordGoldenF, user, betId, gameCode, parentBetId, account, startDate, endDate,
+            transType);
+    }
+
+    /**
+     * 分页查询CQ9游戏注单
+     *
+     * @param user 会员账号
+     * @param betId 注单号
+     * @param gameCode 游戏代码
+     * @return
+     */
+    @ApiOperation("分页查询CQ9游戏注单")
+    @GetMapping("/findCq9GameRecordPage")
+    @ApiImplicitParams({@ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+        @ApiImplicitParam(name = "betId", value = "注单号", required = false),
+        @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = false),
+        @ApiImplicitParam(name = "parentBetId", value = "父主单号", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "transType", value = "Stake:下注 Payoff:派彩", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询结算起始时间", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结算结束时间", required = false),})
+    @NoAuthorization
+    public ResponseEntity<GameRecordGoldenFVo> findCq9GameRecordPage(Integer pageSize, Integer pageCode, String user,
+        String betId, String gameCode, String parentBetId, String account, String transType,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate) {
+        GameRecordGoldenF gameRecordGoldenF = new GameRecordGoldenF();
+        if (CasinoProxyUtil.setParameter(gameRecordGoldenF)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        gameRecordGoldenF.setVendorCode(Constants.PLATFORM_CQ9);
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
+        return selectPGOrCQ9(gameRecordGoldenF, pageable, user, betId, gameCode, parentBetId, account, startDate,
+            endDate, transType);
+    }
+
+    /**
+     * 统计SBTY游戏注单
+     *
+     * @param user 会员账号
+     * @param betId 注单号
+     * @param gameCode 游戏代码
+     * @return
+     */
+    @ApiOperation("统计SBTY游戏注单")
+    @GetMapping("/findSbtyGameRecordTotal")
+    @ApiImplicitParams({@ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+        @ApiImplicitParam(name = "betId", value = "注单号", required = false),
+        @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = false),
+        @ApiImplicitParam(name = "parentBetId", value = "父主单号", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "transType", value = "Stake:下注 Payoff:派彩", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询结算起始时间", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结算结束时间", required = false),})
+    @NoAuthorization
+    public ResponseEntity<GameRecordGoldenFTotalVo> findSbtyGameRecordTotal(String user, String betId, String gameCode,
+        String parentBetId, String account, @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
+        String transType, @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate) {
+        GameRecordGoldenF gameRecordGoldenF = new GameRecordGoldenF();
+        if (CasinoProxyUtil.setParameter(gameRecordGoldenF)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        gameRecordGoldenF.setVendorCode(Constants.PLATFORM_SABASPORT);
+        return selectPGOrCQ9Total(gameRecordGoldenF, user, betId, gameCode, parentBetId, account, startDate, endDate,
+            transType);
+    }
+
+    /**
+     * 分页查询SBTY游戏注单
+     *
+     * @param user 会员账号
+     * @param betId 注单号
+     * @param gameCode 游戏代码
+     * @return
+     */
+    @ApiOperation("分页查询SBTY游戏注单")
+    @GetMapping("/findSbtyGameRecordPage")
+    @ApiImplicitParams({@ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+        @ApiImplicitParam(name = "betId", value = "注单号", required = false),
+        @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = false),
+        @ApiImplicitParam(name = "parentBetId", value = "父主单号", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "transType", value = "Stake:下注 Payoff:派彩", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询结算起始时间", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结算结束时间", required = false),})
+    @NoAuthorization
+    public ResponseEntity<GameRecordGoldenFVo> findSbtyGameRecordPage(Integer pageSize, Integer pageCode, String user,
+        String betId, String gameCode, String parentBetId, String account, String transType,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate) {
+        GameRecordGoldenF gameRecordGoldenF = new GameRecordGoldenF();
+        if (CasinoProxyUtil.setParameter(gameRecordGoldenF)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        gameRecordGoldenF.setVendorCode(Constants.PLATFORM_SABASPORT);
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
+        return selectPGOrCQ9(gameRecordGoldenF, pageable, user, betId, gameCode, parentBetId, account, startDate,
+            endDate, transType);
+    }
+
+    private ResponseEntity<GameRecordGoldenFTotalVo> selectPGOrCQ9Total(GameRecordGoldenF gameRecordGoldenF,
+        String user, String betId, String gameCode, String parentBetId, String account, Date startDate, Date endDate,
+        String transType) {
+        gameRecordGoldenF.setPlayerName(user);
+        gameRecordGoldenF.setBetId(betId);
+        gameRecordGoldenF.setGameCode(gameCode);
+        gameRecordGoldenF.setParentBetId(parentBetId);
+        gameRecordGoldenF.setTransType(transType);
+        Long userId = null;
+        if (!CasinoProxyUtil.checkNull(account)) {
+            User byAccount = userService.findByAccount(account);
+            if (CasinoProxyUtil.checkNull(byAccount)) {
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        gameRecordGoldenF.setUserId(userId);
+
+        GameRecordGoldenF goldenF;
+        if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
+            String startTime = DateUtil.getSimpleDateFormat().format(startDate);
+            String endTime = DateUtil.getSimpleDateFormat().format(endDate);
+            goldenF = gameRecordGoldenFService.findRecordRecordSum(gameRecordGoldenF, startTime, endTime);
+        } else {
+            goldenF = gameRecordGoldenFService.findRecordRecordSum(gameRecordGoldenF, null, null);
+        }
+        GameRecordGoldenFTotalVo gameRecordGoldenFTotalVo = new GameRecordGoldenFTotalVo();
+        gameRecordGoldenFTotalVo.setBetAmount(goldenF.getBetAmount());
+        gameRecordGoldenFTotalVo.setWinAmount(goldenF.getWinAmount());
+        gameRecordGoldenFTotalVo.setWinLoss(goldenF.getWinAmount().subtract(goldenF.getBetAmount()));
+        return ResponseUtil.success(gameRecordGoldenFTotalVo);
+    }
+
+    private ResponseEntity<GameRecordGoldenFVo> selectPGOrCQ9(GameRecordGoldenF gameRecordGoldenF, Pageable pageable,
+        String user, String betId, String gameCode, String parentBetId, String account, Date startDate, Date endDate,
+        String transType) {
+        gameRecordGoldenF.setPlayerName(user);
+        gameRecordGoldenF.setBetId(betId);
+        gameRecordGoldenF.setGameCode(gameCode);
+        gameRecordGoldenF.setParentBetId(parentBetId);
+        gameRecordGoldenF.setTransType(transType);
+        Long userId = null;
+        if (!CasinoProxyUtil.checkNull(account)) {
+            User byAccount = userService.findByAccount(account);
+            if (CasinoProxyUtil.checkNull(byAccount)) {
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        gameRecordGoldenF.setUserId(userId);
+        Page<GameRecordGoldenF> gameRecordGoldenFPage;
+        if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
+            String startTime = DateUtil.getSimpleDateFormat().format(startDate);
+            String endTime = DateUtil.getSimpleDateFormat().format(endDate);
+            gameRecordGoldenFPage =
+                gameRecordGoldenFService.findGameRecordGoldenFPage(gameRecordGoldenF, pageable, startTime, endTime);
+        } else {
+            gameRecordGoldenFPage =
+                gameRecordGoldenFService.findGameRecordGoldenFPage(gameRecordGoldenF, pageable, null, null);
+        }
+
+        PageResultVO<GameRecordGoldenFVo> pageResultVO = new PageResultVO(gameRecordGoldenFPage);
+        List<GameRecordGoldenF> content = gameRecordGoldenFPage.getContent();
+        if (content != null && content.size() > 0) {
+            List<GameRecordGoldenFVo> gameRecordVoList = new LinkedList<>();
+            List<Long> userIds = content.stream().map(GameRecordGoldenF::getUserId).collect(Collectors.toList());
+            List<User> userList = userService.findAll(userIds);
+            if (userList != null) {
+                content.stream().forEach(gameRecord -> {
+                    GameRecordGoldenFVo vo = new GameRecordGoldenFVo();
+                    BeanUtils.copyProperties(gameRecord, vo);
+                    vo.setWinLoss(vo.getWinAmount().subtract(vo.getBetAmount()));
+                    userList.stream().forEach(u -> {
+                        if (u.getId().equals(gameRecord.getUserId())) {
+                            vo.setAccount(u.getAccount());
+                        }
+                    });
+                    gameRecordVoList.add(vo);
+                });
+            }
+            pageResultVO.setContent(gameRecordVoList);
+        }
+        return ResponseUtil.success(pageResultVO);
+    }
+
+    /**
+     * 分页查询OBDJ游戏注单
+     *
+     * @param user 会员账号
+     * @param betId 注单号
+     * @param betStatus 注单状态
+     * @return
+     */
+    @ApiOperation("分页查询OBDJ游戏注单")
+    @GetMapping("/findOBDJGameRecordPage")
+    @ApiImplicitParams({@ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+        @ApiImplicitParam(name = "betId", value = "注单号", required = false),
+        @ApiImplicitParam(name = "betStatus", value = "注单状态3-待结算4-已取消5-赢(已中奖) 6-输(未中奖) 7-已撤销8-赢半9-输半10-走水",
+            required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),})
+    @NoAuthorization
+    public ResponseEntity<GameRecordObdjVo> findOBDJGameRecordPage(Integer pageSize, Integer pageCode, String user,
+        String betId, Integer betStatus, String account, Integer tag,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate) {
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
+        GameRecordObdj gameRecordObdj = new GameRecordObdj();
+        if (CasinoProxyUtil.setParameter(gameRecordObdj)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        gameRecordObdj.setMemberAccount(user);
+        gameRecordObdj.setBetStatus(betStatus);
+        if (!CasinoProxyUtil.checkNull(betId)) {
+
+            try {
+                Long betIdLong = Long.parseLong(betId);
+                gameRecordObdj.setBetId(betIdLong);
+            } catch (Exception ex) {
+                return ResponseUtil.custom("参数不合法");
+            }
+        }
+        Long userId = null;
+        if (!CasinoProxyUtil.checkNull(account)) {
+            User byAccount = userService.findByAccount(account);
+            if (CasinoProxyUtil.checkNull(byAccount)) {
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        gameRecordObdj.setUserId(userId);
+        Page<GameRecordObdj> gameRecordObdjPage;
+        if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
+            String startTime = DateUtil.getSimpleDateFormat().format(startDate);
+            String endTime = DateUtil.getSimpleDateFormat().format(endDate);
+            if (CasinoProxyUtil.checkNull(tag) || tag == CommonConst.NUMBER_0) {
+                gameRecordObdjPage =
+                    gameRecordObdjService.findGameRecordPage(gameRecordObdj, pageable, startTime, endTime, null, null);
+            } else {
+                gameRecordObdjPage =
+                    gameRecordObdjService.findGameRecordPage(gameRecordObdj, pageable, null, null, startTime, endTime);
+            }
+        } else {
+            gameRecordObdjPage =
+                gameRecordObdjService.findGameRecordPage(gameRecordObdj, pageable, null, null, null, null);
+        }
+        PageResultVO<GameRecordObdjVo> pageResultVO = new PageResultVO(gameRecordObdjPage);
+        List<GameRecordObdj> content = gameRecordObdjPage.getContent();
+        if (content != null && content.size() > 0) {
+            List<GameRecordObdjVo> gameRecordVoList = new LinkedList<>();
+            List<Long> userIds = content.stream().map(GameRecordObdj::getUserId).collect(Collectors.toList());
+            List<User> userList = userService.findAll(userIds);
+            if (userList != null) {
+                content.stream().forEach(gameRecord -> {
+                    GameRecordObdjVo vo = new GameRecordObdjVo();
+                    BeanUtils.copyProperties(gameRecord, vo);
+                    vo.setWinLoss(vo.getWinAmount().subtract(vo.getBetAmount()));
+                    userList.stream().forEach(u -> {
+                        if (u.getId().equals(gameRecord.getUserId())) {
+                            vo.setAccount(u.getAccount());
+                        }
+                    });
+                    gameRecordVoList.add(vo);
+                });
+            }
+            pageResultVO.setContent(gameRecordVoList);
+        }
+        return ResponseUtil.success(pageResultVO);
+    }
+
+    /**
+     * 分页查询OBDJ游戏注单
+     *
+     * @param user 会员账号
+     * @param betId 注单号
+     * @param betStatus 注单状态
+     * @return
+     */
+    @ApiOperation("统计OBDJ游戏注单")
+    @GetMapping("/findOBDJGameRecordTotal")
+    @ApiImplicitParams({@ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+        @ApiImplicitParam(name = "betId", value = "注单号", required = false),
+        @ApiImplicitParam(name = "betStatus", value = "注单状态3-待结算4-已取消5-赢(已中奖) 6-输(未中奖) 7-已撤销8-赢半9-输半10-走水",
+            required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),})
+    @NoAuthorization
+    public ResponseEntity<GameRecordGoldenFTotalVo> findOBDJGameRecordTotal(String user, String betId,
+        Integer betStatus, String account, Integer tag, @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate) {
+        GameRecordObdj gameRecordObdj = new GameRecordObdj();
+        if (CasinoProxyUtil.setParameter(gameRecordObdj)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        gameRecordObdj.setMemberAccount(user);
+        gameRecordObdj.setBetStatus(betStatus);
+        if (!CasinoProxyUtil.checkNull(betId)) {
+
+            try {
+                Long betIdLong = Long.parseLong(betId);
+                gameRecordObdj.setBetId(betIdLong);
+            } catch (Exception ex) {
+                return ResponseUtil.custom("参数不合法");
+            }
+        }
+        Long userId = null;
+        if (!CasinoProxyUtil.checkNull(account)) {
+            User byAccount = userService.findByAccount(account);
+            if (CasinoProxyUtil.checkNull(byAccount)) {
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        gameRecordObdj.setUserId(userId);
+        GameRecordObdj content;
+        if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
+            String startTime = DateUtil.getSimpleDateFormat().format(startDate);
+            String endTime = DateUtil.getSimpleDateFormat().format(endDate);
+
+            if (CasinoProxyUtil.checkNull(tag) || tag == CommonConst.NUMBER_0) {
+                content = gameRecordObdjService.findRecordRecordSum(gameRecordObdj, startTime, endTime, null, null);
+            } else {
+                content = gameRecordObdjService.findRecordRecordSum(gameRecordObdj, null, null, startTime, endTime);
+            }
+        } else {
+            content = gameRecordObdjService.findRecordRecordSum(gameRecordObdj, null, null, null, null);
+        }
+        GameRecordGoldenFTotalVo gameRecordGoldenFTotalVo = new GameRecordGoldenFTotalVo();
+        gameRecordGoldenFTotalVo.setBetAmount(content.getBetAmount());
+        gameRecordGoldenFTotalVo.setWinAmount(content.getWinAmount());
+        gameRecordGoldenFTotalVo.setWinLoss(content.getWinAmount().subtract(content.getBetAmount()));
+        return ResponseUtil.success(gameRecordGoldenFTotalVo);
+    }
+
+    /**
+     * 分页查询OBTY游戏注单
+     *
+     * @param user 会员账号
+     * @param orderNo 注单号
+     * @param outcome 订单结算结果
+     * @return
+     */
+    @ApiOperation("分页查询OBTY游戏注单")
+    @GetMapping("/findOBTYGameRecordPage")
+    @ApiImplicitParams({@ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+        @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
+        @ApiImplicitParam(name = "outcome", value = "订单结算结果0-无结果 2-走水 3-输 4-赢 5-赢一半 6-输一半", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),})
+    @NoAuthorization
+    public ResponseEntity<GameRecordObtyVo> findOBTYGameRecordPage(Integer pageSize, Integer pageCode, String user,
+        String orderNo, Integer outcome, String account, Integer tag,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate) {
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
+        GameRecordObty gameRecordObty = new GameRecordObty();
+        if (CasinoProxyUtil.setParameter(gameRecordObty)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        gameRecordObty.setUserName(user);
+        gameRecordObty.setOutcome(outcome);
+        gameRecordObty.setOrderNo(orderNo);
+        Long userId = null;
+        if (!CasinoProxyUtil.checkNull(account)) {
+            User byAccount = userService.findByAccount(account);
+            if (CasinoProxyUtil.checkNull(byAccount)) {
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        gameRecordObty.setUserId(userId);
+
+        Page<GameRecordObty> gameRecordObtyPage;
+        if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
+            String startTime = DateUtil.getSimpleDateFormat().format(startDate);
+            String endTime = DateUtil.getSimpleDateFormat().format(endDate);
+            if (CasinoProxyUtil.checkNull(tag) || tag == CommonConst.NUMBER_0) {
+                gameRecordObtyPage =
+                    gameRecordObtyService.findGameRecordPage(gameRecordObty, pageable, startTime, endTime, null, null);
+            } else {
+                gameRecordObtyPage =
+                    gameRecordObtyService.findGameRecordPage(gameRecordObty, pageable, null, null, startTime, endTime);
+            }
+        } else {
+            gameRecordObtyPage =
+                gameRecordObtyService.findGameRecordPage(gameRecordObty, pageable, null, null, null, null);
+        }
+        PageResultVO<GameRecordObtyVo> pageResultVO = new PageResultVO(gameRecordObtyPage);
+        List<GameRecordObty> content = gameRecordObtyPage.getContent();
+        if (content != null && content.size() > 0) {
+            List<GameRecordObtyVo> gameRecordVoList = new LinkedList<>();
+            List<Long> userIds = content.stream().map(GameRecordObty::getUserId).collect(Collectors.toList());
+            List<User> userList = userService.findAll(userIds);
+            if (userList != null) {
+                content.stream().forEach(gameRecord -> {
+                    GameRecordObtyVo vo = new GameRecordObtyVo();
+                    BeanUtils.copyProperties(gameRecord, vo);
+                    userList.stream().forEach(u -> {
+                        if (u.getId().equals(gameRecord.getUserId())) {
+                            vo.setAccount(u.getAccount());
+                        }
+                    });
+                    gameRecordVoList.add(vo);
+                });
+            }
+            pageResultVO.setContent(gameRecordVoList);
+        }
+        return ResponseUtil.success(pageResultVO);
+    }
+
+    /**
+     * 统计OBTY游戏注单
+     *
+     * @param user 会员账号
+     * @param orderNo 注单号
+     * @param outcome 订单结算结果
+     * @return
+     */
+    @ApiOperation("统计OBTY游戏注单")
+    @GetMapping("/findOBTYGameRecordTotal")
+    @ApiImplicitParams({@ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+        @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
+        @ApiImplicitParam(name = "outcome", value = "订单结算结果0-无结果 2-走水 3-输 4-赢 5-赢一半 6-输一半", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),})
+    @NoAuthorization
+    public ResponseEntity<GameRecordObtyTotalVo> findOBTYGameRecordPage(String user, String orderNo, Integer outcome,
+        String account, Integer tag, @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate) {
+        GameRecordObty gameRecordObty = new GameRecordObty();
+        if (CasinoProxyUtil.setParameter(gameRecordObty)){
+            return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
+        }
+        gameRecordObty.setUserName(user);
+        gameRecordObty.setOutcome(outcome);
+        gameRecordObty.setOrderNo(orderNo);
+        Long userId = null;
+        if (!CasinoProxyUtil.checkNull(account)) {
+            User byAccount = userService.findByAccount(account);
+            if (CasinoProxyUtil.checkNull(byAccount)) {
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        gameRecordObty.setUserId(userId);
+        GameRecordObty content;
+        if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
+            String startTime = DateUtil.getSimpleDateFormat().format(startDate);
+            String endTime = DateUtil.getSimpleDateFormat().format(endDate);
+            if (CasinoProxyUtil.checkNull(tag) || tag == CommonConst.NUMBER_0) {
+                content = gameRecordObtyService.findRecordRecordSum(gameRecordObty, startTime, endTime, null, null);
+            } else {
+                content = gameRecordObtyService.findRecordRecordSum(gameRecordObty, null, null, startTime, endTime);
+            }
+        } else {
+            content = gameRecordObtyService.findRecordRecordSum(gameRecordObty, null, null, null, null);
+        }
+
+        GameRecordObtyTotalVo gameRecordObtyTotalVo = new GameRecordObtyTotalVo();
+        gameRecordObtyTotalVo.setOrderAmount(content.getOrderAmount());
+        gameRecordObtyTotalVo.setProfitAmount(content.getProfitAmount());
+        gameRecordObtyTotalVo.setSettleAmount(content.getSettleAmount());
+        return ResponseUtil.success(gameRecordObtyTotalVo);
+    }
 }
