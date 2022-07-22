@@ -19,6 +19,7 @@ public enum ResponseCode {
     EMPTY_TWITHDRAWMONEY(7, "未设置交易密码"),
     MULTIDEVICE(8, "帐号已在其他设备登录,请重新登录"),
     PLATFORM_MAINTAIN(9, "平台维护中"),
+    UN_BIND_BANKCARD(10, "请先绑定银行卡后再充值"),
 
     //业务级代码（101-999）
     PARAMETER_NOTNULLL(101, "参数必填"),

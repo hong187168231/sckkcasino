@@ -85,4 +85,8 @@ public class ResponseUtil {
     public static ResponseEntity platformMaintain() {
         return new ResponseEntity(ResponseCode.PLATFORM_MAINTAIN,messageUtil.get(ResponseCode.PLATFORM_MAINTAIN.getMsg()));
     }
+
+    public static ResponseEntity unBindBankcard() {
+        return new ResponseEntity(ResponseCode.UN_BIND_BANKCARD,messageUtil.get(ResponseCode.UN_BIND_BANKCARD.getMsg()));
+    }
 }
