@@ -275,9 +275,9 @@ public class BankCardsController {
         if (!LoginUtil.checkNull(checkParamFroBound)) {
             return ResponseUtil.custom(checkParamFroBound);
         }
-        if (!realName.matches(RegexEnum.NAME.getRegex())){
-            return ResponseUtil.custom("持卡人请输入中文或字母");
-        }
+//        if (!realName.matches(RegexEnum.NAME.getRegex())){
+//            return ResponseUtil.custom("持卡人请输入中文或字母");
+//        }
         //判断是否存在该用户
         User user = userService.findById(userId);
         if(user == null){
