@@ -1249,6 +1249,36 @@
         ]
       },
       {
+        "descritpion": "IP白名单管理",
+        "englishName": "IP whitelist",
+        "menuLevel": 2,
+        "name": "IP白名单管理",
+        "url": "/ipWhite/findPag",
+        "children": [
+          {
+            "descritpion": "保存",
+            "englishName": "Save",
+            "menuLevel": 3,
+            "name": "保存",
+            "url": "/ipWhite/save"
+          },
+          {
+            "descritpion": "修改备注",
+            "englishName": "update remark",
+            "menuLevel": 3,
+            "name": "修改备注",
+            "url": "/ipWhite/updateRemark"
+          },
+          {
+            "descritpion": "删除",
+            "englishName": "delete",
+            "menuLevel": 3,
+            "name": "删除",
+            "url": "/ipWhite/delete"
+          }
+        ]
+      },
+      {
         "descritpion": "用户列表",
         "englishName": "User List",
         "menuLevel": 2,

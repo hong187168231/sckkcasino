@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.install;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.log.Log;
 import com.qianyi.casinoadmin.install.file.*;
 import com.qianyi.casinoadmin.util.LoginUtil;
@@ -83,6 +84,9 @@ public class Initialization implements CommandLineRunner {
     @Autowired
     private ExtractPointsConfigService extractPointsConfigService;
 
+    @Autowired
+    private IpWhiteService ipWhiteService;
+
     @Override
     public void run(String... args) throws Exception {
         log.info("初始化数据开始============================================》");
@@ -105,7 +109,28 @@ public class Initialization implements CommandLineRunner {
         this.initProxyWashCodeConfig();
 
         this.saveExtractPointsConfig();
+
+        this.saveIpWhite();
     }
+
+    private void saveIpWhite(){
+        List<IpWhite> all = ipWhiteService.findAll();
+        if (CollUtil.isEmpty(all)){
+            log.info("初始化IP白名单");
+            IpWhite ipWhite = new IpWhite();
+            ipWhite.setType(CommonConst.NUMBER_1);
+            ipWhite.setRemark("初始化");
+            ipWhite.setCreateBy("0");
+            ipWhite.setUpdateBy("0");
+            ipWhite.setIp("150.129.219.38");
+            ipWhiteService.save(ipWhite);
+            ipWhite.setIp("199.101.192.168");
+            ipWhiteService.save(ipWhite);
+            ipWhite.setIp("116.212.142.251");
+            ipWhiteService.save(ipWhite);
+        }
+    }
+
     //新增代理抽点配置
     private void saveExtractPointsConfig(){
         try {

@@ -1,20 +1,17 @@
 package com.qianyi.casinoadmin.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.google.code.kaptcha.Producer;
 import com.qianyi.casinoadmin.service.SysUserLoginLogService;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.SysPermissionVo;
 import com.qianyi.casinoadmin.vo.SysUserVo;
 import com.qianyi.casinocore.business.RoleServiceBusiness;
-import com.qianyi.casinocore.model.ProxyUser;
-import com.qianyi.casinocore.model.SysPermission;
-import com.qianyi.casinocore.model.SysUser;
+import com.qianyi.casinocore.model.*;
 import com.qianyi.casinoadmin.model.SysUserLoginLog;
-import com.qianyi.casinocore.model.SysUserRole;
+import com.qianyi.casinocore.service.IpWhiteService;
 import com.qianyi.casinocore.service.SysPermissionService;
 import com.qianyi.casinocore.service.SysUserService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.DTOUtil;
 import com.qianyi.moduleauthenticator.GoogleAuthUtil;
 import com.qianyi.modulecommon.Constants;
@@ -28,6 +25,7 @@ import com.qianyi.modulecommon.util.IpUtil;
 import com.qianyi.modulejjwt.JjwtUtil;
 import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import io.swagger.annotations.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
@@ -47,6 +45,7 @@ import java.util.stream.Collectors;
 @Api(tags = "认证中心")
 @RestController
 @RequestMapping("login")
+@Slf4j
 public class LoginController {
 
     //这里的captchaProducer要和KaptchaConfig里面的bean命名一样
@@ -64,6 +63,9 @@ public class LoginController {
 
     @Autowired
     private RoleServiceBusiness roleServiceBusiness;
+
+    @Autowired
+    private IpWhiteService ipWhiteService;
 
     @Autowired
     RedisUtil redisUtil;
@@ -109,9 +111,9 @@ public class LoginController {
     @NoAuthentication
     @ApiOperation("帐密登陆.谷歌身份验证器")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userName", value = "帐号", required = true),
-            @ApiImplicitParam(name = "password", value = "密码", required = true),
-            @ApiImplicitParam(name = "code", value = "验证码", required = true),
+        @ApiImplicitParam(name = "userName", value = "帐号", required = true),
+        @ApiImplicitParam(name = "password", value = "密码", required = true),
+        @ApiImplicitParam(name = "code", value = "验证码", required = true),
     })
     @NoAuthorization
     @PostMapping("loginB")
@@ -123,6 +125,15 @@ public class LoginController {
         boolean length = SysUser.checkLength(userName, password);
         if (!length) {
             return ResponseUtil.custom("帐号,密码长度3-15位");
+        }
+
+        //记录登陆日志
+        String ip = IpUtil.getIp(LoginUtil.getRequest());
+
+        IpWhite ipWhite = ipWhiteService.findByIpAndType(ip, CommonConst.NUMBER_1);
+        if (LoginUtil.checkNull(ipWhite)){
+            log.error("IP未绑定{}",ip);
+            return ResponseUtil.custom("IP未绑定");
         }
 
         SysUser user = sysUserService.findByUserName(userName);
@@ -145,9 +156,9 @@ public class LoginController {
         subject.setBcryptPassword(user.getPassWord());
         String token = JjwtUtil.generic(subject, "casino-admin");
 
-//        if(Constants.open != user.getGaStatus()){//谷歌验证关闭
-//            return ResponseUtil.success(token);
-//        }
+        //        if(Constants.open != user.getGaStatus()){//谷歌验证关闭
+        //            return ResponseUtil.success(token);
+        //        }
 
         String secret = user.getGaKey();
         if (LoginUtil.checkNull(secret)) {
@@ -158,9 +169,6 @@ public class LoginController {
             return ResponseUtil.googleAuthNoPass();
         }
 
-
-        //记录登陆日志
-        String ip = IpUtil.getIp(LoginUtil.getRequest());
         SysUserLoginLog sysUserLoginLog = new SysUserLoginLog(ip, user.getUserName(), user.getId(), "admin", "");
         sysUserLoginLogService.saveSyncLog(sysUserLoginLog);
         setUserTokenToRedis(user.getId(), token);
