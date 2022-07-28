@@ -140,6 +140,14 @@ public class Initialization implements CommandLineRunner {
             ipWhite3.setUpdateBy("0");
             ipWhite3.setIp("116.212.142.251");
             ipWhiteService.save(ipWhite3);
+
+            IpWhite ipWhite4 = new IpWhite();
+            ipWhite4.setType(CommonConst.NUMBER_1);
+            ipWhite4.setRemark("初始化");
+            ipWhite4.setCreateBy("0");
+            ipWhite4.setUpdateBy("0");
+            ipWhite4.setIp("27.109.113.194");
+            ipWhiteService.save(ipWhite4);
         }
     }
 
