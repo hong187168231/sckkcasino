@@ -117,17 +117,29 @@ public class Initialization implements CommandLineRunner {
         List<IpWhite> all = ipWhiteService.findAll();
         if (CollUtil.isEmpty(all)){
             log.info("初始化IP白名单");
-            IpWhite ipWhite = new IpWhite();
-            ipWhite.setType(CommonConst.NUMBER_1);
-            ipWhite.setRemark("初始化");
-            ipWhite.setCreateBy("0");
-            ipWhite.setUpdateBy("0");
-            ipWhite.setIp("150.129.219.38");
-            ipWhiteService.save(ipWhite);
-            ipWhite.setIp("199.101.192.168");
-            ipWhiteService.save(ipWhite);
-            ipWhite.setIp("116.212.142.251");
-            ipWhiteService.save(ipWhite);
+            IpWhite ipWhite1 = new IpWhite();
+            ipWhite1.setType(CommonConst.NUMBER_1);
+            ipWhite1.setRemark("初始化");
+            ipWhite1.setCreateBy("0");
+            ipWhite1.setUpdateBy("0");
+            ipWhite1.setIp("150.129.219.38");
+            ipWhiteService.save(ipWhite1);
+
+            IpWhite ipWhite2 = new IpWhite();
+            ipWhite2.setType(CommonConst.NUMBER_1);
+            ipWhite2.setRemark("初始化");
+            ipWhite2.setCreateBy("0");
+            ipWhite2.setUpdateBy("0");
+            ipWhite2.setIp("199.101.192.168");
+            ipWhiteService.save(ipWhite2);
+
+            IpWhite ipWhite3 = new IpWhite();
+            ipWhite3.setType(CommonConst.NUMBER_1);
+            ipWhite3.setRemark("初始化");
+            ipWhite3.setCreateBy("0");
+            ipWhite3.setUpdateBy("0");
+            ipWhite3.setIp("116.212.142.251");
+            ipWhiteService.save(ipWhite3);
         }
     }
 
