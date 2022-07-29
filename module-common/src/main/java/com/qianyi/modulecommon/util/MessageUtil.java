@@ -44,8 +44,14 @@ public class MessageUtil {
     }
 
     private Locale getLocale() {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        String language = request.getHeader(Constants.LANGUAGE);
+        String language = null;
+        try {
+            //有些异步请求提示会获取不到request
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+            language = request.getHeader(Constants.LANGUAGE);
+        } catch (Exception e) {
+            return LocaleConfig.en_US;
+        }
         //默认英文
         Locale locale = LocaleConfig.en_US;
         if (LocaleConfig.zh_CN.toString().equals(language)) {
