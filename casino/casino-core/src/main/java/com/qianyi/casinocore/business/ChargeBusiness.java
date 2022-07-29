@@ -55,10 +55,10 @@ public class ChargeBusiness {
         if (!remitterName.matches(RegexEnum.NAME.getRegex())) {
             return ResponseUtil.custom("汇款人" + RegexEnum.NAME.getDesc());
         }
-        int bankCount = bankcardsService.countByUserId(userId);
-        if (bankCount == 0) {
-            return ResponseUtil.unBindBankcard();
-        }
+//        int bankCount = bankcardsService.countByUserId(userId);
+//        if (bankCount == 0) {
+//            return ResponseUtil.unBindBankcard();
+//        }
         CollectionBankcard bankcard = collectionBankcardService.findById(bankcardId);
         if (bankcard == null) {
             return ResponseUtil.custom("收款银行卡不存在");
