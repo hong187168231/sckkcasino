@@ -248,7 +248,7 @@ public class CompanyProxyDetailController {
         GameRecordReportNew gameRecordReportNewSum =
             gameRecordReportNewService.findGameRecordReportNewSum(gameRecordReportNew, startTimeHH, endTimeHH);
         companyProxyReportVo
-            .setWinLossAmount(companyProxyReportVo.getWinLossAmount().subtract(gameRecordReportNewSum.getAmount()));
+            .setWinLossAmount(companyProxyReportVo.getWinLossAmount().subtract(gameRecordReportNewSum.getNewAmount()));
         return companyProxyReportVo;
     }
 }

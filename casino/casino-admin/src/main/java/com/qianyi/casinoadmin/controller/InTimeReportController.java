@@ -46,9 +46,6 @@ public class InTimeReportController {
     @Autowired
     private ProxyUserService proxyUserService;
 
-    @Autowired
-    private MessageUtil messageUtil;
-
     @ApiOperation("查询代理报表")
     @GetMapping("/find")
     @ApiImplicitParams({
@@ -57,7 +54,6 @@ public class InTimeReportController {
         @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
         @ApiImplicitParam(name = "agentMark", value = "代理标识", required = false),
         @ApiImplicitParam(name = "agentId", value = "总代id", required = false),
-        //            @ApiImplicitParam(name = "gid", value = "游戏类别编号 百家乐:101 龙虎:102 轮盘:103 骰宝:104 牛牛:105 番摊:107 色碟:108 鱼虾蟹:110 炸金花:111 安达巴哈:128", required = false),
         @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
         @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
         @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
@@ -109,16 +105,12 @@ public class InTimeReportController {
                 GameRecordReportVo vo = new GameRecordReportVo();
                 vo.setHasChildren(finalMark);
                 BeanUtils.copyProperties(gameRecordReport1,vo);
-                vo.setAmount(vo.getAmount().setScale(2, RoundingMode.HALF_UP));
-                //                if (gameRecordReport1.getFirstProxy().equals(CommonConst.LONG_0)){
-                //                    vo.setAccount(messageUtil.get("公司"));
-                //                }
-                if (vo.getUserAmount()==null){
-                    vo.setUserAmount(BigDecimal.ZERO);
-                }
-                if (vo.getSurplusAmount()==null){
-                    vo.setSurplusAmount(BigDecimal.ZERO);
-                }
+                vo.setAmount(gameRecordReport1.getNewAmount() != null? gameRecordReport1.getNewAmount().setScale(2, RoundingMode.HALF_UP):
+                    BigDecimal.ZERO);
+                vo.setUserAmount(gameRecordReport1.getNewUserAmount() != null? gameRecordReport1.getNewUserAmount().setScale(2, RoundingMode.HALF_UP):
+                    BigDecimal.ZERO);
+                vo.setSurplusAmount(gameRecordReport1.getNewSurplusAmount() != null? gameRecordReport1.getNewSurplusAmount().setScale(2, RoundingMode.HALF_UP):
+                    BigDecimal.ZERO);
                 vo.setTotalWinLossAmount(vo.getWinLossAmount().add(vo.getAmount()).add(vo.getUserAmount()).add(vo.getSurplusAmount()));
                 vo.setAccountId(gameRecordReport1.getId());
                 proxyUsers.stream().forEach(proxyUser -> {
@@ -172,7 +164,12 @@ public class InTimeReportController {
         }
         GameRecordReportNew recordRecordSum = gameRecordReportNewService.findRecordRecordSum(gameRecordReport, startTime, endTime, proxyId, proxyRole);
         if (!LoginUtil.checkNull(recordRecordSum)){
-            recordRecordSum.setAmount(recordRecordSum.getAmount() != null? recordRecordSum.getAmount().setScale(2, RoundingMode.HALF_UP):null);
+            recordRecordSum.setAmount(recordRecordSum.getNewAmount() != null? recordRecordSum.getNewAmount().setScale(2, RoundingMode.HALF_UP):
+                BigDecimal.ZERO);
+            recordRecordSum.setUserAmount(recordRecordSum.getNewUserAmount() != null? recordRecordSum.getNewUserAmount().setScale(2, RoundingMode.HALF_UP):
+                BigDecimal.ZERO);
+            recordRecordSum.setSurplusAmount(recordRecordSum.getNewSurplusAmount() != null? recordRecordSum.getNewSurplusAmount().setScale(2, RoundingMode.HALF_UP):
+                BigDecimal.ZERO);
         }
         GameRecordReportTotalVo gameRecordReportTotalVo=new GameRecordReportTotalVo();
         gameRecordReportTotalVo.setBetAmount(recordRecordSum.getBetAmount() != null? recordRecordSum.getBetAmount() : BigDecimal.ZERO);

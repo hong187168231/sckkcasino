@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @Entity
 @ApiModel("游戏记录报表")
 @Table(indexes = {@Index(columnList = "firstProxy"),
-        @Index(columnList = "secondProxy"),@Index(name="identity_index",columnList = "gameRecordReportId",unique=true)})
+    @Index(columnList = "secondProxy"),@Index(name="identity_index",columnList = "gameRecordReportId",unique=true)})
 public class GameRecordReportNew extends BaseEntity{
 
     @ApiModelProperty("唯一标识")
@@ -23,20 +23,18 @@ public class GameRecordReportNew extends BaseEntity{
     @ApiModelProperty("投注笔数")
     private Integer bettingNumber;
 
-
-    @ApiModelProperty(value = "用户返利金额")
+    @ApiModelProperty(value = "用户返利金额(弃用)")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal userAmount;
 
-    @ApiModelProperty(value = "代理返利金额")
+    @ApiModelProperty(value = "代理返利金额(弃用)")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal surplusAmount;
-
-//    @ApiModelProperty(value = "游戏类别编号")
-//    private Integer gid;
 
     @ApiModelProperty(value = "平台:wm,PG,CQ9")
     private String platform;
 
-    @ApiModelProperty(value = "洗码金额")
+    @ApiModelProperty(value = "洗码金额(弃用)")
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal amount;
     /**
@@ -72,10 +70,23 @@ public class GameRecordReportNew extends BaseEntity{
     @ApiModelProperty("基层代理ID")
     private Long thirdProxy;
 
+    @ApiModelProperty(value = "洗码金额")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    private BigDecimal newAmount;
+
+    @ApiModelProperty(value = "用户返利金额")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    private BigDecimal newUserAmount;
+
+    @ApiModelProperty(value = "代理返利金额")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    private BigDecimal newSurplusAmount;
+
     public GameRecordReportNew(){
 
     }
-    public GameRecordReportNew(Long firstProxy,Long bettingNumber,BigDecimal amount,BigDecimal betAmount,BigDecimal validAmount,BigDecimal winLossAmount,BigDecimal userAmount,BigDecimal surplusAmount){
+    public GameRecordReportNew(Long firstProxy,Long bettingNumber,BigDecimal amount,BigDecimal betAmount,BigDecimal validAmount,
+        BigDecimal winLossAmount,BigDecimal userAmount,BigDecimal surplusAmount){
         this.firstProxy = firstProxy;
         this.bettingNumber = bettingNumber==null?0:bettingNumber .intValue();
         this.amount = amount;
@@ -84,6 +95,20 @@ public class GameRecordReportNew extends BaseEntity{
         this.winLossAmount = winLossAmount;
         this.userAmount = userAmount;
         this.surplusAmount = surplusAmount;
+    }
+    public GameRecordReportNew(Long firstProxy,Long bettingNumber,BigDecimal amount,BigDecimal betAmount,BigDecimal validAmount,
+        BigDecimal winLossAmount,BigDecimal userAmount,BigDecimal surplusAmount,BigDecimal newAmount,BigDecimal newUserAmount,BigDecimal newSurplusAmount){
+        this.firstProxy = firstProxy;
+        this.bettingNumber = bettingNumber==null?0:bettingNumber .intValue();
+        this.amount = amount;
+        this.betAmount = betAmount;
+        this.validAmount = validAmount;
+        this.winLossAmount = winLossAmount;
+        this.userAmount = userAmount;
+        this.surplusAmount = surplusAmount;
+        this.newAmount = newAmount;
+        this.newUserAmount = newUserAmount;
+        this.newSurplusAmount = newSurplusAmount;
     }
     public GameRecordReportNew(Long bettingNumber,BigDecimal amount,BigDecimal betAmount,BigDecimal validAmount,BigDecimal winLossAmount,BigDecimal userAmount,BigDecimal surplusAmount){
         this.bettingNumber = bettingNumber==null?0:bettingNumber .intValue();
@@ -94,8 +119,20 @@ public class GameRecordReportNew extends BaseEntity{
         this.userAmount = userAmount;
         this.surplusAmount = surplusAmount;
     }
-
-    public GameRecordReportNew(BigDecimal amount){
-        this.amount = amount==null?BigDecimal.ZERO:amount;
+    public GameRecordReportNew(Long bettingNumber,BigDecimal amount,BigDecimal betAmount,BigDecimal validAmount,BigDecimal winLossAmount,
+        BigDecimal userAmount,BigDecimal surplusAmount,BigDecimal newAmount,BigDecimal newUserAmount,BigDecimal newSurplusAmount){
+        this.bettingNumber = bettingNumber==null?0:bettingNumber .intValue();
+        this.amount = amount;
+        this.betAmount = betAmount;
+        this.validAmount = validAmount;
+        this.winLossAmount = winLossAmount;
+        this.userAmount = userAmount;
+        this.surplusAmount = surplusAmount;
+        this.newAmount = newAmount;
+        this.newUserAmount = newUserAmount;
+        this.newSurplusAmount = newSurplusAmount;
+    }
+    public GameRecordReportNew(BigDecimal newAmount){
+        this.newAmount = newAmount==null?BigDecimal.ZERO:newAmount;
     }
 }

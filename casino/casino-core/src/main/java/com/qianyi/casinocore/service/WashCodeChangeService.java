@@ -119,4 +119,8 @@ public class WashCodeChangeService {
     public List<Map<String, Object>> getMapSumAmount(String startTime, String endTime){
         return washCodeChangeRepository.getMapSumAmount(startTime,endTime);
     }
+
+    public List<Map<String, Object>> getMapSumAmount(String platform,String startTime, String endTime){
+        return washCodeChangeRepository.getMapSumAmount(platform,startTime,endTime);
+    }
 }
