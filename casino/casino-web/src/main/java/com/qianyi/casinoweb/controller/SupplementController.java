@@ -68,6 +68,10 @@ public class SupplementController {
         if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
+      return supplementByPlatformCommon(platform,startTime,endTime);
+    }
+
+    public ResponseEntity supplementByPlatformCommon(String platform, String startTime, String endTime) {
         boolean checkNull = CasinoWebUtil.checkNull(platform, startTime, endTime);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
