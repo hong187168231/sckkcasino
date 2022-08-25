@@ -1254,6 +1254,13 @@
         "url": "/loginLog/findLoginLogPage"
       },
       {
+        "descritpion": "后台登录日志",
+        "englishName": "Manager Login History",
+        "menuLevel": 2,
+        "name": "后台登录日志",
+        "url": "/loginLog/findSysLoginLogPage"
+      },
+      {
         "descritpion": "APP升级管理",
         "englishName": "APP Update Setting",
         "menuLevel": 2,

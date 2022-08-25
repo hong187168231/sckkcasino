@@ -1,5 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
+import com.qianyi.casinoadmin.model.SysUserLoginLog;
+import com.qianyi.casinoadmin.service.SysUserLoginLogService;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.LoginLog;
 import com.qianyi.casinocore.service.LoginLogService;
@@ -34,6 +36,11 @@ import java.util.List;
 public class LoginLogController {
     @Autowired
     private LoginLogService loginLogService;
+
+    @Autowired
+    private SysUserLoginLogService sysUserLoginLogService;
+
+
     /**
      * 分页查询用户登录日志
      *
@@ -61,6 +68,32 @@ public class LoginLogController {
         Page<LoginLog> loginLogPage = loginLogService.findLoginLogPage(loginLog, pageable);
         return ResponseUtil.success(loginLogPage);
 
+    }
+
+
+    @ApiOperation("分页查询用户登录日志")
+    @GetMapping("/findSysLoginLogPage")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+            @ApiImplicitParam(name = "ip", value = "会员登录ip", required = false),
+            @ApiImplicitParam(name = "userId", value = "会员id", required = false),
+            @ApiImplicitParam(name = "account", value = "会员账号", required = false),
+            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false)
+    })
+    public ResponseEntity<SysUserLoginLog> findSysLoginLogPage(Integer pageSize, Integer pageCode, String ip,
+                                                               Long userId, String account,
+                                                               @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
+                                                               @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate){
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        SysUserLoginLog loginLog = new SysUserLoginLog();
+        loginLog.setIp(ip);
+        loginLog.setUserName(account);
+        loginLog.setUserId(userId);
+        Page<SysUserLoginLog> loginLogPage = sysUserLoginLogService.findLoginLogPage(loginLog, pageable, startDate, endDate);
+        return ResponseUtil.success(loginLogPage);
     }
 
 
