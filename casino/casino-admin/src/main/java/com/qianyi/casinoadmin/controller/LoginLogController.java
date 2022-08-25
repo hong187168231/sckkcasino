@@ -71,7 +71,7 @@ public class LoginLogController {
     }
 
 
-    @ApiOperation("分页查询用户登录日志")
+    @ApiOperation("分页查询后台用户登录日志")
     @GetMapping("/findSysLoginLogPage")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
