@@ -270,16 +270,16 @@ public class PublicAeApi {
         Map<String, Object> params = getCommonParams();
         params.put("timeFrom", timeFrom);
         params.put("platform", platform);
-        if (ObjectUtils.isEmpty(status)){
+        if (!ObjectUtils.isEmpty(status)){
             params.put("status", status);
         }
-        if (ObjectUtils.isEmpty(currency)){
+        if (!ObjectUtils.isEmpty(currency)){
             params.put("currency", currency);
         }
-        if (ObjectUtils.isEmpty(gameType)){
+        if (!ObjectUtils.isEmpty(gameType)){
             params.put("gameType", gameType);
         }
-        if (ObjectUtils.isEmpty(gameCode)){
+        if (!ObjectUtils.isEmpty(gameCode)){
             params.put("gameCode", gameCode);
         }
         log.info("AE查询注单参数{}", params);

@@ -53,4 +53,7 @@ public class ProxyGameRecordReportVo extends JobSuperVo{
 
     @ApiModelProperty
     private String betId;
+
+    @ApiModelProperty(value = "是否新增，0.修改,1.新增")
+    private Integer isAdd;
 }

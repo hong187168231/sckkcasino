@@ -399,13 +399,14 @@ public class UserMoneyBusiness {
         vo.setThirdProxy(record.getThirdProxy());
         vo.setOrderTimes(record.getBetTime());
         vo.setUserId(record.getUserId());
+        vo.setGameRecordId(record.getId());
+        vo.setIsAdd(record.getIsAdd());
         if (!ObjectUtils.isEmpty(record.getValidbet())){
             vo.setValidAmount(new BigDecimal(record.getValidbet()));
         }
         if (!ObjectUtils.isEmpty(record.getWinLoss())){
             vo.setWinLoss(new BigDecimal(record.getWinLoss()));
         }
-        vo.setGameRecordId(record.getId());
         if (!ObjectUtils.isEmpty(record.getBet())){
             vo.setBetAmount(new BigDecimal(record.getBet()));
         }

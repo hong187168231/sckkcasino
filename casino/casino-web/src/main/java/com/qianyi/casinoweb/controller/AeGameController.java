@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/aeGame")
@@ -76,14 +77,8 @@ public class AeGameController {
             third = userThirdService.findByUserId(authId);
             //未注册自动注册到第三方
             if (third == null || ObjectUtils.isEmpty(third.getAeAccount())) {
-                JSONObject jsonObject = aeApi.createMember(account, account, null);
-                if (jsonObject == null) {
-                    log.error("AE注册账号失败,远程请求异常");
-                    return ResponseUtil.custom("服务器异常,请重新操作");
-                }
-                String status = jsonObject.getString("status");
-                if (!PublicAeApi.SUCCESS_CODE.equals(status)) {
-                    log.error("AE注册账号失败,result={}", jsonObject);
+                account = createMember(account);
+                if (ObjectUtils.isEmpty(account)) {
                     return ResponseUtil.custom("服务器异常,请重新操作");
                 }
                 if (third == null) {
@@ -147,6 +142,28 @@ public class AeGameController {
         }
         String url = login.getString("url");
         return ResponseUtil.success(url);
+    }
+
+    private String createMember(String account) {
+        JSONObject jsonObject = aeApi.createMember(account, account, null);
+        if (jsonObject == null) {
+            log.error("AE注册账号失败,远程请求异常");
+            return null;
+        }
+        String status = jsonObject.getString("status");
+        //KK平台账号在AE重复,随机生成一个
+        if ("1001".equals(status)) {
+            account = UUID.randomUUID().toString().replaceAll("-", "");
+            if (account.length() > 16) {
+                account = account.substring(0, 16);
+                createMember(account);
+            }
+        }
+        if (!PublicAeApi.SUCCESS_CODE.equals(status)) {
+            log.error("AE注册账号失败,result={}", jsonObject);
+            return null;
+        }
+        return account;
     }
 
     @ApiOperation("查询当前登录用户AE余额")

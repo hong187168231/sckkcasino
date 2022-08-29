@@ -102,6 +102,7 @@ public class GameRecordObtyJob {
             return;
         }
         if (ObjectUtils.isEmpty(betResult.getData())) {
+            saveGameRecordObEndTime(startTime, endTime, Constants.yes);
             return;
         }
         GameRecordObtyDataVo gameReocrdData = JSONObject.parseObject(betResult.getData(), GameRecordObtyDataVo.class);

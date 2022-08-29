@@ -25,6 +25,7 @@ public class UserThirdService {
             @CachePut(key = "'findByGoldenfAccount::'+#result.goldenfAccount",condition = "#result.goldenfAccount != null"),
             @CachePut(key = "'findByObdjAccount::'+#result.obdjAccount",condition = "#result.obdjAccount != null"),
             @CachePut(key = "'findByObtyAccount::'+#result.obtyAccount",condition = "#result.obtyAccount != null"),
+            @CachePut(key = "'findByAEAccount::'+#result.aeAccount",condition = "#result.aeAccount != null"),
         }
     )
     public UserThird save(UserThird third) {

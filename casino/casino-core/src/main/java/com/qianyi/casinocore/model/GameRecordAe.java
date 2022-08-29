@@ -120,4 +120,26 @@ public class GameRecordAe extends BaseEntity{
 
     @ApiModelProperty("基层代理ID")
     private Long thirdProxy;
+
+    @Transient
+    @ApiModelProperty(value = "是否新增，0.修改,1.新增")
+    private Integer isAdd = 0;
+
+    @Transient
+    @ApiModelProperty(value = "新真实返还金额")
+    private BigDecimal newRealWinAmount;
+
+    @Transient
+    @ApiModelProperty(value = "新有效下注")
+    private BigDecimal newTurnover;
+
+    public GameRecordAe(){
+
+    }
+
+    public GameRecordAe(BigDecimal betAmount,BigDecimal realBetAmount,BigDecimal winAmount){
+        this.betAmount = betAmount==null?BigDecimal.ZERO:betAmount;
+        this.realBetAmount = realBetAmount==null?BigDecimal.ZERO:realBetAmount;
+        this.winAmount = winAmount==null?BigDecimal.ZERO:winAmount;
+    }
 }

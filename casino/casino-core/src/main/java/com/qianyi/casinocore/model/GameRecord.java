@@ -211,6 +211,10 @@ public class GameRecord extends BaseEntity{
     @Transient
     private String gameCode;
 
+    @Transient
+    @ApiModelProperty(value = "是否新增，0.修改,1.新增")
+    private Integer isAdd = 0;
+
     public GameRecord(BigDecimal bet,BigDecimal validbet,BigDecimal water,BigDecimal waterbet,BigDecimal winLoss){
         this.bet = bet==null?"0":bet.toString();
         this.validbet = validbet==null?"0":validbet.toString();

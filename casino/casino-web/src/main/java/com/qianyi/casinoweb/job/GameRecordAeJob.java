@@ -2,7 +2,6 @@ package com.qianyi.casinoweb.job;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinoweb.vo.GameRecordAeVo;
@@ -13,6 +12,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -42,22 +42,18 @@ public class GameRecordAeJob {
     @Autowired
     private UserThirdService userThirdService;
     @Autowired
-    private GameRecordObtyDetailService gameRecordObtyDetailService;
-    @Autowired
     private UserService userService;
     @Autowired
     private PlatformConfigService platformConfigService;
     @Autowired
     private GameRecordAsyncOper gameRecordAsyncOper;
     @Autowired
-    private UserMoneyBusiness userMoneyBusiness;
-    @Autowired
     private AdGamesService adGamesService;
     @Autowired
     private PlatformGameService platformGameService;
 
     //每隔2分钟执行一次
-//    @Scheduled(cron = "0 0/2 * * * ?")
+    @Scheduled(cron = "0 0/2 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_AE);
         if (platformGame != null && platformGame.getGameStatus() == 2) {
@@ -110,7 +106,7 @@ public class GameRecordAeJob {
             log.info("开始拉取{},{}到当前时间的游戏记录", platform, startTime);
             pullGameRecordByTime(startTime, platform);
             log.info("{},{}到当前时间的记录拉取完成", platform, startTime);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             log.error("{},{}到当前时间的记录拉取异常", platform, startTime);
         }
@@ -145,6 +141,7 @@ public class GameRecordAeJob {
         List<GameRecordAeVo> gameRecords = JSON.parseArray(transactions, GameRecordAeVo.class);
         if (CollectionUtils.isEmpty(gameRecords)) {
             log.info("拉取{}注单当前时间无记录,startTime={},result={}", platform, startTime, result);
+            saveGameRecordAeEndTime(startTime, endTime, platform, Constants.yes);
             return;
         }
         //保存数据
@@ -227,7 +224,7 @@ public class GameRecordAeJob {
         //发送注单消息到MQ后台要统计数据
         gameRecordAsyncOper.proxyGameRecordReport(platform, record);
         String validbet = record.getValidbet();
-        if (ObjectUtils.isEmpty(validbet) || new BigDecimal(validbet).compareTo(BigDecimal.ZERO) == 0) {
+        if (record.getIsAdd() != 1 || ObjectUtils.isEmpty(validbet) || new BigDecimal(validbet).compareTo(BigDecimal.ZERO) == 0) {
             return;
         }
         //洗码
@@ -244,7 +241,7 @@ public class GameRecordAeJob {
 
     @SneakyThrows
     public GameRecordAe save(GameRecordAeVo gameRecordAeVo) {
-        UserThird account = userThirdService.findByObtyAccount(gameRecordAeVo.getUserId());
+        UserThird account = userThirdService.findByAEAccount(gameRecordAeVo.getUserId());
         if (account == null || account.getUserId() == null) {
             log.error("同步游戏记录时，UserThird查询结果为null,account={}", gameRecordAeVo.getUserId());
             return null;
@@ -252,6 +249,7 @@ public class GameRecordAeJob {
         GameRecordAe gameRecord = gameRecordAeService.findByPlatformAndPlatformTxId(gameRecordAeVo.getPlatform(), gameRecordAeVo.getPlatformTxId());
         if (gameRecord == null) {
             gameRecord = new GameRecordAe();
+            gameRecord.setIsAdd(1);
         }
         //时间转成标准时间格式
         if (!ObjectUtils.isEmpty(gameRecordAeVo.getTxTime())) {
@@ -290,6 +288,9 @@ public class GameRecordAeJob {
             gameRecord.setThirdProxy(user.getThirdProxy());
         }
         GameRecordAe record = gameRecordAeService.save(gameRecord);
+        //新输赢和有效投注差值
+        record.setNewTurnover(gameRecordAeVo.getTurnover());
+        record.setNewRealWinAmount(gameRecordAeVo.getRealWinAmount());
         return record;
     }
 
@@ -304,14 +305,29 @@ public class GameRecordAeJob {
         gameRecord.setFirstProxy(item.getFirstProxy());
         gameRecord.setSecondProxy(item.getSecondProxy());
         gameRecord.setThirdProxy(item.getThirdProxy());
-        if (item.getTurnover() != null) {
-            gameRecord.setValidbet(item.getTurnover().toString());
-        }
-        if (!ObjectUtils.isEmpty(item.getRealBetAmount())) {
-            gameRecord.setBet(item.getRealBetAmount().toString());
-        }
-        if (item.getRealWinAmount() != null) {
-            gameRecord.setWinLoss(item.getRealWinAmount().toString());
+        if (item.getIsAdd() == 1) {
+            if (item.getTurnover() != null) {
+                gameRecord.setValidbet(item.getTurnover().toString());
+            }
+            if (!ObjectUtils.isEmpty(item.getRealBetAmount())) {
+                gameRecord.setBet(item.getRealBetAmount().toString());
+            }
+            if (item.getRealWinAmount() != null) {
+                BigDecimal winLoss = item.getRealWinAmount().subtract(item.getRealBetAmount());
+                gameRecord.setWinLoss(winLoss.toString());
+            }
+        } else {
+            gameRecord.setBet("0");
+            if (item.getTurnover() != null && item.getNewTurnover() != null) {
+                BigDecimal turnover = item.getNewTurnover().subtract(item.getTurnover());
+                gameRecord.setValidbet(turnover.toString());
+            }
+            if (item.getRealWinAmount() != null && item.getNewRealWinAmount() != null && item.getRealBetAmount() != null) {
+                BigDecimal oldWinLoss = item.getRealWinAmount().subtract(item.getRealBetAmount());
+                BigDecimal newWinLoss = item.getNewRealWinAmount().subtract(item.getRealBetAmount());
+                BigDecimal winLoss = newWinLoss.subtract(oldWinLoss);
+                gameRecord.setWinLoss(winLoss.toString());
+            }
         }
         return gameRecord;
     }
