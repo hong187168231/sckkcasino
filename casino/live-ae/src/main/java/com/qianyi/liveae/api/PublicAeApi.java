@@ -250,6 +250,46 @@ public class PublicAeApi {
     }
 
     /**
+     *  捞取所有账目
+     *  最多只能拉取发送时间回推 24 小时内的资料
+     * 一次最多可拉 2,000 笔资料
+     * Platform 为必填值，API 最快支持 20 秒呼叫一次
+     * 捞取资料依交易注单更新时间排序
+     * 我方回应格式使用 Content-Encoding: gzip
+     * 请接续上次拉账最后一笔「交易更新时间」为搜寻起始时间
+     * 注意：若某次取值无资料 或 无更新资料，则将下次取值 timeFrom 设为现在时间的前一分钟
+     * @param timeFrom
+     * @param platform
+     * @param status
+     * @param currency
+     * @param gameType
+     * @param gameCode
+     * @return
+     */
+    public JSONObject getTransactionByUpdateDate(String timeFrom, String platform, Integer status,String currency,String gameType,String gameCode) {
+        Map<String, Object> params = getCommonParams();
+        params.put("timeFrom", timeFrom);
+        params.put("platform", platform);
+        if (ObjectUtils.isEmpty(status)){
+            params.put("status", status);
+        }
+        if (ObjectUtils.isEmpty(currency)){
+            params.put("currency", currency);
+        }
+        if (ObjectUtils.isEmpty(gameType)){
+            params.put("gameType", gameType);
+        }
+        if (ObjectUtils.isEmpty(gameCode)){
+            params.put("gameCode", gameCode);
+        }
+        log.info("AE查询注单参数{}", params);
+        String url = apiUrl + "/fetch/gzip/getTransactionByUpdateDate";
+        String result = HttpClient4Util.doPost(url, params);
+        log.info("AE查询注单结果{}", result);
+        return analysisResult(result);
+    }
+
+    /**
      * 查询转账记录
      *
      * @param txCode

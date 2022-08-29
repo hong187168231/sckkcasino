@@ -1,25 +1,14 @@
-package com.qianyi.casinocore.model;
+package com.qianyi.casinoweb.vo;
 
-import com.qianyi.modulecommon.Constants;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.persistence.*;
 import java.math.BigDecimal;
 
-/**
- * https://allwecan.info/api-doc/multi-wallet/PRD#operation/GetTransactionByUpdateDate
- */
 @Data
-@Entity
-@Table(name ="game_record_ae")
-@ApiModel("AE游戏记录")
-public class GameRecordAe extends BaseEntity{
-
-    @ApiModelProperty(value = "我方账号")
-    private Long userId;
-
+@ApiModel("AE游戏记录Vo")
+public class GameRecordAeVo {
     @ApiModelProperty(value = "平台游戏类型")
     private String gameType;
 
@@ -43,10 +32,10 @@ public class GameRecordAe extends BaseEntity{
      * 注意：若某次取值无资料 或 无更新资料，则将下次取值 timeFrom 设为现在时间的前一分钟
      */
     @ApiModelProperty(value = "更新时间")
-    private String updateTimeStr;
+    private String updateTime;
 
     @ApiModelProperty(value = "玩家 ID")
-    private String account;
+    private String userId;
 
     @ApiModelProperty(value = "游戏平台的下注项目")
     private String betType;
@@ -92,31 +81,4 @@ public class GameRecordAe extends BaseEntity{
 
     @ApiModelProperty(value = " 游戏讯息会由游戏商以 JSON 格式提供")
     private String gameInfo;
-
-    @ApiModelProperty(value = "洗码状态：1：成功")
-    private Integer washCodeStatus;
-
-    @ApiModelProperty(value = "返利状态：1：成功")
-    private Integer rebateStatus;
-
-    @ApiModelProperty(value = "抽点状态: 0: 否 1: 是")
-    private Integer extractStatus;
-
-    @ApiModelProperty(value = "打码状态：1：成功")
-    private Integer codeNumStatus;
-
-    @ApiModelProperty(value = "分润状态：0:失败，>0：成功")
-    private Integer shareProfitStatus = Constants.no;
-
-    @ApiModelProperty(value = "游戏报表状态：0:失败，1：成功")
-    private Integer gameRecordStatus = Constants.no;
-
-    @ApiModelProperty("总代ID")
-    private Long firstProxy;
-
-    @ApiModelProperty("区域代理ID")
-    private Long secondProxy;
-
-    @ApiModelProperty("基层代理ID")
-    private Long thirdProxy;
 }
