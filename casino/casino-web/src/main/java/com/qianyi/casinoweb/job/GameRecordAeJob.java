@@ -61,7 +61,7 @@ public class GameRecordAeJob {
     private PlatformGameService platformGameService;
 
     //每隔7分钟执行一次
-    @Scheduled(cron = "0 0/7 * * * ?")
+//    @Scheduled(cron = "0 0/7 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_AE);
         if (platformGame != null && platformGame.getGameStatus() == 2) {

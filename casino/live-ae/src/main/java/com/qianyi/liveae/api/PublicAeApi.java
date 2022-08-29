@@ -267,9 +267,9 @@ public class PublicAeApi {
 
     private Map<String, Object> getCommonParams() {
         Map<String, Object> params = new HashMap<>();
-        params.put("cert", "DlmZxZMoiXeIesH87rY");
-        params.put("agentId", "kkcasino");
-        params.put("currency", "USD");
+        params.put("cert", cert);
+        params.put("agentId", agentId);
+        params.put("currency", currency);
         return params;
     }
 

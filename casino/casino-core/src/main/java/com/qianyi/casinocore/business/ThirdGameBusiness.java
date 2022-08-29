@@ -493,6 +493,12 @@ public class ThirdGameBusiness {
             }, executor);
             completableFutures.add(oneKeyRecoverObty);
         }
+        if (!Constants.PLATFORM_AE.equals(platform)) {
+            CompletableFuture<Void> oneKeyRecoverAe = CompletableFuture.runAsync(() -> {
+                oneKeyRecoverAe(userId);
+            }, executor);
+            completableFutures.add(oneKeyRecoverAe);
+        }
         //等待所有子线程计算完成
         CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[completableFutures.size()])).join();
         return ResponseUtil.success();
