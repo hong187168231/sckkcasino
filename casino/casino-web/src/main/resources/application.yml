@@ -75,6 +75,11 @@ project:   #不同环境需配置相应的值
     secretKey: yI>o@R#%DEY3&dnx7:BfpW+Y6>2I:r
     apiUrl: https://sandbox-gateway.sportxxxw1box.com
     currency: 2 #美元
+  ae: #AE
+    cert: DlmZxZMoiXeIesH87rY
+    agentId: kkcasino
+    apiUrl: https://tttint.onlinegames22.com
+    currency: USD #美元
   swagger:
     enable: true                           #是否开启swagger接口文档
   telegramBot:  #定时器执行异常推送消息

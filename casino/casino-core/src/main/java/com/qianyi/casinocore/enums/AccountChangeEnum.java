@@ -24,6 +24,10 @@ public enum AccountChangeEnum {
     OBTY_OUT(16, "OBTYOUT","OB体育转出"),
     SABASPORT_IN(17, "SABASPORTIN","沙巴体育转入"),
     SABASPORT_OUT(18, "SABASPORTOUT","沙巴体育转出"),
+    INTEGRAL_EXCHANGE(19, "IE","积分兑换"),
+    INTEGRAL_WITHDRAWAL(20, "IW","积分提现"),
+    AE_IN(21, "AEIN","AE转入"),
+    AE_OUT(22, "AEOUT","AE转出"),
     ;
 
     private Integer type;

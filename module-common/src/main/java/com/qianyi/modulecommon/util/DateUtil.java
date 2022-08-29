@@ -199,6 +199,16 @@ public class DateUtil {
         String time = getSimpleDateFormat().format(calendar.getTime());
         return time;
     }
+    public static Date getStartTimeDate(int num) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE,num);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
+
 
     /**
      * 获取那一天的结束时间 num=0表示当天 -1表示前一天
@@ -268,5 +278,20 @@ public class DateUtil {
         calendar.setTime(getWeekStartDate());
         calendar.add(Calendar.DAY_OF_WEEK, 6);
         return calendar.getTime();
+    }
+
+    public static String getDayAgoOrAfter(Date date,int num) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DATE, num);
+        String time = dateToPatten1(calendar.getTime());
+        return time;
+    }
+
+    /**
+     * 相差小时数计算
+     */
+    public static int differentDaysByMillisecond(Date date1, Date date2) {
+        return Math.abs((int) ((date2.getTime() - date1.getTime()) / (1000 * 3600)));
     }
 }

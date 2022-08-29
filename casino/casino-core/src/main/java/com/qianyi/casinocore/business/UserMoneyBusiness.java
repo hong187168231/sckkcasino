@@ -402,4 +402,18 @@ public class UserMoneyBusiness {
         rabbitTemplate.convertAndSend(RabbitMqConstants.PROXYG_AMERECORD_REPORT_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.PROXYG_AMERECORD_REPORT_DIRECT, vo, new CorrelationData(UUID.randomUUID().toString()));
         log.info("proxyGameRecordReport MQ消息发送成功,平台={},注单ID={},消息明细={}", platform, record.getBetId(), vo);
     }
+
+    public void changeUserBalance(Long userId, BigDecimal betAmount, BigDecimal winAmount) {
+        if (betAmount == null || winAmount == null) {
+            return;
+        }
+        //下注金额大于0，扣减
+        if (betAmount.compareTo(BigDecimal.ZERO) == 1) {
+            subBalance(userId, betAmount);
+        }
+        //派彩金额大于0，增加
+        if (winAmount.compareTo(BigDecimal.ZERO) == 1) {
+            addBalance(userId, winAmount);
+        }
+    }
 }

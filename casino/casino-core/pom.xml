@@ -66,6 +66,11 @@
         </dependency>
         <dependency>
             <groupId>com.qianyi</groupId>
+            <artifactId>live-ae</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.qianyi</groupId>
             <artifactId>module-spring-rabbitmq</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>

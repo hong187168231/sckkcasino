@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 /**
  * 开启异步洗码，打码，分润，单独写出来是为了解决异步事务失效问题
  */
@@ -83,6 +85,17 @@ public class GameRecordAsyncOper {
     @Async("asyncExecutor")
     public void proxyGameRecordReport(String platform, GameRecord record) {
         userMoneyBusiness.proxyGameRecordReport(platform, record);
+    }
+
+    /**
+     * 更新用户balance
+     * @param userId
+     * @param betAmount
+     * @param winAmount
+     */
+    @Async("asyncExecutor")
+    public void changeUserBalance(Long userId, BigDecimal betAmount,BigDecimal winAmount) {
+        userMoneyBusiness.changeUserBalance(userId, betAmount,winAmount);
     }
     /**
      * 异步给TG机器人发送消息

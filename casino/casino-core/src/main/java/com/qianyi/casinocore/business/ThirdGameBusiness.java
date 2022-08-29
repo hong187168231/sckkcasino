@@ -6,6 +6,7 @@ import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.AccountChangeVo;
+import com.qianyi.liveae.api.PublicAeApi;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
 import com.qianyi.livegoldenf.constants.WalletCodeEnum;
 import com.qianyi.liveob.api.PublicObdjApi;
@@ -53,6 +54,8 @@ public class ThirdGameBusiness {
     private PublicObdjApi obdjApi;
     @Autowired
     private PublicObtyApi obtyApi;
+    @Autowired
+    private PublicAeApi aeApi;
     @Autowired
     private PlatformGameService platformGameService;
     @Autowired
@@ -374,6 +377,55 @@ public class ThirdGameBusiness {
         return ResponseUtil.success(balance);
     }
 
+    public ResponseEntity oneKeyRecoverAe(Long userId) {
+//        ResponseEntity aeEnable = checkPlatformStatus(Constants.PLATFORM_AE);
+//        if (aeEnable.getCode() != ResponseCode.SUCCESS.getCode()){
+//            log.info("后台开启AE维护，禁止回收，response={}",aeEnable);
+//            return aeEnable;
+//        }
+        log.info("开始回收AE余额，userId={}", userId);
+        if (userId == null) {
+            return ResponseUtil.parameterNotNull();
+        }
+        UserThird third = userThirdService.findByUserId(userId);
+        String account = third.getAeAccount();
+        if (third == null || ObjectUtils.isEmpty(account)) {
+            return ResponseUtil.custom("AE余额为0");
+        }
+        User user = userService.findById(userId);
+        ResponseEntity<BigDecimal> aeBalanceResponse = getAeBalanceByAccount(account);
+        if (aeBalanceResponse.getCode()!=ResponseCode.SUCCESS.getCode()){
+            return aeBalanceResponse;
+        }
+        BigDecimal balance = aeBalanceResponse.getData();
+        if (balance.compareTo(BigDecimal.ONE) == -1) {
+            log.info("userId:{},account={},balance={},AE金额小于1，不可回收", userId, user.getAccount(), balance);
+            return ResponseUtil.custom("AE余额小于1,不可回收");
+        }
+        //调用加扣点接口扣减OB电竞余额  存在精度问题，只回收整数部分
+        balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
+        String orderNo = orderService.getObdjOrderNo();
+        JSONObject jsonObject = aeApi.withdraw(account, orderNo, 0, balance.toString());
+        if (jsonObject == null) {
+            log.error("AE扣点失败,远程请求异常,userId:{},account={},result={}", userId, user.getAccount(), jsonObject);
+            //异步记录错误订单
+            errorOrderService.syncSaveErrorOrder(third.getAeAccount(), user.getId(), user.getAccount(), orderNo, balance, AccountChangeEnum.AE_OUT, Constants.PLATFORM_AE);
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+        String status = jsonObject.getString("status");
+        if (!PublicAeApi.SUCCESS_CODE.equals(status)) {
+            log.error("AE扣点失败,userId:{},account={},money={},msg={}", userId, user.getAccount(), balance, jsonObject);
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+        //把额度加回本地
+        UserMoney userMoney = userMoneyService.findByUserId(userId);
+        userMoneyService.addMoney(userId, balance);
+        log.info("AE余额,userMoney加回成功，userId={},balance={}", userId, balance);
+        saveAccountChange(Constants.PLATFORM_AE, userId, balance, userMoney.getMoney(), balance.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.AE_OUT, "自动转出AE", user);
+        log.info("AE余额回收成功，userId={},account={},money={}", userId, user.getAccount(), balance);
+        return ResponseUtil.success();
+    }
+
     public ResponseEntity<BigDecimal> getBalanceObdj(String account, Long userId) {
         PublicObdjApi.ResponseEntity balanceResult = obdjApi.getBalance(account);
         if (balanceResult == null) {
@@ -556,5 +608,44 @@ public class ThirdGameBusiness {
             }
         }
         return false;
+    }
+
+    public ResponseEntity<BigDecimal> getAeBalanceByAccount(String aeAccount) {
+        JSONObject balanceResult = aeApi.getBalance(aeAccount, 0, 0);
+        if (balanceResult == null) {
+            log.error("aeAccount:{},查询AE余额失败,远程请求异常", aeAccount);
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        String status = balanceResult.getString("status");
+        if (!PublicAeApi.SUCCESS_CODE.equals(status)) {
+            log.error("aeAccount:{},查询AE余额失败,balanceResult={}",aeAccount, balanceResult);
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        JSONArray results = balanceResult.getJSONArray("results");
+        if (results.size() == 0) {
+            return ResponseUtil.success(BigDecimal.ZERO);
+        }
+        JSONObject jsonObject = results.getJSONObject(0);
+        BigDecimal balance = new BigDecimal(jsonObject.getString("balance"));
+        return ResponseUtil.success(balance);
+    }
+
+    public ResponseEntity<BigDecimal> getAllAeBalance(String aeAccount) {
+        Integer alluser = 0;//查全部
+        if (ObjectUtils.isEmpty(aeAccount)) {
+            alluser = 1;
+        }
+        JSONObject balanceResult = aeApi.getBalance(aeAccount, alluser, 0);
+        if (balanceResult == null) {
+            log.error("aeAccount:{},查询AE余额失败,远程请求异常", aeAccount);
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        String status = balanceResult.getString("status");
+        if (!PublicAeApi.SUCCESS_CODE.equals(status)) {
+            log.error("aeAccount:{},查询AE余额失败,balanceResult={}", aeAccount, balanceResult);
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        JSONArray results = balanceResult.getJSONArray("results");
+        return ResponseUtil.success(results);
     }
 }
