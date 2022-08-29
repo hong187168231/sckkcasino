@@ -45,6 +45,8 @@ public class UserMoneyBusiness {
     @Autowired
     private GameRecordObtyService gameRecordObtyService;
     @Autowired
+    private GameRecordAeService gameRecordAeService;
+    @Autowired
     private RebateConfigurationService rebateConfigurationService;
     @Autowired
     private RebateDetailService rebateDetailService;
@@ -99,6 +101,8 @@ public class UserMoneyBusiness {
             gameRecordObdjService.updateCodeNumStatus(record.getId(), Constants.yes);
         } else if(Constants.PLATFORM_OBTY.equals(platform)){
             gameRecordObtyService.updateCodeNumStatus(record.getId(), Constants.yes);
+        } else if(Constants.PLATFORM_AE.equals(platform)){
+            gameRecordAeService.updateCodeNumStatus(record.getId(), Constants.yes);
         }
         log.info("打码结束,平台={},注单ID={}", platform, record.getBetId());
     }
@@ -181,6 +185,8 @@ public class UserMoneyBusiness {
             gameRecordObdjService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
         } else if (Constants.PLATFORM_OBTY.equals(platform)) {
             gameRecordObtyService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
+        }else if (Constants.PLATFORM_AE.equals(platform)) {
+            gameRecordAeService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
         }
         log.info("洗码完成,平台={},注单ID={}", platform, gameRecord.getBetId());
     }
@@ -350,6 +356,8 @@ public class UserMoneyBusiness {
             gameRecordObdjService.updateRebateStatus(record.getId(), Constants.yes);
         } else if (Constants.PLATFORM_OBTY.equals(platform)) {
             gameRecordObtyService.updateRebateStatus(record.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_AE.equals(platform)) {
+            gameRecordAeService.updateRebateStatus(record.getId(), Constants.yes);
         }
         if (rebateDetail.getTotalAmount().compareTo(BigDecimal.ZERO)>0){
             //后台异步增减平台总余额
@@ -375,6 +383,8 @@ public class UserMoneyBusiness {
             rate = rebateConfiguration.getOBDJRate();
         } else if (Constants.PLATFORM_OBTY.equals(platform)) {
             rate = rebateConfiguration.getOBTYRate();
+        } else if (Constants.PLATFORM_AE.equals(platform)) {
+            rate = rebateConfiguration.getAERate();
         }
         return rate;
     }

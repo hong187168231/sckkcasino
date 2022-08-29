@@ -35,14 +35,14 @@ public class GameRecordAe extends BaseEntity{
     @ApiModelProperty(value = "真实返还金额")
     private BigDecimal realWinAmount;
 
-    @ApiModelProperty(value = "Biz time (ISO8601 format) 交易时间 范例：2020-02-03T12:02:32+08:00")
+    @ApiModelProperty(value = "交易时间 yyyy-MM-dd HH:mm:ss")
     private String txTime;
 
     /**
      * 请使用拉取最后一张注单的更新时间当做取下一次拉帐的 timeFrom 参数
      * 注意：若某次取值无资料 或 无更新资料，则将下次取值 timeFrom 设为现在时间的前一分钟
      */
-    @ApiModelProperty(value = "更新时间")
+    @ApiModelProperty(value = "更新时间 yyyy-MM-dd HH:mm:ss")
     private String updateTimeStr;
 
     @ApiModelProperty(value = "玩家 ID")
@@ -69,7 +69,7 @@ public class GameRecordAe extends BaseEntity{
     @ApiModelProperty(value = "游戏商注单号")
     private String platformTxId;
 
-    @ApiModelProperty(value = "玩家下注时间")
+    @ApiModelProperty(value = "玩家下注时间yyyy-MM-dd HH:mm:ss")
     private String betTime;
 
     @ApiModelProperty(value = "平台游戏代码")
@@ -91,6 +91,7 @@ public class GameRecordAe extends BaseEntity{
     private String roundId;
 
     @ApiModelProperty(value = " 游戏讯息会由游戏商以 JSON 格式提供")
+    @Column(columnDefinition = "TEXT")
     private String gameInfo;
 
     @ApiModelProperty(value = "洗码状态：1：成功")

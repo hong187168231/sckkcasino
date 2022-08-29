@@ -3,6 +3,7 @@ package com.qianyi.casinocore.business;
 import com.qianyi.casinocore.exception.BusinessException;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.repository.*;
+import com.qianyi.casinocore.service.GameRecordAeService;
 import com.qianyi.casinocore.service.GameRecordObdjService;
 import com.qianyi.casinocore.service.GameRecordObtyService;
 import com.qianyi.casinocore.service.UserService;
@@ -52,6 +53,8 @@ public class ExtractPointsConfigBusiness {
     private GameRecordObdjService gameRecordObdjService;
     @Autowired
     private GameRecordObtyService gameRecordObtyService;
+    @Autowired
+    private GameRecordAeService gameRecordAeService;
 
     @Autowired
     private UserService userService;
@@ -450,6 +453,8 @@ public class ExtractPointsConfigBusiness {
             gameRecordObdjService.updateExtractStatus(gameRecord.getId(), Constants.yes);
         } else if (Constants.PLATFORM_OBTY.equals(platform)) {
             gameRecordObtyService.updateExtractStatus(gameRecord.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_AE.equals(platform)) {
+            gameRecordAeService.updateExtractStatus(gameRecord.getId(), Constants.yes);
         }
 
         log.info("抽点完成，平台={}, 注单id={}", platform, gameRecord.getBetId());
