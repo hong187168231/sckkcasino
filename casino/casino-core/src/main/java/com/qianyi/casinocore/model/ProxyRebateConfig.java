@@ -22,7 +22,7 @@ public class ProxyRebateConfig {
     /**
      * 游戏类型：1:WM,2:PG,3:CQ9
      */
-    @ApiModelProperty("游戏类型：1:WM,2:PG,3:CQ9,4:OBDJ, 5:OBTY, 6:SABA")
+    @ApiModelProperty("游戏类型：1:WM,2:PG,3:CQ9,4:OBDJ, 5:OBTY, 6:SABA, 7:AE")
     private Integer gameType;
 
     @ApiModelProperty("总代理id")

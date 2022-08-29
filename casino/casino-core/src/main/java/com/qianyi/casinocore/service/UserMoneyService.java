@@ -9,6 +9,7 @@ import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.repository.UserMoneyRepository;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.HttpClient4Util;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +59,11 @@ public class UserMoneyService {
 
     private String OB_refreshUrl = "/obdjGame/getBalanceApi?";
 
+    private String AE_refreshUrl = "/aeGame/aeGame/getBalanceApi?";
+
     private String OB_recycleUrl = "/obdjGame/oneKeyRecoverApi?";
+
+    private String AE_recycleUrl = "/aeGame/oneKeyRecoverApi?";
 
     private String OBTY_refreshUrl = "/obtyGame/getBalanceApi?";
 
@@ -567,5 +572,64 @@ public class UserMoneyService {
             .where(predicates.toArray(new Predicate[predicates.size()]));
         UserMoney singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
+    }
+
+    public UserMoney findsumUserIntegral(UserMoney userMoney) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<UserMoney> query = builder.createQuery(UserMoney.class);
+        Root<UserMoney> root = query.from(UserMoney.class);
+
+        query.multiselect(
+                builder.sum(root.get("integral").as(BigDecimal.class)).alias("integral")
+        );
+
+        List<Predicate> predicates = new ArrayList();
+        if (userMoney.getUserId() != null) {
+            predicates.add(builder.equal(root.get("userId").as(Long.class), userMoney.getUserId()));
+        }
+        query.where(predicates.toArray(new Predicate[predicates.size()]));
+        UserMoney singleResult = entityManager.createQuery(query).getSingleResult();
+        return singleResult;
+    }
+
+    public JSONObject refreshAE(Long userId) {
+        try {
+            String param = "";
+            if(userId != null && userId != 0){
+                param = MessageFormat.format("userId={0}",userId.toString());
+            }
+
+            PlatformConfig first = platformConfigService.findFirst();
+
+            if(first == null){
+                return null;
+            }
+            String aEUrl = first.getWebConfiguration() + AE_refreshUrl;
+            if(!CommonUtil.checkNull(param)){
+                aEUrl = aEUrl + "?" +  param;
+            }
+            String s = HttpClient4Util.getWeb(aEUrl);
+            log.info("查询AE余额web接口返回{}",s);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public JSONObject oneKeyAERecoverApi(User user) {
+        try {
+            String param = "userId={0}";
+            param = MessageFormat.format(param,user.getId().toString());
+            PlatformConfig first = platformConfigService.findFirst();
+            String aeUrl = first == null?"":first.getWebConfiguration();
+            aeUrl = aeUrl + AE_recycleUrl;
+            String s = HttpClient4Util.getWeb(aeUrl + param);
+            log.info("{}回收AE余额web接口返回{}",user.getAccount(),s);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

@@ -519,6 +519,83 @@ public class UserController {
         return ResponseUtil.success(sum);
     }
 
+    /**
+     * AE查询总余额接口
+     *
+     * @return
+     */
+    @ApiOperation("查询平台AE总余额")
+    @GetMapping("refreshAETotal")
+    public ResponseEntity refreshAETotal(){
+        JSONObject jsonObject = userMoneyService.refreshAE(null);
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.success(BigDecimal.ZERO);
+        }else {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
+                BigDecimal sunAamount = new BigDecimal(jsonObject.get("data").toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+                return ResponseUtil.success(sunAamount);
+            }
+        }
+        return ResponseUtil.success(BigDecimal.ZERO);
+    }
+
+
+    @ApiOperation("查询用户AE余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("refreshAE")
+    public ResponseEntity refreshAE(Long id){
+        UserThird third = userThirdService.findByUserId(id);
+        if (LoginUtil.checkNull(third) || ObjectUtils.isEmpty(third.getObdjAccount())){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
+        }
+        JSONObject jsonObject = userMoneyService.refreshAE(id);
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("AE余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (LoginUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询AE余额失败");
+        }
+    }
+
+    @ApiOperation("一键回收用户AE余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("oneAERecoverApi")
+    public ResponseEntity oneAERecoverApi(Long id){
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            return ResponseUtil.custom("客户不存在");
+        }
+        JSONObject jsonObject = userMoneyService.oneKeyAERecoverApi(user);
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("回收OB余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                return ResponseUtil.success();
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("回收AE余额失败");
+        }
+    }
+
     @ApiOperation("查询玩家OB电竞总余额")
     @GetMapping("refreshOBDJTotal")
     public ResponseEntity refreshOBDJTotal(){

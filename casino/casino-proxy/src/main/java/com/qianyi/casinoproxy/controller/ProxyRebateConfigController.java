@@ -36,7 +36,7 @@ public class ProxyRebateConfigController {
     @ApiOperation("查询代理返佣等级配置")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "当前详情页面代理id", required = true),
-            @ApiImplicitParam(name = "gameType", value = "游戏类型：1:WM,2:PG,3:CQ9,4:OBDJ, 5.OBTY,SABA", required = true),
+            @ApiImplicitParam(name = "gameType", value = "游戏类型：1:WM,2:PG,3:CQ9,4:OBDJ, 5.OBTY, 6.SABA, 7.AE", required = true),
     })
     @GetMapping("/findAll")
     public ResponseEntity findAll(Long id,Integer gameType){

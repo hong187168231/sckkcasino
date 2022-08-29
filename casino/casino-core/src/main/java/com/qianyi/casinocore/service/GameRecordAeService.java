@@ -16,6 +16,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -102,5 +103,13 @@ public class GameRecordAeService {
 
     public Map<String,Object> findSumByPlatformAndTime(String platform, String startTime, String endTime) {
         return gameRecordAeRepository.findSumByPlatformAndTime(platform,startTime,endTime);
+    }
+
+    public GameRecordAe findGameRecordById(Long gameRecordId) {
+        return gameRecordAeRepository.findById(gameRecordId).orElse(null);
+    }
+
+    public int countByIdLessThanEqualAndUserId(Date createTime, Long userId) {
+        return gameRecordAeRepository.countByIdLessThanEqualAndUserId(createTime,userId);
     }
 }

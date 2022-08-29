@@ -196,6 +196,20 @@
             "url": "/user/recoverySABABalance"
           },
           {
+            "descritpion": "查询用户AE余额",
+            "englishName": "AE Balance",
+            "menuLevel": 3,
+            "name": "查询用户AE余额",
+            "url": "/user/refreshAE"
+          },
+          {
+            "descritpion": "一键回收用户AE余额",
+            "englishName": "Restore All AE Balance",
+            "menuLevel": 3,
+            "name": "一键回收用户AE余额",
+            "url": "/user/oneAERecoverApi"
+          },
+          {
             "descritpion": "查询用户OB余额",
             "englishName": "OB Balance",
             "menuLevel": 3,
@@ -257,6 +271,13 @@
             "menuLevel": 3,
             "name": "查询玩家沙巴总余额",
             "url": "/user/refreshSABATotal"
+          },
+          {
+            "descritpion": "查询玩家AE总余额",
+            "englishName": "Search AE player total balance",
+            "menuLevel": 3,
+            "name": "查询玩家AE总余额",
+            "url": "/user/refreshAETotal"
           },
           {
             "descritpion": "当前查询结果总计",

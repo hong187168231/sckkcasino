@@ -27,7 +27,7 @@ public class ThirdGameSumBalanceTask {
 
 
     /**
-     * year要求10分钟跑一次
+     *
      */
     @Scheduled(cron = TaskConst.BACK_GAME_ORDER)
     public void create(){

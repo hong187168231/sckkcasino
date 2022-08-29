@@ -52,6 +52,11 @@ public class UserThirdService {
         return userThirdRepository.findByObtyAccount(account);
     }
 
+    @Cacheable(key = "#root.methodName+'::'+#p0")
+    public UserThird findByAEAccount(String account) {
+        return userThirdRepository.findByAeAccount(account);
+    }
+
     public List<UserThird> findAllAcount(){
         return userThirdRepository.findAllAcount();
     }

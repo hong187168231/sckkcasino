@@ -157,5 +157,19 @@ public class AdGameInitialization implements CommandLineRunner {
 
         }
 
+        if(!collect.contains("AE")) {
+            platforms.add(new PlatformGame("AE", 2));
+            platformGameService.saveAll(platforms);
+            AdGame sv388 = new AdGame("AE", "SV388", "斗鸡", "SV388", 1);
+            AdGame horseBook = new AdGame("AE", "HORSEBOOK", "赛马", "HORSEBOOK", 1);
+            AdGame e1Sport = new AdGame("AE", "E1SPORT", "电竞", "E1SPORT", 1);
+            List<AdGame> adGameList = new ArrayList<>();
+            adGameList.add(sv388);
+            adGameList.add(horseBook);
+            adGameList.add(e1Sport);
+            adGamesService.saveAll(adGameList);
+
+        }
     }
+
 }
