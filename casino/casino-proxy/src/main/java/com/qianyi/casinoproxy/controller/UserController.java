@@ -402,6 +402,36 @@ public class UserController {
             return ResponseUtil.custom("查询沙巴余额失败");
         }
     }
+
+    @ApiOperation("查询用户AE余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("refreshAE")
+    public ResponseEntity refreshAE(Long id){
+        UserThird third = userThirdService.findByUserId(id);
+        if (CasinoProxyUtil.checkNull(third) || ObjectUtils.isEmpty(third.getObdjAccount())){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
+        }
+        JSONObject jsonObject = userMoneyService.refreshAE(id);
+        if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("AE余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (CasinoProxyUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询AE余额失败");
+        }
+    }
+
     /**
      * 修改用户
      * 只有修改电话功能，那电话不能为空
