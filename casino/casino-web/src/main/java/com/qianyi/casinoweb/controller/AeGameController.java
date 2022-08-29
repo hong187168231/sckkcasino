@@ -13,8 +13,10 @@ import com.qianyi.liveae.api.PublicAeApi;
 import com.qianyi.liveae.constants.LanguageEnum;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
+import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.CommonUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -56,11 +58,15 @@ public class AeGameController {
     @PostMapping("/openGame")
     @ApiImplicitParam(name = "platform", value = "产品代码:斗鸡.SV388,赛马.HORSEBOOK,电竞.E1SPORT", required = true)
     public ResponseEntity<String> openGame(String platform, HttpServletRequest request) {
+        boolean checkNull = CommonUtil.checkNull(platform);
+        if (checkNull) {
+            return ResponseUtil.parameterNotNull();
+        }
         //判断平台和游戏状态
-//        ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(Constants.PLATFORM_AE, platform);
-//        if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
-//            return response;
-//        }
+        ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(Constants.PLATFORM_AE, platform);
+        if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return response;
+        }
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         User user = userService.findById(authId);

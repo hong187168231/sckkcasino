@@ -378,11 +378,11 @@ public class ThirdGameBusiness {
     }
 
     public ResponseEntity oneKeyRecoverAe(Long userId) {
-//        ResponseEntity aeEnable = checkPlatformStatus(Constants.PLATFORM_AE);
-//        if (aeEnable.getCode() != ResponseCode.SUCCESS.getCode()){
-//            log.info("后台开启AE维护，禁止回收，response={}",aeEnable);
-//            return aeEnable;
-//        }
+        ResponseEntity aeEnable = checkPlatformStatus(Constants.PLATFORM_AE);
+        if (aeEnable.getCode() != ResponseCode.SUCCESS.getCode()){
+            log.info("后台开启AE维护，禁止回收，response={}",aeEnable);
+            return aeEnable;
+        }
         log.info("开始回收AE余额，userId={}", userId);
         if (userId == null) {
             return ResponseUtil.parameterNotNull();

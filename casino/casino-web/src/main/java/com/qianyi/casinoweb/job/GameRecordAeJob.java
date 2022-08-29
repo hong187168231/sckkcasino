@@ -1,14 +1,11 @@
 package com.qianyi.casinoweb.job;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinoweb.vo.GameRecordAeVo;
-import com.qianyi.casinoweb.vo.GameRecordObtyDataVo;
-import com.qianyi.casinoweb.vo.GameRecordObtyVo;
 import com.qianyi.liveae.api.PublicAeApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.DateUtil;
@@ -16,8 +13,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -25,7 +20,9 @@ import org.springframework.util.ObjectUtils;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 查询用户投注记录接口,查询最近一周的数据,每次最大100条
@@ -106,12 +103,17 @@ public class GameRecordAeJob {
     }
 
     public void pullGameRecord(String startTime, String platform) {
-        if (ObjectUtils.isEmpty(startTime)) {
-            return;
+        try {
+            if (ObjectUtils.isEmpty(startTime)) {
+                return;
+            }
+            log.info("开始拉取{},{}到当前时间的游戏记录", platform, startTime);
+            pullGameRecordByTime(startTime, platform);
+            log.info("{},{}到当前时间的记录拉取完成", platform, startTime);
+        }catch (Exception e){
+            e.printStackTrace();
+            log.error("{},{}到当前时间的记录拉取异常", platform, startTime);
         }
-        log.info("开始拉取{},{}到当前时间的OB体育游戏记录", platform, startTime);
-        pullGameRecordByTime(startTime, platform);
-        log.info("{},{}到当前时间的OB体育游戏记录拉取完成", platform, startTime);
     }
 
     public static void main(String[] args) throws ParseException {
