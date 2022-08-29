@@ -54,7 +54,7 @@ public class AeGameController {
 
     @ApiOperation("开游戏")
     @PostMapping("/openGame")
-    @ApiImplicitParam(name = "platform", value = "产品代码:斗鸡.SV388,赛马.HORSEBOOK", required = true)
+    @ApiImplicitParam(name = "platform", value = "产品代码:斗鸡.SV388,赛马.HORSEBOOK,电竞.E1SPORT", required = true)
     public ResponseEntity<String> openGame(String platform, HttpServletRequest request) {
         //判断平台和游戏状态
 //        ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(Constants.PLATFORM_AE, platform);
