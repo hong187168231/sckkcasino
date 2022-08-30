@@ -208,7 +208,9 @@ public class GameRecordAeJob {
 
     public void business(String platform, GameRecordAe gameRecordAe, PlatformConfig platformConfig) {
         //计算用户账号实时余额
-        gameRecordAsyncOper.changeUserBalance(gameRecordAe.getUserId(), gameRecordAe.getRealBetAmount(), gameRecordAe.getRealWinAmount());
+        if (gameRecordAe.getIsAdd() == 1) {
+            gameRecordAsyncOper.changeUserBalance(gameRecordAe.getUserId(), gameRecordAe.getRealBetAmount(), gameRecordAe.getRealWinAmount());
+        }
         //组装gameRecord
         GameRecord record = combineGameRecord(gameRecordAe);
         //发送注单消息到MQ后台要统计数据
@@ -297,6 +299,7 @@ public class GameRecordAeJob {
         gameRecord.setFirstProxy(item.getFirstProxy());
         gameRecord.setSecondProxy(item.getSecondProxy());
         gameRecord.setThirdProxy(item.getThirdProxy());
+        gameRecord.setIsAdd(item.getIsAdd());
         if (item.getIsAdd() == 1) {
             if (item.getTurnover() != null) {
                 gameRecord.setValidbet(item.getTurnover().toString());
