@@ -632,7 +632,7 @@ public class ThirdGameBusiness {
             return ResponseUtil.success(BigDecimal.ZERO);
         }
         JSONObject jsonObject = results.getJSONObject(0);
-        BigDecimal balance = new BigDecimal(jsonObject.getString("balance"));
+        BigDecimal balance = jsonObject.getBigDecimal("balance");
         return ResponseUtil.success(balance);
     }
 
@@ -652,6 +652,13 @@ public class ThirdGameBusiness {
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         JSONArray results = balanceResult.getJSONArray("results");
-        return ResponseUtil.success(results);
+        int size = results.size();
+        BigDecimal balance = BigDecimal.ZERO;
+        for (int i = 0; i < size; i++) {
+            JSONObject jsonObject = results.getJSONObject(i);
+            BigDecimal balance1 = jsonObject.getBigDecimal("balance");
+            balance = balance.add(balance1);
+        }
+        return ResponseUtil.success(balance);
     }
 }
