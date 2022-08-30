@@ -112,16 +112,6 @@ public class GameRecordAeJob {
         }
     }
 
-    public static void main(String[] args) throws ParseException {
-        //当前时间转IS0 8601
-        String nowAsISO = sdf.format(new Date());
-        Date parse = sdf.parse("2021-03-26T12:00:00+08:00");
-        System.out.println(nowAsISO);
-        String format = DateUtil.getSimpleDateFormat().format(parse);
-        System.out.println(parse.getTime());
-        System.out.println(format);
-    }
-
     public void pullGameRecordByTime(String startTime, String platform) {
         //每次最多拉2000条,未拉完请接续上次拉账最后一笔「交易更新时间」为搜寻起始时间
         String endTime = sdf.format(new Date());
@@ -174,9 +164,9 @@ public class GameRecordAeJob {
         startTime = getBeforeTime(startDateTime, -2);
         Date startBeforeTime = sdf.parse(startTime);
         long diffTime = endTime.getTime() - startBeforeTime.getTime();
-        //三方最多能查当前时间24小时前的，提前一分钟，防止请求三方时时间超过24小时
-        if (diffTime > 24 * 59 * 60 * 1000) {
-            String startTimeNew = getBeforeTime(endTime, -24 * 59 * 60);
+        //三方最多能查当前时间24小时前的，提前5分钟，防止请求三方时时间超过24小时
+        if (diffTime > 24 * 60 * 60 * 1000) {
+            String startTimeNew = getBeforeTime(endTime, -(24 * 60 - 5));
             log.error("{}注单拉取时间范围超过24小时,开始时间缩短至当前时间24小时前，{}~{}时间范围数据丢失", platform, startTime, startTimeNew);
             startTime = startTimeNew;
         }
@@ -184,7 +174,7 @@ public class GameRecordAeJob {
     }
 
 
-    public String getBeforeTime(Date date, int num) {
+    public static String getBeforeTime(Date date, int num) {
         Calendar now = Calendar.getInstance();
         now.setTime(date);
         now.add(Calendar.MINUTE, num);
