@@ -8,7 +8,7 @@ public enum LanguageEnum {
     en_US("en", "英文", LocaleConfig.en_US.toString()),
     zh_CN("cn", "中文", LocaleConfig.zh_CN.toString()),
     JP("jp", "日本语"),
-    TH("th", "泰语"),
+    TH("th", "泰语",LocaleConfig.th_TH.toString()),
     VN("vn", "越南文"),
     ;
     private String code;
