@@ -129,6 +129,7 @@ public class PublicAeApi {
         params.put("platform", platform);
         params.put("gameType", gameType);
         params.put("gameCode", gameCode);
+        params.put("betLimit", getBetLimit());
         if (!ObjectUtils.isEmpty(language)) {
             params.put("language", language);
         }

@@ -130,7 +130,19 @@ public class AeGameController {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         String language = request.getHeader(Constants.LANGUAGE);
         String languageCode = LanguageEnum.getLanguageCode(language);
-        JSONObject login = aeApi.login(account, null, platformConfig.getDomainNameConfiguration(), platform, null, null, languageCode, null, null);
+        String gameType = null;
+        String gameCode = null;
+        if (Constants.PLATFORM_AE_HORSEBOOK.equals(platform)) {
+            gameCode = "HRB-LIVE-001";
+            gameType = "LIVE";
+        } else if (Constants.PLATFORM_AE_SV388.equals(platform)) {
+            gameCode = "SV-LIVE-001";
+            gameType = "LIVE";
+        } else if (Constants.PLATFORM_AE_E1SPORT.equals(platform)) {
+            gameCode = "E1-ESPORTS-001";
+            gameType = "ESPORTS";
+        }
+        JSONObject login = aeApi.doLoginAndLaunchGame(account, null, platformConfig.getDomainNameConfiguration(), platform, gameType, gameCode, languageCode, null, null,null);
         if (ObjectUtils.isEmpty(login)) {
             log.error("userId:{}，account:{},进AE游戏登录失败,远程请求异常", authId, user.getAccount());
             return ResponseUtil.custom("服务器异常,请重新操作");
