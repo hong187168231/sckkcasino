@@ -53,7 +53,7 @@ public class GameRecordAeJob {
     private PlatformGameService platformGameService;
 
     //每隔2分钟执行一次
-    @Scheduled(cron = "0 0/2 * * * ?")
+//    @Scheduled(cron = "0 0/2 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_AE);
         if (platformGame != null && platformGame.getGameStatus() == 2) {
@@ -211,7 +211,7 @@ public class GameRecordAeJob {
                 business(Constants.PLATFORM_AE, gameRecord, platformConfig);
             } catch (Exception e) {
                 e.printStackTrace();
-                log.error("保存OB体育游戏记录时报错,message={}", e.getMessage());
+                log.error("保存{}游戏记录时报错,message={}", platform,e.getMessage());
             }
         }
     }
