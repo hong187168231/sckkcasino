@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.liveae.constants.AeConfig;
 import com.qianyi.liveae.utils.GenerateSignUtil;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.HttpClient4Util;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -129,7 +130,14 @@ public class PublicAeApi {
         params.put("platform", platform);
         params.put("gameType", gameType);
         params.put("gameCode", gameCode);
-        params.put("betLimit", getBetLimit());
+        Map<String, Object> betLimitMap = new HashMap<>();
+        if (Constants.PLATFORM_AE_HORSEBOOK.equals(platform)) {
+            betLimitMap.put(Constants.PLATFORM_AE_HORSEBOOK, getHorseBookBetLimit());
+            params.put("betLimit", JSON.toJSONString(betLimitMap));
+        } else if (Constants.PLATFORM_AE_SV388.equals(platform)) {
+            betLimitMap.put(Constants.PLATFORM_AE_SV388, getSV388BetLimit());
+            params.put("betLimit", JSON.toJSONString(betLimitMap));
+        }
         if (!ObjectUtils.isEmpty(language)) {
             params.put("language", language);
         }
@@ -312,6 +320,12 @@ public class PublicAeApi {
      */
     public String getBetLimit() {
         Map<String, Object> betLimit = new HashMap<>();
+        betLimit.put(Constants.PLATFORM_AE_HORSEBOOK, getHorseBookBetLimit());
+        betLimit.put(Constants.PLATFORM_AE_SV388, getSV388BetLimit());
+        return JSON.toJSONString(betLimit);
+    }
+
+    public Map<String, Object> getHorseBookBetLimit() {
         Map<String, Object> HORSEBOOK = new HashMap<>();
         Map<String, Object> HORSEBOOK_LIVE = new HashMap<>();
         HORSEBOOK_LIVE.put("minbet", aeConfig.getHORSEBOOK().getMinbet());
@@ -321,8 +335,10 @@ public class PublicAeApi {
         HORSEBOOK_LIVE.put("minorMaxbet", aeConfig.getHORSEBOOK().getMinorMaxbet());
         HORSEBOOK_LIVE.put("minorMaxBetSumPerHorse", aeConfig.getHORSEBOOK().getMinorMaxBetSumPerHorse());
         HORSEBOOK.put("LIVE", HORSEBOOK_LIVE);
-        betLimit.put("HORSEBOOK", HORSEBOOK);
+        return HORSEBOOK;
+    }
 
+    public Map<String, Object> getSV388BetLimit() {
         Map<String, Object> SV388 = new HashMap<>();
         Map<String, Object> SV388_LIVE = new HashMap<>();
         SV388_LIVE.put("minbet", aeConfig.getSV388().getMinbet());
@@ -331,8 +347,7 @@ public class PublicAeApi {
         SV388_LIVE.put("maxdraw", aeConfig.getSV388().getMaxdraw());
         SV388_LIVE.put("matchlimit", aeConfig.getSV388().getMatchlimit());
         SV388.put("LIVE", SV388_LIVE);
-        betLimit.put("SV388", SV388);
-        return JSON.toJSONString(betLimit);
+        return SV388;
     }
 
     private JSONObject analysisResult(String result) {
