@@ -85,8 +85,8 @@ project:   #不同环境需配置相应的值
       maxbet: 500 #最大下注
       maxBetSumPerHorse: 1000 #下注WIN跟PLC總和各的上限值
       minorMinbet: 1  #major = 香港赛事，新加坡赛事，马来西亚赛事 minor = 其他赛事
-      minorMaxbet: 500
-      minorMaxBetSumPerHorse: 1000
+      minorMaxbet: 100
+      minorMaxBetSumPerHorse: 500
     SV388:
       minbet: 1
       maxbet: 5000

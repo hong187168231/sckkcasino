@@ -156,7 +156,7 @@ public class AeGameController {
             account = UUID.randomUUID().toString().replaceAll("-", "");
             if (account.length() > 16) {
                 account = account.substring(0, 16);
-                createMember(account);
+                return createMember(account);
             }
         }
         if (!PublicAeApi.SUCCESS_CODE.equals(status)) {
