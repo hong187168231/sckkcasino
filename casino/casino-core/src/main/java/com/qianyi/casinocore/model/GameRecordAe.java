@@ -13,7 +13,7 @@ import java.math.BigDecimal;
  */
 @Data
 @Entity
-@Table(name ="game_record_ae")
+@Table(name ="game_record_ae",uniqueConstraints={@UniqueConstraint(columnNames={"platform","platformTxId"})})
 @ApiModel("AE游戏记录")
 public class GameRecordAe extends BaseEntity{
 
