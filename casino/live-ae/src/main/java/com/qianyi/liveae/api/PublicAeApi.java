@@ -1,10 +1,13 @@
 package com.qianyi.liveae.api;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.qianyi.liveae.constants.AeConfig;
 import com.qianyi.liveae.utils.GenerateSignUtil;
 import com.qianyi.modulecommon.util.HttpClient4Util;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
@@ -21,14 +24,8 @@ import java.util.TreeMap;
 @Slf4j
 public class PublicAeApi {
 
-    @Value("${project.ae.cert:null}")
-    private String cert;
-    @Value("${project.ae.agentId:null}")
-    private String agentId;
-    @Value("${project.ae.currency:null}")
-    private String currency;
-    @Value("${project.ae.apiUrl:null}")
-    private String apiUrl;
+    @Autowired
+    private AeConfig aeConfig;
 
     public static final String SUCCESS_CODE = "0000";
 
@@ -44,19 +41,7 @@ public class PublicAeApi {
     public JSONObject createMember(String userId, String userName, String language) {
         Map<String, Object> params = getCommonParams();
         params.put("userId", userId);
-        /**
-         * 最小及最大下注限制 minbet/maxbet
-         * 下注WIN跟PLC總和各的上限值 maxBetSumPerHorse
-         * major = 香港赛事，新加坡赛事，马来西亚赛事
-         * minor = 其他赛事
-         *
-         * 最小及最大下注限制maxbet/minbet
-         * TIE的最小及最大下注限制mindraw/maxdraw
-         * 該局總和下注限制matchlimit
-         */
-        params.put("betLimit", "{\"HORSEBOOK\":{\"LIVE\":{\"minbet\":1,\"maxbet\":50,\"maxBetSumPerHorse\":500,\"minorMinbet\":1, \"minorMaxbet\":50, \"minorMaxBetSumPerHorse\":500}},\n" +
-                "\"SV388\":{\"LIVE\":{\"maxbet\":50,\"minbet\":1,\"mindraw\":1,\"matchlimit\":1000,\"maxdraw\":100}}\n" +
-                "}");
+        params.put("betLimit", getBetLimit());
         if (!ObjectUtils.isEmpty(userName)) {
             params.put("userName", userName);
         }
@@ -64,12 +49,11 @@ public class PublicAeApi {
             params.put("language", language);
         }
         log.info("AE创建玩家账号参数{}", params);
-        String url = apiUrl + "/wallet/createMember";
+        String url = aeConfig.getApiUrl() + "/wallet/createMember";
         String result = HttpClient4Util.doPost(url, params);
         log.info("AE创建玩家账号结果{}", result);
         return analysisResult(result);
     }
-
 
     /**
      * 登录
@@ -87,6 +71,7 @@ public class PublicAeApi {
     public JSONObject login(String userId, Long isMobileLogin, String externalURL, String platform, String gameType, String gameForbidden, String language, String betLimit, String autoBetMode) {
         Map<String, Object> params = getCommonParams();
         params.put("userId", userId);
+        params.put("betLimit", getBetLimit());
         if (!ObjectUtils.isEmpty(isMobileLogin)) {
             params.put("isMobileLogin", isMobileLogin);
         }
@@ -112,7 +97,7 @@ public class PublicAeApi {
             params.put("autoBetMode", autoBetMode);
         }
         log.info("AE玩家登录参数{}", params);
-        String url = apiUrl + "/wallet/login";
+        String url = aeConfig.getApiUrl() + "/wallet/login";
         String result = HttpClient4Util.doPost(url, params);
         log.info("AE玩家登录结果{}", result);
         return analysisResult(result);
@@ -157,7 +142,7 @@ public class PublicAeApi {
             params.put("autoBetMode", autoBetMode);
         }
         log.info("AE登入并进入游戏参数{}", params);
-        String url = apiUrl + "/wallet/doLoginAndLaunchGame";
+        String url = aeConfig.getApiUrl() + "/wallet/doLoginAndLaunchGame";
         String result = HttpClient4Util.doPost(url, params);
         log.info("AE登入并进入游戏结果{}", result);
         return analysisResult(result);
@@ -173,7 +158,7 @@ public class PublicAeApi {
         Map<String, Object> params = getCommonParams();
         params.put("userIds", userIds);
         log.info("AE登出玩家参数{}", params);
-        String url = apiUrl + "/wallet/logout";
+        String url = aeConfig.getApiUrl() + "/wallet/logout";
         String result = HttpClient4Util.doPost(url, params);
         log.info("AE登出玩家结果{}", result);
         return analysisResult(result);
@@ -199,7 +184,7 @@ public class PublicAeApi {
             params.put("isFilterBalance", isFilterBalance);
         }
         log.info("AE查询玩家余额参数{}", params);
-        String url = apiUrl + "/wallet/getBalance";
+        String url = aeConfig.getApiUrl() + "/wallet/getBalance";
         String result = HttpClient4Util.doPost(url, params);
         log.info("AE查询玩家余额结果{}", result);
         return analysisResult(result);
@@ -223,7 +208,7 @@ public class PublicAeApi {
             params.put("transferAmount", transferAmount);
         }
         log.info("AE玩家取款参数{}", params);
-        String url = apiUrl + "/wallet/withdraw";
+        String url = aeConfig.getApiUrl() + "/wallet/withdraw";
         String result = HttpClient4Util.doPost(url, params);
         log.info("AE玩家取款结果{}", result);
         return analysisResult(result);
@@ -243,21 +228,22 @@ public class PublicAeApi {
         params.put("txCode", txCode);
         params.put("transferAmount", transferAmount);
         log.info("AE玩家存款参数{}", params);
-        String url = apiUrl + "/wallet/deposit";
+        String url = aeConfig.getApiUrl() + "/wallet/deposit";
         String result = HttpClient4Util.doPost(url, params);
         log.info("AE玩家存款结果{}", result);
         return analysisResult(result);
     }
 
     /**
-     *  捞取所有账目
-     *  最多只能拉取发送时间回推 24 小时内的资料
+     * 捞取所有账目
+     * 最多只能拉取发送时间回推 24 小时内的资料
      * 一次最多可拉 2,000 笔资料
      * Platform 为必填值，API 最快支持 20 秒呼叫一次
      * 捞取资料依交易注单更新时间排序
      * 我方回应格式使用 Content-Encoding: gzip
      * 请接续上次拉账最后一笔「交易更新时间」为搜寻起始时间
      * 注意：若某次取值无资料 或 无更新资料，则将下次取值 timeFrom 设为现在时间的前一分钟
+     *
      * @param timeFrom
      * @param platform
      * @param status
@@ -266,24 +252,24 @@ public class PublicAeApi {
      * @param gameCode
      * @return
      */
-    public JSONObject getTransactionByUpdateDate(String timeFrom, String platform, Integer status,String currency,String gameType,String gameCode) {
+    public JSONObject getTransactionByUpdateDate(String timeFrom, String platform, Integer status, String currency, String gameType, String gameCode) {
         Map<String, Object> params = getCommonParams();
         params.put("timeFrom", timeFrom);
         params.put("platform", platform);
-        if (!ObjectUtils.isEmpty(status)){
+        if (!ObjectUtils.isEmpty(status)) {
             params.put("status", status);
         }
-        if (!ObjectUtils.isEmpty(currency)){
+        if (!ObjectUtils.isEmpty(currency)) {
             params.put("currency", currency);
         }
-        if (!ObjectUtils.isEmpty(gameType)){
+        if (!ObjectUtils.isEmpty(gameType)) {
             params.put("gameType", gameType);
         }
-        if (!ObjectUtils.isEmpty(gameCode)){
+        if (!ObjectUtils.isEmpty(gameCode)) {
             params.put("gameCode", gameCode);
         }
         log.info("AE查询注单参数{}", params);
-        String url = apiUrl + "/fetch/gzip/getTransactionByUpdateDate";
+        String url = aeConfig.getApiUrl() + "/fetch/gzip/getTransactionByUpdateDate";
         String result = HttpClient4Util.doPost(url, params);
         log.info("AE查询注单结果{}", result);
         return analysisResult(result);
@@ -299,7 +285,7 @@ public class PublicAeApi {
         Map<String, Object> params = getCommonParams();
         params.put("txCode", txCode);
         log.info("AE查询转账记录参数{}", params);
-        String url = apiUrl + "/wallet/checkTransferOperation";
+        String url = aeConfig.getApiUrl() + "/wallet/checkTransferOperation";
         String result = HttpClient4Util.doPost(url, params);
         log.info("AE查询转账记录结果{}", result);
         return analysisResult(result);
@@ -307,13 +293,48 @@ public class PublicAeApi {
 
     private Map<String, Object> getCommonParams() {
         Map<String, Object> params = new HashMap<>();
-        params.put("cert", cert);
-        params.put("agentId", agentId);
-        params.put("currency", currency);
+        params.put("cert", aeConfig.getCert());
+        params.put("agentId", aeConfig.getAgentId());
+        params.put("currency", aeConfig.getCurrency());
         return params;
     }
 
-    private JSONObject analysisResult(String result){
+    /**
+     * 最小及最大下注限制 minbet/maxbet
+     * 下注WIN跟PLC總和各的上限值 maxBetSumPerHorse
+     * major = 香港赛事，新加坡赛事，马来西亚赛事
+     * minor = 其他赛事
+     * <p>
+     * 最小及最大下注限制maxbet/minbet
+     * TIE的最小及最大下注限制mindraw/maxdraw
+     * 該局總和下注限制matchlimit
+     */
+    public String getBetLimit() {
+        Map<String, Object> betLimit = new HashMap<>();
+        Map<String, Object> HORSEBOOK = new HashMap<>();
+        Map<String, Object> HORSEBOOK_LIVE = new HashMap<>();
+        HORSEBOOK_LIVE.put("minbet", aeConfig.getHORSEBOOK().getMinbet());
+        HORSEBOOK_LIVE.put("maxbet", aeConfig.getHORSEBOOK().getMaxbet());
+        HORSEBOOK_LIVE.put("maxBetSumPerHorse", aeConfig.getHORSEBOOK().getMaxBetSumPerHorse());
+        HORSEBOOK_LIVE.put("minorMinbet", aeConfig.getHORSEBOOK().getMinorMinbet());
+        HORSEBOOK_LIVE.put("minorMaxbet", aeConfig.getHORSEBOOK().getMinorMaxbet());
+        HORSEBOOK_LIVE.put("minorMaxBetSumPerHorse", aeConfig.getHORSEBOOK().getMinorMaxBetSumPerHorse());
+        HORSEBOOK.put("LIVE", HORSEBOOK_LIVE);
+        betLimit.put("HORSEBOOK", HORSEBOOK);
+
+        Map<String, Object> SV388 = new HashMap<>();
+        Map<String, Object> SV388_LIVE = new HashMap<>();
+        SV388_LIVE.put("minbet", aeConfig.getSV388().getMinbet());
+        SV388_LIVE.put("maxbet", aeConfig.getSV388().getMaxbet());
+        SV388_LIVE.put("mindraw", aeConfig.getSV388().getMindraw());
+        SV388_LIVE.put("maxdraw", aeConfig.getSV388().getMaxdraw());
+        SV388_LIVE.put("matchlimit", aeConfig.getSV388().getMatchlimit());
+        SV388.put("LIVE", SV388_LIVE);
+        betLimit.put("SV388", SV388);
+        return JSON.toJSONString(betLimit);
+    }
+
+    private JSONObject analysisResult(String result) {
         if (ObjectUtils.isEmpty(result)) {
             return null;
         }
@@ -321,7 +342,7 @@ public class PublicAeApi {
             JSONObject jsonObject = JSONObject.parseObject(result);
             return jsonObject;
         } catch (Exception e) {
-            log.error("解析AE据时出错，result={},msg={}", result,e.getMessage());
+            log.error("解析AE据时出错，result={},msg={}", result, e.getMessage());
         }
         return null;
     }

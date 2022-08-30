@@ -80,6 +80,19 @@ project:   #不同环境需配置相应的值
     agentId: kkcasino
     apiUrl: https://tttint.onlinegames22.com
     currency: USD #美元
+    HORSEBOOK:
+      minbet: 1 #最小下注
+      maxbet: 500 #最大下注
+      maxBetSumPerHorse: 1000 #下注WIN跟PLC總和各的上限值
+      minorMinbet: 1  #major = 香港赛事，新加坡赛事，马来西亚赛事 minor = 其他赛事
+      minorMaxbet: 500
+      minorMaxBetSumPerHorse: 1000
+    SV388:
+      minbet: 1
+      maxbet: 5000
+      mindraw: 1      # TIE的最小及最大下注限制mindraw/maxdraw
+      maxdraw: 500
+      matchlimit: 5000     #該局總和下注限制matchlimit
   swagger:
     enable: true                           #是否开启swagger接口文档
   telegramBot:  #定时器执行异常推送消息
