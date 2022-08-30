@@ -72,7 +72,14 @@ public class PublicAeApi {
     public JSONObject login(String userId, Long isMobileLogin, String externalURL, String platform, String gameType, String gameForbidden, String language, String betLimit, String autoBetMode) {
         Map<String, Object> params = getCommonParams();
         params.put("userId", userId);
-        params.put("betLimit", getBetLimit());
+        Map<String, Object> betLimitMap = new HashMap<>();
+        if (Constants.PLATFORM_AE_HORSEBOOK.equals(platform)) {
+            betLimitMap.put(Constants.PLATFORM_AE_HORSEBOOK, getHorseBookBetLimit());
+            params.put("betLimit", JSON.toJSONString(betLimitMap));
+        } else if (Constants.PLATFORM_AE_SV388.equals(platform)) {
+            betLimitMap.put(Constants.PLATFORM_AE_SV388, getSV388BetLimit());
+            params.put("betLimit", JSON.toJSONString(betLimitMap));
+        }
         if (!ObjectUtils.isEmpty(isMobileLogin)) {
             params.put("isMobileLogin", isMobileLogin);
         }
