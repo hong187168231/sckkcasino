@@ -126,12 +126,12 @@ public class GameRecordAe extends BaseEntity{
     private Integer isAdd = 0;
 
     @Transient
-    @ApiModelProperty(value = "新真实返还金额")
-    private BigDecimal newRealWinAmount;
+    @ApiModelProperty(value = "旧真实返还金额")
+    private BigDecimal oldRealWinAmount;
 
     @Transient
-    @ApiModelProperty(value = "新有效下注")
-    private BigDecimal newTurnover;
+    @ApiModelProperty(value = "旧有效下注")
+    private BigDecimal oldTurnover;
 
     public GameRecordAe(){
 

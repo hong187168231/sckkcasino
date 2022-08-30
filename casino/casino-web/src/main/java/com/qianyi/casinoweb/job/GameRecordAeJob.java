@@ -241,6 +241,8 @@ public class GameRecordAeJob {
             gameRecord = new GameRecordAe();
             gameRecord.setIsAdd(1);
         }
+        BigDecimal oldTurnover = gameRecord.getTurnover();
+        BigDecimal oldRealWinAmount = gameRecord.getRealWinAmount();
         //时间转成标准时间格式
         if (!ObjectUtils.isEmpty(gameRecordAeVo.getTxTime())) {
             Date txTime = sdf.parse(gameRecordAeVo.getTxTime());
@@ -278,9 +280,9 @@ public class GameRecordAeJob {
             gameRecord.setThirdProxy(user.getThirdProxy());
         }
         GameRecordAe record = gameRecordAeService.save(gameRecord);
-        //新输赢和有效投注差值
-        record.setNewTurnover(gameRecordAeVo.getTurnover());
-        record.setNewRealWinAmount(gameRecordAeVo.getRealWinAmount());
+        //旧输赢和有效投注差值
+        record.setOldTurnover(oldTurnover);
+        record.setOldRealWinAmount(oldRealWinAmount);
         return record;
     }
 
@@ -308,13 +310,13 @@ public class GameRecordAeJob {
             }
         } else {
             gameRecord.setBet("0");
-            if (item.getTurnover() != null && item.getNewTurnover() != null) {
-                BigDecimal turnover = item.getNewTurnover().subtract(item.getTurnover());
+            if (item.getTurnover() != null && item.getOldTurnover() != null) {
+                BigDecimal turnover = item.getTurnover().subtract(item.getOldTurnover());
                 gameRecord.setValidbet(turnover.toString());
             }
-            if (item.getRealWinAmount() != null && item.getNewRealWinAmount() != null && item.getRealBetAmount() != null) {
-                BigDecimal oldWinLoss = item.getRealWinAmount().subtract(item.getRealBetAmount());
-                BigDecimal newWinLoss = item.getNewRealWinAmount().subtract(item.getRealBetAmount());
+            if (item.getRealWinAmount() != null && item.getOldRealWinAmount() != null && item.getRealBetAmount() != null) {
+                BigDecimal newWinLoss = item.getRealWinAmount().subtract(item.getRealBetAmount());
+                BigDecimal oldWinLoss = item.getOldRealWinAmount().subtract(item.getRealBetAmount());
                 BigDecimal winLoss = newWinLoss.subtract(oldWinLoss);
                 gameRecord.setWinLoss(winLoss.toString());
             }
