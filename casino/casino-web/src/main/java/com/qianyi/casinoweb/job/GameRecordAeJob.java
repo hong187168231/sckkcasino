@@ -52,8 +52,8 @@ public class GameRecordAeJob {
     @Autowired
     private PlatformGameService platformGameService;
 
-    //每隔5分钟执行一次
-    @Scheduled(cron = "0 0/5 * * * ?")
+    //每隔5分钟30秒执行一次
+    @Scheduled(cron = "30 0/5 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_AE);
         if (platformGame != null && platformGame.getGameStatus() == 2) {
