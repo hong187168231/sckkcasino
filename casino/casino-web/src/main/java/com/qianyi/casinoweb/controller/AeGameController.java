@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.util.Locale;
 import java.util.UUID;
 
 @RestController
@@ -77,7 +78,8 @@ public class AeGameController {
             third = userThirdService.findByUserId(authId);
             //未注册自动注册到第三方
             if (third == null || ObjectUtils.isEmpty(third.getAeAccount())) {
-                account = createMember(account);
+                //三方大写都会转成小写
+                account = createMember(account).toLowerCase();
                 if (ObjectUtils.isEmpty(account)) {
                     return ResponseUtil.custom("服务器异常,请重新操作");
                 }
