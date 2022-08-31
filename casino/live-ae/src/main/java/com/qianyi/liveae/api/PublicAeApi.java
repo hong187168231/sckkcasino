@@ -3,20 +3,15 @@ package com.qianyi.liveae.api;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.liveae.constants.AeConfig;
-import com.qianyi.liveae.utils.GenerateSignUtil;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.HttpClient4Util;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * AE https://allwecan.info/api-doc/multi-wallet/PRD#operation/Login
@@ -286,6 +281,50 @@ public class PublicAeApi {
         }
         log.info("AE查询注单参数{}", params);
         String url = aeConfig.getApiUrl() + "/fetch/gzip/getTransactionByUpdateDate";
+        String result = HttpClient4Util.doPost(url, params);
+        log.info("AE查询注单结果{}", result);
+        return analysisResult(result);
+    }
+
+    /**
+     * 若拉帐内容有遗漏，可使用此功能将账目补齐
+     *
+     * 每次最大拉取区间仅可设置为 1 小时
+     * 仅可拉 7 天内的帐
+     * 每次最多可拉 20,000 笔资料
+     * 必须带入 platform 参数。API 最快支持每 20 秒进行一次拉帐
+     * @param startTime
+     * @param endTime
+     * @param platform
+     * @param userId
+     * @param status
+     * @param currency
+     * @param gameType
+     * @param gameCode
+     * @return
+     */
+    public JSONObject getTransactionByTxTime(String startTime, String endTime, String platform, String userId, Integer status, String currency, String gameType, String gameCode) {
+        Map<String, Object> params = getCommonParams();
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        params.put("platform", platform);
+        if (!ObjectUtils.isEmpty(status)) {
+            params.put("status", status);
+        }
+        if (!ObjectUtils.isEmpty(userId)) {
+            params.put("userId", userId);
+        }
+        if (!ObjectUtils.isEmpty(currency)) {
+            params.put("currency", currency);
+        }
+        if (!ObjectUtils.isEmpty(gameType)) {
+            params.put("gameType", gameType);
+        }
+        if (!ObjectUtils.isEmpty(gameCode)) {
+            params.put("gameCode", gameCode);
+        }
+        log.info("AE查询注单参数{}", params);
+        String url = aeConfig.getApiUrl() + "/fetch/gzip/getTransactionByTxTime";
         String result = HttpClient4Util.doPost(url, params);
         log.info("AE查询注单结果{}", result);
         return analysisResult(result);
