@@ -79,7 +79,7 @@ public class AeGameController {
             //未注册自动注册到第三方
             if (third == null || ObjectUtils.isEmpty(third.getAeAccount())) {
                 //三方大写都会转成小写
-                account = createMember(account).toLowerCase();
+                account = createMember(account);
                 if (ObjectUtils.isEmpty(account)) {
                     return ResponseUtil.custom("服务器异常,请重新操作");
                 }
@@ -158,6 +158,7 @@ public class AeGameController {
     }
 
     private String createMember(String account) {
+        account = account.toLowerCase();
         JSONObject jsonObject = aeApi.createMember(account, account, null);
         if (jsonObject == null) {
             log.error("AE注册账号失败,远程请求异常");
@@ -168,7 +169,7 @@ public class AeGameController {
         if ("1001".equals(status)) {
             account = UUID.randomUUID().toString().replaceAll("-", "");
             if (account.length() > 16) {
-                account = account.substring(0, 16);
+                account = account.substring(0, 16).toLowerCase();;
                 return createMember(account);
             }
         }
