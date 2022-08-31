@@ -62,7 +62,7 @@ public class UserMoneyBusiness {
      * @param record
      * @return
      */
-    @Transactional
+    @Transactional(timeout = 60)
     public void subCodeNum(String platform, PlatformConfig platformConfig, GameRecord record) {
         //已经处理过的不需要再次处理
         if (record.getCodeNumStatus() != null && record.getCodeNumStatus() == Constants.yes) {
@@ -138,7 +138,7 @@ public class UserMoneyBusiness {
         }
     }
 
-    @Transactional
+    @Transactional(timeout = 60)
     public void washCode(String platform, GameRecord gameRecord) {
         //已经处理过的不需要再次处理
         if (gameRecord.getWashCodeStatus() != null && gameRecord.getWashCodeStatus() == Constants.yes) {

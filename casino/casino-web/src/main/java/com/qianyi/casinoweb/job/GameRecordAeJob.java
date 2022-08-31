@@ -208,13 +208,16 @@ public class GameRecordAeJob {
 
     public void business(String platform, GameRecordAe gameRecordAe, PlatformConfig platformConfig) {
         //计算用户账号实时余额
-        if (gameRecordAe.getIsAdd() == 1) {
+        Integer isAdd = gameRecordAe.getIsAdd();
+        if (isAdd == 1) {
             gameRecordAsyncOper.changeUserBalance(gameRecordAe.getUserId(), gameRecordAe.getRealBetAmount(), gameRecordAe.getRealWinAmount());
         }
         //组装gameRecord
         GameRecord record = combineGameRecord(gameRecordAe);
         //发送注单消息到MQ后台要统计数据
-        gameRecordAsyncOper.proxyGameRecordReport(gameRecordAe.getPlatform(), record);
+        if (isAdd == 1 || (isAdd == 0 && (!"0".equals(record.getValidbet()) || !"0".equals(record.getBet()) || !"0".equals(record.getWinLoss())))) {
+            gameRecordAsyncOper.proxyGameRecordReport(platform, record);
+        }
         String validbet = record.getValidbet();
         if (record.getIsAdd() != 1 || ObjectUtils.isEmpty(validbet) || new BigDecimal(validbet).compareTo(BigDecimal.ZERO) == 0) {
             return;
