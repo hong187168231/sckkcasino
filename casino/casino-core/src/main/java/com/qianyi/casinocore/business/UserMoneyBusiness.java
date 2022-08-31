@@ -174,7 +174,7 @@ public class UserMoneyBusiness {
             washCodeChange.setValidbet(validbet);
             washCodeChange.setGameRecordId(gameRecord.getId());
             washCodeChangeService.save(washCodeChange);
-            userMoneyService.findUserByUserIdUseLock(userId);
+//            userMoneyService.findUserByUserIdUseLock(userId);
             userMoneyService.addWashCode(userId, washCodeVal);
         }
         if (Constants.PLATFORM_WM.equals(platform)) {
