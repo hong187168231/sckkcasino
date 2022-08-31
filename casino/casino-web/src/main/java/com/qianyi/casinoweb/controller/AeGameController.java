@@ -129,7 +129,6 @@ public class AeGameController {
             thirdGameBusiness.inSaveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, "自动转入AE", Constants.PLATFORM_AE, AccountChangeEnum.AE_IN);
         }
         //开游戏
-        PlatformConfig platformConfig = platformConfigService.findFirst();
         String language = request.getHeader(Constants.LANGUAGE);
         String languageCode = LanguageEnum.getLanguageCode(language);
         String gameType = null;
@@ -144,7 +143,7 @@ public class AeGameController {
             gameCode = "E1-ESPORTS-001";
             gameType = "ESPORTS";
         }
-        JSONObject login = aeApi.doLoginAndLaunchGame(account, null, platformConfig.getDomainNameConfiguration(), platform, gameType, gameCode, languageCode, null, null,null);
+        JSONObject login = aeApi.doLoginAndLaunchGame(account, null, null, platform, gameType, gameCode, languageCode, null, null,null);
         if (ObjectUtils.isEmpty(login)) {
             log.error("userId:{}，account:{},进AE游戏登录失败,远程请求异常", authId, user.getAccount());
             return ResponseUtil.custom("服务器异常,请重新操作");
