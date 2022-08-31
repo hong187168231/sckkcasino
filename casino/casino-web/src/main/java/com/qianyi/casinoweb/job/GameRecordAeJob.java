@@ -214,7 +214,7 @@ public class GameRecordAeJob {
         //组装gameRecord
         GameRecord record = combineGameRecord(gameRecordAe);
         //发送注单消息到MQ后台要统计数据
-        gameRecordAsyncOper.proxyGameRecordReport(platform, record);
+        gameRecordAsyncOper.proxyGameRecordReport(gameRecordAe.getPlatform(), record);
         String validbet = record.getValidbet();
         if (record.getIsAdd() != 1 || ObjectUtils.isEmpty(validbet) || new BigDecimal(validbet).compareTo(BigDecimal.ZERO) == 0) {
             return;
