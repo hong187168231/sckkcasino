@@ -59,7 +59,7 @@ public class UserMoneyService {
 
     private String OB_refreshUrl = "/obdjGame/getBalanceApi?";
 
-    private String AE_refreshUrl = "/aeGame/aeGame/getBalanceApi?";
+    private String AE_refreshUrl = "/aeGame/getBalanceApi?";
 
     private String OB_recycleUrl = "/obdjGame/oneKeyRecoverApi?";
 

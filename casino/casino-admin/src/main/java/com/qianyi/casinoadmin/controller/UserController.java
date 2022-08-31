@@ -548,7 +548,7 @@ public class UserController {
     @GetMapping("refreshAE")
     public ResponseEntity refreshAE(Long id){
         UserThird third = userThirdService.findByUserId(id);
-        if (LoginUtil.checkNull(third) || ObjectUtils.isEmpty(third.getObdjAccount())){
+        if (LoginUtil.checkNull(third) || ObjectUtils.isEmpty(third.getAeAccount())){
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
         JSONObject jsonObject = userMoneyService.refreshAE(id);
