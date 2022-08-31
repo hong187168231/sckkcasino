@@ -613,7 +613,7 @@ public class ThirdGameBusiness {
                 return true;
             }
         }
-        return false;
+        return true;
     }
 
     public ResponseEntity<BigDecimal> getAeBalanceByAccount(String aeAccount) {
