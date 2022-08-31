@@ -12,6 +12,7 @@ import com.qianyi.casinocore.repository.ErrorOrderRepository;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinocore.vo.WmMemberTradeReportVo;
+import com.qianyi.liveae.api.PublicAeApi;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.executor.AsyncService;
@@ -37,6 +38,8 @@ public class SupplementBusiness {
     @Autowired
     private PublicGoldenFApi goldenFApi;
     @Autowired
+    private PublicAeApi aeApi;
+    @Autowired
     private ErrorOrderRepository errorOrderRepository;
     @Autowired
     @Qualifier("accountChangeJob")
@@ -54,7 +57,7 @@ public class SupplementBusiness {
         while (true) {
             try {
                 if (requestNum >= 3) {
-                    log.error("尝试3次补单失败,errorOrder={}", errorOrder.toString());
+                    log.error("WM尝试3次补单失败,errorOrder={}", errorOrder.toString());
                     break;
                 }
                 requestNum++;
@@ -188,6 +191,87 @@ public class SupplementBusiness {
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("查询goldenf交易记录时异常,msg={}", e.getMessage());
+            }
+        }
+    }
+
+    public void tryAeSupplement(ErrorOrder errorOrder, String thirdAccount) {
+        String orderNo = errorOrder.getOrderNo();
+        int requestNum = 0;
+        while (true) {
+            try {
+                if (requestNum >= 3) {
+                    log.error("AE尝试3次补单失败,errorOrder={}", errorOrder.toString());
+                    break;
+                }
+                requestNum++;
+                Thread.sleep(30 * 1000);
+                JSONObject result = aeApi.checkTransferOperation(orderNo);
+                if (result == null) {
+                    log.error("查询AE交易记录时远程请求异常");
+                    continue;
+                }
+                String status = result.getString("status");
+                BigDecimal money = errorOrder.getMoney();
+                Integer orderType = errorOrder.getType();
+                if ("1017".equals(status)) {
+                    log.info("AE订单号:{}查询无记录", orderNo);
+                    //转入AE时，AE查询无记录说明AE加点失败，要把本地的钱加回来，
+                    if (orderType == AccountChangeEnum.AE_IN.getType()) {
+                        //更新错误订单表状态
+                        Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + money.stripTrailingZeros().toPlainString() + ",转入AE时加点失败,加回本地额度");
+                        if (count > 0) {
+                            //加回额度
+                            addMoney(errorOrder.getUserId(), money);
+                            //记录账变
+                            saveAccountChange(errorOrder, money);
+                        }
+                    } else if (orderType == AccountChangeEnum.AE_OUT.getType()) {
+                        //转出AE时，是先扣减AE的钱再加回本地，AE查询无记录说明没有扣点成功，本地也不用把钱加回来,更新状态就行
+                        updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转出AE时扣点失败,额度未丢失");
+                    }
+                    break;
+                }
+                if (!PublicAeApi.SUCCESS_CODE.equals(status)) {
+                    log.info("AE订单号:{}查询交易记录异常,result={}", orderNo, result);
+                    continue;
+                }
+                if (PublicAeApi.SUCCESS_CODE.equals(status)) {
+                    Integer txStatus = result.getInteger("txStatus");
+                    if (txStatus == 1) {
+                        //转入AE,本地先扣减，确认三方加点成功无需加回本地余额
+                        if (orderType == AccountChangeEnum.AE_IN.getType()) {
+                            updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转入AE时加点成功,额度未丢失");
+                        } else if (orderType == AccountChangeEnum.AE_OUT.getType()) {
+                            //转出AE时，三方先扣减，确认三方扣点成功加回本地余额
+                            Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + money.stripTrailingZeros().toPlainString() + ",转出AE时扣点成功,加回本地额度");
+                            if (count > 0) {
+                                //加回额度
+                                addMoney(errorOrder.getUserId(), money);
+                                //记录账变
+                                saveAccountChange(errorOrder, money);
+                            }
+                        }
+                    } else if (txStatus == 0) {
+                        //转入AE,本地先扣减，确认三方加点失败后加回本地余额
+                        if (orderType == AccountChangeEnum.AE_IN.getType()) {
+                            Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + money.stripTrailingZeros().toPlainString() + ",转入AE时加点失败,加回本地额度");
+                            if (count > 0) {
+                                //加回额度
+                                addMoney(errorOrder.getUserId(), money);
+                                //记录账变
+                                saveAccountChange(errorOrder, money);
+                            }
+                            //转出AE时，三方先扣减，确认三方扣点失败无需加回本地余额
+                        } else if (orderType == AccountChangeEnum.AE_OUT.getType()) {
+                            updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转出AE时扣点失败,额度未丢失");
+                        }
+                    }
+                    break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("查询AE交易记录时异常,msg={}", e.getMessage());
             }
         }
     }

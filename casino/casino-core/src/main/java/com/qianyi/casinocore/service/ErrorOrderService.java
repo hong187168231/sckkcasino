@@ -96,8 +96,11 @@ public class ErrorOrderService {
     public void syncSaveErrorOrder(String thirdAccount, Long userId, String account, String orderNo, BigDecimal money, AccountChangeEnum changeEnum, String platform) {
         ErrorOrder order = saveErrorOrder(userId,account,orderNo,money,changeEnum,platform);
         //WM尝试3次补单
-        if (changeEnum.getType() == AccountChangeEnum.WM_IN.getType() || changeEnum.getType() == AccountChangeEnum.RECOVERY.getType()) {
+        Integer type = changeEnum.getType();
+        if (type == AccountChangeEnum.WM_IN.getType() || type == AccountChangeEnum.RECOVERY.getType()) {
             supplementBusiness.tryWMSupplement(order, thirdAccount);
+        } else if (type == AccountChangeEnum.AE_IN.getType() || type == AccountChangeEnum.AE_OUT.getType()) {
+            supplementBusiness.tryAeSupplement(order, thirdAccount);
         }
     }
 
