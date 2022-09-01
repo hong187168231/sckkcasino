@@ -71,7 +71,7 @@ public class UserMoneyBusiness {
         log.info("开始打码,平台={}，注单ID={},注单明细={}", platform, record.getBetId(), record.toString());
         BigDecimal validbet = new BigDecimal(record.getValidbet());
         Long userId = record.getUserId();
-        UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+        UserMoney userMoney = userMoneyService.findByUserId(userId);
         if (userMoney == null || userMoney.getCodeNum() == null) {
             log.error("打码时，userMoney或者userMoney.getCodeNum()为null,userId={}", userId);
             return;
