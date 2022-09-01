@@ -312,6 +312,10 @@ public class UserMoneyBusiness {
         if (platformRate == null) {
             platformRate = BigDecimal.ZERO;
         }
+        if (platformRate.compareTo(BigDecimal.ZERO) == 0) {
+            log.info("平台返利为0，record={}", record.toString());
+            return;
+        }
         platformRate = platformRate.divide(new BigDecimal(100));//转换百分比
         BigDecimal validbet = new BigDecimal(record.getValidbet());
         BigDecimal totalAmount = validbet.multiply(platformRate);
