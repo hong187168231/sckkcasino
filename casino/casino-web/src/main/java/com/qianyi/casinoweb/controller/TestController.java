@@ -1,10 +1,15 @@
 package com.qianyi.casinoweb.controller;
 
+import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.model.GameRecord;
+import com.qianyi.casinocore.model.GameRecordAe;
+import com.qianyi.casinocore.model.PlatformConfig;
+import com.qianyi.casinocore.service.GameRecordAeService;
 import com.qianyi.casinocore.service.GameRecordService;
-import com.qianyi.casinoweb.job.GameRecordAsyncOper;
-import com.qianyi.casinoweb.job.GameRecordObdjJob;
-import com.qianyi.casinoweb.job.GameRecordObtyJob;
+import com.qianyi.casinocore.service.PlatformConfigService;
+import com.qianyi.casinocore.service.UserMoneyService;
+import com.qianyi.casinocore.vo.GameRecordAeSummaryVo;
+import com.qianyi.casinoweb.job.*;
 import com.qianyi.liveob.api.PublicObtyApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
@@ -38,6 +43,10 @@ public class TestController {
     private GameRecordService gameRecordService;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private GameRecordAeService gameRecordAeService;
+    @Autowired
+    private GameRecordAeSupplementJob gameRecordAeSupplementJob;
 
     @GetMapping("sendMq")
     @ApiOperation("批量发送分润MQ")
@@ -83,12 +92,15 @@ public class TestController {
         return ResponseUtil.success();
     }
 
+    @Autowired
+    private PlatformConfigService platformConfigService;
     @GetMapping("requestTest")
     @ApiOperation("请求次数测试")
     @NoAuthentication
-    @ApiImplicitParam(name = "msg", value = "消息", required = true)
-    public ResponseEntity requestTest(String msg) {
-        log.info("请求成功,消息={}", msg);
+//    @ApiImplicitParam(name = "msg", value = "消息", required = true)
+    public ResponseEntity requestTest(Long gameId) {
+        log.info("请求成功,消息={}", gameId);
+        gameRecordAeSupplementJob.pullGameRecord();
         return ResponseUtil.success();
     }
 
