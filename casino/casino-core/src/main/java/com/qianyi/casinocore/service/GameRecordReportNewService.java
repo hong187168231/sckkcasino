@@ -57,6 +57,9 @@ public class GameRecordReportNewService {
     @Autowired
     private WashCodeChangeService washCodeChangeService;
 
+    @Autowired
+    public GameRecordAeService gameRecordAeService;
+
     @Transactional
     public void saveGameRecordReportWM(){
         GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
