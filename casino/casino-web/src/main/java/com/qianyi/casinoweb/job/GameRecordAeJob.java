@@ -322,7 +322,7 @@ public class GameRecordAeJob {
                 gameRecord.setWinLoss(winLoss.toString());
             }
         } else {
-            gameRecord.setBet("0");
+            gameRecord.setBet("0");//经过三方确认下注金额不会更新
             if (item.getTurnover() != null && item.getOldTurnover() != null) {
                 BigDecimal turnover = item.getTurnover().subtract(item.getOldTurnover());
                 gameRecord.setValidbet(turnover.toString());
