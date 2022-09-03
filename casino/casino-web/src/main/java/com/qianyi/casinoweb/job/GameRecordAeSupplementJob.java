@@ -54,8 +54,8 @@ public class GameRecordAeSupplementJob {
             log.info("后台已关闭AE平台,无需对账,platformGame={}", platformGame);
             return;
         }
-        Date startDate = DateUtil.beforeOrAfterHourToNowDate(new Date(), -1);
-        Date endDate = DateUtil.beforeOrAfterHourToNowDate(new Date(), 0);
+        Date startDate = DateUtil.beforeOrAfterHourToNowDate(new Date(), -2);
+        Date endDate = DateUtil.beforeOrAfterHourToNowDate(new Date(), -1);
         String startTime = dateFormat.format(startDate);
         String endTime = dateFormat.format(endDate);
         AdGame adGame = adGamesService.findByGamePlatformNameAndGameCode(Constants.PLATFORM_AE, Constants.PLATFORM_AE_HORSEBOOK);
