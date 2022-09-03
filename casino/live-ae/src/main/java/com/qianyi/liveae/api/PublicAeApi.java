@@ -287,6 +287,39 @@ public class PublicAeApi {
     }
 
     /**
+     * 用来核对 getTransactionByUpdateDate 呼叫的金额总和。您可使用此 API 捞出数据与 getTransactionByUpdateDate 自动核对
+     *
+     * 此API仅可捞取一个小时前的资料，会因每次资料量不同影响系统"计算总和(summary)"的时间
+     * 因此建议您整点后15~20分钟，再拉取一小时前的总和资料
+     * 例如:若您想拉取13:00-14:00的总和资料，建议您可于15:20再进行捞取
+     * 搜寻区间以小时为单位
+     * 注意事项：捞取结果按货币分类
+     * @param platform
+     * @param startTime
+     * @param endTime
+     * @param gameType
+     * @param gameCode
+     * @return
+     */
+    public JSONObject getSummaryByTxTimeHour(String platform, String startTime, String endTime, String gameType, String gameCode) {
+        Map<String, Object> params = getCommonParams();
+        params.put("platform", platform);
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        if (!ObjectUtils.isEmpty(gameType)) {
+            params.put("gameType", gameType);
+        }
+        if (!ObjectUtils.isEmpty(gameCode)) {
+            params.put("gameCode", gameCode);
+        }
+        log.info("AE查询取得区间内交易摘要参数{}", params);
+        String url = aeConfig.getApiUrl() + "/fetch/getSummaryByTxTimeHour";
+        String result = HttpClient4Util.doPost(url, params);
+        log.info("AE查询取得区间内交易摘要结果{}", result);
+        return analysisResult(result);
+    }
+
+    /**
      * 若拉帐内容有遗漏，可使用此功能将账目补齐
      *
      * 每次最大拉取区间仅可设置为 1 小时
@@ -323,10 +356,10 @@ public class PublicAeApi {
         if (!ObjectUtils.isEmpty(gameCode)) {
             params.put("gameCode", gameCode);
         }
-        log.info("AE查询注单参数{}", params);
+        log.info("AE查询注单补账参数{}", params);
         String url = aeConfig.getApiUrl() + "/fetch/gzip/getTransactionByTxTime";
         String result = HttpClient4Util.doPost(url, params);
-        log.info("AE查询注单结果{}", result);
+        log.info("AE查询注单补账结果{}", result);
         return analysisResult(result);
     }
 

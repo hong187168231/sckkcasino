@@ -2,6 +2,7 @@ package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.GameRecordAe;
 import com.qianyi.casinocore.repository.GameRecordAeRepository;
+import com.qianyi.casinocore.vo.GameRecordAeSummaryVo;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -96,5 +97,9 @@ public class GameRecordAeService {
             }
         };
         return specification;
+    }
+
+    public Map<String,String> findSumByPlatformAndTime(String platform, String startTime, String endTime) {
+        return gameRecordAeRepository.findSumByPlatformAndTime(platform,startTime,endTime);
     }
 }

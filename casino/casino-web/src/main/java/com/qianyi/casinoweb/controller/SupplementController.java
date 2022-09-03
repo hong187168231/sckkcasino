@@ -295,6 +295,11 @@ public class SupplementController {
                         log.info("{}时间范围无记录", timeMsg);
                     } else {
                         gameRecordAeJob.saveAll(platform, gameRecords);
+                        if (gameRecords.size() == 2000) {
+                            GameRecordAeVo gameRecordAeVo = gameRecords.get(gameRecords.size() - 1);
+                            String updateTime = gameRecordAeVo.getUpdateTime();
+                            getDateTimeAeReport(platform,updateTime,endTime);
+                        }
                         log.info("{}游戏记录补单完成", timeMsg);
                     }
                 }

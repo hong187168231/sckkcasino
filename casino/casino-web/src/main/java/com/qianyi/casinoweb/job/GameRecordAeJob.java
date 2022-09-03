@@ -182,6 +182,13 @@ public class GameRecordAeJob {
         return sdf.format(before);
     }
 
+    @SneakyThrows
+    public static void main(String[] args) {
+        SimpleDateFormat df = DateUtil.getSimpleDateFormat();
+        Date parse = df.parse("2022-09-01 12:00:00");
+        String format = sdf.format(parse);
+        System.out.println(format);
+    }
 
     public void saveAll(String platform, List<GameRecordAeVo> gameRecordList) {
         if (CollectionUtils.isEmpty(gameRecordList)) {
@@ -291,7 +298,7 @@ public class GameRecordAeJob {
         return record;
     }
 
-    private GameRecord combineGameRecord(GameRecordAe item) {
+    public GameRecord combineGameRecord(GameRecordAe item) {
         GameRecord gameRecord = new GameRecord();
         gameRecord.setBetId(item.getPlatformTxId());
         gameRecord.setUserId(item.getUserId());

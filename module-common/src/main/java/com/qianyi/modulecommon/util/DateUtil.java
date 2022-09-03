@@ -1,5 +1,7 @@
 package com.qianyi.modulecommon.util;
 
+import lombok.SneakyThrows;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -68,6 +70,11 @@ public class DateUtil {
     public static Date getDate(String patten) throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat(patten1); //定义将日期格式要换成的格式
         return formatter.parse(patten);
+    }
+
+    public static Date getDatePatten(String str) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat(patten); //定义将日期格式要换成的格式
+        return formatter.parse(str);
     }
 
     public static Date getYesterday(){
@@ -288,10 +295,32 @@ public class DateUtil {
         return time;
     }
 
+    public static void main(String[] args) {
+        Date date = new Date();
+        Calendar now = Calendar.getInstance();
+        now.setTime(date);
+        now.add(Calendar.MINUTE, -1);
+        Date afterFiveMin = now.getTime();
+        String dateTime = getSimpleDateFormat().format(afterFiveMin);
+        System.out.println(dateTime);
+    }
     /**
      * 相差小时数计算
      */
     public static int differentDaysByMillisecond(Date date1, Date date2) {
         return Math.abs((int) ((date2.getTime() - date1.getTime()) / (1000 * 3600)));
+    }
+
+    /**
+     * 获取当前时间前后几小时的时间
+     * @param date
+     * @return java.util.Date
+     */
+    public static Date beforeOrAfterHourToNowDate(Date date,int num) {
+        Calendar calendar = Calendar.getInstance();
+        /* HOUR_OF_DAY 指示一天中的小时 */
+        calendar.setTime(date);
+        calendar.add(Calendar.HOUR_OF_DAY, num);
+        return calendar.getTime();
     }
 }
