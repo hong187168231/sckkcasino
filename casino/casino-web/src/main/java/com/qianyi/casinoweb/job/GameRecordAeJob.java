@@ -222,7 +222,7 @@ public class GameRecordAeJob {
         //组装gameRecord
         GameRecord record = combineGameRecord(gameRecordAe);
         //发送注单消息到MQ后台要统计数据
-        if (isAdd == 1 || (isAdd == 0 && (!"0".equals(record.getValidbet()) || !"0".equals(record.getBet()) || !"0".equals(record.getWinLoss())))) {
+        if (isAdd == 1 || (isAdd == 0 && (BigDecimal.ZERO.compareTo(new BigDecimal(record.getValidbet())) != 0 || BigDecimal.ZERO.compareTo(new BigDecimal(record.getBet())) != 0 || BigDecimal.ZERO.compareTo(new BigDecimal(record.getWinLoss())) != 0))) {
             gameRecordAsyncOper.proxyGameRecordReport(platform, record);
         }
         String validbet = record.getValidbet();

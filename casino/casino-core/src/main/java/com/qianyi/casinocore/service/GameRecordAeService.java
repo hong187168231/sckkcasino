@@ -99,7 +99,7 @@ public class GameRecordAeService {
         return specification;
     }
 
-    public Map<String,String> findSumByPlatformAndTime(String platform, String startTime, String endTime) {
+    public Map<String,Object> findSumByPlatformAndTime(String platform, String startTime, String endTime) {
         return gameRecordAeRepository.findSumByPlatformAndTime(platform,startTime,endTime);
     }
 }

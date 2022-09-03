@@ -91,10 +91,10 @@ public class GameRecordAeSupplementJob {
         String time = startTime + "~" + endTime;
         try {
             log.info("开始核对{},{}的注单记录", platform, time);
-            boolean sumData = compareSumData(startTime, endTime, platform);
-            log.info("注单核对结果,platform={},time={}", platform, time);
+            boolean sumDataResult = compareSumData(startTime, endTime, platform);
+            log.info("注单核对结果,platform={},time={},result={}", platform, time, sumDataResult);
             //存在数据差异，补单
-            if (sumData) {
+            if (sumDataResult) {
                 Date startDateTime = dateFormat.parse(startTime);
                 Date endDateTime = dateFormat.parse(endTime);
                 String startTime1 = dateTimeFormat.format(startDateTime);
@@ -135,39 +135,39 @@ public class GameRecordAeSupplementJob {
         SimpleDateFormat sdf = DateUtil.getSimpleDateFormat();
         String startTime1 = sdf.format(startDateTime);
         String endTime1 = sdf.format(endDateTime);
-        Map<String, String> summaryVo = gameRecordAeService.findSumByPlatformAndTime(platform, startTime1, endTime1);
+        Map<String, Object> summaryVo = gameRecordAeService.findSumByPlatformAndTime(platform, startTime1, endTime1);
         if (CollectionUtils.isEmpty(summaryVo)) {
             return true;
         }
-        BigDecimal turnover = new BigDecimal(summaryVo.get("turnover"));
+        BigDecimal turnover = new BigDecimal(summaryVo.get("turnover").toString());
         if (aeSummaryVo.getTurnover().compareTo(turnover) != 0) {
             return true;
         }
-        Integer betCount = Integer.parseInt(summaryVo.get("betCount"));
+        Integer betCount = Integer.parseInt(summaryVo.get("betCount").toString());
         if (aeSummaryVo.getBetCount() != betCount) {
             return true;
         }
-        BigDecimal betAmount = new BigDecimal(summaryVo.get("betAmount"));
+        BigDecimal betAmount = new BigDecimal(summaryVo.get("betAmount").toString());
         if (aeSummaryVo.getBetAmount().compareTo(betAmount) != 0) {
             return true;
         }
-        BigDecimal winAmount = new BigDecimal(summaryVo.get("winAmount"));
+        BigDecimal winAmount = new BigDecimal(summaryVo.get("winAmount").toString());
         if (aeSummaryVo.getWinAmount().compareTo(winAmount) != 0) {
             return true;
         }
-        BigDecimal realWinAmount = new BigDecimal(summaryVo.get("realWinAmount"));
+        BigDecimal realWinAmount = new BigDecimal(summaryVo.get("realWinAmount").toString());
         if (aeSummaryVo.getRealWinAmount().compareTo(realWinAmount) != 0) {
             return true;
         }
-        BigDecimal realBetAmount = new BigDecimal(summaryVo.get("realBetAmount"));
+        BigDecimal realBetAmount = new BigDecimal(summaryVo.get("realBetAmount").toString());
         if (aeSummaryVo.getRealBetAmount().compareTo(realBetAmount) != 0) {
             return true;
         }
-        BigDecimal jackpotBetAmount = new BigDecimal(summaryVo.get("jackpotBetAmount"));
+        BigDecimal jackpotBetAmount = new BigDecimal(summaryVo.get("jackpotBetAmount").toString());
         if (aeSummaryVo.getJackpotBetAmount().compareTo(jackpotBetAmount) != 0) {
             return true;
         }
-        BigDecimal jackpotWinAmount = new BigDecimal(summaryVo.get("jackpotWinAmount"));
+        BigDecimal jackpotWinAmount = new BigDecimal(summaryVo.get("jackpotWinAmount").toString());
         if (aeSummaryVo.getJackpotWinAmount().compareTo(jackpotWinAmount) != 0) {
             return true;
         }

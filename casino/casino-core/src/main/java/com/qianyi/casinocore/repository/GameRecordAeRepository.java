@@ -62,7 +62,7 @@ public interface GameRecordAeRepository extends JpaRepository<GameRecordAe, Long
 
     @Query(value = "SELECT IFNULL(sum(turnover),0) turnover,count(1) betCount,IFNULL(sum(bet_amount),0) betAmount,IFNULL(sum(win_Amount),0) winAmount,\n" +
             "IFNULL(sum(real_Win_Amount),0) realWinAmount,IFNULL(sum(real_Bet_Amount),0) realBetAmount,\n" +
-            "IFNULL(sum(jackpot_Bet_Amount),0) jackpotBetAmountfrom ,IFNULL(sum(jackpot_Win_Amount),0) jackpotWinAmount \n" +
+            "IFNULL(sum(jackpot_Bet_Amount),0) jackpotBetAmount ,IFNULL(sum(jackpot_Win_Amount),0) jackpotWinAmount \n" +
             "from game_record_ae where platform=?1 and bet_time BETWEEN ?2 and ?3",nativeQuery = true)
-    Map<String,String> findSumByPlatformAndTime(String platform, String startTime, String endTime);
+    Map<String,Object> findSumByPlatformAndTime(String platform, String startTime, String endTime);
 }
