@@ -243,7 +243,7 @@ public class UserThirdController {
                 jsonObject.put("thirdAccount",userThird.getObtyAccount());
                 jsonObject.put("platform",Constants.PLATFORM_OBTY);
                 json.add(jsonObject);
-            }else if(platform.equals(Constants.PLATFORM_OBTY)){
+            }else if(platform.equals(Constants.PLATFORM_AE)){
                 userThird =  userThirdService.findByAEAccount(userAccount);
                 if (LoginUtil.checkNull(userThird)){
                     return ResponseUtil.success();
