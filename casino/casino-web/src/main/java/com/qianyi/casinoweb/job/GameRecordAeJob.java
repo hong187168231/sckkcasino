@@ -229,16 +229,18 @@ public class GameRecordAeJob {
         if (record.getIsAdd() != 1 || ObjectUtils.isEmpty(validbet) || new BigDecimal(validbet).compareTo(BigDecimal.ZERO) == 0) {
             return;
         }
-        //洗码
-        gameRecordAsyncOper.washCode(platform, record);
-        // 抽点
-        gameRecordAsyncOper.extractPoints(platform, record);
-        //扣减打码量
-        gameRecordAsyncOper.subCodeNum(platform, platformConfig, record);
-        //代理分润
-        gameRecordAsyncOper.shareProfit(platform, record);
-        //返利
-        gameRecordAsyncOper.rebate(platform, record);
+        if (isAdd == 1) {
+            //洗码
+            gameRecordAsyncOper.washCode(platform, record);
+            // 抽点
+            gameRecordAsyncOper.extractPoints(platform, record);
+            //扣减打码量
+            gameRecordAsyncOper.subCodeNum(platform, platformConfig, record);
+            //代理分润
+            gameRecordAsyncOper.shareProfit(platform, record);
+            //返利
+            gameRecordAsyncOper.rebate(platform, record);
+        }
     }
 
     @SneakyThrows
