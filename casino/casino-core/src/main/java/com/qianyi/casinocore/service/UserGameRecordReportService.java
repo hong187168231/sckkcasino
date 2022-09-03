@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +33,13 @@ public class UserGameRecordReportService {
             betAmount, platform);
     }
 
+    @Transactional
+    public void updateBet(Long gameRecordReportId, Long userId, String orderTimes, BigDecimal validAmount,
+        BigDecimal winLoss, BigDecimal betAmount, String platform) {
+        userGameRecordReportRepository.updateBet(gameRecordReportId, userId, orderTimes, validAmount, winLoss,
+            betAmount, platform);
+    }
+
     public UserGameRecordReport save(UserGameRecordReport userGameRecordReport) {
         return userGameRecordReportRepository.save(userGameRecordReport);
     }
@@ -48,12 +56,18 @@ public class UserGameRecordReportService {
         return userGameRecordReportRepository.findTotalBetNumber(startTime, endTime);
     }
 
+    public Integer findTotalBetNumberByAe(String startTime,String endTime){
+        return userGameRecordReportRepository.findTotalBetNumberByAe(startTime,endTime);
+    }
+
     @Transactional
     public void comparison(String dayTime) {// dayTime为一天yyyy-MM-dd
         String startTime = dayTime + start;
         String endTime = dayTime + end;
         Integer betNumber = userGameRecordReportRepository.findBetNumber(dayTime, dayTime);
         Integer totalBetNumber = this.findTotalBetNumber(startTime, endTime);
+        Integer totalBetNumberByAe = this.findTotalBetNumberByAe(startTime, endTime);
+        totalBetNumber = totalBetNumber + totalBetNumberByAe;
         if (betNumber.intValue() != totalBetNumber.intValue()) {
             log.error("会员报表日期{}不相等开始重新计算betNumber:{}totalBetNumber:{}", dayTime, betNumber, totalBetNumber);
             userGameRecordReportRepository.deleteByOrderTimes(dayTime);
@@ -72,6 +86,18 @@ public class UserGameRecordReportService {
 
             List<Map<String, Object>> obty = userGameRecordReportRepository.findObty(startTime, endTime);
             this.addData(obty, dayTime, Constants.PLATFORM_OBTY);
+
+            //            List<Map<String, Object>> HORSEBOOK = userGameRecordReportRepository.findAe(startTime, endTime, Constants.PLATFORM_AE_HORSEBOOK);
+            //            this.addData(HORSEBOOK, dayTime, Constants.PLATFORM_AE_HORSEBOOK);
+            //
+            //            List<Map<String, Object>> SV388 = userGameRecordReportRepository.findAe(startTime, endTime, Constants.PLATFORM_AE_SV388);
+            //            this.addData(SV388, dayTime, Constants.PLATFORM_AE_SV388);
+            //
+            //            List<Map<String, Object>> E1SPORT = userGameRecordReportRepository.findAe(startTime, endTime, Constants.PLATFORM_AE_E1SPORT);
+            //            this.addData(E1SPORT, dayTime, Constants.PLATFORM_AE_E1SPORT);
+
+            List<Map<String, Object>> AE = userGameRecordReportRepository.findAe(startTime, endTime);
+            this.addData(AE, dayTime, Constants.PLATFORM_AE);
         }
     }
 
@@ -94,6 +120,8 @@ public class UserGameRecordReportService {
                     Long userGameRecordReportId = CommonUtil.toHash(
                         dayTime + userGameRecordReport.getUserId().toString() + userGameRecordReport.getPlatform());
                     userGameRecordReport.setUserGameRecordReportId(userGameRecordReportId);
+                    userGameRecordReport.setCreateTime(new Date());
+                    userGameRecordReport.setUpdateTime(new Date());
                     this.save(userGameRecordReport);
                 });
                 listMap.clear();

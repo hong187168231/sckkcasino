@@ -115,6 +115,20 @@ public class PlatformGameController {
         return ResponseUtil.success();
     }
 
+    @GetMapping("/platformListAE")
+    @ApiOperation("平台列表AE")
+    public ResponseEntity<PlatformGame> platformListAE() {
+        List<PlatformGame> platformGames =  platformGameService.findAll();
+        if(platformGames != null && !platformGames.isEmpty()){
+            for (PlatformGame platformGame : platformGames) {
+                if(platformGame.getGamePlatformName().equals(Constants.PLATFORM_AE)){
+                    return ResponseUtil.success(platformGame);
+                }
+            }
+        }
+        return ResponseUtil.success();
+    }
+
     @ApiOperation("三方平台维护")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "id", value = "id", required = true),

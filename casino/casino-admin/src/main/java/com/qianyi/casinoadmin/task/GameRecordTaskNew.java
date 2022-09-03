@@ -39,7 +39,7 @@ public class GameRecordTaskNew {
         gameRecordReportService.saveGameRecordReportOBDJ();
         gameRecordReportService.saveGameRecordReportOBTY();
         gameRecordReportService.saveGameRecordReportSABASPORT();
-
+        gameRecordReportService.saveGameRecordReportAE();
         this.statisticsWashCode();
         log.info("每小时报表统计结束end=============================================》");
     }
@@ -69,5 +69,6 @@ public class GameRecordTaskNew {
         gameRecordReportService.statisticsWashCode(Constants.PLATFORM_OBDJ,Constants.PLATFORM_OBDJ,staticsTimes,startTime,endTime);
         gameRecordReportService.statisticsWashCode(Constants.PLATFORM_OBTY,Constants.PLATFORM_OBTY,staticsTimes,startTime,endTime);
         gameRecordReportService.statisticsWashCode(Constants.PLATFORM_SABASPORT,Constants.PLATFORM_SABASPORT,staticsTimes,startTime,endTime);
+        gameRecordReportService.statisticsWashCode(Constants.PLATFORM_AE,Constants.PLATFORM_AE,staticsTimes,startTime,endTime);
     }
 }

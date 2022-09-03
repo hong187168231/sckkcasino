@@ -23,9 +23,12 @@ public class LevelProxyDayReportBusiness {
      */
     public void processReport(ShareProfitBO shareProfitBO){
         ProxyDayReport proxyDayReport = getProxyDayReport(shareProfitBO);
-        proxyDayReport.setProfitAmount(proxyDayReport.getProfitAmount().add(shareProfitBO.getProfitAmount()));
-        proxyDayReport.setBetAmount(proxyDayReport.getBetAmount().add(shareProfitBO.getBetAmount()));
-        proxyDayReportService.save(proxyDayReport);
+        //        proxyDayReport.setProfitAmount(proxyDayReport.getProfitAmount().add(shareProfitBO.getProfitAmount()));
+        //        proxyDayReport.setBetAmount(proxyDayReport.getBetAmount().add(shareProfitBO.getBetAmount()));
+        log.info("处理日报表id{} ProxyDayReport========================》:{}",proxyDayReport.getId(),proxyDayReport.toString());
+        //        proxyDayReport = proxyDayReportService.save(proxyDayReport);
+        //        log.info("处理日报表ProxyDayReport========================》:{}",proxyDayReport.toString());
+        proxyDayReportService.updateProxyDayReport(shareProfitBO.getUserId(),shareProfitBO.getProfitAmount(),shareProfitBO.getBetAmount(),shareProfitBO.getBetTime());
     }
 
     private ProxyDayReport getProxyDayReport(ShareProfitBO shareProfitBO) {
@@ -42,6 +45,7 @@ public class LevelProxyDayReportBusiness {
     private ProxyDayReport getProxyDayReport(Long userId,String dayTime) {
         log.info("getProxyDayReport user id is {}, dayTIme is {}",userId, dayTime);
         ProxyDayReport proxyDayReport = proxyDayReportService.findByUserIdAndDay(userId,dayTime);
+        log.info("处理日报表查询ProxyDayReport========================》:{}",proxyDayReport);
         if(proxyDayReport == null)
             buildProxyDayReport(userId,dayTime);
         return proxyDayReportService.findByUserIdAndDay(userId,dayTime);

@@ -15,10 +15,17 @@ public interface UserGameRecordReportRepository extends JpaRepository<UserGameRe
 
     @Modifying
     @Query(value = "INSERT INTO user_game_record_report (user_game_record_report_id,user_id,order_times,valid_amount,win_loss,"
-        + "betting_number,bet_amount,platform) " +
-        "VALUES (?1,?2,?3,?4,?5,1,?6,?7) ON DUPLICATE KEY UPDATE valid_amount=valid_amount + ?4,"
-        + "win_loss=win_loss + ?5,betting_number = betting_number +1,bet_amount=bet_amount + ?6 ;",nativeQuery = true)
+        + "betting_number,bet_amount,platform,create_time,update_time) " +
+        "VALUES (?1,?2,?3,?4,?5,1,?6,?7,NOW(),NOW()) ON DUPLICATE KEY UPDATE valid_amount=valid_amount + ?4,"
+        + "win_loss=win_loss + ?5,betting_number = betting_number +1,bet_amount=bet_amount + ?6,update_time = NOW() ;",nativeQuery = true)
     void updateKey(Long gameRecordReportId,Long userId,String orderTimes, BigDecimal validAmount,BigDecimal winLoss,BigDecimal betAmount,String platform);
+
+    @Modifying
+    @Query(value = "INSERT INTO user_game_record_report (user_game_record_report_id,user_id,order_times,valid_amount,win_loss,"
+        + "betting_number,bet_amount,platform,create_time,update_time) " +
+        "VALUES (?1,?2,?3,?4,?5,0,?6,?7,NOW(),NOW()) ON DUPLICATE KEY UPDATE valid_amount=valid_amount + ?4,"
+        + "win_loss=win_loss + ?5,bet_amount=bet_amount + ?6,update_time = NOW() ;",nativeQuery = true)
+    void updateBet(Long gameRecordReportId,Long userId,String orderTimes, BigDecimal validAmount,BigDecimal winLoss,BigDecimal betAmount,String platform);
 
     @Query(value = "select u.user_id userId,SUM(u.valid_amount) validbet from user_game_record_report u where u.order_times >= ?1 and u.order_times <= ?2 GROUP BY u.user_id;",nativeQuery = true)
     List<Map<String, Object>> sumUserRunningWater(String startTime,String endTime);
@@ -47,6 +54,9 @@ public interface UserGameRecordReportRepository extends JpaRepository<UserGameRe
         + "ON u.id = grobty_t.user_id;",nativeQuery = true)
     Integer findTotalBetNumber(String startTime,String endTime);
 
+    @Query(value = "SELECT count( 1 ) num from game_record_ae g where g.tx_status = 1 and g.bet_time BETWEEN ?1 and ?2 ;",nativeQuery = true)
+    Integer findTotalBetNumberByAe(String startTime,String endTime);
+
     @Query(value = "select user_id user_id, count(1) num,sum(bet) bet_amount,sum(validbet) validbet ,sum(win_loss) win_loss from "
         + "game_record gr where bet_time >= ?1 and bet_time <= ?2 group by user_id ;",nativeQuery = true)
     List<Map<String, Object>> findWm(String startTime,String endTime);
@@ -71,6 +81,14 @@ public interface UserGameRecordReportRepository extends JpaRepository<UserGameRe
         + "where bet_status in (5,6,8,9,10) and set_str_time >= ?1 and set_str_time <= ?2"
         + " group by user_id ;",nativeQuery = true)
     List<Map<String, Object>> findObdj(String startTime,String endTime);
+
+    @Query(value = "select user_id user_id,count(1) num,sum(bet_amount) bet_amount,sum(turnover) validbet,sum(real_win_amount-real_bet_amount) win_loss from game_record_ae g "
+        + "where g.tx_status = 1 and g.platform = ?3 and bet_time >= ?1 and bet_time <= ?2 group by user_id ;",nativeQuery = true)
+    List<Map<String, Object>> findAe(String startTime,String endTime,String platform);
+
+    @Query(value = "select user_id user_id,count(1) num,sum(bet_amount) bet_amount,sum(turnover) validbet,sum(real_win_amount-real_bet_amount) win_loss from game_record_ae g "
+        + "where g.tx_status = 1 and bet_time >= ?1 and bet_time <= ?2 group by user_id ;",nativeQuery = true)
+    List<Map<String, Object>> findAe(String startTime,String endTime);
 
     @Modifying
     @Query(value = "DELETE from user_game_record_report where platform = ?1 ;",nativeQuery = true)

@@ -54,6 +54,7 @@ public class ComputerGameRecordReportNew implements CommandLineRunner {
                 gameRecordReportService.statisticsWashCode(Constants.PLATFORM_OBDJ, Constants.PLATFORM_OBDJ,today+staticsTimesEnd,today+start,tomorrow+end);
                 gameRecordReportService.statisticsWashCode(Constants.PLATFORM_OBTY, Constants.PLATFORM_OBTY,today+staticsTimesEnd,today+start,tomorrow+end);
                 gameRecordReportService.statisticsWashCode(Constants.PLATFORM_SABASPORT, Constants.PLATFORM_SABASPORT,today+staticsTimesEnd,today+start,tomorrow+end);
+                gameRecordReportService.statisticsWashCode(Constants.PLATFORM_AE, Constants.PLATFORM_AE,today+staticsTimesEnd,today+start,tomorrow+end);
             } catch (ParseException e) {
                 log.error("初始化代理游戏报表失败{}",v);
             }

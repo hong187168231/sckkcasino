@@ -36,6 +36,20 @@ public class CommonController {
     @Autowired
     private MessageUtil messageUtil;
 
+    public static final List<String> platformsReport = new ArrayList<>();
+
+    static {
+        platformsReport.add(Constants.PLATFORM_WM_BIG);
+        platformsReport.add(Constants.PLATFORM_PG);
+        platformsReport.add(Constants.PLATFORM_CQ9);
+        platformsReport.add(Constants.PLATFORM_OBDJ);
+        platformsReport.add(Constants.PLATFORM_OBTY);
+        platformsReport.add(Constants.PLATFORM_SABASPORT);
+        platformsReport.add(Constants.PLATFORM_AE_HORSEBOOK);
+        platformsReport.add(Constants.PLATFORM_AE_SV388);
+        platformsReport.add(Constants.PLATFORM_AE_E1SPORT);
+    }
+
     public static final List<String> platforms = new ArrayList<>();
 
     static {
@@ -45,6 +59,7 @@ public class CommonController {
         platforms.add(Constants.PLATFORM_OBDJ);
         platforms.add(Constants.PLATFORM_OBTY);
         platforms.add(Constants.PLATFORM_SABASPORT);
+        platforms.add(Constants.PLATFORM_AE);
     }
 
     @ApiOperation("查询公司列表下拉框")
@@ -68,6 +83,13 @@ public class CommonController {
     @NoAuthorization
     public ResponseEntity getData() {
         return ResponseUtil.success(platforms);
+    }
+
+    @ApiOperation("查询平台列表(报表)")
+    @GetMapping("/getReportData")
+    @NoAuthorization
+    public ResponseEntity getReportData() {
+        return ResponseUtil.success(platformsReport);
     }
 
     @ApiOperation("查询账变类型")

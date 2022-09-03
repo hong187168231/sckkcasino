@@ -43,6 +43,11 @@ public class ProxyGameRecordReportService {
         proxyGameRecordReportRepository.updateKey(gameRecordReportId,userId,orderTimes,validAmount,winLoss,firstProxy,secondProxy,thirdProxy,betAmount);
     }
 
+    @Transactional
+    public void updateBet(Long gameRecordReportId,Long userId,String orderTimes, BigDecimal validAmount,BigDecimal winLoss,Long firstProxy,Long secondProxy,Long thirdProxy,BigDecimal betAmount){
+        proxyGameRecordReportRepository.updateBet(gameRecordReportId,userId,orderTimes,validAmount,winLoss,firstProxy,secondProxy,thirdProxy,betAmount);
+    }
+
     public Map<String, Object> findSumBetAndWinLossByFirst(String startTime,String endTime,Long firstProxy){
         return proxyGameRecordReportRepository.findSumBetAndWinLossByFirst(startTime,endTime,firstProxy);
     }
@@ -96,6 +101,8 @@ public class ProxyGameRecordReportService {
         String endTime = tomorrow + end;
         Integer betNumber = proxyGameRecordReportRepository.findBetNumber(dayTime, dayTime);
         Integer totalBetNumber = userGameRecordReportService.findTotalBetNumber(startTime, endTime);
+        Integer totalBetNumberByAe = userGameRecordReportService.findTotalBetNumberByAe(startTime, endTime);
+        totalBetNumber = totalBetNumber + totalBetNumberByAe;
         if (betNumber.intValue() != totalBetNumber.intValue()) {
             log.error("代理报表日期{}不相等开始重新计算betNumber:{}totalBetNumber:{}", dayTime, betNumber, totalBetNumber);
             proxyGameRecordReportRepository.deleteByOrderTimes(dayTime);
@@ -127,6 +134,8 @@ public class ProxyGameRecordReportService {
                         proxyGameRecordReport.setWinLoss(new BigDecimal(map.get("win_loss").toString()));
                         Long proxyGameRecordReportId =  CommonUtil.toHash(dayTime+proxyGameRecordReport.getUserId().toString());
                         proxyGameRecordReport.setProxyGameRecordReportId(proxyGameRecordReportId);
+                        proxyGameRecordReport.setCreateTime(new Date());
+                        proxyGameRecordReport.setUpdateTime(new Date());
                         this.save(proxyGameRecordReport);
                     });
                     totalMap.clear();

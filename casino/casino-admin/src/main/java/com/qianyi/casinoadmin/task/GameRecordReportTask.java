@@ -1,10 +1,7 @@
 package com.qianyi.casinoadmin.task;
 
 import com.qianyi.casinocore.business.ProxyGameRecordReportBusiness;
-import com.qianyi.casinocore.model.GameRecord;
-import com.qianyi.casinocore.model.GameRecordGoldenF;
-import com.qianyi.casinocore.model.GameRecordObdj;
-import com.qianyi.casinocore.model.GameRecordObty;
+import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.casinocore.util.TaskConst;
@@ -39,6 +36,9 @@ public class GameRecordReportTask {
 
     @Autowired
     private GameRecordGoldenFService gameRecordGoldenFService;
+
+    @Autowired
+    private GameRecordAeService gameRecordAeService;
 
     public static final List<Integer> betStatus = new ArrayList<>();
 
@@ -140,6 +140,14 @@ public class GameRecordReportTask {
         List<GameRecordObty> gameRecordObtys = gameRecordObtyService.findGameRecord(gameRecordObty, startTime, endTime);
         if (gameRecordObtys != null && gameRecordObtys.size() >= 1) {
             proxyGameRecordReportVos = assemblyGameRecordObty(proxyGameRecordReportVos, gameRecordObtys);
+        }
+
+        GameRecordAe gameRecordAe = new GameRecordAe();
+        gameRecordAe.setTxStatus(1);
+        gameRecordAe.setGameRecordStatus(0);
+        List<GameRecordAe> gameRecordAes = gameRecordAeService.findGameRecordAe(gameRecordAe, startTime, endTime);
+        if (gameRecordAes != null && gameRecordAes.size() >= 1) {
+            proxyGameRecordReportVos = assemblyGameRecordAe(proxyGameRecordReportVos, gameRecordAes);
         }
 
         if (proxyGameRecordReportVos.size() >= 1) {
@@ -254,6 +262,35 @@ public class GameRecordReportTask {
             }
         } catch (Exception ex) {
             log.error("组装OBTY注单异常{}", ex);
+        }
+
+        return proxyGameRecordReportVos;
+    }
+
+    private List<ProxyGameRecordReportVo> assemblyGameRecordAe(List<ProxyGameRecordReportVo> proxyGameRecordReportVos,
+        List<GameRecordAe> gameRecordAes) {
+        try {
+            for (GameRecordAe gameRecordAe : gameRecordAes) {
+                ProxyGameRecordReportVo vo = new ProxyGameRecordReportVo();
+                vo.setGameRecordId(gameRecordAe.getId());
+                vo.setOrderId(gameRecordAe.getPlatformTxId());
+                vo.setFirstProxy(gameRecordAe.getFirstProxy());
+                vo.setSecondProxy(gameRecordAe.getSecondProxy());
+                vo.setThirdProxy(gameRecordAe.getThirdProxy());
+                vo.setOrderTimes(gameRecordAe.getBetTime());
+                vo.setUserId(gameRecordAe.getUserId());
+                vo.setValidAmount(gameRecordAe.getTurnover());
+                vo.setWinLoss(BigDecimal.ZERO);
+                if (gameRecordAe.getRealWinAmount() != null) {
+                    vo.setWinLoss(gameRecordAe.getRealWinAmount().subtract(gameRecordAe.getRealBetAmount()));
+                }
+                vo.setBetAmount(gameRecordAe.getBetAmount());
+                //                vo.setPlatform(gameRecordAe.getPlatform());
+                vo.setPlatform(Constants.PLATFORM_AE);
+                proxyGameRecordReportVos.add(vo);
+            }
+        } catch (Exception ex) {
+            log.error("组装AE注单异常{}", ex);
         }
 
         return proxyGameRecordReportVos;

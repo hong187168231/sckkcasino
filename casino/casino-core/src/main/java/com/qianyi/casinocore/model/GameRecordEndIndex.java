@@ -31,4 +31,16 @@ public class GameRecordEndIndex extends BaseEntity{
 
     @ApiModelProperty("OBTY注单id")
     private Long OBTYMaxId;
+
+    @ApiModelProperty("HORSEBOOK注单id")
+    private Long HORSEBOOKMaxId;
+
+    @ApiModelProperty("SV388注单id")
+    private Long SV388MaxId;
+
+    @ApiModelProperty("E1SPORT注单id")
+    private Long E1SPORTMaxId;
+
+    @ApiModelProperty("AE注单id")
+    private Long AEMaxId;
 }

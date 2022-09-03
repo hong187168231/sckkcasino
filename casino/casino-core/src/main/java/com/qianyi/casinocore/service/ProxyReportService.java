@@ -68,4 +68,16 @@ public class ProxyReportService {
         };
         return specification;
     }
+
+    public void updateDirect(BigDecimal directBetAmount, BigDecimal directProfitAmount,Integer directBetNum,Long userId){
+        proxyReportRepository.updateDirect(directBetAmount,directProfitAmount,directBetNum,userId);
+    }
+
+    public void updateOther(BigDecimal otherBetAmount, BigDecimal otherProfitAmount,Integer otherBetNum,Long userId){
+        proxyReportRepository.updateOther(otherBetAmount,otherProfitAmount,otherBetNum,userId);
+    }
+
+    public void updateGroupNum(Integer allGroupNum, Integer directGroupNum,Integer otherGroupNum,Long userId){
+        proxyReportRepository.updateGroupNum(allGroupNum,directGroupNum,otherGroupNum,userId);
+    }
 }

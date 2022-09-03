@@ -1,9 +1,6 @@
 package com.qianyi.casinocore.business;
 
-import com.qianyi.casinocore.model.GameRecord;
-import com.qianyi.casinocore.model.GameRecordGoldenF;
-import com.qianyi.casinocore.model.GameRecordObdj;
-import com.qianyi.casinocore.model.GameRecordObty;
+import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.casinocore.util.RedisLockUtil;
@@ -16,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.Objects;
 
@@ -42,7 +40,13 @@ public class ProxyGameRecordReportBusiness {
     private GameRecordObtyService gameRecordObtyService;
 
     @Autowired
+    private GameRecordAeService gameRecordAeService;
+
+    @Autowired
     private RedisLockUtil redisLockUtil;
+
+    //统计时间超过24小时记录日志
+    public final static int hour = 24;
 
 
     @Transactional
@@ -77,6 +81,24 @@ public class ProxyGameRecordReportBusiness {
                         log.error("OB体育注单状态异常{}",proxyGameRecordReportVo.getGameRecordId());
                         return;
                     }
+                }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE_HORSEBOOK) || proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE_SV388) ||
+                    proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE_E1SPORT) || proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE)){
+                    GameRecordAe gameRecordById = gameRecordAeService.findGameRecordById(proxyGameRecordReportVo.getGameRecordId());
+                    if (gameRecordById == null){
+                        log.error("AE注单状态异常{}",proxyGameRecordReportVo.getGameRecordId());
+                        return;
+                    }
+                    if (proxyGameRecordReportVo.getIsAdd() == null){
+                        proxyGameRecordReportVo.setIsAdd(1);
+                    }
+                    if (gameRecordById.getGameRecordStatus() == Constants.yes && proxyGameRecordReportVo.getIsAdd() == 1){
+                        log.error("AE注单状态异常{}",proxyGameRecordReportVo.getGameRecordId());
+                        return;
+                    }
+                    if (gameRecordById.getGameRecordStatus() == Constants.yes && proxyGameRecordReportVo.getIsAdd() == 0){
+                        this.updateAe(gameRecordById,proxyGameRecordReportVo);
+                        return;
+                    }
                 }else {
                     GameRecordGoldenF gameRecordById = gameRecordGoldenFService.findGameRecordById(proxyGameRecordReportVo.getGameRecordId());
                     if (gameRecordById == null || gameRecordById.getGameRecordStatus() == Constants.yes){
@@ -106,6 +128,10 @@ public class ProxyGameRecordReportBusiness {
                     }
                 }
                 Date date = DateUtil.getSimpleDateFormat().parse(proxyGameRecordReportVo.getOrderTimes());
+                int hours = DateUtil.differentDaysByMillisecond(new Date(), date);
+                if (hours >= hour){
+                    log.error("代理报表异步处理超时注单,注单标识{}={}={}",proxyGameRecordReportVo.getPlatform(),proxyGameRecordReportVo.getGameRecordId(),proxyGameRecordReportVo.getOrderTimes());
+                }
                 Date americaDate = cn.hutool.core.date.DateUtil.offsetHour(date, -12);//转为美东时间保存,代理报表全部用美东时间
                 String orderTimes = DateUtil.dateToPatten1(americaDate);
                 Long proxyGameRecordReportId = CommonUtil.toHash(orderTimes+proxyGameRecordReportVo.getUserId().toString());
@@ -133,6 +159,11 @@ public class ProxyGameRecordReportBusiness {
                     gameRecordObtyService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_SABASPORT)){
                     gameRecordGoldenFService.updateGameRecordStatus(proxyGameRecordReportVo.getBetId(),Constants.PLATFORM_SABASPORT,Constants.yes);
+                }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE_HORSEBOOK) ||
+                    proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE_SV388) ||
+                    proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE_E1SPORT) ||
+                    proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE)){
+                    gameRecordAeService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }else {
                     gameRecordGoldenFService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }
@@ -146,6 +177,33 @@ public class ProxyGameRecordReportBusiness {
             }
         }
     }
+
+    private void updateAe(GameRecordAe gameRecordAe,ProxyGameRecordReportVo proxyGameRecordReportVo) throws ParseException {
+        log.info("修改AE注单报表,注单标识{}={}={}",gameRecordAe.getPlatform(),gameRecordAe.getId(),gameRecordAe.getBetTime());
+        Date date = DateUtil.getSimpleDateFormat().parse(gameRecordAe.getBetTime());
+        int hours = DateUtil.differentDaysByMillisecond(new Date(), date);
+        if (hours >= hour){
+            log.error("代理报表异步处理超时注单,注单标识{}={}={}",gameRecordAe.getPlatform(),gameRecordAe.getId(),gameRecordAe.getBetTime());
+        }
+        Date americaDate = cn.hutool.core.date.DateUtil.offsetHour(date, -12);//转为美东时间保存,代理报表全部用美东时间
+        String orderTimes = DateUtil.dateToPatten1(americaDate);
+        Long proxyGameRecordReportId = CommonUtil.toHash(orderTimes+gameRecordAe.getUserId().toString());
+        if (gameRecordAe.getThirdProxy() == null){
+            proxyGameRecordReportService.updateBet(proxyGameRecordReportId,gameRecordAe.getUserId(),
+                orderTimes,proxyGameRecordReportVo.getValidAmount(),proxyGameRecordReportVo.getWinLoss(),0L,
+                0L,0L,proxyGameRecordReportVo.getBetAmount());
+        }else {
+            proxyGameRecordReportService.updateBet(proxyGameRecordReportId,gameRecordAe.getUserId(),
+                orderTimes,proxyGameRecordReportVo.getValidAmount(),proxyGameRecordReportVo.getWinLoss(),proxyGameRecordReportVo.getFirstProxy(),
+                proxyGameRecordReportVo.getSecondProxy(),proxyGameRecordReportVo.getThirdProxy(),proxyGameRecordReportVo.getBetAmount());
+        }
+
+        String userGameTimes = DateUtil.dateToPatten1(date);
+        Long userGameRecordReportId = CommonUtil.toHash(userGameTimes+proxyGameRecordReportVo.getUserId().toString()+proxyGameRecordReportVo.getPlatform());
+        userGameRecordReportService.updateBet(userGameRecordReportId,proxyGameRecordReportVo.getUserId(),userGameTimes,
+            proxyGameRecordReportVo.getValidAmount(),proxyGameRecordReportVo.getWinLoss(),proxyGameRecordReportVo.getBetAmount(),proxyGameRecordReportVo.getPlatform());
+    }
+
     private ProxyGameRecordReportVo getProxyGameRecordReportVo(GameRecordGoldenF payoff,GameRecordGoldenF stake){
         ProxyGameRecordReportVo vo = new ProxyGameRecordReportVo();
         vo.setGameRecordId(payoff.getId());

@@ -48,6 +48,9 @@ public class GameRecordController {
     private GameRecordGoldenFService gameRecordGoldenFService;
 
     @Autowired
+    private GameRecordAeService gameRecordAeService;
+
+    @Autowired
     private UserService userService;
 
     /**
@@ -706,7 +709,7 @@ public class GameRecordController {
         @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
     })
     @NoAuthorization
-    public ResponseEntity<GameRecordObtyTotalVo> findOBTYGameRecordPage(String user, String orderNo,Integer outcome,String account,Integer tag,
+    public ResponseEntity<GameRecordObtyTotalVo> findOBTYGameRecordTotal(String user, String orderNo,Integer outcome,String account,Integer tag,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         GameRecordObty gameRecordObty = new GameRecordObty();
@@ -740,6 +743,311 @@ public class GameRecordController {
         gameRecordObtyTotalVo.setProfitAmount(content.getProfitAmount());
         gameRecordObtyTotalVo.setSettleAmount(content.getSettleAmount());
         return ResponseUtil.success(gameRecordObtyTotalVo);
+    }
+
+
+    /**
+     * 分页查询斗鸡(SV388)游戏注单.
+     *
+     * @param account 会员账号
+     * @param platformTxId 注单号
+     * @param txStatus 订单结算结果
+     * @return
+     */
+    @ApiOperation("分页查询斗鸡(SV388)游戏注单")
+    @GetMapping("/findSV388GameRecordPage")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "platformTxId", value = "订单号", required = false),
+        @ApiImplicitParam(name = "txStatus", value = "交易类型,-1.取消投注，0.已下注,1.已结账,2.注单无效 3.退回的金额,5.退还下注,9.无效的交易", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
+    })
+    @NoAuthorization
+    public ResponseEntity<GameRecordAeVo> findSV388GameRecordPage(Integer pageSize, Integer pageCode, String platformTxId,
+        Integer txStatus,String account,Integer tag,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        GameRecordAe gameRecordAe = new GameRecordAe();
+        gameRecordAe.setPlatformTxId(platformTxId);
+        gameRecordAe.setTxStatus(txStatus);
+        gameRecordAe.setPlatform(Constants.PLATFORM_AE_SV388);
+        Long userId = null;
+        if (!LoginUtil.checkNull(account)){
+            User byAccount = userService.findByAccount(account);
+            if (LoginUtil.checkNull(byAccount)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        gameRecordAe.setUserId(userId);
+        return this.findPageAe(pageable,gameRecordAe,startDate,endDate,tag);
+    }
+
+    /**
+     * 分页查询赛马.HORSEBOOK游戏注单.
+     *
+     * @param account 会员账号
+     * @param platformTxId 注单号
+     * @param txStatus 订单结算结果
+     * @return
+     */
+    @ApiOperation("分页查询赛马.HORSEBOOK游戏注单")
+    @GetMapping("/findHORSEBOOKGameRecordPage")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "platformTxId", value = "订单号", required = false),
+        @ApiImplicitParam(name = "txStatus", value = "交易类型,-1.取消投注，0.已下注,1.已结账,2.注单无效 3.退回的金额,5.退还下注,9.无效的交易", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
+    })
+    @NoAuthorization
+    public ResponseEntity<GameRecordAeVo> findHORSEBOOKGameRecordPage(Integer pageSize, Integer pageCode, String platformTxId,
+        Integer txStatus,String account,Integer tag,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        GameRecordAe gameRecordAe = new GameRecordAe();
+        gameRecordAe.setPlatformTxId(platformTxId);
+        gameRecordAe.setTxStatus(txStatus);
+        gameRecordAe.setPlatform(Constants.PLATFORM_AE_HORSEBOOK);
+        Long userId = null;
+        if (!LoginUtil.checkNull(account)){
+            User byAccount = userService.findByAccount(account);
+            if (LoginUtil.checkNull(byAccount)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        gameRecordAe.setUserId(userId);
+        return this.findPageAe(pageable,gameRecordAe,startDate,endDate,tag);
+    }
+
+    /**
+     * 分页查询电竞.E1SPORT游戏注单.
+     *
+     * @param account 会员账号
+     * @param platformTxId 注单号
+     * @param txStatus 订单结算结果
+     * @return
+     */
+    @ApiOperation("分页查询电竞.E1SPORT游戏注单")
+    @GetMapping("/findE1SPORTGameRecordPage")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "platformTxId", value = "订单号", required = false),
+        @ApiImplicitParam(name = "txStatus", value = "交易类型,-1.取消投注，0.已下注,1.已结账,2.注单无效 3.退回的金额,5.退还下注,9.无效的交易", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
+    })
+    @NoAuthorization
+    public ResponseEntity<GameRecordAeVo> findE1SPORTGameRecordPage(Integer pageSize, Integer pageCode, String platformTxId,
+        Integer txStatus,String account,Integer tag,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        GameRecordAe gameRecordAe = new GameRecordAe();
+        gameRecordAe.setPlatformTxId(platformTxId);
+        gameRecordAe.setTxStatus(txStatus);
+        gameRecordAe.setPlatform(Constants.PLATFORM_AE_E1SPORT);
+        Long userId = null;
+        if (!LoginUtil.checkNull(account)){
+            User byAccount = userService.findByAccount(account);
+            if (LoginUtil.checkNull(byAccount)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        gameRecordAe.setUserId(userId);
+        return this.findPageAe(pageable,gameRecordAe,startDate,endDate,tag);
+    }
+
+    private ResponseEntity<GameRecordAeVo> findPageAe(Pageable pageable,GameRecordAe gameRecordAe,Date startDate,Date endDate,Integer tag){
+
+        Page<GameRecordAe> gameRecordAePage;
+        if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
+            String startTime = DateUtil.getSimpleDateFormat().format(startDate);
+            String endTime = DateUtil.getSimpleDateFormat().format(endDate);
+            if (LoginUtil.checkNull(tag) || tag == CommonConst.NUMBER_0){
+                gameRecordAePage = gameRecordAeService.findGameRecordAePage(gameRecordAe, pageable,startTime,endTime,null,null);
+            }else {
+                gameRecordAePage = gameRecordAeService.findGameRecordAePage(gameRecordAe, pageable,null,null,startTime,endTime);
+            }
+
+        }else {
+            gameRecordAePage = gameRecordAeService.findGameRecordAePage(gameRecordAe, pageable,null,null,null,null);
+        }
+        PageResultVO<GameRecordAeVo> pageResultVO =new PageResultVO(gameRecordAePage);
+        List<GameRecordAe> content = gameRecordAePage.getContent();
+        if(content != null && content.size() > 0){
+            List<GameRecordAeVo> gameRecordVoList = new LinkedList<>();
+            List<Long> userIds = content.stream().map(GameRecordAe::getUserId).collect(Collectors.toList());
+            List<User> userList = userService.findAll(userIds);
+            if(userList != null){
+                content.stream().forEach(gameRecord ->{
+                    GameRecordAeVo vo = new GameRecordAeVo();
+                    BeanUtils.copyProperties(gameRecord,vo);
+                    userList.stream().forEach(u->{
+                        if (u.getId().equals(gameRecord.getUserId())){
+                            vo.setAccount(u.getAccount());
+                        }
+                    });
+                    gameRecordVoList.add(vo);
+                });
+            }
+            pageResultVO.setContent(gameRecordVoList);
+        }
+        return ResponseUtil.success(pageResultVO);
+    }
+
+    /**
+     * 统计斗鸡(SV388)游戏注单
+     *
+     * @param account 会员账号
+     * @param platformTxId 注单号
+     * @param txStatus 订单结算结果
+     * @return
+     */
+    @ApiOperation("统计斗鸡(SV388)游戏注单")
+    @GetMapping("/findSV388GameRecordTotal")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "platformTxId", value = "订单号", required = false),
+        @ApiImplicitParam(name = "txStatus", value = "交易类型,-1.取消投注，0.已下注,1.已结账,2.注单无效 3.退回的金额,5.退还下注,9.无效的交易", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
+    })
+    @NoAuthorization
+    public ResponseEntity<GameRecordAeVo> findSV388GameRecordTotal(String platformTxId,Integer txStatus,String account,Integer tag,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+        GameRecordAe gameRecordAe = new GameRecordAe();
+        gameRecordAe.setPlatformTxId(platformTxId);
+        gameRecordAe.setTxStatus(txStatus);
+        gameRecordAe.setPlatform(Constants.PLATFORM_AE_SV388);
+        Long userId = null;
+        if (!LoginUtil.checkNull(account)){
+            User byAccount = userService.findByAccount(account);
+            if (LoginUtil.checkNull(byAccount)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        gameRecordAe.setUserId(userId);
+        return this.sumAE(gameRecordAe,startDate,endDate,tag);
+    }
+
+    /**
+     * 统计赛马.HORSEBOOK游戏注单
+     *
+     * @param account 会员账号
+     * @param platformTxId 注单号
+     * @param txStatus 订单结算结果
+     * @return
+     */
+    @ApiOperation("统计赛马.HORSEBOOK游戏注单")
+    @GetMapping("/findHORSEBOOKGameRecordTotal")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "platformTxId", value = "订单号", required = false),
+        @ApiImplicitParam(name = "txStatus", value = "交易类型,-1.取消投注，0.已下注,1.已结账,2.注单无效 3.退回的金额,5.退还下注,9.无效的交易", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
+    })
+    @NoAuthorization
+    public ResponseEntity<GameRecordAeVo> findHORSEBOOKGameRecordTotal(String platformTxId,Integer txStatus,String account,Integer tag,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+        GameRecordAe gameRecordAe = new GameRecordAe();
+        gameRecordAe.setPlatformTxId(platformTxId);
+        gameRecordAe.setTxStatus(txStatus);
+        gameRecordAe.setPlatform(Constants.PLATFORM_AE_HORSEBOOK);
+        Long userId = null;
+        if (!LoginUtil.checkNull(account)){
+            User byAccount = userService.findByAccount(account);
+            if (LoginUtil.checkNull(byAccount)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        gameRecordAe.setUserId(userId);
+        return this.sumAE(gameRecordAe,startDate,endDate,tag);
+    }
+
+    /**
+     * 统计电竞.E1SPORT游戏注单
+     *
+     * @param account 会员账号
+     * @param platformTxId 注单号
+     * @param txStatus 订单结算结果
+     * @return
+     */
+    @ApiOperation("统计电竞.E1SPORT游戏注单")
+    @GetMapping("/findE1SPORTGameRecordTotal")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "platformTxId", value = "订单号", required = false),
+        @ApiImplicitParam(name = "txStatus", value = "交易类型,-1.取消投注，0.已下注,1.已结账,2.注单无效 3.退回的金额,5.退还下注,9.无效的交易", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
+    })
+    @NoAuthorization
+    public ResponseEntity<GameRecordAeVo> findE1SPORTGameRecordTotal(String platformTxId,Integer txStatus,String account,Integer tag,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+        GameRecordAe gameRecordAe = new GameRecordAe();
+        gameRecordAe.setPlatformTxId(platformTxId);
+        gameRecordAe.setTxStatus(txStatus);
+        gameRecordAe.setPlatform(Constants.PLATFORM_AE_E1SPORT);
+        Long userId = null;
+        if (!LoginUtil.checkNull(account)){
+            User byAccount = userService.findByAccount(account);
+            if (LoginUtil.checkNull(byAccount)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        gameRecordAe.setUserId(userId);
+        return this.sumAE(gameRecordAe,startDate,endDate,tag);
+    }
+
+    private ResponseEntity<GameRecordAeVo> sumAE(GameRecordAe gameRecordAe,Date startDate,Date endDate,Integer tag){
+        GameRecordAe content;
+        if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
+            String startTime = DateUtil.getSimpleDateFormat().format(startDate);
+            String endTime = DateUtil.getSimpleDateFormat().format(endDate);
+            if (LoginUtil.checkNull(tag) || tag == CommonConst.NUMBER_0){
+                content = gameRecordAeService.findRecordRecordSum(gameRecordAe, startTime,endTime,null,null);
+            }else {
+                content = gameRecordAeService.findRecordRecordSum(gameRecordAe,null,null, startTime,endTime);
+            }
+
+        }else {
+            content = gameRecordAeService.findRecordRecordSum(gameRecordAe,null,null,null,null);
+        }
+
+        GameRecordAeVo gameRecordAeVo = new GameRecordAeVo();
+        gameRecordAeVo.setBetAmount(content.getBetAmount());
+        gameRecordAeVo.setRealBetAmount(content.getRealBetAmount());
+        gameRecordAeVo.setWinAmount(content.getWinAmount());
+        gameRecordAeVo.setTurnover(content.getTurnover());
+        return ResponseUtil.success(gameRecordAeVo);
     }
     //    @ApiOperation("分页查询三方游戏注单总计")
     //    @GetMapping("/findGameRecordTotal")

@@ -137,9 +137,10 @@ public class GameRecordAe extends BaseEntity{
 
     }
 
-    public GameRecordAe(BigDecimal betAmount,BigDecimal realBetAmount,BigDecimal winAmount){
+    public GameRecordAe(BigDecimal betAmount,BigDecimal realBetAmount,BigDecimal winAmount,BigDecimal turnover){
         this.betAmount = betAmount==null?BigDecimal.ZERO:betAmount;
         this.realBetAmount = realBetAmount==null?BigDecimal.ZERO:realBetAmount;
         this.winAmount = winAmount==null?BigDecimal.ZERO:winAmount;
+        this.turnover = turnover==null?BigDecimal.ZERO:turnover;
     }
 }

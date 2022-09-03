@@ -15,10 +15,17 @@ public interface ProxyGameRecordReportRepository extends JpaRepository<ProxyGame
 
     @Modifying
     @Query(value = "INSERT INTO proxy_game_record_report (proxy_game_record_report_id,user_id,order_times,valid_amount,win_loss,"
-        + "first_proxy,second_proxy,third_proxy,betting_number,bet_amount) " +
-        "VALUES (?1,?2,?3,?4,?5,?6,?7,?8,1,?9) ON DUPLICATE KEY UPDATE valid_amount=valid_amount + ?4,"
-        + "win_loss=win_loss + ?5,betting_number = betting_number +1,bet_amount=bet_amount + ?9 ;",nativeQuery = true)
+        + "first_proxy,second_proxy,third_proxy,betting_number,bet_amount,create_time,update_time) " +
+        "VALUES (?1,?2,?3,?4,?5,?6,?7,?8,1,?9,NOW(),NOW()) ON DUPLICATE KEY UPDATE valid_amount=valid_amount + ?4,"
+        + "win_loss=win_loss + ?5,betting_number = betting_number +1,bet_amount=bet_amount + ?9,update_time = NOW() ;",nativeQuery = true)
     void updateKey(Long gameRecordReportId,Long userId,String orderTimes, BigDecimal validAmount,BigDecimal winLoss,Long firstProxy,Long secondProxy,Long thirdProxy,BigDecimal betAmount);
+
+    @Modifying
+    @Query(value = "INSERT INTO proxy_game_record_report (proxy_game_record_report_id,user_id,order_times,valid_amount,win_loss,"
+        + "first_proxy,second_proxy,third_proxy,betting_number,bet_amount,create_time,update_time) " +
+        "VALUES (?1,?2,?3,?4,?5,?6,?7,?8,0,?9,NOW(),NOW()) ON DUPLICATE KEY UPDATE valid_amount=valid_amount + ?4,"
+        + "win_loss=win_loss + ?5,bet_amount=bet_amount + ?9,update_time = NOW() ;",nativeQuery = true)
+    void updateBet(Long gameRecordReportId,Long userId,String orderTimes, BigDecimal validAmount,BigDecimal winLoss,Long firstProxy,Long secondProxy,Long thirdProxy,BigDecimal betAmount);
 
     @Query(value = "select COUNT(1) num,ifnull(SUM(validAmount),0) validAmount,ifnull(SUM(winLoss),0) winLoss from (select SUM(p.valid_amount) "
         + "validAmount,SUM(p.win_loss) winLoss from proxy_game_record_report p where p.first_proxy= ?3 and p.order_times "
@@ -73,14 +80,16 @@ public interface ProxyGameRecordReportRepository extends JpaRepository<ProxyGame
 
     @Query(value = "SELECT a.user_id user_id,a.first_proxy first_proxy,a.second_proxy second_proxy,a.third_proxy third_proxy,"
         + "a.num num,a.bet_amount bet_amount,a.validbet validbet,a.win_loss win_loss FROM (SELECT u.id user_id,u.first_proxy "
-        + "first_proxy,u.second_proxy second_proxy,u.third_proxy third_proxy, ifnull( main_t.num, 0 )+ ifnull( goldenf_t.num, 0 )+ "
-        + "ifnull( goldenf_sb.num, 0)+ ifnull( grobdj_t.num, 0 )+ ifnull( grobty_t.num, 0 ) num, ifnull( main_t.bet_amount, 0 )+ "
+        + "first_proxy,u.second_proxy second_proxy,u.third_proxy third_proxy, ifnull( main_t.num, 0 )+ifnull( gre_t.num, 0 )+ ifnull( goldenf_t.num, 0 )+ "
+        + "ifnull( goldenf_sb.num, 0)+ ifnull( grobdj_t.num, 0 )+ ifnull( grobty_t.num, 0 ) num, ifnull( main_t.bet_amount, 0 )+ ifnull( gre_t.bet_amount, 0 )+"
         + "ifnull( goldenf_t.bet_amount, 0 )+ ifnull( goldenf_sb.bet_amount, 0 )+ ifnull( grobdj_t.bet_amount, 0 )+  ifnull( grobty_t.bet_amount, 0 ) "
-        + "bet_amount,ifnull( main_t.validbet, 0 )+ ifnull( goldenf_t.bet_amount, 0 )+ ifnull( goldenf_sb.bet_amount,0)+ ifnull( grobdj_t.bet_amount, 0 )"
-        + "+ ifnull( grobty_t.bet_amount, 0 ) validbet,ifnull( main_t.win_loss, 0 )+ ifnull( goldenf_t.win_loss, 0 )+ ifnull( goldenf_sb.win_loss, 0 )"
+        + "bet_amount,ifnull( main_t.validbet, 0 )+ ifnull( gre_t.validbet, 0 )+ ifnull( goldenf_t.bet_amount, 0 )+ ifnull( goldenf_sb.bet_amount,0)+ ifnull( grobdj_t.bet_amount, 0 )"
+        + "+ ifnull( grobty_t.bet_amount, 0 ) validbet,ifnull( main_t.win_loss, 0 )+ ifnull( gre_t.win_loss, 0 )+ ifnull( goldenf_t.win_loss, 0 )+ ifnull( goldenf_sb.win_loss, 0 )"
         + "+ ifnull( grobdj_t.win_loss, 0 )+ ifnull( grobty_t.win_loss, 0 ) win_loss FROM USER u LEFT JOIN (SELECT user_id,count( 1 ) num,"
         + "sum( bet ) bet_amount,sum( validbet ) validbet,sum( win_loss ) win_loss FROM game_record gr WHERE  bet_time >= ?1 AND bet_time <= ?2 "
-        + "GROUP BY user_id ) main_t ON u.id = main_t.user_id LEFT JOIN (SELECT user_id,count( 1 ) num,sum( bet_amount ) bet_amount,sum( win_amount - bet_amount )"
+        + "GROUP BY user_id ) main_t ON u.id = main_t.user_id LEFT JOIN (SELECT user_id,count( 1 ) num,sum( bet_amount ) bet_amount,sum( turnover ) validbet,"
+        + "sum( real_win_amount-real_bet_amount ) win_loss FROM game_record_ae gre WHERE gre.tx_status = 1 and gre.bet_time >= ?1 AND gre.bet_time <= ?2 GROUP BY user_id ) gre_t "
+        + "ON u.id = gre_t.user_id LEFT JOIN (SELECT user_id,count( 1 ) num,sum( bet_amount ) bet_amount,sum( win_amount - bet_amount )"
         + " win_loss FROM game_record_goldenf grg WHERE create_at_str >= ?1 AND create_at_str <= ?2 And vendor_code in ('PG','CQ9') GROUP BY user_id ) goldenf_t "
         + "ON u.id = goldenf_t.user_id LEFT JOIN (SELECT off.user_id user_id,count( 1 ) num,SUM( sk.bet_amount ) bet_amount,sum( off.win_amount - sk.bet_amount ) "
         + "win_loss FROM game_record_goldenf off LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = 'SABASPORT' AND trans_type = 'Stake' ) "
@@ -90,4 +99,9 @@ public interface ProxyGameRecordReportRepository extends JpaRepository<ProxyGame
         + "ON u.id = grobdj_t.user_id LEFT JOIN (SELECT user_id,count( 1 ) num,sum( order_amount ) bet_amount,sum( profit_amount ) win_loss FROM game_record_obty grobty "
         + "WHERE settle_str_time >= ?1 AND settle_str_time <= ?2 GROUP BY user_id ) grobty_t ON u.id = grobty_t.user_id ) a WHERE num > 0;",nativeQuery = true)
     List<Map<String, Object>> findTotal(String startTime,String endTime);
+
+    @Query(value = "select ifnull( g.first_proxy, 0 ) first_proxy,ifnull( g.second_proxy, 0 ) second_proxy,ifnull( g.third_proxy, 0 ) third_proxy,"
+        + "user_id user_id,count(1) num,sum(bet_amount) bet_amount,sum(real_bet_amount) validbet,sum(real_win_amount-real_bet_amount) win_loss "
+        + "from game_record_ae grg where g.tx_status = 1 and bet_time >= ?1 and bet_time <= ?2 group by user_id ;",nativeQuery = true)
+    List<Map<String, Object>> findTotalAe(String startTime,String endTime);
 }

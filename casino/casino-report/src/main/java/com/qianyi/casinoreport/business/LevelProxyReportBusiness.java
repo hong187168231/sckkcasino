@@ -29,7 +29,7 @@ public class LevelProxyReportBusiness {
      */
     public void processReport(ShareProfitBO shareProfitBO){
         ProxyReport proxyReport = getProxyReport(shareProfitBO.getUserId());
-        allProxy(proxyReport,shareProfitBO);
+        //        allProxy(proxyReport,shareProfitBO);
         if(shareProfitBO.isDirect())
             directProxy(proxyReport,shareProfitBO);
         else
@@ -46,17 +46,27 @@ public class LevelProxyReportBusiness {
     }
 
     public void directProxy(ProxyReport proxyReport,ShareProfitBO shareProfitBO){
-        proxyReport.setDirectBetAmount(proxyReport.getDirectBetAmount().add(shareProfitBO.getBetAmount()));
-        proxyReport.setDirectProfitAmount(proxyReport.getDirectProfitAmount().add(shareProfitBO.getProfitAmount()));
-        proxyReport.setDirectBetNum(proxyReport.getDirectBetNum()+ (shareProfitBO.isFirst()?1:0));
-        proxyReportService.save(proxyReport);
+        //        proxyReport.setDirectBetAmount(proxyReport.getDirectBetAmount().add(shareProfitBO.getBetAmount()));
+        //        proxyReport.setDirectProfitAmount(proxyReport.getDirectProfitAmount().add(shareProfitBO.getProfitAmount()));
+        //        proxyReport.setDirectBetNum(proxyReport.getDirectBetNum()+ (shareProfitBO.isFirst()?1:0));
+        log.info("处理直属报表id{} ProxyReport========================》:{}",proxyReport.getId(),proxyReport.toString());
+        //        proxyReport = proxyReportService.save(proxyReport);
+        //        log.info("处理直属报表ProxyReport========================》:{}",proxyReport.toString());
+        boolean first = shareProfitBO.isFirst();
+        log.info("处理直属报表first:{} betAmount:{} profitAmount:{}========================》",first,shareProfitBO.getBetAmount(),shareProfitBO.getProfitAmount());
+        proxyReportService.updateDirect(shareProfitBO.getBetAmount(),shareProfitBO.getProfitAmount(),first?1:0,shareProfitBO.getUserId());
     }
 
     public void noDirectProxy(ProxyReport proxyReport,ShareProfitBO shareProfitBO){
-        proxyReport.setOtherBetAmount(proxyReport.getOtherBetAmount().add(shareProfitBO.getBetAmount()));
-        proxyReport.setOtherProfitAmount(proxyReport.getOtherProfitAmount().add(shareProfitBO.getProfitAmount()));
-        proxyReport.setOtherBetNum(proxyReport.getOtherBetNum()+ (shareProfitBO.isFirst()?1:0));
-        proxyReportService.save(proxyReport);
+        //        proxyReport.setOtherBetAmount(proxyReport.getOtherBetAmount().add(shareProfitBO.getBetAmount()));
+        //        proxyReport.setOtherProfitAmount(proxyReport.getOtherProfitAmount().add(shareProfitBO.getProfitAmount()));
+        //        proxyReport.setOtherBetNum(proxyReport.getOtherBetNum()+ (shareProfitBO.isFirst()?1:0));
+        log.info("处理非直属报表id{} ProxyReport========================》:{}",proxyReport.getId(),proxyReport.toString());
+        //        proxyReport = proxyReportService.save(proxyReport);
+        //        log.info("处理非直属报表ProxyReport========================》:{}",proxyReport.toString());
+        boolean first = shareProfitBO.isFirst();
+        log.info("处理非直属报表first:{} betAmount:{} profitAmount:{}========================》",first,shareProfitBO.getBetAmount(),shareProfitBO.getProfitAmount());
+        proxyReportService.updateOther(shareProfitBO.getBetAmount(),shareProfitBO.getProfitAmount(),shareProfitBO.isFirst()?1:0,shareProfitBO.getUserId());
     }
 
     public ProxyReport buildProxyReport(Long userId) {
@@ -72,6 +82,7 @@ public class LevelProxyReportBusiness {
     public ProxyReport getProxyReport(Long userId) {
         log.info("user id is {}",userId);
         ProxyReport proxyReport = proxyReportService.findByUserId(userId);
+        log.info("处理报表查询ProxyReport========================》:{}",proxyReport);
         if(proxyReport == null)
             buildProxyReport(userId);
         return proxyReportService.findByUserId(userId);
