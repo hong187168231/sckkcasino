@@ -47,6 +47,7 @@ public class GameRecordAeSupplementJob {
     private GameRecordAeJob gameRecordAeJob;
 
     //每小时20分钟拉取前一小时的
+    @SneakyThrows
     @Scheduled(cron = "0 20 */1 * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_AE);
@@ -66,6 +67,7 @@ public class GameRecordAeSupplementJob {
             pullGameRecord(startTime, endTime, Constants.PLATFORM_AE_HORSEBOOK);
             log.info("定时器核对完成HORSEBOOK注单记录");
         }
+        Thread.sleep(2 * 1000);
         AdGame svGame = adGamesService.findByGamePlatformNameAndGameCode(Constants.PLATFORM_AE, Constants.PLATFORM_AE_SV388);
         if (svGame != null && svGame.getGamesStatus() == 2) {
             log.info("后台已关闭SV388,无需对账,adGame={}", svGame);
@@ -74,6 +76,7 @@ public class GameRecordAeSupplementJob {
             pullGameRecord(startTime, endTime, Constants.PLATFORM_AE_SV388);
             log.info("定时器核对完成SV388注单记录");
         }
+        Thread.sleep(2 * 1000);
         AdGame e1Game = adGamesService.findByGamePlatformNameAndGameCode(Constants.PLATFORM_AE, Constants.PLATFORM_AE_E1SPORT);
         if (e1Game != null && e1Game.getGamesStatus() == 2) {
             log.info("后台已关闭E1SPORT,无需对账,adGame={}", e1Game);

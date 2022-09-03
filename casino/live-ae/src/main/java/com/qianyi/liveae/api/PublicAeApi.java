@@ -254,6 +254,7 @@ public class PublicAeApi {
      * 我方回应格式使用 Content-Encoding: gzip
      * 请接续上次拉账最后一笔「交易更新时间」为搜寻起始时间
      * 注意：若某次取值无资料 或 无更新资料，则将下次取值 timeFrom 设为现在时间的前一分钟
+     * 每个 platform 每 20 秒可呼叫一次
      *
      * @param timeFrom
      * @param platform
@@ -294,6 +295,7 @@ public class PublicAeApi {
      * 例如:若您想拉取13:00-14:00的总和资料，建议您可于15:20再进行捞取
      * 搜寻区间以小时为单位
      * 注意事项：捞取结果按货币分类
+     * 同一位代理，2 秒可呼叫一次
      * @param platform
      * @param startTime
      * @param endTime
@@ -326,6 +328,7 @@ public class PublicAeApi {
      * 仅可拉 7 天内的帐
      * 每次最多可拉 20,000 笔资料
      * 必须带入 platform 参数。API 最快支持每 20 秒进行一次拉帐
+     * 每个 platform 每 20 秒可呼叫一次
      * @param startTime
      * @param endTime
      * @param platform
