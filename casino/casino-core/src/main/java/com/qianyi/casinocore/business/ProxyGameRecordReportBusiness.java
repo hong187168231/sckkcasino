@@ -46,7 +46,7 @@ public class ProxyGameRecordReportBusiness {
     private RedisLockUtil redisLockUtil;
 
     //统计时间超过24小时记录日志
-    public final static int hour = 24;
+    public final static int hour = 12;
 
 
     @Transactional

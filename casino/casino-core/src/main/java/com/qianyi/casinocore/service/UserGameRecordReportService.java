@@ -68,6 +68,7 @@ public class UserGameRecordReportService {
         Integer totalBetNumber = this.findTotalBetNumber(startTime, endTime);
         Integer totalBetNumberByAe = this.findTotalBetNumberByAe(startTime, endTime);
         totalBetNumber = totalBetNumber + totalBetNumberByAe;
+        log.info("会员报表日期{} betNumber:{} totalBetNumber:{}", dayTime, betNumber, totalBetNumber);
         if (betNumber.intValue() != totalBetNumber.intValue()) {
             log.error("会员报表日期{}不相等开始重新计算betNumber:{}totalBetNumber:{}", dayTime, betNumber, totalBetNumber);
             userGameRecordReportRepository.deleteByOrderTimes(dayTime);
