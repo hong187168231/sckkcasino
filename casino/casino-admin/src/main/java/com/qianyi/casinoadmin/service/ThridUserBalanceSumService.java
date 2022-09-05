@@ -42,7 +42,7 @@ public class ThridUserBalanceSumService {
         for (UserThird u:sabaThird){
             threadPool.execute(() ->{
                 try {
-                    JSONObject jsonObject = userMoneyService.refreshSABAUserId(u.getUserId().toString());
+                    JSONObject jsonObject = userMoneyService.refreshSABA(u.getUserId());
 
                     if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
                         list.add(BigDecimal.ZERO);
