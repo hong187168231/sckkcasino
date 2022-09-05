@@ -79,6 +79,7 @@ project:   #不同环境需配置相应的值
     cert: DlmZxZMoiXeIesH87rY
     agentId: kkcasino
     apiUrl: https://tttint.onlinegames22.com
+    fetchUrl: https://tttint.onlinegames22.com
     currency: USD #美元
     HORSEBOOK:
       minbet: 1 #最小下注

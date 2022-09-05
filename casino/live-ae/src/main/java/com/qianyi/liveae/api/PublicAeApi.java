@@ -281,7 +281,7 @@ public class PublicAeApi {
             params.put("gameCode", gameCode);
         }
         log.info("AE查询注单参数{}", params);
-        String url = aeConfig.getApiUrl() + "/fetch/gzip/getTransactionByUpdateDate";
+        String url = aeConfig.getFetchUrl() + "/fetch/gzip/getTransactionByUpdateDate";
         String result = HttpClient4Util.doPost(url, params);
         log.info("AE查询注单结果{}", result);
         return analysisResult(result);
@@ -315,7 +315,7 @@ public class PublicAeApi {
             params.put("gameCode", gameCode);
         }
         log.info("AE查询取得区间内交易摘要参数{}", params);
-        String url = aeConfig.getApiUrl() + "/fetch/getSummaryByTxTimeHour";
+        String url = aeConfig.getFetchUrl() + "/fetch/getSummaryByTxTimeHour";
         String result = HttpClient4Util.doPost(url, params);
         log.info("AE查询取得区间内交易摘要结果{}", result);
         return analysisResult(result);
@@ -360,7 +360,7 @@ public class PublicAeApi {
             params.put("gameCode", gameCode);
         }
         log.info("AE查询注单补账参数{}", params);
-        String url = aeConfig.getApiUrl() + "/fetch/gzip/getTransactionByTxTime";
+        String url = aeConfig.getFetchUrl() + "/fetch/gzip/getTransactionByTxTime";
         String result = HttpClient4Util.doPost(url, params);
         log.info("AE查询注单补账结果{}", result);
         return analysisResult(result);

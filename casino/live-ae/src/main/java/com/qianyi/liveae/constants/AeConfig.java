@@ -17,6 +17,8 @@ public class AeConfig {
 
     private String apiUrl;
 
+    private String fetchUrl;
+
     private HORSEBOOK HORSEBOOK;
 
     private SV388 SV388;
