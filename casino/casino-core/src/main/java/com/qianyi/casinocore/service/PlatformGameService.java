@@ -19,6 +19,7 @@ public class PlatformGameService {
     @Autowired
     private PlatformGameRepository platformGameRepository;
 
+    @Cacheable(key = "#root.methodName")
     public List<PlatformGame> findAll() {
         return platformGameRepository.findAll();
     }
