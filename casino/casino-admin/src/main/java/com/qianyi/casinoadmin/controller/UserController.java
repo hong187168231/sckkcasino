@@ -851,11 +851,11 @@ public class UserController {
     @ApiOperation("查询玩家沙巴总余额")
     @GetMapping("refreshSABATotal")
     public ResponseEntity refreshSABATotal(){
-        String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_SABASPORT;
-        Object pgBalance = redisUtil.get(key);
-        if(!LoginUtil.checkNull(pgBalance)){
-            return ResponseUtil.success(pgBalance);
-        }
+//        String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_SABASPORT;
+//        Object pgBalance = redisUtil.get(key);
+//        if(!LoginUtil.checkNull(pgBalance)){
+//            return ResponseUtil.success(pgBalance);
+//        }
 
         List<UserThird> allGoldenfAccount = userThirdService.findAllGoldenfAccount();
         if (LoginUtil.checkNull(allGoldenfAccount) || allGoldenfAccount.size() == CommonConst.NUMBER_0){
