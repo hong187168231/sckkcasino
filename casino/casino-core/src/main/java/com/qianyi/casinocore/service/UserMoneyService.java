@@ -483,7 +483,7 @@ public class UserMoneyService {
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null?"":first.getWebConfiguration();
             WMurl = WMurl + PG_refreshUrl;
-            String s = HttpClient4Util.get(WMurl + param);
+            String s = HttpClient4Util.getWeb(WMurl + param);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
         } catch (Exception e) {
