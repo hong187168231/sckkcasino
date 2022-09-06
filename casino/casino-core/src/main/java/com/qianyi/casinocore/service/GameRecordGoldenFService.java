@@ -310,7 +310,7 @@ public class GameRecordGoldenFService {
         return singleResult;
     }
 
-    public GameRecordGoldenF findByBetIdAndTransTypeAndVendorCode(String betId, String transType,String vendorCode){
+    public List<GameRecordGoldenF> findByBetIdAndTransTypeAndVendorCode(String betId, String transType,String vendorCode){
         return gameRecordGoldenFRepository.findByBetIdAndTransTypeAndVendorCode(betId,transType,vendorCode);
     }
 
