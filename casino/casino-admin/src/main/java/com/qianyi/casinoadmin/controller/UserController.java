@@ -14,6 +14,7 @@ import com.qianyi.casinocore.service.*;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
+import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -848,14 +849,15 @@ public class UserController {
     }
 
 
+    /**
+     * 一分钟两次的访问频率
+     *
+     * @return
+     */
     @ApiOperation("查询玩家沙巴总余额")
     @GetMapping("refreshSABATotal")
+    @RequestLimit(limit = 30,timeout = 60)
     public ResponseEntity refreshSABATotal(){
-        String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_SABASPORT;
-        Object pgBalance = redisUtil.get(key);
-        if(!LoginUtil.checkNull(pgBalance)){
-            return ResponseUtil.success(pgBalance);
-        }
 
         List<UserThird> allGoldenfAccount = userThirdService.findAllGoldenfAccount();
         if (LoginUtil.checkNull(allGoldenfAccount) || allGoldenfAccount.size() == CommonConst.NUMBER_0){
@@ -868,7 +870,7 @@ public class UserController {
         for (UserThird u:allGoldenfAccount){
             threadPool.execute(() ->{
                 try {
-                    JSONObject jsonObject = userMoneyService.refreshSABAUserId(u.getUserId().toString());
+                    JSONObject jsonObject = userMoneyService.refreshSABA(u.getUserId());
                     if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
                         list.add(BigDecimal.ZERO);
                     }else {

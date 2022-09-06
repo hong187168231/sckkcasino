@@ -41,7 +41,7 @@ public class ThirdGameSumBalanceTask {
         List<UserThird> pgCq9Third = allAcount.stream().filter(o -> Objects.nonNull(o.getGoldenfAccount())).collect(Collectors.toList());
         List<UserThird> obdjThird = allAcount.stream().filter(o -> Objects.nonNull(o.getObdjAccount())).collect(Collectors.toList());
         List<UserThird> obtyThird = allAcount.stream().filter(o -> Objects.nonNull(o.getObtyAccount())).collect(Collectors.toList());
-        List<UserThird> sabaThird = allAcount.stream().filter(o -> Objects.nonNull(o.getGoldenfAccount())).collect(Collectors.toList());
+//        List<UserThird> sabaThird = allAcount.stream().filter(o -> Objects.nonNull(o.getGoldenfAccount())).collect(Collectors.toList());
         //异步方法，查询三方总余额，缓存到redis
 
         //WM总余额
@@ -72,12 +72,12 @@ public class ThirdGameSumBalanceTask {
             log.error("OBTY余额查询失败：【{}】", e.getMessage());
         }
 
-        //查询沙巴体育总余额
-        try {
-            thridUserBalanceSumService.setRedisSABAMoneyTotal(sabaThird);
-        }catch (Exception e){
-            log.error("沙巴余额查询失败：【{}】", e.getMessage());
-        }
+//        //查询沙巴体育总余额
+//        try {
+//            thridUserBalanceSumService.setRedisSABAMoneyTotal(sabaThird);
+//        }catch (Exception e){
+//            log.error("沙巴余额查询失败：【{}】", e.getMessage());
+//        }
 
     }
 
