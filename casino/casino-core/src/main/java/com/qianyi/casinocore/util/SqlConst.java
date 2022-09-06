@@ -758,20 +758,28 @@ public class SqlConst {
     ifnull(ec.water, 0) all_water
     from user u left join (
         SELECT
-            off.user_id user_id,
-        count( 1 ) num,
+            user_id,
+        count( DISTINCT sk.bet_id ) num,
     SUM( sk.bet_amount ) bet_amount,
-    sum( off.win_amount - sk.bet_amount ) win_loss
+    SUM( sk.bet_amount ) validbet,
+    sum( off.win_amount )- sum( sk.bet_amount ) win_loss
     FROM
-    game_record_goldenf off
-    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {3} AND trans_type = {6} ) sk ON off.bet_id = sk.bet_id
-        WHERE
-    off.vendor_code = {3}
-    AND off.trans_type = {5}
-    AND off.create_at_str BETWEEN {0}
+        (
+            SELECT
+                bet_id bet_id,
+            user_id user_id,
+            SUM( win_amount ) win_amount
+    FROM
+    game_record_goldenf t1
+    WHERE
+    t1.vendor_code = {3}
+    AND t1.trans_type = {5}
+    AND t1.create_at_str BETWEEN {0}
     AND {1}
     GROUP BY
-    user_id) goldenf_t on u.id = goldenf_t.user_id
+    t1.bet_id
+	) off
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {3} AND trans_type = {6} ) sk ON off.bet_id = sk.bet_id  GROUP BY user_id) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(amount) wash_amount
@@ -1407,20 +1415,29 @@ public class SqlConst {
     from user u
     left join (
         SELECT
-            off.user_id user_id,
-        count( 1 ) num,
+            user_id,
+        count( DISTINCT sk.bet_id ) num,
     SUM( sk.bet_amount ) bet_amount,
-    sum( off.win_amount - sk.bet_amount ) win_loss
+    SUM( sk.bet_amount ) validbet,
+    sum( off.win_amount )- sum( sk.bet_amount ) win_loss
     FROM
-    game_record_goldenf off
-    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {3} AND trans_type = {6} ) sk ON off.bet_id = sk.bet_id
-        WHERE
-    off.vendor_code = {3}
-    AND off.trans_type = {5}
-    AND off.create_at_str BETWEEN {0}
+        (
+            SELECT
+                bet_id bet_id,
+            user_id user_id,
+            SUM( win_amount ) win_amount
+    FROM
+    game_record_goldenf t1
+    WHERE
+    t1.vendor_code = {3}
+    AND t1.trans_type = {5}
+    AND t1.create_at_str BETWEEN {0}
     AND {1}
     GROUP BY
-    user_id) goldenf_t on u.id = goldenf_t.user_id
+    t1.bet_id
+	) off
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {3} AND trans_type = {6} ) sk ON off.bet_id = sk.bet_id  GROUP BY user_id
+    ) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(amount) wash_amount
@@ -1987,20 +2004,28 @@ public class SqlConst {
     from user u
     left join (
         SELECT
-            off.user_id user_id,
-        count( 1 ) num,
+            user_id,
+        count( DISTINCT sk.bet_id ) num,
     SUM( sk.bet_amount ) bet_amount,
-    sum( off.win_amount - sk.bet_amount ) win_loss
+    SUM( sk.bet_amount ) validbet,
+    sum( off.win_amount )- sum( sk.bet_amount ) win_loss
     FROM
-    game_record_goldenf off
-    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {2} AND trans_type = {5} ) sk ON off.bet_id = sk.bet_id
-        WHERE
-    off.vendor_code = {2}
-    AND off.trans_type = {4}
-    AND off.create_at_str BETWEEN {0}
+        (
+            SELECT
+                bet_id bet_id,
+            user_id user_id,
+            SUM( win_amount ) win_amount
+    FROM
+    game_record_goldenf t1
+    WHERE
+    t1.vendor_code = {2}
+    AND t1.trans_type = {4}
+    AND t1.create_at_str BETWEEN {0}
     AND {1}
     GROUP BY
-    user_id) goldenf_t on u.id = goldenf_t.user_id
+    t1.bet_id
+	) off
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {2} AND trans_type = {5} ) sk ON off.bet_id = sk.bet_id  GROUP BY user_id) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(amount) wash_amount

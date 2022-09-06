@@ -6,6 +6,7 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.exception.BusinessException;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.service.ProxyGameRecordReportService;
 import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.service.ReportService;
 import com.qianyi.casinocore.service.UserService;
@@ -16,6 +17,8 @@ import com.qianyi.casinocore.util.ExcelUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.PersonReportTotalVo;
 import com.qianyi.casinocore.vo.PersonReportVo;
+import com.qianyi.casinocore.vo.ReportTotalSumVo;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -25,6 +28,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.util.StringUtils;
@@ -59,7 +63,22 @@ public class ReportController {
     @Autowired
     private ProxyUserService proxyUserService;
 
+    @Autowired
+    private ProxyGameRecordReportService proxyGameRecordReportService;
+
     private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_10);
+
+    public static final List<String> platforms = new ArrayList<>();
+
+    static {
+        platforms.add(Constants.PLATFORM_WM_BIG);
+        platforms.add(Constants.PLATFORM_PG);
+        platforms.add(Constants.PLATFORM_CQ9);
+        platforms.add(Constants.PLATFORM_OBDJ);
+        platforms.add(Constants.PLATFORM_OBTY);
+        platforms.add(Constants.PLATFORM_SABASPORT);
+        platforms.add(Constants.PLATFORM_AE);
+    }
 
     // @NoAuthorization
     @ApiOperation("查询个人报表")
@@ -114,10 +133,12 @@ public class ReportController {
             // reportResult = userService.findMap(platform, startTimeStr, endTimeStr, page, pageSize, statement,
             // orderTimeStart, orderTimeEnd, "");
 
-            if (Objects.nonNull(tag) && tag == CommonConst.NUMBER_4){
-                reportResult = this.findWashOrderBy(platform,startTimeStr,endTimeStr,page,pageSize,statement,orderTimeStart,orderTimeEnd);
-            }else {
-                reportResult = this.findBetOrderBy(platform,startTimeStr,endTimeStr,page,pageSize,statement,orderTimeStart,orderTimeEnd);
+            if (Objects.nonNull(tag) && tag == CommonConst.NUMBER_4) {
+                reportResult = this.findWashOrderBy(platform, startTimeStr, endTimeStr, page, pageSize, statement,
+                    orderTimeStart, orderTimeEnd);
+            } else {
+                reportResult = this.findBetOrderBy(platform, startTimeStr, endTimeStr, page, pageSize, statement,
+                    orderTimeStart, orderTimeEnd);
             }
 
         } catch (Exception e) {
@@ -128,9 +149,10 @@ public class ReportController {
         return ResponseUtil.success(getMap(mapPageResultVO));
     }
 
-    private List<PersonReportVo> findWashOrderBy(String platform, String startTimeStr,
-        String endTimeStr, Integer page, Integer pageSize, String statement, String orderTimeStart, String orderTimeEnd) {
-        List<PersonReportVo> reportResult = userService.findMapWash(platform, startTimeStr, endTimeStr, page, pageSize, statement, "");
+    private List<PersonReportVo> findWashOrderBy(String platform, String startTimeStr, String endTimeStr, Integer page,
+        Integer pageSize, String statement, String orderTimeStart, String orderTimeEnd) {
+        List<PersonReportVo> reportResult =
+            userService.findMapWash(platform, startTimeStr, endTimeStr, page, pageSize, statement, "");
         if (CollUtil.isNotEmpty(reportResult)) {
             ReentrantLock reentrantLock = new ReentrantLock();
             Condition condition = reentrantLock.newCondition();
@@ -139,8 +161,8 @@ public class ReportController {
             for (PersonReportVo per : reportResult) {
                 threadPool.execute(() -> {
                     try {
-                        PersonReportVo vo =
-                            userService.findMapWash(platform, startTimeStr, endTimeStr, per.getId().toString(),orderTimeStart,orderTimeEnd);
+                        PersonReportVo vo = userService.findMapWash(platform, startTimeStr, endTimeStr,
+                            per.getId().toString(), orderTimeStart, orderTimeEnd);
                         per.setNum(vo.getNum());
                         per.setBetAmount(vo.getBetAmount());
                         per.setValidbet(vo.getValidbet());
@@ -168,10 +190,10 @@ public class ReportController {
         return reportResult;
     }
 
-    private List<PersonReportVo> findBetOrderBy(String platform, String startTimeStr,
-        String endTimeStr, Integer page, Integer pageSize, String statement, String orderTimeStart, String orderTimeEnd) {
-        List<PersonReportVo> reportResult = userService.findMapBet(platform, startTimeStr, endTimeStr, page, pageSize, statement,
-            orderTimeStart, orderTimeEnd, "");
+    private List<PersonReportVo> findBetOrderBy(String platform, String startTimeStr, String endTimeStr, Integer page,
+        Integer pageSize, String statement, String orderTimeStart, String orderTimeEnd) {
+        List<PersonReportVo> reportResult = userService.findMapBet(platform, startTimeStr, endTimeStr, page, pageSize,
+            statement, orderTimeStart, orderTimeEnd, "");
         if (CollUtil.isNotEmpty(reportResult)) {
             ReentrantLock reentrantLock = new ReentrantLock();
             Condition condition = reentrantLock.newCondition();
@@ -330,9 +352,16 @@ public class ReportController {
             list = getMap(reportResult);
 
             if (Objects.nonNull(list)) {
-                Map<String, Object> result =
-                    userService.findMap(platform, startTimeStr, endTimeStr, orderTimeStart, orderTimeEnd, "");
-                PersonReportVo item = DTOUtil.toDTO(result, PersonReportVo.class);
+                PersonReportVo item = null;
+                if (com.mysql.cj.util.StringUtils.isNullOrEmpty(platform)) {
+                    PersonReportTotalVo personReportTotalVo = this.sumGameRecord(startTimeStr, endTimeStr);
+                    item = new PersonReportVo();
+                    BeanUtils.copyProperties(personReportTotalVo, item);
+                } else {
+                    Map<String, Object> result =
+                        userService.findMap(platform, startTimeStr, endTimeStr, orderTimeStart, orderTimeEnd, "");
+                    item = DTOUtil.toDTO(result, PersonReportVo.class);
+                }
                 item.setAccount("总计");
                 list.add(item);
             }
@@ -434,11 +463,50 @@ public class ReportController {
                 itemObject = DTOUtil.toDTO(maps.get(0), PersonReportTotalVo.class);
             }
         } else {
+            if (com.mysql.cj.util.StringUtils.isNullOrEmpty(platform)) {
+                return ResponseUtil.success(this.sumGameRecord(startTime, endTime));
+            }
             Map<String, Object> result =
                 userService.findMapSum(platform, startTime, endTime, orderTimeStart, orderTimeEnd);
             itemObject = DTOUtil.toDTO(result, PersonReportTotalVo.class);
         }
         return ResponseUtil.success(itemObject);
+    }
+
+    private PersonReportTotalVo sumGameRecord(String startTime, String endTime) {
+        ReentrantLock reentrantLock = new ReentrantLock();
+        Condition condition = reentrantLock.newCondition();
+        AtomicInteger atomicInteger = new AtomicInteger(platforms.size());
+        Vector<ReportTotalSumVo> list = new Vector<>();
+        for (String platform : platforms) {
+            threadPool.execute(() -> {
+                try {
+                    ReportTotalSumVo mapSum = proxyGameRecordReportService.findMapSum(platform, startTime, endTime);
+                    list.add(mapSum);
+                } catch (Exception ex) {
+                    log.error("异步查询会员总报表总计异常", ex);
+                } finally {
+                    atomicInteger.decrementAndGet();
+                    BillThreadPool.toResume(reentrantLock, condition);
+                }
+            });
+        }
+        BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
+        Integer num = list.stream().mapToInt(ReportTotalSumVo::getNum).sum();
+        BigDecimal betAmount =
+            list.stream().map(ReportTotalSumVo::getBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal validbet = list.stream().map(ReportTotalSumVo::getValidbet).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal winLoss = list.stream().map(ReportTotalSumVo::getWinLoss).reduce(BigDecimal.ZERO, BigDecimal::add);
+        PersonReportTotalVo mapSum = proxyGameRecordReportService.findMapSum(startTime, endTime);
+        mapSum.setNum(num);
+        mapSum.setBetAmount(betAmount);
+        mapSum.setValidbet(validbet);
+        mapSum.setWinLoss(winLoss);
+        BigDecimal avgBenefit = winLoss.add(mapSum.getWashAmount()).add(mapSum.getAllWater());
+        mapSum.setAvgBenefit(avgBenefit.negate());
+        mapSum.setTotalAmount(
+            mapSum.getAvgBenefit().subtract(mapSum.getAllProfitAmount()).add(mapSum.getServiceCharge()));
+        return mapSum;
     }
 
     /*private HistoryTotal getHistoryItem(Map<String,Object> result){

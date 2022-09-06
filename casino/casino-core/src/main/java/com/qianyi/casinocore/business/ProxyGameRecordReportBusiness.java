@@ -99,6 +99,7 @@ public class ProxyGameRecordReportBusiness {
                         this.updateAe(gameRecordById,proxyGameRecordReportVo);
                         return;
                     }
+                    proxyGameRecordReportVo.setBetAmount(gameRecordById.getBetAmount());
                 }else {
                     GameRecordGoldenF gameRecordById = gameRecordGoldenFService.findGameRecordById(proxyGameRecordReportVo.getGameRecordId());
                     if (gameRecordById == null || gameRecordById.getGameRecordStatus() == Constants.yes){

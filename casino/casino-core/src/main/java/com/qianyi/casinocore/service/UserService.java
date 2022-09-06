@@ -635,7 +635,7 @@ public class UserService {
         } else if (platform.equals(Constants.PLATFORM_AE_E1SPORT)) {
             sql = MessageFormat.format(SqlNewConst.aeSumSql, startTime, endTime, "'E1SPORT'");
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
-            sql = MessageFormat.format(SqlNewConst.sabasportSumSql, startTime, endTime, "'SABASPORT'","'Payoff'","'Stake'");
+            sql = MessageFormat.format(SqlNewConst.sabasportSumSql, startTime, endTime, "'SABASPORT'","'Payoff'","'Stake'","'cancelPayoff'");
         } else {
             sql = MessageFormat.format(SqlNewConst.PGAndCQ9SumSql, startTime, endTime, "'CQ9'");
         }
@@ -917,14 +917,6 @@ public class UserService {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
         String sql = "";
-        // if(StringUtils.isNullOrEmpty(platform)){
-        // sql = MessageFormat.format(RebateSqlConst.sumSql,startTime,endTime,orderTimeStart,orderTimeEnd,proxy);
-        // }else if (platform.equals("WM")){
-        // sql = MessageFormat.format(RebateSqlConst.WMSumSql,startTime, endTime, "'wm'",proxy);
-        // }else{
-        // sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql,startTime, endTime,
-        // "'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
-        // }
         if (StringUtils.isNullOrEmpty(platform)) {
             sql = MessageFormat.format(RebateSqlConst.sumSqlReport, startTime, endTime, orderTimeStart, orderTimeEnd,
                 proxy);
@@ -946,7 +938,12 @@ public class UserService {
         } else if (platform.equals(Constants.PLATFORM_AE_E1SPORT)) {
             sql = MessageFormat.format(RebateSqlConst.aeSumSql, startTime, endTime, "'E1SPORT'", proxy);
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
-            sql = MessageFormat.format(RebateSqlConst.sabasportSumSql, startTime, endTime, "'SABASPORT'", proxy,"'Payoff'","'Stake'");
+            if (StringUtils.isNullOrEmpty(platform)){
+                sql = MessageFormat.format(RebateSqlConst.sabasportAdminSumSql, startTime, endTime, "'SABASPORT'","'Payoff'","'Stake'");
+            }else {
+                sql = MessageFormat.format(RebateSqlConst.sabasportProxySumSql, startTime, endTime, "'SABASPORT'", proxy,"'Payoff'","'Stake'");
+            }
+
         } else {
             sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql, startTime, endTime, "'CQ9'", proxy);
         }

@@ -4,6 +4,11 @@ import cn.hutool.core.collection.CollUtil;
 import com.qianyi.casinocore.model.ProxyGameRecordReport;
 import com.qianyi.casinocore.repository.ProxyGameRecordReportRepository;
 import com.qianyi.casinocore.util.CommonUtil;
+import com.qianyi.casinocore.util.DTOUtil;
+import com.qianyi.casinocore.util.SqlSumConst;
+import com.qianyi.casinocore.vo.PersonReportTotalVo;
+import com.qianyi.casinocore.vo.RebateReportTotalVo;
+import com.qianyi.casinocore.vo.ReportTotalSumVo;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -11,8 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.*;
 
@@ -25,6 +34,9 @@ public class ProxyGameRecordReportService {
 
     @Autowired
     private UserGameRecordReportService userGameRecordReportService;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public final static String start = " 12:00:00";
 
@@ -103,7 +115,6 @@ public class ProxyGameRecordReportService {
         Integer totalBetNumber = userGameRecordReportService.findTotalBetNumber(startTime, endTime);
         Integer totalBetNumberByAe = userGameRecordReportService.findTotalBetNumberByAe(startTime, endTime);
         totalBetNumber = totalBetNumber + totalBetNumberByAe;
-        log.info("代理报表日期{} betNumber:{} totalBetNumber:{}", dayTime, betNumber, totalBetNumber);
         if (betNumber.intValue() != totalBetNumber.intValue()) {
             log.error("代理报表日期{}不相等开始重新计算betNumber:{}totalBetNumber:{}", dayTime, betNumber, totalBetNumber);
             proxyGameRecordReportRepository.deleteByOrderTimes(dayTime);
@@ -156,4 +167,84 @@ public class ProxyGameRecordReportService {
     public void deleteByOrderTimes(String orderTimes){
         proxyGameRecordReportRepository.deleteByOrderTimes(orderTimes);
     }
+
+    @SuppressWarnings("unchecked")
+    public ReportTotalSumVo findMapSum(String platform, String startTime, String endTime) {
+        startTime = "'" + startTime + "'";
+        endTime = "'" + endTime + "'";
+        String sql = "";
+        if (platform.equals(Constants.PLATFORM_WM_BIG)) {
+            sql = MessageFormat.format(SqlSumConst.WMSumSql, startTime, endTime);
+        } else if (platform.equals(Constants.PLATFORM_OBDJ)) {
+            sql = MessageFormat.format(SqlSumConst.obdjSumSql, startTime, endTime);
+        } else if (platform.equals(Constants.PLATFORM_OBTY)) {
+            sql = MessageFormat.format(SqlSumConst.obtySumSql, startTime, endTime);
+        } else if (platform.equals(Constants.PLATFORM_PG)) {
+            sql = MessageFormat.format(SqlSumConst.PGAndCQ9SumSql, startTime, endTime, "'PG'");
+        } else if (platform.equals(Constants.PLATFORM_AE)) {
+            sql = MessageFormat.format(SqlSumConst.aeSumMergeSql, startTime, endTime);
+        } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
+            sql = MessageFormat.format(SqlSumConst.sabasportSumSql, startTime, endTime, "'SABASPORT'","'Payoff'","'Stake'","'cancelPayoff'");
+        } else {
+            sql = MessageFormat.format(SqlSumConst.PGAndCQ9SumSql, startTime, endTime, "'CQ9'");
+        }
+        log.info(sql);
+        Query countQuery = entityManager.createNativeQuery(sql);
+        Object result = countQuery.getSingleResult();
+        Map<String, Object> map = new HashMap<>();
+        Object[] obj = (Object[])result;
+        for (int i = 0; i < REPORT_TOTAL_FIELD_LIST.size(); i++) {
+            String field = REPORT_TOTAL_FIELD_LIST.get(i);
+            Object value = obj[i];
+            map.put(field, value);
+        }
+        ReportTotalSumVo itemObject = DTOUtil.toDTO(map, ReportTotalSumVo.class);
+        return itemObject;
+    }
+
+    private static final List<String> REPORT_TOTAL_FIELD_LIST = Arrays.asList("num", "bet_amount", "validbet",
+        "win_loss");
+
+
+    @SuppressWarnings("unchecked")
+    public PersonReportTotalVo findMapSum(String startTime, String endTime) {
+        startTime = "'" + startTime + "'";
+        endTime = "'" + endTime + "'";
+        String sql = MessageFormat.format(SqlSumConst.sumSql, startTime, endTime);
+        log.info(sql);
+        Query countQuery = entityManager.createNativeQuery(sql);
+        Object result = countQuery.getSingleResult();
+        Map<String, Object> map = new HashMap<>();
+        Object[] obj = (Object[])result;
+        for (int i = 0; i < TOTAL_FIELD_LIST.size(); i++) {
+            String field = TOTAL_FIELD_LIST.get(i);
+            Object value = obj[i];
+            map.put(field, value);
+        }
+        PersonReportTotalVo itemObject = DTOUtil.toDTO(map, PersonReportTotalVo.class);
+        return itemObject;
+    }
+
+    private static final List<String> TOTAL_FIELD_LIST = Arrays.asList("wash_amount", "service_charge", "all_profit_amount","all_water");
+
+    @SuppressWarnings("unchecked")
+    public RebateReportTotalVo findMapRebateSum(String startTime, String endTime) {
+        startTime = "'" + startTime + "'";
+        endTime = "'" + endTime + "'";
+        String sql = MessageFormat.format(SqlSumConst.sumRebateSql, startTime, endTime);
+        log.info(sql);
+        Query countQuery = entityManager.createNativeQuery(sql);
+        Object result = countQuery.getSingleResult();
+        Map<String, Object> map = new HashMap<>();
+        Object[] obj = (Object[])result;
+        for (int i = 0; i < REBATE_REPORT_TOTAL_FIELD_LIST.size(); i++) {
+            String field = REBATE_REPORT_TOTAL_FIELD_LIST.get(i);
+            Object value = obj[i];
+            map.put(field, value);
+        }
+        RebateReportTotalVo itemObject = DTOUtil.toDTO(map, RebateReportTotalVo.class);
+        return itemObject;
+    }
+
+    private static final List<String> REBATE_REPORT_TOTAL_FIELD_LIST = Arrays.asList( "total_rebate", "user_amount", "surplus_amount", "service_charge");
 }
