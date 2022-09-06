@@ -103,6 +103,7 @@ public class ProxyGameRecordReportService {
         Integer totalBetNumber = userGameRecordReportService.findTotalBetNumber(startTime, endTime);
         Integer totalBetNumberByAe = userGameRecordReportService.findTotalBetNumberByAe(startTime, endTime);
         totalBetNumber = totalBetNumber + totalBetNumberByAe;
+        log.info("代理报表日期{} betNumber:{} totalBetNumber:{}", dayTime, betNumber, totalBetNumber);
         if (betNumber.intValue() != totalBetNumber.intValue()) {
             log.error("代理报表日期{}不相等开始重新计算betNumber:{}totalBetNumber:{}", dayTime, betNumber, totalBetNumber);
             proxyGameRecordReportRepository.deleteByOrderTimes(dayTime);
