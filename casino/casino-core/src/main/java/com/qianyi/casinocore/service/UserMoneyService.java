@@ -606,7 +606,7 @@ public class UserMoneyService {
             }
             String aEUrl = first.getWebConfiguration() + AE_refreshUrl;
             if(!CommonUtil.checkNull(param)){
-                aEUrl = aEUrl + "?" +  param;
+                aEUrl = aEUrl +   param;
             }
             String s = HttpClient4Util.getWeb(aEUrl);
             log.info("查询AE余额web接口返回{}",s);
