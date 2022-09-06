@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 @ApiModel("资金详情")
 @Table(name = "game_record_goldenf",indexes = {
     @Index(name = "goldenf_traceId",columnList = "traceId",unique = true),@Index(columnList = "createAtStr")
-    ,@Index(columnList = "vendorCode"),@Index(columnList = "userId"),@Index(columnList = "transType"),@Index(columnList = "betId")
+    ,@Index(columnList = "vendorCode"),@Index(columnList = "userId")
 })
 public class GameRecordGoldenF extends BaseEntity {
 
