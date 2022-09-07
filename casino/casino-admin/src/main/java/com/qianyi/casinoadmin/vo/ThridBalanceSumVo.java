@@ -12,5 +12,5 @@ public class ThridBalanceSumVo implements Serializable {
 
     private BigDecimal sunBalance;
 
-    private String queryTime;
+    private Date queryTime;
 }
