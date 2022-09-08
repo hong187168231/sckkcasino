@@ -45,8 +45,9 @@ public interface UserGameRecordReportRepository extends JpaRepository<UserGameRe
         + "FROM game_record gr WHERE bet_time >= ?1 AND bet_time <= ?2 GROUP BY user_id ) main_t "
         + "ON u.id = main_t.user_id LEFT JOIN ( SELECT user_id, count( 1 ) num FROM game_record_goldenf grg WHERE create_at_str >= ?1 "
         + "AND create_at_str <=  ?2  And vendor_code in ('PG','CQ9') GROUP BY user_id ) goldenf_t ON u.id = goldenf_t.user_id "
-        + "LEFT JOIN ( SELECT user_id, count( 1 ) num FROM game_record_goldenf WHERE create_at_str >= ?1 "
-        + "AND create_at_str <= ?2  AND vendor_code = 'SABASPORT' AND trans_type = 'Payoff' GROUP BY user_id ) goldenf_sb "
+        + "LEFT JOIN ( select user_id ,count( DISTINCT sk.bet_id ) num FROM (select bet_id bet_id,user_id user_id from game_record_goldenf t1 where "
+        + "t1.vendor_code = 'SABASPORT' AND t1.trans_type = 'Payoff' AND t1.create_at_str BETWEEN ?1 and ?2 GROUP BY t1.bet_id) off LEFT JOIN "
+        + "(SELECT bet_id FROM game_record_goldenf WHERE vendor_code = 'SABASPORT' AND trans_type = 'Stake') sk ON off.bet_id = sk.bet_id  GROUP BY user_id ) goldenf_sb "
         + "ON u.id = goldenf_sb.user_id LEFT JOIN (SELECT user_id,count( 1 ) num FROM game_record_obdj grobdj WHERE bet_status "
         + "IN ( 5, 6, 8, 9, 10 ) AND set_str_time >= ?1 AND set_str_time <= ?2  "
         + "GROUP BY user_id ) grobdj_t ON u.id = grobdj_t.user_id LEFT JOIN ( SELECT user_id, count( 1 ) num FROM game_record_obty grobty "
@@ -66,11 +67,12 @@ public interface UserGameRecordReportRepository extends JpaRepository<UserGameRe
         + "GROUP BY grg.vendor_code,grg.user_id ;",nativeQuery = true)
     List<Map<String, Object>> findPg(String startTime,String endTime);
 
-    @Query(value = "SELECT off.user_id user_id,off.vendor_code vendor_code,count( 1 ) num,SUM( sk.bet_amount ) bet_amount,"
-        + "SUM( sk.bet_amount ) validbet,sum( off.win_amount - sk.bet_amount ) win_loss FROM game_record_goldenf off "
-        + "LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = ?3 AND trans_type = 'Stake') sk "
-        + "ON off.bet_id = sk.bet_id WHERE off.vendor_code = ?3 AND off.trans_type = 'Payoff' AND off.create_at_str "
-        + "BETWEEN ?1 AND ?2  GROUP BY user_id",nativeQuery = true)
+    @Query(value = "select off.user_id user_id,off.vendor_code vendor_code,"
+        + "count( DISTINCT sk.bet_id ) num,SUM( sk.bet_amount ) bet_amount,"
+        + "SUM( sk.bet_amount ) validbet,sum(off.win_amount)-sum( sk.bet_amount ) win_loss "
+        + "FROM (select bet_id bet_id,user_id user_id,vendor_code,SUM(win_amount) win_amount from game_record_goldenf t1 where t1.vendor_code = ?3 AND t1.trans_type = 'Payoff' "
+        + "AND t1.create_at_str BETWEEN ?1 AND ?2 GROUP BY t1.bet_id) off LEFT JOIN (SELECT bet_amount, bet_id FROM game_record_goldenf "
+        + "WHERE vendor_code = ?3 AND trans_type = 'Stake') sk ON off.bet_id = sk.bet_id GROUP BY user_id",nativeQuery = true)
     List<Map<String, Object>> findSb(String startTime,String endTime,String vendorCode);
 
     @Query(value = "select user_id user_id,count(1) num,sum(order_amount) bet_amount,sum(order_amount) validbet,sum(profit_amount) win_loss from game_record_obty grg "

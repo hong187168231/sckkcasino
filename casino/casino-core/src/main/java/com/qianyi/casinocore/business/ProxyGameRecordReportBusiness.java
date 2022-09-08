@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.business;
 
+import cn.hutool.core.collection.CollUtil;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonUtil;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -46,7 +48,7 @@ public class ProxyGameRecordReportBusiness {
     private RedisLockUtil redisLockUtil;
 
     //统计时间超过24小时记录日志
-    public final static int hour = 24;
+    public final static int hour = 12;
 
 
     @Transactional
@@ -99,6 +101,7 @@ public class ProxyGameRecordReportBusiness {
                         this.updateAe(gameRecordById,proxyGameRecordReportVo);
                         return;
                     }
+                    proxyGameRecordReportVo.setBetAmount(gameRecordById.getBetAmount());
                 }else {
                     GameRecordGoldenF gameRecordById = gameRecordGoldenFService.findGameRecordById(proxyGameRecordReportVo.getGameRecordId());
                     if (gameRecordById == null || gameRecordById.getGameRecordStatus() == Constants.yes){
@@ -107,18 +110,28 @@ public class ProxyGameRecordReportBusiness {
                     }
                     if (gameRecordById.getVendorCode().equals(Constants.PLATFORM_SABASPORT)){
                         if (gameRecordById.getTransType().equals("Payoff")){
-                            GameRecordGoldenF stake = gameRecordGoldenFService
+                            List<GameRecordGoldenF> gameRecordGoldenFS = gameRecordGoldenFService
                                 .findByBetIdAndTransTypeAndVendorCode(gameRecordById.getBetId(), "Stake",
                                     Constants.PLATFORM_SABASPORT);
+                            if (CollUtil.isEmpty(gameRecordGoldenFS)){
+                                log.error("沙巴体育注单Stake状态异常没有找到注单");
+                                return;
+                            }
+                            GameRecordGoldenF stake = gameRecordGoldenFS.get(0);
                             if (Objects.isNull(stake) || stake.getGameRecordStatus() == Constants.yes){
                                 log.error("沙巴体育注单Stake状态异常{}",proxyGameRecordReportVo.getGameRecordId());
                                 return;
                             }
                             proxyGameRecordReportVo = getProxyGameRecordReportVo(gameRecordById,stake);
                         }else {
-                            GameRecordGoldenF payoff = gameRecordGoldenFService
+                            List<GameRecordGoldenF> gameRecordGoldenFS = gameRecordGoldenFService
                                 .findByBetIdAndTransTypeAndVendorCode(gameRecordById.getBetId(), "Payoff",
                                     Constants.PLATFORM_SABASPORT);
+                            if (CollUtil.isEmpty(gameRecordGoldenFS)){
+                                log.error("沙巴体育注单未结算不计算");
+                                return;
+                            }
+                            GameRecordGoldenF payoff = gameRecordGoldenFS.get(0);
                             if (Objects.isNull(payoff) || payoff.getGameRecordStatus() == Constants.yes){
                                 log.info("沙巴体育注单未结算不计算{}",proxyGameRecordReportVo.getGameRecordId());
                                 return;

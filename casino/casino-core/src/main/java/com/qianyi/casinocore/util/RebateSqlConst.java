@@ -523,20 +523,28 @@ public class RebateSqlConst {
         -(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0))+ifnull(withdraw_t.service_charge,0) total_amount
     from user u left join (
         SELECT
-            off.user_id user_id,
-        count( 1 ) num,
+            user_id,
+        count( DISTINCT sk.bet_id ) num,
     SUM( sk.bet_amount ) bet_amount,
-    sum( off.win_amount - sk.bet_amount ) win_loss
+    SUM( sk.bet_amount ) validbet,
+    sum( off.win_amount )- sum( sk.bet_amount ) win_loss
     FROM
-    game_record_goldenf off
-    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {5} AND trans_type = {8} ) sk ON off.bet_id = sk.bet_id
-        WHERE
-    off.vendor_code = {5}
-    AND off.trans_type = {7}
-    AND off.create_at_str BETWEEN {0}
+        (
+            SELECT
+                bet_id bet_id,
+            user_id user_id,
+            SUM( win_amount ) win_amount
+    FROM
+    game_record_goldenf t1
+    WHERE
+    t1.vendor_code = {5}
+    AND t1.trans_type = {7}
+    AND t1.create_at_str BETWEEN {0}
     AND {1}
     GROUP BY
-    user_id) goldenf_t on u.id = goldenf_t.user_id
+    t1.bet_id
+	) off
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {5} AND trans_type = {8} ) sk ON off.bet_id = sk.bet_id  GROUP BY user_id) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(total_amount) total_amount,
@@ -711,20 +719,28 @@ public class RebateSqlConst {
         -(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0))+ifnull(withdraw_t.service_charge,0) total_amount
     from user u left join (
         SELECT
-            off.user_id user_id,
-        count( 1 ) num,
+            user_id,
+        count( DISTINCT sk.bet_id ) num,
     SUM( sk.bet_amount ) bet_amount,
-    sum( off.win_amount - sk.bet_amount ) win_loss
+    SUM( sk.bet_amount ) validbet,
+    sum( off.win_amount )- sum( sk.bet_amount ) win_loss
     FROM
-    game_record_goldenf off
-    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {3} AND trans_type = {6} ) sk ON off.bet_id = sk.bet_id
-        WHERE
-    off.vendor_code = {3}
-    AND off.trans_type = {5}
-    AND off.create_at_str BETWEEN {0}
+        (
+            SELECT
+                bet_id bet_id,
+            user_id user_id,
+            SUM( win_amount ) win_amount
+    FROM
+    game_record_goldenf t1
+    WHERE
+    t1.vendor_code = {3}
+    AND t1.trans_type = {5}
+    AND t1.create_at_str BETWEEN {0}
     AND {1}
     GROUP BY
-    user_id) goldenf_t on u.id = goldenf_t.user_id
+    t1.bet_id
+	) off
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {3} AND trans_type = {6} ) sk ON off.bet_id = sk.bet_id  GROUP BY user_id) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(total_amount) total_amount,
@@ -1239,20 +1255,29 @@ public class RebateSqlConst {
     from user u
     left join (
         SELECT
-            off.user_id user_id,
-        count( 1 ) num,
+            user_id,
+        count( DISTINCT sk.bet_id ) num,
     SUM( sk.bet_amount ) bet_amount,
-    sum( off.win_amount - sk.bet_amount ) win_loss
+    SUM( sk.bet_amount ) validbet,
+    sum( off.win_amount )- sum( sk.bet_amount ) win_loss
     FROM
-    game_record_goldenf off
-    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {3} AND trans_type = {6} ) sk ON off.bet_id = sk.bet_id
-        WHERE
-    off.vendor_code = {3}
-    AND off.trans_type = {5}
-    AND off.create_at_str BETWEEN {0}
+        (
+            SELECT
+                bet_id bet_id,
+            user_id user_id,
+            SUM( win_amount ) win_amount
+    FROM
+    game_record_goldenf t1
+    WHERE
+    t1.vendor_code ={3}
+    AND t1.trans_type = {5}
+    AND t1.create_at_str BETWEEN {0}
     AND {1}
     GROUP BY
-    user_id) goldenf_t on u.id = goldenf_t.user_id
+    t1.bet_id
+	) off
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code ={3} AND trans_type = {6} ) sk ON off.bet_id = sk.bet_id  GROUP BY user_id
+    ) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(total_amount) total_amount,
@@ -1723,7 +1748,7 @@ public class RebateSqlConst {
                    ) withdraw_t on u.id = withdraw_t.user_id{3}
             """;
 
-    public static String sabasportSumSql = """
+    public static String sabasportProxySumSql = """
     select
     sum(ifnull(goldenf_t.num,0)) num,
     sum(ifnull(goldenf_t.bet_amount,0)) bet_amount ,
@@ -1738,20 +1763,28 @@ public class RebateSqlConst {
     from user u
     left join (
         SELECT
-            off.user_id user_id,
-        count( 1 ) num,
+            user_id,
+        count( DISTINCT sk.bet_id ) num,
     SUM( sk.bet_amount ) bet_amount,
-    sum( off.win_amount - sk.bet_amount ) win_loss
+    SUM( sk.bet_amount ) validbet,
+    sum( off.win_amount )- sum( sk.bet_amount ) win_loss
     FROM
-    game_record_goldenf off
-    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {2} AND trans_type = {5} ) sk ON off.bet_id = sk.bet_id
-        WHERE
-    off.vendor_code = {2}
-    AND off.trans_type = {4}
-    AND off.create_at_str BETWEEN {0}
+        (
+            SELECT
+                bet_id bet_id,
+            user_id user_id,
+            SUM( win_amount ) win_amount
+    FROM
+    game_record_goldenf t1
+    WHERE
+    t1.vendor_code = {2}
+    AND t1.trans_type = {4}
+    AND t1.create_at_str BETWEEN {0}
     AND {1}
     GROUP BY
-    user_id) goldenf_t on u.id = goldenf_t.user_id
+    t1.bet_id
+	) off
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {2} AND trans_type =  {5} ) sk ON off.bet_id = sk.bet_id  GROUP BY user_id) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(total_amount) total_amount,
@@ -1768,6 +1801,53 @@ public class RebateSqlConst {
     where status = 1 and withdraw_time between {0} and {1}
     group by user_id
                    ) withdraw_t on u.id = withdraw_t.user_id{3}
+            """;
+
+    public static String sabasportAdminSumSql = """
+    select 	sum(ifnull(goldenf_t.num,0)) num,
+    sum(ifnull(goldenf_t.bet_amount,0)) bet_amount ,
+    sum(ifnull(goldenf_t.bet_amount,0)) validbet ,
+    sum(ifnull(goldenf_t.win_loss,0)) win_loss ,
+    sum(ifnull(rd_t.total_amount,0)) total_rebate,
+    sum(ifnull(rd_t.user_amount,0)) user_amount,
+    sum(ifnull(rd_t.surplus_amount,0)) surplus_amount,
+    sum(ifnull(withdraw_t.service_charge,0)) service_charge,
+    sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0))) avg_benefit,
+    sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0))+ifnull(withdraw_t.service_charge,0)) total_amount
+    from (SELECT
+            count( DISTINCT sk.bet_id ) num,
+    SUM( sk.bet_amount ) bet_amount,
+    SUM( sk.bet_amount ) validbet,
+	(
+    sum( off.win_amount )- sum( sk.bet_amount )+ sum( t3.win_amount )) win_loss
+    FROM
+        (
+            SELECT
+                bet_id bet_id,
+            SUM( win_amount ) win_amount
+    FROM
+    game_record_goldenf t1
+    WHERE
+    t1.vendor_code = {2}
+    AND t1.trans_type =  {3}
+    AND t1.create_at_str BETWEEN {0}
+    AND {1}
+    GROUP BY
+    t1.bet_id
+	) off
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {2} AND trans_type =  {4} ) sk ON off.bet_id = sk.bet_id
+    LEFT JOIN game_record_goldenf t3 ON off.bet_id = t3.bet_id
+    AND t3.trans_type = 'cancelPayoff' ) goldenf_t,
+        (select
+    sum(total_amount) total_amount,
+    sum(user_amount) user_amount,
+    sum(surplus_amount) surplus_amount
+    from rebate_detail rd
+    where platform = {2} and create_time between {0} and {1}) rd_t,
+        (select
+    sum(ifnull(service_charge,0)) service_charge
+    from withdraw_order wo
+    where status = 1 and withdraw_time between {0} and {1}) withdraw_t
             """;
 
     public static String obdjSumSql = """

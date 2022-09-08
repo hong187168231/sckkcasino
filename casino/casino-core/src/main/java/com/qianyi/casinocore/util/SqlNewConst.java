@@ -232,20 +232,28 @@ public class SqlNewConst {
     USER u
     LEFT JOIN (
         SELECT
-            off.user_id user_id,
-        count( 1 ) num,
+            user_id,
+        count( DISTINCT sk.bet_id ) num,
     SUM( sk.bet_amount ) bet_amount,
-    sum( off.win_amount - sk.bet_amount ) win_loss
+    SUM( sk.bet_amount ) validbet,
+    sum( off.win_amount )- sum( sk.bet_amount ) win_loss
     FROM
-    game_record_goldenf off
-    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {5} AND trans_type = {8} ) sk ON off.bet_id = sk.bet_id
-        WHERE
-    off.vendor_code = {5}
-    AND off.trans_type = {7}
-    AND off.create_at_str BETWEEN {0}
+        (
+            SELECT
+                bet_id bet_id,
+            user_id user_id,
+            SUM( win_amount ) win_amount
+    FROM
+    game_record_goldenf t1
+    WHERE
+    t1.vendor_code = {5}
+    AND t1.trans_type = {7}
+    AND t1.create_at_str BETWEEN {0}
     AND {1}
     GROUP BY
-    user_id
+    t1.bet_id
+	) off
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {5} AND trans_type = {8}) sk ON off.bet_id = sk.bet_id  GROUP BY user_id
 	) goldenf_t ON u.id = goldenf_t.user_id
         WHERE
 	1 = 1{6} {2}
@@ -591,19 +599,28 @@ public class SqlNewConst {
     FROM
         (
             SELECT
-                count( 1 ) num,
-    ifnull( SUM( sk.bet_amount ), 0 ) bet_amount,
-    ifnull( SUM( sk.bet_amount ), 0 ) validbet,
-    ifnull( sum( off.win_amount - sk.bet_amount ), 0 ) win_loss
-        FROM
-    game_record_goldenf off
-    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE user_id = {2}
-    AND vendor_code = {4} AND trans_type = {6} ) sk ON off.bet_id = sk.bet_id
-    WHERE off.user_id = {2}
-    AND off.vendor_code = {4}
-    AND off.trans_type = {5}
-    AND off.create_at_str BETWEEN {0}
+                count( DISTINCT sk.bet_id ) num,
+    SUM( sk.bet_amount ) bet_amount,
+    SUM( sk.bet_amount ) validbet,
+    sum( off.win_amount )- sum( sk.bet_amount ) win_loss
+    FROM
+        (
+            SELECT
+                bet_id bet_id,
+            user_id user_id,
+            SUM( win_amount ) win_amount
+    FROM
+    game_record_goldenf t1
+    WHERE
+    t1.vendor_code = {4}
+    AND t1.user_id = {2}
+    AND t1.trans_type = {5}
+    AND t1.create_at_str BETWEEN {0}
     AND {1}
+    GROUP BY
+    t1.bet_id
+	) off
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {4} AND trans_type = {6}) sk ON off.bet_id = sk.bet_id
 	) t1,
         (
     SELECT
@@ -1005,18 +1022,31 @@ public class SqlNewConst {
     sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0))) avg_benefit,
     sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,
     sum(ifnull(ec.water, 0)) all_water from
-        (SELECT
-            count( 1 ) num,
+        (
+            SELECT
+                count( DISTINCT sk.bet_id ) num,
     SUM( sk.bet_amount ) bet_amount,
     SUM( sk.bet_amount ) validbet,
-    sum( off.win_amount - sk.bet_amount ) win_loss
+	(
+    sum( off.win_amount )- sum( sk.bet_amount )+ sum( t3.win_amount )) win_loss
     FROM
-    game_record_goldenf off
-    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {2} AND trans_type = {4}) sk ON off.bet_id = sk.bet_id
-        WHERE
-    off.vendor_code = {2}
-    AND off.trans_type = {3}
-    AND off.create_at_str BETWEEN {0} and {1}) main_t,
+        (
+            SELECT
+                bet_id bet_id,
+            SUM( win_amount ) win_amount
+    FROM
+    game_record_goldenf t1
+    WHERE
+    t1.vendor_code = {2}
+    AND t1.trans_type = {3}
+    AND t1.create_at_str BETWEEN  {0}
+    AND {1}
+    GROUP BY
+    t1.bet_id
+	) off
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {2} AND trans_type = {4} ) sk ON off.bet_id = sk.bet_id
+    LEFT JOIN game_record_goldenf t3 ON off.bet_id = t3.bet_id
+    AND t3.trans_type = {5} ) main_t,
         (select
     sum(amount) wash_amount
     from wash_code_change wcc

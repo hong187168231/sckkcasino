@@ -5,13 +5,16 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.exception.BusinessException;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.service.ProxyGameRecordReportService;
 import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.service.ReportService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.util.BillThreadPool;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.DTOUtil;
 import com.qianyi.casinocore.util.ExcelUtil;
 import com.qianyi.casinocore.vo.*;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -21,6 +24,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.util.StringUtils;
@@ -35,6 +39,9 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 @Api(tags = "报表中心")
@@ -51,6 +58,23 @@ public class RebateReportController {
 
     @Autowired
     private ProxyUserService proxyUserService;
+
+    @Autowired
+    private ProxyGameRecordReportService proxyGameRecordReportService;
+
+    private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_10);
+
+    public static final List<String> platforms = new ArrayList<>();
+
+    static {
+        platforms.add(Constants.PLATFORM_WM_BIG);
+        platforms.add(Constants.PLATFORM_PG);
+        platforms.add(Constants.PLATFORM_CQ9);
+        platforms.add(Constants.PLATFORM_OBDJ);
+        platforms.add(Constants.PLATFORM_OBTY);
+        platforms.add(Constants.PLATFORM_SABASPORT);
+        platforms.add(Constants.PLATFORM_AE);
+    }
 
     // @NoAuthorization
     @ApiOperation("查询个人返利报表")
@@ -245,10 +269,17 @@ public class RebateReportController {
             }
             list = getMap(reportResult);
 
-            if (Objects.nonNull(list)){
-                Map<String, Object> result =
-                    userService.findRebateMap(platform, startTimeStr, endTimeStr, orderTimeStart, orderTimeEnd, "");
-                RebateReportVo item = DTOUtil.toDTO(result, RebateReportVo.class);
+            if (Objects.nonNull(list)) {
+                RebateReportVo item = null;
+                if (com.mysql.cj.util.StringUtils.isNullOrEmpty(platform)) {
+                    RebateReportTotalVo rebateReportTotalVo = this.sumGameRecord(startTimeStr, endTimeStr);
+                    item = new RebateReportVo();
+                    BeanUtils.copyProperties(rebateReportTotalVo, item);
+                }else {
+                    Map<String, Object> result =
+                        userService.findRebateMap(platform, startTimeStr, endTimeStr, orderTimeStart, orderTimeEnd, "");
+                    item = DTOUtil.toDTO(result, RebateReportVo.class);
+                }
                 item.setAccount("总计");
                 list.add(item);
             }
@@ -350,11 +381,49 @@ public class RebateReportController {
                 itemObject = DTOUtil.toDTO(maps.get(0), RebateReportTotalVo.class);
             }
         } else {
+            if (com.mysql.cj.util.StringUtils.isNullOrEmpty(platform)) {
+                return ResponseUtil.success(this.sumGameRecord(startTime, endTime));
+            }
             Map<String, Object> result =
                 userService.findRebateMap(platform, startTime, endTime, orderTimeStart, orderTimeEnd, "");
             itemObject = DTOUtil.toDTO(result, RebateReportTotalVo.class);
         }
         return ResponseUtil.success(itemObject);
+    }
+
+    private RebateReportTotalVo sumGameRecord(String startTime, String endTime) {
+        ReentrantLock reentrantLock = new ReentrantLock();
+        Condition condition = reentrantLock.newCondition();
+        AtomicInteger atomicInteger = new AtomicInteger(platforms.size());
+        Vector<ReportTotalSumVo> list = new Vector<>();
+        for (String platform : platforms) {
+            threadPool.execute(() -> {
+                try {
+                    ReportTotalSumVo mapSum = proxyGameRecordReportService.findMapSum(platform, startTime, endTime);
+                    list.add(mapSum);
+                } catch (Exception ex) {
+                    log.error("异步查询会员返利报表总计异常", ex);
+                } finally {
+                    atomicInteger.decrementAndGet();
+                    BillThreadPool.toResume(reentrantLock, condition);
+                }
+            });
+        }
+        BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
+        Integer num = list.stream().mapToInt(ReportTotalSumVo::getNum).sum();
+        BigDecimal betAmount =
+            list.stream().map(ReportTotalSumVo::getBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal validbet = list.stream().map(ReportTotalSumVo::getValidbet).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal winLoss = list.stream().map(ReportTotalSumVo::getWinLoss).reduce(BigDecimal.ZERO, BigDecimal::add);
+        RebateReportTotalVo mapRebateSum = proxyGameRecordReportService.findMapRebateSum(startTime, endTime);
+        mapRebateSum.setNum(num);
+        mapRebateSum.setBetAmount(betAmount);
+        mapRebateSum.setValidbet(validbet);
+        mapRebateSum.setWinLoss(winLoss);
+        BigDecimal avgBenefit = winLoss.add(mapRebateSum.getTotalRebate());
+        mapRebateSum.setAvgBenefit(avgBenefit.negate());
+        mapRebateSum.setTotalAmount(mapRebateSum.getAvgBenefit().add(mapRebateSum.getServiceCharge()));
+        return mapRebateSum;
     }
 
     /*private HistoryTotal getHistoryItem(Map<String,Object> result){
