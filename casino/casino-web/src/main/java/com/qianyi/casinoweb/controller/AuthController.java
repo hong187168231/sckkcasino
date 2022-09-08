@@ -170,10 +170,10 @@ public class AuthController {
      */
     public ResponseEntity registerCommon(String account, String password, String country, String phone, String phoneCode,
                                          HttpServletRequest request, String validate, String inviteCode, String inviteType,Integer source) {
-//        boolean wangyidun = WangyiDunAuthUtil.verify(validate);
-//        if (!wangyidun) {
-//            return ResponseUtil.custom("验证码错误");
-//        }
+        boolean wangyidun = WangyiDunAuthUtil.verify(validate);
+        if (!wangyidun) {
+            return ResponseUtil.custom("验证码错误");
+        }
         //卫语句校验
         boolean checkAccountLength = User.checkAccountLength(account);
         if (!checkAccountLength) {
@@ -381,10 +381,10 @@ public class AuthController {
         }
         if (!verifyFlag) {
             //验证码校验
-//            boolean wangyidun = WangyiDunAuthUtil.verify(validate);
-//            if (!wangyidun) {
-//                return ResponseUtil.custom("验证码错误");
-//            }
+            boolean wangyidun = WangyiDunAuthUtil.verify(validate);
+            if (!wangyidun) {
+                return ResponseUtil.custom("验证码错误");
+            }
         }
         if (ObjectUtils.isEmpty(user.getDeviceId()) && !ObjectUtils.isEmpty(deviceId)) {
             user.setDeviceId(deviceId);

@@ -37,7 +37,6 @@ public class WangyiDunAuthUtil {
             e.printStackTrace();
         }
 
-
         String s = HttpClient4Util.doPost(url, params);
         System.out.println(s);
         if (CommonUtil.checkNull(s)) {
@@ -67,11 +66,9 @@ public class WangyiDunAuthUtil {
     }
 
     public static void main(String[] args) {
-        String validate = "CN31_Hz88hW12sdc2GZaKRbpxQNOb9L_GXIYv6WJMNrY.Y2NxST-ZCSSIPdDPlmNTuraD-dvXaCFtrErt_FO04GCXpk6Rnf9TRur5-u0e0EYk2T5090.Qc-TZjitVD1NYlfIUUMuLF0dfWasSAnvtwv9NzCey2cf_DYcV8-nSpmkriwxU5JsSn_I1D5Aia9TFvpq6dQgguVKD2MGQsOHe6QEMkdD-LsyfPplAj1XgdsXoegtdGnxrsBCZQlr_V1vVgqSkHJ-QQ.IXLwHK5hYLyNZV.Wu0Dv68Ljacps0nvpnbiMUxiSsPO4ndIWbN8gdsyQZHf9Bh05hkBshAGHSY6KbGRiz4Di2VM7oRE1elPxOY2V-xC6bAZe5Xz-Ps4hp0T-k9th4i87noBek1t0SkKLd-UskcdSB_kDWrLQQOskZKvZCgGSu5U6EPw5OzYHrEkDlP_sGjsX2zCZCsmpkLe6BrzR7iEavB_cRCIlgeQ_DajmHaa7VAy2UB2Ynj58i3";
+        String validate = "CN31_ptRi.67PjSH9B4K-0vH-hOZGN-0z-8mazd1M15wJjozIfcjEReopCYOWxrOtKYA7Gavw14uxWuwrNkSAsv8Uh6TqKpsJozugX6XYppQHKU9Ww-T-JcALef8Mt4ntBs6OGfrfUOQYB.iUThrIsF0TfW2j6THREwTuCJtBNkRGDJxliYi.XyRy-sHY4_J_JQ9y1mBmqPmylGSctD4koo-ES_SnpUSE7Vr5H5URRKN-HT_Hft22DRR68TaG9sGvQcQrlNf4fBLtp.C0kvyCqDZ1y5Jy4t_ReHPA5GOtB8UWQ7hDx0X.or-aJzbIAktV.4LPCF6E4MER_1Nc-UacpG60CYTb.0.T.YtAhGzmfEqq9PAzZlWbPKH2SDFhf07kLfJ581i61Y1Q5lMxNzqWOLqVeUClv69DYvdY0y8b75G5yNnNgebIrizXFQkumo0AcqdW0TDNIjTaYJjUZA9m.BLrDgfPZ2xi.CLgIwVUiWSM1_1fT7r4tQcjSCRFjom3";
         boolean verify = WangyiDunAuthUtil.verify(validate);
-        if (!verify) {
-            System.out.println("验证码错误");
-        }
+        System.out.println(verify);
     }
 
 }
