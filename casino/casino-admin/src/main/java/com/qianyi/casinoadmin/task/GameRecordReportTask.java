@@ -83,10 +83,11 @@ public class GameRecordReportTask {
         //        });
         String startDay = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(startDate);
         String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(DateUtil.getYesterday());
-        
+
+        this.delete(yesterday);
+
         List<String> betweenDate = DateUtil.getBetweenDate(startDay, yesterday);
         for (String str:betweenDate){
-            this.delete(yesterday);
             userGameRecordReportService.comparison(str);
             proxyGameRecordReportService.comparison(str);
         }
