@@ -1,6 +1,7 @@
 package com.qianyi.moduleauthenticator;
 
 import com.alibaba.fastjson.JSONObject;
+import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.HttpClient4Util;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -19,12 +20,12 @@ public class WangyiDunAuthUtil {
         String url = "http://c.dun.163.com/api/v2/verify";
         String timestamp = System.currentTimeMillis() + "";
         String nonce = timestamp + CommonUtil.random(5);
-        String secretKey = "0827adaf67d2c4014c55e86c92104274";
+        String secretKey = "bdc09f9d58eccd251d95296cbd80dc56";
         Map<String, Object> params = new HashMap<>();
-        params.put("captchaId", "a2eb62e9d6be4d4e945d5a403285b229");
+        params.put("captchaId", "9b8a2163bedd48059675adf8856f59e7");
         params.put("validate", validate);
         params.put("user", "");
-        params.put("secretId", "fb00c2047073fc009ec0135df4f5d33f");
+        params.put("secretId", "3958be95329c3a9a309c7b8f3da6ca46");
         params.put("version", "v2");
         params.put("timestamp", timestamp);
         params.put("nonce", nonce);
@@ -35,6 +36,7 @@ public class WangyiDunAuthUtil {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+
 
         String s = HttpClient4Util.doPost(url, params);
         System.out.println(s);
@@ -65,9 +67,11 @@ public class WangyiDunAuthUtil {
     }
 
     public static void main(String[] args) {
-        String validate = "CN31_rZQV0bADDvXR9M-rDZOpvek9z74AXeIitoNmpWybrNJR5p6Mx_lnYEWtEuazD909yB2N6NL8aBBjh1Y8K9po5jfAviNQ77GV0s2Qbay9N.ch1NmrRPAOEH.6ckkelZ59hjspq00Zmnzar7YrngTdVS.dyua6oqmojTweeFU5CHFU2UCN_gQx4VwAlq8P4PpJTPkTMZUq_iIJI7oLIkZIJqHeh.gckuEAtSdMuYrOtoBmxUDdHQpMKPKV1MhGVxqxBpAGeGcNllI6CShNTA_vXXwzHxLcVSJkUYTLtnjmwX-zCk82wNQMbOkXWwpckos.7oNVOrRPtsgwf7Mh7lqjEQ4DhfPMvZCyXZME650tHLkOTnIyHbpC47IIjRpuV.4EFS6sjK.dV2-_uLCGl_L9n.wtzEowxUVjzxW1wiLoEuOcdfQuULgSyFvuCkZkUBDEKydmExUVNtLVVx07MAYws69pGib0e9JE5fcLdv4CH_9tw0A4iqnbmh7Uu0j3";
+        String validate = "CN31_Hz88hW12sdc2GZaKRbpxQNOb9L_GXIYv6WJMNrY.Y2NxST-ZCSSIPdDPlmNTuraD-dvXaCFtrErt_FO04GCXpk6Rnf9TRur5-u0e0EYk2T5090.Qc-TZjitVD1NYlfIUUMuLF0dfWasSAnvtwv9NzCey2cf_DYcV8-nSpmkriwxU5JsSn_I1D5Aia9TFvpq6dQgguVKD2MGQsOHe6QEMkdD-LsyfPplAj1XgdsXoegtdGnxrsBCZQlr_V1vVgqSkHJ-QQ.IXLwHK5hYLyNZV.Wu0Dv68Ljacps0nvpnbiMUxiSsPO4ndIWbN8gdsyQZHf9Bh05hkBshAGHSY6KbGRiz4Di2VM7oRE1elPxOY2V-xC6bAZe5Xz-Ps4hp0T-k9th4i87noBek1t0SkKLd-UskcdSB_kDWrLQQOskZKvZCgGSu5U6EPw5OzYHrEkDlP_sGjsX2zCZCsmpkLe6BrzR7iEavB_cRCIlgeQ_DajmHaa7VAy2UB2Ynj58i3";
         boolean verify = WangyiDunAuthUtil.verify(validate);
-        System.out.println(verify);
+        if (!verify) {
+            System.out.println("验证码错误");
+        }
     }
 
 }
