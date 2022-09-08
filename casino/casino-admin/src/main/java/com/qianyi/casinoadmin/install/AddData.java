@@ -1,17 +1,13 @@
 package com.qianyi.casinoadmin.install;
 
-import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.GameRecordGoldenF;
-import com.qianyi.casinocore.model.ProxyGameRecordReport;
 import com.qianyi.casinocore.service.GameRecordGoldenFService;
 import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinocore.service.ProxyGameRecordReportService;
 import com.qianyi.casinocore.service.UserGameRecordReportService;
-import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.casinocore.util.UserPasswordUtil;
 import com.qianyi.casinocore.vo.ProxyGameRecordReportVo;
-import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -23,14 +19,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @Component
 @Slf4j
@@ -58,24 +52,20 @@ public class AddData implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("初始化计算数据开始==============================================>");
         long startTime = System.currentTimeMillis();
+        Calendar nowTime = Calendar.getInstance();
+        //计算最近十天注单
+        nowTime.add(Calendar.DATE, -10);
+        Date startDate = nowTime.getTime();
+        String startDay = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(startDate);
+        String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(DateUtil.getYesterday());
 
-        //        proxyGameRecordReportService.deleteByOrderTimes("2022-05-15",DateUtil.getYesterdayString());
-        //        userGameRecordReportService.deleteByPlatform(Constants.PLATFORM_SABASPORT);
+        this.delete(yesterday);
 
-//        proxyGameRecordReportService.deleteByOrderTimes("2022-07-05");
-//        userGameRecordReportService.deleteByOrderTimes("2022-07-05");
-//
-//        Date startDate = null;
-//        try {
-//            startDate = DateUtil.getDate("2022-07-05");
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//        Map<Integer,String> mapDate = CommonUtil.findDates("D", startDate, DateUtil.getYesterday());
-//        mapDate.forEach((k,v)->{
-//            userGameRecordReportService.comparison(v);
-//            proxyGameRecordReportService.comparison(v);
-//        });
+        List<String> betweenDate = DateUtil.getBetweenDate(startDay, yesterday);
+        for (String str:betweenDate){
+            userGameRecordReportService.comparison(str);
+            proxyGameRecordReportService.comparison(str);
+        }
         log.info("初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
 
 
@@ -108,6 +98,17 @@ public class AddData implements CommandLineRunner {
         //            }
         //
         //        }
+    }
+
+    private void delete(String yesterday){
+        try {
+            log.info("删除昨日数据{}",yesterday);
+            proxyGameRecordReportService.deleteByOrderTimes(yesterday);
+
+            userGameRecordReportService.deleteByOrderTimes(yesterday);
+        }catch (Exception ex){
+            log.error("删除昨日数据失败{}",yesterday);
+        }
     }
 
     private void recursionWm(Integer pageCode,Integer pageSize,Long maxId){

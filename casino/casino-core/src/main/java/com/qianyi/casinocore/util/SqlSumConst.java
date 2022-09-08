@@ -8,7 +8,7 @@ public class SqlSumConst {
     ifnull(sum( bet ),0) bet_amount,
     ifnull(sum( validbet ),0) validbet,
     ifnull(sum( win_loss ),0) win_loss
-    FROM
+        FROM
     game_record gr
     WHERE
     bet_time BETWEEN {0}
@@ -21,7 +21,7 @@ public class SqlSumConst {
     ifnull(sum( bet_amount ),0) bet_amount,
     ifnull(sum( bet_amount ),0) validbet,
     ifnull(sum( win_amount - bet_amount ),0) win_loss
-    FROM
+        FROM
     game_record_obdj grg
     WHERE
     bet_status IN ( 5, 6, 8, 9, 10 )
@@ -35,7 +35,7 @@ public class SqlSumConst {
     ifnull(sum( order_amount ),0) bet_amount,
     ifnull(sum( order_amount ),0) validbet,
     ifnull(sum( profit_amount ),0) win_loss
-    FROM
+        FROM
     game_record_obty grg
     WHERE
     settle_str_time BETWEEN {0}
@@ -48,7 +48,7 @@ public class SqlSumConst {
     ifnull(sum( bet_amount ),0) bet_amount,
     ifnull(sum( bet_amount ),0) validbet,
     ifnull(sum( win_amount - bet_amount ),0) win_loss
-    FROM
+        FROM
     game_record_goldenf grg
     WHERE
         vendor_code = {2}
@@ -71,12 +71,11 @@ public class SqlSumConst {
         """;
 
     public static String sabasportSumSql = """
-        SELECT
+    SELECT
     count( DISTINCT sk.bet_id ) num,
     ifnull( SUM( sk.bet_amount ), 0 ) bet_amount,
     ifnull( SUM( sk.bet_amount ), 0 ) validbet,
-    ifnull( (
-    sum( off.win_amount )- sum( sk.bet_amount )+ sum( t3.win_amount )), 0 ) win_loss
+    ifnull(sum(off.win_amount), 0 )-ifnull(sum( sk.bet_amount ), 0 )+ifnull(sum(t3.win_amount), 0 ) win_loss
     FROM
         (
             SELECT

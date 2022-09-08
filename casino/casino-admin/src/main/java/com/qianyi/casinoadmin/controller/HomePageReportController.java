@@ -8,8 +8,11 @@ import com.qianyi.casinoadmin.vo.HomePageReportVo;
 import com.qianyi.casinoadmin.model.HomePageReport;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.BillThreadPool;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.PageResultVO;
+import com.qianyi.casinocore.vo.PersonReportTotalVo;
+import com.qianyi.casinocore.vo.ReportTotalSumVo;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -36,6 +39,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 @Api(tags = "首页报表")
@@ -83,6 +89,21 @@ public class HomePageReportController {
 
     @Autowired
     private ProxyGameRecordReportService proxyGameRecordReportService;
+
+    private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_10);
+
+    public static final List<String> platforms = new ArrayList<>();
+
+    static {
+        platforms.add(Constants.PLATFORM_WM_BIG);
+        platforms.add(Constants.PLATFORM_PG);
+        platforms.add(Constants.PLATFORM_CQ9);
+        platforms.add(Constants.PLATFORM_OBDJ);
+        platforms.add(Constants.PLATFORM_OBTY);
+        platforms.add(Constants.PLATFORM_SABASPORT);
+        platforms.add(Constants.PLATFORM_AE);
+    }
+
     @ApiOperation("查询首页报表")
     @GetMapping("/find")
     @ApiImplicitParams({
@@ -596,10 +617,14 @@ public class HomePageReportController {
             Map<String, Object> gameRecordMap = proxyGameRecordReportService.findSumBetAndWinLoss(start,end);
             //活跃人数
             homePageReportVo.setActiveUsers(Integer.parseInt(gameRecordMap.get("num").toString()));
+
+            PersonReportTotalVo vo = sumGameRecord(startTime, endTime);
+
             //有效投注
-            homePageReportVo.setValidbetAmount(new BigDecimal(gameRecordMap.get("validAmount").toString()));
+            homePageReportVo.setValidbetAmount(vo.getValidbet());
+
             //输赢，以平台维度取反
-            homePageReportVo.setWinLossAmount(BigDecimal.ZERO.subtract(new BigDecimal(gameRecordMap.get("winLoss").toString())));
+            homePageReportVo.setWinLossAmount(BigDecimal.ZERO.subtract(vo.getWinLoss()));
 
             if (homePageReportVo.getValidbetAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 || homePageReportVo.getChargeAmount().compareTo( BigDecimal.ZERO) == CommonConst.NUMBER_0 ){
                 homePageReportVo.setOddsRatio(homePageReportVo.getChargeAmount());
@@ -620,6 +645,42 @@ public class HomePageReportController {
             log.error("统计三方游戏注单失败",ex);
         }
         return homePageReportVo;
+    }
+
+    private PersonReportTotalVo sumGameRecord(String startTime, String endTime) {
+        ReentrantLock reentrantLock = new ReentrantLock();
+        Condition condition = reentrantLock.newCondition();
+        AtomicInteger atomicInteger = new AtomicInteger(platforms.size());
+        Vector<ReportTotalSumVo> list = new Vector<>();
+        for (String platform : platforms) {
+            threadPool.execute(() -> {
+                try {
+                    ReportTotalSumVo mapSum = proxyGameRecordReportService.findMapSum(platform, startTime, endTime);
+                    list.add(mapSum);
+                } catch (Exception ex) {
+                    log.error("异步查询会员总报表总计异常", ex);
+                } finally {
+                    atomicInteger.decrementAndGet();
+                    BillThreadPool.toResume(reentrantLock, condition);
+                }
+            });
+        }
+        BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
+        Integer num = list.stream().mapToInt(ReportTotalSumVo::getNum).sum();
+        BigDecimal betAmount = list.stream().map(ReportTotalSumVo::getBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        PersonReportTotalVo mapSum = new PersonReportTotalVo();
+        BigDecimal validbet = list.stream().map(ReportTotalSumVo::getValidbet).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal winLoss = list.stream().map(ReportTotalSumVo::getWinLoss).reduce(BigDecimal.ZERO, BigDecimal::add);
+        //        PersonReportTotalVo mapSum = proxyGameRecordReportService.findMapSum(startTime, endTime);
+        //        mapSum.setNum(num);
+        //        mapSum.setBetAmount(betAmount);
+        mapSum.setValidbet(validbet);
+        mapSum.setWinLoss(winLoss);
+        //        BigDecimal avgBenefit = winLoss.add(mapSum.getWashAmount()).add(mapSum.getAllWater());
+        //        mapSum.setAvgBenefit(avgBenefit.negate());
+        //        mapSum.setTotalAmount(
+        //            mapSum.getAvgBenefit().subtract(mapSum.getAllProfitAmount()).add(mapSum.getServiceCharge()));
+        return mapSum;
     }
 
     // 计算毛利

@@ -76,12 +76,33 @@ public class GameRecordReportTask {
         //计算最近十天注单
         nowTime.add(Calendar.DATE, -10);
         Date startDate = nowTime.getTime();
-        Map<Integer,String> mapDate = CommonUtil.findDates("D", startDate, DateUtil.getYesterday());
-        mapDate.forEach((k,v)->{
-            userGameRecordReportService.comparison(v);
-            proxyGameRecordReportService.comparison(v);
-        });
+        //        Map<Integer,String> mapDate = CommonUtil.findDates("D", startDate, DateUtil.getYesterday());
+        //        mapDate.forEach((k,v)->{
+        //            userGameRecordReportService.comparison(v);
+        //            proxyGameRecordReportService.comparison(v);
+        //        });
+        String startDay = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(startDate);
+        String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(DateUtil.getYesterday());
+
+        this.delete(yesterday);
+
+        List<String> betweenDate = DateUtil.getBetweenDate(startDay, yesterday);
+        for (String str:betweenDate){
+            userGameRecordReportService.comparison(str);
+            proxyGameRecordReportService.comparison(str);
+        }
         log.info("每日会员报表计算定时任务结束耗时{}=============================================》",System.currentTimeMillis()-startTime);
+    }
+
+    private void delete(String yesterday){
+        try {
+            log.info("删除昨日数据{}",yesterday);
+            proxyGameRecordReportService.deleteByOrderTimes(yesterday);
+
+            userGameRecordReportService.deleteByOrderTimes(yesterday);
+        }catch (Exception ex){
+            log.error("删除昨日数据失败{}",yesterday);
+        }
     }
 
     private void replacementOrder() {

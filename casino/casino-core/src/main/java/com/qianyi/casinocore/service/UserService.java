@@ -334,7 +334,7 @@ public class UserService {
                 pageSize.toString(),"'E1SPORT'",proxy);
         }  else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlNewConst.sabasportSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'SABASPORT'", proxy,"'Payoff'","'Stake'");
+                pageSize.toString(), "'SABASPORT'", proxy,"'Payoff'","'Stake'","'cancelPayoff'");
         } else {
             sql = MessageFormat.format(SqlNewConst.pgOrCq9Sql, startTime, endTime, sort, page.toString(),
                 pageSize.toString(),"'CQ9'", proxy);
@@ -433,7 +433,7 @@ public class UserService {
         } else if (platform.equals(Constants.PLATFORM_PG)) {
             sql = MessageFormat.format(SqlNewConst.reportPgOrCq9Sql,  startTime, endTime, userId," And platform = \'PG\'","'PG'");
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
-            sql = MessageFormat.format(SqlNewConst.reportSabasportSql,  startTime, endTime, userId," And platform = \'SABASPORT\'","'SABASPORT'","'Payoff'","'Stake'");
+            sql = MessageFormat.format(SqlNewConst.reportSabasportSql,  startTime, endTime, userId," And platform = \'SABASPORT\'","'SABASPORT'","'Payoff'","'Stake'","'cancelPayoff'");
         } else if (platform.equals(Constants.PLATFORM_AE)) {
             sql = MessageFormat.format(SqlNewConst.reportAeMergeSql,  startTime, endTime, userId," And platform = \'AE\'","'AE'");
         } else if (platform.equals(Constants.PLATFORM_AE_HORSEBOOK)) {
@@ -489,7 +489,7 @@ public class UserService {
         }  else if (platform.equals(Constants.PLATFORM_AE_E1SPORT)) {
             sql = MessageFormat.format(SqlConst.exportAeSql, startTime, endTime, sort, "'E1SPORT'", proxy);
         }  else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
-            sql = MessageFormat.format(SqlConst.exportSabasportSql, startTime, endTime, sort, "'SABASPORT'", proxy,"'Payoff'","'Stake'");
+            sql = MessageFormat.format(SqlConst.exportSabasportSql, startTime, endTime, sort, "'SABASPORT'", proxy,"'Payoff'","'Stake'","'cancelPayoff'");
         } else {
             sql = MessageFormat.format(SqlConst.exportPgOrCq9Sql, startTime, endTime, sort, "'CQ9'", proxy);
         }
@@ -543,7 +543,7 @@ public class UserService {
                 MessageFormat.format(SqlConst.seleOneAeSql, startTime, endTime, userId.toString(), "'E1SPORT'", proxy);
         }  else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlConst.seleOneSabasportSql, startTime, endTime, userId.toString(),
-                "'SABASPORT'", proxy,"'Payoff'","'Stake'");
+                "'SABASPORT'", proxy,"'Payoff'","'Stake'","'cancelPayoff'");
         } else {
             sql =
                 MessageFormat.format(SqlConst.seleOnePgOrCq9Sql, startTime, endTime, userId.toString(), "'CQ9'", proxy);
@@ -803,7 +803,7 @@ public class UserService {
                 pageSize.toString(), "'E1SPORT'", proxy);
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(RebateSqlConst.sabasportSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'SABASPORT'", proxy,"'Payoff'","'Stake'");
+                pageSize.toString(), "'SABASPORT'", proxy,"'Payoff'","'Stake'","'cancelPayoff'");
         } else {
             sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql, startTime, endTime, sort, page.toString(),
                 pageSize.toString(), "'CQ9'", proxy);
@@ -842,7 +842,7 @@ public class UserService {
             sql = MessageFormat.format(RebateSqlConst.exportAeSql, startTime, endTime, sort, "'E1SPORT'", proxy);
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql =
-                MessageFormat.format(RebateSqlConst.exportSabasportSql, startTime, endTime, sort, "'SABASPORT'", proxy,"'Payoff'","'Stake'");
+                MessageFormat.format(RebateSqlConst.exportSabasportSql, startTime, endTime, sort, "'SABASPORT'", proxy,"'Payoff'","'Stake'","'cancelPayoff'");
         } else {
             sql = MessageFormat.format(RebateSqlConst.exportPgOrCq9Sql, startTime, endTime, sort, "'CQ9'", proxy);
         }
@@ -896,7 +896,7 @@ public class UserService {
                 proxy);
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(RebateSqlConst.seleOneSabasportSql, startTime, endTime, userId.toString(),
-                "'SABASPORT'", proxy,"'Payoff'","'Stake'");
+                "'SABASPORT'", proxy,"'Payoff'","'Stake'","'cancelPayoff'");
         } else {
             sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql, startTime, endTime, userId.toString(), "'CQ9'",
                 proxy);
@@ -938,8 +938,8 @@ public class UserService {
         } else if (platform.equals(Constants.PLATFORM_AE_E1SPORT)) {
             sql = MessageFormat.format(RebateSqlConst.aeSumSql, startTime, endTime, "'E1SPORT'", proxy);
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
-            if (StringUtils.isNullOrEmpty(platform)){
-                sql = MessageFormat.format(RebateSqlConst.sabasportAdminSumSql, startTime, endTime, "'SABASPORT'","'Payoff'","'Stake'");
+            if (StringUtils.isNullOrEmpty(proxy)){
+                sql = MessageFormat.format(RebateSqlConst.sabasportAdminSumSql, startTime, endTime, "'SABASPORT'","'Payoff'","'Stake'","'cancelPayoff'");
             }else {
                 sql = MessageFormat.format(RebateSqlConst.sabasportProxySumSql, startTime, endTime, "'SABASPORT'", proxy,"'Payoff'","'Stake'");
             }
