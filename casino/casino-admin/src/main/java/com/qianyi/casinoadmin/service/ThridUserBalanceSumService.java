@@ -7,12 +7,14 @@ import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.util.BillThreadPool;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.util.DateUtil;
 import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -65,6 +67,9 @@ public class ThridUserBalanceSumService {
         //存入缓存
         String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_SABASPORT;
         redisUtil.set(key, sum, Constants.THIRD_BALANCE_TTL);
+        //更新数据的
+        redisUtil.set(key + "TIME", DateUtil.dateToString(new Date(), DateUtil.patten), Constants.THIRD_BALANCE_TTL);
+
     }
 
     public void setRedisOBTYMoneyTotal(List<UserThird> obtyThird) {
@@ -98,6 +103,7 @@ public class ThridUserBalanceSumService {
         sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
         String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_OBTY;
         redisUtil.set(key, sum, Constants.THIRD_BALANCE_TTL);
+        redisUtil.set(key + "TIME", DateUtil.dateToString(new Date(), DateUtil.patten), Constants.THIRD_BALANCE_TTL);
     }
 
     public void setRedisOBDJMoneyTotal(List<UserThird> obdjThird) {
@@ -131,6 +137,7 @@ public class ThridUserBalanceSumService {
         sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
         String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_OBDJ;
         redisUtil.set(key, sum, Constants.THIRD_BALANCE_TTL);
+        redisUtil.set(key + "TIME", DateUtil.dateToString(new Date(), DateUtil.patten), Constants.THIRD_BALANCE_TTL);
     }
 
     @Async
@@ -167,6 +174,7 @@ public class ThridUserBalanceSumService {
         sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
         String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_PG;
         redisUtil.set(key, sum, Constants.THIRD_BALANCE_TTL);
+        redisUtil.set(key + "TIME", DateUtil.dateToString(new Date(), DateUtil.patten), Constants.THIRD_BALANCE_TTL);
     }
 
 
@@ -204,5 +212,6 @@ public class ThridUserBalanceSumService {
         //存入缓存
         String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_WM_BIG;
         redisUtil.set(key, sum, Constants.THIRD_BALANCE_TTL);
+        redisUtil.set(key + "TIME", DateUtil.dateToString(new Date(), DateUtil.patten), Constants.THIRD_BALANCE_TTL);
     }
 }

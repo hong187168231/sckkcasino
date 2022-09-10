@@ -410,9 +410,15 @@ public class UserController {
     public ResponseEntity getWMMoneyTotal(){
         String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_WM_BIG;
         Object wmBalance = redisUtil.get(key);
-        if(!LoginUtil.checkNull(wmBalance)){
-            return ResponseUtil.success(wmBalance);
+        Object time = redisUtil.get(key + "TIME");
+        ThridBalanceSumVo thridBalanceSumVo = new ThridBalanceSumVo();
+        if(!LoginUtil.checkNull(wmBalance) && !LoginUtil.checkNull(time)){
+            thridBalanceSumVo.setSunBalance(new BigDecimal(wmBalance.toString()));
+            thridBalanceSumVo.setQueryTime(time.toString());
+            return ResponseUtil.success(thridBalanceSumVo);
+
         }
+
 
         List<UserThird> allAcount = userThirdService.findAllAcount();
         if (LoginUtil.checkNull(allAcount) || allAcount.size() == CommonConst.NUMBER_0){
@@ -445,7 +451,9 @@ public class UserController {
 
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
-        return ResponseUtil.success(sum);
+        thridBalanceSumVo.setSunBalance(sum);
+        thridBalanceSumVo.setQueryTime(DateUtil.dateToString(new Date(), DateUtil.patten));
+        return ResponseUtil.success(thridBalanceSumVo);
     }
 
 
@@ -482,8 +490,13 @@ public class UserController {
     public ResponseEntity refreshPGTotal(){
         String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_PG;
         Object pgBalance = redisUtil.get(key);
-        if(!LoginUtil.checkNull(pgBalance)){
-            return ResponseUtil.success(pgBalance);
+        Object time = redisUtil.get(key + "TIME");
+        ThridBalanceSumVo thridBalanceSumVo = new ThridBalanceSumVo();
+        if(!LoginUtil.checkNull(pgBalance) && !LoginUtil.checkNull(time)){
+            thridBalanceSumVo.setSunBalance(new BigDecimal(pgBalance.toString()));
+            thridBalanceSumVo.setQueryTime(time.toString());
+            return ResponseUtil.success(thridBalanceSumVo);
+
         }
 
         List<UserThird> allGoldenfAccount = userThirdService.findAllGoldenfAccount();
@@ -517,7 +530,9 @@ public class UserController {
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
-        return ResponseUtil.success(sum);
+        thridBalanceSumVo.setSunBalance(sum);
+        thridBalanceSumVo.setQueryTime(DateUtil.dateToString(new Date(), DateUtil.patten));
+        return ResponseUtil.success(thridBalanceSumVo);
     }
 
     /**
@@ -529,16 +544,22 @@ public class UserController {
     @GetMapping("refreshAETotal")
     public ResponseEntity refreshAETotal(){
         JSONObject jsonObject = userMoneyService.refreshAE(null);
+        ThridBalanceSumVo thridBalanceSumVo = new ThridBalanceSumVo();
+        thridBalanceSumVo.setQueryTime(DateUtil.dateToString(new Date(), DateUtil.patten));
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
-            return ResponseUtil.success(BigDecimal.ZERO);
+            thridBalanceSumVo.setSunBalance(BigDecimal.ZERO);
+            return ResponseUtil.success(thridBalanceSumVo);
         }else {
             Integer code = (Integer) jsonObject.get("code");
             if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
                 BigDecimal sunAamount = new BigDecimal(jsonObject.get("data").toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
-                return ResponseUtil.success(sunAamount);
+                thridBalanceSumVo.setSunBalance(sunAamount);
+                return ResponseUtil.success(thridBalanceSumVo);
             }
         }
-        return ResponseUtil.success(BigDecimal.ZERO);
+        thridBalanceSumVo.setSunBalance(BigDecimal.ZERO);
+
+        return ResponseUtil.success(thridBalanceSumVo);
     }
 
 
@@ -602,8 +623,13 @@ public class UserController {
     public ResponseEntity refreshOBDJTotal(){
         String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_OBDJ;
         Object obdjBalance = redisUtil.get(key);
-        if(!LoginUtil.checkNull(obdjBalance)){
-            return ResponseUtil.success(obdjBalance);
+        Object time = redisUtil.get(key + "TIME");
+        ThridBalanceSumVo thridBalanceSumVo = new ThridBalanceSumVo();
+        if(!LoginUtil.checkNull(obdjBalance) && !LoginUtil.checkNull(time)){
+            thridBalanceSumVo.setSunBalance(new BigDecimal(obdjBalance.toString()));
+            thridBalanceSumVo.setQueryTime(time.toString());
+            return ResponseUtil.success(thridBalanceSumVo);
+
         }
 
         List<UserThird> allOBDJAccount = userThirdService.findAllOBDJAccount();
@@ -635,7 +661,9 @@ public class UserController {
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
-        return ResponseUtil.success(sum);
+        thridBalanceSumVo.setSunBalance(sum);
+        thridBalanceSumVo.setQueryTime(DateUtil.dateToString(new Date(), DateUtil.patten));
+        return ResponseUtil.success(thridBalanceSumVo);
     }
 
     @ApiOperation("查询玩家OB体育总余额")
@@ -643,8 +671,13 @@ public class UserController {
     public ResponseEntity refreshOBTYTotal(){
         String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_OBTY;
         Object obtyBalance = redisUtil.get(key);
-        if(!LoginUtil.checkNull(obtyBalance)){
-            return ResponseUtil.success(obtyBalance);
+        Object time = redisUtil.get(key + "TIME");
+        ThridBalanceSumVo thridBalanceSumVo = new ThridBalanceSumVo();
+        if(!LoginUtil.checkNull(obtyBalance) && !LoginUtil.checkNull(time)){
+            thridBalanceSumVo.setSunBalance(new BigDecimal(obtyBalance.toString()));
+            thridBalanceSumVo.setQueryTime(time.toString());
+            return ResponseUtil.success(thridBalanceSumVo);
+
         }
 
         List<UserThird> allOBTYAccount = userThirdService.findAllOBTYAccount();
@@ -676,7 +709,9 @@ public class UserController {
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
-        return ResponseUtil.success(sum);
+        thridBalanceSumVo.setSunBalance(sum);
+        thridBalanceSumVo.setQueryTime(DateUtil.dateToString(new Date(), DateUtil.patten));
+        return ResponseUtil.success(thridBalanceSumVo);
     }
 
     @ApiOperation("查询用户OB余额")
@@ -856,8 +891,17 @@ public class UserController {
      */
     @ApiOperation("查询玩家沙巴总余额")
     @GetMapping("refreshSABATotal")
-    @RequestLimit(limit = 30,timeout = 60)
     public ResponseEntity refreshSABATotal(){
+        ThridBalanceSumVo thridBalanceSumVo = new ThridBalanceSumVo();
+        String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_SABASPORT;
+        Object pgBalance = redisUtil.get(key);
+        Object time = redisUtil.get(key + "TIME");
+        if(!LoginUtil.checkNull(pgBalance) && !LoginUtil.checkNull(time)){
+            thridBalanceSumVo.setSunBalance(new BigDecimal(pgBalance.toString()));
+            thridBalanceSumVo.setQueryTime(time.toString());
+            return ResponseUtil.success(thridBalanceSumVo);
+
+        }
 
         List<UserThird> allGoldenfAccount = userThirdService.findAllGoldenfAccount();
         if (LoginUtil.checkNull(allGoldenfAccount) || allGoldenfAccount.size() == CommonConst.NUMBER_0){
@@ -890,7 +934,9 @@ public class UserController {
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
-        return ResponseUtil.success(sum);
+        thridBalanceSumVo.setSunBalance(sum);
+        thridBalanceSumVo.setQueryTime(DateUtil.dateToString(new Date(), DateUtil.patten));
+        return ResponseUtil.success(thridBalanceSumVo);
     }
 
 
