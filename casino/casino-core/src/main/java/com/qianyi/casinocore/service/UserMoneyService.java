@@ -436,8 +436,10 @@ public class UserMoneyService {
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null?"":first.getWebConfiguration();
             WMurl = WMurl + PG_refreshUrl;
+            log.info("沙巴查询余额路径：【{}】", WMurl);
             String s = HttpClient4Util.get(WMurl + param);
-            log.info("{}查询PG余额web接口返回{}",userId,s);
+            log.info("{}查询沙巴余额web接口返回{}",userId,s);
+
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
         } catch (Exception e) {

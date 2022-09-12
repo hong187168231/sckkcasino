@@ -9,6 +9,7 @@ import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.DateUtil;
 import com.qianyi.modulespringcacheredis.util.RedisUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Service
+@Slf4j
 public class ThridUserBalanceSumService {
 
 
@@ -45,7 +47,9 @@ public class ThridUserBalanceSumService {
             threadPool.execute(() ->{
                 try {
                     JSONObject jsonObject = userMoneyService.refreshSABA(u.getUserId());
-
+                    if(u.getUserId().intValue() == 72933){
+                        log.info("72933会员余额查询返回结果：【{}】", jsonObject);
+                    }
                     if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
                         list.add(BigDecimal.ZERO);
                     }else {
