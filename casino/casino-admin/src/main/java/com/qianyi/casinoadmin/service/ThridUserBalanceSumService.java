@@ -66,7 +66,10 @@ public class ThridUserBalanceSumService {
         }
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
 
-        BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal sum = BigDecimal.ZERO;
+        for (BigDecimal bigDecimal : list) {
+            sum = bigDecimal.add(sum);
+        }
         sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
         //存入缓存
         String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_SABASPORT;

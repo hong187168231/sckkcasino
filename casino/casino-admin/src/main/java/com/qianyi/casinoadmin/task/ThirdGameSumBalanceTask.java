@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.task;
 
+import com.beust.jcommander.internal.Lists;
 import com.qianyi.casinoadmin.service.ThridUserBalanceSumService;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.UserThird;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
