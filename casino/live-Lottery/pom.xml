@@ -15,38 +15,21 @@
         </plugins>
     </build>
     <parent>
-        <artifactId>cloud-parent</artifactId>
+        <artifactId>casino</artifactId>
         <groupId>com.qianyi</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <groupId>com.qianyi</groupId>
-    <artifactId>casino</artifactId>
+    <artifactId>live-lottery</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>casino</name>
-    <packaging>pom</packaging>
-    <description>casino</description>
-
-    <modules>
-        <module>casino-core</module>
-        <module>casino-web</module>
-        <module>casino-admin</module>
-        <module>casino-proxy</module>
-        <module>live-wm</module>
-        <module>live-ob</module>
-        <module>live-goldenf</module>
-        <module>live-ae</module>
-        <module>live-lotto</module>
-        <module>casino-report</module>
-    </modules>
-
+    <packaging>jar</packaging>
+    <name>live-lotto</name>
+    <description>live-lotto</description>
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <groupId>com.qianyi</groupId>
+            <artifactId>module-common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
