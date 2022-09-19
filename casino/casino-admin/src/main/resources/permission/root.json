@@ -437,6 +437,13 @@
             "url": "/proxyUser/transferProxyUp"
           },
           {
+            "descritpion": "重置谷歌验证码",
+            "englishName": "Reset the Google verification code",
+            "menuLevel": 3,
+            "name": "重置谷歌验证码",
+            "url": "/proxyUser/resetGaKey"
+          },
+          {
             "descritpion": "删除",
             "englishName": "Delete",
             "menuLevel": 3,

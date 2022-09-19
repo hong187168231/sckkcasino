@@ -11,6 +11,7 @@ import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.casinocore.util.PasswordUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.ProxyUserVo;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -674,5 +675,30 @@ public class ProxyUserController {
         proxyUserList = proxyUserList.stream().filter(proxy -> !proxy.getId().equals(byId.getSecondProxy()))
             .collect(Collectors.toList());
         return ResponseUtil.success(proxyUserList);
+    }
+
+    /**
+     * 重置谷歌验证码
+     *
+     * @param id
+     * @return
+     */
+    @ApiOperation("重置谷歌验证码")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "id", value = "当前列id", required = true),
+    })
+    @GetMapping("resetGaKey")
+    public ResponseEntity resetGaKey(Long id) {
+        if(LoginUtil.checkNull(id)){
+            return ResponseUtil.custom("参数错误");
+        }
+        ProxyUser proxyUser = proxyUserService.findById(id);
+        if(proxyUser == null){
+            return ResponseUtil.custom("账号不存在");
+        }
+        proxyUser.setGaBind(Constants.open + "");
+        proxyUser.setGaKey(null);
+        proxyUserService.save(proxyUser);
+        return ResponseUtil.success();
     }
 }
