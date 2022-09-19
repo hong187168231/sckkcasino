@@ -96,8 +96,12 @@ public class Constants {
     public final static String PLATFORM_AE_HORSEBOOK = "HORSEBOOK";
     public final static String PLATFORM_AE_SV388 = "SV388";
     public final static String PLATFORM_AE_E1SPORT = "E1SPORT";
+    public final static String PLATFORM_DMC = "DMC";
+    public final static String PLATFORM_VNC = "VNC";
 
-    public final static String[] PLATFORM_ARRAY = {PLATFORM_WM, PLATFORM_PG, PLATFORM_CQ9, PLATFORM_OBDJ, PLATFORM_OBTY, PLATFORM_SABASPORT, PLATFORM_AE};
+    public final static String[] PLATFORM_ARRAY = {PLATFORM_WM, PLATFORM_PG,
+            PLATFORM_CQ9, PLATFORM_OBDJ, PLATFORM_OBTY,
+            PLATFORM_SABASPORT, PLATFORM_AE};
     //校验数字
     public static final String regex = "^[0-9]*$";
     //校验手机号

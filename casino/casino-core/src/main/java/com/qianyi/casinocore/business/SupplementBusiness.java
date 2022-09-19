@@ -11,6 +11,7 @@ import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.repository.ErrorOrderRepository;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.vo.AccountChangeVo;
+import com.qianyi.casinocore.vo.TransferVo;
 import com.qianyi.casinocore.vo.WmMemberTradeReportVo;
 import com.qianyi.liveae.api.PublicAeApi;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
@@ -39,6 +40,8 @@ public class SupplementBusiness {
     private PublicGoldenFApi goldenFApi;
     @Autowired
     private PublicAeApi aeApi;
+    @Autowired
+    private PublicLotteryApi lotteryApi;
     @Autowired
     private ErrorOrderRepository errorOrderRepository;
     @Autowired
@@ -301,4 +304,157 @@ public class SupplementBusiness {
         asyncService.executeAsync(accountChangeVo);
         log.info("订单自动补单成功,AccountChange表账变记录成功,AccountChange={}", accountChangeVo.toString());
     }
+
+    public void tryVNCSupplement(ErrorOrder errorOrder, String vncAccount) {
+        String orderNo = errorOrder.getOrderNo();
+        int requestNum = 0;
+        while (true) {
+            try {
+                if (requestNum >= 3) {
+                    log.error("VNC尝试3次补单失败,errorOrder={}", errorOrder.toString());
+                    break;
+                }
+                requestNum++;
+                Thread.sleep(30 * 1000);
+                PublicLotteryApi.ResponseEntity checkOrder = lotteryApi.getCheckOrder(orderNo, vncAccount);
+                if (checkOrder == null) {
+                    log.error("查询VNC交易记录时远程请求异常");
+                    continue;
+                }
+                String errorCode = checkOrder.getErrorCode();
+                BigDecimal money = errorOrder.getMoney();
+                Integer orderType = errorOrder.getType();
+                if ("16".equals(errorCode)) { //转账订单不存在
+                    log.info("AE订单号:{}查询无记录", orderNo);
+                    //转入AE时，AE查询无记录说明AE加点失败，要把本地的钱加回来，
+                    if (orderType == AccountChangeEnum.VNC_IN.getType()) {
+                        //更新错误订单表状态
+                        Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + money.stripTrailingZeros().toPlainString() + ",转入VNC时加点失败,加回本地额度");
+                        if (count > 0) {
+                            //加回额度
+                            addMoney(errorOrder.getUserId(), money);
+                            //记录账变
+                            saveAccountChange(errorOrder, money);
+                        }
+                    } else if (orderType == AccountChangeEnum.VNC_OUT.getType()) {
+                        //转出VNC时，是先扣减VNC的钱再加回本地，VNC查询无记录说明没有扣点成功，本地也不用把钱加回来,更新状态就行
+                        updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转出VNC时扣点失败,额度未丢失");
+                    }
+                    break;
+                }
+                if (!"0".equals(errorCode)) {
+                    log.info("VNC订单号:{}查询交易记录异常,result={}", orderNo, checkOrder);
+                    continue;
+                }
+                if ("0".equals(errorCode)) {
+                    String result = checkOrder.getData();
+                    List<TransferVo> records = JSON.parseArray(result, TransferVo.class);
+                    for (TransferVo vo : records) {
+                        if (vncAccount.equals(vo.getUserName()) && orderNo.equals(vo.getOrderNo())) {
+                            //转入wm,本地先扣减，确认三方加点成功无需加回本地余额
+                            if (vo.getOrderType() == 8 && errorOrder.getType() == AccountChangeEnum.VNC_IN.getType()) {
+                                updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转入VNC时加点成功,额度未丢失");
+                                //转出WM时，三方先扣减，确认三方扣点成功加回本地余额
+                            } else if (vo.getOrderType() == 9 && errorOrder.getType() == AccountChangeEnum.VNC_OUT.getType()) {
+                                //以WM额度为准
+                                BigDecimal balance = vo.getMoney();
+                                //更新错误订单表状态
+                                Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + balance.stripTrailingZeros().toPlainString() + ",转出WM时扣点成功,加回本地额度");
+                                if (count > 0) {
+                                    //加回额度
+                                    addMoney(errorOrder.getUserId(), balance);
+                                    //记录账变
+                                    saveAccountChange(errorOrder, balance);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("查询AE交易记录时异常,msg={}", e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 尝试3次补单
+     *
+     * @param errorOrder
+     * @param thirdAccount
+     */
+//    public void tryDMCSupplement(ErrorOrder errorOrder, String thirdAccount) {
+//        String orderNo = errorOrder.getOrderNo();
+//        int requestNum = 0;
+//        while (true) {
+//            try {
+//                if (requestNum >= 3) {
+//                    log.error("大马彩尝试3次补单失败,errorOrder={}", errorOrder.toString());
+//                    break;
+//                }
+//                requestNum++;
+//                //报表查询需间隔30秒，未搜寻到数据需间隔10秒。
+//                Thread.sleep(30 * 1000);
+//                //查询转账记录
+//                PublicWMApi.ResponseEntity entity = publicLottoApi.getMemberTradeReport(thirdAccount, null, orderNo, null, null, null);
+//                if (entity == null) {
+//                    log.error("查询WM交易记录时远程请求异常");
+//                    continue;
+//                }
+//                if (entity.getErrorCode() == 107) {
+//                    log.info("订单号:{}查询无记录", orderNo);
+//                    //转入wm时，wm查询无记录说明wm加点失败，要把本地的钱加回来，
+//                    if (errorOrder.getType() == AccountChangeEnum.WM_IN.getType()) {
+//                        //更新错误订单表状态
+//                        Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + errorOrder.getMoney().stripTrailingZeros().toPlainString() + ",转入WM时加点失败,加回本地额度");
+//                        if (count > 0) {
+//                            //加回额度
+//                            addMoney(errorOrder.getUserId(), errorOrder.getMoney());
+//                            //记录账变
+//                            saveAccountChange(errorOrder, errorOrder.getMoney());
+//                        }
+//                    } else if (errorOrder.getType() == AccountChangeEnum.RECOVERY.getType()) {
+//                        //转出wm时，是先扣减wm的钱再加回本地，wm查询无记录说明没有扣点成功，本地也不用把钱加回来,更新状态就行
+//                        updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转出WM时扣点失败,额度未丢失");
+//                    }
+//                    break;
+//                }
+//                if (entity.getErrorCode() != 0) {
+//                    log.info("订单号:{}查询交易记录异常,result={}", orderNo, entity.toString());
+//                    continue;
+//                }
+//                if (entity.getErrorCode() == 0) {
+//                    String result = entity.getResult().toString();
+//                    List<WmMemberTradeReportVo> records = JSON.parseArray(result, WmMemberTradeReportVo.class);
+//                    for (WmMemberTradeReportVo vo : records) {
+//                        if (thirdAccount.equals(vo.getUser()) && orderNo.equals(vo.getOrdernum())) {
+//                            //转入wm,本地先扣减，确认三方加点成功无需加回本地余额
+//                            if (vo.getOp_code() == 121 && errorOrder.getType() == AccountChangeEnum.WM_IN.getType()) {
+//                                updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转入WM时加点成功,额度未丢失");
+//                                //转出WM时，三方先扣减，确认三方扣点成功加回本地余额
+//                            } else if (vo.getOp_code() == 122 && errorOrder.getType() == AccountChangeEnum.RECOVERY.getType()) {
+//                                //以WM额度为准
+//                                BigDecimal money = new BigDecimal(vo.getMoney()).abs();
+//                                //更新错误订单表状态
+//                                Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + money.stripTrailingZeros().toPlainString() + ",转出WM时扣点成功,加回本地额度");
+//                                if (count > 0) {
+//                                    //加回额度
+//                                    addMoney(errorOrder.getUserId(), money);
+//                                    //记录账变
+//                                    saveAccountChange(errorOrder, money);
+//                                }
+//                            }
+//                            break;
+//                        }
+//                    }
+//                    break;
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                log.error("查询WM交易记录时异常,msg={}", e.getMessage());
+//            }
+//        }
+//    }
 }

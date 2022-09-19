@@ -12,6 +12,8 @@ import com.qianyi.livegoldenf.constants.WalletCodeEnum;
 import com.qianyi.liveob.api.PublicObdjApi;
 import com.qianyi.liveob.api.PublicObtyApi;
 import com.qianyi.livewm.api.PublicWMApi;
+import com.qianyi.lottery.api.PublicLotteryApi;
+import com.qianyi.lottery.api.PublicLottoApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseCode;
@@ -19,6 +21,7 @@ import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,6 +59,8 @@ public class ThirdGameBusiness {
     private PublicObtyApi obtyApi;
     @Autowired
     private PublicAeApi aeApi;
+    @Autowired
+    private PublicLotteryApi lotteryApi;
     @Autowired
     private PlatformGameService platformGameService;
     @Autowired
@@ -501,9 +506,76 @@ public class ThirdGameBusiness {
             }, executor);
             completableFutures.add(oneKeyRecoverAe);
         }
+        if (!Constants.PLATFORM_VNC.equals(platform)) {
+            CompletableFuture<Void> oneKeyRecoverAe = CompletableFuture.runAsync(() -> {
+                oneKeyRecoverVNC(userId);
+            }, executor);
+            completableFutures.add(oneKeyRecoverAe);
+        }
         //等待所有子线程计算完成
         CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[completableFutures.size()])).join();
         return ResponseUtil.success();
+    }
+
+    public ResponseEntity oneKeyRecoverVNC(Long userId) {
+        ResponseEntity aeEnable = checkPlatformStatus(Constants.PLATFORM_VNC);
+        if (aeEnable.getCode() != ResponseCode.SUCCESS.getCode()){
+            log.info("后台开启越南彩维护，禁止回收，response={}",aeEnable);
+            return aeEnable;
+        }
+        log.info("开始回收越南彩余额，userId={}", userId);
+        if (userId == null) {
+            return ResponseUtil.parameterNotNull();
+        }
+        UserThird third = userThirdService.findByUserId(userId);
+        String account = third.getVncAccount();
+        if (third == null || ObjectUtils.isEmpty(account)) {
+            return ResponseUtil.custom("越南彩余额为0");
+        }
+        User user = userService.findById(userId);
+        ResponseEntity<BigDecimal> aeBalanceResponse = getVncBalanceByAccount(account);
+        if (aeBalanceResponse.getCode()!=ResponseCode.SUCCESS.getCode()){
+            return aeBalanceResponse;
+        }
+        BigDecimal balance = aeBalanceResponse.getData();
+        if (balance.compareTo(BigDecimal.ONE) == -1) {
+            log.info("userId:{},account={},balance={},越南彩金额小于1，不可回收", userId, user.getAccount(), balance);
+            return ResponseUtil.custom("VNC余额小于1,不可回收");
+        }
+        //调用加扣点接口扣减VNC电竞余额  存在精度问题，只回收整数部分
+        balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
+        String orderNo = orderService.getVNCOrderNo();
+        PublicLotteryApi.ResponseEntity responseEntity = lotteryApi.changeBalance(account, 2, balance, orderNo);
+        if (responseEntity == null || StringUtils.isBlank(responseEntity.getData())) {
+            log.error("越南彩扣点失败,远程请求异常,userId:{},account={},result={}", userId, user.getAccount(), responseEntity);
+            //异步记录错误订单
+            errorOrderService.syncSaveVNCErrorOrder(third.getVncAccount(), user.getId(), user.getAccount(), orderNo, balance, AccountChangeEnum.VNC_OUT, Constants.PLATFORM_VNC);
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+        String status = responseEntity.getErrorCode();
+        if (!"0".equals(status)) {
+            log.error("VNC扣点失败,userId:{},account={},money={},msg={}", userId, user.getAccount(), balance, responseEntity);
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+        //把额度加回本地
+        UserMoney userMoney = userMoneyService.findByUserId(userId);
+        userMoneyService.addMoney(userId, balance);
+        log.info("越南彩余额,userMoney加回成功，userId={},balance={}", userId, balance);
+        saveAccountChange(Constants.PLATFORM_VNC, userId, balance, userMoney.getMoney(), balance.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.VNC_OUT, "自动转出VNC", user);
+        log.info("VNC余额回收成功，userId={},account={},money={}", userId, user.getAccount(), balance);
+        return ResponseUtil.success();
+    }
+
+    /**
+     * 查询越南彩余额
+     *
+     * @param account
+     * @return
+     */
+    private ResponseEntity<BigDecimal> getVncBalanceByAccount(String account) {
+        BigDecimal amount = lotteryApi.getBalance(account);
+
+        return ResponseUtil.success(amount);
     }
 
     public void saveAccountChange(String gamePlatformName, Long userId, BigDecimal amount, BigDecimal amountBefore, BigDecimal amountAfter, Integer type, String orderNo, AccountChangeEnum changeEnum, String remark, User user) {
@@ -661,6 +733,27 @@ public class ThirdGameBusiness {
             BigDecimal balance1 = jsonObject.getBigDecimal("balance");
             balance = balance.add(balance1);
         }
+        return ResponseUtil.success(balance);
+    }
+
+
+    public ResponseEntity<BigDecimal> getVNCBalanceByAccount(String vncAccount) {
+        BigDecimal balance = lotteryApi.getBalance(vncAccount);
+        return ResponseUtil.success(balance);
+    }
+
+    public ResponseEntity getAllVNCBalance(String vncAccount) {
+
+        //查全部
+        if (ObjectUtils.isEmpty(vncAccount)) {
+            vncAccount = "not Account";
+        }
+        BigDecimal balance = lotteryApi.getBalance(vncAccount);
+        if (balance == null) {
+            log.error("aeAccount:{},查询VNC余额失败,远程请求异常", balance);
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+
         return ResponseUtil.success(balance);
     }
 }

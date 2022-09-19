@@ -51,6 +51,14 @@ public class OrderService {
         return orderNo;
     }
 
+    //生成越南彩体育订单号
+    public String getVNCOrderNo() {
+        String today = DateUtil.today("yyyyMMddHHmmssSSS");
+        String randNum = CommonUtil.random(2);
+        String orderNo = today + randNum;
+        return orderNo;
+    }
+
     public Order save(Order order) {
         return orderRepository.save(order);
     }

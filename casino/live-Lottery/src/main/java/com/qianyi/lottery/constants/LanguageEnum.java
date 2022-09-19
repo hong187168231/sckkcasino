@@ -1,4 +1,4 @@
-package com.qianyi.liveae.constants;
+package com.qianyi.lottery.constants;
 
 import com.qianyi.modulecommon.config.LocaleConfig;
 import org.springframework.util.ObjectUtils;
@@ -39,7 +39,7 @@ public enum LanguageEnum {
     }
 
     public static String getLanguageCode(String language) {
-        for (com.qianyi.liveae.constants.LanguageEnum languageEnum : values()) {
+        for (LanguageEnum languageEnum : values()) {
             if (!ObjectUtils.isEmpty(language) && language.equals(languageEnum.getSystemCode())) {
                 return languageEnum.getCode();
             }

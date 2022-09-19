@@ -2,16 +2,17 @@ package com.qianyi.lottery.api;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.qianyi.lottery.constants.LottoConfig;
 import com.qianyi.lottery.util.EncryptUtil;
 import com.qianyi.lottery.util.HttpClient4Util;
+import com.qianyi.modulecommon.util.CommonUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +20,6 @@ import java.util.Map;
 @Component
 @Slf4j
 public class PublicLotteryApi {
-
-    @Autowired
-    private LottoConfig lottoConfig;
 
     //url地址
     @Value("${project.ync.apiUrl:null}")
@@ -41,38 +39,35 @@ public class PublicLotteryApi {
     @Value("${project.ync.md5Key:null}")
     private String md5Key;
 
+    @Value("${project.ync.currency:null}")
+    private String currency;
+
     public static final String SUCCESS_CODE = "0000";
 
 
     /**
      *
+     * 创建会员
      * @param playerName
-     * @param currency
      * @return
      */
-    public boolean createMember(String playerName, String currency) {
+    public boolean createMember(String playerName) {
         String url = apiUrl + "/createMember";
         Map<String, Object> map = new HashMap<>();
-        long longTime = System.currentTimeMillis();
+        setBasicParams(playerName, map);
         String passWord = playerName + merchantCode;
-        map.put("currentTime", longTime);
-        map.put("merchantCode", merchantCode);
-        map.put("platformId", platformId);
-        map.put("playerName", playerName);
         map.put("passWord", passWord);
-        StringBuilder sb = new StringBuilder();
-        String token = EncryptUtil.md5(longTime + merchantCode + platformId + playerName + passWord + md5Key);
+        String token = EncryptUtil.md5(map.get("currentTime") + merchantCode + platformId + playerName + passWord + md5Key);
         map.put("token", token);
         map.put("currency", currency);
         String aesJson = JSON.toJSONString(map);
         String params = EncryptUtil.aesEncrypt(aesKey, aesJson);
-        log.info("越南彩创建会员请求参数明文：{}：", JSONObject.toJSONString(map));
+        log.info("越南彩创建会员请求参数明文：{}", JSONObject.toJSONString(map));
         String result = sendPostRequest(url, merchantCode, params);
-        log.info("越南彩创建会员结果：{}：", result);
+        log.info("越南彩创建会员结果：{}", result);
         ResponseEntity entity = entity(result);
-        JSONObject jsonData = null;
-        if (entity != null && ObjectUtils.isEmpty(entity.getErrorCode())) {
-            jsonData = JSONObject.parseObject(entity.getData());
+        if (entity == null || ObjectUtils.isEmpty(entity.getErrorCode())) {
+            return false;
         }
 
         if ("0".equals(entity.getErrorCode())) {
@@ -80,6 +75,186 @@ public class PublicLotteryApi {
         }
         return false;
 
+    }
+
+
+    /**
+     * 登录游戏
+     *
+     * @param playerName
+     * @param language
+     * @param isMobile
+     * @param gameCode
+     * @return
+     */
+    public String lanuchGame(String playerName, String language,
+                             String isMobile, String gameCode) {
+
+        String url = apiUrl + "/launchGame";
+        Map<String, Object> map = new HashMap<>();
+        setBasicParams(playerName, map);
+        String passWord = playerName + merchantCode;
+        map.put("passWord", passWord);
+        map.put("gameCode", gameCode);
+        map.put("language", language);
+        map.put("isMobile", isMobile);
+        String token = EncryptUtil.md5(map.get("currentTime") + merchantCode + platformId +
+                playerName + gameCode+ passWord + isMobile + language + md5Key);
+        map.put("token", token);
+        String aesJson = JSON.toJSONString(map);
+        String params = EncryptUtil.aesEncrypt(aesKey, aesJson);
+        log.info("越南彩登录游戏请求参数明文：{}", JSONObject.toJSONString(map));
+        String result = sendPostRequest(url, merchantCode, params);
+        log.info("越南彩登录游戏结果：{}", result);
+        ResponseEntity entity = entity(result);
+        if (entity == null || ObjectUtils.isEmpty(entity.getErrorCode())) {
+            return null;
+        }
+
+        if ("0".equals(entity.getErrorCode())) {
+            return entity.getData();
+        }
+        return null;
+    }
+
+
+    /**
+     * 上下分
+     *
+     * @param playerName
+     * @param transferType
+     * @param amount
+     * @param orderNo
+     * @return
+     */
+    public ResponseEntity changeBalance(String playerName, Integer transferType, BigDecimal amount, String orderNo) {
+        String url = apiUrl + "/walletTransfer";
+        Map<String, Object> map = new HashMap<>();
+        setBasicParams(playerName, map);
+        map.put("transferType", transferType);
+        map.put("amount", amount);
+        map.put("orderNo", orderNo);
+        String token = EncryptUtil.md5(map.get("currentTime") + merchantCode + platformId +
+                playerName + transferType+ amount + orderNo + md5Key);
+        map.put("token", token);
+        String aesJson = JSON.toJSONString(map);
+        String params = EncryptUtil.aesEncrypt(aesKey, aesJson);
+        log.info("越南彩转账请求参数明文：{}", JSONObject.toJSONString(map));
+        String result = sendPostRequest(url, merchantCode, params);
+        log.info("越南彩转账请求结果：{}", result);
+        ResponseEntity entity = entity(result);
+        if (entity == null || ObjectUtils.isEmpty(entity.getErrorCode())) {
+            return null;
+        }
+
+        return entity;
+    }
+
+    /**
+     * 查询余额
+     *
+     * @param playerName
+     * @return
+     */
+    public BigDecimal getBalance(String playerName) {
+        String url = apiUrl + "/queryBalance";
+        Map<String, Object> map = new HashMap<>();
+        setBasicParams(playerName, map);
+        String token = EncryptUtil.md5(map.get("currentTime") + merchantCode + platformId +
+                playerName + md5Key);
+
+        map.put("token", token);
+        String aesJson = JSON.toJSONString(map);
+        String params = EncryptUtil.aesEncrypt(aesKey, aesJson);
+        log.info("越南彩查询余额请求参数明文：{}", JSONObject.toJSONString(map));
+        String result = sendPostRequest(url, merchantCode, params);
+        log.info("越南彩查询余额请求结果：{}", result);
+        ResponseEntity entity = entity(result);
+        if (entity == null || ObjectUtils.isEmpty(entity.getErrorCode())) {
+            log.error("playerName:{},查询越南彩余额失败,远程请求异常", playerName);
+            return BigDecimal.ZERO;
+        }
+        return new BigDecimal(entity.getData());
+    }
+
+
+    /**
+     * 确认转账订单状态
+     *
+     * @param orderNo
+     * @param playerName
+     * @return
+     */
+    public ResponseEntity getCheckOrder(String orderNo, String playerName){
+        String url = apiUrl + "/checkOrder";
+        Map<String, Object> map = new HashMap<>();
+        setBasicParams(playerName, map);
+        String token = EncryptUtil.md5(map.get("currentTime") + merchantCode + platformId +
+                playerName + orderNo + md5Key);
+        map.put("token", token);
+        map.put("orderNo", orderNo);
+        String aesJson = JSON.toJSONString(map);
+        String params = EncryptUtil.aesEncrypt(aesKey, aesJson);
+        log.info("越南彩确认订单状态请求参数明文：{}", JSONObject.toJSONString(map));
+        String result = sendPostRequest(url, merchantCode, params);
+        log.info("越南彩确认订单状态请求结果：{}", result);
+        ResponseEntity entity = entity(result);
+        if (entity == null || ObjectUtils.isEmpty(entity.getErrorCode())) {
+            return null;
+        }
+        return entity;
+    }
+
+
+    /**
+     * 越南彩是UTC-7时间查询的数据
+     *
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    public String getDateTimeReport(String startTime, String endTime, String playerName) throws Exception {
+        String url = apiUrl + "/gameBetInfo";
+        Map<String, Object> map = new HashMap<>();
+        setBasicParams(playerName, map);
+        String token = EncryptUtil.md5(map.get("currentTime") + merchantCode + platformId +
+                playerName + startTime + endTime + md5Key);
+        map.put("startTime", startTime);
+        map.put("endTime", endTime);
+        map.put("token", token);
+        String aesJson = JSON.toJSONString(map);
+        String params = EncryptUtil.aesEncrypt(aesKey, aesJson);
+        log.info("越南彩查询下注记录请求参数明文：{}", JSONObject.toJSONString(map));
+        String result = sendPostRequest(url, merchantCode, params);
+        log.info("越南彩查询下注记录请求结果：{}", result);
+
+        if (CommonUtil.checkNull(result)) {
+            return null;
+        }
+        ResponseEntity entity = entity(result);
+        if (StringUtils.equals(entity.getErrorCode(), "0")) {
+            if(StringUtils.isBlank(entity.getData())){
+                return "notData";
+            }else{
+                entity.getData();
+            }
+        }
+        throw new Exception(String.valueOf(entity));
+    }
+
+
+    /**
+     * 基础属性
+     *
+     * @param playerName
+     * @param map
+     */
+    private void setBasicParams(String playerName, Map<String, Object> map) {
+        long longTime = System.currentTimeMillis();
+        map.put("currentTime", longTime);
+        map.put("platformId", platformId);
+        map.put("playerName", playerName);
+        map.put("merchantCode", merchantCode);
     }
 
     private static ResponseEntity entity(String result) {
@@ -136,54 +311,5 @@ public class PublicLotteryApi {
 
         return HttpClient4Util.doPost(url, map);
     }
-
-    /**
-     * 登录
-     *
-     * @param customer_id
-     * @param customer_name
-     * @param customer_mail
-     * @return
-     */
-    public JSONObject userLottoLogin(String customer_id, String customer_name, String customer_mail) {
-        return null;
-    }
-
-    /**
-     * 加点
-     * @param customer_id
-     * @param customer_name
-     * @param amount_to_add
-     * @param customer_mail
-     * @return
-     */
-    public JSONObject addInWallet(String customer_id, String customer_name, String amount_to_add, String customer_mail) {
-        return null;
-    }
-
-
-    /**
-     * 转出
-     * @param customer_id
-     * @param customer_name
-     * @param customer_mail
-     * @param amount
-     * @return
-     */
-    public JSONObject updateWallet(String customer_id, String customer_name,  String customer_mail,String amount) {
-        return null;
-    }
-
-
-    /**
-     * 查余额
-     * @param customer_id_list
-     * @return
-     */
-    public JSONObject fetchWalletBalance(List<String> customer_id_list) {
-        return null;
-    }
-
-
 
 }

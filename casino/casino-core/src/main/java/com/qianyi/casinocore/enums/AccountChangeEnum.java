@@ -28,6 +28,8 @@ public enum AccountChangeEnum {
     INTEGRAL_WITHDRAWAL(20, "IW","积分提现"),
     AE_IN(21, "AEIN","AE转入"),
     AE_OUT(22, "AEOUT","AE转出"),
+    VNC_IN(25, "VNCIN","VNC转入"),
+    VNC_OUT(26, "VNCOUT","VNC转出"),
     ;
 
     private Integer type;
