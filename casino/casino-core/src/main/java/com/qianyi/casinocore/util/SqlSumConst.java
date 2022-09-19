@@ -71,12 +71,11 @@ public class SqlSumConst {
         """;
 
     public static String sabasportSumSql = """
-        SELECT
+    SELECT
     count( DISTINCT sk.bet_id ) num,
     ifnull( SUM( sk.bet_amount ), 0 ) bet_amount,
     ifnull( SUM( sk.bet_amount ), 0 ) validbet,
-    ifnull( (
-    sum( off.win_amount )- sum( sk.bet_amount )+ sum( t3.win_amount )), 0 ) win_loss
+    ifnull(sum(off.win_amount), 0 )-ifnull(sum( sk.bet_amount ), 0 )+ifnull(sum(t3.win_amount), 0 ) win_loss
     FROM
         (
             SELECT
