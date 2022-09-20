@@ -383,6 +383,19 @@ public class UserService {
     }
 
     @SuppressWarnings("unchecked")
+    public List<PersonReportVo> findShareProfit(String startTime, String endTime, Integer page,
+        Integer pageSize, String sort,String proxy){
+        startTime = "'" + startTime + "'";
+        endTime = "'" + endTime + "'";
+        String sql = MessageFormat.format(SqlShareConst.sqlShareProfit, startTime, endTime, sort, page.toString(),pageSize.toString(),proxy);
+        log.info(sql);
+        Query countQuery = entityManager.createNativeQuery(sql);
+        List<Object> resultList = countQuery.getResultList();
+        List<Map<String, Object>> mapList = parseShareProfitMapList(resultList);
+        return DTOUtil.map2DTO(mapList, PersonReportVo.class);
+    }
+
+    @SuppressWarnings("unchecked")
     public PersonReportVo findMapBet(String platform, String startTime, String endTime,String userId){
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
@@ -449,6 +462,35 @@ public class UserService {
         Query countQuery = entityManager.createNativeQuery(sql);
         Object result = countQuery.getSingleResult();
         Map<String, Object> map = parsePersonNotWashMapList(result);
+        return DTOUtil.toDTO(map, PersonReportVo.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    public PersonReportVo findShareProfit(String platform, String startTime, String endTime,String userId, String orderTimeStart, String orderTimeEnd){
+        startTime = "'" + startTime + "'";
+        endTime = "'" + endTime + "'";
+        String sql = "";
+        if (StringUtils.isNullOrEmpty(platform)) {
+            sql = MessageFormat.format(SqlShareConst.reportAllSql,  startTime, endTime, userId,"",orderTimeStart,orderTimeEnd);
+        } else if (platform.equals(Constants.PLATFORM_WM_BIG)) {
+            sql = MessageFormat.format(SqlShareConst.reportWmSql,  startTime, endTime, userId," And platform = \'wm\'");
+        } else if (platform.equals(Constants.PLATFORM_OBDJ)) {
+            sql = MessageFormat.format(SqlNewConst.reportObdjSql,  startTime, endTime, userId," And platform = \'OBDJ\'");
+        } else if (platform.equals(Constants.PLATFORM_OBTY)) {
+            sql = MessageFormat.format(SqlNewConst.reportObtySql,  startTime, endTime, userId," And platform = \'OBTY\'");
+        } else if (platform.equals(Constants.PLATFORM_PG)) {
+            sql = MessageFormat.format(SqlNewConst.reportPgOrCq9Sql,  startTime, endTime, userId," And platform = \'PG\'","'PG'");
+        } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
+            sql = MessageFormat.format(SqlNewConst.reportSabasportSql,  startTime, endTime, userId," And platform = \'SABASPORT\'","'SABASPORT'","'Payoff'","'Stake'","'cancelPayoff'");
+        } else if (platform.equals(Constants.PLATFORM_AE)) {
+            sql = MessageFormat.format(SqlNewConst.reportAeMergeSql,  startTime, endTime, userId," And platform = \'AE\'","'AE'");
+        } else {
+            sql = MessageFormat.format(SqlNewConst.reportPgOrCq9Sql,  startTime, endTime, userId," And platform = \'CQ9\'","'CQ9'");
+        }
+        log.info(sql);
+        Query countQuery = entityManager.createNativeQuery(sql);
+        Object result = countQuery.getSingleResult();
+        Map<String, Object> map = parsePersonNotShareMapList(result);
         return DTOUtil.toDTO(map, PersonReportVo.class);
     }
 
@@ -722,6 +764,29 @@ public class UserService {
         return list;
     }
 
+    private static final List<String> PERSON_REPORT_VO_FIELD_LIST_SHARE_PROFIT =
+        Arrays.asList("account", "third_proxy", "id", "all_profit_amount");
+
+    private List<Map<String, Object>> parseShareProfitMapList(List<Object> resultList) {
+        List<Map<String, Object>> list = null;
+        if (resultList != null && resultList.size() > CommonConst.NUMBER_0) {
+            list = new LinkedList<>();
+            Integer sort = 0;
+            for (Object result : resultList) {
+                Map<String, Object> map = new HashMap<>();
+                Object[] obj = (Object[])result;
+                for (int i = 0; i < PERSON_REPORT_VO_FIELD_LIST_SHARE_PROFIT.size(); i++) {
+                    String field = PERSON_REPORT_VO_FIELD_LIST_SHARE_PROFIT.get(i);
+                    Object value = obj[i];
+                    map.put(field, value);
+                }
+                map.put("sort",sort++);
+                list.add(map);
+            }
+        }
+        return list;
+    }
+
     private static final List<String> PERSON_REPORT_VO_FIELD_LIST_NOTBET =
         Arrays.asList("wash_amount", "service_charge", "all_profit_amount", "all_water");
 
@@ -749,6 +814,23 @@ public class UserService {
             Object[] obj = (Object[])result;
             for (int i = 0; i < PERSON_REPORT_VO_FIELD_LIST_NOTWASH.size(); i++) {
                 String field = PERSON_REPORT_VO_FIELD_LIST_NOTWASH.get(i);
+                Object value = obj[i];
+                map.put(field, value);
+            }
+        }
+        return map;
+    }
+
+    private static final List<String> PERSON_REPORT_VO_FIELD_LIST_NOTSHARE =
+        Arrays.asList("num", "bet_amount","validbet","win_loss","service_charge", "wash_amount", "all_water");
+
+    private Map<String, Object> parsePersonNotShareMapList(Object result) {
+        Map<String, Object> map = null;
+        if (Objects.nonNull(result)) {
+            map = new HashMap<>();
+            Object[] obj = (Object[])result;
+            for (int i = 0; i < PERSON_REPORT_VO_FIELD_LIST_NOTSHARE.size(); i++) {
+                String field = PERSON_REPORT_VO_FIELD_LIST_NOTSHARE.get(i);
                 Object value = obj[i];
                 map.put(field, value);
             }

@@ -91,7 +91,7 @@ public class ReportController {
         @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
         @ApiImplicitParam(name = "sort", value = "1 正序 2 倒序", required = false),
         @ApiImplicitParam(name = "time", value = "1 北京时间 2 美东时间", required = false),
-        @ApiImplicitParam(name = "tag", value = "1：投注笔数 2：投注金额 3：有效投注 4：洗码发放 5：用户输赢金额", required = false),})
+        @ApiImplicitParam(name = "tag", value = "1：投注笔数 2：投注金额 3：有效投注 4：洗码发放 5：用户输赢金额 6:人人代返佣", required = false),})
     public ResponseEntity<PersonReportVo> queryPersonReport(Integer pageSize, Integer pageCode, String userName,
         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startTime,
         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endTime, String platform, Integer sort, Integer time,
@@ -136,7 +136,10 @@ public class ReportController {
             if (Objects.nonNull(tag) && tag == CommonConst.NUMBER_4) {
                 reportResult = this.findWashOrderBy(platform, startTimeStr, endTimeStr, page, pageSize, statement,
                     orderTimeStart, orderTimeEnd);
-            } else {
+            } else if (Objects.nonNull(tag) && tag == CommonConst.NUMBER_6){
+                reportResult = this.findShareProfitOrderBy(platform, startTimeStr, endTimeStr, page, pageSize, statement,
+                    orderTimeStart, orderTimeEnd);
+            } else{
                 reportResult = this.findBetOrderBy(platform, startTimeStr, endTimeStr, page, pageSize, statement,
                     orderTimeStart, orderTimeEnd);
             }
@@ -147,6 +150,47 @@ public class ReportController {
         int totalElement = reportService.queryTotalElement(startTimeStr, endTimeStr);
         PageResultVO<PersonReportVo> mapPageResultVO = combinePage(reportResult, totalElement, pageCode, pageSize);
         return ResponseUtil.success(getMap(mapPageResultVO));
+    }
+
+    private List<PersonReportVo> findShareProfitOrderBy(String platform,String startTimeStr, String endTimeStr, Integer page,
+        Integer pageSize, String statement, String orderTimeStart, String orderTimeEnd) {
+        List<PersonReportVo> reportResult =
+            userService.findShareProfit(startTimeStr, endTimeStr, page, pageSize, statement, "");
+        if (CollUtil.isNotEmpty(reportResult)) {
+            ReentrantLock reentrantLock = new ReentrantLock();
+            Condition condition = reentrantLock.newCondition();
+            AtomicInteger atomicInteger = new AtomicInteger(reportResult.size());
+            Vector<PersonReportVo> list = new Vector<>();
+            for (PersonReportVo per : reportResult) {
+                threadPool.execute(() -> {
+                    try {
+                        PersonReportVo vo = userService.findShareProfit(platform, startTimeStr, endTimeStr,
+                            per.getId().toString(), orderTimeStart, orderTimeEnd);
+                        per.setNum(vo.getNum());
+                        per.setBetAmount(vo.getBetAmount());
+                        per.setValidbet(vo.getValidbet());
+                        per.setWinLoss(vo.getWinLoss());
+                        per.setServiceCharge(vo.getServiceCharge());
+                        per.setWashAmount(vo.getWashAmount());
+                        per.setAllWater(vo.getAllWater());
+                        BigDecimal avgBenefit = per.getWinLoss().add(per.getWashAmount()).add(per.getAllWater());
+                        per.setAvgBenefit(avgBenefit.negate());
+                        per.setTotalAmount(
+                            per.getAvgBenefit().subtract(per.getAllProfitAmount()).add(per.getServiceCharge()));
+                        list.add(per);
+                    } catch (Exception ex) {
+                        log.error("异步查询报表异常", ex);
+                    } finally {
+                        atomicInteger.decrementAndGet();
+                        BillThreadPool.toResume(reentrantLock, condition);
+                    }
+                });
+            }
+            BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
+            reportResult = list;
+            Collections.sort(reportResult, (o1, o2) -> -o2.getSort().compareTo(o1.getSort()));
+        }
+        return reportResult;
     }
 
     private List<PersonReportVo> findWashOrderBy(String platform, String startTimeStr, String endTimeStr, Integer page,
@@ -249,6 +293,8 @@ public class ReportController {
                 break;
             case 5:
                 str = MessageFormat.format(str, "win_loss");
+            case 6:
+                str = MessageFormat.format(str, "all_profit_amount");
                 break;
             default:
                 throw new BusinessException("参数不合法");
