@@ -147,7 +147,7 @@ public class GameVNDController {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
-        if (third == null || ObjectUtils.isEmpty(third.getAeAccount())) {
+        if (third == null || ObjectUtils.isEmpty(third.getVncAccount())) {
             return ResponseUtil.success(BigDecimal.ZERO);
         }
         BigDecimal balance = BigDecimal.ZERO;
