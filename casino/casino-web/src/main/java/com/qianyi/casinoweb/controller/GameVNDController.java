@@ -102,7 +102,7 @@ public class GameVNDController {
         UserMoney userMoney = userMoneyService.findByUserId(authId);
         BigDecimal userCenterMoney = BigDecimal.ZERO;
         if (userMoney != null && userMoney.getMoney() != null) {
-            userCenterMoney = userMoney.getMoney();
+            userCenterMoney = userMoney.getMoney().divideToIntegralValue(BigDecimal.ONE);
         }
         if (userCenterMoney.compareTo(BigDecimal.ZERO) == 1) {
             //钱转入第三方后本地扣减记录账变  优先扣减本地余额，否则会出现三方加点成功，本地扣减失败的情况

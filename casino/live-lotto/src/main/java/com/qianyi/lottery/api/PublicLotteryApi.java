@@ -125,14 +125,15 @@ public class PublicLotteryApi {
      * @return
      */
     public ResponseEntity changeBalance(String playerName, Integer transferType, BigDecimal amount, String orderNo) {
+        String amountStr = amount.stripTrailingZeros().toPlainString();
         String url = apiUrl + "/walletTransfer";
         Map<String, Object> map = new HashMap<>();
         setBasicParams(playerName, map);
         map.put("transferType", transferType);
-        map.put("amount", amount);
+        map.put("amount", amountStr);
         map.put("orderNo", orderNo);
         String token = EncryptUtil.md5(map.get("currentTime") + merchantCode + platformId +
-                playerName + transferType+ amount + orderNo + md5Key);
+                playerName + transferType+ amountStr + orderNo + md5Key);
         map.put("token", token);
         String aesJson = JSON.toJSONString(map);
 
