@@ -21,24 +21,24 @@ import java.util.Map;
 public class PublicLotteryApi {
 
     //url地址
-    @Value("${project.ync.apiUrl:null}")
+    @Value("${project.vnc.apiUrl:null}")
     private String apiUrl;
 
     // 平台ID
-    @Value("${project.ync.platformId:null}")
+    @Value("${project.vnc.platformId:null}")
     private String platformId;
 
     // 商户号
-    @Value("${project.ync.merchantCode:null}")
+    @Value("${project.vnc.merchantCode:null}")
     private String merchantCode;
 
-    @Value("${project.ync.aesKey:null}")
+    @Value("${project.vnc.aesKey:null}")
     private String aesKey;
 
-    @Value("${project.ync.md5Key:null}")
+    @Value("${project.vnc.md5Key:null}")
     private String md5Key;
 
-    @Value("${project.ync.currency:null}")
+    @Value("${project.vnc.currency:null}")
     private String currency;
 
     public static final String SUCCESS_CODE = "0000";
@@ -60,9 +60,8 @@ public class PublicLotteryApi {
         map.put("token", token);
         map.put("currency", currency);
         String aesJson = JSON.toJSONString(map);
-        String params = EncryptUtil.aesEncrypt(aesKey, aesJson);
         log.info("越南彩创建会员请求参数明文：{}", JSONObject.toJSONString(map));
-        String result = sendPostRequest(url, merchantCode, params);
+        String result = sendPostRequest(url, merchantCode, aesJson);
         log.info("越南彩创建会员结果：{}", result);
         ResponseEntity entity = entity(result);
         if (entity == null || ObjectUtils.isEmpty(entity.getErrorCode())) {
@@ -101,9 +100,8 @@ public class PublicLotteryApi {
                 playerName + gameCode+ passWord + isMobile + language + md5Key);
         map.put("token", token);
         String aesJson = JSON.toJSONString(map);
-        String params = EncryptUtil.aesEncrypt(aesKey, aesJson);
         log.info("越南彩登录游戏请求参数明文：{}", JSONObject.toJSONString(map));
-        String result = sendPostRequest(url, merchantCode, params);
+        String result = sendPostRequest(url, merchantCode, aesJson);
         log.info("越南彩登录游戏结果：{}", result);
         ResponseEntity entity = entity(result);
         if (entity == null || ObjectUtils.isEmpty(entity.getErrorCode())) {
@@ -137,9 +135,9 @@ public class PublicLotteryApi {
                 playerName + transferType+ amount + orderNo + md5Key);
         map.put("token", token);
         String aesJson = JSON.toJSONString(map);
-        String params = EncryptUtil.aesEncrypt(aesKey, aesJson);
+
         log.info("越南彩转账请求参数明文：{}", JSONObject.toJSONString(map));
-        String result = sendPostRequest(url, merchantCode, params);
+        String result = sendPostRequest(url, merchantCode, aesJson);
         log.info("越南彩转账请求结果：{}", result);
         ResponseEntity entity = entity(result);
         if (entity == null || ObjectUtils.isEmpty(entity.getErrorCode())) {
@@ -164,9 +162,8 @@ public class PublicLotteryApi {
 
         map.put("token", token);
         String aesJson = JSON.toJSONString(map);
-        String params = EncryptUtil.aesEncrypt(aesKey, aesJson);
         log.info("越南彩查询余额请求参数明文：{}", JSONObject.toJSONString(map));
-        String result = sendPostRequest(url, merchantCode, params);
+        String result = sendPostRequest(url, merchantCode, aesJson);
         log.info("越南彩查询余额请求结果：{}", result);
         ResponseEntity entity = entity(result);
         if (entity == null || ObjectUtils.isEmpty(entity.getErrorCode())) {
@@ -193,9 +190,9 @@ public class PublicLotteryApi {
         map.put("token", token);
         map.put("orderNo", orderNo);
         String aesJson = JSON.toJSONString(map);
-        String params = EncryptUtil.aesEncrypt(aesKey, aesJson);
+
         log.info("越南彩确认订单状态请求参数明文：{}", JSONObject.toJSONString(map));
-        String result = sendPostRequest(url, merchantCode, params);
+        String result = sendPostRequest(url, merchantCode, aesJson);
         log.info("越南彩确认订单状态请求结果：{}", result);
         ResponseEntity entity = entity(result);
         if (entity == null || ObjectUtils.isEmpty(entity.getErrorCode())) {
@@ -222,9 +219,8 @@ public class PublicLotteryApi {
         map.put("endTime", endTime);
         map.put("token", token);
         String aesJson = JSON.toJSONString(map);
-        String params = EncryptUtil.aesEncrypt(aesKey, aesJson);
         log.info("越南彩查询下注记录请求参数明文：{}", JSONObject.toJSONString(map));
-        String result = sendPostRequest(url, merchantCode, params);
+        String result = sendPostRequest(url, merchantCode, aesJson);
         log.info("越南彩查询下注记录请求结果：{}", result);
 
         if (CommonUtil.checkNull(result)) {
@@ -272,10 +268,9 @@ public class PublicLotteryApi {
         if (ObjectUtils.isEmpty(jsonObject)) {
             return null;
         }
-        JSONObject error = jsonObject.getJSONObject("resp_msg");
-        if (error != null) {
-            String code = error.getString("resp_code");
-            String message = error.getString("resp_msg");
+        if (jsonObject != null) {
+            String code = jsonObject.getString("resp_code");
+            String message = jsonObject.getString("resp_msg");
             entity.setErrorCode(code);
             entity.setErrorMessage(message);
         }

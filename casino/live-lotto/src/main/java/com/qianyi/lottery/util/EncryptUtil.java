@@ -38,7 +38,7 @@ public class EncryptUtil {
 
             return Base64.getEncoder().encodeToString(encrypted);
         }catch (Exception ex){
-            log.error("encrypt error.aesKey" + aesKey);
+            log.error("encrypt error.aesKey" + aesKey, ex);
         }
 
         return null;
