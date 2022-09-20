@@ -184,7 +184,7 @@ public class GameVNDController {
         return responseEntity;
     }
 
-    @ApiOperation(value = "一键回收当前登录用户AE余额")
+    @ApiOperation(value = "一键回收当前登录用户VNC余额")
     @GetMapping("/oneKeyRecover")
     public ResponseEntity oneKeyRecover() {
         //获取登陆用户
@@ -192,7 +192,7 @@ public class GameVNDController {
         return thirdGameBusiness.oneKeyRecoverVNC(userId);
     }
 
-    @ApiOperation(value = "一键回收用户AE余额外部接口")
+    @ApiOperation(value = "一键回收用户VNC余额外部接口")
     @GetMapping("/oneKeyRecoverApi")
     @NoAuthentication
     @ApiImplicitParam(name = "userId", value = "用户ID", required = true)
