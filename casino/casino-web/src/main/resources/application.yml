@@ -100,7 +100,7 @@ project:   #不同环境需配置相应的值
       maxdraw: 500
       matchlimit: 5000     #該局總和下注限制matchlimit
   vnc: #越南彩
-    apiUrl: http://127.0.0.1:9900/api-reception/gameApi/v2
+    apiUrl: http://lotterygateway.kk000.net/api-reception/gameApi/v2
     platformId: 1
     merchantCode: kk-vnd
     aesKey: abc123456789abc
