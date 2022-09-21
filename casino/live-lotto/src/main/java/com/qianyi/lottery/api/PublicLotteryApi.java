@@ -253,7 +253,7 @@ public class PublicLotteryApi {
         map.put("merchantCode", merchantCode);
     }
 
-    private static ResponseEntity entity(String result) {
+    public static ResponseEntity entity(String result) {
         if (ObjectUtils.isEmpty(result)) {
             return null;
         }

@@ -52,6 +52,10 @@ public class UserMoneyBusiness {
     private RebateDetailService rebateDetailService;
     @Autowired
     private PlatformConfigService platformConfigService;
+    @Autowired
+    private IntegralBusiness integralBusiness;
+    @Autowired
+    private GameRecordVNCService gameRecordVNCService;
 
     //默认最小清零打码量
     private static final BigDecimal DEFAULT_CLEAR = new BigDecimal("10");
@@ -103,6 +107,8 @@ public class UserMoneyBusiness {
             gameRecordObtyService.updateCodeNumStatus(record.getId(), Constants.yes);
         } else if(Constants.PLATFORM_AE.equals(platform)){
             gameRecordAeService.updateCodeNumStatus(record.getId(), Constants.yes);
+        } else if(Constants.PLATFORM_VNC.equals(platform)){
+            gameRecordVNCService.updateCodeNumStatus(record.getId(), Constants.yes);
         }
         log.info("打码结束,平台={},注单ID={}", platform, record.getBetId());
     }
@@ -187,6 +193,8 @@ public class UserMoneyBusiness {
             gameRecordObtyService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
         }else if (Constants.PLATFORM_AE.equals(platform)) {
             gameRecordAeService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
+        }else if (Constants.PLATFORM_VNC.equals(platform)) {
+            gameRecordVNCService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
         }
         log.info("洗码完成,平台={},注单ID={}", platform, gameRecord.getBetId());
     }
@@ -202,6 +210,8 @@ public class UserMoneyBusiness {
         if (record.getShareProfitStatus() != null && record.getShareProfitStatus() >0) {
             return;
         }
+        //异步完成投注奖励任务
+        integralBusiness.completeValidbetTask(record);
         log.info("开始三级分润,平台={},注单ID={},注单明细={}", platform, record.getBetId(), record.toString());
         BigDecimal validbet = new BigDecimal(record.getValidbet());
         Long userId = record.getUserId();
@@ -362,6 +372,8 @@ public class UserMoneyBusiness {
             gameRecordObtyService.updateRebateStatus(record.getId(), Constants.yes);
         } else if (Constants.PLATFORM_AE.equals(platform)) {
             gameRecordAeService.updateRebateStatus(record.getId(), Constants.yes);
+        }else if (Constants.PLATFORM_VNC.equals(platform)) {
+            gameRecordVNCService.updateRebateStatus(record.getId(), Constants.yes);
         }
         if (rebateDetail.getTotalAmount().compareTo(BigDecimal.ZERO)>0){
             //后台异步增减平台总余额

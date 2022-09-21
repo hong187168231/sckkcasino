@@ -57,6 +57,11 @@ public class UserThirdService {
         return userThirdRepository.findByAeAccount(account);
     }
 
+    @Cacheable(key = "#root.methodName+'::'+#p0")
+    public UserThird findByVNCAccount(String account) {
+        return userThirdRepository.findByVncAccount(account);
+    }
+
     public List<UserThird> findAllAcount(){
         return userThirdRepository.findAllAcount();
     }
@@ -71,5 +76,10 @@ public class UserThirdService {
 
     public List<UserThird> findAllOBTYAccount() {
         return userThirdRepository.findAllOBTYAccount();
+    }
+
+    @Cacheable(key = "#root.methodName+'::'+#p0")
+    public UserThird findByVncAccount(String account) {
+        return userThirdRepository.findByVncAccount(account);
     }
 }
