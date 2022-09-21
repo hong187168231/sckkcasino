@@ -9,7 +9,7 @@ import javax.persistence.Entity;
 @Data
 @Entity
 @ApiModel("VNC游戏记录抓取时间记录表")
-public class GameRecordVNCEndTime {
+public class GameRecordVNCEndTime extends BaseEntity{
 
     @ApiModelProperty(value = "数据拉取开始时间 UTC-7时间")
     private String startTime;

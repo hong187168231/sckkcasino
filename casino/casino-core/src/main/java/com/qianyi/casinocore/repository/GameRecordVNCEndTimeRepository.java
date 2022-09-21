@@ -1,6 +1,5 @@
 package com.qianyi.casinocore.repository;
 
-import com.qianyi.casinocore.model.GameRecordAeEndTime;
 import com.qianyi.casinocore.model.GameRecordVNCEndTime;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
