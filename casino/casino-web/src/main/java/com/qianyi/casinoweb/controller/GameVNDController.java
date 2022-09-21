@@ -9,6 +9,7 @@ import com.qianyi.casinocore.service.*;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.liveae.constants.LanguageEnum;
 import com.qianyi.lottery.api.PublicLotteryApi;
+import com.qianyi.lottery.util.LanguageVNCEnum;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.reponse.ResponseCode;
@@ -129,7 +130,7 @@ public class GameVNDController {
         }
         //开游戏
         String language = request.getHeader(Constants.LANGUAGE);
-        String languageCode = LanguageEnum.getLanguageCode(language);
+        String languageCode = LanguageVNCEnum.getLanguageCode(language);
         String gameCode = "VNC";
 
         String url = lotteryApi.lanuchGame(account, languageCode, "1", gameCode);
