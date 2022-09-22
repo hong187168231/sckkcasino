@@ -340,7 +340,7 @@ public class GoldenFController {
         return thirdGameBusiness.oneKeyRecoverGoldenF(userId,vendorCode);
     }
 
-    @ApiOperation("查询WM,PG,CQ9,OB电竞,OB体育,沙巴体育，隐藏、维护状态的游戏")
+    @ApiOperation("查询WM,PG,CQ9,OB电竞,OB体育,沙巴体育,VNC，隐藏、维护状态的游戏")
     @GetMapping("/maintenanceGameList")
     @NoAuthentication
     public ResponseEntity<List<MaintenanceGameVo>> maintenanceGameList() {

@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 查询最近数据，最大两个月前的数据量
@@ -54,7 +55,7 @@ public class GameRecordVNCJob {
     private PlatformGameService platformGameService;
 
     //每隔5分钟30秒执行一次
-    @Scheduled(cron = "30 0/5 * * * ?")
+    @Scheduled(cron = "30 0/1 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_VNC);
         if (platformGame != null && platformGame.getGameStatus() == 2) {
@@ -91,7 +92,7 @@ public class GameRecordVNCJob {
 
     public void pullGameRecordByTime(String startTime, String platform) throws Exception {
         String endTime = sdf.format(new Date());
-        String strResult = lotteryApi.getDateTimeReport(startTime, platform, "KK");
+        String strResult = lotteryApi.getDateTimeReport(startTime, endTime, "KK");
         if (CasinoWebUtil.checkNull(strResult)) {
             log.error("拉取{}注单时远程请求错误,startTime={}", platform, startTime);
             saveGameRecordVNCEndTime(startTime, endTime, platform, Constants.no);
@@ -111,6 +112,12 @@ public class GameRecordVNCJob {
             return;
         }
         List<GameRecordVNC> gameRecords = JSON.parseArray(transactions, GameRecordVNC.class);
+        gameRecords = gameRecords.stream().filter(ga -> ga.getSettleState() == true).collect(Collectors.toList());
+        if (gameRecords.isEmpty()) {
+            log.info("拉取{}注单当前时间无记录,startTime={},result={}", platform, startTime, transactions);
+            saveGameRecordVNCEndTime(startTime, endTime, platform, Constants.yes);
+            return;
+        }
         //保存数据
         saveAll(platform, gameRecords);
         //保存时间区间
@@ -223,20 +230,20 @@ public class GameRecordVNCJob {
         GameRecordVNC gameRecord = gameRecordVNCService.findByMerchantCodeAndBetOrder(gameRecordVNC.getMerchantCode(), gameRecordVNC.getBetOrder());
         if (gameRecord == null) {
             gameRecord = new GameRecordVNC();
-            gameRecord.setIsAdd(1);//新增
+            gameRecordVNC.setIsAdd(1);//新增
         }
         //有效投注
         BigDecimal oldTurnover = gameRecord.getRealMoney();
         //用户输赢
-        BigDecimal oldRealWinAmount = gameRecord.getWinMoney().subtract(gameRecord.getBetMoney());
+        BigDecimal oldRealWinAmount = gameRecordVNC.getWinMoney().subtract(gameRecordVNC.getRealMoney());
         //时间转成标准时间格式
-        if (!ObjectUtils.isEmpty(gameRecord.getBetTime())) {
-            String txTimeStr = DateUtil.getSimpleDateFormat().format(gameRecord.getBetTime());
-            gameRecord.setBetTimeStr(txTimeStr);
+        if (!ObjectUtils.isEmpty(gameRecordVNC.getBetTime())) {
+            String txTimeStr = DateUtil.getSimpleDateFormat().format(gameRecordVNC.getBetTime());
+            gameRecordVNC.setBetTimeStr(txTimeStr);
         }
-        if (!ObjectUtils.isEmpty(gameRecord.getSettleTime()) && gameRecord.getSettleState()) {
-            String updateTimeStr = DateUtil.getSimpleDateFormat().format(gameRecord.getSettleTime());
-            gameRecord.setSettleTimeStr(updateTimeStr);
+        if (!ObjectUtils.isEmpty(gameRecordVNC.getSettleTime()) && gameRecordVNC.getSettleState()) {
+            String updateTimeStr = DateUtil.getSimpleDateFormat().format(gameRecordVNC.getSettleTime());
+            gameRecordVNC.setSettleTimeStr(updateTimeStr);
         }
 
         BeanUtils.copyProperties(gameRecordVNC, gameRecord);

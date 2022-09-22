@@ -215,9 +215,11 @@ public class PublicLotteryApi {
         Map<String, Object> map = new HashMap<>();
         setBasicParams(playerName, map);
         String token = EncryptUtil.md5(map.get("currentTime") + merchantCode + platformId +
-                playerName + startTime + endTime + md5Key);
+                playerName + md5Key);
+
         map.put("startTime", startTime);
         map.put("endTime", endTime);
+        map.put("playerName", playerName);
         map.put("token", token);
         String aesJson = JSON.toJSONString(map);
         log.info("越南彩查询下注记录请求参数明文：{}", JSONObject.toJSONString(map));
@@ -227,15 +229,7 @@ public class PublicLotteryApi {
         if (CommonUtil.checkNull(result)) {
             return null;
         }
-        ResponseEntity entity = entity(result);
-        if (StringUtils.equals(entity.getErrorCode(), "0")) {
-            if(StringUtils.isBlank(entity.getData())){
-                return "notData";
-            }else{
-                entity.getData();
-            }
-        }
-        throw new Exception(String.valueOf(entity));
+        return result;
     }
 
 
