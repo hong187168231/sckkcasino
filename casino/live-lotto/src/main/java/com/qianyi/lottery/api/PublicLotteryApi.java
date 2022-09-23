@@ -5,14 +5,17 @@ import com.alibaba.fastjson.JSONObject;
 import com.qianyi.lottery.util.EncryptUtil;
 import com.qianyi.lottery.util.HttpClient4Util;
 import com.qianyi.modulecommon.util.CommonUtil;
+import com.qianyi.modulecommon.util.DateUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -203,6 +206,7 @@ public class PublicLotteryApi {
     }
 
 
+
     /**
      * 越南彩是UTC-7时间查询的数据
      *
@@ -211,6 +215,11 @@ public class PublicLotteryApi {
      * @return
      */
     public String getDateTimeReport(String startTime, String endTime, String playerName) throws Exception {
+        Date date = DateUtils.addHours(DateUtil.getDatePatten(startTime), -1);
+        Date endDate = DateUtils.addHours(DateUtil.getDatePatten(endTime), -1);
+
+        startTime = DateUtil.dateToPatten(date);
+        endTime = DateUtil.dateToPatten(endDate);
         String url = apiUrl + "/gameBetInfo";
         Map<String, Object> map = new HashMap<>();
         setBasicParams(playerName, map);
