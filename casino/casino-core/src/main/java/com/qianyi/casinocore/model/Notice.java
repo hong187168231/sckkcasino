@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 
 @Entity
@@ -13,10 +14,12 @@ public class Notice extends BaseEntity {
     @ApiModelProperty("内容")
     private String title;
     @ApiModelProperty("英文内容")
+    @Column(length = 1500)
     private String enTitle;
     @ApiModelProperty("简介")
     private String introduction;
     @ApiModelProperty("英文简介")
+    @Column(length = 1500)
     private String enIntroduction;
     @ApiModelProperty("详情访问页")
     private String url;
