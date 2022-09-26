@@ -55,7 +55,7 @@ public class GameRecordVNCJob {
     private PlatformGameService platformGameService;
 
     //每隔5分钟30秒执行一次
-    @Scheduled(cron = "30 0/1 * * * ?")
+    @Scheduled(cron = "30 0/4 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_VNC);
         if (platformGame != null && platformGame.getGameStatus() == 2) {
