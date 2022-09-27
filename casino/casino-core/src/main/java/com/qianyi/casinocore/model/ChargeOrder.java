@@ -52,6 +52,10 @@ public class ChargeOrder extends BaseEntity{
 //    @ApiModelProperty(value = "手续费")
 //    private BigDecimal serviceCharge;
 
+
+    @ApiModelProperty("充值凭证url")
+    private String chargeUrl;
+
     @ApiModelProperty(value = "备注")
     private String remark;
 

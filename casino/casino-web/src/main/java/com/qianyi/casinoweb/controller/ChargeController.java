@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,13 +72,13 @@ public class ChargeController {
             @ApiImplicitParam(name = "remitterName", value = "汇款人", required = true),
             @ApiImplicitParam(name = "bankcardId", value = "收款银行卡ID", required = true),
     })
-    public ResponseEntity submitCharge(String chargeAmount,Integer remitType,String remitterName,Long bankcardId){
+    public ResponseEntity submitCharge(@RequestPart(value = "file") MultipartFile file, String chargeAmount, Integer remitType, String remitterName, Long bankcardId){
         if (CasinoWebUtil.checkNull(chargeAmount,remitterName,bankcardId)) {
             return ResponseUtil.parameterNotNull();
         }
         //根据产品呀要求，前端暂时注释掉汇款方式，前端发起的充值默认就是银行卡充值
         remitType = Constants.remitType_bank;
-        ResponseEntity responseEntity = chargeBusiness.submitOrder(chargeAmount, remitType, remitterName,bankcardId, CasinoWebUtil.getAuthId());
+        ResponseEntity responseEntity = chargeBusiness.submitOrder(file, chargeAmount, remitType, remitterName,bankcardId, CasinoWebUtil.getAuthId());
         return responseEntity;
     }
 }

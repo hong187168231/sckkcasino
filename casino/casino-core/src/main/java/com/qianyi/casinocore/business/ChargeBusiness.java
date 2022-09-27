@@ -5,10 +5,12 @@ import com.qianyi.casinocore.service.*;
 import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
@@ -45,7 +47,11 @@ public class ChargeBusiness {
     }
 
 
-    public ResponseEntity submitOrder(String chargeAmount,Integer remitType,String remitterName,Long bankcardId,Long userId){
+    public ResponseEntity submitOrder(MultipartFile file, String chargeAmount, Integer remitType, String remitterName, Long bankcardId, Long userId){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig != null && platformConfig.getChargeSwitch() == 1 && file == null) {//充值凭证打开
+            return ResponseUtil.custom("充值凭证未上传");
+        }
         if (ObjectUtils.isEmpty(chargeAmount)) {
             return ResponseUtil.custom("充值金额不允许为空");
         }
@@ -72,7 +78,7 @@ public class ChargeBusiness {
         }
         BigDecimal decChargeAmount = new BigDecimal(chargeAmount);
         //查询充值金额限制
-        PlatformConfig platformConfig = platformConfigService.findFirst();
+
         if (platformConfig != null) {
             BigDecimal minMoney = platformConfig.getChargeMinMoney();
             BigDecimal maxMoney = platformConfig.getChargeMaxMoney();
@@ -83,12 +89,18 @@ public class ChargeBusiness {
                 return ResponseUtil.custom("充值金额大于最高限额,单笔最高限额为", maxMoney.stripTrailingZeros().toPlainString());
             }
         }
-        ChargeOrder chargeOrder = getChargeOrder(decChargeAmount,remitType,remitterName,bankcardId,userId);
+        String uploadUrl = platformConfig.getUploadUrl();
+        if (ObjectUtils.isEmpty(uploadUrl)) {
+            log.error("图片上传失败,文件服务器路径未配置");
+            return ResponseUtil.custom("上传失败");
+        }
+        String fileUrl = UploadAndDownloadUtil.webFileUpload(file, uploadUrl);
+        ChargeOrder chargeOrder = getChargeOrder(decChargeAmount,remitType,remitterName,bankcardId,userId, fileUrl);
         ChargeOrder saveOrder = chargeOrderService.saveOrder(chargeOrder);
         return ResponseUtil.success(saveOrder);
     }
 
-    private ChargeOrder getChargeOrder(BigDecimal chargeAmount,Integer remitType,String remitterName,Long bankcardId,Long userId){
+    private ChargeOrder getChargeOrder(BigDecimal chargeAmount,Integer remitType,String remitterName,Long bankcardId,Long userId, String fileUrl){
         ChargeOrder chargeOrder = new ChargeOrder();
         chargeOrder.setOrderNo(orderService.getOrderNo());
         chargeOrder.setChargeAmount(chargeAmount);
@@ -97,6 +109,7 @@ public class ChargeBusiness {
         chargeOrder.setUserId(userId);
         chargeOrder.setRemitType(remitType);
         chargeOrder.setRemark("");
+        chargeOrder.setChargeUrl(fileUrl);
         chargeOrder.setBankcardId(bankcardId);
         //查询打码倍率
         PlatformConfig platformConfig = platformConfigService.findFirst();
