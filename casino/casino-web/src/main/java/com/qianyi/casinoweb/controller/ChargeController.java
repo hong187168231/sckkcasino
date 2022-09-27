@@ -72,7 +72,7 @@ public class ChargeController {
             @ApiImplicitParam(name = "remitterName", value = "汇款人", required = true),
             @ApiImplicitParam(name = "bankcardId", value = "收款银行卡ID", required = true),
     })
-    public ResponseEntity submitCharge(@RequestPart(value = "file") MultipartFile file, String chargeAmount, Integer remitType, String remitterName, Long bankcardId){
+    public ResponseEntity submitCharge(@RequestPart(value = "file", required = false) MultipartFile file, String chargeAmount, Integer remitType, String remitterName, Long bankcardId){
         if (CasinoWebUtil.checkNull(chargeAmount,remitterName,bankcardId)) {
             return ResponseUtil.parameterNotNull();
         }
