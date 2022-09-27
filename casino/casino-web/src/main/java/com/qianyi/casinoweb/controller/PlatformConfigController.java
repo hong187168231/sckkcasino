@@ -67,6 +67,21 @@ public class PlatformConfigController {
         return ResponseUtil.success(false);
     }
 
+    @GetMapping("chargeSwitch")
+    @ApiOperation("充值凭证开关")
+    @NoAuthentication
+    public ResponseEntity<Boolean> chargeSwitch() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (platformConfig == null) {
+            return ResponseUtil.success(false);
+        }
+        Integer verificationCode = platformConfig.getChargeSwitch();
+        if (verificationCode == Constants.open) {
+            return ResponseUtil.success(true);
+        }
+        return ResponseUtil.success(false);
+    }
+
     @GetMapping("getPeopleProportion")
     @ApiOperation("获取人人代三级分佣比例")
     @NoAuthentication
