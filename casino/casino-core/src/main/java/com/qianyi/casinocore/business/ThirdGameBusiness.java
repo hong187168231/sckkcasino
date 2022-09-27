@@ -374,6 +374,8 @@ public class ThirdGameBusiness {
         }
         JSONObject jsonData = JSONObject.parseObject(playerBalance.getData());
         BigDecimal balance = new BigDecimal(jsonData.getDouble("balance"));
+        balance = new BigDecimal(balance.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+
         return ResponseUtil.success(balance);
     }
 
