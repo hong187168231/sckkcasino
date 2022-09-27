@@ -95,6 +95,7 @@ public class ChargeBusiness {
             return ResponseUtil.custom("上传失败");
         }
         String fileUrl = UploadAndDownloadUtil.webFileUpload(file, uploadUrl);
+        log.info("充值上传后返回图片路径：【{}】", fileUrl);
         ChargeOrder chargeOrder = getChargeOrder(decChargeAmount,remitType,remitterName,bankcardId,userId, fileUrl);
         ChargeOrder saveOrder = chargeOrderService.saveOrder(chargeOrder);
         return ResponseUtil.success(saveOrder);
