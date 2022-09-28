@@ -170,8 +170,8 @@ public class PublicLotteryApi {
         String result = sendPostRequest(url, merchantCode, aesJson);
         log.info("越南彩查询余额请求结果：{}", result);
         ResponseEntity entity = entity(result);
-        if (entity == null || ObjectUtils.isEmpty(entity.getErrorCode())) {
-            log.error("playerName:{},查询越南彩余额失败,远程请求异常", playerName);
+        if (entity == null || ObjectUtils.isEmpty(entity.getErrorCode()) || ObjectUtils.isEmpty(entity.getData())) {
+            log.error("playerName:{},查询越南彩余额失败,远程请求异常， 返回数据：【{}】", playerName, result);
             return BigDecimal.ZERO;
         }
         return new BigDecimal(entity.getData());
@@ -220,6 +220,9 @@ public class PublicLotteryApi {
 
         startTime = DateUtil.dateToPatten(date);
         endTime = DateUtil.dateToPatten(endDate);
+
+//        startTime = "2022-09-27 17:40:00";
+//        endTime = "2022-09-27 17:50:00";
         String url = apiUrl + "/gameBetInfo";
         Map<String, Object> map = new HashMap<>();
         setBasicParams(playerName, map);

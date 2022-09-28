@@ -3,6 +3,7 @@ package com.qianyi.casinoweb.job;
 import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.vo.GameRecordVNCVo;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.lottery.api.PublicLotteryApi;
 import com.qianyi.modulecommon.Constants;
@@ -10,6 +11,7 @@ import com.qianyi.modulecommon.util.DateUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -57,6 +60,9 @@ public class GameRecordVNCJob {
     //每隔5分钟30秒执行一次
     @Scheduled(cron = "30 0/4 * * * ?")
     public void pullGameRecord() {
+        //日志打印traceId，同一次请求的traceId相同，方便定位日志
+        ThreadContext.put("traceId", UUID.randomUUID().toString().replaceAll("-",""));
+
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_VNC);
         if (platformGame != null && platformGame.getGameStatus() == 2) {
             log.info("后台已关闭VNC平台,无需拉单,platformGame={}", platformGame);
@@ -111,7 +117,7 @@ public class GameRecordVNCJob {
             saveGameRecordVNCEndTime(startTime, endTime, platform, Constants.yes);
             return;
         }
-        List<GameRecordVNC> gameRecords = JSON.parseArray(transactions, GameRecordVNC.class);
+        List<GameRecordVNCVo> gameRecords = JSON.parseArray(transactions, GameRecordVNCVo.class);
         gameRecords = gameRecords.stream().filter(ga -> ga.getSettleState() == true).collect(Collectors.toList());
         if (gameRecords.isEmpty()) {
             log.info("拉取{}注单当前时间无记录,startTime={},result={}", platform, startTime, transactions);
@@ -167,14 +173,14 @@ public class GameRecordVNCJob {
         System.out.println(format);
     }
 
-    public void saveAll(String platform, List<GameRecordVNC> gameRecordVNCList) {
+    public void saveAll(String platform, List<GameRecordVNCVo> gameRecordVNCList) {
         if (CollectionUtils.isEmpty(gameRecordVNCList)) {
             return;
         }
         log.info("开始处理{}游戏记录数据", platform);
         //查询最小清0打码量
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        for (GameRecordVNC gameRecordVNC : gameRecordVNCList) {
+        for (GameRecordVNCVo gameRecordVNC : gameRecordVNCList) {
             GameRecordVNC gameRecord = null;
             try {
                 gameRecord = save(gameRecordVNC);
@@ -221,7 +227,7 @@ public class GameRecordVNCJob {
     }
 
     @SneakyThrows
-    public GameRecordVNC save(GameRecordVNC gameRecordVNC) {
+    public GameRecordVNC save(GameRecordVNCVo gameRecordVNC) {
         UserThird account = userThirdService.findByVncAccount(gameRecordVNC.getUserName());
         if (account == null || account.getUserId() == null) {
             log.error("同步游戏记录时，UserThird查询结果为null,account={}", gameRecordVNC.getUserName());
@@ -230,7 +236,7 @@ public class GameRecordVNCJob {
         GameRecordVNC gameRecord = gameRecordVNCService.findByMerchantCodeAndBetOrder(gameRecordVNC.getMerchantCode(), gameRecordVNC.getBetOrder());
         if (gameRecord == null) {
             gameRecord = new GameRecordVNC();
-            gameRecordVNC.setIsAdd(1);//新增
+            gameRecord.setIsAdd(1);//新增
         }
         //有效投注
         BigDecimal oldTurnover = gameRecord.getRealMoney();
