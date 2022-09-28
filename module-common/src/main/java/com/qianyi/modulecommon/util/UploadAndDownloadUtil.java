@@ -29,6 +29,8 @@ import java.util.UUID;
 public class UploadAndDownloadUtil {
 
     private static String urlUpload= "/minio/upload/casino-admin";
+    private static String webUrlUpload= "/minio/upload/casino-web";
+
     /**
      * 图片上传 basePath  PreReadUploadConfig.getBasePath
      */
@@ -58,6 +60,50 @@ public class UploadAndDownloadUtil {
                 // 将响应内容转换为字符串
                 String  returnContent= EntityUtils.toString(responseEntity, Charset.forName("UTF-8"));
                 log.info("doPost请求图片上传返回参数{}",returnContent);
+                JSONObject parse = JSONObject.parseObject(returnContent);
+                Object data = parse.get("data");
+                result = (String) data;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                httpClient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    public static String webFileUpload(MultipartFile file, String uploadUrl) {
+        log.info("doPost图片上传请求路径{}", uploadUrl + webUrlUpload);
+        log.info("doPost图片上传请求参数{}", file);
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        String result = "";
+        try {
+            String fileName = file.getOriginalFilename();
+            HttpPost httpPost = new HttpPost(uploadUrl + webUrlUpload+"?bigFileSecret=jsjs");
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.addBinaryBody("file", file.getInputStream(), ContentType.MULTIPART_FORM_DATA, fileName);// 文件流
+            //参数设置编码utf-8，不然中文会乱码
+            ContentType contentType = ContentType.create("text/plain", Charset.forName("UTF-8"));
+            builder.addTextBody("filename", fileName, contentType);// 类似浏览器表单提交，对应input的name和value
+            HttpEntity entity = builder.build();
+            httpPost.setEntity(entity);
+
+            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(60000).setConnectionRequestTimeout(60000).setSocketTimeout(60000)
+                    .build();
+            httpPost.setConfig(requestConfig);
+            HttpResponse response = httpClient.execute(httpPost);// 执行提交
+            HttpEntity responseEntity = response.getEntity();
+
+            if (responseEntity != null) {
+                // 将响应内容转换为字符串
+                String returnContent = EntityUtils.toString(responseEntity, Charset.forName("UTF-8"));
+                log.info("doPost请求图片上传返回参数{}", returnContent);
                 JSONObject parse = JSONObject.parseObject(returnContent);
                 Object data = parse.get("data");
                 result = (String) data;
