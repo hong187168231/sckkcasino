@@ -955,6 +955,20 @@
             "url": "/platformConfig/updateVerificationCode"
           },
           {
+            "descritpion": "查询充值凭证开关",
+            "englishName": "Query the recharge credential switch",
+            "menuLevel": 3,
+            "name": "查询充值凭证开关",
+            "url": "/platformConfig/findChargeSwitch"
+          },
+          {
+            "descritpion": "修改充值凭证开关",
+            "englishName": "Modify the recharge certificate switch",
+            "menuLevel": 3,
+            "name": "修改充值凭证开关",
+            "url": "/platformConfig/updateChargeSwitch"
+          },
+          {
             "descritpion": "查询银行卡账号校验开关",
             "englishName": "Enable bank card verification",
             "menuLevel": 3,

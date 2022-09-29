@@ -630,6 +630,7 @@ public class Initialization implements CommandLineRunner {
             platformConfig.setBankcardRealNameSwitch(platformConfigFile.getBankcardRealNameSwitch());
             platformConfig.setTotalPlatformQuota(platformConfigFile.getTotalPlatformQuota());
             platformConfig.setVerificationCode(platformConfigFile.getVerificationCode());
+            platformConfig.setChargeSwitch(Constants.close);
             platformConfigService.save(platformConfig);
         }else {
             PlatformConfig platformConfig = all.get(CommonConst.NUMBER_0);
@@ -651,6 +652,9 @@ public class Initialization implements CommandLineRunner {
             }
             if(LoginUtil.checkNull(platformConfig.getVerificationCode())){
                 platformConfig.setVerificationCode(CommonConst.NUMBER_1);
+            }
+            if(LoginUtil.checkNull(platformConfig.getChargeSwitch())){
+                platformConfig.setChargeSwitch(Constants.close);
             }
             platformConfigService.save(platformConfig);
         }

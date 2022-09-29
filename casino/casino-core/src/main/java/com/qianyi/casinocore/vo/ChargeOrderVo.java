@@ -69,6 +69,8 @@ public class ChargeOrderVo implements Serializable {
     @ApiModelProperty("打码倍率")
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal betRate;
+    @ApiModelProperty("充值凭证url")
+    private String chargeUrl;
 
     public ChargeOrderVo(ChargeOrder chargeOrder){
         this.id = chargeOrder.getId();

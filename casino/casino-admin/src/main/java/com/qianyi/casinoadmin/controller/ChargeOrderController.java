@@ -127,8 +127,15 @@ public class ChargeOrderController {
             List<String> bankInfoIds = bankcardMap.values().stream().map(CollectionBankcard::getBankId).collect(Collectors.toList());
             List<BankInfo> bankInfos = bankInfoService.findAll(bankInfoIds);
             if(userList != null){
+                PlatformConfig platformConfig= platformConfigService.findFirst();
+                if (Objects.isNull(platformConfig)){
+                    platformConfig = new PlatformConfig();
+                    platformConfig.setReadUploadUrl("");
+                }
+                String uploadUrl = platformConfig.getReadUploadUrl();
                 content.stream().forEach(chargeOrder ->{
                     ChargeOrderVo chargeOrderVo = new ChargeOrderVo(chargeOrder);
+                    chargeOrderVo.setChargeUrl(uploadUrl + chargeOrder.getChargeUrl());
                     userList.stream().forEach(user->{
                         if (user.getId().equals(chargeOrder.getUserId())){
                             chargeOrderVo.setAccount(user.getAccount());

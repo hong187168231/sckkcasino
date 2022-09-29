@@ -30,6 +30,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("platformConfig")
@@ -763,5 +764,41 @@ public class PlatformConfigController {
         return ResponseUtil.success();
     }
 
+    /**
+     * 充值凭证开关 0:关闭，1:开启
+     * @return
+     */
+    @ApiOperation("查询充值凭证开关")
+    @GetMapping("/findChargeSwitch")
+    public ResponseEntity findChargeSwitch(){
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (Objects.isNull(platformConfig) || Objects.isNull(platformConfig.getChargeSwitch())){
+            return ResponseUtil.success(Constants.close);
+        }
+        return ResponseUtil.success(platformConfig.getChargeSwitch());
+    }
+
+
+    /**
+     * 修改充值凭证开关
+     * @return
+     */
+    @ApiOperation("修改充值凭证开关")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "chargeSwitch", value = "修改充值凭证开关(0:关闭，1:开启)", required = true),
+    })
+    @PostMapping("/updateChargeSwitch")
+    public ResponseEntity updateChargeSwitch(Integer chargeSwitch){
+        if (LoginUtil.checkNull(chargeSwitch)){
+            return ResponseUtil.custom("参数错误");
+        }
+        PlatformConfig first = platformConfigService.findFirst();
+        if (LoginUtil.checkNull(first)){
+            first = new PlatformConfig();
+        }
+        first.setChargeSwitch(chargeSwitch);
+        platformConfigService.save(first);
+        return ResponseUtil.success();
+    }
 
 }
