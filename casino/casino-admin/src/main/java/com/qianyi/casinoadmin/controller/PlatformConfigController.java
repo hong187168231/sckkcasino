@@ -4,11 +4,9 @@ import com.qianyi.casinoadmin.install.Initialization;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.*;
 import com.qianyi.casinocore.model.PlatformConfig;
+import com.qianyi.casinocore.model.PlatformConfigV2;
 import com.qianyi.casinocore.model.SysUser;
-import com.qianyi.casinocore.service.BankInfoService;
-import com.qianyi.casinocore.service.CustomerConfigureService;
-import com.qianyi.casinocore.service.PlatformConfigService;
-import com.qianyi.casinocore.service.SysUserService;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
@@ -57,6 +55,9 @@ public class PlatformConfigController {
 
     @Autowired
     private MessageUtil messageUtil;
+
+    @Autowired
+    private PlatformConfigV2Service platformConfigV2Service;
 
     @ApiOperation("玩家推广返佣配置查询")
     @GetMapping("/findCommission")
@@ -777,7 +778,7 @@ public class PlatformConfigController {
     @ApiOperation("查询充值凭证开关")
     @GetMapping("/findChargeSwitch")
     public ResponseEntity findChargeSwitch(){
-        PlatformConfig platformConfig = platformConfigService.findFirst();
+        PlatformConfigV2 platformConfig = platformConfigV2Service.findFirst();
         if (Objects.isNull(platformConfig) || Objects.isNull(platformConfig.getChargeSwitch())){
             return ResponseUtil.success(Constants.close);
         }
@@ -798,17 +799,15 @@ public class PlatformConfigController {
         if (LoginUtil.checkNull(chargeSwitch)){
             return ResponseUtil.custom("参数错误");
         }
-        PlatformConfig first = platformConfigService.findFirst();
+        PlatformConfigV2 first = platformConfigV2Service.findFirst();
         if (LoginUtil.checkNull(first)){
-            first = new PlatformConfig();
+            return ResponseUtil.custom("操作失败");
         }
         first.setChargeSwitch(chargeSwitch);
-        platformConfigService.save(first);
         Long userId = LoginUtil.getLoginUserId();
         SysUser sysUser = sysUserService.findById(userId);
         String operator = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
-        log.error("{}修改充值凭证开关{}",operator,chargeSwitch);
+        platformConfigV2Service.save(first,operator,Constants.CASINO_ADMIN);
         return ResponseUtil.success();
     }
-
 }

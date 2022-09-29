@@ -87,9 +87,13 @@ public class Initialization implements CommandLineRunner {
     @Autowired
     private IpWhiteService ipWhiteService;
 
+    @Autowired
+    private PlatformConfigV2Service platformConfigV2Service;
+
     @Override
     public void run(String... args) throws Exception {
         log.info("初始化数据开始============================================》");
+        this.runPlatformConfigV2();
         //       this.saveBanner();
         this.runPlatformConfig();
         this.saveBankInfo();
@@ -112,6 +116,22 @@ public class Initialization implements CommandLineRunner {
 
         this.saveIpWhite();
     }
+
+    private void runPlatformConfigV2(){
+        List<PlatformConfigV2> all = platformConfigV2Service.findAll();
+        if (LoginUtil.checkNull(all) || all.size()== CommonConst.NUMBER_0){
+            PlatformConfigV2 platformConfig = new PlatformConfigV2();
+            platformConfig.setChargeSwitch(Constants.close);
+            platformConfigV2Service.save(platformConfig,"sys",Constants.CASINO_ADMIN);
+        }else {
+            PlatformConfigV2 platformConfig = all.get(CommonConst.NUMBER_0);
+            if(LoginUtil.checkNull(platformConfig.getChargeSwitch())){
+                platformConfig.setChargeSwitch(Constants.close);
+            }
+            platformConfigV2Service.save(platformConfig,"sys",Constants.CASINO_ADMIN);
+        }
+    }
+
 
     private void saveIpWhite(){
         List<IpWhite> all = ipWhiteService.findAll();
@@ -630,7 +650,7 @@ public class Initialization implements CommandLineRunner {
             platformConfig.setBankcardRealNameSwitch(platformConfigFile.getBankcardRealNameSwitch());
             platformConfig.setTotalPlatformQuota(platformConfigFile.getTotalPlatformQuota());
             platformConfig.setVerificationCode(platformConfigFile.getVerificationCode());
-            platformConfig.setChargeSwitch(Constants.close);
+//            platformConfig.setChargeSwitch(Constants.close);
             platformConfigService.save(platformConfig);
         }else {
             PlatformConfig platformConfig = all.get(CommonConst.NUMBER_0);
@@ -653,9 +673,9 @@ public class Initialization implements CommandLineRunner {
             if(LoginUtil.checkNull(platformConfig.getVerificationCode())){
                 platformConfig.setVerificationCode(CommonConst.NUMBER_1);
             }
-            if(LoginUtil.checkNull(platformConfig.getChargeSwitch())){
-                platformConfig.setChargeSwitch(Constants.close);
-            }
+//            if(LoginUtil.checkNull(platformConfig.getChargeSwitch())){
+//                platformConfig.setChargeSwitch(Constants.close);
+//            }
             platformConfigService.save(platformConfig);
         }
     }
