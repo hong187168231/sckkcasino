@@ -38,7 +38,7 @@ public class PlatformConfigV2Service {
      */
     @CacheEvict(cacheNames = "platformConfigV2", allEntries = true)
     public void save(PlatformConfigV2 platformConfigV2,String operator,String service) {
-        log.error("{}修改充值凭证开关service:{}=======>:{}",operator,service,platformConfigV2.toString());
+        log.error("{}修改PlatformConfigV2开关service:{}=======>:{}",operator,service,platformConfigV2.toString());
         platformConfigV2Repository.save(platformConfigV2);
     }
 }
