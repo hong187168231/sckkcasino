@@ -4,9 +4,11 @@ import com.qianyi.casinoadmin.install.Initialization;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.*;
 import com.qianyi.casinocore.model.PlatformConfig;
+import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.CustomerConfigureService;
 import com.qianyi.casinocore.service.PlatformConfigService;
+import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
@@ -46,8 +48,12 @@ public class PlatformConfigController {
 
     @Autowired
     private BankInfoService bankInfoService;
+
     @Autowired
     private CustomerConfigureService customerConfigureService;
+
+    @Autowired
+    private SysUserService sysUserService;
 
     @Autowired
     private MessageUtil messageUtil;
@@ -798,6 +804,10 @@ public class PlatformConfigController {
         }
         first.setChargeSwitch(chargeSwitch);
         platformConfigService.save(first);
+        Long userId = LoginUtil.getLoginUserId();
+        SysUser sysUser = sysUserService.findById(userId);
+        String operator = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
+        log.error("{}修改充值凭证开关{}",operator,chargeSwitch);
         return ResponseUtil.success();
     }
 
