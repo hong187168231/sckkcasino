@@ -40,6 +40,9 @@ public class ChargeBusiness {
     private PlatformConfigService platformConfigService;
 
     @Autowired
+    private PlatformConfigV2Service platformConfigV2Service;
+
+    @Autowired
     private BankcardsService bankcardsService;
 
     public List<CollectionBankcard> getCollectionBankcards(){
@@ -48,9 +51,10 @@ public class ChargeBusiness {
 
 
     public ResponseEntity submitOrder(MultipartFile file, String chargeAmount, Integer remitType, String remitterName, Long bankcardId, Long userId){
+        PlatformConfigV2 platformConfigVo = platformConfigV2Service.findFirst();
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        if (platformConfig != null && platformConfig.getChargeSwitch() != null &&
-                platformConfig.getChargeSwitch() == 1 && file == null) {//充值凭证打开
+        if (platformConfig != null && platformConfigVo.getChargeSwitch() != null &&
+                platformConfigVo.getChargeSwitch() == 1 && file == null) {//充值凭证打开
             return ResponseUtil.custom("充值凭证未上传");
         }
         if (ObjectUtils.isEmpty(chargeAmount)) {
