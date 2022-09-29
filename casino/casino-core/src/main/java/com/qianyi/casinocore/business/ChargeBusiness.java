@@ -49,7 +49,8 @@ public class ChargeBusiness {
 
     public ResponseEntity submitOrder(MultipartFile file, String chargeAmount, Integer remitType, String remitterName, Long bankcardId, Long userId){
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        if (platformConfig != null && platformConfig.getChargeSwitch() == 1 && file == null) {//充值凭证打开
+        if (platformConfig != null && platformConfig.getChargeSwitch() != null &&
+                platformConfig.getChargeSwitch() == 1 && file == null) {//充值凭证打开
             return ResponseUtil.custom("充值凭证未上传");
         }
         if (ObjectUtils.isEmpty(chargeAmount)) {
@@ -89,12 +90,18 @@ public class ChargeBusiness {
                 return ResponseUtil.custom("充值金额大于最高限额,单笔最高限额为", maxMoney.stripTrailingZeros().toPlainString());
             }
         }
+
         String uploadUrl = platformConfig.getUploadUrl();
         if (ObjectUtils.isEmpty(uploadUrl)) {
             log.error("图片上传失败,文件服务器路径未配置");
             return ResponseUtil.custom("上传失败");
         }
-        String fileUrl = UploadAndDownloadUtil.webFileUpload(file, uploadUrl);
+
+        String fileUrl = "";
+        if(file != null){
+            fileUrl = UploadAndDownloadUtil.webFileUpload(file, uploadUrl);
+        }
+
         log.info("充值上传后返回图片路径：【{}】", fileUrl);
         ChargeOrder chargeOrder = getChargeOrder(decChargeAmount,remitType,remitterName,bankcardId,userId, fileUrl);
         ChargeOrder saveOrder = chargeOrderService.saveOrder(chargeOrder);

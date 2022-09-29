@@ -79,13 +79,13 @@ public class UploadAndDownloadUtil {
     }
 
     public static String webFileUpload(MultipartFile file, String uploadUrl) {
-        log.info("doPost图片上传请求路径{}", uploadUrl + webUrlUpload);
+        log.info("doPost图片上传请求路径{}", uploadUrl + urlUpload);
         log.info("doPost图片上传请求参数{}", file);
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String result = "";
         try {
             String fileName = file.getOriginalFilename();
-            HttpPost httpPost = new HttpPost(uploadUrl + webUrlUpload+"?bigFileSecret=jsjs");
+            HttpPost httpPost = new HttpPost(uploadUrl + urlUpload+"?bigFileSecret=jsjs");
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.addBinaryBody("file", file.getInputStream(), ContentType.MULTIPART_FORM_DATA, fileName);// 文件流
             //参数设置编码utf-8，不然中文会乱码
