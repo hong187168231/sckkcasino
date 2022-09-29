@@ -2,7 +2,9 @@ package com.qianyi.casinoweb.controller;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.qianyi.casinocore.model.PlatformConfig;
+import com.qianyi.casinocore.model.PlatformConfigV2;
 import com.qianyi.casinocore.service.PlatformConfigService;
+import com.qianyi.casinocore.service.PlatformConfigV2Service;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
@@ -30,6 +32,9 @@ public class PlatformConfigController {
 
     @Autowired
     private PlatformConfigService platformConfigService;
+
+    @Autowired
+    private PlatformConfigV2Service platformConfigV2Service;
 
     @GetMapping("getCustomerCode")
     @ApiOperation("获取客服脚本编码")
@@ -71,7 +76,7 @@ public class PlatformConfigController {
     @ApiOperation("充值凭证开关")
     @NoAuthentication
     public ResponseEntity<Boolean> chargeSwitch() {
-        PlatformConfig platformConfig = platformConfigService.findFirst();
+        PlatformConfigV2 platformConfig = platformConfigV2Service.findFirst();
         if (platformConfig == null) {
             return ResponseUtil.success(false);
         }
