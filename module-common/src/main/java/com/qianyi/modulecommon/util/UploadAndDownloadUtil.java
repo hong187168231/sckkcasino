@@ -78,7 +78,7 @@ public class UploadAndDownloadUtil {
         return result;
     }
 
-    public static String webFileUpload(MultipartFile file, String uploadUrl) {
+    public static String webFileUpload(MultipartFile file, String uploadUrl) throws IOException {
         log.info("doPost图片上传请求路径{}", uploadUrl + urlUpload);
         log.info("doPost图片上传请求参数{}", file);
         CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -108,10 +108,9 @@ public class UploadAndDownloadUtil {
                 Object data = parse.get("data");
                 result = (String) data;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("调用保存上传凭证服务异常，返回错误=" + e.getMessage(), e);
+            throw e;
         } finally {
             try {
                 httpClient.close();

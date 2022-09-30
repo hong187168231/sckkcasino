@@ -13,6 +13,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,12 +101,14 @@ public class ChargeBusiness {
             log.error("图片上传失败,文件服务器路径未配置");
             return ResponseUtil.custom("上传失败");
         }
-
         String fileUrl = "";
-        if(file != null){
+        try {
+            if(file != null){
             fileUrl = UploadAndDownloadUtil.webFileUpload(file, uploadUrl);
+            }
+        } catch (IOException e) {
+            return ResponseUtil.custom("请重试一次");
         }
-
         log.info("充值上传后返回图片路径：【{}】", fileUrl);
         ChargeOrder chargeOrder = getChargeOrder(decChargeAmount,remitType,remitterName,bankcardId,userId, fileUrl);
         ChargeOrder saveOrder = chargeOrderService.saveOrder(chargeOrder);
