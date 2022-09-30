@@ -162,7 +162,8 @@ public class PlatformConfig {
     @ApiModelProperty("验证码开关 0 关闭 1 开启")
     private Integer verificationCode ;
 
-
+    @ApiModelProperty("充值凭证开关 0 关闭 1 开启")
+    private Integer chargeSwitch ;
 
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){
