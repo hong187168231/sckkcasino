@@ -53,7 +53,7 @@ public class ChargeBusiness {
     public ResponseEntity submitOrder(MultipartFile file, String chargeAmount, Integer remitType, String remitterName, Long bankcardId, Long userId){
         PlatformConfigV2 platformConfigVo = platformConfigV2Service.findFirst();
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        if (platformConfig != null && platformConfigVo.getChargeSwitch() != null &&
+        if (platformConfigVo != null && platformConfigVo.getChargeSwitch() != null &&
                 platformConfigVo.getChargeSwitch() == 1 && file == null) {//充值凭证打开
             return ResponseUtil.custom("充值凭证未上传");
         }
