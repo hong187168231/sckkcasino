@@ -69,10 +69,10 @@ public class ChargeController {
     @ApiOperation("提交充值")
     @ResponseBody
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "chargeAmount", value = "充值金额", required = true),
+            @ApiImplicitParam(name = "chargeAmount", value = "充值金额", required = false),
             @ApiImplicitParam(name = "remitType", value = "汇款方式，银行卡1，支付宝2，微信3,该字段暂时弃用，后端固定成银行卡", required = false),
-            @ApiImplicitParam(name = "remitterName", value = "汇款人", required = true),
-            @ApiImplicitParam(name = "bankcardId", value = "收款银行卡ID", required = true),
+            @ApiImplicitParam(name = "remitterName", value = "汇款人", required = false),
+            @ApiImplicitParam(name = "bankcardId", value = "收款银行卡ID", required = false),
     })
     public ResponseEntity submitCharge(@RequestPart(value = "file", required = false) MultipartFile file, String chargeAmount, Integer remitType, String remitterName, Long bankcardId){
         if (CasinoWebUtil.checkNull(chargeAmount,remitterName,bankcardId)) {
