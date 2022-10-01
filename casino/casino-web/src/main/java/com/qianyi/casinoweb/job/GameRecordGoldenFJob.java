@@ -227,6 +227,10 @@ public class GameRecordGoldenFJob {
 
     private void saveToDB(GameRecordGoldenF item, PlatformConfig platformConfig) {
         try {
+            GameRecordGoldenF gameRecordGoldenF = gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
+            if(gameRecordGoldenF != null){
+                return;
+            }
             gameRecordGoldenFService.save(item);
             //改变用户实时余额
             changeUserBalance(item);
