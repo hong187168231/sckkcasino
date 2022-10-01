@@ -15,6 +15,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -27,6 +28,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/charge")
+@Slf4j
 @Api(tags = "银行卡线下充值")
 public class ChargeController {
 
@@ -76,9 +78,16 @@ public class ChargeController {
         if (CasinoWebUtil.checkNull(chargeAmount,remitterName,bankcardId)) {
             return ResponseUtil.parameterNotNull();
         }
+        log.info("收到提交充值请求chargeAmount:{} remitterName:{} bankcardId:{} file:{}",chargeAmount,remitterName,bankcardId,file);
         //根据产品呀要求，前端暂时注释掉汇款方式，前端发起的充值默认就是银行卡充值
         remitType = Constants.remitType_bank;
-        ResponseEntity responseEntity = chargeBusiness.submitOrder(file, chargeAmount, remitType, remitterName,bankcardId, CasinoWebUtil.getAuthId());
+        ResponseEntity responseEntity = null;
+        try {
+            responseEntity = chargeBusiness.submitOrder(file, chargeAmount, remitType, remitterName,bankcardId, CasinoWebUtil.getAuthId());
+        }catch (Exception ex){
+            log.error("充值请求异常{}",ex.getMessage());
+            return ResponseUtil.custom("请重试一次");
+        }
         return responseEntity;
     }
 }

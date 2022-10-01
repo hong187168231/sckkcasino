@@ -52,6 +52,7 @@ public class ChargeBusiness {
 
 
     public ResponseEntity submitOrder(MultipartFile file, String chargeAmount, Integer remitType, String remitterName, Long bankcardId, Long userId){
+        long startTime = System.currentTimeMillis();
         PlatformConfigV2 platformConfigVo = platformConfigV2Service.findFirst();
         PlatformConfig platformConfig = platformConfigService.findFirst();
         if (platformConfigVo != null && platformConfigVo.getChargeSwitch() != null &&
@@ -104,7 +105,9 @@ public class ChargeBusiness {
         String fileUrl = "";
         try {
             if(file != null){
-            fileUrl = UploadAndDownloadUtil.webFileUpload(file, uploadUrl);
+                long start = System.currentTimeMillis();
+                fileUrl = UploadAndDownloadUtil.webFileUpload(file, uploadUrl);
+                log.info("提交图片请求结束耗时{}",System.currentTimeMillis()-start);
             }
         } catch (IOException e) {
             return ResponseUtil.custom("请重试一次");
@@ -112,6 +115,7 @@ public class ChargeBusiness {
         log.info("充值上传后返回图片路径：【{}】", fileUrl);
         ChargeOrder chargeOrder = getChargeOrder(decChargeAmount,remitType,remitterName,bankcardId,userId, fileUrl);
         ChargeOrder saveOrder = chargeOrderService.saveOrder(chargeOrder);
+        log.info("提交充值请求结束耗时{}",System.currentTimeMillis()-startTime);
         return ResponseUtil.success(saveOrder);
     }
 

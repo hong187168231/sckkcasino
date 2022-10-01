@@ -94,7 +94,7 @@ public class UploadAndDownloadUtil {
             HttpEntity entity = builder.build();
             httpPost.setEntity(entity);
 
-            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(60000).setConnectionRequestTimeout(60000).setSocketTimeout(60000)
+            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(20000).setConnectionRequestTimeout(20000).setSocketTimeout(20000)
                     .build();
             httpPost.setConfig(requestConfig);
             HttpResponse response = httpClient.execute(httpPost);// 执行提交
