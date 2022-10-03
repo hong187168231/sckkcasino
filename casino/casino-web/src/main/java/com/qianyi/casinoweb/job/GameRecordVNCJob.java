@@ -58,7 +58,7 @@ public class GameRecordVNCJob {
     private PlatformGameService platformGameService;
 
     //每隔5分钟30秒执行一次
-    @Scheduled(cron = "30 0/4 * * * ?")
+    @Scheduled(cron = "30 0/1 * * * ?")
     public void pullGameRecord() {
         //日志打印traceId，同一次请求的traceId相同，方便定位日志
         ThreadContext.put("traceId", UUID.randomUUID().toString().replaceAll("-",""));
@@ -97,7 +97,8 @@ public class GameRecordVNCJob {
     }
 
     public void pullGameRecordByTime(String startTime, String platform) throws Exception {
-        String endTime = sdf.format(new Date());
+        String endTime = setEndTime(startTime);
+
         String strResult = lotteryApi.getDateTimeReport(startTime, endTime, "KK");
         if (CasinoWebUtil.checkNull(strResult)) {
             log.error("拉取{}注单时远程请求错误,startTime={}", platform, startTime);
@@ -130,6 +131,16 @@ public class GameRecordVNCJob {
         saveGameRecordVNCEndTime(startTime, endTime, platform, Constants.yes);
     }
 
+    @SneakyThrows
+    private String setEndTime(String startTime) {
+        Date startDateTime = sdf.parse(startTime);
+        Date endTime = DateUtil.addMinuteDate(startDateTime, 30);
+        if(endTime.getTime() < new Date().getTime()){
+            return sdf.format(endTime);
+        }
+        return sdf.format(new Date());
+    }
+
     /**
      * @param startTime
      * @return
@@ -145,14 +156,14 @@ public class GameRecordVNCJob {
         //时间范围重叠两分钟
         Date startDateTime = sdf.parse(startTime);
         startTime = getBeforeTime(startDateTime, -2);
-        Date startBeforeTime = sdf.parse(startTime);
-        long diffTime = endTime.getTime() - startBeforeTime.getTime();
-        //三方最多能查当前时间24小时前的，提前5分钟，防止请求三方时时间超过24小时
-        if (diffTime > 24 * 60 * 60 * 1000) {
-            String startTimeNew = getBeforeTime(endTime, -(24 * 60 - 5));
-            log.error("{}注单拉取时间范围超过24小时,开始时间缩短至当前时间24小时前，{}~{}时间范围数据丢失", platform, startTime, startTimeNew);
-            startTime = startTimeNew;
-        }
+//        Date startBeforeTime = sdf.parse(startTime);
+//        long diffTime = endTime.getTime() - startBeforeTime.getTime();
+//        //三方最多能查当前时间24小时前的，提前5分钟，防止请求三方时时间超过24小时
+//        if (diffTime > 24 * 60 * 60 * 1000) {
+//            String startTimeNew = getBeforeTime(endTime, -(24 * 60 - 5));
+//            log.error("{}注单拉取时间范围超过24小时,开始时间缩短至当前时间24小时前，{}~{}时间范围数据丢失", platform, startTime, startTimeNew);
+//            startTime = startTimeNew;
+//        }
         return startTime;
     }
 

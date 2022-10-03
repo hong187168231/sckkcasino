@@ -135,6 +135,20 @@ public class DateUtil {
             return true;
         }
     }
+
+
+    /**
+     * 对时间的分钟进行加减
+     *
+     * @return
+     */
+    public static Date addMinuteDate(Date startTime, Integer minute){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startTime);
+        calendar.add(Calendar.MINUTE, minute);
+        return calendar.getTime();
+    }
+
     /**
      * 判断当前时间是否在[startTime, endTime]区间，注意时间格式要一致
      * @param nowTime
