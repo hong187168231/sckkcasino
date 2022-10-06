@@ -1056,35 +1056,35 @@ public class SqlConst {
     sum(valid_amount) validbet ,
     sum(win_loss) win_loss
     from proxy_game_record_report gr
-    where order_times between {3} and {4}
+    where  user_id={2} and order_times between {3} and {4}
     group by user_id
                   ) main_t on u.id = main_t.user_id
     left join (
         select user_id ,
         sum(amount) wash_amount
     from wash_code_change wcc
-    where create_time between {0} and {1}
+    where  user_id={2} and create_time between {0} and {1}
     group by user_id
                 ) wash_t on u.id = wash_t.user_id
     left join (
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where status = 1 and withdraw_time between {0} and {1}
+    where status = 1 and  user_id={2} and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
         select user_id ,
         sum(amount) amount
     from share_profit_change spc
-    where bet_time between {0} and {1}
+    where  user_id={2} and bet_time between {0} and {1}
     group by user_id
                 ) pr on u.id=pr.user_id
     left join (
         SELECT user_id,
         SUM(amount) as water
     FROM extract_points_change
-    where create_time between {0} and {1}
+    where  user_id={2} and create_time between {0} and {1}
     group by user_id
                 ) ec on u.id = ec.user_id
     where u.id = {2}{5}
@@ -1252,38 +1252,39 @@ public class SqlConst {
     sum(bet_amount) bet_amount,
     sum(win_amount-bet_amount) win_loss
     from game_record_goldenf grg
-    where vendor_code = {3} and create_at_str between {0} and {1}
+    where vendor_code = {3} and user_id={2} and  create_at_str between {0} and {1}
     group by user_id
                 ) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(amount) wash_amount
     from wash_code_change wcc
-    where platform = {3} and create_time between {0} and {1}
+    where platform = {3} and user_id={2} and  create_time between {0} and {1}
     group by user_id
                 ) wash_t on u.id = wash_t.user_id
     left join (
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where status = 1 and withdraw_time between {0} and {1}
+    where status = 1 and user_id={2} and  withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
         select user_id ,
         sum(amount) amount from share_profit_change spc
-    where bet_time between {0} and {1}
+    where  user_id={2} and bet_time between {0} and {1}
     group by user_id
                 ) pr on u.id=pr.user_id
     left join (
         SELECT user_id,
         SUM(amount) as water
     FROM extract_points_change
-    where platform = {3} and create_time between {0} and {1}
+    where platform = {3} and user_id={2} and  create_time between {0} and {1}
     group by user_id
                 ) ec on u.id = ec.user_id
     where 1=1 and u.id = {2} {4}
             """;
+
 
     public static String seleOneAeSql = """
     select
@@ -1308,34 +1309,34 @@ public class SqlConst {
     ifnull( sum( turnover ), 0 ) validbet,
     ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
     from game_record_ae grg
-    where  tx_status = 1 and platform = {3} and bet_time between {0} and {1}
+    where  user_id={2} and tx_status = 1 and platform = {3} and bet_time between {0} and {1}
     group by user_id
                 ) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(amount) wash_amount
     from wash_code_change wcc
-    where platform = {3} and create_time between {0} and {1}
+    where user_id={2} and platform = {3} and create_time between {0} and {1}
     group by user_id
                 ) wash_t on u.id = wash_t.user_id
     left join (
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where status = 1 and withdraw_time between {0} and {1}
+    where user_id={2} and status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
         select user_id ,
         sum(amount) amount from share_profit_change spc
-    where bet_time between {0} and {1}
+    where user_id={2} and bet_time between {0} and {1}
     group by user_id
                 ) pr on u.id=pr.user_id
     left join (
         SELECT user_id,
         SUM(amount) as water
     FROM extract_points_change
-    where platform = {3} and create_time between {0} and {1}
+    where user_id={2} and platform = {3} and create_time between {0} and {1}
     group by user_id
                 ) ec on u.id = ec.user_id
     where 1=1 and u.id = {2} {4}
@@ -1364,34 +1365,34 @@ public class SqlConst {
     ifnull( sum( turnover ), 0 ) validbet,
     ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
     from game_record_ae grg
-    where tx_status = 1 and bet_time between {0} and {1}
+    where user_id={2} and tx_status = 1 and bet_time between {0} and {1}
     group by user_id
                 ) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(amount) wash_amount
     from wash_code_change wcc
-    where platform = {3} and create_time between {0} and {1}
+    where user_id={2} and platform = {3} and create_time between {0} and {1}
     group by user_id
                 ) wash_t on u.id = wash_t.user_id
     left join (
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where status = 1 and withdraw_time between {0} and {1}
+    where user_id={2} and status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
         select user_id ,
         sum(amount) amount from share_profit_change spc
-    where bet_time between {0} and {1}
+    where user_id={2} and bet_time between {0} and {1}
     group by user_id
                 ) pr on u.id=pr.user_id
     left join (
         SELECT user_id,
         SUM(amount) as water
     FROM extract_points_change
-    where platform = {3} and create_time between {0} and {1}
+    where user_id={2} and platform = {3} and create_time between {0} and {1}
     group by user_id
                 ) ec on u.id = ec.user_id
     where 1=1 and u.id = {2} {4}
@@ -1427,41 +1428,42 @@ public class SqlConst {
     game_record_goldenf t1
     WHERE
     t1.vendor_code = {3}
+    AND t1.user_id={2}
     AND t1.trans_type = {5}
     AND t1.create_at_str BETWEEN {0}
     AND {1}
     GROUP BY
     t1.bet_id
 ) off
-    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {3} AND trans_type = {6} ) sk ON off.bet_id = sk.bet_id
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {3} AND user_id={2} AND trans_type = {6} ) sk ON off.bet_id = sk.bet_id
     LEFT JOIN game_record_goldenf t3 ON off.bet_id = t3.bet_id
-    AND t3.trans_type = {7} GROUP BY off.user_id
+    AND t3.trans_type = {7} AND t3.user_id = {2} GROUP BY off.user_id
     ) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(amount) wash_amount
     from wash_code_change wcc
-    where platform = {3} and create_time between {0} and {1}
+    where platform = {3} and user_id={2} and create_time between {0} and {1}
     group by user_id
                 ) wash_t on u.id = wash_t.user_id
     left join (
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where status = 1 and withdraw_time between {0} and {1}
+    where status = 1 and user_id={2} and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
         select user_id ,
         sum(amount) amount from share_profit_change spc
-    where bet_time between {0} and {1}
+    where user_id={2} and bet_time between {0} and {1}
     group by user_id
                 ) pr on u.id=pr.user_id
     left join (
         SELECT user_id,
         SUM(amount) as water
     FROM extract_points_change
-    where platform = {3} and create_time between {0} and {1}
+    where platform = {3} and user_id={2} and create_time between {0} and {1}
     group by user_id
                 ) ec on u.id = ec.user_id
     where 1=1 and u.id = {2} {4}
@@ -1489,34 +1491,34 @@ public class SqlConst {
     sum(bet_amount) bet_amount,
     sum(win_amount-bet_amount) win_loss
     from game_record_obdj grg
-    where bet_status in (5,6,8,9,10) and set_str_time between {0} and {1}
+    where user_id={2} and bet_status in (5,6,8,9,10) and set_str_time between {0} and {1}
     group by user_id
                 ) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(amount) wash_amount
     from wash_code_change wcc
-    where platform = {3} and create_time between {0} and {1}
+    where user_id={2} and platform = {3} and create_time between {0} and {1}
     group by user_id
                 ) wash_t on u.id = wash_t.user_id
     left join (
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where status = 1 and withdraw_time between {0} and {1}
+    where user_id={2} and status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
         select user_id ,
         sum(amount) amount from share_profit_change spc
-    where bet_time between {0} and {1}
+    where user_id={2} and bet_time between {0} and {1}
     group by user_id
                 ) pr on u.id=pr.user_id
     left join (
         SELECT user_id,
         SUM(amount) as water
     FROM extract_points_change
-    where platform = {3} and create_time between {0} and {1}
+    where user_id={2} and platform = {3} and create_time between {0} and {1}
     group by user_id
                 ) ec on u.id = ec.user_id
     where 1=1 and u.id = {2} {4}
@@ -1544,34 +1546,34 @@ public class SqlConst {
     sum(order_amount) bet_amount,
     sum(profit_amount) win_loss
     from game_record_obty grg
-    where settle_str_time between {0} and {1}
+    where user_id={2} and settle_str_time between {0} and {1}
     group by user_id
                 ) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(amount) wash_amount
     from wash_code_change wcc
-    where platform = {3} and create_time between {0} and {1}
+    where user_id={2} and platform = {3} and create_time between {0} and {1}
     group by user_id
                 ) wash_t on u.id = wash_t.user_id
     left join (
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where status = 1 and withdraw_time between {0} and {1}
+    where user_id={2} and status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
         select user_id ,
         sum(amount) amount from share_profit_change spc
-    where bet_time between {0} and {1}
+    where user_id={2} and bet_time between {0} and {1}
     group by user_id
                 ) pr on u.id=pr.user_id
     left join (
         SELECT user_id,
         SUM(amount) as water
     FROM extract_points_change
-    where platform = {3} and create_time between {0} and {1}
+    where user_id={2} and platform = {3} and create_time between {0} and {1}
     group by user_id
                 ) ec on u.id = ec.user_id
     where 1=1 and u.id = {2} {4}
@@ -1601,28 +1603,28 @@ public class SqlConst {
     sum(validbet) validbet ,
     sum(win_loss) win_loss
     from game_record gr
-    where bet_time between {0} and {1}
+    where user_id={2} and bet_time between {0} and {1}
     group by user_id
                 ) main_t on u.id = main_t.user_id
     left join (
         select user_id ,
         sum(amount) wash_amount
     from wash_code_change wcc
-    where platform = {3} and create_time between {0} and {1}
+    where user_id={2} and platform = {3} and create_time between {0} and {1}
     group by user_id
                 ) wash_t on u.id = wash_t.user_id
     left join (
         select user_id ,
         sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
-    where status = 1 and withdraw_time between {0} and {1}
+    where user_id={2} and status = 1 and withdraw_time between {0} and {1}
     group by user_id
                 ) withdraw_t on u.id = withdraw_t.user_id
     left join (
         select user_id ,
         sum(amount) amount
     from share_profit_change spc
-    where bet_time between {0} and {1}
+    where user_id={2} and bet_time between {0} and {1}
     group by user_id
                 ) pr on u.id=pr.user_id
     left join (
@@ -1630,7 +1632,7 @@ public class SqlConst {
             user_id,
         SUM(amount) as water
     FROM extract_points_change
-    where platform = {3} and create_time between {0} and {1}
+    where user_id={2} and platform = {3} and create_time between {0} and {1}
     group by user_id
                 ) ec on u.id = ec.user_id
     where u.id = {2}{4}
