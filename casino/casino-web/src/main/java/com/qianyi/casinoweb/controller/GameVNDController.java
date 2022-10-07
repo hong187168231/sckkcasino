@@ -161,7 +161,7 @@ public class GameVNDController {
         return responseEntity;
     }
 
-    @ApiOperation("查询用户AE余额外部接口")
+    @ApiOperation("查询用户VNC余额外部接口")
     @GetMapping("/getBalanceApi")
     @NoAuthentication
     @ApiImplicitParams({
@@ -173,10 +173,10 @@ public class GameVNDController {
         if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
-        String aeAccount = null;
+        String aeAccount = "null";
         if (userId != null) {
             UserThird third = userThirdService.findByUserId(userId);
-            if (third == null || ObjectUtils.isEmpty(third.getAeAccount())) {
+            if (third == null || ObjectUtils.isEmpty(third.getVncAccount())) {
                 return ResponseUtil.custom("当前用户暂未进入过游戏");
             }
             aeAccount = third.getVncAccount();
