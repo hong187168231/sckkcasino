@@ -126,7 +126,8 @@ public class UserMoneyService {
                     redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
                     throw new UserMoneyChangeException("扣减余额超过本地剩余额度");
                 }
-                userMoneyRepository.subMoney(userId, money);
+                userMoneyLock.setMoney(userMoneyLock.getMoney().subtract(money));
+                userMoneyRepository.save(userMoneyLock);
             } else {
                 log.error("subMoney 用户增加money没拿到锁,{}", userId);
                 throw new BusinessException("操作money失败");
@@ -158,7 +159,9 @@ public class UserMoneyService {
         try {
             bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
-                userMoneyRepository.addMoney(userId, money);
+                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                userMoneyLock.setMoney(userMoneyLock.getMoney().add(money));
+                userMoneyRepository.save(userMoneyLock);
             } else {
                 log.error("subMoney 用户增加money没拿到锁,{}", userId);
                 throw new BusinessException("操作money失败");
