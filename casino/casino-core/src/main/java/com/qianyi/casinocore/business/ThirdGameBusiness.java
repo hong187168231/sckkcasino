@@ -559,9 +559,10 @@ public class ThirdGameBusiness {
         }
         //把额度加回本地
         UserMoney userMoney = userMoneyService.findByUserId(userId);
+        BigDecimal money = userMoney.getMoney();
         userMoneyService.addMoney(userId, balance);
         log.info("越南彩余额,userMoney加回成功，userId={},balance={}", userId, balance);
-        saveAccountChange(Constants.PLATFORM_VNC, userId, balance, userMoney.getMoney(), balance.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.VNC_OUT, "自动转出VNC", user);
+        saveAccountChange(Constants.PLATFORM_VNC, userId, balance, money, balance.add(money), 1, orderNo, AccountChangeEnum.VNC_OUT, "自动转出VNC", user);
         log.info("VNC余额回收成功，userId={},account={},money={}", userId, user.getAccount(), balance);
         return ResponseUtil.success();
     }
