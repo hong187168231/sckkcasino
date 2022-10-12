@@ -286,6 +286,36 @@ public class PublicLotteryApi {
         return entity;
     }
 
+    public String getDateTimeDetailReport(String startTime, String endTime, String playerName)  throws Exception{
+        Date date = DateUtils.addHours(DateUtil.getDatePatten(startTime), -1);
+        Date endDate = DateUtils.addHours(DateUtil.getDatePatten(endTime), -1);
+
+        startTime = DateUtil.dateToPatten(date);
+        endTime = DateUtil.dateToPatten(endDate);
+
+//        startTime = "2022-09-29 18:30:30";
+//        endTime = "2022-09-29 18:40:30";
+        String url = apiUrl + "/gameBetDetailInfo";
+        Map<String, Object> map = new HashMap<>();
+        setBasicParams(playerName, map);
+        String token = EncryptUtil.md5(map.get("currentTime") + merchantCode + platformId +
+                playerName + md5Key);
+
+        map.put("startTime", startTime);
+        map.put("endTime", endTime);
+        map.put("playerName", playerName);
+        map.put("token", token);
+        String aesJson = JSON.toJSONString(map);
+        log.info("越南彩查询下注详情记录请求参数明文：{}", JSONObject.toJSONString(map));
+        String result = sendPostRequest(url, merchantCode, aesJson);
+        log.info("越南彩查询下注详情记录请求结果：{}", result);
+
+        if (CommonUtil.checkNull(result)) {
+            return null;
+        }
+        return result;
+    }
+
 
     @Data
     public static class ResponseEntity {
