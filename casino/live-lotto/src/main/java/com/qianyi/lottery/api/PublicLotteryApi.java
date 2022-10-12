@@ -293,8 +293,8 @@ public class PublicLotteryApi {
         startTime = DateUtil.dateToPatten(date);
         endTime = DateUtil.dateToPatten(endDate);
 
-//        startTime = "2022-09-29 18:30:30";
-//        endTime = "2022-09-29 18:40:30";
+        startTime = "2022-09-29 18:30:30";
+        endTime = "2022-09-29 18:40:30";
         String url = apiUrl + "/gameBetDetailInfo";
         Map<String, Object> map = new HashMap<>();
         setBasicParams(playerName, map);
