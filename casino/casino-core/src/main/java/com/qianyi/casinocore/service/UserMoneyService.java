@@ -846,21 +846,21 @@ public class UserMoneyService {
     public JSONObject refreshAE(Long userId) {
         try {
             String param = "";
-            if (Objects.nonNull(userId) && userId.longValue() != 0L) {
-                param = MessageFormat.format("userId={0}", userId.toString());
+            if(userId != null && userId != 0){
+                param = MessageFormat.format("userId={0}",userId.toString());
             }
 
             PlatformConfig first = platformConfigService.findFirst();
 
-            if (first == null) {
+            if(first == null){
                 return null;
             }
             String aEUrl = first.getWebConfiguration() + AE_refreshUrl;
-            if (!CommonUtil.checkNull(param)) {
-                aEUrl = aEUrl + param;
+            if(!CommonUtil.checkNull(param)){
+                aEUrl = aEUrl +  param;
             }
             String s = HttpClient4Util.getWeb(aEUrl);
-            log.info("查询AE余额web接口返回{}", s);
+            log.info("查询AE余额web接口返回{}",s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
         } catch (Exception e) {
