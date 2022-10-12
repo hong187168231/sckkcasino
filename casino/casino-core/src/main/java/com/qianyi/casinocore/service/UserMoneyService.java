@@ -180,60 +180,60 @@ public class UserMoneyService {
      * @param userId   用户id
      * @param integral 积分
      */
-    @CacheEvict(key = "#userId")
-    @Transactional
-    public void subIntegral(Long userId, BigDecimal integral) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.INTEGRAL + userId);
-        boolean bool;
-        try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
-            if (bool) {
-                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
-                //扣减余额大于剩余余额
-                if (integral.compareTo(userMoneyLock.getIntegral()) == 1) {
-                    redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
-                    throw new UserMoneyChangeException("扣减积分超过本地剩余额度");
-                }
-                userMoneyRepository.subIntegral(userId, integral);
-            } else {
-                log.error("subIntegral 用户扣减integral没拿到锁,{}", userId);
-                throw new BusinessException("操作integral失败");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            // 释放锁
-            lock.writeLock().unlock();
-            log.info("subIntegral 用户扣减integral释放锁", userId);
-        }
-
-    }
+//    @CacheEvict(key = "#userId")
+//    @Transactional
+//    public void subIntegral(Long userId, BigDecimal integral) {
+//        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.INTEGRAL + userId);
+//        boolean bool;
+//        try {
+//            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+//            if (bool) {
+//                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+//                //扣减余额大于剩余余额
+//                if (integral.compareTo(userMoneyLock.getIntegral()) == 1) {
+//                    redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+//                    throw new UserMoneyChangeException("扣减积分超过本地剩余额度");
+//                }
+//                userMoneyRepository.subIntegral(userId, integral);
+//            } else {
+//                log.error("subIntegral 用户扣减integral没拿到锁,{}", userId);
+//                throw new BusinessException("操作integral失败");
+//            }
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        } finally {
+//            // 释放锁
+//            lock.writeLock().unlock();
+//            log.info("subIntegral 用户扣减integral释放锁", userId);
+//        }
+//
+//    }
 
     /**
      * @param userId   用户id
      * @param integral 积分
      */
-    @CacheEvict(key = "#userId")
-    @Transactional
-    public void addIntegral(Long userId, BigDecimal integral) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.INTEGRAL + userId);
-        boolean bool;
-        try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
-            if (bool) {
-                userMoneyRepository.addIntegral(userId, integral);
-            } else {
-                log.error("addIntegral 用户增加integral没拿到锁,{}", userId);
-                throw new BusinessException("操作integral失败");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            // 释放锁
-            lock.writeLock().unlock();
-            log.info("addIntegral 用户增加money释放锁", userId);
-        }
-    }
+//    @CacheEvict(key = "#userId")
+//    @Transactional
+//    public void addIntegral(Long userId, BigDecimal integral) {
+//        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.INTEGRAL + userId);
+//        boolean bool;
+//        try {
+//            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+//            if (bool) {
+//                userMoneyRepository.addIntegral(userId, integral);
+//            } else {
+//                log.error("addIntegral 用户增加integral没拿到锁,{}", userId);
+//                throw new BusinessException("操作integral失败");
+//            }
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        } finally {
+//            // 释放锁
+//            lock.writeLock().unlock();
+//            log.info("addIntegral 用户增加money释放锁", userId);
+//        }
+//    }
 
     /**
      * 增加实时余额和打码量
