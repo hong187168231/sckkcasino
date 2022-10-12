@@ -619,4 +619,13 @@ public class RedisUtil {
             return null;
         }
     }
+
+    public  boolean setIfAbsent(final String key, final String value, Long expireTime) {
+        boolean result = false;
+        try {
+            result = redisTemplate.opsForValue().setIfAbsent(key, value, expireTime, TimeUnit.SECONDS);
+        } catch (Exception e) {
+        }
+        return result;
+    }
 }
