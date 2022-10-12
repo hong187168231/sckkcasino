@@ -175,7 +175,7 @@ public class WashCodeController {
         asyncService.executeAsync(vo);
         //后台异步增减平台总余额
         platformConfigService.reception(CommonConst.NUMBER_0,washCode.stripTrailingZeros());
-        return ResponseUtil.success("成功领取金额", washCode.stripTrailingZeros().toPlainString());
+        return ResponseUtil.success("成功领取金额", washCode.stripTrailingZeros().setScale(2, BigDecimal.ROUND_HALF_UP));
     }
 
     @Data
