@@ -37,6 +37,10 @@ public class UserMoney extends BaseEntity{
     @Column(columnDefinition = "Decimal(19,6) default '0.000000'")
     private BigDecimal balance = BigDecimal.ZERO;
 
+    @ApiModelProperty("积分")
+    @Column(columnDefinition = "Decimal(19,6) default '0.000000'")
+    private BigDecimal integral = BigDecimal.ZERO;
+
     @ApiModelProperty("是否首充 0 是 1 不是")
     private Integer isFirst;
 
@@ -65,5 +69,9 @@ public class UserMoney extends BaseEntity{
     public UserMoney(BigDecimal money,BigDecimal washCode){
         this.money = money==null?BigDecimal.ZERO:money;
         this.washCode = washCode==null?BigDecimal.ZERO:washCode;
+    }
+
+    public UserMoney(BigDecimal integral){
+        this.integral = integral==null?BigDecimal.ZERO:integral;
     }
 }
