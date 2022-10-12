@@ -47,9 +47,9 @@ public class RptBetInfoDetail extends BaseEntity{
     @ApiModelProperty("下注城市 0北部,1中部,2南部")
     private Integer betCitySection;
     @ApiModelProperty("单笔下注金额")
-    private Long money;
+    private BigDecimal money;
     @ApiModelProperty("下注总金额")
-    private Long betMoney;
+    private BigDecimal betMoney;
     @ApiModelProperty("退水总金额")
     private BigDecimal backWaterMoney;
     @ApiModelProperty("实付金额")
