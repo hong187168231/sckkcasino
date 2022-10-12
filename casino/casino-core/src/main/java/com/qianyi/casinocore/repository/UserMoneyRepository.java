@@ -36,6 +36,15 @@ public interface UserMoneyRepository extends JpaRepository<UserMoney,Long>, JpaS
     @Query("update UserMoney u set u.money=u.money-?2 where u.userId=?1")
     void subMoney(Long userId, BigDecimal money);
 
+    @Modifying(clearAutomatically = true)
+    @Query("update UserMoney u set u.integral=u.integral+?2 where u.userId=?1")
+    void addIntegral(Long userId, BigDecimal integral);
+
+    @Modifying(clearAutomatically = true)
+    @Query("update UserMoney u set u.integral=u.integral-?2 where u.userId=?1")
+    void subIntegral(Long userId, BigDecimal integral);
+
+
     UserMoney findByUserId(Long userId);
 
     @Modifying(clearAutomatically = true)
