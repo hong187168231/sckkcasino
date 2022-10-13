@@ -199,7 +199,7 @@ public class GameRecordVNCJob {
                     continue;
                 }
                 //业务处理
-                business(Constants.PLATFORM_VNC, gameRecord, platformConfig);
+//                business(Constants.PLATFORM_VNC, gameRecord, platformConfig);
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("保存{}游戏记录时报错,message={}", platform,e.getMessage());

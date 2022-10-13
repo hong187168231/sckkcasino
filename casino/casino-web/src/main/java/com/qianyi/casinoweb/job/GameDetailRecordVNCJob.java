@@ -2,10 +2,8 @@ package com.qianyi.casinoweb.job;
 
 import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.model.*;
-import com.qianyi.casinocore.service.AdGamesService;
-import com.qianyi.casinocore.service.GameDetailVncEndTimeService;
-import com.qianyi.casinocore.service.PlatformGameService;
-import com.qianyi.casinocore.service.RptBetInfoDetailService;
+import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.vo.RptBetInfoDetailVo;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.lottery.api.PublicLotteryApi;
 import com.qianyi.modulecommon.Constants;
@@ -14,12 +12,14 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.ThreadContext;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -51,6 +51,18 @@ public class GameDetailRecordVNCJob {
 
     @Autowired
     private PublicLotteryApi lotteryApi;
+
+    @Autowired
+    private UserThirdService userThirdService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private PlatformConfigService platformConfigService;
+    @Autowired
+    private GameRecordAsyncOper gameRecordAsyncOper;
+
 
     //每隔5分钟30秒执行一次
     @Scheduled(cron = "50 0/2 * * * ?")
@@ -115,7 +127,7 @@ public class GameDetailRecordVNCJob {
             saveGameRecordVNCEndTime(startTime, endTime, platform, Constants.yes);
             return;
         }
-        List<RptBetInfoDetail> gameRecords = JSON.parseArray(transactions, RptBetInfoDetail.class);
+        List<RptBetInfoDetailVo> gameRecords = JSON.parseArray(transactions, RptBetInfoDetailVo.class);
         gameRecords = gameRecords.stream().filter(ga -> ga.getSettleState() == true && ga.getIsCanceled() == false).collect(Collectors.toList());
         if (gameRecords.isEmpty()) {
             log.info("拉取{}注单当前时间无记录,startTime={},result={}", platform, startTime, transactions);
@@ -124,18 +136,25 @@ public class GameDetailRecordVNCJob {
         }
         //保存数据
         saveAll(platform, gameRecords);
+        //保存时间区间
+        saveGameRecordVNCEndTime(startTime, endTime, platform, Constants.yes);
     }
 
-    public void saveAll(String platform, List<RptBetInfoDetail> rptBetInfoDetailList) {
+    public void saveAll(String platform, List<RptBetInfoDetailVo> rptBetInfoDetailList) {
         if (CollectionUtils.isEmpty(rptBetInfoDetailList)) {
             return;
         }
         log.info("开始处理{}游戏记录数据", platform);
         //查询最小清0打码量
-
-        for (RptBetInfoDetail rptBetInfoDetail : rptBetInfoDetailList) {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        for (RptBetInfoDetailVo rptBetInfoDetailVo : rptBetInfoDetailList) {
             try {
-                save(rptBetInfoDetail);
+                RptBetInfoDetail gameRecord = save(rptBetInfoDetailVo);
+                if (gameRecord == null) {
+                    continue;
+                }
+                //业务处理
+                business(Constants.PLATFORM_VNC, gameRecord, platformConfig);
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("保存{}游戏记录时报错,message={}", platform,e.getMessage());
@@ -143,9 +162,127 @@ public class GameDetailRecordVNCJob {
         }
     }
 
-    private void save(RptBetInfoDetail rptBetInfoDetail) {
+    private void business(String platform, RptBetInfoDetail gameRecord, PlatformConfig platformConfig) {
 
-        rptBetInfoDetailService.save(rptBetInfoDetail);
+        //计算用户账号实时余额
+        Integer isAdd = gameRecord.getIsAdd();
+        if (isAdd == 1) {
+            gameRecordAsyncOper.changeUserBalance(gameRecord.getUserKkId(), gameRecord.getRealMoney(), gameRecord.getWinMoney());
+        }
+        //组装gameRecord
+        GameRecord record = combineGameRecord(gameRecord);
+        //发送注单消息到MQ后台要统计数据
+        if (isAdd == 1 || (isAdd == 0 && (BigDecimal.ZERO.compareTo(new BigDecimal(record.getValidbet())) != 0 || BigDecimal.ZERO.compareTo(new BigDecimal(record.getBet())) != 0 || BigDecimal.ZERO.compareTo(new BigDecimal(record.getWinLoss())) != 0))) {
+            gameRecordAsyncOper.proxyGameRecordReport(platform, record);
+        }
+        String validbet = record.getValidbet();
+        if (record.getIsAdd() != 1 || ObjectUtils.isEmpty(validbet) || new BigDecimal(validbet).compareTo(BigDecimal.ZERO) == 0) {
+            return;
+        }
+        if (isAdd == 1) {
+            //洗码
+            gameRecordAsyncOper.washCode(platform, record);
+            // 抽点
+            gameRecordAsyncOper.extractPoints(platform, record);
+            //扣减打码量
+            gameRecordAsyncOper.subCodeNum(platform, platformConfig, record);
+            //代理分润
+            gameRecordAsyncOper.shareProfit(platform, record);
+            //返利
+            gameRecordAsyncOper.rebate(platform, record);
+        }
+    }
+
+    private GameRecord combineGameRecord(RptBetInfoDetail rptBetInfoDetail) {
+
+        GameRecord gameRecord = new GameRecord();
+        gameRecord.setBetId(rptBetInfoDetail.getBetDetailOrder());
+        gameRecord.setUserId(rptBetInfoDetail.getUserId());
+        gameRecord.setGameCode("VNC");
+        gameRecord.setGname(Constants.PLATFORM_VNC);
+        gameRecord.setBetTime(rptBetInfoDetail.getBetTimeStr());
+        gameRecord.setFirstProxy(rptBetInfoDetail.getFirstProxy());
+        gameRecord.setSecondProxy(rptBetInfoDetail.getSecondProxy());
+        gameRecord.setThirdProxy(rptBetInfoDetail.getThirdProxy());
+        gameRecord.setIsAdd(rptBetInfoDetail.getIsAdd());
+        if (rptBetInfoDetail.getIsAdd() == 1) {
+            if (rptBetInfoDetail.getRealMoney() != null) {
+                gameRecord.setValidbet(rptBetInfoDetail.getRealMoney().toString());
+            }
+            if (!ObjectUtils.isEmpty(rptBetInfoDetail.getBetMoney())) {
+                gameRecord.setBet(rptBetInfoDetail.getBetMoney().toString());
+            }
+            if (rptBetInfoDetail.getWinMoney() != null) {
+                BigDecimal winLoss = rptBetInfoDetail.getWinMoney();
+                gameRecord.setWinLoss(winLoss.toString());
+            }
+        } else {
+            gameRecord.setBet("0");//经过三方确认下注金额不会更新
+            if (rptBetInfoDetail.getBetMoney() != null && rptBetInfoDetail.getOldTurnover() != null) {
+                BigDecimal turnover = rptBetInfoDetail.getBetMoney().subtract(rptBetInfoDetail.getOldTurnover());
+                gameRecord.setValidbet(turnover.toString());
+            }
+            if (rptBetInfoDetail.getWinMoney() != null && rptBetInfoDetail.getOldRealWinAmount() != null) {
+                BigDecimal newWinLoss = rptBetInfoDetail.getWinMoney();
+                BigDecimal oldWinLoss = rptBetInfoDetail.getOldRealWinAmount();
+                BigDecimal winLoss = newWinLoss.subtract(oldWinLoss);
+                gameRecord.setWinLoss(winLoss.toString());
+            }
+        }
+        return gameRecord;
+    }
+
+    private RptBetInfoDetail save(RptBetInfoDetailVo rptBetInfoDetailVo) {
+
+        UserThird account = userThirdService.findByVncAccount(rptBetInfoDetailVo.getUserName());
+        if (account == null || account.getUserId() == null) {
+            log.error("同步游戏记录时，UserThird查询结果为null,account={}", rptBetInfoDetailVo.getUserName());
+            return null;
+        }
+        RptBetInfoDetail rptBetInfoDetail = rptBetInfoDetailService.findByMerchantCodeAndBetDetailOrder(rptBetInfoDetailVo.getMerchantCode(), rptBetInfoDetailVo.getBetDetailOrder());
+        if (rptBetInfoDetail == null) {
+            rptBetInfoDetail = new RptBetInfoDetail();
+            rptBetInfoDetail.setIsAdd(1);//新增
+        }
+        //有效投注
+        BigDecimal oldTurnover = rptBetInfoDetail.getRealMoney();
+        //用户输赢
+        BigDecimal oldRealWinAmount = rptBetInfoDetailVo.getWinMoney().subtract(rptBetInfoDetailVo.getRealMoney());
+        //时间转成标准时间格式
+        if (!ObjectUtils.isEmpty(rptBetInfoDetailVo.getBetTime())) {
+            String txTimeStr = DateUtil.getSimpleDateFormat().format(rptBetInfoDetailVo.getBetTime());
+            rptBetInfoDetailVo.setBetTimeStr(txTimeStr);
+        }
+        if (!ObjectUtils.isEmpty(rptBetInfoDetailVo.getSettleTime()) && rptBetInfoDetailVo.getSettleState()) {
+            String updateTimeStr = DateUtil.getSimpleDateFormat().format(rptBetInfoDetailVo.getSettleTime());
+            rptBetInfoDetailVo.setSettleTimeStr(updateTimeStr);
+        }
+
+        BeanUtils.copyProperties(rptBetInfoDetailVo, rptBetInfoDetail);
+        rptBetInfoDetail.setUserId(account.getUserId());
+        rptBetInfoDetail.setAccount(rptBetInfoDetailVo.getUserName());
+        BigDecimal validbet = ObjectUtils.isEmpty(rptBetInfoDetail.getRealMoney()) ? BigDecimal.ZERO : rptBetInfoDetail.getRealMoney();
+        //有效投注额为0不参与洗码,打码,分润,抽點
+        if (validbet.compareTo(BigDecimal.ZERO) == 0) {
+            rptBetInfoDetail.setWashCodeStatus(Constants.yes);
+            rptBetInfoDetail.setCodeNumStatus(Constants.yes);
+            rptBetInfoDetail.setShareProfitStatus(Constants.yes);
+            rptBetInfoDetail.setExtractStatus(Constants.yes);
+            rptBetInfoDetail.setRebateStatus(Constants.yes);
+        }
+        rptBetInfoDetail.setUserKkId(account.getUserId());
+        //查询3级代理
+        User user = userService.findById(account.getUserId());
+        if (user != null) {
+            rptBetInfoDetail.setFirstProxy(user.getFirstProxy());
+            rptBetInfoDetail.setSecondProxy(user.getSecondProxy());
+            rptBetInfoDetail.setThirdProxy(user.getThirdProxy());
+        }
+        RptBetInfoDetail record = rptBetInfoDetailService.save(rptBetInfoDetail);
+        //旧输赢和有效投注差值
+        record.setOldTurnover(oldTurnover);
+        record.setOldRealWinAmount(oldRealWinAmount);
+        return record;
     }
 
 
