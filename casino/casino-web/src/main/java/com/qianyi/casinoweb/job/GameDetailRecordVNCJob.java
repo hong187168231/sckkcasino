@@ -65,7 +65,7 @@ public class GameDetailRecordVNCJob {
 
 
     //每隔5分钟30秒执行一次
-//    @Scheduled(cron = "50 0/1 * * * ?")
+    @Scheduled(cron = "50 0/1 * * * ?")
     public void pullGameRecord() {
         //日志打印traceId，同一次请求的traceId相同，方便定位日志
         ThreadContext.put("traceId", UUID.randomUUID().toString().replaceAll("-",""));
