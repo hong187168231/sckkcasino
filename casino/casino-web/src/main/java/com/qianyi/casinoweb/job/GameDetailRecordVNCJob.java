@@ -65,7 +65,7 @@ public class GameDetailRecordVNCJob {
 
 
     //每隔5分钟30秒执行一次
-    @Scheduled(cron = "50 0/2 * * * ?")
+    @Scheduled(cron = "50 0/1 * * * ?")
     public void pullGameRecord() {
         //日志打印traceId，同一次请求的traceId相同，方便定位日志
         ThreadContext.put("traceId", UUID.randomUUID().toString().replaceAll("-",""));
@@ -245,7 +245,7 @@ public class GameDetailRecordVNCJob {
             rptBetInfoDetail.setIsAdd(1);//新增
         }
         //有效投注
-        BigDecimal oldTurnover = rptBetInfoDetail.getRealMoney();
+        BigDecimal oldTurnover = rptBetInfoDetail.getRealMoney() == null? BigDecimal.ZERO : rptBetInfoDetail.getRealMoney();
         //用户输赢
         BigDecimal oldRealWinAmount = rptBetInfoDetailVo.getWinMoney().subtract(rptBetInfoDetailVo.getRealMoney());
         //时间转成标准时间格式

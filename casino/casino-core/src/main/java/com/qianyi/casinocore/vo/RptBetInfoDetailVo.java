@@ -10,8 +10,6 @@ import java.util.Date;
 @Data
 public class RptBetInfoDetailVo implements Serializable {
 
-    @ApiModelProperty("主键")
-    private Long id;
     @ApiModelProperty("期号")
     private String issue;
     @ApiModelProperty("会员id")
