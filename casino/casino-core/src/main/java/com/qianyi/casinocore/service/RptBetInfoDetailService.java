@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class RptBetInfoDetailService {
@@ -197,6 +198,31 @@ public class RptBetInfoDetailService {
     }
 
     public RptBetInfoDetail findByMerchantCodeAndBetDetailOrder(String merchantCode, String betDetailOrder) {
-        return repository.findByMerchantCodeAndBetOrder(merchantCode, betDetailOrder);
+        Optional<RptBetInfoDetail> optional = repository.findOne(getCondition(merchantCode, betDetailOrder));
+        if (optional.isPresent()) {
+            return optional.get();
+        }
+        return null;
+    }
+
+
+    private Specification<RptBetInfoDetail> getCondition(String merchantCode, String betDetailOrder) {
+        Specification<RptBetInfoDetail> specification = new Specification<RptBetInfoDetail>() {
+            @Override
+            public Predicate toPredicate(Root<RptBetInfoDetail> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                Predicate predicate = cb.conjunction();
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (!CommonUtil.checkNull(betDetailOrder)) {
+                    list.add(cb.equal(root.get("betDetailOrder").as(String.class), betDetailOrder));
+                }
+
+                if (!CommonUtil.checkNull(merchantCode)) {
+                    list.add(cb.equal(root.get("merchantCode").as(String.class), merchantCode));
+                }
+                predicate = cb.and(list.toArray(new Predicate[list.size()]));
+                return predicate;
+            }
+        };
+        return specification;
     }
 }
