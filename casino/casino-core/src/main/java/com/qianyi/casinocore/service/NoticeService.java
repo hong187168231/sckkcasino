@@ -28,7 +28,12 @@ public class NoticeService {
         return noticeRepository.newest();
     }
 
-    @CacheEvict(cacheNames = {"newest"}, allEntries = true)
+    @Cacheable(cacheNames = "alertNotice",unless = "#result == null")
+    public List<Notice> alertNotice() {
+        return noticeRepository.alertNotice();
+    }
+
+    @CacheEvict(cacheNames = {"newest","alertNotice"}, allEntries = true)
     public Notice saveNotice(Notice notice){
         return noticeRepository.save(notice);
     }
@@ -37,6 +42,7 @@ public class NoticeService {
         return noticeRepository.findByNoticeList();
     }
 
+    @CacheEvict(cacheNames = {"newest","alertNotice"}, allEntries = true)
     public void deleteById(Long id){
         noticeRepository.deleteById(id);
     }

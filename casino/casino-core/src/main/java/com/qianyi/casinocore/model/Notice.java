@@ -25,4 +25,6 @@ public class Notice extends BaseEntity {
     private String url;
     @ApiModelProperty("是否上架")
     private Boolean isShelves = true;
+    @ApiModelProperty("显示类型 0 全部 1 跑马灯 2 弹窗")
+    private Integer showType;
 }

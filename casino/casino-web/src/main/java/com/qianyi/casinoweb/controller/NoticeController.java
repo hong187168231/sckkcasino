@@ -52,4 +52,32 @@ public class NoticeController {
         }
         return ResponseUtil.success(voList);
     }
+
+    @GetMapping("alertNotice")
+    @ApiOperation("弹窗公告")
+    @NoAuthentication
+    public ResponseEntity<List<NoticeVo>> alertNotice(HttpServletRequest request) {
+        List<Notice> list = noticeService.alertNotice();
+        List<NoticeVo> voList = new ArrayList<>();
+        if (CollectionUtils.isEmpty(list)) {
+            return ResponseUtil.success(voList);
+        }
+        if (list.size() >= 2) {
+            list = list.subList(0, 2);
+
+        }
+        String language = request.getHeader(Constants.LANGUAGE);
+        //前端时间要求去掉秒
+        NoticeVo vo;
+        for (Notice notice : list) {
+            vo = new NoticeVo();
+            BeanUtils.copyProperties(notice, vo);
+            if (!Locale.CHINA.toString().equals(language)) {
+                vo.setTitle(notice.getEnTitle());
+                vo.setIntroduction(notice.getEnIntroduction());
+            }
+            voList.add(vo);
+        }
+        return ResponseUtil.success(voList);
+    }
 }

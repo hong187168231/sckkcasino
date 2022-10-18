@@ -42,8 +42,9 @@ public class NoticeController {
             @ApiImplicitParam(name = "url", value = "详情访问页", required = false),
             @ApiImplicitParam(name = "introduction", value = "简介", required = true),
             @ApiImplicitParam(name = "enIntroduction", value = "英文简介", required = true),
+            @ApiImplicitParam(name = "showType", value = "显示类型 0-所有 1-跑马灯 2-弹窗", required = true)
     })
-    public ResponseEntity<Notice> saveNotice(String title,String enTitle,Boolean isShelves,String introduction,String url,String enIntroduction){
+    public ResponseEntity<Notice> saveNotice(String title,String enTitle,Boolean isShelves,String introduction,String url,String enIntroduction,Integer showType){
         Notice notice = new Notice();
         if (ObjectUtils.isEmpty(title) || ObjectUtils.isEmpty(enTitle) || ObjectUtils.isEmpty(introduction) || ObjectUtils.isEmpty(enIntroduction)) {
             return ResponseUtil.custom("必填项不允许为空");
@@ -54,6 +55,7 @@ public class NoticeController {
         notice.setUrl(url);
         notice.setEnTitle(enTitle);
         notice.setEnIntroduction(enIntroduction);
+        notice.setShowType(showType);
         return this.saveNotice(notice);
     }
 
@@ -94,9 +96,11 @@ public class NoticeController {
             @ApiImplicitParam(name = "url", value = "详情访问页", required = false),
             @ApiImplicitParam(name = "introduction", value = "简介", required = true),
             @ApiImplicitParam(name = "enIntroduction", value = "英文简介", required = true),
+            @ApiImplicitParam(name = "showType", value = "显示类型 0-所有 1-跑马灯 2-弹窗", required = true)
     })
-    public ResponseEntity updateNotice(String title,String enTitle,Boolean isShelves,String introduction,String url,Long id,String enIntroduction){
-        if (ObjectUtils.isEmpty(title) || ObjectUtils.isEmpty(enTitle) || ObjectUtils.isEmpty(introduction) || ObjectUtils.isEmpty(enIntroduction)) {
+    public ResponseEntity updateNotice(String title,String enTitle,Boolean isShelves,String introduction,String url,Long id,String enIntroduction,Integer showType){
+        if (ObjectUtils.isEmpty(title) || ObjectUtils.isEmpty(enTitle) || ObjectUtils.isEmpty(introduction) || ObjectUtils.isEmpty(showType)
+                || ObjectUtils.isEmpty(enIntroduction)) {
             return ResponseUtil.custom("必填项不允许为空");
         }
         Notice notice = noticeService.findNoticeById(id);
@@ -109,6 +113,7 @@ public class NoticeController {
         notice.setTitle(title);
         notice.setEnTitle(enTitle);
         notice.setEnIntroduction(enIntroduction);
+        notice.setShowType(showType);
         noticeService.saveNotice(notice);
         return ResponseUtil.success();
     }
