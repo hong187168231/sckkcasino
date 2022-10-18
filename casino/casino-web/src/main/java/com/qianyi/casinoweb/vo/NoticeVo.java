@@ -38,4 +38,7 @@ public class NoticeVo{
     private String url;
     @ApiModelProperty("是否上架")
     private Boolean isShelves = true;
+    @ApiModelProperty("显示类型")
+    private Integer showType;
+
 }
