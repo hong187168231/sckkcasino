@@ -14,6 +14,13 @@
         "url": "/user/findUserList",
         "children": [
           {
+            "descritpion": "转移会员",
+            "englishName": "Transfer member",
+            "menuLevel": 3,
+            "name": "转移会员",
+            "url": "/user/transferUser"
+          },
+          {
             "descritpion": "上分",
             "englishName": "Top-Up",
             "menuLevel": 3,

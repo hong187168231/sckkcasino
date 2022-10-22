@@ -1524,4 +1524,38 @@ public class UserController {
         agency = third.getAccount() + " — "  + agency;
         return ResponseUtil.success(agency);
     }
+
+    @ApiOperation("转移单个会员给某个基层代理")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "id", value = "用户id", required = true),
+        @ApiImplicitParam(name = "proxyName", value = "基层代理账号", required = true),
+    })
+    @Transactional
+    @GetMapping("/transferUser")
+    public ResponseEntity transferUser(Long id,String proxyName) {
+        if (LoginUtil.checkNull(id,proxyName)){
+            return ResponseUtil.custom("参数不合法");
+        }
+        ProxyUser proxyUser = proxyUserService.findByUserName(proxyName);
+        if (LoginUtil.checkNull(proxyUser)){
+            log.info("没有找到这个代理转移结束{}",proxyName);
+            return ResponseUtil.custom("没有找到这个代理");
+        }
+        if (proxyUser.getProxyRole() != CommonConst.NUMBER_3){
+            log.info("只有基层代理可以转移会员");
+            return ResponseUtil.custom("只有基层代理可以转移会员");
+        }
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            log.info("没有找到这个会员{}",user);
+            return ResponseUtil.custom("找不到这个会员");
+        }
+        log.info("被转移会员账号{}总代{}区代{}基代{}",user.getAccount(),user.getFirstProxy(),user.getSecondProxy(),user.getThirdProxy());
+        user.setFirstProxy(proxyUser.getFirstProxy());
+        user.setSecondProxy(proxyUser.getSecondProxy());
+        user.setThirdProxy(proxyUser.getId());
+        userService.save(user);
+        log.info("转移之后会员账号{}总代{}区代{}基代{}",user.getAccount(),user.getFirstProxy(),user.getSecondProxy(),user.getThirdProxy());
+        return ResponseUtil.success();
+    }
 }
