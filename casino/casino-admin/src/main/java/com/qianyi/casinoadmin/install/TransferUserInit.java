@@ -59,7 +59,7 @@ public class TransferUserInit implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         log.info("初始化转移会员开始============================================》");
-        transferUser(users1,thirdProxyName1);
+//        transferUser(users1,thirdProxyName1);
 //        transferUser(users2,thirdProxyName2);
 //        transferUser(users2,proxyName2);
 //        proxyTransferUser(proxy1,proxy1Name);
