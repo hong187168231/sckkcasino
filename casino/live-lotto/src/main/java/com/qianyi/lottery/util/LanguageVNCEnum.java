@@ -10,6 +10,7 @@ public enum LanguageVNCEnum {
     JP("jp", "日本语"),
     TH("th", "泰语",LocaleConfig.th_TH.toString()),
     VN("vn", "越南文"),
+    KH("km", "高棉语", LocaleConfig.km_KH.toString()),
     ;
     private String code;
     private String name;
@@ -45,5 +46,10 @@ public enum LanguageVNCEnum {
             }
         }
         return en_US.code;
+    }
+
+    public static void main(String[] args) {
+        String km_kh = getLanguageCode("km_KH");
+        System.out.println(km_kh);
     }
 }
