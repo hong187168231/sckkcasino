@@ -52,8 +52,7 @@ public class UserMoneyBusiness {
     private RebateDetailService rebateDetailService;
     @Autowired
     private PlatformConfigService platformConfigService;
-    @Autowired
-    private IntegralBusiness integralBusiness;
+
     @Autowired
     private GameRecordVNCService gameRecordVNCService;
 
@@ -210,8 +209,6 @@ public class UserMoneyBusiness {
         if (record.getShareProfitStatus() != null && record.getShareProfitStatus() >0) {
             return;
         }
-        //异步完成投注奖励任务
-        integralBusiness.completeValidbetTask(record);
         log.info("开始三级分润,平台={},注单ID={},注单明细={}", platform, record.getBetId(), record.toString());
         BigDecimal validbet = new BigDecimal(record.getValidbet());
         Long userId = record.getUserId();
