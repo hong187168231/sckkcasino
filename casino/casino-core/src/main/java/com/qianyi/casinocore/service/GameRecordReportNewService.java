@@ -60,6 +60,9 @@ public class GameRecordReportNewService {
     @Autowired
     public GameRecordAeService gameRecordAeService;
 
+    @Autowired
+    private RptBetInfoDetailService rptBetInfoDetailService;
+
     @Transactional
     public void saveGameRecordReportWM(){
         GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
@@ -387,6 +390,52 @@ public class GameRecordReportNewService {
             gameRecordEndIndexService.save(first);
         }catch (Exception ex){
             log.error("每小时AE报表统计失败",ex);
+        }
+    }
+
+    @Transactional
+    public void saveGameRecordReportVNC(){
+        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
+        if (first == null){
+            return;
+        }
+        log.info("得到VNC注单下标{}",first.getVNCMaxId());
+        List<Map<String, Object>> reportResult = rptBetInfoDetailService.queryGameRecords(first.getVNCMaxId(), 13,Constants.PLATFORM_VNC);
+        try {
+            if (reportResult == null || reportResult.size() == CommonConst.NUMBER_0){
+                return;
+            }
+            if (reportResult.get(0).get("num") == null || Integer.parseInt(reportResult.get(0).get("num").toString()) == CommonConst.NUMBER_0){
+                return;
+            }
+            Long max = 0L;
+            for (Map<String, Object> map:reportResult){
+                GameRecordReportNew gameRecordReport = new GameRecordReportNew();
+                Long maxId= Long.parseLong(map.get("maxId").toString());
+                if (maxId > max)
+                    max = maxId;
+                gameRecordReport.setStaticsTimes(map.get("set_time").toString());
+                gameRecordReport.setAmount(new BigDecimal(map.get("amount").toString()));
+                gameRecordReport.setBetAmount(new BigDecimal(map.get("bet").toString()));
+                gameRecordReport.setValidAmount(new BigDecimal(map.get("validbet").toString()));
+                gameRecordReport.setWinLossAmount(new BigDecimal(map.get("win_loss").toString()));
+                gameRecordReport.setBettingNumber(Integer.parseInt(map.get("num").toString()));
+                gameRecordReport.setUserAmount(new BigDecimal(map.get("user_amount").toString()));
+                gameRecordReport.setSurplusAmount(new BigDecimal(map.get("surplus_amount").toString()));
+                gameRecordReport.setPlatform(Constants.PLATFORM_VNC);
+                gameRecordReport.setFirstProxy(Long.parseLong(map.get("first_proxy").toString()));
+                gameRecordReport.setSecondProxy(Long.parseLong(map.get("second_proxy").toString()));
+                gameRecordReport.setThirdProxy(Long.parseLong(map.get("third_proxy").toString()));
+                gameRecordReport.setGameRecordReportId(CommonUtil.toHash(gameRecordReport.getStaticsTimes()+gameRecordReport.getThirdProxy()+gameRecordReport.getPlatform()));
+                gameRecordReport01Repository.updateKey(gameRecordReport.getGameRecordReportId(),gameRecordReport.getStaticsTimes(),
+                    gameRecordReport.getBetAmount(),gameRecordReport.getValidAmount(),gameRecordReport.getWinLossAmount(),gameRecordReport.getAmount(),
+                    gameRecordReport.getBettingNumber(),gameRecordReport.getFirstProxy(),gameRecordReport.getSecondProxy(),gameRecordReport.getThirdProxy(),gameRecordReport.getPlatform(),gameRecordReport.getSurplusAmount(),gameRecordReport.getUserAmount());
+            }
+            first.setVNCMaxId(max);
+            log.info("保存VNC注单下标{}",first.getVNCMaxId());
+            gameRecordEndIndexService.save(first);
+        }catch (Exception ex){
+            log.error("每小时VNC报表统计失败",ex);
         }
     }
 

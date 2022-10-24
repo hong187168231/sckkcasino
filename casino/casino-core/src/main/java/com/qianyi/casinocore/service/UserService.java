@@ -335,7 +335,10 @@ public class UserService {
         }  else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlNewConst.sabasportSql, startTime, endTime, sort, page.toString(),
                 pageSize.toString(), "'SABASPORT'", proxy,"'Payoff'","'Stake'","'cancelPayoff'");
-        } else {
+        }  else if (platform.equals(Constants.PLATFORM_VNC)) {
+            sql = MessageFormat.format(SqlNewConst.vncSql, startTime, endTime, sort, page.toString(),
+                pageSize.toString(),"'VNC'",proxy);
+        }  else {
             sql = MessageFormat.format(SqlNewConst.pgOrCq9Sql, startTime, endTime, sort, page.toString(),
                 pageSize.toString(),"'CQ9'", proxy);
         }
@@ -372,6 +375,8 @@ public class UserService {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash,startTime, endTime, sort, page.toString(),pageSize.toString(),proxy," platform = \'E1SPORT\' And");
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),pageSize.toString(),proxy," platform = \'SABASPORT\' And");
+        } else if (platform.equals(Constants.PLATFORM_VNC)) {
+            sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),pageSize.toString(),proxy," platform = \'VNC\' And");
         } else {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),pageSize.toString(),proxy," platform = \'CQ9\' And");
         }
@@ -420,6 +425,8 @@ public class UserService {
             sql = MessageFormat.format(SqlNewConst.reportSql,  startTime, endTime, userId," And platform = \'E1SPORT\'");
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlNewConst.reportSql,  startTime, endTime, userId," And platform = \'SABASPORT\'");
+        } else if (platform.equals(Constants.PLATFORM_VNC)) {
+            sql = MessageFormat.format(SqlNewConst.reportSql,  startTime, endTime, userId," And platform = \'VNC\'");
         } else {
             sql = MessageFormat.format(SqlNewConst.reportSql,  startTime, endTime, userId," And platform = \'CQ9\'");
         }
@@ -455,6 +462,8 @@ public class UserService {
             sql = MessageFormat.format(SqlNewConst.reportAeSql,  startTime, endTime, userId," And platform = \'SV388\'","'SV388'");
         } else if (platform.equals(Constants.PLATFORM_AE_E1SPORT)) {
             sql = MessageFormat.format(SqlNewConst.reportAeSql,  startTime, endTime, userId," And platform = \'E1SPORT\'","'E1SPORT'");
+        } else if (platform.equals(Constants.PLATFORM_VNC)) {
+            sql = MessageFormat.format(SqlNewConst.reportVncSql,  startTime, endTime, userId," And platform = \'VNC\'","'VNC'");
         } else {
             sql = MessageFormat.format(SqlNewConst.reportPgOrCq9Sql,  startTime, endTime, userId," And platform = \'CQ9\'","'CQ9'");
         }
@@ -484,6 +493,8 @@ public class UserService {
             sql = MessageFormat.format(SqlNewConst.reportSabasportSql,  startTime, endTime, userId," And platform = \'SABASPORT\'","'SABASPORT'","'Payoff'","'Stake'","'cancelPayoff'");
         } else if (platform.equals(Constants.PLATFORM_AE)) {
             sql = MessageFormat.format(SqlNewConst.reportAeMergeSql,  startTime, endTime, userId," And platform = \'AE\'","'AE'");
+        } else if (platform.equals(Constants.PLATFORM_VNC)) {
+            sql = MessageFormat.format(SqlShareConst.reportVncSql,  startTime, endTime, userId," And platform = \'VNC\'","'VNC'");
         } else {
             sql = MessageFormat.format(SqlNewConst.reportPgOrCq9Sql,  startTime, endTime, userId," And platform = \'CQ9\'","'CQ9'");
         }
@@ -532,7 +543,9 @@ public class UserService {
             sql = MessageFormat.format(SqlConst.exportAeSql, startTime, endTime, sort, "'E1SPORT'", proxy);
         }  else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlConst.exportSabasportSql, startTime, endTime, sort, "'SABASPORT'", proxy,"'Payoff'","'Stake'","'cancelPayoff'");
-        } else {
+        } else if (platform.equals(Constants.PLATFORM_VNC)) {
+            sql = MessageFormat.format(SqlConst.exportVncSql, startTime, endTime, sort, "'VNC'", proxy);
+        }  else {
             sql = MessageFormat.format(SqlConst.exportPgOrCq9Sql, startTime, endTime, sort, "'CQ9'", proxy);
         }
         log.info(sql);
@@ -586,6 +599,9 @@ public class UserService {
         }  else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlConst.seleOneSabasportSql, startTime, endTime, userId.toString(),
                 "'SABASPORT'", proxy,"'Payoff'","'Stake'","'cancelPayoff'");
+        } else if (platform.equals(Constants.PLATFORM_VNC)) {
+            sql =
+                MessageFormat.format(SqlConst.seleOneVncSql, startTime, endTime, userId.toString(), "'VNC'", proxy);
         } else {
             sql =
                 MessageFormat.format(SqlConst.seleOnePgOrCq9Sql, startTime, endTime, userId.toString(), "'CQ9'", proxy);
@@ -626,6 +642,10 @@ public class UserService {
             sql = MessageFormat.format(SqlConst.obtySumSql, startTime, endTime, "'OBTY'", proxy);
         } else if (platform.equals(Constants.PLATFORM_PG)) {
             sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql, startTime, endTime, "'PG'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_AE)) {
+            sql = MessageFormat.format(SqlConst.aeSumMergeSql, startTime, endTime, "'AE'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_VNC)) {
+            sql = MessageFormat.format(SqlConst.vncSumSql, startTime, endTime, "'VNC'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE_HORSEBOOK)) {
             sql = MessageFormat.format(SqlConst.aeSumSql, startTime, endTime, "'HORSEBOOK'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE_SV388)) {
@@ -678,6 +698,8 @@ public class UserService {
             sql = MessageFormat.format(SqlNewConst.aeSumSql, startTime, endTime, "'E1SPORT'");
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlNewConst.sabasportSumSql, startTime, endTime, "'SABASPORT'","'Payoff'","'Stake'","'cancelPayoff'");
+        } else if (platform.equals(Constants.PLATFORM_VNC)) {
+            sql = MessageFormat.format(SqlNewConst.vncSumSql, startTime, endTime, "'VNC'");
         } else {
             sql = MessageFormat.format(SqlNewConst.PGAndCQ9SumSql, startTime, endTime, "'CQ9'");
         }
@@ -886,6 +908,9 @@ public class UserService {
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(RebateSqlConst.sabasportSql, startTime, endTime, sort, page.toString(),
                 pageSize.toString(), "'SABASPORT'", proxy,"'Payoff'","'Stake'","'cancelPayoff'");
+        } else if (platform.equals(Constants.PLATFORM_VNC)) {
+            sql = MessageFormat.format(RebateSqlConst.vncSql, startTime, endTime, sort, page.toString(),
+                pageSize.toString(), "'VNC'", proxy);
         } else {
             sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql, startTime, endTime, sort, page.toString(),
                 pageSize.toString(), "'CQ9'", proxy);
@@ -925,7 +950,9 @@ public class UserService {
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql =
                 MessageFormat.format(RebateSqlConst.exportSabasportSql, startTime, endTime, sort, "'SABASPORT'", proxy,"'Payoff'","'Stake'","'cancelPayoff'");
-        } else {
+        } else if (platform.equals(Constants.PLATFORM_VNC)) {
+            sql = MessageFormat.format(RebateSqlConst.exportVncSql, startTime, endTime, sort, "'VNC'", proxy);
+        }else {
             sql = MessageFormat.format(RebateSqlConst.exportPgOrCq9Sql, startTime, endTime, sort, "'CQ9'", proxy);
         }
         Query countQuery = entityManager.createNativeQuery(sql);
@@ -979,6 +1006,9 @@ public class UserService {
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(RebateSqlConst.seleOneSabasportSql, startTime, endTime, userId.toString(),
                 "'SABASPORT'", proxy,"'Payoff'","'Stake'","'cancelPayoff'");
+        } else if (platform.equals(Constants.PLATFORM_VNC)) {
+            sql = MessageFormat.format(RebateSqlConst.seleOneVncSql, startTime, endTime, userId.toString(), "'VNC'",
+                proxy);
         } else {
             sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql, startTime, endTime, userId.toString(), "'CQ9'",
                 proxy);
@@ -1026,6 +1056,8 @@ public class UserService {
                 sql = MessageFormat.format(RebateSqlConst.sabasportProxySumSql, startTime, endTime, "'SABASPORT'", proxy,"'Payoff'","'Stake'");
             }
 
+        } else if (platform.equals(Constants.PLATFORM_VNC)) {
+            sql = MessageFormat.format(RebateSqlConst.vncSumSql, startTime, endTime, "'VNC'", proxy);
         } else {
             sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql, startTime, endTime, "'CQ9'", proxy);
         }

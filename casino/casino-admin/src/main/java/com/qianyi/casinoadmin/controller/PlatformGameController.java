@@ -129,6 +129,20 @@ public class PlatformGameController {
         return ResponseUtil.success();
     }
 
+    @GetMapping("/platformListVNC")
+    @ApiOperation("平台列表VNC")
+    public ResponseEntity<PlatformGame> platformListVNC() {
+        List<PlatformGame> platformGames =  platformGameService.findAll();
+        if(platformGames != null && !platformGames.isEmpty()){
+            for (PlatformGame platformGame : platformGames) {
+                if(platformGame.getGamePlatformName().equals(Constants.PLATFORM_VNC)){
+                    return ResponseUtil.success(platformGame);
+                }
+            }
+        }
+        return ResponseUtil.success();
+    }
+
     @ApiOperation("三方平台维护")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "id", value = "id", required = true),

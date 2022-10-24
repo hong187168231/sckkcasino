@@ -40,7 +40,7 @@ public class UserThirdController {
     @ApiImplicitParams({
         @ApiImplicitParam(name = "userAccount", value = "用户账号", required = true),
         @ApiImplicitParam(name = "tag", value = "tag 0 用我方账号查第三方账号 ,1 第三方账号查我方账号", required = true),
-        @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG/CQ9,AE", required = false),
+        @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG/CQ9,AE、VNC", required = false),
     })
     public ResponseEntity findUserThird(String userAccount,Integer tag,String platform){
         if (LoginUtil.checkNull(tag,userAccount)){
@@ -100,6 +100,13 @@ public class UserThirdController {
                     jsonObject.put("platform",Constants.PLATFORM_AE);
                     json.add(jsonObject);
                 }
+                if (!LoginUtil.checkNull(userThird.getVncAccount())){
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("account",user.getAccount());
+                    jsonObject.put("thirdAccount",userThird.getVncAccount());
+                    jsonObject.put("platform",Constants.PLATFORM_VNC);
+                    json.add(jsonObject);
+                }
             }else if (platform.equals("WM")){
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("account",user.getAccount());
@@ -123,6 +130,12 @@ public class UserThirdController {
                 jsonObject.put("account",user.getAccount());
                 jsonObject.put("thirdAccount",userThird.getAeAccount());
                 jsonObject.put("platform",Constants.PLATFORM_AE);
+                json.add(jsonObject);
+            }else if(platform.equals(Constants.PLATFORM_VNC)){
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("account",user.getAccount());
+                jsonObject.put("thirdAccount",userThird.getVncAccount());
+                jsonObject.put("platform",Constants.PLATFORM_VNC);
                 json.add(jsonObject);
             }else {
                 JSONObject jsonObject = new JSONObject();
@@ -201,6 +214,20 @@ public class UserThirdController {
                     return ResponseUtil.success(json);
                 }
 
+                userThird =  userThirdService.findByVNCAccount(userAccount);
+                if(!LoginUtil.checkNull(userThird)){
+                    user = userService.findById(userThird.getUserId());
+                    if (LoginUtil.checkNull(user)){
+                        return ResponseUtil.success();
+                    }
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("account",user.getAccount());
+                    jsonObject.put("thirdAccount",userThird.getVncAccount());
+                    jsonObject.put("platform",Constants.PLATFORM_VNC);
+                    json.add(jsonObject);
+                    return ResponseUtil.success(json);
+                }
+
             }else if (platform.equals("WM")){
                 userThird = userThirdService.findByAccount(userAccount);
                 if (LoginUtil.checkNull(userThird)){
@@ -256,6 +283,20 @@ public class UserThirdController {
                 jsonObject.put("account",user.getAccount());
                 jsonObject.put("thirdAccount",userThird.getAeAccount());
                 jsonObject.put("platform",Constants.PLATFORM_AE);
+                json.add(jsonObject);
+            }else if(platform.equals(Constants.PLATFORM_VNC)){
+                userThird =  userThirdService.findByVNCAccount(userAccount);
+                if (LoginUtil.checkNull(userThird)){
+                    return ResponseUtil.success();
+                }
+                user = userService.findById(userThird.getUserId());
+                if (LoginUtil.checkNull(user)){
+                    return ResponseUtil.success();
+                }
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("account",user.getAccount());
+                jsonObject.put("thirdAccount",userThird.getVncAccount());
+                jsonObject.put("platform",Constants.PLATFORM_VNC);
                 json.add(jsonObject);
             }else {
                 userThird =  userThirdService.findByGoldenfAccount(userAccount);

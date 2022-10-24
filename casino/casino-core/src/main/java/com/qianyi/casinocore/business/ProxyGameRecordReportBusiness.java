@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Date;
@@ -47,8 +48,11 @@ public class ProxyGameRecordReportBusiness {
     @Autowired
     private RedisLockUtil redisLockUtil;
 
+    @Autowired
+    private RptBetInfoDetailService rptBetInfoDetailService;
+
     //统计时间超过24小时记录日志
-    public final static int hour = 12;
+    public final static int hour = 24;
 
 
     @Transactional
@@ -102,6 +106,19 @@ public class ProxyGameRecordReportBusiness {
                         return;
                     }
                     proxyGameRecordReportVo.setBetAmount(gameRecordById.getBetAmount());
+                }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_VNC)){
+                    RptBetInfoDetail gameRecordById =
+                        rptBetInfoDetailService.findGameRecordById(proxyGameRecordReportVo.getGameRecordId());
+                    if (gameRecordById == null || gameRecordById.getGameRecordStatus() == Constants.yes){
+                        log.error("VNC体育注单状态异常{}",proxyGameRecordReportVo.getGameRecordId());
+                        return;
+                    }
+                    proxyGameRecordReportVo.setBetAmount(gameRecordById.getBetMoney());
+                    proxyGameRecordReportVo.setValidAmount(gameRecordById.getRealMoney());
+                    if (Objects.isNull(gameRecordById.getWinMoney())){
+                        gameRecordById.setWinMoney(BigDecimal.ZERO);
+                    }
+                    proxyGameRecordReportVo.setWinLoss(gameRecordById.getWinMoney().subtract(gameRecordById.getRealMoney()));
                 }else {
                     GameRecordGoldenF gameRecordById = gameRecordGoldenFService.findGameRecordById(proxyGameRecordReportVo.getGameRecordId());
                     if (gameRecordById == null || gameRecordById.getGameRecordStatus() == Constants.yes){
@@ -177,6 +194,8 @@ public class ProxyGameRecordReportBusiness {
                     proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE_E1SPORT) ||
                     proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE)){
                     gameRecordAeService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
+                }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_VNC)){
+                    rptBetInfoDetailService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }else {
                     gameRecordGoldenFService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }

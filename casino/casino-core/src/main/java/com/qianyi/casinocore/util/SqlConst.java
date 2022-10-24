@@ -741,6 +741,66 @@ public class SqlConst {
     where  1=1{4} {2}
             """;
 
+    public static String exportVncSql = """
+    select
+    u.account ,
+    u.third_proxy ,
+    u.id,
+    ifnull(goldenf_t.num,0) num,
+    ifnull(goldenf_t.bet_amount,0) bet_amount ,
+    ifnull(goldenf_t.validbet,0) validbet ,
+    ifnull(goldenf_t.win_loss,0) win_loss ,
+    ifnull(wash_t.wash_amount,0) wash_amount,
+    ifnull(withdraw_t.service_charge,0) service_charge,
+    ifnull(pr.amount,0) all_profit_amount,
+              -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water, 0)) avg_benefit,
+        -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0) total_amount,
+    ifnull(ec.water, 0) all_water
+    from user u left join (
+        SELECT
+            user_id,
+        count(1) num,
+    ifnull( sum( bet_money ), 0 ) bet_amount,
+    ifnull( sum( real_money ), 0 ) validbet,
+    ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss
+        FROM
+    rpt_bet_info_detail grv
+    WHERE
+    settle_time BETWEEN {0}
+    AND {1}
+    group by user_id
+              ) goldenf_t on u.id = goldenf_t.user_id
+    left join (
+        select user_id ,
+        sum(amount) wash_amount
+    from wash_code_change wcc
+    where platform = {3} and create_time between {0} and {1}
+    group by user_id
+                ) wash_t on u.id = wash_t.user_id
+    left join (
+        select user_id ,
+        sum(ifnull(service_charge,0)) service_charge
+    from withdraw_order wo
+    where status = 1 and withdraw_time between {0} and {1}
+    group by user_id
+                ) withdraw_t on u.id = withdraw_t.user_id
+    left join (
+        select user_id ,
+        sum(amount) amount
+    from share_profit_change spc
+    where bet_time between {0} and {1}
+    group by user_id
+                ) pr on u.id=pr.user_id
+    left join (
+        SELECT user_id,
+        SUM(amount) as water
+    FROM extract_points_change
+    where platform = {3} and create_time between {0} and {1}
+    group by user_id
+              ) ec on u.id = ec.user_id
+    where  1=1{4} {2}
+            """;
+
     public static String exportSabasportSql = """
     select
     u.account ,
@@ -1398,6 +1458,66 @@ public class SqlConst {
     where 1=1 and u.id = {2} {4}
             """;
 
+    public static String seleOneVncSql = """
+    select
+    u.account ,
+    u.third_proxy ,
+    u.id,
+    ifnull(goldenf_t.num,0) num,
+    ifnull(goldenf_t.bet_amount,0) bet_amount ,
+    ifnull(goldenf_t.validbet,0) validbet ,
+    ifnull(goldenf_t.win_loss,0) win_loss ,
+    ifnull(wash_t.wash_amount,0) wash_amount,
+    ifnull(withdraw_t.service_charge,0) service_charge,
+    ifnull(pr.amount,0) all_profit_amount,
+              -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0)) avg_benefit,
+        -(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0) total_amount,
+    sum(ifnull(ec.water, 0)) all_water
+    from user u
+    left join (
+        SELECT
+            user_id,
+        count(1) num,
+    ifnull( sum( bet_money ), 0 ) bet_amount,
+    ifnull( sum( real_money ), 0 ) validbet,
+    ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss
+        FROM
+    rpt_bet_info_detail grv
+    WHERE user_id={2} and
+    settle_time BETWEEN {0}
+    AND {1}
+    group by user_id
+                ) goldenf_t on u.id = goldenf_t.user_id
+    left join (
+        select user_id ,
+        sum(amount) wash_amount
+    from wash_code_change wcc
+    where user_id={2} and platform = {3} and create_time between {0} and {1}
+    group by user_id
+                ) wash_t on u.id = wash_t.user_id
+    left join (
+        select user_id ,
+        sum(ifnull(service_charge,0)) service_charge
+    from withdraw_order wo
+    where user_id={2} and status = 1 and withdraw_time between {0} and {1}
+    group by user_id
+                ) withdraw_t on u.id = withdraw_t.user_id
+    left join (
+        select user_id ,
+        sum(amount) amount from share_profit_change spc
+    where user_id={2} and bet_time between {0} and {1}
+    group by user_id
+                ) pr on u.id=pr.user_id
+    left join (
+        SELECT user_id,
+        SUM(amount) as water
+    FROM extract_points_change
+    where user_id={2} and platform = {3} and create_time between {0} and {1}
+    group by user_id
+                ) ec on u.id = ec.user_id
+    where 1=1 and u.id = {2} {4}
+            """;
+
     public static String seleOneSabasportSql = """
     select
     u.account ,
@@ -1957,6 +2077,118 @@ public class SqlConst {
     from game_record_ae grg
     where platform = {2}
     and bet_time between {0} and {1}
+    group by user_id
+                   ) goldenf_t on u.id = goldenf_t.user_id
+    left join (
+        select user_id ,
+        sum(amount) wash_amount
+    from wash_code_change wcc
+    where platform = {2} and create_time between {0} and {1}
+    group by user_id
+                   ) wash_t on u.id = wash_t.user_id
+    left join (
+        select user_id ,
+        sum(ifnull(service_charge,0)) service_charge
+    from withdraw_order wo
+    where status = 1 and withdraw_time between {0} and {1}
+    group by user_id
+                   ) withdraw_t on u.id = withdraw_t.user_id
+    left join (
+        select user_id ,
+        sum(amount) amount
+    from share_profit_change spc
+    where bet_time between {0} and {1}
+    group by user_id
+                   ) pr on u.id=pr.user_id
+    left join (
+        SELECT
+            user_id,
+        SUM(amount) as water
+    FROM extract_points_change
+    where platform = {2} and create_time between {0} and {1}
+    group by user_id
+                    ) ec on u.id = ec.user_id{3}
+            """;
+
+    public static String vncSumSql = """
+    select
+    sum(ifnull(goldenf_t.num,0)) num,
+    sum(ifnull(goldenf_t.bet_amount,0)) bet_amount ,
+    sum(ifnull(goldenf_t.validbet,0)) validbet ,
+    sum(ifnull(goldenf_t.win_loss,0)) win_loss ,
+    sum(ifnull(wash_t.wash_amount,0)) wash_amount,
+    sum(ifnull(withdraw_t.service_charge,0)) service_charge,
+    sum(ifnull(pr.amount,0)) all_profit_amount,
+    sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water, 0))) avg_benefit,
+    sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,
+    sum(ifnull(ec.water, 0)) all_water
+    from user u
+    left join (
+        SELECT
+            user_id,
+        count(1) num,
+    ifnull( sum( bet_money ), 0 ) bet_amount,
+    ifnull( sum( real_money ), 0 ) validbet,
+    ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss
+        FROM
+    rpt_bet_info_detail grv
+    WHERE
+    settle_time BETWEEN {0}
+    AND {1}
+    group by user_id
+                   ) goldenf_t on u.id = goldenf_t.user_id
+    left join (
+        select user_id ,
+        sum(amount) wash_amount
+    from wash_code_change wcc
+    where platform = {2} and create_time between {0} and {1}
+    group by user_id
+                   ) wash_t on u.id = wash_t.user_id
+    left join (
+        select user_id ,
+        sum(ifnull(service_charge,0)) service_charge
+    from withdraw_order wo
+    where status = 1 and withdraw_time between {0} and {1}
+    group by user_id
+                   ) withdraw_t on u.id = withdraw_t.user_id
+    left join (
+        select user_id ,
+        sum(amount) amount
+    from share_profit_change spc
+    where bet_time between {0} and {1}
+    group by user_id
+                   ) pr on u.id=pr.user_id
+    left join (
+        SELECT
+            user_id,
+        SUM(amount) as water
+    FROM extract_points_change
+    where platform = {2} and create_time between {0} and {1}
+    group by user_id
+                    ) ec on u.id = ec.user_id{3}
+            """;
+
+    public static String aeSumMergeSql = """
+    select
+    sum(ifnull(goldenf_t.num,0)) num,
+    sum(ifnull(goldenf_t.bet_amount,0)) bet_amount ,
+    sum(ifnull(goldenf_t.validbet,0)) validbet ,
+    sum(ifnull(goldenf_t.win_loss,0)) win_loss ,
+    sum(ifnull(wash_t.wash_amount,0)) wash_amount,
+    sum(ifnull(withdraw_t.service_charge,0)) service_charge,
+    sum(ifnull(pr.amount,0)) all_profit_amount,
+    sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water, 0))) avg_benefit,
+    sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,
+    sum(ifnull(ec.water, 0)) all_water
+    from user u
+    left join (
+        select user_id ,
+        count(1) num,
+    ifnull( sum( bet_amount ), 0 ) bet_amount,
+    ifnull( sum( turnover ), 0 ) validbet,
+    ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
+    from game_record_ae grg
+    where tx_status = 1 and bet_time between {0} and {1}
     group by user_id
                    ) goldenf_t on u.id = goldenf_t.user_id
     left join (

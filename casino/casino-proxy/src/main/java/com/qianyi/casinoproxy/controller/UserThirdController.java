@@ -100,6 +100,13 @@ public class UserThirdController {
                     jsonObject.put("platform",Constants.PLATFORM_AE);
                     json.add(jsonObject);
                 }
+                if (!CasinoProxyUtil.checkNull(userThird.getVncAccount())){
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("account",user.getAccount());
+                    jsonObject.put("thirdAccount",userThird.getVncAccount());
+                    jsonObject.put("platform",Constants.PLATFORM_VNC);
+                    json.add(jsonObject);
+                }
             }else if (platform.equals("WM")){
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("account",user.getAccount());
@@ -123,6 +130,12 @@ public class UserThirdController {
                 jsonObject.put("account",user.getAccount());
                 jsonObject.put("thirdAccount",userThird.getAeAccount());
                 jsonObject.put("platform",Constants.PLATFORM_AE);
+                json.add(jsonObject);
+            }else if(platform.equals(Constants.PLATFORM_VNC)){
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("account",user.getAccount());
+                jsonObject.put("thirdAccount",userThird.getVncAccount());
+                jsonObject.put("platform",Constants.PLATFORM_VNC);
                 json.add(jsonObject);
             }else {
                 JSONObject jsonObject = new JSONObject();
@@ -200,6 +213,20 @@ public class UserThirdController {
                     return ResponseUtil.success(json);
                 }
 
+                userThird =  userThirdService.findByVNCAccount(userAccount);
+                if(!CasinoProxyUtil.checkNull(userThird)){
+                    user = userService.findById(userThird.getUserId());
+                    if (CasinoProxyUtil.checkNull(user)){
+                        return ResponseUtil.success();
+                    }
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("account",user.getAccount());
+                    jsonObject.put("thirdAccount",userThird.getVncAccount());
+                    jsonObject.put("platform",Constants.PLATFORM_VNC);
+                    json.add(jsonObject);
+                    return ResponseUtil.success(json);
+                }
+
             }else if (platform.equals("WM")){
                 userThird = userThirdService.findByAccount(userAccount);
                 if (CasinoProxyUtil.checkNull(userThird)){
@@ -255,6 +282,20 @@ public class UserThirdController {
                 jsonObject.put("account",user.getAccount());
                 jsonObject.put("thirdAccount",userThird.getObtyAccount());
                 jsonObject.put("platform",Constants.PLATFORM_AE);
+                json.add(jsonObject);
+            }else if(platform.equals(Constants.PLATFORM_VNC)){
+                userThird =  userThirdService.findByVNCAccount(userAccount);
+                if (CasinoProxyUtil.checkNull(userThird)){
+                    return ResponseUtil.success();
+                }
+                user = userService.findById(userThird.getUserId());
+                if (CasinoProxyUtil.checkNull(user)){
+                    return ResponseUtil.success();
+                }
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("account",user.getAccount());
+                jsonObject.put("thirdAccount",userThird.getVncAccount());
+                jsonObject.put("platform",Constants.PLATFORM_VNC);
                 json.add(jsonObject);
             }else {
                 userThird =  userThirdService.findByGoldenfAccount(userAccount);

@@ -4,6 +4,7 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.util.TranslateConst;
 import com.qianyi.casinocore.vo.*;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
@@ -52,6 +53,9 @@ public class GameRecordController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RptBetInfoDetailService rptBetInfoDetailService;
 
     /**
      * 分页查询WM游戏注单
@@ -1048,6 +1052,117 @@ public class GameRecordController {
         gameRecordAeVo.setWinAmount(content.getWinAmount());
         gameRecordAeVo.setTurnover(content.getTurnover());
         return ResponseUtil.success(gameRecordAeVo);
+    }
+
+    @ApiOperation("分页查询越南彩注单")
+    @GetMapping("/findGameRecordVNCPage")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "userName", value = "三方会员账号", required = false),
+        @ApiImplicitParam(name = "betOrder", value = "注单号", required = false),
+        @ApiImplicitParam(name = "betDetailOrder", value = "注单号明细号", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
+    })
+    @NoAuthorization
+    public ResponseEntity<GameRecordVNCVo> findGameRecordVNCPage(Integer pageSize, Integer pageCode, String userName, String betOrder,
+        String account,Integer tag,String betDetailOrder,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        RptBetInfoDetail game = new RptBetInfoDetail();
+        Long userId = null;
+        if (!LoginUtil.checkNull(account)){
+            User byAccount = userService.findByAccount(account);
+            if (LoginUtil.checkNull(byAccount)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        game.setUserId(userId);
+        game.setBetOrder(betOrder);
+        game.setBetDetailOrder(betDetailOrder);
+        game.setUserName(userName);
+        Page<RptBetInfoDetail> gameRecordPage;
+        if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
+            String startTime = DateUtil.getSimpleDateFormat().format(startDate);
+            String endTime = DateUtil.getSimpleDateFormat().format(endDate);
+            if (LoginUtil.checkNull(tag) || tag == CommonConst.NUMBER_0){
+                gameRecordPage = rptBetInfoDetailService.findRptBetInfoDetailPage(game, pageable,startTime,endTime,null,null);
+            }else {
+                gameRecordPage = rptBetInfoDetailService.findRptBetInfoDetailPage(game, pageable,null,null,startTime,endTime);
+            }
+        }else {
+            gameRecordPage = rptBetInfoDetailService.findRptBetInfoDetailPage(game, pageable,null,null,null,null);
+        }
+        PageResultVO<GameRecordVNCVo> pageResultVO =new PageResultVO(gameRecordPage);
+        List<RptBetInfoDetail> content = gameRecordPage.getContent();
+        if(content != null && content.size() > 0){
+            List<GameRecordVNCVo> gameRecordVNCVos = new LinkedList<>();
+            content.stream().forEach(gameRecord ->{
+                GameRecordVNCVo vo = new GameRecordVNCVo();
+                BeanUtils.copyProperties(gameRecord,vo);
+                String language = TranslateConst.getLanguage();
+                vo.setBetCities(TranslateConst.getBetCity(language,gameRecord.getBetCity()));
+                vo.setBetPlayType(TranslateConst.getBetPlayType(language,gameRecord.getBetPlayType()));
+                vo.setBetTimeStr(cn.hutool.core.date.DateUtil.formatDateTime(vo.getBetTime()));
+                vo.setSettleTimeStr(cn.hutool.core.date.DateUtil.formatDateTime(vo.getSettleTime()));
+                gameRecordVNCVos.add(vo);
+            });
+            pageResultVO.setContent(gameRecordVNCVos);
+        }
+        return ResponseUtil.success(pageResultVO);
+    }
+
+    @ApiOperation("统计越南彩注单")
+    @GetMapping("/findGameRecordVNCSum")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "userName", value = "三方会员账号", required = false),
+        @ApiImplicitParam(name = "betOrder", value = "注单号", required = false),
+        @ApiImplicitParam(name = "betDetailOrder", value = "注单号明细号", required = false),
+        @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+        @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+        @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+        @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
+    })
+    @NoAuthorization
+    public ResponseEntity<GameRecordVNCVo> findGameRecordVNCSum(String userName, String betOrder,
+        String account,Integer tag,String betDetailOrder,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+        @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+        RptBetInfoDetail game = new RptBetInfoDetail();
+        game.setBetOrder(betOrder);
+        game.setBetDetailOrder(betDetailOrder);
+        game.setUserName(userName);
+        Long userId = null;
+        if (!LoginUtil.checkNull(account)){
+            User byAccount = userService.findByAccount(account);
+            if (LoginUtil.checkNull(byAccount)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        game.setUserId(userId);
+        RptBetInfoDetail recordRecordSum;
+        if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
+            String startTime = DateUtil.getSimpleDateFormat().format(startDate);
+            String endTime = DateUtil.getSimpleDateFormat().format(endDate);
+
+            if (LoginUtil.checkNull(tag) || tag == CommonConst.NUMBER_0){
+                recordRecordSum = rptBetInfoDetailService.findRptBetInfoDetailSum(game, startTime, endTime, null, null);
+            }else {
+                recordRecordSum = rptBetInfoDetailService.findRptBetInfoDetailSum(game,null,null,startTime,endTime);
+            }
+        }else {
+            recordRecordSum = rptBetInfoDetailService.findRptBetInfoDetailSum(game,null,null,null,null);
+        }
+        GameRecordVNCVo gameRecordVNCVo = new GameRecordVNCVo();
+        BeanUtils.copyProperties(recordRecordSum,gameRecordVNCVo);
+        return ResponseUtil.success(gameRecordVNCVo);
     }
     //    @ApiOperation("分页查询三方游戏注单总计")
     //    @GetMapping("/findGameRecordTotal")

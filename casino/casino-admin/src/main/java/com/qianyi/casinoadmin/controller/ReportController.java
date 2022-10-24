@@ -78,6 +78,7 @@ public class ReportController {
         platforms.add(Constants.PLATFORM_OBTY);
         platforms.add(Constants.PLATFORM_SABASPORT);
         platforms.add(Constants.PLATFORM_AE);
+        platforms.add(Constants.PLATFORM_VNC);
     }
 
     // @NoAuthorization

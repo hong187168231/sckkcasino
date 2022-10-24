@@ -43,4 +43,7 @@ public class GameRecordEndIndex extends BaseEntity{
 
     @ApiModelProperty("AE注单id")
     private Long AEMaxId;
+
+    @ApiModelProperty("VNC注单id")
+    private Long VNCMaxId;
 }

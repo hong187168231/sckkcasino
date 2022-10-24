@@ -27,6 +27,13 @@ public interface ProxyGameRecordReportRepository extends JpaRepository<ProxyGame
         + "win_loss=win_loss + ?5,bet_amount=bet_amount + ?9,update_time = NOW() ;",nativeQuery = true)
     void updateBet(Long gameRecordReportId,Long userId,String orderTimes, BigDecimal validAmount,BigDecimal winLoss,Long firstProxy,Long secondProxy,Long thirdProxy,BigDecimal betAmount);
 
+    @Modifying
+    @Query(value = "INSERT INTO proxy_game_record_report (proxy_game_record_report_id,user_id,order_times,valid_amount,win_loss,"
+        + "first_proxy,second_proxy,third_proxy,betting_number,bet_amount,create_time,update_time) " +
+        "VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?10,?9,NOW(),NOW()) ON DUPLICATE KEY UPDATE valid_amount=valid_amount + ?4,"
+        + "win_loss=win_loss + ?5,betting_number = betting_number +?10,bet_amount=bet_amount + ?9,update_time = NOW() ;",nativeQuery = true)
+    void updateKey(Long gameRecordReportId,Long userId,String orderTimes, BigDecimal validAmount,BigDecimal winLoss,Long firstProxy,Long secondProxy,Long thirdProxy,BigDecimal betAmount,Integer bettingNumber);
+
     @Query(value = "select COUNT(1) num,ifnull(SUM(validAmount),0) validAmount,ifnull(SUM(winLoss),0) winLoss from (select SUM(p.valid_amount) "
         + "validAmount,SUM(p.win_loss) winLoss from proxy_game_record_report p where p.first_proxy= ?3 and p.order_times "
         + "BETWEEN ?1 and ?2 GROUP BY p.user_id) a",nativeQuery = true)
@@ -107,4 +114,9 @@ public interface ProxyGameRecordReportRepository extends JpaRepository<ProxyGame
         + "user_id user_id,count(1) num,sum(bet_amount) bet_amount,sum(real_bet_amount) validbet,sum(real_win_amount-real_bet_amount) win_loss "
         + "from game_record_ae grg where g.tx_status = 1 and bet_time >= ?1 and bet_time <= ?2 group by user_id ;",nativeQuery = true)
     List<Map<String, Object>> findTotalAe(String startTime,String endTime);
+
+    @Query(value = "SELECT user_id user_id,count(1) num,ifnull( sum( bet_money ), 0 ) bet_amount,ifnull( sum( real_money ), 0 ) validbet,"
+        + "ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss FROM rpt_bet_info_detail grv WHERE settle_time BETWEEN ?1 AND ?2 "
+        + "group by user_id ;",nativeQuery = true)
+    List<Map<String, Object>> findVnc(String startTime,String endTime);
 }

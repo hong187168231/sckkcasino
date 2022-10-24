@@ -242,6 +242,23 @@ public class Initialization implements CommandLineRunner {
                 extractPointsConfigService.save(extractPointsConfig);
                 log.info("AE代理抽点配置保存成功{}",extractPointsConfig);
             }
+
+            log.info("初始化VNC代理抽点配置");
+            List<ExtractPointsConfig> vnc = extractPointsConfigService.findByPlatform(Constants.PLATFORM_VNC);
+            log.info("VNC代理抽点配置{}",vnc);
+            if (vnc == null || vnc.size() == 0){
+                ExtractPointsConfig extractPointsConfig = new ExtractPointsConfig();
+                extractPointsConfig.setGameId(Constants.PLATFORM_VNC);
+                extractPointsConfig.setGameName("VNC");
+                extractPointsConfig.setPlatform(Constants.PLATFORM_VNC);
+                extractPointsConfig.setGameEnName(Constants.PLATFORM_VNC);
+                extractPointsConfig.setRate(BigDecimal.ZERO);
+                extractPointsConfig.setState(1);
+                extractPointsConfig.setCreateBy("0");
+                extractPointsConfig.setUpdateBy("0");
+                extractPointsConfigService.save(extractPointsConfig);
+                log.info("VNC代理抽点配置保存成功{}",extractPointsConfig);
+            }
         }catch (Exception ex){
             log.error("初始化代理抽点配置失败{}",ex);
         }
@@ -259,6 +276,8 @@ public class Initialization implements CommandLineRunner {
                 proxyWashCodeConfig.setOBDJRate(new BigDecimal(0.9));
                 proxyWashCodeConfig.setOBTYRate(new BigDecimal(0.9));
                 proxyWashCodeConfig.setSABASPORTRate(new BigDecimal(0.9));
+                proxyWashCodeConfig.setAERate(new BigDecimal(0.9));
+                proxyWashCodeConfig.setVNCRate(new BigDecimal(0.9));
                 proxyWashCodeConfig.setUserId(0L);
                 proxyWashCodeConfig.setType(Constants.OVERALL_TYPE);
                 rebateConfigurationService.save(proxyWashCodeConfig);
@@ -311,6 +330,7 @@ public class Initialization implements CommandLineRunner {
             first.setSV388MaxId(0L);
             first.setE1SPORTMaxId(0L);
             first.setAEMaxId(0L);
+            first.setVNCMaxId(0L);
             gameRecordEndIndexService.save(first);
         }else {
             first.setGameRecordId(first.getGameRecordId()==null?0L:first.getGameRecordId());
@@ -323,6 +343,7 @@ public class Initialization implements CommandLineRunner {
             first.setSV388MaxId(first.getSV388MaxId()==null?0L:first.getSV388MaxId());
             first.setE1SPORTMaxId(first.getE1SPORTMaxId()==null?0L:first.getE1SPORTMaxId());
             first.setAEMaxId(first.getAEMaxId()==null?0L:first.getAEMaxId());
+            first.setVNCMaxId(first.getVNCMaxId()==null?0L:first.getVNCMaxId());
             gameRecordEndIndexService.save(first);
         }
     }
@@ -464,6 +485,12 @@ public class Initialization implements CommandLineRunner {
             log.info("全局代理返佣等级配置ae{}",ae);
             if(ae==null){
                 addRebateConfig(7);
+            }
+
+            RebateConfig vnc = rebateConfigService.findGameType(8);
+            log.info("全局代理返佣等级配置VNC{}",vnc);
+            if(vnc==null){
+                addRebateConfig(8);
             }
         }catch (Exception ex){
             log.error("初始全局代理返佣等级配置失败{}",ex);

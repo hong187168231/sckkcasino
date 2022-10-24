@@ -217,6 +217,20 @@
             "url": "/user/oneAERecoverApi"
           },
           {
+            "descritpion": "查询用户VNC余额",
+            "englishName": "VNC Balance",
+            "menuLevel": 3,
+            "name": "查询用户VNC余额",
+            "url": "/user/refreshVNC"
+          },
+          {
+            "descritpion": "一键回收用户VNC余额",
+            "englishName": "Restore All VNC Balance",
+            "menuLevel": 3,
+            "name": "一键回收用户VNC余额",
+            "url": "/user/recoveryVNCBalance"
+          },
+          {
             "descritpion": "查询用户OB余额",
             "englishName": "OB Balance",
             "menuLevel": 3,
@@ -1682,6 +1696,36 @@
             "englishName": "Did the game modify",
             "menuLevel": 3,
             "name": "AE游戏状态修改",
+            "url": "/adGame/updateDomainName"
+          }
+        ]
+      },
+      {
+        "descritpion": "VNC游戏管理",
+        "englishName": "VNC game management",
+        "menuLevel": 2,
+        "name": "VNC游戏管理",
+        "url": "/adGame/platformListVNC",
+        "children": [
+          {
+            "descritpion": "游戏列表",
+            "englishName": "Game listing",
+            "menuLevel": 3,
+            "name": "VNC游戏列表",
+            "url": "/adGame/findGameList"
+          },
+          {
+            "descritpion": "平台是否维护",
+            "englishName": "Platform under maintenance",
+            "menuLevel": 3,
+            "name": "VNC平台是否维护",
+            "url": "/adGame/updatePlatformStatus"
+          },
+          {
+            "descritpion": "游戏状态修改",
+            "englishName": "Did the game modify",
+            "menuLevel": 3,
+            "name": "VNC游戏状态修改",
             "url": "/adGame/updateDomainName"
           }
         ]

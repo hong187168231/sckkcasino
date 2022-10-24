@@ -506,6 +506,55 @@ public class RebateSqlConst {
     limit {3},{4}
             """;
 
+    public static String vncSql = """
+    select
+    u.account ,
+    u.third_proxy ,
+    u.id,
+    ifnull(goldenf_t.num,0) num,
+    ifnull(goldenf_t.bet_amount,0) bet_amount ,
+    ifnull(goldenf_t.validbet,0) validbet ,
+    ifnull(goldenf_t.win_loss,0) win_loss ,
+    ifnull(rd_t.total_amount,0) total_rebate,
+    ifnull(rd_t.user_amount,0) user_amount,
+    ifnull(rd_t.surplus_amount,0) surplus_amount,
+    ifnull(withdraw_t.service_charge,0) service_charge,
+    -(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0)) avg_benefit,
+        -(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0))+ifnull(withdraw_t.service_charge,0) total_amount
+    from user u left join (
+        SELECT
+            user_id,
+        count(1) num,
+    ifnull( sum( bet_money ), 0 ) bet_amount,
+    ifnull( sum( real_money ), 0 ) validbet,
+    ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss
+        FROM
+    rpt_bet_info_detail grv
+    WHERE
+    settle_time BETWEEN {0}
+    AND {1}
+    group by user_id
+              ) goldenf_t on u.id = goldenf_t.user_id
+    left join (
+        select user_id ,
+        sum(total_amount) total_amount,
+    sum(user_amount) user_amount,
+    sum(surplus_amount) surplus_amount
+    from rebate_detail rd
+    where platform = {5} and create_time between {0} and {1}
+    group by user_id
+                ) rd_t on u.id = rd_t.user_id
+    left join (
+        select user_id ,
+        sum(ifnull(service_charge,0)) service_charge
+    from withdraw_order wo
+    where status = 1 and withdraw_time between {0} and {1}
+    group by user_id
+                ) withdraw_t on u.id = withdraw_t.user_id
+    where  1=1{6} {2}
+    limit {3},{4}
+            """;
+
     public static String sabasportSql = """
     select
     u.account ,
@@ -680,6 +729,55 @@ public class RebateSqlConst {
     from game_record_ae grg
         where
     tx_status = 1 and bet_time between {0} and {1}
+    group by user_id
+              ) goldenf_t on u.id = goldenf_t.user_id
+    left join (
+        select user_id ,
+        sum(total_amount) total_amount,
+    sum(user_amount) user_amount,
+    sum(surplus_amount) surplus_amount
+    from rebate_detail rd
+    where create_time between {0} and {1}
+    and platform = {3}
+    group by user_id
+                ) rd_t on u.id = rd_t.user_id
+    left join (
+        select user_id ,
+        sum(ifnull(service_charge,0)) service_charge
+    from withdraw_order wo
+    where status = 1 and withdraw_time between {0} and {1}
+    group by user_id
+                ) withdraw_t on u.id = withdraw_t.user_id
+    where  1=1{4} {2}
+            """;
+
+    public static String exportVncSql = """
+    select
+    u.account ,
+    u.third_proxy ,
+    u.id,
+    ifnull(goldenf_t.num,0) num,
+    ifnull(goldenf_t.bet_amount,0) bet_amount ,
+    ifnull(goldenf_t.validbet,0) validbet ,
+    ifnull(goldenf_t.win_loss,0) win_loss ,
+    ifnull(rd_t.total_amount,0) total_rebate,
+    ifnull(rd_t.user_amount,0) user_amount,
+    ifnull(rd_t.surplus_amount,0) surplus_amount,
+    ifnull(withdraw_t.service_charge,0) service_charge,
+    -(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0)) avg_benefit,
+        -(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0))+ifnull(withdraw_t.service_charge,0) total_amount
+    from user u left join (
+        SELECT
+            user_id,
+        count(1) num,
+    ifnull( sum( bet_money ), 0 ) bet_amount,
+    ifnull( sum( real_money ), 0 ) validbet,
+    ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss
+        FROM
+    rpt_bet_info_detail grv
+    WHERE
+    settle_time BETWEEN {0}
+    AND {1}
     group by user_id
               ) goldenf_t on u.id = goldenf_t.user_id
     left join (
@@ -1110,6 +1208,55 @@ public class RebateSqlConst {
     //                ) withdraw_t on u.id = withdraw_t.user_id
     //    where u.id = {2}{6}
     //    """;
+
+    public static String seleOneVncSql = """
+    select
+    u.account ,
+    u.third_proxy ,
+    u.id,
+    ifnull(goldenf_t.num,0) num,
+    ifnull(goldenf_t.bet_amount,0) bet_amount ,
+    ifnull(goldenf_t.validbet,0) validbet ,
+    ifnull(goldenf_t.win_loss,0) win_loss ,
+    ifnull(rd_t.total_amount,0) total_rebate,
+    ifnull(rd_t.user_amount,0) user_amount,
+    ifnull(rd_t.surplus_amount,0) surplus_amount,
+    ifnull(withdraw_t.service_charge,0) service_charge,
+    -(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0)) avg_benefit,
+        -(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0))+ifnull(withdraw_t.service_charge,0) total_amount
+    from user u
+    left join (
+        SELECT
+            user_id,
+        count(1) num,
+    ifnull( sum( bet_money ), 0 ) bet_amount,
+    ifnull( sum( real_money ), 0 ) validbet,
+    ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss
+        FROM
+    rpt_bet_info_detail grv
+    WHERE user_id={2} and
+    settle_time BETWEEN {0}
+    AND {1}
+    group by user_id
+                ) goldenf_t on u.id = goldenf_t.user_id
+    left join (
+        select user_id ,
+        sum(total_amount) total_amount,
+    sum(user_amount) user_amount,
+    sum(surplus_amount) surplus_amount
+    from rebate_detail rd
+    where user_id={2} and platform = {3} and create_time between {0} and {1}
+    group by user_id
+                ) rd_t on u.id = rd_t.user_id
+    left join (
+        select user_id ,
+        sum(ifnull(service_charge,0)) service_charge
+    from withdraw_order wo
+    where user_id={2} and status = 1 and withdraw_time between {0} and {1}
+    group by user_id
+                ) withdraw_t on u.id = withdraw_t.user_id
+    where 1=1 and u.id = {2}{4}
+            """;
 
     public static String seleOnePgOrCq9Sql = """
     select
@@ -1736,6 +1883,51 @@ public class RebateSqlConst {
     from game_record_ae grg
     where  tx_status = 1
     and bet_time between {0} and {1}
+    group by user_id
+                   ) goldenf_t on u.id = goldenf_t.user_id
+    left join (
+        select user_id ,
+        sum(total_amount) total_amount,
+    sum(user_amount) user_amount,
+    sum(surplus_amount) surplus_amount
+    from rebate_detail rd
+    where platform = {2} and create_time between {0} and {1}
+    group by user_id
+                ) rd_t on u.id = rd_t.user_id
+    left join (
+        select user_id ,
+        sum(ifnull(service_charge,0)) service_charge
+    from withdraw_order wo
+    where status = 1 and withdraw_time between {0} and {1}
+    group by user_id
+                   ) withdraw_t on u.id = withdraw_t.user_id{3}
+            """;
+
+    public static String vncSumSql = """
+    select
+    sum(ifnull(goldenf_t.num,0)) num,
+    sum(ifnull(goldenf_t.bet_amount,0)) bet_amount ,
+    sum(ifnull(goldenf_t.validbet,0)) validbet ,
+    sum(ifnull(goldenf_t.win_loss,0)) win_loss ,
+    sum(ifnull(rd_t.total_amount,0)) total_rebate,
+    sum(ifnull(rd_t.user_amount,0)) user_amount,
+    sum(ifnull(rd_t.surplus_amount,0)) surplus_amount,
+    sum(ifnull(withdraw_t.service_charge,0)) service_charge,
+    sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0))) avg_benefit,
+    sum(-(ifnull(goldenf_t.win_loss,0)+ifnull(rd_t.total_amount,0))+ifnull(withdraw_t.service_charge,0)) total_amount
+    from user u
+    left join (
+        SELECT
+            user_id,
+        count(1) num,
+    ifnull( sum( bet_money ), 0 ) bet_amount,
+    ifnull( sum( real_money ), 0 ) validbet,
+    ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss
+        FROM
+    rpt_bet_info_detail grv
+    WHERE
+    settle_time BETWEEN {0}
+    AND {1}
     group by user_id
                    ) goldenf_t on u.id = goldenf_t.user_id
     left join (

@@ -27,6 +27,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -994,6 +995,88 @@ public class UserController {
             }
         }catch (Exception ex){
             return ResponseUtil.custom("回收沙巴余额失败");
+        }
+    }
+
+    @ApiOperation("刷新越南彩余额")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("refreshVNC")
+    public ResponseEntity refreshVNC(Long id){
+        UserThird userThird = userThirdService.findByUserId(id);
+        if (LoginUtil.checkNull(userThird) || StringUtils.isBlank(userThird.getVncAccount())){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
+        }
+        JSONObject jsonObject = userMoneyService.refreshVNC(id);
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("查询VNC余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (LoginUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询VNC余额失败");
+        }
+    }
+
+    /**
+     * 越南彩查询总余额接口
+     *
+     * @return
+     */
+    @ApiOperation("查询平台越南彩总余额")
+    @GetMapping("refreshVNCTotal")
+    public ResponseEntity refreshVNCTotal(){
+        JSONObject jsonObject = userMoneyService.refreshVNC(null);
+        ThridBalanceSumVo thridBalanceSumVo = new ThridBalanceSumVo();
+        thridBalanceSumVo.setQueryTime(DateUtil.dateToString(new Date(), DateUtil.patten));
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            thridBalanceSumVo.setSunBalance(BigDecimal.ZERO);
+            return ResponseUtil.success(thridBalanceSumVo);
+        }else {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
+                BigDecimal sunAamount = new BigDecimal(jsonObject.get("data").toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+                thridBalanceSumVo.setSunBalance(sunAamount);
+                return ResponseUtil.success(thridBalanceSumVo);
+            }
+        }
+        thridBalanceSumVo.setSunBalance(BigDecimal.ZERO);
+
+        return ResponseUtil.success(thridBalanceSumVo);
+    }
+
+    @ApiOperation("一键回收用户越南彩余额")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("recoveryVNCBalance")
+    public ResponseEntity recoveryVNCBalance(Long id){
+        UserThird userThird = userThirdService.findByUserId(id);
+        if (LoginUtil.checkNull(userThird) || StringUtils.isBlank(userThird.getVncAccount())){
+            return ResponseUtil.success();
+        }
+        JSONObject jsonObject = userMoneyService.oneKeyVNCRecoverApi(id);
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("回收WM余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                return ResponseUtil.success();
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("回收VNC余额失败");
         }
     }
 

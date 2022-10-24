@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -431,6 +432,36 @@ public class UserController {
             return ResponseUtil.custom("查询AE余额失败");
         }
     }
+
+    @ApiOperation("刷新越南彩余额")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("refreshVNC")
+    public ResponseEntity refreshVNC(Long id){
+        UserThird userThird = userThirdService.findByUserId(id);
+        if (CasinoProxyUtil.checkNull(userThird) || StringUtils.isBlank(userThird.getVncAccount())){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
+        }
+        JSONObject jsonObject = userMoneyService.refreshVNC(id);
+        if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("查询VNC余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (CasinoProxyUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询VNC余额失败");
+        }
+    }
+
 
     /**
      * 修改用户

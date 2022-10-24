@@ -402,4 +402,59 @@ public class SqlShareConst {
     AND {1}
 	) t4
         """;
+
+    public static String reportVncSql = """
+    SELECT
+    t1.num num,
+    t1.bet_amount bet_amount,
+    t1.validbet validbet,
+    t1.win_loss win_loss,
+    t2.service_charge service_charge,
+    t3.wash_amount wash_amount,
+    t4.water all_water
+    FROM
+        (
+            SELECT
+                count(1) num,
+    ifnull( sum( bet_money ), 0 ) bet_amount,
+    ifnull( sum( real_money ), 0 ) validbet,
+    ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss
+        FROM
+    game_record_vnc grv
+    WHERE  user_id = {2}
+    AND settle_time BETWEEN {0}
+    AND {1}
+	) t1,
+        (
+    SELECT
+    ifnull( sum( service_charge ), 0 ) service_charge
+        FROM
+    withdraw_order wo
+    WHERE
+        user_id = {2}
+    AND STATUS = 1
+    AND withdraw_time BETWEEN {0}
+    AND {1}
+	) t2,
+        (
+    SELECT
+    ifnull( sum( amount ), 0 ) wash_amount
+        FROM
+    wash_code_change wcc
+    WHERE
+        user_id = {2}{3}
+    AND create_time BETWEEN {0}
+    AND {1}
+	) t3,
+        (
+    SELECT
+    ifnull( sum( amount ), 0 ) AS water
+    FROM
+        extract_points_change
+    WHERE
+        user_id = {2}{3}
+    AND create_time BETWEEN {0}
+    AND {1}
+	) t4
+        """;
 }

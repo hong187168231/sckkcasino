@@ -48,6 +48,7 @@ public class CommonController {
         platformsReport.add(Constants.PLATFORM_AE_HORSEBOOK);
         platformsReport.add(Constants.PLATFORM_AE_SV388);
         platformsReport.add(Constants.PLATFORM_AE_E1SPORT);
+        platformsReport.add(Constants.PLATFORM_VNC);
     }
 
     public static final List<String> platforms = new ArrayList<>();
@@ -60,6 +61,7 @@ public class CommonController {
         platforms.add(Constants.PLATFORM_OBTY);
         platforms.add(Constants.PLATFORM_SABASPORT);
         platforms.add(Constants.PLATFORM_AE);
+        platforms.add(Constants.PLATFORM_VNC);
     }
 
     @ApiOperation("查询公司列表下拉框")

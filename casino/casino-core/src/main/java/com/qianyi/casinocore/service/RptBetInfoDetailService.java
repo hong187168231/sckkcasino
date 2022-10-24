@@ -108,9 +108,12 @@ public class RptBetInfoDetailService {
                 if (!CommonUtil.checkNull(gameRecordVNC.getBetOrder())) {
                     list.add(cb.equal(root.get("betOrder").as(String.class), gameRecordVNC.getBetOrder()));
                 }
-//                if (!CommonUtil.checkNull(gameRecordVNC.getAccount())) {
-//                    list.add(cb.equal(root.get("account").as(String.class), gameRecordVNC.getAccount()));
-//                }
+                if (!CommonUtil.checkNull(gameRecordVNC.getBetDetailOrder())) {
+                    list.add(cb.equal(root.get("betDetailOrder").as(String.class), gameRecordVNC.getBetDetailOrder()));
+                }
+                //                if (!CommonUtil.checkNull(gameRecordVNC.getAccount())) {
+                //                    list.add(cb.equal(root.get("account").as(String.class), gameRecordVNC.getAccount()));
+                //                }
                 if (!CommonUtil.checkNull(gameRecordVNC.getUserName())) {
                     list.add(cb.equal(root.get("userName").as(String.class), gameRecordVNC.getUserName()));
                 }
@@ -163,9 +166,12 @@ public class RptBetInfoDetailService {
         if (!CommonUtil.checkNull(gameRecordVNC.getBetOrder())) {
             list.add(cb.equal(root.get("betOrder").as(String.class), gameRecordVNC.getBetOrder()));
         }
-//        if (!CommonUtil.checkNull(gameRecordVNC.getAccount())) {
-//            list.add(cb.equal(root.get("account").as(String.class), gameRecordVNC.getAccount()));
-//        }
+        if (!CommonUtil.checkNull(gameRecordVNC.getBetDetailOrder())) {
+            list.add(cb.equal(root.get("betDetailOrder").as(String.class), gameRecordVNC.getBetDetailOrder()));
+        }
+        //        if (!CommonUtil.checkNull(gameRecordVNC.getAccount())) {
+        //            list.add(cb.equal(root.get("account").as(String.class), gameRecordVNC.getAccount()));
+        //        }
         if (!CommonUtil.checkNull(gameRecordVNC.getUserName())) {
             list.add(cb.equal(root.get("userName").as(String.class), gameRecordVNC.getUserName()));
         }

@@ -8,7 +8,7 @@ public class SqlSumConst {
     ifnull(sum( bet ),0) bet_amount,
     ifnull(sum( validbet ),0) validbet,
     ifnull(sum( win_loss ),0) win_loss
-    FROM
+        FROM
     game_record gr
     WHERE
     bet_time BETWEEN {0}
@@ -21,7 +21,7 @@ public class SqlSumConst {
     ifnull(sum( bet_amount ),0) bet_amount,
     ifnull(sum( bet_amount ),0) validbet,
     ifnull(sum( win_amount - bet_amount ),0) win_loss
-    FROM
+        FROM
     game_record_obdj grg
     WHERE
     bet_status IN ( 5, 6, 8, 9, 10 )
@@ -35,7 +35,7 @@ public class SqlSumConst {
     ifnull(sum( order_amount ),0) bet_amount,
     ifnull(sum( order_amount ),0) validbet,
     ifnull(sum( profit_amount ),0) win_loss
-    FROM
+        FROM
     game_record_obty grg
     WHERE
     settle_str_time BETWEEN {0}
@@ -48,7 +48,7 @@ public class SqlSumConst {
     ifnull(sum( bet_amount ),0) bet_amount,
     ifnull(sum( bet_amount ),0) validbet,
     ifnull(sum( win_amount - bet_amount ),0) win_loss
-    FROM
+        FROM
     game_record_goldenf grg
     WHERE
         vendor_code = {2}
@@ -135,5 +135,18 @@ public class SqlSumConst {
     sum(ifnull(service_charge,0)) service_charge
     from withdraw_order wo
     where status = 1 and withdraw_time between {0} and {1}) withdraw_t;
+        """;
+
+    public static String vncSumMergeSql = """
+    SELECT
+    count(1) num,
+    ifnull( sum( bet_money ), 0 ) bet_amount,
+    ifnull( sum( real_money ), 0 ) validbet,
+    ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss
+        FROM
+    rpt_bet_info_detail grv
+    WHERE
+    settle_time BETWEEN {0}
+    AND {1}
         """;
 }

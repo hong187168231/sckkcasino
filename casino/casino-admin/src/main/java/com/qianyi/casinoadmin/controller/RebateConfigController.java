@@ -35,7 +35,7 @@ public class RebateConfigController {
 
     @ApiOperation("查询全局代理返佣等级配置")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "gameType", value = "游戏类型：1:WM,2:PG,3:CQ9,4:OBDJ", required = true),
+        @ApiImplicitParam(name = "gameType", value = "游戏类型：1:WM,2:PG,3:CQ9,4:obdj,5:obty,6:sbty,7:AE,8:VNC", required = true),
     })
     @GetMapping("/findAll")
     public ResponseEntity<RebateConfig> findRegisterSwitchVo(Integer gameType){

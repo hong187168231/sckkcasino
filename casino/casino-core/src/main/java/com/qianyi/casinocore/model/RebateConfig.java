@@ -21,7 +21,7 @@ public class RebateConfig {
     /**
      * 游戏类型：1:WM,2:PG,3:CQ9
      */
-    @ApiModelProperty("游戏类型：1:WM,2:PG,3:CQ9")
+    @ApiModelProperty("游戏类型：1:WM,2:PG,3:CQ9,4:obdj,5:obty,6:sbty,7:AE,8:VNC")
     private Integer gameType;
 
     @ApiModelProperty("第一级业绩额度")

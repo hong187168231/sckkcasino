@@ -42,6 +42,10 @@ public class ProxyWashCodeConfigVo implements Serializable {
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal AERate;
 
+    @ApiModelProperty(value = "VNC返利比例")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    private BigDecimal VNCRate;
+
     //全局配置 userId=0
     @ApiModelProperty("基层代理ID")
     private Long userId;

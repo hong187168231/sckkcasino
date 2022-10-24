@@ -28,10 +28,14 @@ public class GameRecordVNCVo implements Serializable {
     private String issue;
     @ApiModelProperty("注单号")
     private String betOrder;
+    @ApiModelProperty("子单号")
+    private String betDetailOrder;
     @ApiModelProperty("下注时间")
     private Date betTime;
     @ApiModelProperty("下注类型")
     private String betCategory;
+    @ApiModelProperty("下注玩法")
+    private String betPlayType;
     @ApiModelProperty("下注号码")
     private String betCode;
     @ApiModelProperty("下注城市")
@@ -42,8 +46,8 @@ public class GameRecordVNCVo implements Serializable {
     private BigDecimal backWaterMoney;
     @ApiModelProperty("实付金额")
     private BigDecimal realMoney;
-    @ApiModelProperty("是否存在取消0未取消,1取消,2部分取消")
-    private Integer hasCanceled;
+    @ApiModelProperty("是否取消(0未取消,1已取消)")
+    private Boolean isCanceled;
     @ApiModelProperty("取消时间")
     private Date cancelTime;
     @ApiModelProperty("结算状态,0:未结算,1已结算(下注多个城市情况下,所有城市都结算才为结算)")

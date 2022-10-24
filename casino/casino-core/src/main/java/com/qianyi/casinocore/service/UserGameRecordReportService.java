@@ -60,6 +60,10 @@ public class UserGameRecordReportService {
         return userGameRecordReportRepository.findTotalBetNumberByAe(startTime,endTime);
     }
 
+    public Integer findTotalBetNumberByVnc(String startTime,String endTime){
+        return userGameRecordReportRepository.findTotalBetNumberByVnc(startTime,endTime);
+    }
+
     @Transactional
     public void comparison(String dayTime) {// dayTime为一天yyyy-MM-dd
         String startTime = dayTime + start;
@@ -67,10 +71,11 @@ public class UserGameRecordReportService {
         Integer betNumber = userGameRecordReportRepository.findBetNumber(dayTime, dayTime);
         Integer totalBetNumber = this.findTotalBetNumber(startTime, endTime);
         Integer totalBetNumberByAe = this.findTotalBetNumberByAe(startTime, endTime);
-        totalBetNumber = totalBetNumber + totalBetNumberByAe;
-        log.info("会员报表日期{} betNumber:{} totalBetNumber:{}", dayTime, betNumber, totalBetNumber);
+        Integer totalBetNumberByVnc = this.findTotalBetNumberByVnc(startTime, endTime);
+        totalBetNumber = totalBetNumber + totalBetNumberByAe + totalBetNumberByVnc;
+        log.info("代理报表日期{} betNumber:{} totalBetNumber:{} totalBetNumberByVnc:{}", dayTime, betNumber, totalBetNumber,totalBetNumberByVnc);
         if (betNumber.intValue() != totalBetNumber.intValue()) {
-            log.error("会员报表日期{}不相等开始重新计算betNumber:{}totalBetNumber:{}", dayTime, betNumber, totalBetNumber);
+            log.error("会员报表日期{}不相等开始重新计算betNumber:{}totalBetNumber:{} totalBetNumberByVnc:{", dayTime, betNumber, totalBetNumber,totalBetNumberByVnc);
             userGameRecordReportRepository.deleteByOrderTimes(dayTime);
 
             List<Map<String, Object>> wm = userGameRecordReportRepository.findWm(startTime, endTime);
@@ -99,6 +104,9 @@ public class UserGameRecordReportService {
 
             List<Map<String, Object>> AE = userGameRecordReportRepository.findAe(startTime, endTime);
             this.addData(AE, dayTime, Constants.PLATFORM_AE);
+
+            List<Map<String, Object>> VNC = userGameRecordReportRepository.findVnc(startTime, endTime);
+            this.addData(VNC, dayTime, Constants.PLATFORM_VNC);
         }
     }
 

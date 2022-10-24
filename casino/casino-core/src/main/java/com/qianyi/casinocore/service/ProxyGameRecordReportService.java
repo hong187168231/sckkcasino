@@ -60,6 +60,11 @@ public class ProxyGameRecordReportService {
         proxyGameRecordReportRepository.updateBet(gameRecordReportId,userId,orderTimes,validAmount,winLoss,firstProxy,secondProxy,thirdProxy,betAmount);
     }
 
+    @Transactional
+    public void updateKey(Long gameRecordReportId,Long userId,String orderTimes, BigDecimal validAmount,BigDecimal winLoss,Long firstProxy,Long secondProxy,Long thirdProxy,BigDecimal betAmount,Integer bettingNumber){
+        proxyGameRecordReportRepository.updateKey(gameRecordReportId,userId,orderTimes,validAmount,winLoss,firstProxy,secondProxy,thirdProxy,betAmount,bettingNumber);
+    }
+
     public Map<String, Object> findSumBetAndWinLossByFirst(String startTime,String endTime,Long firstProxy){
         return proxyGameRecordReportRepository.findSumBetAndWinLossByFirst(startTime,endTime,firstProxy);
     }
@@ -114,13 +119,14 @@ public class ProxyGameRecordReportService {
         Integer betNumber = proxyGameRecordReportRepository.findBetNumber(dayTime, dayTime);
         Integer totalBetNumber = userGameRecordReportService.findTotalBetNumber(startTime, endTime);
         Integer totalBetNumberByAe = userGameRecordReportService.findTotalBetNumberByAe(startTime, endTime);
-        totalBetNumber = totalBetNumber + totalBetNumberByAe;
-        log.info("代理报表日期{} betNumber:{} totalBetNumber:{}", dayTime, betNumber, totalBetNumber);
+        Integer totalBetNumberByVnc = userGameRecordReportService.findTotalBetNumberByVnc(startTime, endTime);
+        totalBetNumber = totalBetNumber + totalBetNumberByAe  + totalBetNumberByVnc;
+        log.info("代理报表日期{} betNumber:{} totalBetNumber:{} totalBetNumberByVnc:{}", dayTime, betNumber, totalBetNumber,totalBetNumberByVnc);
         if (betNumber.intValue() != totalBetNumber.intValue()) {
-            log.error("代理报表日期{}不相等开始重新计算betNumber:{}totalBetNumber:{}", dayTime, betNumber, totalBetNumber);
+            log.error("代理报表日期{}不相等开始重新计算betNumber:{}totalBetNumber:{} totalBetNumberByVnc:{}", dayTime, betNumber, totalBetNumber,totalBetNumberByVnc);
             proxyGameRecordReportRepository.deleteByOrderTimes(dayTime);
-            List<Map<String, Object>> totalMap = proxyGameRecordReportRepository.findTotal(startTime, endTime);
             try {
+                List<Map<String, Object>> totalMap = proxyGameRecordReportRepository.findTotal(startTime, endTime);
                 if (CollUtil.isNotEmpty(totalMap)) {
                     totalMap.forEach(map -> {
                         ProxyGameRecordReport proxyGameRecordReport = new ProxyGameRecordReport();
@@ -156,6 +162,36 @@ public class ProxyGameRecordReportService {
             } catch (Exception ex) {
                 log.error("代理报表计算失败日期{}", dayTime);
             }
+
+            try {
+                List<Map<String, Object>> vncMap = proxyGameRecordReportRepository.findVnc(startTime, endTime);
+                if (CollUtil.isNotEmpty(vncMap)) {
+                    vncMap.forEach(map -> {
+                        Long userId = Long.parseLong(map.get("user_id").toString());
+                        Long firstProxy = 0L;
+                        Long secondProxy = 0L;
+                        Long thirdProxy = 0L;
+                        if (Objects.nonNull(map.get("first_proxy")) && StringUtils.hasLength(map.get("first_proxy").toString())){
+                            firstProxy = Long.parseLong(map.get("first_proxy").toString());
+                        }
+                        if (Objects.nonNull(map.get("second_proxy")) && StringUtils.hasLength(map.get("second_proxy").toString())){
+                            secondProxy = Long.parseLong(map.get("second_proxy").toString());
+                        }
+                        if (Objects.nonNull(map.get("third_proxy")) && StringUtils.hasLength(map.get("third_proxy").toString())){
+                            thirdProxy = Long.parseLong(map.get("third_proxy").toString());
+                        }
+                        Integer bettingNumber = Integer.parseInt(map.get("num").toString());
+                        BigDecimal betAmount = new BigDecimal(map.get("bet_amount").toString());
+                        BigDecimal validAmount = new BigDecimal(map.get("validbet").toString());
+                        BigDecimal winLoss = new BigDecimal(map.get("win_loss").toString());
+                        Long proxyGameRecordReportId =  CommonUtil.toHash(dayTime+userId.toString());
+                        this.updateKey(proxyGameRecordReportId,userId,dayTime,validAmount,winLoss,firstProxy,secondProxy,thirdProxy,betAmount,bettingNumber);
+                    });
+                    vncMap.clear();
+                }
+            }catch (Exception ex){
+                log.error("代理报表计算VNC失败日期{}", dayTime);
+            }
         }
     }
 
@@ -186,6 +222,8 @@ public class ProxyGameRecordReportService {
             sql = MessageFormat.format(SqlSumConst.aeSumMergeSql, startTime, endTime);
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlSumConst.sabasportSumSql, startTime, endTime, "'SABASPORT'","'Payoff'","'Stake'","'cancelPayoff'");
+        } else if (platform.equals(Constants.PLATFORM_VNC)) {
+            sql = MessageFormat.format(SqlSumConst.vncSumMergeSql, startTime, endTime);
         } else {
             sql = MessageFormat.format(SqlSumConst.PGAndCQ9SumSql, startTime, endTime, "'CQ9'");
         }

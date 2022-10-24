@@ -58,6 +58,9 @@ public interface UserGameRecordReportRepository extends JpaRepository<UserGameRe
     @Query(value = "SELECT count( 1 ) num from game_record_ae g where g.tx_status = 1 and g.bet_time BETWEEN ?1 and ?2 ;",nativeQuery = true)
     Integer findTotalBetNumberByAe(String startTime,String endTime);
 
+    @Query(value = "SELECT count( 1 ) num from rpt_bet_info_detail g where  g.settle_time BETWEEN ?1 and ?2 ;",nativeQuery = true)
+    Integer findTotalBetNumberByVnc(String startTime,String endTime);
+
     @Query(value = "select user_id user_id, count(1) num,sum(bet) bet_amount,sum(validbet) validbet ,sum(win_loss) win_loss from "
         + "game_record gr where bet_time >= ?1 and bet_time <= ?2 group by user_id ;",nativeQuery = true)
     List<Map<String, Object>> findWm(String startTime,String endTime);
@@ -105,6 +108,11 @@ public interface UserGameRecordReportRepository extends JpaRepository<UserGameRe
     @Query(value = "select user_id user_id,count(1) num,sum(bet_amount) bet_amount,sum(turnover) validbet,sum(real_win_amount-real_bet_amount) win_loss from game_record_ae g "
         + "where g.tx_status = 1 and bet_time >= ?1 and bet_time <= ?2 group by user_id ;",nativeQuery = true)
     List<Map<String, Object>> findAe(String startTime,String endTime);
+
+    @Query(value = "SELECT user_id user_id,count(1) num,ifnull( sum( bet_money ), 0 ) bet_amount,ifnull( sum( real_money ), 0 ) validbet,"
+        + "ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss FROM rpt_bet_info_detail grv WHERE settle_time BETWEEN ?1 AND ?2 "
+        + "group by user_id ;",nativeQuery = true)
+    List<Map<String, Object>> findVnc(String startTime,String endTime);
 
     @Modifying
     @Query(value = "DELETE from user_game_record_report where platform = ?1 ;",nativeQuery = true)

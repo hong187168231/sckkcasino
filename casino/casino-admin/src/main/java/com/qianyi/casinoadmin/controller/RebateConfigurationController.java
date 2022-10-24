@@ -73,6 +73,9 @@ public class RebateConfigurationController {
         if (proxyWashCodeConfig.getAERate().compareTo(new BigDecimal(CommonConst.NUMBER_100)) > 0 || proxyWashCodeConfig.getAERate().compareTo(BigDecimal.ZERO) < 0){
             return ResponseUtil.custom("参数不合法");
         }
+        if (proxyWashCodeConfig.getVNCRate().compareTo(new BigDecimal(CommonConst.NUMBER_100)) > 0 || proxyWashCodeConfig.getVNCRate().compareTo(BigDecimal.ZERO) < 0){
+            return ResponseUtil.custom("参数不合法");
+        }
         RebateConfiguration byThirdProxy = rebateConfigurationService.findByUserIdAndType(0L, Constants.OVERALL_TYPE);
         if (!LoginUtil.checkNull(byThirdProxy)){
             proxyWashCodeConfig.setId(byThirdProxy.getId());
