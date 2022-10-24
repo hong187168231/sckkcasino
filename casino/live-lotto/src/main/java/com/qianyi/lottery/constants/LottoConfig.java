@@ -14,4 +14,8 @@ public class LottoConfig {
     private String apiUrl;
 
     private String currency;
+
+    private String passWord;
+
+    private String userId;
 }
