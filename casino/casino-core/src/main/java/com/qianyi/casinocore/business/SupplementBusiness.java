@@ -16,6 +16,7 @@ import com.qianyi.casinocore.vo.WmMemberTradeReportVo;
 import com.qianyi.liveae.api.PublicAeApi;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
 import com.qianyi.livewm.api.PublicWMApi;
+import com.qianyi.lottery.api.PublicLotteryApi;
 import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
