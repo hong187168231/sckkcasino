@@ -38,15 +38,17 @@ public class NoticeController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "title", value = "内容", required = true),
             @ApiImplicitParam(name = "enTitle", value = "英文内容", required = true),
+            @ApiImplicitParam(name = "khTitle", value = "柬语标题", required = true),
             @ApiImplicitParam(name = "isShelves", value = "是否上架 true false", required = true),
             @ApiImplicitParam(name = "url", value = "详情访问页", required = false),
             @ApiImplicitParam(name = "introduction", value = "简介", required = true),
             @ApiImplicitParam(name = "enIntroduction", value = "英文简介", required = true),
+            @ApiImplicitParam(name = "khIntroduction", value = "柬语简介", required = true),
             @ApiImplicitParam(name = "showType", value = "显示类型 0-所有 1-跑马灯 2-弹窗", required = true)
     })
-    public ResponseEntity<Notice> saveNotice(String title,String enTitle,Boolean isShelves,String introduction,String url,String enIntroduction,Integer showType){
+    public ResponseEntity<Notice> saveNotice(String title,String enTitle,String khTitle,Boolean isShelves,String introduction,String url,String enIntroduction,String khIntroduction,Integer showType){
         Notice notice = new Notice();
-        if (ObjectUtils.isEmpty(title) || ObjectUtils.isEmpty(enTitle) || ObjectUtils.isEmpty(introduction) || ObjectUtils.isEmpty(enIntroduction)) {
+        if (ObjectUtils.isEmpty(title) || ObjectUtils.isEmpty(enTitle) || ObjectUtils.isEmpty(introduction) || ObjectUtils.isEmpty(enIntroduction) || ObjectUtils.isEmpty(khTitle) || ObjectUtils.isEmpty(khIntroduction)) {
             return ResponseUtil.custom("必填项不允许为空");
         }
         notice.setTitle(title);
@@ -55,6 +57,8 @@ public class NoticeController {
         notice.setUrl(url);
         notice.setEnTitle(enTitle);
         notice.setEnIntroduction(enIntroduction);
+        notice.setKhTitle(khTitle);
+        notice.setKhIntroduction(khIntroduction);
         notice.setShowType(showType);
         return this.saveNotice(notice);
     }
@@ -92,14 +96,16 @@ public class NoticeController {
             @ApiImplicitParam(name = "id", value = "id主键", required = true),
             @ApiImplicitParam(name = "title", value = "内容", required = true),
             @ApiImplicitParam(name = "enTitle", value = "英文内容", required = true),
+            @ApiImplicitParam(name = "khTitle", value = "柬语标题", required = true),
             @ApiImplicitParam(name = "isShelves", value = "是否上架 true false", required = true),
             @ApiImplicitParam(name = "url", value = "详情访问页", required = false),
             @ApiImplicitParam(name = "introduction", value = "简介", required = true),
             @ApiImplicitParam(name = "enIntroduction", value = "英文简介", required = true),
+            @ApiImplicitParam(name = "khIntroduction", value = "柬语简介", required = true),
             @ApiImplicitParam(name = "showType", value = "显示类型 0-所有 1-跑马灯 2-弹窗", required = true)
     })
-    public ResponseEntity updateNotice(String title,String enTitle,Boolean isShelves,String introduction,String url,Long id,String enIntroduction,Integer showType){
-        if (ObjectUtils.isEmpty(title) || ObjectUtils.isEmpty(enTitle) || ObjectUtils.isEmpty(introduction) || ObjectUtils.isEmpty(showType)
+    public ResponseEntity updateNotice(String title,String enTitle,String khTitle,Boolean isShelves,String introduction,String url,Long id,String enIntroduction,String khIntroduction,Integer showType){
+        if (ObjectUtils.isEmpty(title) || ObjectUtils.isEmpty(enTitle) || ObjectUtils.isEmpty(introduction) || ObjectUtils.isEmpty(khTitle) || ObjectUtils.isEmpty(khIntroduction) || ObjectUtils.isEmpty(showType)
                 || ObjectUtils.isEmpty(enIntroduction)) {
             return ResponseUtil.custom("必填项不允许为空");
         }
@@ -113,6 +119,8 @@ public class NoticeController {
         notice.setTitle(title);
         notice.setEnTitle(enTitle);
         notice.setEnIntroduction(enIntroduction);
+        notice.setKhTitle(khTitle);
+        notice.setKhIntroduction(khIntroduction);
         notice.setShowType(showType);
         noticeService.saveNotice(notice);
         return ResponseUtil.success();

@@ -13,14 +13,20 @@ import javax.persistence.Entity;
 public class Notice extends BaseEntity {
     @ApiModelProperty("内容")
     private String title;
-    @ApiModelProperty("英文内容")
-    @Column(length = 1500)
-    private String enTitle;
     @ApiModelProperty("简介")
     private String introduction;
-    @ApiModelProperty("英文简介")
+    @ApiModelProperty("英文标题")
+    @Column(length = 1500)
+    private String enTitle;
+    @ApiModelProperty("英文内容")
     @Column(length = 1500)
     private String enIntroduction;
+    @ApiModelProperty("高棉语标题")
+    @Column(length = 1500)
+    private String khTitle;
+    @ApiModelProperty("高棉语内容")
+    @Column(length = 1500)
+    private String khIntroduction;
     @ApiModelProperty("详情访问页")
     private String url;
     @ApiModelProperty("是否上架")

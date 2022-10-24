@@ -148,6 +148,7 @@ public class Constants {
     public static final String LANGUAGE_CN= "zh-cn"; //中文
     public static final String LANGUAGE_EH= "eh"; //泰语
     public static final String LANGUAGE_EN= "en"; //英语
+    public static final String LANGUAGE_KH= "km_KH"; //高棉语
 
     public final static Integer OVERALL_TYPE = 0;//全局
     public final static Integer USER_TYPE = 1;//会员

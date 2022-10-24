@@ -48,10 +48,15 @@ public class NoticeController {
                 vo.setTitle(notice.getEnTitle());
                 vo.setIntroduction(notice.getEnIntroduction());
             }
+            if (Constants.LANGUAGE_KH.equals(language)) {
+                vo.setTitle(notice.getKhTitle());
+                vo.setIntroduction(notice.getKhIntroduction());
+            }
             voList.add(vo);
         }
         return ResponseUtil.success(voList);
     }
+
 
     @GetMapping("alertNotice")
     @ApiOperation("弹窗公告")
@@ -75,6 +80,10 @@ public class NoticeController {
             if (!Locale.CHINA.toString().equals(language)) {
                 vo.setTitle(notice.getEnTitle());
                 vo.setIntroduction(notice.getEnIntroduction());
+            }
+            if (Constants.LANGUAGE_KH.equals(language)) {
+                vo.setTitle(notice.getKhTitle());
+                vo.setIntroduction(notice.getKhIntroduction());
             }
             voList.add(vo);
         }
