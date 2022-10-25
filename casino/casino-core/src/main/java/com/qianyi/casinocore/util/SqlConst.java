@@ -2239,9 +2239,9 @@ public class SqlConst {
         SELECT
             user_id,
         count( DISTINCT sk.bet_id ) num,
-    SUM( sk.bet_amount ) bet_amount,
-    SUM( sk.bet_amount ) validbet,
-    sum( off.win_amount )- sum( sk.bet_amount ) win_loss
+    ifnull( SUM( sk.bet_amount ), 0 ) bet_amount,
+    ifnull( SUM( sk.bet_amount ), 0 ) validbet,
+    ifnull(sum(off.win_amount), 0 )-ifnull(sum( sk.bet_amount ), 0 )+ifnull(sum(t3.win_amount), 0 ) win_loss
     FROM
         (
             SELECT
@@ -2258,7 +2258,9 @@ public class SqlConst {
     GROUP BY
     t1.bet_id
 	) off
-    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {2} AND trans_type = {5} ) sk ON off.bet_id = sk.bet_id  GROUP BY user_id) goldenf_t on u.id = goldenf_t.user_id
+    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {2} AND trans_type = {5} ) sk ON off.bet_id = sk.bet_id
+    LEFT JOIN  ( SELECT SUM(win_amount) win_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {2} AND trans_type = {6}
+    GROUP BY bet_id) t3 ON off.bet_id = t3.bet_id GROUP BY user_id) goldenf_t on u.id = goldenf_t.user_id
     left join (
         select user_id ,
         sum(amount) wash_amount

@@ -653,7 +653,7 @@ public class UserService {
         } else if (platform.equals(Constants.PLATFORM_AE_E1SPORT)) {
             sql = MessageFormat.format(SqlConst.aeSumSql, startTime, endTime, "'E1SPORT'", proxy);
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
-            sql = MessageFormat.format(SqlConst.sabasportSumSql, startTime, endTime, "'SABASPORT'", proxy,"'Payoff'","'Stake'");
+            sql = MessageFormat.format(SqlConst.sabasportSumSql, startTime, endTime, "'SABASPORT'", proxy,"'Payoff'","'Stake'","'cancelPayoff'");
         } else {
             sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql, startTime, endTime, "'CQ9'", proxy);
         }
