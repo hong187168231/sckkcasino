@@ -9,9 +9,9 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
   datasource:
-#    url: jdbc:mysql://localhost:3306/casino?useUnicode=true&characterEncoding=utf-8
-#    username: root
-#    password: root
+    #    url: jdbc:mysql://localhost:3306/casino?useUnicode=true&characterEncoding=utf-8
+    #    username: root
+    #    password: root
     url: jdbc:mysql://167.179.15.36:6503/casino?useUnicode=true&characterEncoding=utf-8
     username: root
     password: Mysql_123
@@ -28,7 +28,7 @@ spring:
       connection-test-query: select 1
   redis:
     database: 0
-#    host: 154.204.57.237
+    #    host: 154.204.57.237
     host: 167.179.15.36
     port: 6504
     password: Redis_123P
@@ -101,7 +101,7 @@ project:   #不同环境需配置相应的值
       matchlimit: 5000     #該局總和下注限制matchlimit
   vnc: #越南彩
     apiUrl: http://lotterygateway.kk000.net/api-reception/gameApi/v2
-#    apiUrl: http://127.0.0.1:9900/api-reception/gameApi/v2
+    #    apiUrl: http://127.0.0.1:9900/api-reception/gameApi/v2
     platformId: 1
     merchantCode: kk-vnd
     aesKey: abc123456789abc
@@ -112,4 +112,5 @@ project:   #不同环境需配置相应的值
   telegramBot:  #定时器执行异常推送消息
     token: 5075415436:AAHw20_vMAaajpIlGjCtdoF-ONH2Pnqwdhs    #telegram机器人token
     chatId: -734299530
+
 
