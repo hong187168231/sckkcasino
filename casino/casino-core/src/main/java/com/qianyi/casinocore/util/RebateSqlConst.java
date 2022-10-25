@@ -2036,7 +2036,6 @@ public class RebateSqlConst {
 	) off
     LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {2} AND trans_type =  {4} ) sk ON off.bet_id = sk.bet_id
     LEFT JOIN ( SELECT SUM(win_amount) win_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {2} AND trans_type = {5} GROUP BY bet_id) t3 ON off.bet_id = t3.bet_id ) goldenf_t,
-    AND t3.trans_type = {5} ) goldenf_t,
         (select
     sum(total_amount) total_amount,
     sum(user_amount) user_amount,
