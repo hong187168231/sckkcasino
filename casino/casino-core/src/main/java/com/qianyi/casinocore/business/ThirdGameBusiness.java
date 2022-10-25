@@ -13,7 +13,6 @@ import com.qianyi.liveob.api.PublicObdjApi;
 import com.qianyi.liveob.api.PublicObtyApi;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.lottery.api.PublicLotteryApi;
-import com.qianyi.lottery.api.PublicLottoApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.executor.AsyncService;
 import com.qianyi.modulecommon.reponse.ResponseCode;
