@@ -12,9 +12,9 @@ spring:
     url: jdbc:mysql://167.179.15.36:6503/casino?useUnicode=true&characterEncoding=utf-8
     username: root
     password: Mysql_123
-#    url: jdbc:mysql://localhost:3306/casino?useUnicode=true&characterEncoding=utf-8
-#    username: root
-#    password: 123456
+    #    url: jdbc:mysql://localhost:3306/casino?useUnicode=true&characterEncoding=utf-8
+    #    username: root
+    #    password: 123456
     #    url: jdbc:mysql://154.204.57.237:3306/pay?useUnicode=true&characterEncoding=utf-8
     #    username: root
     #    password: aAbB1!2@
@@ -32,17 +32,17 @@ spring:
   redis:
     database: 0
     #    host: 154.204.57.237
-    host: 167.179.15.36
-    port: 6504
-    password: Redis_123P
+    host: localhost
+    port: 6379
+    password:
     timeout: 3000
   rabbitmq:
-    host: 167.179.15.36 #ip
-    port: 8672      #端口
-    username: qd #账号
-    password: qd123 #密码
+    host: 127.0.0.1 #ip
+    port: 5672      #端口
+    username: guest #账号
+    password: guest #密码
     publisher-returns: true
-    virtual-host: qd
+    virtual-host: /
     publisher-confirm-type: correlated
     listener:
       simple:

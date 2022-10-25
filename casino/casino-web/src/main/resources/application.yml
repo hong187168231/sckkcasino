@@ -99,6 +99,12 @@ project:   #不同环境需配置相应的值
       mindraw: 1      # TIE的最小及最大下注限制mindraw/maxdraw
       maxdraw: 500
       matchlimit: 5000     #該局總和下注限制matchlimit
+  lotto: #lott
+    apiurl: http://api.kk-lotto.com:8080
+    enterpriseId: 11
+    currency: CNY
+    passWord: kk@login
+    userId: kk
   vnc: #越南彩
     apiUrl: http://lotterygateway.kk000.net/api-reception/gameApi/v2
     #    apiUrl: http://127.0.0.1:9900/api-reception/gameApi/v2
