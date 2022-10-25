@@ -51,6 +51,8 @@ public class UserMoney extends BaseEntity{
     @ApiModelProperty("可提现余额")
     private BigDecimal withdrawMoney = BigDecimal.ZERO;
 
+    private Integer levelWater;
+
     //计算可提现金额
     public BigDecimal getWithdrawMoney(){
         BigDecimal defaultVal = BigDecimal.ZERO.setScale(2);

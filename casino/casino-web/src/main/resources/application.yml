@@ -106,13 +106,13 @@ project:   #不同环境需配置相应的值
     passWord: kk@login
     userId: kk
   vnc: #越南彩
-    apiUrl: http://lotterygateway.kk000.net/api-reception/gameApi/v2
+    apiUrl: https://lotterygateway.kk88821.net/api-reception/gameApi/v2
     #    apiUrl: http://127.0.0.1:9900/api-reception/gameApi/v2
     platformId: 1
-    merchantCode: kk-vnd
-    aesKey: abc123456789abc
-    md5Key: abc123456789abc
-    currency: VND
+    merchantCode: KKA02
+    aesKey: c20ad4d76fe97759aa27a0c99bff6710
+    md5Key: c20ad4d76fe97759aa27a0c99bff6710
+    currency: USD
   swagger:
     enable: true                           #是否开启swagger接口文档
   telegramBot:  #定时器执行异常推送消息
