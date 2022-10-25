@@ -170,6 +170,17 @@ public class AdGameInitialization implements CommandLineRunner {
             adGamesService.saveAll(adGameList);
 
         }
+
+
+        if(!collect.contains("VNC")) {
+            platforms.add(new PlatformGame("VNC", 2));
+            platformGameService.saveAll(platforms);
+            AdGame sv388 = new AdGame("VNC", "VNC", "越南彩", "KK VN Lottery", 1);
+            List<AdGame> adGameList = new ArrayList<>();
+            adGameList.add(sv388);
+            adGamesService.saveAll(adGameList);
+
+        }
     }
 
 }
