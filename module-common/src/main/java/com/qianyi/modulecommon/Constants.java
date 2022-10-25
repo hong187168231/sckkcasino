@@ -96,7 +96,6 @@ public class Constants {
     public final static String PLATFORM_AE_HORSEBOOK = "HORSEBOOK";
     public final static String PLATFORM_AE_SV388 = "SV388";
     public final static String PLATFORM_AE_E1SPORT = "E1SPORT";
-    public final static String PLATFORM_DMC = "DMC";
     public final static String PLATFORM_VNC = "VNC";
 
     public final static String[] PLATFORM_ARRAY = {PLATFORM_WM, PLATFORM_PG,
