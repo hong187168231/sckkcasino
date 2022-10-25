@@ -22,6 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -59,11 +60,17 @@ public class AddData implements CommandLineRunner {
 //        String startDay = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(startDate);
 //        String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(DateUtil.getYesterday());
 //        List<String> betweenDate = DateUtil.getBetweenDate(startDay, yesterday);
-//        for (String str:betweenDate){
-//            this.delete(str);
-//            userGameRecordReportService.comparison(str);
-//            proxyGameRecordReportService.comparison(str);
-//        }
+
+        List<String> betweenDate = new ArrayList<>();
+        betweenDate.add("2022-10-19");
+        betweenDate.add("2022-10-20");
+        betweenDate.add("2022-10-21");
+
+        for (String str:betweenDate){
+            this.delete(str);
+            userGameRecordReportService.comparison(str);
+            proxyGameRecordReportService.comparison(str);
+        }
         log.info("初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
 
 
