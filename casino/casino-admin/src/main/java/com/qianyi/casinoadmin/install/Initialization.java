@@ -127,8 +127,8 @@ public class Initialization implements CommandLineRunner {
             PlatformConfigV2 platformConfig = all.get(CommonConst.NUMBER_0);
             if(LoginUtil.checkNull(platformConfig.getChargeSwitch())){
                 platformConfig.setChargeSwitch(Constants.close);
+                platformConfigV2Service.save(platformConfig,"sys",Constants.CASINO_ADMIN);
             }
-            platformConfigV2Service.save(platformConfig,"sys",Constants.CASINO_ADMIN);
         }
     }
 
