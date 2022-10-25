@@ -80,11 +80,14 @@ public class User extends BaseEntity implements UserDetails {
     private Integer type;
     @ApiModelProperty("注册域名")
     private String registerDomainName;
+    @ApiModelProperty("会员等级")
+    private Integer level;
 
 
     @JsonIgnore
     @Transient
     private String token;
+
     //校验用户帐号权限
     public static boolean checkUser(User user) {
         if (user == null) {
@@ -140,8 +143,8 @@ public class User extends BaseEntity implements UserDetails {
         return true;
     }
 
-    public static boolean checkPhone(String phone){
-        if(ObjectUtils.isEmpty(phone)){
+    public static boolean checkPhone(String phone) {
+        if (ObjectUtils.isEmpty(phone)) {
             return false;
         }
         if (!phone.matches(RegexEnum.PHONE.getRegex())) {
@@ -150,7 +153,7 @@ public class User extends BaseEntity implements UserDetails {
         return true;
     }
 
-    public static User setBaseUser(String account,String password,String phone,String ip,String inviteCode){
+    public static User setBaseUser(String account, String password, String phone, String ip, String inviteCode) {
         User user = new User();
         user.setAccount(account);
         user.setPassword(password);
@@ -200,3 +203,4 @@ public class User extends BaseEntity implements UserDetails {
         return true;
     }
 }
+
