@@ -17,7 +17,7 @@ import java.util.Map;
 
 @Component
 @Slf4j
-@Order(10)
+@Order(11)
 public class ComputerGameRecordReportNew implements CommandLineRunner {
 
     public final static String start = " 12:00:00";
