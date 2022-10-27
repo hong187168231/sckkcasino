@@ -355,11 +355,11 @@ public class PlatformConfigController {
         first.setUploadUrl(uploadUrl);
         platformConfigService.save(first);
         //初始化银行卡图片
-        bankInfoService.deleteBankInfoAll();
-        initialization.saveBankInfo();
-        //初始化客服中心图标
-        customerConfigureService.deleteCustomerConfigureAll();
-        initialization.saveCustomerConfigureInfo();
+//        bankInfoService.deleteBankInfoAll();
+//        initialization.saveBankInfo();
+//        //初始化客服中心图标
+//        customerConfigureService.deleteCustomerConfigureAll();
+//        initialization.saveCustomerConfigureInfo();
         return ResponseUtil.success();
     }
 

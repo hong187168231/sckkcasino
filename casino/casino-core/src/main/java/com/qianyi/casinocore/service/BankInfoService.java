@@ -46,14 +46,14 @@ public class BankInfoService {
         return bankInfoRepository.save(bankInfo);
     }
 
-    @CacheEvict(key="#id")
-    public void deleteBankInfo(Long id){
-        bankInfoRepository.deleteById(id);
-    }
+//    @CacheEvict(key="#id")
+//    public void deleteBankInfo(Long id){
+//        bankInfoRepository.deleteById(id);
+//    }
 
-    public void deleteBankInfoAll(){
-        bankInfoRepository.deleteAllInBatch();
-    }
+//    public void deleteBankInfoAll(){
+//        bankInfoRepository.deleteAllInBatch();
+//    }
 
     @Cacheable(key = "#id")
     public BankInfo findById(Long id) {

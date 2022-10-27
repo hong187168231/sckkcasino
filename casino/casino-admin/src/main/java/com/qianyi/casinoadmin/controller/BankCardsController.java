@@ -169,19 +169,19 @@ public class BankCardsController {
      * @param id 银行id
      * @return
      */
-    @GetMapping("/deleteBankInfo")
-    @ApiOperation("删除银行")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "银行id", required = true),
-    })
-    public ResponseEntity deleteBankInfo(Long id) {
-        BankInfo bankInfo = bankInfoService.findById(id);
-        if (LoginUtil.checkNull(bankInfo)){
-            return ResponseUtil.custom("没有这个银行");
-        }
-        bankInfoService.deleteBankInfo(id);
-        return ResponseUtil.success();
-    }
+//    @GetMapping("/deleteBankInfo")
+//    @ApiOperation("删除银行")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "id", value = "银行id", required = true),
+//    })
+//    public ResponseEntity deleteBankInfo(Long id) {
+//        BankInfo bankInfo = bankInfoService.findById(id);
+//        if (LoginUtil.checkNull(bankInfo)){
+//            return ResponseUtil.custom("没有这个银行");
+//        }
+//        bankInfoService.deleteBankInfo(id);
+//        return ResponseUtil.success();
+//    }
 
     @GetMapping("/unboundBankName")
     @ApiOperation("解绑银行卡名称")
