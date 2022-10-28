@@ -17,12 +17,14 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -36,6 +38,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/picture")
 @Api(tags = "公告中心")
+@Slf4j
 public class PictureController {
     @Autowired
     private PictureService pictureService;
@@ -47,6 +50,7 @@ public class PictureController {
 
     private static List PCNo = new ArrayList();
     private static List AppNo = new ArrayList();
+
     static {
         PCNo.add(CommonConst.NUMBER_6);
         PCNo.add(CommonConst.NUMBER_7);
@@ -59,48 +63,50 @@ public class PictureController {
         AppNo.add(CommonConst.NUMBER_4);
         AppNo.add(CommonConst.NUMBER_5);
     }
+
     @ApiOperation("新增修改PC端轮播图")
-    @PostMapping(value = "/savePCPicture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增PC端轮播图")
-    public ResponseEntity savePCPicture(@RequestPart(value = "file", required = false) MultipartFile file,@RequestParam(value = "序号6-10") Integer no,
-                                        @RequestParam(value = "备注", required = false) String remark){
+    @PostMapping(value = "/savePCPicture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, name = "新增PC端轮播图")
+    public ResponseEntity savePCPicture(@RequestPart(value = "file", required = false) MultipartFile file,
+        @RequestParam(value = "序号6-10") Integer no, @RequestParam(value = "备注", required = false) String remark) {
         LunboPic lunboPic = new LunboPic();
-        lunboPic.setTheShowEnd(CommonConst.NUMBER_1);//PC端 1
-        if (!PCNo.contains(no)){
+        lunboPic.setTheShowEnd(CommonConst.NUMBER_1);// PC端 1
+        if (!PCNo.contains(no)) {
             return ResponseUtil.custom("序号只能设置6-10");
         }
-        return this.savePicture(file,no,lunboPic, remark);
+        return this.savePicture(file, no, lunboPic, remark);
     }
-
 
     @ApiOperation("新增修改移动端轮播图")
-    @PostMapping(value = "/saveAppPicture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE,name = "新增移动端轮播图")
-    public ResponseEntity saveAppPicture(@RequestPart(value = "file", required = false) MultipartFile file,@RequestParam(value = "序号1-5") Integer no,
-            @RequestParam(value = "备注", required = false) String remark){
+    @PostMapping(value = "/saveAppPicture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, name = "新增移动端轮播图")
+    public ResponseEntity saveAppPicture(@RequestPart(value = "file", required = false) MultipartFile file,
+        @RequestParam(value = "序号1-5") Integer no, @RequestParam(value = "备注", required = false) String remark) {
         LunboPic lunboPic = new LunboPic();
-        lunboPic.setTheShowEnd(CommonConst.NUMBER_2);//APP端 2
-        if (!AppNo.contains(no)){
+        lunboPic.setTheShowEnd(CommonConst.NUMBER_2);// APP端 2
+        if (!AppNo.contains(no)) {
             return ResponseUtil.custom("序号只能设置1-5");
         }
-        return this.savePicture(file,no,lunboPic, remark);
+        return this.savePicture(file, no, lunboPic, remark);
     }
-    public ResponseEntity savePicture(MultipartFile file,Integer no,LunboPic lunboPic, String remark){
+
+    public ResponseEntity savePicture(MultipartFile file, Integer no, LunboPic lunboPic, String remark) {
         LunboPic byNo = pictureService.findByNo(no);
-        if (!LoginUtil.checkNull(byNo)){
+        if (!LoginUtil.checkNull(byNo)) {
             lunboPic.setId(byNo.getId());
         }
         lunboPic.setNo(no);
         lunboPic.setRemark(remark + "");
         try {
-            if(file == null){
+            if (file == null) {
                 lunboPic.setUrl(null);
-            }else{
-                PlatformConfig platformConfig= platformConfigService.findFirst();
+            } else {
+                PlatformConfig platformConfig = platformConfigService.findFirst();
                 String uploadUrl = platformConfig.getUploadUrl();
-                if(uploadUrl==null) {
+                if (uploadUrl == null) {
                     return ResponseUtil.custom("请先配置图片服务器上传地址");
                 }
-                    String fileUrl = UploadAndDownloadUtil.fileUpload(file, uploadUrl);
-                    lunboPic.setUrl(fileUrl);
+                String fileUrl = UploadAndDownloadUtil.fileUpload(file, uploadUrl);
+                log.info("返回文件名:{}",fileUrl);
+                lunboPic.setUrl(fileUrl);
 
             }
         } catch (Exception e) {
@@ -110,26 +116,23 @@ public class PictureController {
         return ResponseUtil.success();
     }
 
-
     @ApiOperation("查找Banner")
     @GetMapping("/findByBannerList")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "theShowEnd", value = "1 web 2 app", required = false),
-    })
-    public ResponseEntity<LunboPic> findByBannerList(Integer theShowEnd){
+    @ApiImplicitParams({@ApiImplicitParam(name = "theShowEnd", value = "1 web 2 app", required = false),})
+    public ResponseEntity<LunboPic> findByBannerList(Integer theShowEnd) {
         Specification<LunboPic> condition = this.getCondition(theShowEnd);
-        Sort sort=Sort.by("id").ascending();
+        Sort sort = Sort.by("id").ascending();
         List<LunboPic> byLunboPicList = pictureService.findByLunboPicList(condition, sort);
-        if(byLunboPicList!=null){
-            PlatformConfig platformConfig= platformConfigService.findFirst();
+        if (byLunboPicList != null) {
+            PlatformConfig platformConfig = platformConfigService.findFirst();
             String uploadUrl = platformConfig.getReadUploadUrl();
-            if(uploadUrl==null) {
+            if (uploadUrl == null) {
                 return ResponseUtil.custom("请先配置图片服务器访问地址");
             }
-            byLunboPicList.forEach(byLunboPicInfo ->{
-                if (byLunboPicInfo.getUrl()!=null && uploadUrl!=null){
-                    byLunboPicInfo.setUrl(uploadUrl+byLunboPicInfo.getUrl());
-                }else {
+            byLunboPicList.forEach(byLunboPicInfo -> {
+                if (byLunboPicInfo.getUrl() != null && uploadUrl != null) {
+                    byLunboPicInfo.setUrl(uploadUrl + byLunboPicInfo.getUrl());
+                } else {
                     byLunboPicInfo.setUrl(null);
                 }
             });
@@ -140,6 +143,7 @@ public class PictureController {
     private Specification<LunboPic> getCondition(Integer theShowEnd) {
         Specification<LunboPic> specification = new Specification<LunboPic>() {
             List<Predicate> list = new ArrayList<Predicate>();
+
             @Override
             public Predicate toPredicate(Root<LunboPic> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 if (theShowEnd != null) {
