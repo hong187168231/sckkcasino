@@ -66,6 +66,9 @@ public class MyAuthenticationFilter extends OncePerRequestFilter {
 //                log.info("userid is {}",userId);
                 if(userId !=null){
                     SysUser sysUser = sysUserService.findById(userId);
+                    if (LoginUtil.checkNull(sysUser)){
+                        log.error("找不到改管理员:{}",userId);
+                    }
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(sysUser, null, sysUser.getAuthorities());
                     // 全局注入角色权限信息和登录用户基本信息
                     SecurityContextHolder.getContext().setAuthentication(authentication);
