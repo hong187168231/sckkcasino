@@ -30,4 +30,8 @@ public interface WithdrawOrderRepository extends JpaRepository<WithdrawOrder,Lon
     @Modifying
     @Query(value = "update withdraw_order w set w.audit_id = ?1 where  w.audit_id is null ",nativeQuery = true)
     void updateWithdrawOrderAuditId(Long auditId);
+
+    @Modifying
+    @Query(value = "update withdraw_order w set w.withdraw_time = w.audit_time where w.`status` = 4 and w.withdraw_time is null ",nativeQuery = true)
+    void updateWithdrawOrderWithdrawTime();
 }

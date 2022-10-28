@@ -415,4 +415,9 @@ public class WithdrawOrderService {
     public void updateWithdrawOrderAuditId(Long auditId){
         withdrawOrderRepository.updateWithdrawOrderAuditId(auditId);
     }
+
+    @Transactional
+    public void updateWithdrawOrderWithdrawTime(){
+        withdrawOrderRepository.updateWithdrawOrderWithdrawTime();
+    }
 }
