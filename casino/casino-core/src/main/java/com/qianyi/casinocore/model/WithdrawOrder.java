@@ -6,6 +6,7 @@ import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -85,6 +86,7 @@ public class WithdrawOrder extends BaseEntity {
 
     @ApiModelProperty("出款时间")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @CreatedDate
     private Date withdrawTime;
 
     public WithdrawOrder(){

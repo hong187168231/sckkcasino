@@ -30,4 +30,8 @@ public interface ChargeOrderRepository extends JpaRepository<ChargeOrder,Long>, 
     @Modifying(clearAutomatically = true)
     @Query("update ChargeOrder c set c.remark=?2,c.lastModifier=?3,c.status=?4,c.betRate=?5,c.updateTime=?6 where c.id=?1")
     void updateChargeOrder(Long id, String remark,String lastModifier,Integer status,BigDecimal betRate,Date updateTime);
+
+    @Modifying
+    @Query(value = "update charge_order w set w.succeed_time = w.update_time where w.succeed_time is null ",nativeQuery = true)
+    void updateChargeOrderSucceedTime();
 }

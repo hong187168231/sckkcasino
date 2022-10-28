@@ -1386,6 +1386,7 @@ public class UserController {
         chargeOrder.setChargeAmount(money);
         chargeOrder.setLastModifier(lastModifier);
         chargeOrder.setType(user.getType());
+        chargeOrder.setSucceedTime(new Date());
         Boolean aBoolean = platformConfigService.queryTotalPlatformQuota();
         if (!aBoolean){
             return ResponseUtil.custom("上分失败,平台额度不足");

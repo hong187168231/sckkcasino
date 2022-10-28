@@ -1,19 +1,21 @@
 package com.qianyi.casinocore.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 @Entity
 @ApiModel("充值订单")
+@Table(indexes = {@Index(columnList = "userId"),@Index(columnList = "succeedTime"),@Index(columnList = "status")})
 public class ChargeOrder extends BaseEntity{
 
     @ApiModelProperty(value = "用户ID")
@@ -76,6 +78,11 @@ public class ChargeOrder extends BaseEntity{
 
     @ApiModelProperty("会员类型:0、公司会员，1、渠道会员")
     private Integer type;
+
+    @ApiModelProperty("成功时间")
+    @CreatedDate
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date succeedTime;
 
     public ChargeOrder(){
     }

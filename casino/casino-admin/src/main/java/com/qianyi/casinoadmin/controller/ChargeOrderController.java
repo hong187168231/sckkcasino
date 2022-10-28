@@ -89,11 +89,12 @@ public class ChargeOrderController {
         @ApiImplicitParam(name = "type", value = "会员类型:0、公司会员，1、渠道会员 2、官方会员", required = false),
         @ApiImplicitParam(name = "startDate", value = "起始时间", required = false),
         @ApiImplicitParam(name = "endDate", value = "结束时间", required = false),
+        @ApiImplicitParam(name = "tag", value = "tag 1(创建订单时间) 2（出款时间）", required = false),
     })
     @NoAuthorization
     @GetMapping("/chargeOrderList")
     public ResponseEntity<ChargeOrderVo> chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String orderNo,
-        String account,Integer type,
+        String account,Integer type,Integer tag,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         Sort sort = Sort.by("id").descending();
@@ -107,11 +108,14 @@ public class ChargeOrderController {
             }
             userId = user.getId();
         }
+        if (LoginUtil.checkNull(tag)){
+            tag = CommonConst.NUMBER_1;
+        }
         order.setUserId(userId);
         order.setStatus(status);
         order.setOrderNo(orderNo);
         order.setType(type);
-        Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(order, pageable,startDate,endDate);
+        Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(order, pageable,startDate,endDate,tag);
         PageResultVO<ChargeOrderVo> pageResultVO =new PageResultVO(chargeOrderPage);
         List<ChargeOrder> content = chargeOrderPage.getContent();
         if(content != null && content.size() > 0){
@@ -269,11 +273,12 @@ public class ChargeOrderController {
         @ApiImplicitParam(name = "type", value = "会员类型:0、公司会员，1、渠道会员 2、官方会员", required = false),
         @ApiImplicitParam(name = "startDate", value = "起始时间", required = false),
         @ApiImplicitParam(name = "endDate", value = "结束时间", required = false),
+        @ApiImplicitParam(name = "tag", value = "tag 1(创建订单时间) 2（出款时间）", required = false),
     })
     @GetMapping("/findChargeOrderSum")
     @NoAuthentication
     public ResponseEntity<ChargeOrderVo> findChargeOrderSum(Integer status, String orderNo,
-        String account,Integer type,
+        String account,Integer type,Integer tag,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         ChargeOrder order = new ChargeOrder();
@@ -287,11 +292,14 @@ public class ChargeOrderController {
             }
             userId = user.getId();
         }
+        if (LoginUtil.checkNull(tag)){
+            tag = CommonConst.NUMBER_1;
+        }
         order.setUserId(userId);
         order.setStatus(status);
         order.setOrderNo(orderNo);
         order.setType(type);
-        ChargeOrder chargeOrder = chargeOrderService.findChargeOrderSum(order,startDate,endDate);
+        ChargeOrder chargeOrder = chargeOrderService.findChargeOrderSum(order,startDate,endDate,tag);
         ChargeOrderVo vo = new ChargeOrderVo();
         vo.setChargeAmount(chargeOrder==null?BigDecimal.ZERO:chargeOrder.getChargeAmount());
         return ResponseUtil.success(vo);

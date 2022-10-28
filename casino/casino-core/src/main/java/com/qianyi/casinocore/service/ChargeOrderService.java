@@ -3,6 +3,7 @@ package com.qianyi.casinocore.service;
 import com.qianyi.casinocore.co.charge.ChargeOrderCo;
 import com.qianyi.casinocore.model.ChargeOrder;
 import com.qianyi.casinocore.repository.ChargeOrderRepository;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -39,8 +40,8 @@ public class ChargeOrderService {
         return chargeOrderRepository.save(entity);
     }
 
-    public Page<ChargeOrder> findChargeOrderPage(ChargeOrder chargeOrder, Pageable pageable,Date startDate,Date endDate){
-        Specification<ChargeOrder> condition = getCondition(chargeOrder,startDate,endDate);
+    public Page<ChargeOrder> findChargeOrderPage(ChargeOrder chargeOrder, Pageable pageable,Date startDate,Date endDate,Integer tag){
+        Specification<ChargeOrder> condition = getCondition(chargeOrder,startDate,endDate,tag);
         return chargeOrderRepository.findAll(condition,pageable);
     }
 
@@ -71,10 +72,10 @@ public class ChargeOrderService {
                 )
             );
             if (co.getStartDate() != null) {
-                list.add(cb.greaterThanOrEqualTo(root.get("updateTime").as(Date.class), co.getStartDate()));
+                list.add(cb.greaterThanOrEqualTo(root.get("succeedTime").as(Date.class), co.getStartDate()));
             }
             if (co.getEndDate() != null) {
-                list.add(cb.lessThanOrEqualTo(root.get("updateTime").as(Date.class), co.getEndDate()));
+                list.add(cb.lessThanOrEqualTo(root.get("succeedTime").as(Date.class), co.getEndDate()));
             }
 
             if (co.getFirstProxy() != null) {
@@ -196,7 +197,7 @@ public class ChargeOrderService {
      * @param
      * @return
      */
-    private Specification<ChargeOrder> getCondition(ChargeOrder chargeOrder,Date startDate,Date endDate) {
+    private Specification<ChargeOrder> getCondition(ChargeOrder chargeOrder,Date startDate,Date endDate,Integer tag) {
         Specification<ChargeOrder> specification = new Specification<ChargeOrder>() {
             @Override
             public Predicate toPredicate(Root<ChargeOrder> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -223,11 +224,21 @@ public class ChargeOrderService {
                 if (chargeOrder.getThirdProxy() != null) {
                     list.add(cb.equal(root.get("thirdProxy").as(Long.class), chargeOrder.getThirdProxy()));
                 }
-                if (startDate != null) {
-                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
-                }
-                if (endDate != null) {
-                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
+
+                if (tag.intValue() == CommonConst.NUMBER_1){
+                    if (startDate != null) {
+                        list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+                    }
+                    if (endDate != null) {
+                        list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
+                    }
+                }else {
+                    if (startDate != null) {
+                        list.add(cb.greaterThanOrEqualTo(root.get("succeedTime").as(Date.class), startDate));
+                    }
+                    if (endDate != null) {
+                        list.add(cb.lessThanOrEqualTo(root.get("succeedTime").as(Date.class),endDate));
+                    }
                 }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));
 
@@ -237,7 +248,7 @@ public class ChargeOrderService {
         return specification;
     }
 
-    public  ChargeOrder  findChargeOrderSum(ChargeOrder chargeOrder,Date startDate,Date endDatee) {
+    public  ChargeOrder  findChargeOrderSum(ChargeOrder chargeOrder,Date startDate,Date endDate,Integer tag) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<ChargeOrder> query = builder.createQuery(ChargeOrder.class);
         Root<ChargeOrder> root = query.from(ChargeOrder.class);
@@ -282,11 +293,21 @@ public class ChargeOrderService {
                 builder.equal(root.get("thirdProxy").as(Long.class), chargeOrder.getThirdProxy())
             );
         }
-        if (startDate != null) {
-            predicates.add(builder.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
-        }
-        if (endDatee != null) {
-            predicates.add(builder.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDatee));
+
+        if (tag.intValue() == CommonConst.NUMBER_1){
+            if (startDate != null) {
+                predicates.add(builder.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+            }
+            if (endDate != null) {
+                predicates.add(builder.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
+            }
+        }else {
+            if (startDate != null) {
+                predicates.add(builder.greaterThanOrEqualTo(root.get("succeedTime").as(Date.class), startDate));
+            }
+            if (endDate != null) {
+                predicates.add(builder.lessThanOrEqualTo(root.get("succeedTime").as(Date.class),endDate));
+            }
         }
         query
             .where(predicates.toArray(new Predicate[predicates.size()]));
@@ -367,6 +388,11 @@ public class ChargeOrderService {
         criteriaQuery.where(predicates.toArray(new Predicate[predicates.size()]));
         List<ChargeOrder> counts = entityManager.createQuery(criteriaQuery).getResultList();
         return counts;
+    }
+
+    @Transactional
+    public void updateChargeOrderSucceedTime(){
+        chargeOrderRepository.updateChargeOrderSucceedTime();
     }
 
 }

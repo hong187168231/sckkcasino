@@ -71,10 +71,11 @@ public class WithdrawOrderController {
             @ApiImplicitParam(name = "bankName", value = "银行名称", required = false),
             @ApiImplicitParam(name = "startDate", value = "起始时间", required = false),
             @ApiImplicitParam(name = "endDate", value = "结束时间", required = false),
+            @ApiImplicitParam(name = "tag", value = "tag 1(创建订单时间) 2（出款时间）", required = false),
     })
     @GetMapping("/withdrawList")
     public ResponseEntity<WithdrawOrderVo> withdrawList(Integer pageSize,Integer pageCode, Integer status, String account,
-        String no, String bankId,String realName,String bankName,
+        String no, String bankId,String realName,String bankName,Integer tag,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         WithdrawOrder withdrawOrder = new WithdrawOrder();
@@ -114,9 +115,12 @@ public class WithdrawOrderController {
                 bankcardIds.retainAll(bankcardList.stream().map(Bankcards::getId).collect(Collectors.toList()));
             }
         }
+        if (CasinoProxyUtil.checkNull(tag)){
+            tag = CommonConst.NUMBER_1;
+        }
         Sort sort=Sort.by("id").descending();
         Pageable pageable = CasinoProxyUtil.setPageable(pageCode, pageSize, sort);
-        Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, withdrawOrder,startDate,endDate,bankcardIds);
+        Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, withdrawOrder,startDate,endDate,bankcardIds,tag);
         PageResultVO<WithdrawOrderVo> pageResultVO = new PageResultVO(withdrawOrderPage);
         List<WithdrawOrder> content = withdrawOrderPage.getContent();
         if(content != null && content.size() > 0){
@@ -215,9 +219,11 @@ public class WithdrawOrderController {
         @ApiImplicitParam(name = "bankId", value = "银行卡Id", required = false),
         @ApiImplicitParam(name = "account", value = "用户账号", required = false),
         @ApiImplicitParam(name = "type", value = "会员类型:0、公司会员，1、渠道会员", required = false),
+        @ApiImplicitParam(name = "tag", value = "tag 1(创建订单时间) 2（出款时间）", required = false),
     })
     @GetMapping("/findWithdrawOrderSum")
     public ResponseEntity<WithdrawOrderVo> findWithdrawOrderSum(Integer status, String account,String no, String bankId,Integer type,
+        Integer tag,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         WithdrawOrder withdrawOrder = new WithdrawOrder();
@@ -235,11 +241,14 @@ public class WithdrawOrderController {
             }
             withdrawOrder.setUserId(user.getId());
         }
+        if (CasinoProxyUtil.checkNull(tag)){
+            tag = CommonConst.NUMBER_1;
+        }
         withdrawOrder.setStatus(status);
         withdrawOrder.setNo(no);
         withdrawOrder.setBankId(bankId);
         withdrawOrder.setType(type);
-        WithdrawOrder withdrawOrder1 = withdrawOrderService.findWithdrawOrderSum(withdrawOrder,startDate,endDate);
+        WithdrawOrder withdrawOrder1 = withdrawOrderService.findWithdrawOrderSum(withdrawOrder,startDate,endDate,tag);
         WithdrawOrderVo vo = new WithdrawOrderVo();
         if (CasinoProxyUtil.checkNull(withdrawOrder1)){
             vo.setPracticalAmount(BigDecimal.ZERO);

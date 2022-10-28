@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.install;
 
 import com.qianyi.casinocore.model.GameRecordEndIndex;
+import com.qianyi.casinocore.service.ChargeOrderService;
 import com.qianyi.casinocore.service.GameRecordEndIndexService;
 import com.qianyi.casinocore.service.GameRecordReportNewService;
 import com.qianyi.casinocore.service.WithdrawOrderService;
@@ -24,6 +25,9 @@ public class SqlInitialize  implements CommandLineRunner {
     @Autowired
     private WithdrawOrderService withdrawOrderService;
 
+    @Autowired
+    private ChargeOrderService chargeOrderService;
+
     @Override
     public void run(String... args) throws Exception {
 //        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
@@ -32,5 +36,7 @@ public class SqlInitialize  implements CommandLineRunner {
 //        gameRecordReportNewService.deleteByPlatform(Constants.PLATFORM_SABASPORT);
 //        gameRecordReportNewService.saveGameRecordReportSABASPORT();
         withdrawOrderService.updateWithdrawOrderWithdrawTime();
+
+        chargeOrderService.updateChargeOrderSucceedTime();
     }
 }

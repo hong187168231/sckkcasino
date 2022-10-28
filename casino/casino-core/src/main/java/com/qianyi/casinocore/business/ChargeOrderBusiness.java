@@ -137,6 +137,7 @@ public class ChargeOrderBusiness {
         BigDecimal codeTimes =
             chargeOrder.getBetRate() == null ? new BigDecimal(CommonConst.NUMBER_2) : chargeOrder.getBetRate();
         chargeOrder.setStatus(status);
+        chargeOrder.setSucceedTime(new Date());
         chargeOrder.setBetRate(codeTimes);
         if (tag) {
             chargeOrderService.updateChargeOrder(chargeOrder.getId(), chargeOrder.getRemark(),

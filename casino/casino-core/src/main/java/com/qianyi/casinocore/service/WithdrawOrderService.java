@@ -4,6 +4,7 @@ import com.qianyi.casinocore.co.withdrwa.WithdrawOrderCo;
 import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.model.WithdrawOrder;
 import com.qianyi.casinocore.repository.WithdrawOrderRepository;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -62,8 +63,8 @@ public class WithdrawOrderService {
         return withdrawOrderRepository.findAll(condition, pageable);
     }
 
-    public Page<WithdrawOrder> findUserPage(Pageable pageable, WithdrawOrder withdrawOrder,Date startDate,Date endDate,List<Long> ids) {
-        Specification<WithdrawOrder> condition = this.getCondition(withdrawOrder,startDate,endDate,ids);
+    public Page<WithdrawOrder> findUserPage(Pageable pageable, WithdrawOrder withdrawOrder,Date startDate,Date endDate,List<Long> ids,Integer tag) {
+        Specification<WithdrawOrder> condition = this.getCondition(withdrawOrder,startDate,endDate,ids,tag);
         return withdrawOrderRepository.findAll(condition, pageable);
     }
     //    public List<WithdrawOrder> findListByUpdate( WithdrawOrder withdrawOrder,Date startDate,Date endDate) {
@@ -89,10 +90,10 @@ public class WithdrawOrderService {
                 )
             );
             if (co.getStartDate() != null) {
-                list.add(cb.greaterThanOrEqualTo(root.get("updateTime").as(Date.class), co.getStartDate()));
+                list.add(cb.greaterThanOrEqualTo(root.get("withdrawTime").as(Date.class), co.getStartDate()));
             }
             if (co.getEndDate() != null) {
-                list.add(cb.lessThanOrEqualTo(root.get("updateTime").as(Date.class), co.getEndDate()));
+                list.add(cb.lessThanOrEqualTo(root.get("withdrawTime").as(Date.class), co.getEndDate()));
             }
 
             if (co.getFirstProxy() != null) {
@@ -153,7 +154,7 @@ public class WithdrawOrderService {
     //        return specification;
     //    }
 
-    private Specification<WithdrawOrder> getCondition(WithdrawOrder withdrawOrder,Date startDate,Date endDate,List<Long> ids) {
+    private Specification<WithdrawOrder> getCondition(WithdrawOrder withdrawOrder,Date startDate,Date endDate,List<Long> ids,Integer tag) {
         Specification<WithdrawOrder> specification = new Specification<WithdrawOrder>() {
             List<Predicate> list = new ArrayList<Predicate>();
             @Override
@@ -189,11 +190,20 @@ public class WithdrawOrderService {
                 if (withdrawOrder.getThirdProxy() != null) {
                     list.add(cb.equal(root.get("thirdProxy").as(Long.class), withdrawOrder.getThirdProxy()));
                 }
-                if (startDate != null) {
-                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
-                }
-                if (endDate != null) {
-                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
+                if (tag.intValue() == CommonConst.NUMBER_1){
+                    if (startDate != null) {
+                        list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+                    }
+                    if (endDate != null) {
+                        list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
+                    }
+                }else {
+                    if (startDate != null) {
+                        list.add(cb.greaterThanOrEqualTo(root.get("withdrawTime").as(Date.class), startDate));
+                    }
+                    if (endDate != null) {
+                        list.add(cb.lessThanOrEqualTo(root.get("withdrawTime").as(Date.class),endDate));
+                    }
                 }
                 return cb.and(list.toArray(new Predicate[list.size()]));
             }
@@ -295,7 +305,7 @@ public class WithdrawOrderService {
     }
 
 
-    public  WithdrawOrder  findWithdrawOrderSum(WithdrawOrder withdrawOrder,Date startDate,Date endDatee) {
+    public  WithdrawOrder  findWithdrawOrderSum(WithdrawOrder withdrawOrder,Date startDate,Date endDate,Integer tag) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<WithdrawOrder> query = builder.createQuery(WithdrawOrder.class);
         Root<WithdrawOrder> root = query.from(WithdrawOrder.class);
@@ -347,11 +357,21 @@ public class WithdrawOrderService {
                 builder.equal(root.get("thirdProxy").as(Long.class), withdrawOrder.getThirdProxy())
             );
         }
-        if (startDate != null) {
-            predicates.add(builder.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
-        }
-        if (endDatee != null) {
-            predicates.add(builder.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDatee));
+
+        if (tag.intValue() == CommonConst.NUMBER_1){
+            if (startDate != null) {
+                predicates.add(builder.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+            }
+            if (endDate != null) {
+                predicates.add(builder.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
+            }
+        }else {
+            if (startDate != null) {
+                predicates.add(builder.greaterThanOrEqualTo(root.get("withdrawTime").as(Date.class), startDate));
+            }
+            if (endDate != null) {
+                predicates.add(builder.lessThanOrEqualTo(root.get("withdrawTime").as(Date.class),endDate));
+            }
         }
         query
             .where(predicates.toArray(new Predicate[predicates.size()]));
