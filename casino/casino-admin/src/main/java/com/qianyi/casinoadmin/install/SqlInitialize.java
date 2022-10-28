@@ -38,5 +38,7 @@ public class SqlInitialize  implements CommandLineRunner {
         withdrawOrderService.updateWithdrawOrderWithdrawTime();
 
         chargeOrderService.updateChargeOrderSucceedTime();
+
+        withdrawOrderService.updateWithdrawWithdrawTime();
     }
 }

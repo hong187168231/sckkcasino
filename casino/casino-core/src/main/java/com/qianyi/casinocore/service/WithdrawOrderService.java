@@ -440,4 +440,9 @@ public class WithdrawOrderService {
     public void updateWithdrawOrderWithdrawTime(){
         withdrawOrderRepository.updateWithdrawOrderWithdrawTime();
     }
+
+    @Transactional
+    public void updateWithdrawWithdrawTime(){
+        withdrawOrderRepository.updateWithdrawWithdrawTime();
+    }
 }
