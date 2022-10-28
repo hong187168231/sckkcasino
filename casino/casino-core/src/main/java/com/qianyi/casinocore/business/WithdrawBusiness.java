@@ -395,6 +395,7 @@ public class WithdrawBusiness {
         //        withdrawOrder.setLastModifier(lastModifier);
         withdrawOrder.setAuditId(auditId);
         withdrawOrder.setAuditTime(new Date());
+        withdrawOrder.setWithdrawTime(new Date());
         withdrawOrder.setType(user.getType());
         withdrawOrder.setRemitType(CommonConst.NUMBER_4);
         withdrawOrderService.saveOrder(withdrawOrder);
