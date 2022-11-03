@@ -68,7 +68,6 @@ public class AccountChangeService {
                 if (endDate != null) {
                     list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
                 }
-                predicate = cb.and(list.toArray(new Predicate[list.size()]));
                 if(types != null && types.length > CommonConst.NUMBER_0) {
                     CriteriaBuilder.In<Object> in = cb.in(root.get("type"));
                     for (String id : types) {
@@ -76,6 +75,7 @@ public class AccountChangeService {
                     }
                     list.add(cb.and(cb.and(in)));
                 }
+                predicate = cb.and(list.toArray(new Predicate[list.size()]));
                 return predicate;
             }
         };
