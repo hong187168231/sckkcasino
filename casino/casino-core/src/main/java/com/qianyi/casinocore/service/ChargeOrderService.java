@@ -63,14 +63,12 @@ public class ChargeOrderService {
         Specification<ChargeOrder> condition = (root, q, cb) -> {
             Predicate predicate = cb.conjunction();
             List<Predicate> list = new ArrayList<>();
-            list.add(
-                cb.or(
-                    // 1.成功
-                    cb.equal(root.get("status").as(Integer.class), 1),
-                    // 4.总控上分
-                    cb.equal(root.get("status").as(Integer.class), 4)
-                )
-            );
+
+            CriteriaBuilder.In<Object> in = cb.in(root.get("status"));
+            for (Integer id : statusList) {
+                in.value(id);
+            }
+            list.add(cb.and(cb.and(in)));
             if (co.getStartDate() != null) {
                 list.add(cb.greaterThanOrEqualTo(root.get("succeedTime").as(Date.class), co.getStartDate()));
             }
@@ -348,16 +346,17 @@ public class ChargeOrderService {
             );
         }
         if (startDate != null) {
-            predicates.add(builder.greaterThanOrEqualTo(root.get("updateTime").as(Date.class), startDate));
+            predicates.add(builder.greaterThanOrEqualTo(root.get("succeedTime").as(Date.class), startDate));
         }
         if (endDatee != null) {
-            predicates.add(builder.lessThanOrEqualTo(root.get("updateTime").as(Date.class),endDatee));
+            predicates.add(builder.lessThanOrEqualTo(root.get("succeedTime").as(Date.class),endDatee));
         }
         query
             .where(predicates.toArray(new Predicate[predicates.size()]));
         ChargeOrder singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
     }
+
     public BigDecimal sumChargeAmount(){
         return chargeOrderRepository.sumChargeAmount();
     }

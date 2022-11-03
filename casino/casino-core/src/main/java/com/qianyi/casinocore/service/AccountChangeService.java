@@ -70,13 +70,11 @@ public class AccountChangeService {
                 }
                 predicate = cb.and(list.toArray(new Predicate[list.size()]));
                 if(types != null && types.length > CommonConst.NUMBER_0) {
-                    List<Predicate> listOr = new ArrayList<>();///组装or语句
-                    for (String type : types) {
-                        //爱好多选 用OR链接
-                        listOr.add(cb.equal(root.get("type"), type));
+                    CriteriaBuilder.In<Object> in = cb.in(root.get("type"));
+                    for (String id : types) {
+                        in.value(Integer.parseInt(id));
                     }
-                    Predicate predicateOR = cb.or(listOr.toArray(new Predicate[listOr.size()]));
-                    predicate = criteriaQuery.where(predicate,predicateOR).getRestriction();
+                    list.add(cb.and(cb.and(in)));
                 }
                 return predicate;
             }

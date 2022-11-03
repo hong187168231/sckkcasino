@@ -36,6 +36,13 @@ public class WithdrawOrderService {
     @PersistenceContext
     private EntityManager entityManager;
 
+    public static final List<Integer> statusList = new ArrayList<>();
+
+    static {
+        statusList.add(1);
+        statusList.add(4);
+    }
+
     public WithdrawOrder saveOrder(WithdrawOrder entity){
         return withdrawOrderRepository.save(entity);
     }
@@ -81,14 +88,12 @@ public class WithdrawOrderService {
         Specification<WithdrawOrder> condition = (root, q, cb) -> {
             Predicate predicate = cb.conjunction();
             List<Predicate> list = new ArrayList<>();
-            list.add(
-                cb.or(
-                    // 1：通过
-                    cb.equal(root.get("status").as(Integer.class), 1),
-                    // 4.总控下分
-                    cb.equal(root.get("status").as(Integer.class), 4)
-                )
-            );
+
+            CriteriaBuilder.In<Object> in = cb.in(root.get("status"));
+            for (Integer id : statusList) {
+                in.value(id);
+            }
+            list.add(cb.and(cb.and(in)));
             if (co.getStartDate() != null) {
                 list.add(cb.greaterThanOrEqualTo(root.get("withdrawTime").as(Date.class), co.getStartDate()));
             }
