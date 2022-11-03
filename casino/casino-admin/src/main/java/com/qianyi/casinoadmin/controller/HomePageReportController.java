@@ -10,6 +10,7 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.BillThreadPool;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.util.DataConst;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.PersonReportTotalVo;
 import com.qianyi.casinocore.vo.ReportTotalSumVo;
@@ -91,18 +92,6 @@ public class HomePageReportController {
     private ProxyGameRecordReportService proxyGameRecordReportService;
 
     private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_10);
-
-    public static final List<String> platforms = new ArrayList<>();
-
-    static {
-        platforms.add(Constants.PLATFORM_WM_BIG);
-        platforms.add(Constants.PLATFORM_PG);
-        platforms.add(Constants.PLATFORM_CQ9);
-        platforms.add(Constants.PLATFORM_OBDJ);
-        platforms.add(Constants.PLATFORM_OBTY);
-        platforms.add(Constants.PLATFORM_SABASPORT);
-        platforms.add(Constants.PLATFORM_AE);
-    }
 
     @ApiOperation("查询首页报表")
     @GetMapping("/find")
@@ -650,9 +639,9 @@ public class HomePageReportController {
     private PersonReportTotalVo sumGameRecord(String startTime, String endTime) {
         ReentrantLock reentrantLock = new ReentrantLock();
         Condition condition = reentrantLock.newCondition();
-        AtomicInteger atomicInteger = new AtomicInteger(platforms.size());
+        AtomicInteger atomicInteger = new AtomicInteger(DataConst.platforms.size());
         Vector<ReportTotalSumVo> list = new Vector<>();
-        for (String platform : platforms) {
+        for (String platform : DataConst.platforms) {
             threadPool.execute(() -> {
                 try {
                     ReportTotalSumVo mapSum = proxyGameRecordReportService.findMapSum(platform, startTime, endTime);

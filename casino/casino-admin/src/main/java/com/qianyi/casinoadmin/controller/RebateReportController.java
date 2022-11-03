@@ -9,10 +9,7 @@ import com.qianyi.casinocore.service.ProxyGameRecordReportService;
 import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.service.ReportService;
 import com.qianyi.casinocore.service.UserService;
-import com.qianyi.casinocore.util.BillThreadPool;
-import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.casinocore.util.DTOUtil;
-import com.qianyi.casinocore.util.ExcelUtil;
+import com.qianyi.casinocore.util.*;
 import com.qianyi.casinocore.vo.*;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
@@ -63,19 +60,6 @@ public class RebateReportController {
     private ProxyGameRecordReportService proxyGameRecordReportService;
 
     private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_10);
-
-    public static final List<String> platforms = new ArrayList<>();
-
-    static {
-        platforms.add(Constants.PLATFORM_WM_BIG);
-        platforms.add(Constants.PLATFORM_PG);
-        platforms.add(Constants.PLATFORM_CQ9);
-        platforms.add(Constants.PLATFORM_OBDJ);
-        platforms.add(Constants.PLATFORM_OBTY);
-        platforms.add(Constants.PLATFORM_SABASPORT);
-        platforms.add(Constants.PLATFORM_AE);
-        platforms.add(Constants.PLATFORM_VNC);
-    }
 
     // @NoAuthorization
     @ApiOperation("查询个人返利报表")
@@ -395,9 +379,9 @@ public class RebateReportController {
     private RebateReportTotalVo sumGameRecord(String startTime, String endTime) {
         ReentrantLock reentrantLock = new ReentrantLock();
         Condition condition = reentrantLock.newCondition();
-        AtomicInteger atomicInteger = new AtomicInteger(platforms.size());
+        AtomicInteger atomicInteger = new AtomicInteger(DataConst.platforms.size());
         Vector<ReportTotalSumVo> list = new Vector<>();
-        for (String platform : platforms) {
+        for (String platform : DataConst.platforms) {
             threadPool.execute(() -> {
                 try {
                     ReportTotalSumVo mapSum = proxyGameRecordReportService.findMapSum(platform, startTime, endTime);
