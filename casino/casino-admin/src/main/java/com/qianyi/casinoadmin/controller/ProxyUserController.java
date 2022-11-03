@@ -484,6 +484,7 @@ public class ProxyUserController {
         if (byId.getProxyRole() == CommonConst.NUMBER_1) {
             ProxyUser proxyUser = new ProxyUser();
             proxyUser.setFirstProxy(byId.getId());
+            proxyUser.setIsDelete(CommonConst.NUMBER_1);
             List<ProxyUser> proxyUsers = proxyUserService.findProxyUserList(proxyUser);
             if (!LoginUtil.checkNull(proxyUsers) && proxyUsers.size() >= CommonConst.NUMBER_2) {
                 return ResponseUtil.custom("该代理的下级仍未转移");
@@ -492,6 +493,7 @@ public class ProxyUserController {
             ProxyUser proxyUser = new ProxyUser();
             proxyUser.setSecondProxy(byId.getId());
             proxyUser.setProxyRole(CommonConst.NUMBER_3);
+            proxyUser.setIsDelete(CommonConst.NUMBER_1);
             List<ProxyUser> proxyUsers = proxyUserService.findProxyUserList(proxyUser);
             if (!LoginUtil.checkNull(proxyUsers) && proxyUsers.size() >= CommonConst.NUMBER_1) {
                 return ResponseUtil.custom("该代理的下级仍未转移");

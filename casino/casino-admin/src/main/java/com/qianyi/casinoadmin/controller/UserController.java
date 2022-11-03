@@ -1328,6 +1328,7 @@ public class UserController {
         chargeOrder.setRemark(remark);
         chargeOrder.setOrderNo(orderService.getOrderNo());
         chargeOrder.setChargeAmount(money);
+        chargeOrder.setSucceedTime(new Date());
         chargeOrder.setLastModifier(lastModifier);
         chargeOrder.setType(user.getType());
         //        chargeOrder.setRealityAmount(money);
