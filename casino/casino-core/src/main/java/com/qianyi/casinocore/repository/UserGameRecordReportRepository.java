@@ -88,8 +88,8 @@ public interface UserGameRecordReportRepository extends JpaRepository<UserGameRe
         + "   t1.vendor_code = ?3  AND t1.trans_type = 'Payoff'"
         + "   AND t1.create_at_str BETWEEN ?1 AND ?2  GROUP BY t1.bet_id) off"
         + "   LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = ?3 AND trans_type = 'Stake' ) sk ON off.bet_id = sk.bet_id"
-        + "   LEFT JOIN game_record_goldenf t3 ON off.bet_id = t3.bet_id"
-        + "   AND t3.trans_type = 'cancelPayoff' GROUP BY off.user_id",nativeQuery = true)
+        + "   LEFT JOIN ( SELECT SUM(win_amount) win_amount, bet_id FROM game_record_goldenf WHERE vendor_code = ?3 AND trans_type = 'cancelPayoff' GROUP BY bet_id) t3 "
+        + "ON off.bet_id = t3.bet_id GROUP BY off.user_id",nativeQuery = true)
     List<Map<String, Object>> findSb(String startTime,String endTime,String vendorCode);
 
     @Query(value = "select user_id user_id,count(1) num,sum(order_amount) bet_amount,sum(order_amount) validbet,sum(profit_amount) win_loss from game_record_obty grg "

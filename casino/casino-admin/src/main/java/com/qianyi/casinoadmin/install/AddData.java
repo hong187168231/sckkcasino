@@ -61,16 +61,16 @@ public class AddData implements CommandLineRunner {
 //        String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(DateUtil.getYesterday());
 //        List<String> betweenDate = DateUtil.getBetweenDate(startDay, yesterday);
 
-//        List<String> betweenDate = new ArrayList<>();
-//        betweenDate.add("2022-10-19");
-//        betweenDate.add("2022-10-20");
-//        betweenDate.add("2022-10-21");
-//
-//        for (String str:betweenDate){
-//            this.delete(str);
-//            userGameRecordReportService.comparison(str);
-//            proxyGameRecordReportService.comparison(str);
-//        }
+        List<String> betweenDate = new ArrayList<>();
+        betweenDate.add("2022-10-19");
+        betweenDate.add("2022-10-20");
+        betweenDate.add("2022-10-21");
+
+        for (String str:betweenDate){
+            this.delete(str);
+            userGameRecordReportService.comparison(str);
+            proxyGameRecordReportService.comparison(str);
+        }
         log.info("初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
 
 

@@ -70,6 +70,32 @@ public class SqlSumConst {
     AND {1}
         """;
 
+//    public static String sabasportSumSql = """
+//    SELECT
+//    count( DISTINCT sk.bet_id ) num,
+//    ifnull( SUM( sk.bet_amount ), 0 ) bet_amount,
+//    ifnull( SUM( sk.bet_amount ), 0 ) validbet,
+//    ifnull(sum(off.win_amount), 0 )-ifnull(sum( sk.bet_amount ), 0 )+ifnull(sum(t3.win_amount), 0 ) win_loss
+//    FROM
+//        (
+//            SELECT
+//                bet_id bet_id,
+//            SUM( win_amount ) win_amount
+//    FROM
+//    game_record_goldenf t1
+//    WHERE
+//    t1.vendor_code = {2}
+//    AND t1.trans_type = {3}
+//    AND t1.create_at_str BETWEEN {0}
+//    AND {1}
+//    GROUP BY
+//    t1.bet_id
+//	) off
+//    LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {2} AND trans_type = {4} ) sk ON off.bet_id = sk.bet_id
+//    LEFT JOIN game_record_goldenf t3 ON off.bet_id = t3.bet_id
+//    AND t3.trans_type = {5}
+//        """;
+
     public static String sabasportSumSql = """
     SELECT
     count( DISTINCT sk.bet_id ) num,
@@ -92,8 +118,8 @@ public class SqlSumConst {
     t1.bet_id
 	) off
     LEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {2} AND trans_type = {4} ) sk ON off.bet_id = sk.bet_id
-    LEFT JOIN game_record_goldenf t3 ON off.bet_id = t3.bet_id
-    AND t3.trans_type = {5}
+    LEFT JOIN ( SELECT SUM(win_amount) win_amount, bet_id FROM game_record_goldenf WHERE vendor_code = {2} AND trans_type = {5} GROUP BY bet_id) t3
+    ON off.bet_id = t3.bet_id
         """;
 
     public static String sumSql = """
