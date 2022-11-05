@@ -12,20 +12,20 @@ public interface CompanyManagementRepository  extends JpaRepository<CompanyManag
     JpaSpecificationExecutor<CompanyManagement> {
 
     @Query(value = "SELECT\n" +
-            "\tco.id AS id,\n" +
-            "\tsy.user_name AS createName,\n" +
-            "\tco.company_name AS companyName,\n" +
-            "\tco.create_time as createDate,\n" +
-            "\tcount(pr.id) AS proxyNum \n" +
-            "FROM\n" +
-            "\tcompany_management co\n" +
-            "\tLEFT JOIN sys_user sy on co.create_by = sy.id \n" +
-            "\tLEFT JOIN proxy_user pr ON co.id = pr.company_id \n" +
-            "\tAND proxy_role = 1 \n" +
-            "WHERE\n" +
-            "IF\n" +
-            "\t( ?1 IS NOT NULL AND 1!= '', co.company_name =?1, 1 = 1 ) \n" +
-            "GROUP BY\n" +
-            "\tco.id",nativeQuery = true)
+        "\tco.id AS id,\n" +
+        "\tsy.user_name AS createName,\n" +
+        "\tco.company_name AS companyName,\n" +
+        "\tco.create_time as createDate,\n" +
+        "\tcount(pr.id) AS proxyNum \n" +
+        "FROM\n" +
+        "\tcompany_management co\n" +
+        "\tLEFT JOIN sys_user sy on co.create_by = sy.id \n" +
+        "\tLEFT JOIN proxy_user pr ON co.id = pr.company_id \n" +
+        "\tAND proxy_role = 1 and is_delete = 1\n" +
+        "WHERE\n" +
+        "IF\n" +
+        "\t( ?1 IS NOT NULL AND 1!= '', co.company_name =?1, 1 = 1 ) \n" +
+        "GROUP BY\n" +
+        "\tco.id",nativeQuery = true)
     List<Map> findGroupByCount(String companyName);
 }
