@@ -388,6 +388,7 @@ public class ProxyHomePageReportService {
         try {
             ProxyUser proxy = new ProxyUser();
             proxy.setProxyRole(CommonConst.NUMBER_3);
+            proxy.setIsDelete(CommonConst.NUMBER_1);
             if (CommonUtil.setParameter(proxy,proxyUser)){
                 return;
             }
@@ -401,6 +402,7 @@ public class ProxyHomePageReportService {
         try {
             ProxyUser proxy = new ProxyUser();
             proxy.setProxyRole(CommonConst.NUMBER_2);
+            proxy.setIsDelete(CommonConst.NUMBER_1);
             if (CommonUtil.setParameter(proxy,proxyUser)){
                 return;
             }
