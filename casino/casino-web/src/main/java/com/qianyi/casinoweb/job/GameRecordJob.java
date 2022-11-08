@@ -218,7 +218,9 @@ public class GameRecordJob {
                 gameRecordAsyncOper.rebate(Constants.PLATFORM_WM,record);
             } catch (Exception e) {
                 e.printStackTrace();
-                log.error("保存游戏记录时报错,message={}", e.getMessage());
+                if(!e.getMessage().contains("UKafl55kwlnpstnqstqk9t4x0w0")){
+                    log.error("保存游戏记录时报错,message={}", e.getMessage());
+                }
             }
         }
     }
