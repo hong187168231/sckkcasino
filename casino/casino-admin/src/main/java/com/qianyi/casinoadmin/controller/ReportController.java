@@ -6,10 +6,7 @@ import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.exception.BusinessException;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.service.ProxyGameRecordReportService;
-import com.qianyi.casinocore.service.ProxyUserService;
-import com.qianyi.casinocore.service.ReportService;
-import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.*;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.PersonReportTotalVo;
@@ -35,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
@@ -62,6 +60,9 @@ public class ReportController {
 
     @Autowired
     private ProxyGameRecordReportService proxyGameRecordReportService;
+
+    @Autowired
+    private UserGameRecordReportService userGameRecordReportService;
 
     private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_10);
 
@@ -121,10 +122,10 @@ public class ReportController {
             if (Objects.nonNull(tag) && tag == CommonConst.NUMBER_4) {
                 reportResult = this.findWashOrderBy(platform, startTimeStr, endTimeStr, page, pageSize, statement,
                     orderTimeStart, orderTimeEnd);
-            } else if (Objects.nonNull(tag) && tag == CommonConst.NUMBER_6){
-                reportResult = this.findShareProfitOrderBy(platform, startTimeStr, endTimeStr, page, pageSize, statement,
-                    orderTimeStart, orderTimeEnd);
-            } else{
+            } else if (Objects.nonNull(tag) && tag == CommonConst.NUMBER_6) {
+                reportResult = this.findShareProfitOrderBy(platform, startTimeStr, endTimeStr, page, pageSize,
+                    statement, orderTimeStart, orderTimeEnd);
+            } else {
                 reportResult = this.findBetOrderBy(platform, startTimeStr, endTimeStr, page, pageSize, statement,
                     orderTimeStart, orderTimeEnd);
             }
@@ -137,8 +138,8 @@ public class ReportController {
         return ResponseUtil.success(getMap(mapPageResultVO));
     }
 
-    private List<PersonReportVo> findShareProfitOrderBy(String platform,String startTimeStr, String endTimeStr, Integer page,
-        Integer pageSize, String statement, String orderTimeStart, String orderTimeEnd) {
+    private List<PersonReportVo> findShareProfitOrderBy(String platform, String startTimeStr, String endTimeStr,
+        Integer page, Integer pageSize, String statement, String orderTimeStart, String orderTimeEnd) {
         List<PersonReportVo> reportResult =
             userService.findShareProfit(startTimeStr, endTimeStr, page, pageSize, statement, "");
         if (CollUtil.isNotEmpty(reportResult)) {
@@ -540,6 +541,24 @@ public class ReportController {
         return mapSum;
     }
 
+    @ApiOperation("重新计算报表")
+    @GetMapping("/restart")
+    @NoAuthorization
+    @ApiImplicitParams({@ApiImplicitParam(name = "date", value = "时间(日期)", required = true),})
+    @Transactional
+    public ResponseEntity restart(@DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
+        String orderTime = DateUtil.formatDate(date);
+
+        proxyGameRecordReportService.deleteByOrderTimes(orderTime);
+
+        userGameRecordReportService.deleteByOrderTimes(orderTime);
+
+        userGameRecordReportService.comparison(orderTime);
+
+        proxyGameRecordReportService.comparison(orderTime);
+
+        return ResponseUtil.success();
+    }
     /*private HistoryTotal getHistoryItem(Map<String,Object> result){
         HistoryTotal historyTotal = new HistoryTotal();
         historyTotal.setAll_profit_amount(new BigDecimal(result.get("all_profit_amount").toString()).setScale(2, RoundingMode.HALF_UP));

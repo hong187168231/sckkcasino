@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.service;
 
 import cn.hutool.core.collection.CollUtil;
+import com.google.common.collect.Lists;
 import com.qianyi.casinocore.model.UserGameRecordReport;
 import com.qianyi.casinocore.repository.UserGameRecordReportRepository;
 import com.qianyi.casinocore.util.CommonUtil;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,10 @@ public class UserGameRecordReportService {
 
     public UserGameRecordReport save(UserGameRecordReport userGameRecordReport) {
         return userGameRecordReportRepository.save(userGameRecordReport);
+    }
+
+    public void saveAll(List<UserGameRecordReport> userGameRecordReport) {
+        userGameRecordReportRepository.saveAll(userGameRecordReport);
     }
 
     public List<Map<String, Object>> sumUserRunningWater(String startTime, String endTime) {
@@ -113,6 +119,7 @@ public class UserGameRecordReportService {
     private void addData(List<Map<String, Object>> listMap, String dayTime, String platform) {
         try {
             if (CollUtil.isNotEmpty(listMap)) {
+                List<UserGameRecordReport> userGameRecordReports = new ArrayList<>();
                 listMap.forEach(map -> {
                     UserGameRecordReport userGameRecordReport = new UserGameRecordReport();
                     if (platform.equals(Constants.PLATFORM_PG)) {
@@ -131,9 +138,12 @@ public class UserGameRecordReportService {
                     userGameRecordReport.setUserGameRecordReportId(userGameRecordReportId);
                     userGameRecordReport.setCreateTime(new Date());
                     userGameRecordReport.setUpdateTime(new Date());
-                    this.save(userGameRecordReport);
+                    userGameRecordReports.add(userGameRecordReport);
                 });
+                Lists.partition(userGameRecordReports, 200)
+                    .forEach(userGameRecordReportList -> this.saveAll(userGameRecordReportList));
                 listMap.clear();
+                userGameRecordReports.clear();
             }
         } catch (Exception ex) {
             log.error("会员报表计算失败日期{}Platform{}", dayTime, platform);
