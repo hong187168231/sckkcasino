@@ -64,6 +64,9 @@ public class ReportController {
     @Autowired
     private UserGameRecordReportService userGameRecordReportService;
 
+    @Autowired
+    private RedisLockUtil redisLockUtil;
+
     private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_10);
 
     // @NoAuthorization
@@ -548,15 +551,28 @@ public class ReportController {
     @Transactional
     public ResponseEntity restart(@DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
         String orderTime = DateUtil.formatDate(date);
+        String key = MessageFormat.format(RedisLockUtil.GAME_RECORD_RESTART, orderTime);
+        Boolean lock = false;
+        try {
+            lock = redisLockUtil.getLock(key, orderTime);
+            if (lock) {
+                log.info("重新计算报表取到redis锁{}", key);
+                proxyGameRecordReportService.deleteByOrderTimes(orderTime);
 
-        proxyGameRecordReportService.deleteByOrderTimes(orderTime);
+                userGameRecordReportService.deleteByOrderTimes(orderTime);
 
-        userGameRecordReportService.deleteByOrderTimes(orderTime);
+                userGameRecordReportService.comparison(orderTime);
 
-        userGameRecordReportService.comparison(orderTime);
-
-        proxyGameRecordReportService.comparison(orderTime);
-
+                proxyGameRecordReportService.comparison(orderTime);
+            }
+        } catch (Exception ex) {
+            return ResponseUtil.custom("操作频繁,稍后再试");
+        } finally {
+            if (lock) {
+                log.info("重新计算报表释放redis锁{}", key);
+                redisLockUtil.releaseLock(key, orderTime);
+            }
+        }
         return ResponseUtil.success();
     }
     /*private HistoryTotal getHistoryItem(Map<String,Object> result){
