@@ -81,7 +81,7 @@ public class UserGameRecordReportService {
         totalBetNumber = totalBetNumber + totalBetNumberByAe + totalBetNumberByVnc;
         log.info("代理报表日期{} betNumber:{} totalBetNumber:{} totalBetNumberByVnc:{}", dayTime, betNumber, totalBetNumber,totalBetNumberByVnc);
         if (betNumber.intValue() != totalBetNumber.intValue()) {
-            log.error("会员报表日期{}不相等开始重新计算betNumber:{}totalBetNumber:{} totalBetNumberByVnc:{", dayTime, betNumber, totalBetNumber,totalBetNumberByVnc);
+            log.error("会员报表日期{}不相等开始重新计算betNumber:{}totalBetNumber:{} totalBetNumberByVnc:{}", dayTime, betNumber, totalBetNumber,totalBetNumberByVnc);
             userGameRecordReportRepository.deleteByOrderTimes(dayTime);
 
             List<Map<String, Object>> wm = userGameRecordReportRepository.findWm(startTime, endTime);
