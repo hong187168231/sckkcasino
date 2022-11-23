@@ -653,6 +653,7 @@ public class AuthController {
         //每日ip发送短信数量限制为10条
         String today = DateUtil.dateToyyyyMMdd(new Date());
         String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
+        log.info("注册验证码手机号:{} ip:{}",phone,ip);
         String todayIpKey = Constants.REDIS_SMSIPSENDNUM + today + "::" + ip;
         Object todayIpNum = redisUtil.get(todayIpKey);
         if (todayIpNum != null && (int) todayIpNum >= 10) {
