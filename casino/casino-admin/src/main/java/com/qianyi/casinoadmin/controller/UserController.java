@@ -1094,7 +1094,7 @@ public class UserController {
             return ResponseUtil.custom("参数不合法");
         }
         if (!account.matches(RegexEnum.ACCOUNT.getRegex())){
-            return ResponseUtil.custom("账号格式错误");
+            return ResponseUtil.custom("账号请输入6~15位数字或字母");
         }
         List<User> us = userService.findByAccountUpper(account);
         if(!us.isEmpty()){
