@@ -79,7 +79,7 @@ public class UploadAndDownloadUtil {
     }
 
     public static String webFileUpload(MultipartFile file, String uploadUrl) throws IOException {
-        log.info("doPost图片上传请求路径{}", uploadUrl + urlUpload);
+        log.info("doPost图片上传请求路径{}", uploadUrl + webUrlUpload);
         log.info("doPost图片上传请求参数{}", file);
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String result = "";
