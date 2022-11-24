@@ -30,7 +30,7 @@ public class UploadAndDownloadUtil {
 
     private static String urlUpload= "/minio/upload/casino-admin";
     private static String webUrlUpload= "/minio/upload/casino-web";
-
+    private static String certificate= "/minio/upload/certificate";
     /**
      * 图片上传 basePath  PreReadUploadConfig.getBasePath
      */
@@ -79,7 +79,7 @@ public class UploadAndDownloadUtil {
     }
 
     public static String webFileUpload(MultipartFile file, String uploadUrl) throws IOException {
-        log.info("doPost图片上传请求路径{}", uploadUrl + webUrlUpload);
+        log.info("doPost图片上传请求路径{}", uploadUrl + certificate);
         log.info("doPost图片上传请求参数{}", file);
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String result = "";
@@ -95,7 +95,7 @@ public class UploadAndDownloadUtil {
             httpPost.setEntity(entity);
 
             RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(20000).setConnectionRequestTimeout(20000).setSocketTimeout(20000)
-                    .build();
+                .build();
             httpPost.setConfig(requestConfig);
             HttpResponse response = httpClient.execute(httpPost);// 执行提交
             HttpEntity responseEntity = response.getEntity();
