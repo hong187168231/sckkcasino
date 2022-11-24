@@ -85,7 +85,7 @@ public class UploadAndDownloadUtil {
         String result = "";
         try {
             String fileName = file.getOriginalFilename();
-            HttpPost httpPost = new HttpPost(uploadUrl + urlUpload+"?bigFileSecret=jsjs");
+            HttpPost httpPost = new HttpPost(uploadUrl + certificate+"?bigFileSecret=jsjs");
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.addBinaryBody("file", file.getInputStream(), ContentType.MULTIPART_FORM_DATA, fileName);// 文件流
             //参数设置编码utf-8，不然中文会乱码
