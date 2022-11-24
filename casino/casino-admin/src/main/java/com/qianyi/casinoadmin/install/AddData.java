@@ -63,8 +63,7 @@ public class AddData implements CommandLineRunner {
 
 //        List<String> betweenDate = new ArrayList<>();
 //        betweenDate.add("2022-10-19");
-//        betweenDate.add("2022-10-20");
-//        betweenDate.add("2022-10-21");
+//        betweenDate.add("2022-10-27");
 //
 //        for (String str:betweenDate){
 //            this.delete(str);

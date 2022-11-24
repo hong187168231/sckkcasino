@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.service;
 
 import cn.hutool.core.collection.CollUtil;
+import com.google.common.collect.Lists;
 import com.qianyi.casinocore.model.ProxyGameRecordReport;
 import com.qianyi.casinocore.repository.ProxyGameRecordReportRepository;
 import com.qianyi.casinocore.util.CommonUtil;
@@ -48,6 +49,10 @@ public class ProxyGameRecordReportService {
 
     public ProxyGameRecordReport save(ProxyGameRecordReport proxyGameRecordReport){
         return proxyGameRecordReportRepository.save(proxyGameRecordReport);
+    }
+
+    public void saveAll(List<ProxyGameRecordReport> proxyGameRecordReports){
+        proxyGameRecordReportRepository.saveAll(proxyGameRecordReports);
     }
 
     @Transactional
@@ -128,6 +133,7 @@ public class ProxyGameRecordReportService {
             try {
                 List<Map<String, Object>> totalMap = proxyGameRecordReportRepository.findTotal(startTime, endTime);
                 if (CollUtil.isNotEmpty(totalMap)) {
+                    List<ProxyGameRecordReport> proxyGameRecordReports = new ArrayList<>();
                     totalMap.forEach(map -> {
                         ProxyGameRecordReport proxyGameRecordReport = new ProxyGameRecordReport();
                         proxyGameRecordReport.setOrderTimes(dayTime);
@@ -155,9 +161,12 @@ public class ProxyGameRecordReportService {
                         proxyGameRecordReport.setProxyGameRecordReportId(proxyGameRecordReportId);
                         proxyGameRecordReport.setCreateTime(new Date());
                         proxyGameRecordReport.setUpdateTime(new Date());
-                        this.save(proxyGameRecordReport);
+                        proxyGameRecordReports.add(proxyGameRecordReport);
                     });
+                    Lists.partition(proxyGameRecordReports, 200)
+                        .forEach(proxyGameRecordReports1 -> this.saveAll(proxyGameRecordReports1));
                     totalMap.clear();
+                    proxyGameRecordReports.clear();
                 }
             } catch (Exception ex) {
                 log.error("代理报表计算失败日期{}", dayTime);
