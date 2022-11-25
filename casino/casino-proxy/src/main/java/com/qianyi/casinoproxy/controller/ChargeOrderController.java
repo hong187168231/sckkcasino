@@ -12,6 +12,7 @@ import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.ChargeOrderVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
+import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -77,6 +78,7 @@ public class ChargeOrderController {
             @ApiImplicitParam(name = "tag", value = "tag 1(创建订单时间) 2（入款时间）", required = false),
     })
     @GetMapping("/chargeOrderList")
+    @RequestLimit(limit = 1)
     public ResponseEntity<ChargeOrderVo> chargeOrderList(Integer pageSize, Integer pageCode, Integer status,
         String orderNo, String account,Integer tag,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
@@ -201,6 +203,7 @@ public class ChargeOrderController {
         @ApiImplicitParam(name = "tag", value = "tag 1(创建订单时间) 2（入款时间）", required = false),
     })
     @GetMapping("/findChargeOrderSum")
+    @RequestLimit(limit = 1)
     public ResponseEntity<ChargeOrderVo> findChargeOrderSum(Integer status, String orderNo,
         String account,Integer type,Integer tag,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,

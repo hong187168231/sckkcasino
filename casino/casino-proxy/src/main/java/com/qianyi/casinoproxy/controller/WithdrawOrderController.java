@@ -10,6 +10,7 @@ import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.WithdrawOrderVo;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
+import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -74,6 +75,7 @@ public class WithdrawOrderController {
             @ApiImplicitParam(name = "tag", value = "tag 1(创建订单时间) 2（出款时间）", required = false),
     })
     @GetMapping("/withdrawList")
+    @RequestLimit(limit = 1)
     public ResponseEntity<WithdrawOrderVo> withdrawList(Integer pageSize,Integer pageCode, Integer status, String account,
         String no, String bankId,String realName,String bankName,Integer tag,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
@@ -222,6 +224,7 @@ public class WithdrawOrderController {
         @ApiImplicitParam(name = "tag", value = "tag 1(创建订单时间) 2（出款时间）", required = false),
     })
     @GetMapping("/findWithdrawOrderSum")
+    @RequestLimit(limit = 1)
     public ResponseEntity<WithdrawOrderVo> findWithdrawOrderSum(Integer status, String account,String no, String bankId,Integer type,
         Integer tag,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,

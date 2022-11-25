@@ -128,7 +128,7 @@ public class UserMoneyService {
                 }
                 userMoneyRepository.subMoney(userId, money);
             } else {
-                log.error("subMoney 用户增加money没拿到锁,{}", userId);
+                log.error("subMoney 用户减少money没拿到锁,{}", userId);
                 throw new BusinessException("操作money失败");
             }
         } catch (Exception e) {
@@ -136,7 +136,7 @@ public class UserMoneyService {
         } finally {
             // 释放锁
             lock.writeLock().unlock();
-            log.info("subMoney 用户增加money释放锁", userId);
+            log.info("subMoney用户减少money释放锁{}", userId);
         }
     }
 
@@ -168,7 +168,7 @@ public class UserMoneyService {
         } finally {
             // 释放锁
             lock.writeLock().unlock();
-            log.info("subMoney 用户增加money释放锁", userId);
+            log.info("addMoney用户增加money释放锁{}", userId);
         }
     }
 
