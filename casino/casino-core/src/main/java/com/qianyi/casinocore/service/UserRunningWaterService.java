@@ -1,8 +1,13 @@
 package com.qianyi.casinocore.service;
 
+import cn.hutool.core.collection.CollUtil;
+import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserRunningWater;
 import com.qianyi.casinocore.repository.UserRunningWaterRepository;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.util.CommonUtil;
+import com.qianyi.modulecommon.util.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,18 +23,31 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Transactional
+@Slf4j
 public class UserRunningWaterService {
+
     @Autowired
     private UserRunningWaterRepository userRunningWaterRepository;
 
     @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private ShareProfitChangeService shareProfitChangeService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private UserGameRecordReportService userGameRecordReportService;
+
+    public final static String start = " 00:00:00";
+
+    public final static String end = " 23:59:59";
 
     public void updateKey(Long userId, String staticsTimes , BigDecimal amount, BigDecimal commission,Long firstProxy,Long secondProxy,Long thirdProxy){
         userRunningWaterRepository.updateKey(userId,staticsTimes,amount,commission,firstProxy,secondProxy,thirdProxy);
@@ -72,12 +90,12 @@ public class UserRunningWaterService {
                 if (userRunningWater.getUserId() != null) {
                     list.add(cb.equal(root.get("userId").as(Long.class), userRunningWater.getUserId()));
                 }
-//                if (startDate != null) {
-//                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
-//                }
-//                if (endDate != null) {
-//                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
-//                }
+                //                if (startDate != null) {
+                //                    list.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startDate));
+                //                }
+                //                if (endDate != null) {
+                //                    list.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class),endDate));
+                //                }
                 if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
                     list.add(
                         cb.between(root.get("staticsTimes").as(String.class), startTime, endTime)
@@ -93,7 +111,7 @@ public class UserRunningWaterService {
         CriteriaQuery<UserRunningWater> query = builder.createQuery(UserRunningWater.class);
         Root<UserRunningWater> root = query.from(UserRunningWater.class);
         query.multiselect(
-                root.get("userId").as(Long.class)
+            root.get("userId").as(Long.class)
         );
 
         List<Predicate> predicates = new ArrayList();
@@ -117,5 +135,78 @@ public class UserRunningWaterService {
 
         List<UserRunningWater> list = entityManager.createQuery(query).getResultList();
         return list;
+    }
+
+    @Transactional
+    public void deleteByStaticsTimes(String staticsTimes){
+        userRunningWaterRepository.deleteByStaticsTimes(staticsTimes);
+    }
+
+    public void statistics(String format){
+        log.info("每日会员流水报表统计开始start=============================================》");
+        String today = DateUtil.getSimpleDateFormat1().format(new Date());
+        if (today.equals(format)){//不计算今天
+            return;
+        }
+
+        long currentTime = System.currentTimeMillis();
+        try {
+            this.deleteByStaticsTimes(format);
+            String startTime = format + start;
+            String endTime = format + end;
+            this.sumUserRunningWater(format);
+            this.shareProfitChange(format, startTime, endTime);
+        } catch (Exception ex) {
+            log.error("每日会员流水报表统计失败", ex);
+        }
+        log.info("每日会员流水报表统计结束end耗时{}==============================================>",System.currentTimeMillis()-currentTime);
+    }
+
+    public void sumUserRunningWater(String format) {
+        try {
+            List<Map<String, Object>> gameRecords = userGameRecordReportService.sumUserRunningWater(format, format);
+            if (gameRecords == null || gameRecords.size() == CommonConst.NUMBER_0) {
+                return;
+            }
+            gameRecords.stream().forEach(item -> {
+                Long userId = Long.valueOf(item.get("userId").toString());
+                BigDecimal validbet = new BigDecimal(item.get("validbet").toString());
+                User user = userService.findById(userId);
+                if (Objects.isNull(user) || Objects.isNull(user.getFirstProxy())) {
+                    userRunningWaterRepository.updateKey(userId, format, validbet, BigDecimal.ZERO, CommonConst.LONG_0,
+                        CommonConst.LONG_0, CommonConst.LONG_0);
+                } else {
+                    userRunningWaterRepository.updateKey(userId, format, validbet, BigDecimal.ZERO, user.getFirstProxy(),
+                        user.getSecondProxy(), user.getThirdProxy());
+                }
+            });
+            gameRecords.clear();
+        } catch (Exception ex) {
+            log.error("用户流水统计失败{}", ex);
+        }
+    }
+
+    public void shareProfitChange(String format, String startDate, String endDate) {
+        try {
+            List<Map<String, Object>> sumAmount = shareProfitChangeService.findSumAmount(startDate, endDate);
+            if (sumAmount == null || sumAmount.size() == CommonConst.NUMBER_0) {
+                return;
+            }
+            sumAmount.stream().forEach(item -> {
+                Long userId = Long.valueOf(item.get("fromUserId").toString());
+                BigDecimal amount = new BigDecimal(item.get("amount").toString());
+                User user = userService.findById(userId);
+                if (Objects.isNull(user) || Objects.isNull(user.getFirstProxy())) {
+                    userRunningWaterRepository.updateKey(userId, format, BigDecimal.ZERO, amount, CommonConst.LONG_0,
+                        CommonConst.LONG_0, CommonConst.LONG_0);
+                } else {
+                    userRunningWaterRepository.updateKey(userId, format, BigDecimal.ZERO, amount, user.getFirstProxy(),
+                        user.getSecondProxy(), user.getThirdProxy());
+                }
+            });
+            sumAmount.clear();
+        } catch (Exception ex) {
+            log.error("用户流水统计人人代佣金失败{}", ex);
+        }
     }
 }

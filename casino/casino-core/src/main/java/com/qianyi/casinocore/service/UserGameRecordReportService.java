@@ -24,6 +24,9 @@ public class UserGameRecordReportService {
     @Autowired
     private UserGameRecordReportRepository userGameRecordReportRepository;
 
+    @Autowired
+    private UserRunningWaterService userRunningWaterService;
+
     public final static String start = " 00:00:00";
 
     public final static String end = " 23:59:59";
@@ -113,6 +116,8 @@ public class UserGameRecordReportService {
 
             List<Map<String, Object>> VNC = userGameRecordReportRepository.findVnc(startTime, endTime);
             this.addData(VNC, dayTime, Constants.PLATFORM_VNC);
+
+            userRunningWaterService.statistics(dayTime);
         }
     }
 

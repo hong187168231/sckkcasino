@@ -550,6 +550,7 @@ public class ReportController {
     @ApiImplicitParams({@ApiImplicitParam(name = "date", value = "时间(日期)", required = true),})
     @Transactional
     public ResponseEntity restart(@DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
+        long currentTime = System.currentTimeMillis();
         String orderTime = DateUtil.formatDate(date);
         String key = MessageFormat.format(RedisLockUtil.GAME_RECORD_RESTART, orderTime);
         Boolean lock = false;
@@ -573,6 +574,7 @@ public class ReportController {
                 redisLockUtil.releaseLock(key, orderTime);
             }
         }
+        log.info("重新计算报表结束end耗时{}==============================================>",System.currentTimeMillis()-currentTime);
         return ResponseUtil.success();
     }
     /*private HistoryTotal getHistoryItem(Map<String,Object> result){

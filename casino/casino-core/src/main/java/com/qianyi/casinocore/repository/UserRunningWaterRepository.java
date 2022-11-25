@@ -31,4 +31,8 @@ public interface UserRunningWaterRepository extends JpaRepository<UserRunningWat
     @Modifying
     @Query("update UserRunningWater u set u.thirdProxy= ?2 where u.userId=?1")
     void updatetThirdProxy(Long userId, Long secondProxy);
+
+    @Modifying
+    @Query(value = "DELETE from user_running_water where statics_times = ?1 ;",nativeQuery = true)
+    void deleteByStaticsTimes(String staticsTimes);
 }
