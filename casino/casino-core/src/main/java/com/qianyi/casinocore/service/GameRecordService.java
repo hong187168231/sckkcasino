@@ -379,6 +379,10 @@ public class GameRecordService {
         gameRecordRepository.updateWashCodeStatus(id,washCodeStatus);
     }
 
+    public void updateLevelWaterStatus(Long id,Integer levelWater){
+        gameRecordRepository.updateLevelWaterStatus(id,levelWater);
+    }
+
     public void updateProfitStatus(Long id,Integer washCodeStatus){
         gameRecordRepository.updateProfitStatus(id,washCodeStatus);
     }

@@ -73,6 +73,8 @@ public class GameRecordVNC extends BaseEntity{
     @ApiModelProperty(value = "返利状态：1：成功")
     private Integer rebateStatus;
 
+    @ApiModelProperty(value = "等级流水状态：1：成功")
+    private Integer levelWaterStatus;
     @ApiModelProperty(value = "抽点状态: 0: 否 1: 是")
     private Integer extractStatus;
 

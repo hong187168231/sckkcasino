@@ -216,6 +216,8 @@ public class GameRecordJob {
                 gameRecordAsyncOper.shareProfit(Constants.PLATFORM_WM,record);
                 //返利
                 gameRecordAsyncOper.rebate(Constants.PLATFORM_WM,record);
+                //等级流水
+                gameRecordAsyncOper.levelWater(Constants.PLATFORM_WM, record);
             } catch (Exception e) {
                 e.printStackTrace();
                 if(!e.getMessage().contains("UKafl55kwlnpstnqstqk9t4x0w0")){

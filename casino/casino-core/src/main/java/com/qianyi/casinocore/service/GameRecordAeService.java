@@ -47,6 +47,11 @@ public class GameRecordAeService {
         gameRecordAeRepository.updateWashCodeStatus(id, washCodeStatus);
     }
 
+    public void updateLevelWaterStatus(Long id,Integer levelWater){
+        gameRecordAeRepository.updateLevelWaterStatus(id,levelWater);
+    }
+
+
     public void updateRebateStatus(Long id, Integer rebateStatus) {
         gameRecordAeRepository.updateRebateStatus(id, rebateStatus);
     }

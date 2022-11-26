@@ -99,6 +99,9 @@ public class GameRecordObty extends BaseEntity{
     @ApiModelProperty(value = "抽点状态: 0: 否 1: 是")
     private Integer extractStatus;
 
+    @ApiModelProperty(value = "等级流水状态：1：成功")
+    private Integer levelWaterStatus;
+
     @ApiModelProperty(value = "打码状态：1：成功")
     private Integer codeNumStatus;
 

@@ -25,6 +25,11 @@ public interface GameRecordVNCRepository extends JpaRepository<GameRecordVNC, Lo
     @Query("update GameRecordVNC u set u.washCodeStatus=?2 where u.id=?1")
     void updateWashCodeStatus(Long id, Integer washCodeStatus);
 
+
+    @Modifying(clearAutomatically = true)
+    @Query("update GameRecordVNC u set u.levelWaterStatus=?2 where u.id=?1")
+    void updateLevelWaterStatus(Long id, Integer levelWaterStatus);
+
     @Modifying(clearAutomatically = true)
     @Query("update GameRecordVNC u set u.rebateStatus=?2 where u.id=?1")
     void updateRebateStatus(Long id, Integer rebateStatus);

@@ -42,6 +42,11 @@ public class GameRecordObdjService {
         gameRecordObdjRepository.updateWashCodeStatus(id, washCodeStatus);
     }
 
+
+    public void updateLevelWaterStatus(Long id,Integer levelWater){
+        gameRecordObdjRepository.updateLevelWaterStatus(id,levelWater);
+    }
+
     public void updateRebateStatus(Long id, Integer rebateStatus) {
         gameRecordObdjRepository.updateRebateStatus(id, rebateStatus);
     }

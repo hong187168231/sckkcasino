@@ -50,7 +50,7 @@ public class HomePageReportVo implements Serializable {
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "结算人人代佣金")
-    private BigDecimal  shareAmount;
+    private BigDecimal shareAmount;
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "预估代理佣金")
@@ -62,7 +62,7 @@ public class HomePageReportVo implements Serializable {
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "等级红利")
-    private BigDecimal awardAmount;
+    private BigDecimal awardAmount = BigDecimal.ZERO;
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "充提手续费")
@@ -81,7 +81,7 @@ public class HomePageReportVo implements Serializable {
     private String staticsYear;
 
     @ApiModelProperty(value = "统计时间段(月)")
-    private String staticsMonth ;
+    private String staticsMonth;
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "毛利1")
@@ -100,11 +100,11 @@ public class HomePageReportVo implements Serializable {
     private BigDecimal oddsRatio;
 
     @ApiModelProperty(value = "时间段")
-    private String time ;
+    private String time;
 
     //    private Set<Long> userIdSet;
 
-    public HomePageReportVo(){
+    public HomePageReportVo() {
 
     }
     //    public HomePageReportVo(HomePageReport homePageReport,Set<Long> userIdSet){

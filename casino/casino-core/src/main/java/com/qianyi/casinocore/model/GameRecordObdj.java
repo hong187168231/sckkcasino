@@ -168,6 +168,9 @@ public class GameRecordObdj extends BaseEntity{
     @ApiModelProperty(value = "打码状态：1：成功")
     private Integer codeNumStatus;
 
+    @ApiModelProperty(value = "等级流水状态：1：成功")
+    private Integer levelWaterStatus;
+
     @ApiModelProperty(value = "分润状态：0:失败，>0：成功")
     private Integer shareProfitStatus = Constants.no;
 

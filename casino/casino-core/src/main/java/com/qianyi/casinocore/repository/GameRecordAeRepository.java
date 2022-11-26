@@ -24,6 +24,10 @@ public interface GameRecordAeRepository extends JpaRepository<GameRecordAe, Long
     void updateWashCodeStatus(Long id, Integer washCodeStatus);
 
     @Modifying(clearAutomatically = true)
+    @Query("update GameRecordAe u set u.levelWaterStatus=?2 where u.id=?1")
+    void updateLevelWaterStatus(Long id, Integer levelWaterStatus);
+
+    @Modifying(clearAutomatically = true)
     @Query("update GameRecordAe u set u.rebateStatus=?2 where u.id=?1")
     void updateRebateStatus(Long id, Integer rebateStatus);
 

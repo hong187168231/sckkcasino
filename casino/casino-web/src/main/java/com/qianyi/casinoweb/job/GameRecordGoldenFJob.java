@@ -285,6 +285,8 @@ public class GameRecordGoldenFJob {
         gameRecordAsyncOper.shareProfit(gameRecordGoldenF.getVendorCode(), gameRecord);
         //返利
         gameRecordAsyncOper.rebate(gameRecordGoldenF.getVendorCode(), gameRecord);
+        //等级流水
+        gameRecordAsyncOper.levelWater(gameRecordGoldenF.getVendorCode(), gameRecord);
     }
 
 

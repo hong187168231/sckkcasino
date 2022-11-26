@@ -190,6 +190,8 @@ public class GameRecordObtyJob {
         gameRecordAsyncOper.shareProfit(platform, record);
         //返利
         gameRecordAsyncOper.rebate(platform, record);
+        //等级流水
+        gameRecordAsyncOper.levelWater(platform, record);
     }
 
     /**

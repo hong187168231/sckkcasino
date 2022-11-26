@@ -194,6 +194,9 @@ public class GameRecord extends BaseEntity{
     @ApiModelProperty(value = "分润状态：0:失败，>0：成功")
     private Integer shareProfitStatus = Constants.no;
 
+    @ApiModelProperty(value = "等级流水状态：1：成功")
+    private Integer levelWaterStatus;
+
     @ApiModelProperty("总代ID")
     private Long firstProxy;
 

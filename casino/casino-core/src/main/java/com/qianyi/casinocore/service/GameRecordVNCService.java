@@ -47,6 +47,9 @@ public class GameRecordVNCService {
         gameRecordVNCRepository.updateWashCodeStatus(id, washCodeStatus);
     }
 
+    public void updateLevelWaterStatus(Long id, Integer washCodeStatus) {
+        gameRecordVNCRepository.updateLevelWaterStatus(id, washCodeStatus);
+    }
     public void updateExtractStatus(Long id, Integer extractStatus) {
         gameRecordVNCRepository.updateExtractStatus(id,extractStatus);
     }

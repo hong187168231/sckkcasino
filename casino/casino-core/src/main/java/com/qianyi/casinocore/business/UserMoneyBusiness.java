@@ -56,6 +56,9 @@ public class UserMoneyBusiness {
     @Autowired
     private GameRecordVNCService gameRecordVNCService;
 
+    @Autowired
+    private UserLevelBusiness userLevelBusiness;
+
     //默认最小清零打码量
     private static final BigDecimal DEFAULT_CLEAR = new BigDecimal("10");
 
@@ -197,6 +200,31 @@ public class UserMoneyBusiness {
         }
         log.info("洗码完成,平台={},注单ID={}", platform, gameRecord.getBetId());
     }
+
+
+    @Transactional
+    public void changeLevelWater(String platform, GameRecord gameRecord) {
+        //已经处理过的不需要再次处理
+        if (gameRecord.getLevelWaterStatus() != null && gameRecord.getLevelWaterStatus() == Constants.yes) {
+            return;
+        }
+        userLevelBusiness.processUserLevel(gameRecord.getUserId(), platform,gameRecord);
+        if (Constants.PLATFORM_WM.equals(platform)) {
+            gameRecordService.updateLevelWaterStatus(gameRecord.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform) || Constants.PLATFORM_SABASPORT.equals(platform)) {
+            gameRecordGoldenFService.updateLevelWaterStatus(gameRecord.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_OBDJ.equals(platform)) {
+            gameRecordObdjService.updateLevelWaterStatus(gameRecord.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_OBTY.equals(platform)) {
+            gameRecordObtyService.updateLevelWaterStatus(gameRecord.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_AE.equals(platform)) {
+            gameRecordAeService.updateLevelWaterStatus(gameRecord.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_VNC.equals(platform)) {
+            gameRecordVNCService.updateLevelWaterStatus(gameRecord.getId(), Constants.yes);
+        }
+        log.info("洗码完成,平台={},注单ID={}", platform, gameRecord.getBetId());
+    }
+
 
     /**
      * 三级分润

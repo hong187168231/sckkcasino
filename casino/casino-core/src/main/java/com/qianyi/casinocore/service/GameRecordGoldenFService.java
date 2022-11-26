@@ -40,6 +40,11 @@ public class GameRecordGoldenFService {
         gameRecordGoldenFRepository.updateWashCodeStatus(id,washCodeStatus);
     }
 
+
+    public void updateLevelWaterStatus(Long id,Integer levelWater){
+        gameRecordGoldenFRepository.updateLevelWaterStatus(id,levelWater);
+    }
+
     public void updateRebateStatus(Long id,Integer rebateStatus){
         gameRecordGoldenFRepository.updateRebateStatus(id,rebateStatus);
     }

@@ -97,6 +97,18 @@ public class GameRecordAsyncOper {
     public void changeUserBalance(Long userId, BigDecimal betAmount,BigDecimal winAmount) {
         userMoneyBusiness.changeUserBalance(userId, betAmount,winAmount);
     }
+
+    /**
+     * 异步更新等级流水
+     * @param platform
+     * @param record
+     */
+    @Async("asyncExecutor")
+    public void levelWater(String platform, GameRecord record) {
+        userMoneyBusiness.changeLevelWater(platform, record);
+    }
+
+
     /**
      * 异步给TG机器人发送消息
      *

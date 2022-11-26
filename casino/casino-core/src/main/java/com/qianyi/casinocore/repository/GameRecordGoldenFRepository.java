@@ -29,6 +29,10 @@ public interface GameRecordGoldenFRepository extends JpaRepository<GameRecordGol
     void updateRebateStatus(Long id, Integer rebateStatus);
 
     @Modifying(clearAutomatically = true)
+    @Query("update GameRecordGoldenF u set u.levelWaterStatus=?2 where u.id=?1")
+    void updateLevelWaterStatus(Long id, Integer levelWaterStatus);
+
+    @Modifying(clearAutomatically = true)
     @Query("update GameRecordGoldenF u set u.extractStatus=?2 where u.id=?1")
     void updateExtractStatus(Long id, Integer status);
 

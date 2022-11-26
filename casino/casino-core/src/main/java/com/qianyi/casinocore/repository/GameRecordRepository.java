@@ -47,6 +47,9 @@ public interface GameRecordRepository extends JpaRepository<GameRecord, Long>, J
     @Query("update GameRecord u set u.gameRecordStatus=?2 where u.id=?1")
     void updateGameRecordStatus(Long id, Integer status);
 
+    @Modifying(clearAutomatically = true)
+    @Query("update GameRecord u set u.levelWaterStatus=?2 where u.id=?1")
+    void updateLevelWaterStatus(Long id, Integer levelWaterStatus);
     List<GameRecord> findByCreateByAndIdGreaterThanEqualOrderByIdAsc(String createBy,Long id);
 
     @Query(value = "select count(1) as amount  from game_record rg where rg.create_time <=?1 and rg.user_id=?2",nativeQuery = true)
