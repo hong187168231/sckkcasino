@@ -30,4 +30,8 @@ public class UserInfoVo {
     private String domain;
     @ApiModelProperty("上级账号")
     private String superiorAccount;
+    @ApiModelProperty("等级")
+    private Integer level;
+    @ApiModelProperty("是否有未领取的奖励")
+    private boolean hasAward;
 }

@@ -854,7 +854,7 @@ public class SqlNewConst {
     sum(ifnull(pr.amount,0)) all_profit_amount,
     sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0))) avg_benefit,
     sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,
-    sum(ifnull(ec.water, 0)) all_water from
+    sum(ifnull(ec.water, 0)) all_water ,td.todayAward,ri.riseAward from
         (select
             SUM(betting_number) num,
     sum(bet_amount) bet_amount,
@@ -876,7 +876,12 @@ public class SqlNewConst {
         (SELECT
     SUM(amount) as water
     FROM extract_points_change
-    where create_time between {0} and {1}) ec;
+    where create_time between {0} and {1}) ec,
+	(SELECT IFNULL(SUM(amount),0) as todayAward FROM
+	 award_receive_record WHERE award_type = 1 and receive_time between {0} and {1} ) td,
+	(SELECT IFNULL(SUM(amount),0) as riseAward FROM
+	 award_receive_record WHERE award_type = 2 and  receive_time between {0} and {1}) ri
+    ;
         """;
 
     public static String WMSumSql = """

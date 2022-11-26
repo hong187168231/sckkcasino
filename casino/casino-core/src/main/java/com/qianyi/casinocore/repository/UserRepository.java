@@ -12,7 +12,6 @@ import java.util.Set;
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
     User findByAccount(String account);
-
     Integer countByRegisterIp(String ip);
 
     User getByName(String userName);
@@ -20,13 +19,10 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 //    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     @Query(value = "select * from User u where u.id = ? for update",nativeQuery = true)
     User findUserByUserIdUseLock(Long userId);
-
     @Query(value = "select * from User u where u.id = ? ",nativeQuery = true)
     User findUserByUserIdUse(Long userId);
-
     @Query(value = "SELECT * FROM user u WHERE UPPER(u.account) = UPPER(?)",nativeQuery = true)
     List<User> findByAccountUpper(String account);
-
     @Modifying
     @Query("update User u set u.isFirstBet= ?2 where u.id=?1")
     void updateIsFirstBet(Long id, Integer washCodeStatus);
@@ -35,6 +31,9 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Query("update User u set u.password= ?2 where u.id=?1")
     void updatePassword(Long id, String password);
 
+    @Modifying
+    @Query("update User u set u.level= ?2 where u.id=?1")
+    void updateLevel(Long id, Integer level);
     List<User> findByRegisterIp(String ip);
 
     User findByInviteCode(String inviteCode);

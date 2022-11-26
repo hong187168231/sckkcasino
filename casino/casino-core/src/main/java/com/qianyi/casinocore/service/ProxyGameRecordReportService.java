@@ -273,7 +273,7 @@ public class ProxyGameRecordReportService {
         return itemObject;
     }
 
-    private static final List<String> TOTAL_FIELD_LIST = Arrays.asList("wash_amount", "service_charge", "all_profit_amount","all_water");
+    private static final List<String> TOTAL_FIELD_LIST = Arrays.asList("wash_amount", "service_charge", "all_profit_amount","all_water","todayAward","riseAward");
 
     @SuppressWarnings("unchecked")
     public RebateReportTotalVo findMapRebateSum(String startTime, String endTime) {

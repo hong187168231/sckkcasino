@@ -1,5 +1,6 @@
 package com.qianyi.casinoweb.controller;
 
+import com.qianyi.casinocore.business.UserLevelBusiness;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
@@ -7,6 +8,7 @@ import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.util.GenerateInviteCodeRunner;
+import com.qianyi.casinocore.vo.UserLevelVo;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.util.DeviceUtil;
 import com.qianyi.casinoweb.vo.LoginLogVo;
@@ -55,12 +57,16 @@ public class UserController {
     @Autowired
     GenerateInviteCodeRunner generateInviteCodeRunner;
 
+    @Autowired
+    UserLevelBusiness userLevelBusiness;
+
     @GetMapping("info")
     @ApiOperation("获取当前用户的基本信息(不包含 余额，打码量，可提现金额,洗码金额)")
     public ResponseEntity<UserInfoVo> info() {
         Long authId = CasinoWebUtil.getAuthId();
         User user = userService.findById(authId);
         UserInfoVo vo = new UserInfoVo();
+        vo.setHasAward(userLevelBusiness.userHasAward(user));
         BeanUtils.copyProperties(user, vo);
         vo.setUserId(user.getId());
         User firstParent = null;
@@ -310,6 +316,28 @@ public class UserController {
         sendUserMq(save);
         return ResponseUtil.success();
     }
+
+    @GetMapping("levelInfo")
+    @ApiOperation("获取当前等级信息")
+    public ResponseEntity<UserLevelVo> levelInfo() {
+        Long userId = CasinoWebUtil.getAuthId();
+        UserLevelVo userLevelVo = userLevelBusiness.userLevelInfo(userId);
+        return ResponseUtil.success(userLevelVo);
+    }
+
+
+    @PostMapping("receiveAward")
+    @ApiOperation("领取vip奖励")
+    @ApiImplicitParams({@ApiImplicitParam(name = "awardType", value = "奖励类型 1每日奖励 2 晋级奖励", required = true)})
+    public ResponseEntity<Boolean> receiveAward(Integer awardType) {
+        if (awardType < 1 || awardType > 2) {
+            return ResponseUtil.custom("参数错误");
+        }
+        Long userId = CasinoWebUtil.getAuthId();
+        boolean flag = userLevelBusiness.receiveAward(userId, awardType);
+        return ResponseUtil.success(flag);
+    }
+
 
     /**
      * 记录注册日志

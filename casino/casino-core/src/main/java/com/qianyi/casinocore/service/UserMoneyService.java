@@ -513,6 +513,181 @@ public class UserMoneyService {
         }
     }
 
+
+    /**
+     * 增加等级流水
+     *
+     * @param userId     用户id
+     * @param levelWater 等级流水
+     */
+    @CacheEvict(key = "#userId")
+    @Transactional
+    public void addLevelWater(Long userId, BigDecimal levelWater) {
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.LevelWater + userId);
+        boolean bool;
+        try {
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                userMoneyRepository.addLevelWater(userId, levelWater);
+            } else {
+                log.error("levelWater 用户增加washCode没拿到锁,{}", userId);
+                throw new BusinessException("操作levelWater失败");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            // 释放锁
+            lock.writeLock().unlock();
+            log.info("addWashCode 用户增加levelWater释放锁", userId);
+        }
+    }
+
+
+    /**
+     * 扣减等级流水
+     *
+     * @param userId     用户id
+     * @param levelWater 等级流水
+     */
+    @CacheEvict(key = "#userId")
+    @Transactional
+    public void subLevelWater(Long userId, BigDecimal levelWater) {
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.LevelWater + userId);
+        boolean bool;
+        try {
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                //扣减余额大于剩余余额
+                if (levelWater.compareTo(userMoneyLock.getLevelWater()) == 1) {
+                    redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+                    throw new UserMoneyChangeException("扣减洗码额超过本地剩余额度");
+                }
+                userMoneyRepository.subLevelWater(userId, levelWater);
+            } else {
+                log.error("subLevelWater 用户扣减levelWater没拿到锁,{}", userId);
+                throw new BusinessException("操作levelWater失败");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            // 释放锁
+            lock.writeLock().unlock();
+            log.info("subLevelWater 用户扣减subLevelWater释放锁", userId);
+        }
+    }
+
+
+    @CacheEvict(key = "#userId")
+    @Transactional
+    public void modifyLevelWater(Long userId, BigDecimal balance) {
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.LevelWater + userId);
+        boolean bool;
+        try {
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                userMoneyRepository.modifyLevelWater(userId, balance);
+            } else {
+                log.error("modifyLevelWater 用户修改等级流水没拿到锁,{}", userId);
+                throw new BusinessException("操作modifyLevelWater失败");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            // 释放锁
+            lock.writeLock().unlock();
+            log.info("modifyLevelWater 用户修改等级流水释放锁", userId);
+        }
+    }
+
+
+    /**
+     * 增加等级流水
+     *
+     * @param userId    用户id
+     * @param riseWater 等级流水
+     */
+    @CacheEvict(key = "#userId")
+    @Transactional
+    public void addRiseWater(Long userId, BigDecimal riseWater) {
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.RiseWater + userId);
+        boolean bool;
+        try {
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                userMoneyRepository.addRiseWater(userId, riseWater);
+            } else {
+                log.error("levelWater 用户增加washCode没拿到锁,{}", userId);
+                throw new BusinessException("操作levelWater失败");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            // 释放锁
+            lock.writeLock().unlock();
+            log.info("addWashCode 用户增加levelWater释放锁", userId);
+        }
+    }
+
+
+    /**
+     * 扣减等级流水
+     *
+     * @param userId    用户id
+     * @param riseWater 等级流水
+     */
+    @CacheEvict(key = "#userId")
+    @Transactional
+    public void subRiseWater(Long userId, BigDecimal riseWater) {
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.RiseWater + userId);
+        boolean bool;
+        try {
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                //扣减余额大于剩余余额
+                if (riseWater.compareTo(userMoneyLock.getRiseWater()) == 1) {
+                    redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+                    throw new UserMoneyChangeException("扣减洗码额超过本地剩余额度");
+                }
+                userMoneyRepository.subRiseWater(userId, riseWater);
+            } else {
+                log.error("subLevelWater 用户扣减levelWater没拿到锁,{}", userId);
+                throw new BusinessException("操作levelWater失败");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            // 释放锁
+            lock.writeLock().unlock();
+            log.info("subLevelWater 用户扣减subLevelWater释放锁", userId);
+        }
+    }
+
+
+    @CacheEvict(key = "#userId")
+    @Transactional
+    public void modifyRiseWater(Long userId, BigDecimal riseWater) {
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.RiseWater + userId);
+        boolean bool;
+        try {
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                userMoneyRepository.modifyRiseWater(userId, riseWater);
+            } else {
+                log.error("modifyLevelWater 用户修改等级流水没拿到锁,{}", userId);
+                throw new BusinessException("操作modifyLevelWater失败");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            // 释放锁
+            lock.writeLock().unlock();
+            log.info("modifyLevelWater 用户修改等级流水释放锁", userId);
+        }
+    }
+
+
     @Cacheable(key = "#userId")
     public UserMoney findByUserId(Long userId) {
         UserMoney userMoney = userMoneyRepository.findByUserId(userId);
@@ -526,6 +701,10 @@ public class UserMoneyService {
             userMoney.setCodeNum(codeNum);
             BigDecimal freezeMoney = userMoney.getFreezeMoney() == null ? defaultVal : userMoney.getFreezeMoney();
             userMoney.setFreezeMoney(freezeMoney);
+            BigDecimal levelWater = userMoney.getLevelWater() == null ? defaultVal : userMoney.getLevelWater();
+            userMoney.setLevelWater(levelWater);
+            BigDecimal riseWater = userMoney.getRiseWater() == null ? defaultVal : userMoney.getRiseWater();
+            userMoney.setRiseWater(riseWater);
         }
         return userMoney;
     }

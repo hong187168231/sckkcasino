@@ -1,5 +1,8 @@
 package com.qianyi.casinoadmin.controller;
 
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
 import com.qianyi.casinoadmin.install.Initialization;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.*;
@@ -8,6 +11,7 @@ import com.qianyi.casinocore.model.PlatformConfigV2;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.vo.LevelConfigDto;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseCode;
@@ -809,5 +813,34 @@ public class PlatformConfigController {
         String operator = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
         platformConfigV2Service.save(first,operator,Constants.CASINO_ADMIN);
         return ResponseUtil.success();
+    }
+
+    @ApiOperation("Vip配置查询")
+    @GetMapping("/findVipConfig")
+    public ResponseEntity<LevelConfigDto> findVipConfig() {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        LevelConfigDto levelConfigDto = new LevelConfigDto();
+        if(ObjectUtil.isNotNull(platformConfig)){
+            levelConfigDto = JSON.parseObject(platformConfig.getVipConfigInfo(), LevelConfigDto.class);
+        }
+        return new ResponseEntity(ResponseCode.SUCCESS, levelConfigDto);
+    }
+
+    @ApiOperation("编辑Vip配置")
+    @PostMapping("/editVipConfig")
+    public ResponseEntity<UserCommissionVo> updateVipConfig(@RequestBody LevelConfigDto levelConfigDto) {
+        if (ObjectUtil.isNull(levelConfigDto)) {
+            return ResponseUtil.custom("参数错误");
+        }
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        if (!LoginUtil.checkNull(platformConfig)) {
+            platformConfig.setVipConfigInfo(JSONUtil.toJsonStr(levelConfigDto));
+            platformConfigService.save(platformConfig);
+        } else {
+            PlatformConfig platform = new PlatformConfig();
+            platform.setVipConfigInfo(JSONUtil.toJsonStr(levelConfigDto));
+            platformConfigService.save(platform);
+        }
+        return new ResponseEntity(ResponseCode.SUCCESS);
     }
 }

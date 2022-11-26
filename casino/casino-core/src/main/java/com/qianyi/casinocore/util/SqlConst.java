@@ -1147,6 +1147,34 @@ public class SqlConst {
     where  user_id={2} and create_time between {0} and {1}
     group by user_id
                 ) ec on u.id = ec.user_id
+      LEFT JOIN (
+                SELECT
+                    user_id,
+                    SUM(amount) AS todayAmount
+                FROM
+                    award_receive_record
+                WHERE
+                    user_id ={2}
+                AND award_type = 1
+                AND create_time BETWEEN {0}
+                AND {1}
+                GROUP BY
+                    user_id
+            ) td ON u.id = td.user_id
+            LEFT JOIN (
+                SELECT
+                    user_id,
+                    SUM(amount) AS riseAmount
+                FROM
+                    award_receive_record
+                WHERE
+                    user_id ={2}
+                AND award_type = 2
+                AND receive_time BETWEEN {0}
+                AND {1}
+                GROUP BY
+                    user_id
+            ) rs ON u.id = rs.user_id                
     where u.id = {2}{5}
             """;
 

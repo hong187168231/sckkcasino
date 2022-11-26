@@ -44,7 +44,6 @@ public interface UserMoneyRepository extends JpaRepository<UserMoney,Long>, JpaS
     @Query("update UserMoney u set u.integral=u.integral-?2 where u.userId=?1")
     void subIntegral(Long userId, BigDecimal integral);
 
-
     UserMoney findByUserId(Long userId);
 
     @Modifying(clearAutomatically = true)
@@ -74,4 +73,30 @@ public interface UserMoneyRepository extends JpaRepository<UserMoney,Long>, JpaS
     @Modifying(clearAutomatically = true)
     @Query("update UserMoney u set u.money=u.money+?2,u.codeNum=u.codeNum+?3,u.balance=u.balance+?4,u.isFirst=?5 where u.userId=?1")
     void addBalanceAndCodeNumAndMoney(Long userId, BigDecimal money,BigDecimal codeNum,BigDecimal balance,Integer isFirst);
+
+    @Modifying(clearAutomatically = true)
+    @Query("update UserMoney u set u.levelWater=u.levelWater+?2 where u.userId=?1")
+    void addLevelWater(Long userId, BigDecimal levelWater);
+
+    @Modifying(clearAutomatically = true)
+    @Query("update UserMoney u set u.levelWater=u.levelWater-?2 where u.userId=?1")
+    void subLevelWater(Long userId, BigDecimal levelWater);
+
+    @Modifying(clearAutomatically = true)
+    @Query("update UserMoney u set u.riseWater=u.riseWater+?2 where u.userId=?1")
+    void addRiseWater(Long userId, BigDecimal levelWater);
+
+    @Modifying(clearAutomatically = true)
+    @Query("update UserMoney u set u.riseWater=u.riseWater-?2 where u.userId=?1")
+    void subRiseWater(Long userId, BigDecimal levelWater);
+
+
+    @Modifying(clearAutomatically = true)
+    @Query("update UserMoney u set u.levelWater =?2 where u.userId=?1")
+    void modifyLevelWater(Long userId, BigDecimal levelWater);
+
+    @Modifying(clearAutomatically = true)
+    @Query("update UserMoney u set u.riseWater =?2 where u.userId=?1")
+    void modifyRiseWater(Long userId, BigDecimal riseWater);
+
 }

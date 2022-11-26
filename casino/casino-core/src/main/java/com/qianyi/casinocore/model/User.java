@@ -45,6 +45,10 @@ public class User extends BaseEntity implements UserDetails {
     private String withdrawPassword;
     @ApiModelProperty("邮箱")
     private String email;
+
+    @ApiModelProperty("会员等级")
+    private Integer level;
+
     @ApiModelProperty("qq")
     private String qq;
     @ApiModelProperty("微信")
@@ -80,8 +84,6 @@ public class User extends BaseEntity implements UserDetails {
     private Integer type;
     @ApiModelProperty("注册域名")
     private String registerDomainName;
-    @ApiModelProperty("会员等级")
-    private Integer level;
 
 
     @JsonIgnore

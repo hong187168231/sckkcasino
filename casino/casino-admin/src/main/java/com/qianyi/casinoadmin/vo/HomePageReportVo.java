@@ -61,6 +61,10 @@ public class HomePageReportVo implements Serializable {
     private BigDecimal bonusAmount;
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    @ApiModelProperty(value = "等级红利")
+    private BigDecimal awardAmount;
+
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "充提手续费")
     private BigDecimal serviceCharge = BigDecimal.ZERO;
 

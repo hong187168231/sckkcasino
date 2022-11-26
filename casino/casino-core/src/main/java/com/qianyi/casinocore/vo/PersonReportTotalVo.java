@@ -59,4 +59,14 @@ public class PersonReportTotalVo {
     @ApiModelProperty(value = "贡献代理抽点, 表示该用户，对上级代理贡献的抽点金额")
     private BigDecimal allWater;
 
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    @JsonProperty("todayAward")
+    @ApiModelProperty(value = "每日奖励")
+    private BigDecimal todayAward;
+
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    @JsonProperty("riseAward")
+    @ApiModelProperty(value = "晋级奖励")
+    private BigDecimal riseAward;
+
 }

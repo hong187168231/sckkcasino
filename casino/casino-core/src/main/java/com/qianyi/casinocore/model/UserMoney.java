@@ -41,6 +41,15 @@ public class UserMoney extends BaseEntity{
     @Column(columnDefinition = "Decimal(19,6) default '0.000000'")
     private BigDecimal integral = BigDecimal.ZERO;
 
+    @ApiModelProperty("区间流水")
+    @Column(columnDefinition = "Decimal(19,2) default '0.00'")
+    private BigDecimal levelWater;
+
+    @ApiModelProperty("等级流水")
+    @Column(columnDefinition = "Decimal(19,2) default '0.00'")
+    private BigDecimal riseWater;
+
+
     @ApiModelProperty("是否首充 0 是 1 不是")
     private Integer isFirst;
 
@@ -51,7 +60,6 @@ public class UserMoney extends BaseEntity{
     @ApiModelProperty("可提现余额")
     private BigDecimal withdrawMoney = BigDecimal.ZERO;
 
-    private Integer levelWater;
 
     //计算可提现金额
     public BigDecimal getWithdrawMoney(){

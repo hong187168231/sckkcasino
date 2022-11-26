@@ -140,6 +140,13 @@
             "url": "/accountChange/findAccountChangePage"
           },
           {
+            "descritpion": "VIP等级记录",
+            "englishName": "VIP Level History",
+            "menuLevel": 3,
+            "name": "VIP等级记录",
+            "url": "/levelChange/findLevelChangePage"
+          },
+          {
             "descritpion": "充值流水",
             "englishName": "Desposit Turnover",
             "menuLevel": 3,
@@ -1016,6 +1023,20 @@
             "menuLevel": 3,
             "name": "修改平台维护开关",
             "url": "/platformConfig/updatePlatformMaintenance"
+          },
+          {
+            "descritpion": "查询VIP配置",
+            "englishName": "Query VIP Configuration",
+            "menuLevel": 3,
+            "name": "查询VIP配置",
+            "url": "/platformConfig/findVipConfig"
+          },
+          {
+            "descritpion": "编辑VIP配置",
+            "englishName": "Edit VIP configuration",
+            "menuLevel": 3,
+            "name": "编辑VIP配置",
+            "url": "/platformConfig/editVipConfig"
           }
         ]
       },

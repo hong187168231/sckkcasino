@@ -241,6 +241,8 @@ public class ReportController {
                         per.setServiceCharge(vo.getServiceCharge());
                         per.setAllProfitAmount(vo.getAllProfitAmount());
                         per.setAllWater(vo.getAllWater());
+                        per.setTodayAward(vo.getTodayAward());
+                        per.setRiseAward(vo.getRiseAward());
                         BigDecimal avgBenefit = per.getWinLoss().add(per.getWashAmount()).add(per.getAllWater());
                         per.setAvgBenefit(avgBenefit.negate());
                         per.setTotalAmount(

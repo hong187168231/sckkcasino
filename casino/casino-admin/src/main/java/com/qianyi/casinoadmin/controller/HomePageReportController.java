@@ -57,6 +57,9 @@ public class HomePageReportController {
     private TotalPlatformQuotaRecordService totalPlatformQuotaRecordService;
 
     @Autowired
+    private AwardReceiveRecordService awardReceiveRecordService;
+
+    @Autowired
     private HomePageReportTask homePageReportTask;
 
     public final static String start = " 12:00:00";
@@ -558,14 +561,6 @@ public class HomePageReportController {
 
     private HomePageReportVo  gameRecord( HomePageReportVo homePageReportVo){
         try {
-            //            Map<String, Object> gameRecordSum = gameRecordService.findSumBetAndWinLoss();
-            //            BigDecimal gameRecordValidbet = gameRecordSum.get("validbet") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("validbet").toString());
-            //            BigDecimal gameRecordWinLoss = gameRecordSum.get("winLoss") == null?BigDecimal.ZERO:new BigDecimal(gameRecordSum.get("winLoss").toString());
-            //
-            //            Map<String, Object> gameRecordGoldenFSum = gameRecordGoldenFService.findSumBetAndWinLoss();
-            //            BigDecimal gameRecordGoldenFValidbet = gameRecordGoldenFSum.get("betAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("betAmount").toString());
-            //            BigDecimal gameRecordGoldenFWinLoss = gameRecordGoldenFSum.get("winAmount") == null?BigDecimal.ZERO:new BigDecimal(gameRecordGoldenFSum.get("winAmount").toString());
-
             Map<String, Object> gameRecordMap = proxyGameRecordReportService.findSumBetAndWinLoss();
             //活跃人数
             homePageReportVo.setActiveUsers(Integer.parseInt(gameRecordMap.get("num").toString()));
@@ -588,12 +583,9 @@ public class HomePageReportController {
             BigDecimal washCodeAmount = washCodeChangeService.sumAmount();
             homePageReportVo.setWashCodeAmount(washCodeAmount);
 
-            //            Set<Long> gameRecordGoldenFUser = gameRecordGoldenFService.findGroupByUser();
-            //            Set<Long> gameRecordUser = gameRecordService.findGroupByUser();
-            //
-            //            gameRecordGoldenFUser.addAll(gameRecordUser);
-            //            homePageReportVo.setActiveUsers(gameRecordGoldenFUser.size());
-            //            gameRecordGoldenFUser.clear();
+            BigDecimal awardAmount = awardReceiveRecordService.queryBonusAmount("2022-11-11 00:00:00", "2025-11-25 00:00:00");
+            homePageReportVo.setAwardAmount(awardAmount);
+
             return homePageReportVo;
         }catch (Exception ex){
             log.error("统计三方游戏注单失败",ex);
@@ -629,6 +621,10 @@ public class HomePageReportController {
 
             BigDecimal washCodeAmount = washCodeChangeService.sumAmount(startTime, endTime);
             homePageReportVo.setWashCodeAmount(washCodeAmount);
+
+            BigDecimal awardAmount = awardReceiveRecordService.queryBonusAmount(startTime, endTime);
+            homePageReportVo.setAwardAmount(awardAmount);
+
             return homePageReportVo;
         }catch (Exception ex){
             log.error("统计三方游戏注单失败",ex);
@@ -677,7 +673,9 @@ public class HomePageReportController {
         // 毛利1需要修改:
         // 毛利1 = 平台输赢金额 - 洗码 - 代理抽点
         homePageReportVo.setGrossMargin1(homePageReportVo.getWinLossAmount().subtract(homePageReportVo.getWashCodeAmount()).subtract(homePageReportVo.getExtractPointsAmount()));
-        homePageReportVo.setGrossMargin2(homePageReportVo.getGrossMargin1().subtract(homePageReportVo.getShareAmount()).subtract(homePageReportVo.getBonusAmount()).add(homePageReportVo.getServiceCharge()));
+        homePageReportVo.setGrossMargin2(homePageReportVo.getGrossMargin1().subtract(homePageReportVo.getShareAmount())
+                .subtract(homePageReportVo.getAwardAmount())
+                .subtract(homePageReportVo.getBonusAmount()).add(homePageReportVo.getServiceCharge()));
         homePageReportVo.setGrossMargin3(homePageReportVo.getGrossMargin2().subtract(homePageReportVo.getProxyProfit()));
         return homePageReportVo;
     }

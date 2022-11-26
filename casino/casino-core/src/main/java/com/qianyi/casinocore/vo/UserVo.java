@@ -75,10 +75,20 @@ public class UserVo implements Serializable , Comparable<BigDecimal> {
     private String firstProxyAccount;
     @ApiModelProperty("个人业绩流水")
     private BigDecimal performance;
-
     @ApiModelProperty("注册域名")
     private String registerDomainName;
 
+    @ApiModelProperty("等级流水")
+    private BigDecimal levelWater;
+
+    @ApiModelProperty("用户等级")
+    private Integer userLevel;
+
+    @ApiModelProperty("升级进度")
+    private String promote;
+
+    @ApiModelProperty("保级进度")
+    private String keep;
     @ApiModelProperty("创建时间")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;

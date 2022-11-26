@@ -165,6 +165,10 @@ public class PlatformConfig {
     @ApiModelProperty("充值凭证开关 0 关闭 1 开启")
     private Integer chargeSwitch ;
 
+    @ApiModelProperty("vip配置")
+    @Column(name = "vip_config_info",columnDefinition="text")
+    private String vipConfigInfo;
+
     //得到充值手续费用
     public BigDecimal getChargeServiceCharge(BigDecimal money){
         if (this.chargeRate == null){

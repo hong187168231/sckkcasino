@@ -59,6 +59,11 @@ public class UserService {
         userRepository.updatePassword(id, password);
     }
 
+    @CacheEvict(key = "#id")
+    public void updateLevel(Long id, Integer level) {
+        userRepository.updateLevel(id, level);
+    }
+
     public List<User> saveAll(List<User> userList) {
         return userRepository.saveAll(userList);
     }
@@ -614,7 +619,8 @@ public class UserService {
     }
 
     private static final List<String> PERSON_REPORT_TOTAL_FIELD_LIST = Arrays.asList("num", "bet_amount", "validbet",
-        "win_loss", "wash_amount", "service_charge", "all_profit_amount", "avg_benefit", "total_amount", "all_water");
+        "win_loss", "wash_amount", "service_charge", "all_profit_amount", "avg_benefit", "total_amount", "all_water"
+            , "todayAward", "riseAward");
 
     @SuppressWarnings("unchecked")
     public Map<String, Object> findMap(String platform, String startTime, String endTime, String orderTimeStart,
@@ -719,7 +725,7 @@ public class UserService {
 
     private static final List<String> PERSON_REPORT_VO_FIELD_LIST =
         Arrays.asList("account", "third_proxy", "id", "num", "bet_amount", "validbet", "win_loss", "wash_amount",
-            "service_charge", "all_profit_amount", "avg_benefit", "total_amount", "all_water");
+            "service_charge", "all_profit_amount", "avg_benefit", "total_amount", "all_water", "todayAward", "riseAward");
 
     private List<Map<String, Object>> parsePersonReportMapList(List<Object> resultList) {
         List<Map<String, Object>> list = null;

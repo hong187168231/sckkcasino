@@ -30,6 +30,10 @@ public enum AccountChangeEnum {
     AE_OUT(22, "AEOUT","AE转出"),
     VNC_IN(25, "VNCIN","VNC转入"),
     VNC_OUT(26, "VNCOUT","VNC转出"),
+
+    TODAY_AWARD(27, "TODAYAWARD", "每日奖励"),
+    UPGRADE_AWARD(28, "UPGRADEAWARD", "升级奖励"),
+
     ;
 
     private Integer type;

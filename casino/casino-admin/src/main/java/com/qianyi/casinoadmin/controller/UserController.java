@@ -97,6 +97,9 @@ public class UserController {
     @Autowired
     private MessageUtil messageUtil;
 
+    @Autowired
+    private UserLevelService userLevelService;
+
     private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_10);
 
     @ApiOperation("查询代理下级的用户数据")
@@ -216,11 +219,6 @@ public class UserController {
     }
 
 
-        /**
-         * 查询操作
-         * 注意：jpa 是从第0页开始的
-         * @return
-         */
     @ApiOperation("用户列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
@@ -234,8 +232,8 @@ public class UserController {
     })
     @GetMapping("findUserList")
     public ResponseEntity<UserVo> findUserList(Integer pageSize, Integer pageCode, String account,String proxyAccount,Integer state,
-                                       @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
-                                       @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate, Integer sortType){
+                                               @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date startDate,
+                                               @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate, Integer sortType){
 
         //后续扩展加参数。
         User user = new User();
@@ -289,6 +287,7 @@ public class UserController {
                 userList.stream().forEach(u -> {
                     // UserVo userVo = new UserVo(u);
                     UserVo userVo = DTOUtil.toDTO(u, UserVo.class);
+                    userVo.setUserLevel(u.getLevel());
                     finalUserMoneyList.stream().forEach(userMoney -> {
                         if(u.getId().equals(userMoney.getUserId())){
                             userVo.setMoney(userMoney.getMoney());
@@ -296,6 +295,7 @@ public class UserController {
                             userVo.setNotCodeWashingAmount(userMoney.getWashCode());
                             userVo.setCodeNum(userMoney.getCodeNum());
                             userVo.setWithdrawMoney(userMoney.getWithdrawMoney());//可以提现金额
+                            userVo.setLevelWater(userMoney.getLevelWater());
                         }
                     });
                     firstPidUsers.stream().forEach(firstPid -> {
@@ -312,6 +312,7 @@ public class UserController {
                             userVo.setFirstProxyAccount(proxyUser.getUserName());
                         }
                     });
+                    userLevelService.processLevelWater(u,userVo);
                     userVoList.add(userVo);
                 });
                 if(sortType !=null){
@@ -1145,6 +1146,7 @@ public class UserController {
         String password = UserPasswordUtil.getRandomPwd();
         String bcryptPassword = LoginUtil.bcrypt(password);
         user.setPassword(bcryptPassword);
+        user.setLevel(1);
         //默认展示两张收款卡
         user.setCreditCard(Constants.creditCard);
         String inviteCodeNew = generateInviteCodeRunner.getInviteCode();
@@ -1156,6 +1158,8 @@ public class UserController {
         userMoney.setMoney(BigDecimal.ZERO);
         userMoney.setCodeNum(BigDecimal.ZERO);
         userMoney.setIsFirst(CommonConst.NUMBER_0);
+        userMoney.setLevelWater(BigDecimal.ZERO);
+        userMoney.setRiseWater(BigDecimal.ZERO);
         userMoneyService.save(userMoney);
 
         JSONObject jsonObject = new JSONObject();
