@@ -8,6 +8,7 @@ import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.util.GenerateInviteCodeRunner;
+import com.qianyi.casinocore.util.RedisLockUtil;
 import com.qianyi.casinocore.vo.UserLevelVo;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.util.DeviceUtil;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import java.text.MessageFormat;
 import java.util.UUID;
 
 @RestController
@@ -59,6 +61,9 @@ public class UserController {
 
     @Autowired
     UserLevelBusiness userLevelBusiness;
+
+    @Autowired
+    private RedisLockUtil redisLockUtil;
 
     @GetMapping("info")
     @ApiOperation("获取当前用户的基本信息(不包含 余额，打码量，可提现金额,洗码金额)")
@@ -105,10 +110,7 @@ public class UserController {
     @PostMapping("/updateUserInfo")
     @ApiOperation("登录用户修改信息")
     @ResponseBody
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "type", value = "参数类型:0=真实姓名，1=邮箱地址，2=微信账号，3=QQ账号", required = true),
-            @ApiImplicitParam(name = "value", required = true),
-    })
+    @ApiImplicitParams({@ApiImplicitParam(name = "type", value = "参数类型:0=真实姓名，1=邮箱地址，2=微信账号，3=QQ账号", required = true), @ApiImplicitParam(name = "value", required = true),})
     public ResponseEntity updateUserInfo(String type, String value) {
         if (ObjectUtils.isEmpty(type)) {
             return ResponseUtil.parameterNotNull();
@@ -118,20 +120,20 @@ public class UserController {
         if (user == null) {
             return ResponseUtil.custom("用户不存在");
         }
-        String remark="该信息不可修改";
+        String remark = "该信息不可修改";
         if ("0".equals(type)) {
-            if(!ObjectUtils.isEmpty(user.getRealName())){
+            if (!ObjectUtils.isEmpty(user.getRealName())) {
                 return ResponseUtil.custom(remark);
             }
-            if(ObjectUtils.isEmpty(value)){
+            if (ObjectUtils.isEmpty(value)) {
                 return ResponseUtil.custom("真实姓名不允许为空");
             }
             user.setRealName(value);
         } else if ("1".equals(type)) {
-            if(!ObjectUtils.isEmpty(user.getEmail())){
+            if (!ObjectUtils.isEmpty(user.getEmail())) {
                 return ResponseUtil.custom(remark);
             }
-            if(ObjectUtils.isEmpty(value)){
+            if (ObjectUtils.isEmpty(value)) {
                 return ResponseUtil.custom("邮箱不允许为空");
             }
             if (!value.matches(RegexEnum.EMAIL.getRegex())) {
@@ -139,28 +141,28 @@ public class UserController {
             }
             user.setEmail(value);
         } else if ("2".equals(type)) {
-            if(!ObjectUtils.isEmpty(user.getWebChat())){
+            if (!ObjectUtils.isEmpty(user.getWebChat())) {
                 return ResponseUtil.custom(remark);
             }
-            if(ObjectUtils.isEmpty(value)){
+            if (ObjectUtils.isEmpty(value)) {
                 return ResponseUtil.custom("微信号不允许为空");
             }
             if (!value.matches(RegexEnum.WEBCHAT.getRegex())) {
-                return ResponseUtil.custom("微信号"+RegexEnum.WEBCHAT.getDesc());
+                return ResponseUtil.custom("微信号" + RegexEnum.WEBCHAT.getDesc());
             }
             user.setWebChat(value);
         } else if ("3".equals(type)) {
-            if(!ObjectUtils.isEmpty(user.getQq())){
+            if (!ObjectUtils.isEmpty(user.getQq())) {
                 return ResponseUtil.custom(remark);
             }
-            if(ObjectUtils.isEmpty(value)){
+            if (ObjectUtils.isEmpty(value)) {
                 return ResponseUtil.custom("QQ号不允许为空");
             }
             if (!value.matches(RegexEnum.QQ.getRegex())) {
-                return ResponseUtil.custom("QQ号"+RegexEnum.QQ.getDesc());
+                return ResponseUtil.custom("QQ号" + RegexEnum.QQ.getDesc());
             }
             user.setQq(value);
-        } else{
+        } else {
             return ResponseUtil.custom("修改失败");
         }
         userService.save(user);
@@ -171,24 +173,19 @@ public class UserController {
     @PostMapping("/webUpdateUserInfo")
     @ApiOperation("web端登录用户修改信息")
     @ResponseBody
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "email", value = "邮箱"),
-            @ApiImplicitParam(name = "webChat", value = "微信"),
-            @ApiImplicitParam(name = "qq", value = "QQ"),
-            @ApiImplicitParam(name = "phone", value = "手机号"),
-    })
+    @ApiImplicitParams({@ApiImplicitParam(name = "email", value = "邮箱"), @ApiImplicitParam(name = "webChat", value = "微信"), @ApiImplicitParam(name = "qq", value = "QQ"), @ApiImplicitParam(name = "phone", value = "手机号"),})
     public ResponseEntity webUpdateUserInfo(String email, String webChat, String qq, String phone) {
-        if(ObjectUtils.isEmpty(email)&&ObjectUtils.isEmpty(webChat)&&ObjectUtils.isEmpty(qq)&&ObjectUtils.isEmpty(phone)){
+        if (ObjectUtils.isEmpty(email) && ObjectUtils.isEmpty(webChat) && ObjectUtils.isEmpty(qq) && ObjectUtils.isEmpty(phone)) {
             return ResponseUtil.parameterNotNull();
         }
         if (!ObjectUtils.isEmpty(webChat) && !webChat.matches(RegexEnum.WEBCHAT.getRegex())) {
-            return ResponseUtil.custom("微信号"+RegexEnum.WEBCHAT.getDesc());
+            return ResponseUtil.custom("微信号" + RegexEnum.WEBCHAT.getDesc());
         }
         if (!ObjectUtils.isEmpty(qq) && !qq.matches(RegexEnum.QQ.getRegex())) {
-            return ResponseUtil.custom("QQ号"+RegexEnum.QQ.getDesc());
+            return ResponseUtil.custom("QQ号" + RegexEnum.QQ.getDesc());
         }
         if (!ObjectUtils.isEmpty(phone) && !phone.matches(RegexEnum.PHONE.getRegex())) {
-            return ResponseUtil.custom("手机号"+RegexEnum.PHONE.getDesc());
+            return ResponseUtil.custom("手机号" + RegexEnum.PHONE.getDesc());
         }
         if (!ObjectUtils.isEmpty(email) && !email.matches(RegexEnum.EMAIL.getRegex())) {
             return ResponseUtil.custom("邮箱格式填写错误");
@@ -213,7 +210,7 @@ public class UserController {
             user.setPhone(phone);
             flag = false;
         }
-        if(flag){
+        if (flag) {
             return ResponseUtil.custom("该信息不可修改");
         }
         userService.save(user);
@@ -239,17 +236,10 @@ public class UserController {
     }
 
 
-
     @PostMapping("directOpenAccount")
     @ApiOperation("直接开户")
     @Transactional
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "account", value = "帐号", required = true),
-            @ApiImplicitParam(name = "password", value = "密码", required = true),
-            @ApiImplicitParam(name = "confirmPassword", value = "确认密码", required = true),
-            @ApiImplicitParam(name = "country", value = "区号，柬埔寨：855", required = false),
-            @ApiImplicitParam(name = "phone", value = "手机号", required = false),
-    })
+    @ApiImplicitParams({@ApiImplicitParam(name = "account", value = "帐号", required = true), @ApiImplicitParam(name = "password", value = "密码", required = true), @ApiImplicitParam(name = "confirmPassword", value = "确认密码", required = true), @ApiImplicitParam(name = "country", value = "区号，柬埔寨：855", required = false), @ApiImplicitParam(name = "phone", value = "手机号", required = false),})
     public ResponseEntity directOpenAccount(String account, String password, String confirmPassword, String country, String phone, HttpServletRequest request) {
         //人人代开关检查
         ResponseEntity response = checkPeopleProxySwitch();
@@ -298,7 +288,7 @@ public class UserController {
         //设置user基本参数
         String ip = IpUtil.getIp(request);
         String inviteCodeNew = generateInviteCodeRunner.getInviteCode();
-        user = User.setBaseUser(account, CasinoWebUtil.bcrypt(password), phone, ip,inviteCodeNew);
+        user = User.setBaseUser(account, CasinoWebUtil.bcrypt(password), phone, ip, inviteCodeNew);
         //设置父级
         User parentUser = userService.findById(userId);
         user.setFirstPid(userId);
@@ -330,65 +320,84 @@ public class UserController {
     @ApiOperation("领取vip奖励")
     @ApiImplicitParams({@ApiImplicitParam(name = "awardType", value = "奖励类型 1每日奖励 2 晋级奖励", required = true)})
     public ResponseEntity<Boolean> receiveAward(Integer awardType) {
-        if (awardType < 1 || awardType > 2) {
-            return ResponseUtil.custom("参数错误");
-        }
         Long userId = CasinoWebUtil.getAuthId();
-        boolean flag = userLevelBusiness.receiveAward(userId, awardType);
-        return ResponseUtil.success(flag);
+        String key = MessageFormat.format(RedisLockUtil.AWARD_RECEIVE_RESTART, userId);
+        Boolean lock = false;
+        try {
+            lock = redisLockUtil.getLock(key, userId + "");
+            if (lock) {
+                if (awardType < 1 || awardType > 2) {
+                    return ResponseUtil.custom("参数错误");
+                }
+                boolean flag = userLevelBusiness.receiveAward(userId, awardType);
+                return ResponseUtil.success(flag);
+            }
+        } catch (Exception ex) {
+            return ResponseUtil.custom("操作频繁,稍后再试");
+        } finally {
+            if (lock) {
+                log.info("重新计算报表释放redis锁{}", key);
+                redisLockUtil.releaseLock(key, userId + "");
+            }
+        }
+        return ResponseUtil.success(false);
     }
 
 
-    /**
-     * 记录注册日志
-     * @param ip
-     * @param user
-     * @param request
-     */
-    public void setLoginLog(String ip,User user,HttpServletRequest request){
-        LoginLogVo vo = new LoginLogVo();
+
+/**
+ * 记录注册日志
+ *
+ * @param ip
+ * @param user
+ * @param request
+ */
+public void setLoginLog(String ip,User user,HttpServletRequest request){
+        LoginLogVo vo=new LoginLogVo();
         vo.setIp(ip);
         vo.setAccount(user.getAccount());
         vo.setUserId(user.getId());
         //检测请求设备
-        String ua = request.getHeader("User-Agent");
-        boolean checkMobileOrPc = DeviceUtil.checkAgentIsMobile(ua);
+        String ua=request.getHeader("User-Agent");
+        boolean checkMobileOrPc=DeviceUtil.checkAgentIsMobile(ua);
         if(checkMobileOrPc){
-            vo.setRemark("Mobile");
+        vo.setRemark("Mobile");
         }else{
-            vo.setRemark("PC");
+        vo.setRemark("PC");
         }
         vo.setType(2);
         asyncService.executeAsync(vo);
-    }
+        }
 
-    /**
-     * 推送团队新增成员MQ
-     * @param user
-     */
-    public void sendUserMq(User user){
-        log.info("开始推送团队新增成员消息", user);
-        rabbitTemplate.convertAndSend(RabbitMqConstants.ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.ADDUSERTOTEAM_DIRECT, user, new CorrelationData(UUID.randomUUID().toString()));
-        log.info("团队新增成员消息发送成功={}", user);
-    }
+/**
+ * 推送团队新增成员MQ
+ *
+ * @param user
+ */
+public void sendUserMq(User user){
+        log.info("开始推送团队新增成员消息",user);
+        rabbitTemplate.convertAndSend(RabbitMqConstants.ADDUSERTOTEAM_DIRECTQUEUE_DIRECTEXCHANGE,RabbitMqConstants.ADDUSERTOTEAM_DIRECT,user,new CorrelationData(UUID.randomUUID().toString()));
+        log.info("团队新增成员消息发送成功={}",user);
+        }
 
-    /**
-     * 人人代开关检查
-     * @return
-     */
-    public ResponseEntity checkPeopleProxySwitch() {
-        PlatformConfig platformConfig = platformConfigService.findFirst();
-        boolean proxySwitch = PlatformConfig.checkPeopleProxySwitch(platformConfig);
-        if (!proxySwitch) {
-            return ResponseUtil.custom("不支持此功能");
+/**
+ * 人人代开关检查
+ *
+ * @return
+ */
+public ResponseEntity checkPeopleProxySwitch(){
+        PlatformConfig platformConfig=platformConfigService.findFirst();
+        boolean proxySwitch=PlatformConfig.checkPeopleProxySwitch(platformConfig);
+        if(!proxySwitch){
+        return ResponseUtil.custom("不支持此功能");
         }
         return null;
-    }
+        }
 
-    public static void main(String[] args) {
-        String regex = "^[0-9]*[1-9][0-9]*$";
+public static void main(String[]args){
+        String regex="^[0-9]*[1-9][0-9]*$";
         String phone="123q";
         System.out.println(phone.matches(regex));
-    }
+        }
 
-}
+        }
