@@ -295,7 +295,9 @@ public class SqlNewConst {
     t1.wash_amount wash_amount,
     t2.service_charge service_charge,
     t3.all_profit_amount all_profit_amount,
-    t4.water all_water
+    t4.water all_water,
+	t5.todayAward,
+	t6.riseAward
     FROM
         (
             SELECT
@@ -332,7 +334,26 @@ public class SqlNewConst {
     WHERE
         user_id = {2}{3}
     AND create_time BETWEEN {0}
-    AND {1}) t4
+    AND {1}) t4,(
+	 select 
+			IFNULL(SUM(amount),0) as todayAward
+		FROM
+			award_receive_record
+		WHERE
+		 1=1  and user_id = {2}
+					and  award_type = 1				
+    AND create_time BETWEEN {0} AND {1}
+	) t5
+	,(
+	 select
+		IFNULL(SUM(amount),0) as riseAward
+	FROM
+		award_receive_record
+	WHERE
+	 1=1  and user_id = {2}
+				and  award_type = 2					
+   AND receive_time BETWEEN {0} AND {1}
+	) t6
         """;
 
     public static String totalSqlWash = """
