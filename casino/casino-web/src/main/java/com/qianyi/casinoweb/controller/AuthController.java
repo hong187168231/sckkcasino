@@ -47,6 +47,7 @@ import javax.transaction.Transactional;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 @Api(tags = "认证中心")
@@ -237,12 +238,15 @@ public class AuthController {
         //获取注册时用的域名
         String origin = request.getHeader("origin");
         user.setRegisterDomainName(origin);
+        user.setLevel(1);
 
         User save = userService.save(user);
         log.info("user表数据创建成功，user={}",save.toString());
         //userMoney表初始化数据
         UserMoney userMoney = new UserMoney();
         userMoney.setUserId(save.getId());
+        userMoney.setLevelWater(BigDecimal.ZERO);
+        userMoney.setRiseWater(BigDecimal.ZERO);
         userMoneyService.save(userMoney);
         log.info("userMoney表数据创建成功，userMoney={}",userMoney.toString());
         //记录注册日志
