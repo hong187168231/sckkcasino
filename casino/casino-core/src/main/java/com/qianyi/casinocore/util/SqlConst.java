@@ -1132,7 +1132,9 @@ public class SqlConst {
     ifnull(pr.amount,0) all_profit_amount,
               -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0)) avg_benefit,
         -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0) total_amount,
-    sum(ifnull(ec.water, 0)) all_water
+    sum(ifnull(ec.water, 0)) all_water,
+        sum(ifnull(td.todayAmount, 0)) todayAward,
+            sum(ifnull(rs.riseAmount, 0)) riseAward
     from user u left join (
         select user_id ,
         SUM(betting_number) num,
