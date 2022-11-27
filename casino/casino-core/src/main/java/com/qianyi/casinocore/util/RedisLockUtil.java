@@ -19,6 +19,8 @@ public class RedisLockUtil {
 
     public static final String GAME_RECORD_RESTART ="gameRecordRestart:{0}";
 
+    public static final String AWARD_RECEIVE_RESTART ="awardReceiveRestart:{0}";
+
     public static final String WITHDRAW_AUDIT_ORDER ="withdrawAuditOrder:{0}";
 
     public static final String CHARGEORDER_ORDER ="chargeOrder:{0}";

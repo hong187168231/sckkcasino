@@ -201,6 +201,7 @@ public class UserLevelBusiness {
             awardReceiveRecord.setUserId(userId);
             awardReceiveRecord.setReceiveStatus(1);
             awardReceiveRecord.setAwardType(1);
+            awardReceiveRecord.setLevel(user.getLevel());
             awardReceiveRecord.setAmount(new BigDecimal(result.get("todayAward")));
             awardReceiveRecordService.save(awardReceiveRecord);
             // 增加用户余额

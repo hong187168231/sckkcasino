@@ -27,18 +27,17 @@ public class VipDeclineTask {
     @Autowired
     private UserLevelService userLevelService;
 
-//    @Scheduled(fixedRate = 6000 * 10 * 6)
+    @Scheduled(cron = "0 0/10 * * * ?")
     public void begin() {
         log.info(" Vip 升级开始 start=============================================》");
         try {
-            Date startTime = new Date();
-            Date endTime = new Date();
-            startTime = cn.hutool.core.date.DateUtil.offsetMinute(startTime, -300);
-            endTime = cn.hutool.core.date.DateUtil.offsetMinute(endTime, -1);
+            Date startTime = DateUtil.getStartTime();
+            Date endTime = DateUtil.getEndTime();
+            startTime = cn.hutool.core.date.DateUtil.offsetDay(startTime, -15);
+            endTime = cn.hutool.core.date.DateUtil.offsetDay(endTime, -15);
             List<Map<String, Object>> idList = userLevelService.findLastRiseUser(startTime, endTime);
             for (Map<String, Object> map : idList) {
                 Long userId = Long.parseLong(map.get("userId").toString());
-                Long id = Long.parseLong(map.get("id").toString());
                 userLevelBusiness.processUserKeepLevel(userId);
                 int row = queryToday(userId);
                 if (row < 1) {
@@ -59,6 +58,15 @@ public class VipDeclineTask {
         String startTime = DateUtil.getStartTime(0);
         String endTime = DateUtil.getEndTime(0);
         return userLevelDeclineRepository.queryBonusAmount(userId, startTime, endTime);
+    }
+
+
+    public static void main(String[] args) {
+        Date startTime = DateUtil.getStartTime();
+        Date endTime = DateUtil.getEndTime();
+        startTime = cn.hutool.core.date.DateUtil.offsetDay(startTime, -15);
+        endTime = cn.hutool.core.date.DateUtil.offsetDay(endTime, -15);
+        System.out.println();
     }
 
 }

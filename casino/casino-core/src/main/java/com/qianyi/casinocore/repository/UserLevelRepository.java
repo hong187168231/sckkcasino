@@ -43,7 +43,7 @@ public interface UserLevelRepository extends JpaRepository<UserLevelRecord, Long
             "  ) k  " +
             "WHERE  " +
             " 1=1 and   updateTime BETWEEN ?1  " +
-            "AND ?2  " +
+            "AND ?2  AND updateTime <= now() - INTERVAL 360 HOUR  " +
             "AND userId NOT IN (  " +
             "  SELECT  " +
             "    user_id AS userId  " +
@@ -52,7 +52,8 @@ public interface UserLevelRepository extends JpaRepository<UserLevelRecord, Long
             "  WHERE  " +
             "    today_decline_status = 1  " +
             "  AND user_id = k.userId  " +
-            "  AND to_days(create_time) = to_days(now())  " +
+            "  AND to_days(create_time) = to_days(now()) " +
+            "  order by updateTime desc  " +
             ")  " +
             "LIMIT 50 ", nativeQuery = true)
     List<Map<String, Object>> findLastRiseUser(String startTime, String endTime);

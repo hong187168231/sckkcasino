@@ -120,6 +120,7 @@ public class SysPermissionConfigFile {
         SysPermission findOrderList = new SysPermission("WM资金明细", "WM资金明细", "/order/findOrderList", memberTranslate.getId(), 3, 0);
         SysPermission findAccountChangePage = new SysPermission("会员账变", "会员账变", "/accountChange/findAccountChangePage", memberTranslate.getId(), 3, 0);
         SysPermission rechargeTurnover = new SysPermission("充值流水", "充值流水", "/rechargeTurnover/findPage", memberTranslate.getId(), 3, 0);
+        SysPermission findLevelChangePage = new SysPermission("会员等级记录", "会员等级记录", "/levelChange/findLevelChangePage", memberTranslate.getId(), 3, 0);
         SysPermission findCodeNumChangeList = new SysPermission("会员打码量", "会员打码量", "/codeNumChange/findCodeNumChangeList", memberTranslate.getId(), 3, 0);
         SysPermission findIp = new SysPermission("IP地址", "IP地址查询", "/user/findIp", memberTranslate.getId(), 3, 0);
         thridPermissions.add(saveCharge);
@@ -136,6 +137,7 @@ public class SysPermissionConfigFile {
         thridPermissions.add(updateWashCodeConfigs);
         thridPermissions.add(findOrderList);
         thridPermissions.add(findAccountChangePage);
+        thridPermissions.add(findLevelChangePage);
         thridPermissions.add(rechargeTurnover);
         thridPermissions.add(findCodeNumChangeList);
         thridPermissions.add(findIp);
