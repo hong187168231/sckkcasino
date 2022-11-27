@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.qianyi.casinoadmin.service.HomePageReportService;
 import com.qianyi.casinoadmin.task.HomePageReportTask;
 import com.qianyi.casinoadmin.util.LoginUtil;
@@ -584,8 +585,11 @@ public class HomePageReportController {
             homePageReportVo.setWashCodeAmount(washCodeAmount);
 
             BigDecimal awardAmount = awardReceiveRecordService.queryBonusAmount("2022-11-11 00:00:00", "2025-11-25 00:00:00");
-            homePageReportVo.setAwardAmount(awardAmount);
-
+            if(ObjectUtil.isNull(awardAmount)){
+                homePageReportVo.setAwardAmount(BigDecimal.ZERO);
+            }else {
+                homePageReportVo.setAwardAmount(awardAmount);
+            }
             return homePageReportVo;
         }catch (Exception ex){
             log.error("统计三方游戏注单失败",ex);
@@ -623,8 +627,11 @@ public class HomePageReportController {
             homePageReportVo.setWashCodeAmount(washCodeAmount);
 
             BigDecimal awardAmount = awardReceiveRecordService.queryBonusAmount(startTime, endTime);
-            homePageReportVo.setAwardAmount(awardAmount);
-
+            if(ObjectUtil.isNull(awardAmount)){
+                homePageReportVo.setAwardAmount(BigDecimal.ZERO);
+            }else {
+                homePageReportVo.setAwardAmount(awardAmount);
+            }
             return homePageReportVo;
         }catch (Exception ex){
             log.error("统计三方游戏注单失败",ex);
