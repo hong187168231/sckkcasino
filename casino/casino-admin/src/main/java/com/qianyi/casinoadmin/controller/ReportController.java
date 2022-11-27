@@ -404,7 +404,7 @@ public class ReportController {
             }
         }
         String[] title = {"会员账号", "基层代理", "投注笔数", "投注金额", "有效投注", "总洗码", "贡献代理抽点", "用户输赢", "平台盈亏结算(毛利1)", "累计人人贷佣金",
-            "提款手续费", "总结算(毛利2)"};
+                "提款手续费", "总结算(毛利2)","每日奖励", "晋级奖励"};
         // excel文件名
         String fileName = "会员总报表" + System.currentTimeMillis() + ".xls";
         // sheet名
@@ -425,6 +425,8 @@ public class ReportController {
             content[i][9] = obj.getAllProfitAmount().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
             content[i][10] = obj.getServiceCharge().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
             content[i][11] = obj.getTotalAmount().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+            content[i][12] = obj.getTodayAward().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+            content[i][13] = obj.getRiseAward().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
         }
         // 创建HSSFWorkbook
         HSSFWorkbook wb = ExcelUtil.getHSSFWorkbook(sheetName, title, content, null);

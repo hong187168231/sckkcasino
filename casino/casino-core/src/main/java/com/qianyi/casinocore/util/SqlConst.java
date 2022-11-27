@@ -268,7 +268,9 @@ public class SqlConst {
     ifnull(pr.amount,0) all_profit_amount,
     -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0)) avg_benefit,
         -(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0) -ifnull(ec.water,0) +ifnull(withdraw_t.service_charge,0) total_amount,
-    ifnull(ec.water, 0) all_water
+    ifnull(ec.water, 0) all_water,
+        ifnull(td.todayAward, 0) todayAward,
+            ifnull(rs.riseAward, 0) riseAward
     from user u left join (
         select user_id ,
         SUM(betting_number) num,
@@ -306,6 +308,28 @@ public class SqlConst {
     where create_time between {0} and {1}
     group by user_id
               ) ec on u.id = ec.user_id
+            LEFT JOIN (
+                SELECT
+                    user_id,
+                    SUM(amount) AS todayAward
+                FROM
+                    award_receive_record
+                WHERE
+                 award_type = 1
+                GROUP BY
+                    user_id
+            ) td ON u.id = td.user_id
+            LEFT JOIN (
+                SELECT
+                    user_id,
+                    SUM(amount) AS riseAward
+                FROM
+                    award_receive_record
+                WHERE          
+                 award_type = 2
+                GROUP BY
+                    user_id
+            ) rs ON u.id = rs.user_id   
     where  1=1{5} {2}
             """;
 
@@ -1797,7 +1821,9 @@ public class SqlConst {
     sum(ifnull(pr.amount,0)) all_profit_amount,
     sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0))) avg_benefit,
     sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,
-    sum(ifnull(ec.water, 0)) all_water
+    sum(ifnull(ec.water, 0)) all_water,
+        sum(ifnull(td.todayAmount, 0)) todayAward,
+            sum(ifnull(rs.riseAmount, 0)) riseAward
     from user u left join (
         select user_id ,
         SUM(betting_number) num,
@@ -1836,6 +1862,32 @@ public class SqlConst {
     where create_time between {0} and {1}
     group by user_id
                 ) ec on u.id = ec.user_id{4}
+                LEFT JOIN (
+                SELECT
+                    user_id,
+                    SUM(amount) AS todayAward
+                FROM
+                    award_receive_record
+                WHERE
+                 award_type = 1
+                AND create_time BETWEEN {0}
+                AND {1}
+                GROUP BY
+                    user_id
+            ) td ON u.id = td.user_id
+            LEFT JOIN (
+                SELECT
+                    user_id,
+                    SUM(amount) AS riseAward
+                FROM
+                    award_receive_record
+                WHERE          
+                 award_type = 2
+                AND receive_time BETWEEN {0}
+                AND {1}
+                GROUP BY
+                    user_id
+            ) rs ON u.id = rs.user_id
             """;
 
     //    public static String sumSql = """
