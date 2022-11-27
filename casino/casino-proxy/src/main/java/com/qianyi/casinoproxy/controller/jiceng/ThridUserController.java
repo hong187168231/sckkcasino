@@ -545,6 +545,7 @@ public class ThridUserController {
         user.setSecondProxy(byId.getSecondProxy());
         user.setThirdProxy(byId.getId());
         user.setType(Constants.USER_TYPE1);
+        user.setLevel(Constants.USER_TYPE1);
         String inviteCodeNew = generateInviteCodeRunner.getInviteCode();
         user.setInviteCode(inviteCodeNew);
         User save = userService.save(user);
@@ -554,6 +555,8 @@ public class ThridUserController {
         userMoney.setMoney(BigDecimal.ZERO);
         userMoney.setCodeNum(BigDecimal.ZERO);
         userMoney.setIsFirst(CommonConst.NUMBER_0);
+        userMoney.setLevelWater(BigDecimal.ZERO);
+        userMoney.setRiseWater(BigDecimal.ZERO);
         userMoneyService.save(userMoney);
 
         JSONObject jsonObject = new JSONObject();
