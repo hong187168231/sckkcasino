@@ -166,7 +166,7 @@ public class PlatformConfig {
     private Integer chargeSwitch ;
 
     @ApiModelProperty("vip配置")
-    @Column(name = "vip_config_info",columnDefinition="text")
+    @Column(length = 3000)
     private String vipConfigInfo;
 
     //得到充值手续费用
