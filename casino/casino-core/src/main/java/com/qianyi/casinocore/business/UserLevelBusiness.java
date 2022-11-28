@@ -365,6 +365,7 @@ public class UserLevelBusiness {
 
     public PlatformConfig platformConfig() {
         PlatformConfig platformConfig = platformConfigService.findFirst();
+        platformConfig.setVipConfigInfo("{\"level5\":{\"upgradeBet\":25000,\"todayAward\":15,\"keepBet\":5000,\"upgradeAward\":20},\"level4\":{\"upgradeBet\":12000,\"todayAward\":10,\"keepBet\":4000,\"upgradeAward\":15},\"level7\":{\"upgradeBet\":200000,\"todayAward\":30,\"keepBet\":50000,\"upgradeAward\":50},\"level6\":{\"upgradeBet\":75000,\"todayAward\":20,\"keepBet\":25000,\"upgradeAward\":30},\"level9\":{\"upgradeBet\":1000000,\"todayAward\":70,\"keepBet\":200000,\"upgradeAward\":100},\"level8\":{\"upgradeBet\":500000,\"todayAward\":50,\"keepBet\":100000,\"upgradeAward\":70},\"todayCodeRate\":3,\"level10\":{\"upgradeBet\":5000000,\"todayAward\":100,\"keepBet\":500000,\"upgradeAward\":200},\"level1\":{\"upgradeBet\":0,\"todayAward\":0,\"keepBet\":0,\"upgradeAward\":0},\"level3\":{\"upgradeBet\":5000,\"todayAward\":6,\"keepBet\":1500,\"upgradeAward\":10},\"upgradeCodeRate\":3,\"level2\":{\"upgradeBet\":1500,\"todayAward\":3,\"keepBet\":500,\"upgradeAward\":6}}");
         return platformConfig;
     }
 
