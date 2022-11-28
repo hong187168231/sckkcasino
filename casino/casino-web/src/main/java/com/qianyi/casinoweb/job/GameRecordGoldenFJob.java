@@ -93,13 +93,14 @@ public class GameRecordGoldenFJob {
 
     /**
      * 补单
+     *
      * @param vendorCode
      * @param timeVOS
      */
-    public void supplementPullGameRecord(String vendorCode,List<GoldenFTimeVO> timeVOS) {
+    public void supplementPullGameRecord(String vendorCode, List<GoldenFTimeVO> timeVOS) {
         timeVOS.forEach(item -> {
             log.info("{},开始补单{}到{}的注单数据", vendorCode, item.getStartTime(), item.getEndTime());
-            excutePull(false,vendorCode, item.getStartTime(), item.getEndTime());
+            excutePull(false, vendorCode, item.getStartTime(), item.getEndTime());
             log.info("{},{}到{}数据补单完成", vendorCode, item.getStartTime(), item.getEndTime());
         });
     }
@@ -138,7 +139,7 @@ public class GameRecordGoldenFJob {
     }
 
 
-    private void excutePull(boolean pull,String vendorCode, Long startTime, Long endTime) {
+    private void excutePull(boolean pull, String vendorCode, Long startTime, Long endTime) {
 
 
         log.info("startime is {}  endtime is {}", startTime, endTime);
@@ -214,7 +215,7 @@ public class GameRecordGoldenFJob {
             item.setFirstProxy(user.getFirstProxy());
             item.setSecondProxy(user.getSecondProxy());
             item.setThirdProxy(user.getThirdProxy());
-            if (item.getCreatedAt() != null){
+            if (item.getCreatedAt() != null) {
                 item.setCreateAtStr(DateUtil.timeStamp2Date(item.getCreatedAt(), ""));
             }
             saveToDB(item, platformConfig);
@@ -228,7 +229,7 @@ public class GameRecordGoldenFJob {
     private void saveToDB(GameRecordGoldenF item, PlatformConfig platformConfig) {
         try {
             GameRecordGoldenF gameRecordGoldenF = gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
-            if(gameRecordGoldenF != null){
+            if (gameRecordGoldenF != null) {
                 return;
             }
             gameRecordGoldenFService.save(item);
@@ -236,7 +237,7 @@ public class GameRecordGoldenFJob {
             changeUserBalance(item);
             GameRecord gameRecord = combineGameRecord(item);
             //发送注单消息到MQ后台要统计数据
-            gameRecordAsyncOper.proxyGameRecordReport(item.getVendorCode(),gameRecord);
+            gameRecordAsyncOper.proxyGameRecordReport(item.getVendorCode(), gameRecord);
             processBusiness(item, gameRecord, platformConfig);
         } catch (Exception e) {
             log.error("注单数据保存失败,msg={}", e.getMessage());
@@ -264,8 +265,8 @@ public class GameRecordGoldenFJob {
             if (winLossAmount.compareTo(BigDecimal.ZERO) == 1) {
                 userMoneyBusiness.addBalance(userId, winLossAmount);
             }
-        }catch (Exception e){
-            log.error("改变用户实时余额时报错，msg={}",e.getMessage());
+        } catch (Exception e) {
+            log.error("改变用户实时余额时报错，msg={}", e.getMessage());
         }
     }
 
@@ -285,8 +286,10 @@ public class GameRecordGoldenFJob {
         gameRecordAsyncOper.shareProfit(gameRecordGoldenF.getVendorCode(), gameRecord);
         //返利
         gameRecordAsyncOper.rebate(gameRecordGoldenF.getVendorCode(), gameRecord);
-        //等级流水
-        gameRecordAsyncOper.levelWater(gameRecordGoldenF.getVendorCode(), gameRecord);
+        if (gameRecordGoldenF.getTransType() != null && gameRecordGoldenF.getTransType().equals("Stake")) {
+            //等级流水
+            gameRecordAsyncOper.levelWater(gameRecordGoldenF.getVendorCode(), gameRecord);
+        }
     }
 
 
@@ -313,7 +316,7 @@ public class GameRecordGoldenFJob {
         gameRecord.setFirstProxy(item.getFirstProxy());
         gameRecord.setSecondProxy(item.getSecondProxy());
         gameRecord.setThirdProxy(item.getThirdProxy());
-        if (!ObjectUtils.isEmpty(item.getBetAmount())){
+        if (!ObjectUtils.isEmpty(item.getBetAmount())) {
             gameRecord.setBet(item.getBetAmount().toString());
         }
         if (item.getWinAmount() != null && item.getBetAmount() != null) {
