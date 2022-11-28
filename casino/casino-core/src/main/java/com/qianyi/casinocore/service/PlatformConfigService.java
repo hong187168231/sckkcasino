@@ -42,36 +42,35 @@ public class PlatformConfigService {
 
     @Async("asyncExecutor")
     @CacheEvict(cacheNames = "platformConfig", allEntries = true)
-    public  void reception(Integer type, BigDecimal amount){
-        updateTotalPlatformQuota(type,amount);
+    public void reception(Integer type, BigDecimal amount) {
+        updateTotalPlatformQuota(type, amount);
     }
 
     @CacheEvict(cacheNames = "platformConfig", allEntries = true)
-    public  void backstage(Integer type, BigDecimal amount){
-        updateTotalPlatformQuota(type,amount);
+    public void backstage(Integer type, BigDecimal amount) {
+        updateTotalPlatformQuota(type, amount);
     }
 
     /**
-     *
-     * @param type 0:减 1:加
+     * @param type   0:减 1:加
      * @param amount 操作金额
      */
-    public synchronized void updateTotalPlatformQuota(Integer type, BigDecimal amount){
+    public synchronized void updateTotalPlatformQuota(Integer type, BigDecimal amount) {
         PlatformConfig platformConfig = findFirst();
-        if (type.equals( CommonConst.NUMBER_0)){
+        if (type.equals(CommonConst.NUMBER_0)) {
             platformConfig.setTotalPlatformQuota(platformConfig.getTotalPlatformQuota().subtract(amount));
-        }else {
+        } else {
             platformConfig.setTotalPlatformQuota(platformConfig.getTotalPlatformQuota().add(amount));
         }
-        if(StrUtil.isBlank(platformConfig.getVipConfigInfo())){
-            throw  new BusinessException("vip配置不能为空");
+        if (platformConfig.getVipConfigInfo() != null && platformConfig.getVipConfigInfo().equals("")) {
+            throw new BusinessException("vip配置不能为空");
         }
         platformConfigRepository.save(platformConfig);
     }
 
-    public  Boolean queryTotalPlatformQuota(){
+    public Boolean queryTotalPlatformQuota() {
         PlatformConfig platformConfig = findFirst();
-        if ( platformConfig.getTotalPlatformQuota().compareTo(BigDecimal.ZERO)<=0){
+        if (platformConfig.getTotalPlatformQuota().compareTo(BigDecimal.ZERO) <= 0) {
             return false;
         }
         return true;
@@ -80,8 +79,8 @@ public class PlatformConfigService {
 
     @CacheEvict(cacheNames = "platformConfig", allEntries = true)
     public void save(PlatformConfig platformConfig) {
-        if(StrUtil.isBlank(platformConfig.getVipConfigInfo())){
-            throw  new BusinessException("vip配置不能为空");
+        if (platformConfig.getVipConfigInfo() != null && platformConfig.getVipConfigInfo().equals("")) {
+            throw new BusinessException("vip配置不能为空");
         }
         platformConfigRepository.save(platformConfig);
     }
