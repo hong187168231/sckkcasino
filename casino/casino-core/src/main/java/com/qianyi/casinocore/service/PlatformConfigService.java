@@ -1,5 +1,7 @@
 package com.qianyi.casinocore.service;
 
+import cn.hutool.core.util.StrUtil;
+import com.qianyi.casinocore.exception.BusinessException;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.repository.PlatformConfigRepository;
 import com.qianyi.casinocore.util.CommonConst;
@@ -61,6 +63,9 @@ public class PlatformConfigService {
         }else {
             platformConfig.setTotalPlatformQuota(platformConfig.getTotalPlatformQuota().add(amount));
         }
+        if(StrUtil.isBlank(platformConfig.getVipConfigInfo())){
+            throw  new BusinessException("vip配置不能为空");
+        }
         platformConfigRepository.save(platformConfig);
     }
 
@@ -75,6 +80,9 @@ public class PlatformConfigService {
 
     @CacheEvict(cacheNames = "platformConfig", allEntries = true)
     public void save(PlatformConfig platformConfig) {
+        if(StrUtil.isBlank(platformConfig.getVipConfigInfo())){
+            throw  new BusinessException("vip配置不能为空");
+        }
         platformConfigRepository.save(platformConfig);
     }
 }
