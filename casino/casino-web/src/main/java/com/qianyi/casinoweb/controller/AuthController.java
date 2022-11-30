@@ -27,6 +27,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -682,8 +683,12 @@ public class AuthController {
         paramMap.put("language", language);
         String code = InviteCodeUtil.randomNumCode(6);
         paramMap.put("code", code);
-//        String response = HttpClient4Util.doPost(smsUrl + "/buka/sendRegister", paramMap);
-        String response = HttpClient4Util.doPost(smsUrl + "/buka/sendGateMessage", paramMap);
+        String response = "";
+        if(StringUtils.equals("855", country)){
+            response = HttpClient4Util.doPost(smsUrl + "/buka/sendGateMessage", paramMap);
+        }else{
+            response = HttpClient4Util.doPost(smsUrl + "/buka/sendRegister", paramMap);
+        }
 
         if (CommonUtil.checkNull(response)) {
             return ResponseUtil.custom("获取验证码失败,请重新操作");
