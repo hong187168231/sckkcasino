@@ -1,5 +1,6 @@
 package com.qianyi.sms.buka;
 
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -9,19 +10,80 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeMap;
 
+@Slf4j
 @RestController
 @RequestMapping("buka")
 @Api(value = "不卡短信")
 public class BukaController {
 
     private final static String url_half = "https://api.onbuka.com/v3/";
+
+    private final static String GATE_URL_HALF = "https://cloudapi.plasgate.com/rest/send?";
+    private final static String PRIVATE_KEY = "E3hmBQ_Lel7fNq1KXpS552plsLk6eoKD7hA6G13egEFcgeqGEoKVPpCSx-77ONGFFkWJLATLx0B1gCP6-gDvmg";
+    private final static String SECRET_KEY = "$5$rounds=535000$A.LsPZSmf12PhpQ2$/jNvP73t.fR3PnEzjhuLhfSd6GYvxo2TgI4FZvcGp.C";
+
+
+    @PostMapping("sendGateMessage")
+    @ApiOperation("注册短信")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "country", value = "86.中国（默认），855.柬埔寨，60：马来。66，泰国 ", required = false),
+            @ApiImplicitParam(name = "phone", value = "电话", required = true),
+            @ApiImplicitParam(name = "code", value = "验证码", required = true),
+            @ApiImplicitParam(name = "language", value = "1. 中文（默认） 2. 英文。 3. 柬文. 4. 马来。 5.泰文", required = false),
+    })
+    public ResponseEntity sendGateMessage(String country, String phone, String code, Integer language) {
+        log.info("短信接口调用，参数country：【{}】, phone：【{}】，code：【{}】，language：【{}】", country, phone, code, language);
+        if (CommonUtil.checkNull(phone, code)) {
+            return ResponseUtil.parameterNotNull();
+        }
+        if (!checkCountry(country)) {
+            return ResponseUtil.custom("不支持的国家");
+        }
+
+        if (!checkLanguage(language)) {
+            return ResponseUtil.custom("不支持的语言");
+        }
+
+        log.info("短信接口调用，参数country：【{}】, phone：【{}】，code：【{}】，language：【{}】", country, phone, code, language);
+        String url = GATE_URL_HALF + "private_key=" + PRIVATE_KEY;
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("sender", "SMS Info");
+        map.put("to", country + phone);
+        String content = getContent("KK-Game", language, code);
+        map.put("content", content);
+        String result = HttpUtil.createPost(url)
+                .header("Content-Type", "application/json")
+                .header("X-Secret", SECRET_KEY)
+                .body(JSONObject.toJSONString(map))
+                .timeout(30 * 1000)
+                .charset("utf-8")
+                .execute()
+                .body();
+        try {
+            JSONObject jsonObject = JSONObject.parseObject(result);
+            Integer status = jsonObject.getInteger("message_count");
+            if (status != 1) {
+                return ResponseUtil.custom(ResponseCode.getMsgByCode(-9));
+            }
+            return ResponseUtil.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseUtil.custom("发送失败，请重新操作");
+        }
+
+    }
+
 
     @PostMapping("sendRegister")
     @ApiOperation("注册短信")

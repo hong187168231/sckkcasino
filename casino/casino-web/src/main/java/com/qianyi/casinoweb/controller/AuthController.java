@@ -650,6 +650,9 @@ public class AuthController {
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
+        if(phone.startsWith("0")){
+            phone = phone.substring(1);
+        }
         String regex = "^[0-9]*[1-9][0-9]*$";
         if (!country.matches(regex) || !phone.matches(regex)) {
             return ResponseUtil.custom("手机号只能填写纯数字");
@@ -679,7 +682,9 @@ public class AuthController {
         paramMap.put("language", language);
         String code = InviteCodeUtil.randomNumCode(6);
         paramMap.put("code", code);
-        String response = HttpClient4Util.doPost(smsUrl + "/buka/sendRegister", paramMap);
+//        String response = HttpClient4Util.doPost(smsUrl + "/buka/sendRegister", paramMap);
+        String response = HttpClient4Util.doPost(smsUrl + "/buka/sendGateMessage", paramMap);
+
         if (CommonUtil.checkNull(response)) {
             return ResponseUtil.custom("获取验证码失败,请重新操作");
         }
