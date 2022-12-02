@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.service;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.qianyi.casinocore.co.user.LevelChangeCo;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.repository.UserLevelRepository;
@@ -7,6 +8,7 @@ import com.qianyi.casinocore.util.LevelUtil;
 import com.qianyi.casinocore.vo.UserVo;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.DateUtil;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -17,9 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;

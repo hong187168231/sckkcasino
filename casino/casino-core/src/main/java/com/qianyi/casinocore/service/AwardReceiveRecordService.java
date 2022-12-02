@@ -36,16 +36,10 @@ public class AwardReceiveRecordService {
         return awardReceiveRecordRepository.countAwardReceiveByTime(userId, startTime, endTime);
     }
 
-    public List<AwardReceiveRecord> countUpgradeAward(Long userId) {
-        return awardReceiveRecordRepository.countUpgradeAward(userId);
-    }
-
-    public AwardReceiveRecord queryUpgradeAward(Long userId) {
-        return awardReceiveRecordRepository.findByAwardTypeAndReceiveStatusAndUserId(2, 0, userId);
-    }
-
-    public AwardReceiveRecord queryMaxUpgradeAward(Long userId) {
-        return awardReceiveRecordRepository.queryMaxUpgradeAward(userId);
+    public AwardReceiveRecord selectAwardReceiveByTime(Long userId) {
+        String startTime = DateUtil.getStartTime(0);
+        String endTime = DateUtil.getEndTime(0);
+        return awardReceiveRecordRepository.selectAwardReceiveByTime(userId, startTime, endTime);
     }
 
     public BigDecimal findBonusAmount(String startTime, String endTime) {
@@ -60,9 +54,22 @@ public class AwardReceiveRecordService {
         return awardReceiveRecordRepository.queryBonusAmount(startTime, endTime);
     }
 
-    public int countRiseAwardNum(Long userId, Integer level) {
+    public int countRiseAwardNum2(Long userId, Integer level) {
         return awardReceiveRecordRepository.countRiseAwardNum(userId, level);
     }
 
+
+    public AwardReceiveRecord selectNotReceiveRiseAward(Long userId, Integer level) {
+        return awardReceiveRecordRepository.selectNotReceiveRiseAward(userId, level);
+    }
+
+
+    public int countNotReceiveRiseAwardNum(Long userId, Integer level) {
+        return awardReceiveRecordRepository.countNotReceiveRiseAwardNum(userId, level);
+    }
+
+    public int countNotReceiveRiseAwardAll(Long userId) {
+        return awardReceiveRecordRepository.countNotReceiveRiseAwardAll(userId);
+    }
 
 }

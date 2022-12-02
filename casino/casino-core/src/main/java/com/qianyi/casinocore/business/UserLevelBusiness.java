@@ -2,6 +2,7 @@ package com.qianyi.casinocore.business;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.co.user.LevelChangeCo;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
@@ -11,10 +12,12 @@ import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.LevelUtil;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinocore.vo.LevelConfigDto;
+import com.qianyi.casinocore.vo.LevelConfigView;
 import com.qianyi.casinocore.vo.UserLevelVo;
 import com.qianyi.modulecommon.executor.AsyncService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,15 +38,11 @@ import java.util.Map;
 public class UserLevelBusiness {
 
     @Autowired
-    private LevelWaterChangeService levelWaterChangeService;
-    @Autowired
     private PlatformConfigService platformConfigService;
     @Autowired
     private UserService userService;
     @Autowired
     private UserLevelService userLevelService;
-    @Autowired
-    private UserMoneyBusiness userMoneyBusiness;
     @Autowired
     private UserMoneyService userMoneyService;
     @Autowired
@@ -96,27 +96,20 @@ public class UserLevelBusiness {
         }
         String text = platformConfig.getVipConfigInfo();
         if (StringUtils.isNotBlank(text)) {
-            LevelConfigDto levelConfigDto = JSON.parseObject(platformConfig.getVipConfigInfo(), LevelConfigDto.class);
-            userLevelVo.setLevelConfig(levelConfigDto);
+            LevelConfigView levelConfigView = JSON.parseObject(platformConfig.getVipConfigInfo(), LevelConfigView.class);
+            userLevelVo.setLevelConfig(levelConfigView);
         }
         // 用户 奖励领取是否能领取,及领取金额
         Boolean TodayAwardFlag = getUserLevelAndSchedule(user, 1);
-        Boolean riseAwardFlag = getUserLevelAndSchedule(user, 2);
         if (TodayAwardFlag) {
             userLevelVo.setTodayAwardFlag(true);
-            userLevelVo.setTodayAward(new BigDecimal(levelConfig.get("todayAward")));
         }
-        if (riseAwardFlag) {
-            userLevelVo.setRiseAwardFlag(true);
-            List<AwardReceiveRecord> upgradeAwardList = getMaxRiseAward(user.getId());
-            if (CollUtil.isNotEmpty(upgradeAwardList)) {
-                if (upgradeAwardList.get(upgradeAwardList.size() - 1).getReceiveStatus().equals(0)) {
-                    userLevelVo.setRiseAward(upgradeAwardList.get(upgradeAwardList.size() - 1).getAmount());
-                }
-            } else {
-                userLevelVo.setRiseAward(new BigDecimal(levelConfig.get("riseAward")));
-            }
+        userLevelVo.setTodayAward(new BigDecimal(levelConfig.get("todayAward")));
+        AwardReceiveRecord todayAward = awardReceiveRecordService.selectAwardReceiveByTime(user.getId());
+        if(ObjectUtil.isNotNull(todayAward)){
+            userLevelVo.setTodayAward(todayAward.getAmount());
         }
+        riseAwardIsReceive(user, userLevelVo);
         return userLevelVo;
     }
 
@@ -143,11 +136,9 @@ public class UserLevelBusiness {
                     return true;
                 }
             } else {
-                List<AwardReceiveRecord> upgradeAwardList = getMaxRiseAward(user.getId());
-                if (CollUtil.isNotEmpty(upgradeAwardList)) {
-                    if (upgradeAwardList.get(upgradeAwardList.size() - 1).getReceiveStatus().equals(0)) {
-                        return true;
-                    }
+                int riseNum = awardReceiveRecordService.countNotReceiveRiseAwardAll(user.getId());
+                if (riseNum > 0) {
+                    return true;
                 } else {
                     if (levelConfigDto.getLevel1().getUpgradeAward().equals(0) && user.getLevel().equals(1) && awardType.equals(2)) {
                         return false;
@@ -159,9 +150,47 @@ public class UserLevelBusiness {
     }
 
 
-    public List<AwardReceiveRecord> getMaxRiseAward(Long userId) {
-        List<AwardReceiveRecord> upgradeAwardList = awardReceiveRecordService.countUpgradeAward(userId);
-        return upgradeAwardList;
+    private void riseAwardIsReceive(User user, UserLevelVo userLevelVo) {
+        PlatformConfig platformConfig = platformConfig();
+        String text = platformConfig.getVipConfigInfo();
+        LevelConfigView levelConfigView = userLevelVo.getLevelConfig();
+        if (StringUtils.isNotBlank(text)) {
+            for (int i = 1; i <= 10; i++) {
+                Boolean flag = awardReceiveRecordService.countNotReceiveRiseAwardNum(user.getId(), i) > 0;
+                switch (i) {
+                    case 1:
+                        levelConfigView.getLevel1().setHasRiseFlag(flag);
+                        break;
+                    case 2:
+                        levelConfigView.getLevel2().setHasRiseFlag(flag);
+                        break;
+                    case 3:
+                        levelConfigView.getLevel3().setHasRiseFlag(flag);
+                        break;
+                    case 4:
+                        levelConfigView.getLevel4().setHasRiseFlag(flag);
+                        break;
+                    case 5:
+                        levelConfigView.getLevel5().setHasRiseFlag(flag);
+                        break;
+                    case 6:
+                        levelConfigView.getLevel6().setHasRiseFlag(flag);
+                        break;
+                    case 7:
+                        levelConfigView.getLevel7().setHasRiseFlag(flag);
+                        break;
+                    case 8:
+                        levelConfigView.getLevel8().setHasRiseFlag(flag);
+                        break;
+                    case 9:
+                        levelConfigView.getLevel9().setHasRiseFlag(flag);
+                        break;
+                    case 10:
+                        levelConfigView.getLevel10().setHasRiseFlag(flag);
+                        break;
+                }
+            }
+        }
     }
 
 
@@ -183,7 +212,7 @@ public class UserLevelBusiness {
      * @param awardType
      * @return
      */
-    public boolean receiveAward(Long userId, Integer awardType) {
+    public boolean receiveAward(Long userId, Integer awardType, Integer level) {
         User user = userService.findById(userId);
         boolean flag = getUserLevelAndSchedule(user, awardType);
         if (!flag) {
@@ -214,14 +243,10 @@ public class UserLevelBusiness {
             vo.setAmountAfter(userMoney.getMoney().add(awardReceiveRecord.getAmount()));
             asyncService.executeAsync(vo);
         } else if (awardType == 2) { // 晋级奖励
-            AwardReceiveRecord awardReceiveRecord = awardReceiveRecordService.queryMaxUpgradeAward(userId);
+            AwardReceiveRecord awardReceiveRecord = awardReceiveRecordService.selectNotReceiveRiseAward(userId, level);
             if (ObjectUtil.isNull(awardReceiveRecord)) {
                 throw new BusinessException("暂无可领取的升级奖励!");
             }
-            awardReceiveRecord.setReceiveTime(new Date());
-            awardReceiveRecord.setReceiveStatus(1);
-            awardReceiveRecordService.save(awardReceiveRecord);
-            awardReceiveRecordService.modifyIsReceive(awardReceiveRecord.getUserId());
             // 增加用户余额
             userMoneyService.addMoney(userId, awardReceiveRecord.getAmount());
             // 处理打码量
@@ -231,6 +256,9 @@ public class UserLevelBusiness {
             vo.setAmount(awardReceiveRecord.getAmount());
             vo.setAmountAfter(userMoney.getMoney().add(awardReceiveRecord.getAmount()));
             asyncService.executeAsync(vo);
+            awardReceiveRecord.setReceiveTime(new Date());
+            awardReceiveRecord.setReceiveStatus(1);
+            awardReceiveRecordService.save(awardReceiveRecord);
         }
         return true;
     }
@@ -294,29 +322,35 @@ public class UserLevelBusiness {
             if (upLevel > 10) {
                 return;
             }
-            // 保存登记变更记录
-            UserLevelRecord userLevelRecord = new UserLevelRecord();
-            userLevelRecord.setUserId(user.getId());
-            userLevelRecord.setBeforeLevel(user.getLevel());
-            userLevelRecord.setChangeType(1);
-            userLevelRecord.setCreateBy("system");
-            userLevelRecord.setLevel(upLevel);
-            userLevelRecord.setSchedule(riseWater + "/" + new BigDecimal(upResult.get("upgradeBet")) + ".00");
-            userLevelRecord.setRiseTime(new Date());
-            userLevelRecord.setTodayKeepStatus(0);
-            userLevelService.save(userLevelRecord);
-            // 插入升级奖励记录
-            UserLevelRecord dropLevelRecord = userLevelService.findDropRecord(userId, upLevel);
-            if (ObjectUtil.isNull(dropLevelRecord)) {
-                int row = awardReceiveRecordService.countRiseAwardNum(userId, upLevel);
-                if (row < 1) {
-                    AwardReceiveRecord awardReceiveRecord = new AwardReceiveRecord();
-                    awardReceiveRecord.setUserId(user.getId());
-                    awardReceiveRecord.setReceiveStatus(0);
-                    awardReceiveRecord.setAwardType(2);
-                    awardReceiveRecord.setAmount(new BigDecimal(upgradeAward));
-                    awardReceiveRecord.setLevel(upLevel);
-                    awardReceiveRecordService.save(awardReceiveRecord);
+            Integer diss = upLevel - beforeLevel;
+            if (diss >= 1) {
+                // 保存等级变更记录
+                UserLevelRecord userLevelRecord = new UserLevelRecord();
+                userLevelRecord.setUserId(user.getId());
+                userLevelRecord.setBeforeLevel(user.getLevel());
+                userLevelRecord.setChangeType(1);
+                userLevelRecord.setCreateBy("system");
+                userLevelRecord.setLevel(upLevel);
+                userLevelRecord.setSchedule(riseWater + "/" + new BigDecimal(upResult.get("upgradeBet")) + ".00");
+                userLevelRecord.setRiseTime(new Date());
+                userLevelRecord.setTodayKeepStatus(0);
+                userLevelService.save(userLevelRecord);
+
+                for (int i = 1; i <= diss; i++) {
+                    int level = upLevel - i + 1;
+                    if (level <= 1) {
+                        return;
+                    }
+                    int row = awardReceiveRecordService.countRiseAwardNum2(userId, level);
+                    if (row < 1) {
+                        AwardReceiveRecord awardReceiveRecord = new AwardReceiveRecord();
+                        awardReceiveRecord.setUserId(user.getId());
+                        awardReceiveRecord.setReceiveStatus(0);
+                        awardReceiveRecord.setAwardType(2);
+                        awardReceiveRecord.setLevel(level);
+                        awardReceiveRecord.setAmount(new BigDecimal(getRiseAward(level)));
+                        awardReceiveRecordService.save(awardReceiveRecord);
+                    }
                 }
             }
             userMoneyService.modifyLevelWater(levelChangeCo.getUserId(), BigDecimal.ZERO);
@@ -325,6 +359,12 @@ public class UserLevelBusiness {
             }
             userService.updateLevel(levelChangeCo.getUserId(), upLevel);
         }
+    }
+
+    public Integer getRiseAward(Integer level) {
+        Map<String, Integer> result = LevelUtil.getLevelInfoByLevel(platformConfig(), level);
+        Integer riseAward = result.get("riseAward");
+        return riseAward;
     }
 
 
@@ -365,8 +405,19 @@ public class UserLevelBusiness {
 
     public PlatformConfig platformConfig() {
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        platformConfig.setVipConfigInfo("{\"level5\":{\"upgradeBet\":25000,\"todayAward\":15,\"keepBet\":5000,\"upgradeAward\":20},\"level4\":{\"upgradeBet\":12000,\"todayAward\":10,\"keepBet\":4000,\"upgradeAward\":15},\"level7\":{\"upgradeBet\":200000,\"todayAward\":30,\"keepBet\":50000,\"upgradeAward\":50},\"level6\":{\"upgradeBet\":75000,\"todayAward\":20,\"keepBet\":25000,\"upgradeAward\":30},\"level9\":{\"upgradeBet\":1000000,\"todayAward\":70,\"keepBet\":200000,\"upgradeAward\":100},\"level8\":{\"upgradeBet\":500000,\"todayAward\":50,\"keepBet\":100000,\"upgradeAward\":70},\"todayCodeRate\":3,\"level10\":{\"upgradeBet\":5000000,\"todayAward\":100,\"keepBet\":500000,\"upgradeAward\":200},\"level1\":{\"upgradeBet\":0,\"todayAward\":0,\"keepBet\":0,\"upgradeAward\":0},\"level3\":{\"upgradeBet\":5000,\"todayAward\":6,\"keepBet\":1500,\"upgradeAward\":10},\"upgradeCodeRate\":3,\"level2\":{\"upgradeBet\":1500,\"todayAward\":3,\"keepBet\":500,\"upgradeAward\":6}}");
         return platformConfig;
+    }
+
+
+    public static void main(String[] args) {
+        Integer upLevel = 10;
+        Integer beforeLevel = 1;
+        Integer diss = upLevel - beforeLevel;
+        if (diss > 1) {
+            for (int i = 1; i <= diss; i++) {
+                System.out.println(upLevel - i + 1);
+            }
+        }
     }
 
 

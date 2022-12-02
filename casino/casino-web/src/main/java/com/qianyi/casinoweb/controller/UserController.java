@@ -1,5 +1,6 @@
 package com.qianyi.casinoweb.controller;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.qianyi.casinocore.business.UserLevelBusiness;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.model.User;
@@ -318,8 +319,9 @@ public class UserController {
 
     @PostMapping("receiveAward")
     @ApiOperation("领取vip奖励")
-    @ApiImplicitParams({@ApiImplicitParam(name = "awardType", value = "奖励类型 1每日奖励 2 晋级奖励", required = true)})
-    public ResponseEntity<Boolean> receiveAward(Integer awardType) {
+    @ApiImplicitParams({@ApiImplicitParam(name = "awardType", value = "奖励类型 1每日奖励 2 晋级奖励", required = true),
+            @ApiImplicitParam(name = "level", value = "晋级奖励等级", required = false)})
+    public ResponseEntity<UserLevelVo> receiveAward(Integer awardType,Integer level) {
         Long userId = CasinoWebUtil.getAuthId();
         String key = MessageFormat.format(RedisLockUtil.AWARD_RECEIVE_RESTART, userId);
         Boolean lock = false;
@@ -329,7 +331,10 @@ public class UserController {
                 if (awardType < 1 || awardType > 2) {
                     return ResponseUtil.custom("参数错误");
                 }
-                boolean flag = userLevelBusiness.receiveAward(userId, awardType);
+                if (awardType.equals(2) && ObjectUtil.isNull(level)) {
+                    return ResponseUtil.custom("参数错误");
+                }
+                boolean flag = userLevelBusiness.receiveAward(userId, awardType,level);
                 return ResponseUtil.success(flag);
             }
         } catch (Exception ex) {

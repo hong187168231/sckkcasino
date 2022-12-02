@@ -1,10 +1,15 @@
 package com.qianyi.casinocore.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.qianyi.casinocore.model.User;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 public class UserLevelVo implements Serializable {
@@ -37,11 +42,13 @@ public class UserLevelVo implements Serializable {
     private Boolean riseAwardFlag = false;
 
     @ApiModelProperty("等级配置详细信息")
-    private LevelConfigDto levelConfig;
+    private LevelConfigView levelConfig;
 
     @ApiModelProperty("每日奖励")
     private BigDecimal todayAward = BigDecimal.ZERO;
 
     @ApiModelProperty("晋级奖励")
     private BigDecimal riseAward = BigDecimal.ZERO;
+
+
 }
