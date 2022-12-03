@@ -348,15 +348,15 @@ public class AuthController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "account", value = "帐号", required = true),
             @ApiImplicitParam(name = "password", value = "密码", required = true),
-            @ApiImplicitParam(name = "validate", value = "网易易顿", required = true),
             @ApiImplicitParam(name = "deviceId", value = "设备ID,移动端必传", required = false),
     })
     @PostMapping("loginA")
+    @RequestLimit(limit = 8,timeout = 60)
     public ResponseEntity loginA(
             String account,
             String password,
-            String validate,String deviceId,HttpServletRequest request) {
-        if (CasinoWebUtil.checkNull(account, password, validate)) {
+            String deviceId,HttpServletRequest request) {
+        if (CasinoWebUtil.checkNull(account, password)) {
             return ResponseUtil.parameterNotNull();
         }
 
@@ -383,13 +383,6 @@ public class AuthController {
         boolean verifyFlag = false;
         if (!ObjectUtils.isEmpty(user.getDeviceId()) && !ObjectUtils.isEmpty(deviceId) && user.getDeviceId().equals(deviceId)) {
             verifyFlag = true;
-        }
-        if (!verifyFlag) {
-            //验证码校验
-            boolean wangyidun = WangyiDunAuthUtil.verify(validate);
-            if (!wangyidun) {
-                return ResponseUtil.custom("验证码错误");
-            }
         }
         if (ObjectUtils.isEmpty(user.getDeviceId()) && !ObjectUtils.isEmpty(deviceId)) {
             user.setDeviceId(deviceId);
