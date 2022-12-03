@@ -23,10 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -128,6 +125,9 @@ public class WithdrawOrderController {
         withdrawOrder.setType(type);
         withdrawOrder.setLastModifier(lastModifier);
         Sort sort=Sort.by("id").descending();
+        if (Objects.nonNull(status) && status == CommonConst.NUMBER_0){
+            sort = Sort.by("id").ascending();
+        }
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, withdrawOrder,startDate,endDate,bankcardIds,tag);
         PageResultVO<WithdrawOrderVo> pageResultVO = new PageResultVO(withdrawOrderPage);
