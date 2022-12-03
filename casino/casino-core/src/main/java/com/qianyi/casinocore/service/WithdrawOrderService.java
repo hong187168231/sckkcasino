@@ -183,6 +183,16 @@ public class WithdrawOrderService {
                 if(withdrawOrder.getType() != null){
                     list.add(cb.equal(root.get("type").as(Integer.class), withdrawOrder.getType()));
                 }
+                if (withdrawOrder.getAuditId() != null) {
+                    list.add(
+                        cb.equal(root.get("auditId").as(Long.class), withdrawOrder.getAuditId())
+                    );
+                }
+                if (!CommonUtil.checkNull(withdrawOrder.getLastModifier())) {
+                    list.add(
+                        cb.equal(root.get("lastModifier").as(String.class), withdrawOrder.getLastModifier())
+                    );
+                }
                 if(withdrawOrder.getUserId() != null){
                     list.add(cb.equal(root.get("userId").as(Long.class), withdrawOrder.getUserId()));
                 }
@@ -340,6 +350,16 @@ public class WithdrawOrderService {
         if (!CommonUtil.checkNull(withdrawOrder.getNo())) {
             predicates.add(
                 builder.equal(root.get("no").as(String.class), withdrawOrder.getNo())
+            );
+        }
+        if (withdrawOrder.getAuditId() != null) {
+            predicates.add(
+                builder.equal(root.get("auditId").as(Long.class), withdrawOrder.getAuditId())
+            );
+        }
+        if (!CommonUtil.checkNull(withdrawOrder.getLastModifier())) {
+            predicates.add(
+                builder.equal(root.get("lastModifier").as(String.class), withdrawOrder.getLastModifier())
             );
         }
         if (!CommonUtil.checkNull(withdrawOrder.getBankId())) {

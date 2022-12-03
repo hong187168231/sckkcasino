@@ -210,6 +210,9 @@ public class ChargeOrderService {
                 if (!CommonUtil.checkNull(chargeOrder.getOrderNo())) {
                     list.add(cb.equal(root.get("orderNo").as(String.class), chargeOrder.getOrderNo()));
                 }
+                if (!CommonUtil.checkNull(chargeOrder.getLastModifier())) {
+                    list.add(cb.equal(root.get("lastModifier").as(String.class), chargeOrder.getLastModifier()));
+                }
                 if (chargeOrder.getUserId() != null ) {
                     list.add(cb.equal(root.get("userId").as(Long.class), chargeOrder.getUserId()));
                 }
@@ -274,6 +277,11 @@ public class ChargeOrderService {
         if (!CommonUtil.checkNull(chargeOrder.getOrderNo())) {
             predicates.add(
                 builder.equal(root.get("orderNo").as(String.class), chargeOrder.getOrderNo())
+            );
+        }
+        if (!CommonUtil.checkNull(chargeOrder.getLastModifier())) {
+            predicates.add(
+                builder.equal(root.get("lastModifier").as(String.class), chargeOrder.getLastModifier())
             );
         }
         if (chargeOrder.getFirstProxy() != null) {

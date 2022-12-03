@@ -87,6 +87,7 @@ public class ChargeOrderController {
         @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
         @ApiImplicitParam(name = "account", value = "会员账号", required = false),
         @ApiImplicitParam(name = "type", value = "会员类型:0、公司会员，1、渠道会员 2、官方会员", required = false),
+        @ApiImplicitParam(name = "lastModifier", value = "审核人", required = false),
         @ApiImplicitParam(name = "startDate", value = "起始时间", required = false),
         @ApiImplicitParam(name = "endDate", value = "结束时间", required = false),
         @ApiImplicitParam(name = "tag", value = "tag 1(创建订单时间) 2（出款时间）", required = false),
@@ -94,10 +95,13 @@ public class ChargeOrderController {
     @NoAuthorization
     @GetMapping("/chargeOrderList")
     public ResponseEntity<ChargeOrderVo> chargeOrderList(Integer pageSize, Integer pageCode, Integer status, String orderNo,
-        String account,Integer type,Integer tag,
+        String account,Integer type,Integer tag,String lastModifier,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         Sort sort = Sort.by("id").descending();
+        if (Objects.nonNull(status) && status == CommonConst.NUMBER_0){
+            sort = Sort.by("id").ascending();
+        }
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         ChargeOrder order = new ChargeOrder();
         Long userId = null;
@@ -115,6 +119,7 @@ public class ChargeOrderController {
         order.setStatus(status);
         order.setOrderNo(orderNo);
         order.setType(type);
+        order.setLastModifier(lastModifier);
         Page<ChargeOrder> chargeOrderPage = chargeOrderService.findChargeOrderPage(order, pageable,startDate,endDate,tag);
         PageResultVO<ChargeOrderVo> pageResultVO =new PageResultVO(chargeOrderPage);
         List<ChargeOrder> content = chargeOrderPage.getContent();
@@ -271,6 +276,7 @@ public class ChargeOrderController {
         @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
         @ApiImplicitParam(name = "account", value = "会员账号", required = false),
         @ApiImplicitParam(name = "type", value = "会员类型:0、公司会员，1、渠道会员 2、官方会员", required = false),
+        @ApiImplicitParam(name = "lastModifier", value = "审核人", required = false),
         @ApiImplicitParam(name = "startDate", value = "起始时间", required = false),
         @ApiImplicitParam(name = "endDate", value = "结束时间", required = false),
         @ApiImplicitParam(name = "tag", value = "tag 1(创建订单时间) 2（出款时间）", required = false),
@@ -278,7 +284,7 @@ public class ChargeOrderController {
     @GetMapping("/findChargeOrderSum")
     @NoAuthentication
     public ResponseEntity<ChargeOrderVo> findChargeOrderSum(Integer status, String orderNo,
-        String account,Integer type,Integer tag,
+        String account,Integer type,Integer tag,String lastModifier,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         ChargeOrder order = new ChargeOrder();
@@ -299,6 +305,7 @@ public class ChargeOrderController {
         order.setStatus(status);
         order.setOrderNo(orderNo);
         order.setType(type);
+        order.setLastModifier(lastModifier);
         ChargeOrder chargeOrder = chargeOrderService.findChargeOrderSum(order,startDate,endDate,tag);
         ChargeOrderVo vo = new ChargeOrderVo();
         vo.setChargeAmount(chargeOrder==null?BigDecimal.ZERO:chargeOrder.getChargeAmount());

@@ -119,7 +119,7 @@ public class WithdrawPayController {
         withdrawOrder.setNo(no);
         withdrawOrder.setBankId(bankId);
         withdrawOrder.setType(type);
-        Sort sort = Sort.by("id").descending();
+        Sort sort = Sort.by("id").ascending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<WithdrawOrder> withdrawOrderPage =
             withdrawOrderService.findUserPage(pageable, withdrawOrder, startDate, endDate, bankcardIds,CommonConst.NUMBER_1);
