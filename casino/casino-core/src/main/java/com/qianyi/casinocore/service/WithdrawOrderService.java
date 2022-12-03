@@ -183,7 +183,7 @@ public class WithdrawOrderService {
                 if(withdrawOrder.getType() != null){
                     list.add(cb.equal(root.get("type").as(Integer.class), withdrawOrder.getType()));
                 }
-                if (withdrawOrder.getAuditId() != null) {
+                if (withdrawOrder.getAuditId() != null && withdrawOrder.getAuditId().longValue() != CommonConst.LONG_0) {
                     list.add(
                         cb.equal(root.get("auditId").as(Long.class), withdrawOrder.getAuditId())
                     );
@@ -352,7 +352,7 @@ public class WithdrawOrderService {
                 builder.equal(root.get("no").as(String.class), withdrawOrder.getNo())
             );
         }
-        if (withdrawOrder.getAuditId() != null) {
+        if (withdrawOrder.getAuditId() != null && withdrawOrder.getAuditId().longValue() != CommonConst.LONG_0) {
             predicates.add(
                 builder.equal(root.get("auditId").as(Long.class), withdrawOrder.getAuditId())
             );

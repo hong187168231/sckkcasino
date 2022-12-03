@@ -85,6 +85,7 @@ public class WithdrawPayController {
         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate) {
         WithdrawOrder withdrawOrder = new WithdrawOrder();
+//        withdrawOrder.setAuditId(null);
         if (!LoginUtil.checkNull(account)) {
             User user = userService.findByAccount(account);
             if (LoginUtil.checkNull(user)) {
