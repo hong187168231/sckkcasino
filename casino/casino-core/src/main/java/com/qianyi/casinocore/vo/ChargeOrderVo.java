@@ -65,7 +65,8 @@ public class ChargeOrderVo implements Serializable {
     private Date updateTime;
     @ApiModelProperty("最后修改人")
     private String updateBy;
-
+    @ApiModelProperty("最后修改人")
+    private String lastModifier;
     @ApiModelProperty("打码倍率")
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal betRate;
@@ -90,6 +91,7 @@ public class ChargeOrderVo implements Serializable {
         this.updateTime = chargeOrder.getUpdateTime();
         this.createBy = chargeOrder.getCreateBy();
         this.updateBy = chargeOrder.getLastModifier();
+        this.lastModifier = chargeOrder.getLastModifier();
         this.betRate=chargeOrder.getBetRate();
     }
     public ChargeOrderVo(){

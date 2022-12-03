@@ -85,6 +85,7 @@ public class WithdrawPayController {
         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate) {
         WithdrawOrder withdrawOrder = new WithdrawOrder();
+//        withdrawOrder.setAuditId(null);
         if (!LoginUtil.checkNull(account)) {
             User user = userService.findByAccount(account);
             if (LoginUtil.checkNull(user)) {
@@ -119,7 +120,7 @@ public class WithdrawPayController {
         withdrawOrder.setNo(no);
         withdrawOrder.setBankId(bankId);
         withdrawOrder.setType(type);
-        Sort sort = Sort.by("id").descending();
+        Sort sort = Sort.by("id").ascending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<WithdrawOrder> withdrawOrderPage =
             withdrawOrderService.findUserPage(pageable, withdrawOrder, startDate, endDate, bankcardIds,CommonConst.NUMBER_1);

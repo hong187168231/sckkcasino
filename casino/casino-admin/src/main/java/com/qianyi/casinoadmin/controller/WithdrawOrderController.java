@@ -23,10 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -69,22 +66,32 @@ public class WithdrawOrderController {
         @ApiImplicitParam(name = "account", value = "用户账号", required = false),
         @ApiImplicitParam(name = "realName", value = "开户名", required = false),
         @ApiImplicitParam(name = "bankName", value = "银行名称", required = false),
+        @ApiImplicitParam(name = "lastModifier", value = "出款人", required = false),
+        @ApiImplicitParam(name = "auditIdModifier", value = "审核人", required = false),
         @ApiImplicitParam(name = "type", value = "会员类型:0、公司会员，1、渠道会员", required = false),
         @ApiImplicitParam(name = "tag", value = "tag 1(创建订单时间) 2（出款时间）", required = false),
     })
     @NoAuthorization
     @GetMapping("/withdrawList")
     public ResponseEntity<WithdrawOrderVo> withdrawList(Integer pageSize,Integer pageCode, Integer status, String account,
-        String no, String bankId,Integer type,String realName,String bankName,Integer tag,
+        String no, String bankId,Integer type,String realName,String bankName,Integer tag,String lastModifier,String auditIdModifier,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         WithdrawOrder withdrawOrder = new WithdrawOrder();
+        withdrawOrder.setAuditId(null);
         if (!LoginUtil.checkNull(account)){
             User user = userService.findByAccount(account);
             if (LoginUtil.checkNull(user)){
                 return ResponseUtil.custom("用户不存在");
             }
             withdrawOrder.setUserId(user.getId());
+        }
+        if (!LoginUtil.checkNull(auditIdModifier)){
+            SysUser sysUser = sysUserService.findByUserName(auditIdModifier);
+            if (LoginUtil.checkNull(sysUser)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            withdrawOrder.setAuditId(sysUser.getId());
         }
         List<Long> bankcardIds = null;
         if (!LoginUtil.checkNull(realName)){
@@ -116,7 +123,11 @@ public class WithdrawOrderController {
         withdrawOrder.setNo(no);
         withdrawOrder.setBankId(bankId);
         withdrawOrder.setType(type);
+        withdrawOrder.setLastModifier(lastModifier);
         Sort sort=Sort.by("id").descending();
+        if (Objects.nonNull(status) && status == CommonConst.NUMBER_0){
+            sort = Sort.by("id").ascending();
+        }
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<WithdrawOrder> withdrawOrderPage = withdrawOrderService.findUserPage(pageable, withdrawOrder,startDate,endDate,bankcardIds,tag);
         PageResultVO<WithdrawOrderVo> pageResultVO = new PageResultVO(withdrawOrderPage);
@@ -240,16 +251,19 @@ public class WithdrawOrderController {
         @ApiImplicitParam(name = "no", value = "订单号", required = false),
         @ApiImplicitParam(name = "bankId", value = "银行卡Id", required = false),
         @ApiImplicitParam(name = "account", value = "用户账号", required = false),
+        @ApiImplicitParam(name = "lastModifier", value = "出款人", required = false),
+        @ApiImplicitParam(name = "auditIdModifier", value = "审核人", required = false),
         @ApiImplicitParam(name = "type", value = "会员类型:0、公司会员，1、渠道会员", required = false),
         @ApiImplicitParam(name = "tag", value = "tag 1(创建订单时间) 2（出款时间）", required = false),
     })
     @GetMapping("/findWithdrawOrderSum")
     @NoAuthentication
     public ResponseEntity<WithdrawOrderVo> findWithdrawOrderSum(Integer status, String account,String no, String bankId,Integer type,
-        Integer tag,
+        Integer tag,String lastModifier,String auditIdModifier,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         WithdrawOrder withdrawOrder = new WithdrawOrder();
+        withdrawOrder.setAuditId(null);
         if (!LoginUtil.checkNull(account)){
             User user = userService.findByAccount(account);
             if (LoginUtil.checkNull(user)){
@@ -261,6 +275,13 @@ public class WithdrawOrderController {
             }
             withdrawOrder.setUserId(user.getId());
         }
+        if (!LoginUtil.checkNull(auditIdModifier)){
+            SysUser sysUser = sysUserService.findByUserName(auditIdModifier);
+            if (LoginUtil.checkNull(sysUser)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            withdrawOrder.setAuditId(sysUser.getId());
+        }
         if (LoginUtil.checkNull(tag)){
             tag = CommonConst.NUMBER_1;
         }
@@ -268,6 +289,7 @@ public class WithdrawOrderController {
         withdrawOrder.setNo(no);
         withdrawOrder.setBankId(bankId);
         withdrawOrder.setType(type);
+        withdrawOrder.setLastModifier(lastModifier);
         WithdrawOrder withdrawOrder1 = withdrawOrderService.findWithdrawOrderSum(withdrawOrder,startDate,endDate,tag);
         WithdrawOrderVo vo = new WithdrawOrderVo();
         if (LoginUtil.checkNull(withdrawOrder1)){
