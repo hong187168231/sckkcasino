@@ -351,7 +351,7 @@ public class AuthController {
             @ApiImplicitParam(name = "deviceId", value = "设备ID,移动端必传", required = false),
     })
     @PostMapping("loginA")
-    @RequestLimit(limit = 8,timeout = 60)
+    @RequestLimit(limit = 150,timeout = 60)
     public ResponseEntity loginA(
             String account,
             String password,
