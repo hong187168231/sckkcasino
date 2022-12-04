@@ -57,6 +57,7 @@ public class BukaController {
         log.info("短信接口调用，参数country：【{}】, phone：【{}】，code：【{}】，language：【{}】", country, phone, code, language);
         String url = GATE_URL_HALF + "private_key=" + PRIVATE_KEY;
 
+        try {
         Map<String, Object> map = new HashMap<>();
         map.put("sender", "SMS Info");
         map.put("to", country + phone);
@@ -70,7 +71,9 @@ public class BukaController {
                 .charset("utf-8")
                 .execute()
                 .body();
-        try {
+
+        log.info("获取短信验证码 result：【{}】", result);
+
             JSONObject jsonObject = JSONObject.parseObject(result);
             Integer status = jsonObject.getInteger("message_count");
             if (status != 1) {
