@@ -194,6 +194,7 @@ public class AuthController {
         if (checkVerificationSwitch) {
             String redisKey = Constants.REDIS_SMSCODE + phone;
             Object redisCode = redisUtil.get(redisKey);
+            log.info("redis中获取的验证码：【{}】, 前端传递的验证码：【{}】", redisCode, phoneCode);
             if (!phoneCode.equals(redisCode)) {
                 return ResponseUtil.custom("手机号验证码错误");
             }
@@ -688,6 +689,7 @@ public class AuthController {
         }
         //验证码有效期为5分钟
         redisUtil.set(phoneKey, code, 60 * 5);
+        log.info("phoneKey：【{}】，code：【{}】", phoneKey, code);
         //ip每天发送短信数量限制加1
         if (todayIpNum == null) {
             redisUtil.set(todayIpKey, 1, 60 * 60 * 24);
