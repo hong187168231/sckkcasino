@@ -661,7 +661,7 @@ public class AuthController {
         }
         String phoneKey = Constants.REDIS_SMSCODE + country + phone;
         Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("merchant", merchant);
+//        paramMap.put("merchant", merchant);
         paramMap.put("country", country);
         paramMap.put("phone", phone);
         Integer language = 1;
@@ -677,7 +677,7 @@ public class AuthController {
         paramMap.put("code", code);
         String response = "";
         response = HttpClient4Util.doPost(smsUrl + "/buka/sendGateMessage", paramMap);
-
+        log.info("getVerificationCode 获取验证码：【{}】", response);
 
         if (CommonUtil.checkNull(response)) {
             return ResponseUtil.custom("获取验证码失败,请重新操作");
