@@ -76,7 +76,7 @@ public class BukaController {
 
             JSONObject jsonObject = JSONObject.parseObject(result);
             Integer status = jsonObject.getInteger("message_count");
-            if (status != 1) {
+            if (status == 0) {
                 return ResponseUtil.custom(ResponseCode.getMsgByCode(-9));
             }
             return ResponseUtil.success();
