@@ -635,7 +635,7 @@ public class AuthController {
     @GetMapping("getVerificationCode")
     @ApiOperation("通过手机号获取验证码")
     @NoAuthentication
-    @RequestLimit(limit = 1, timeout = 50)
+    @RequestLimit(limit = 10, timeout = 50)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "country", value = "区号，中国：86，柬埔寨：855，马来西亚：60，泰国：66", required = true),
             @ApiImplicitParam(name = "phone", value = "手机号", required = true)
