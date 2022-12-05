@@ -57,6 +57,7 @@ public class SupplementBusiness {
      */
     public void tryWMSupplement(ErrorOrder errorOrder, String thirdAccount) {
         String orderNo = errorOrder.getOrderNo();
+        log.info("开始补单userId:{},{}",errorOrder.getUserId(),orderNo);
         int requestNum = 0;
         while (true) {
             try {
