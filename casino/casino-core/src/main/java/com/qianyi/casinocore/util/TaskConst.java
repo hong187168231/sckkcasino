@@ -26,6 +26,10 @@ public final class TaskConst {
     /**
      * 12:00执行
      */
+    public final static String THIRD_GAME_SUM = "0 0 11 * * ?";
+    /**
+     * 12:00执行
+     */
     public final static String HOME_PAGE_REPORT_NEW = "0 0 12 * * ?";
     /**
      * 每天12.20执行
