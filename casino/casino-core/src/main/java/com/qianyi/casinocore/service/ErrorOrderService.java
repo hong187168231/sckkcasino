@@ -95,12 +95,16 @@ public class ErrorOrderService {
     @Async("asyncExecutor")
     public void syncSaveErrorOrder(String thirdAccount, Long userId, String account, String orderNo, BigDecimal money, AccountChangeEnum changeEnum, String platform) {
         ErrorOrder order = saveErrorOrder(userId,account,orderNo,money,changeEnum,platform);
-        //WM尝试3次补单
-        Integer type = changeEnum.getType();
-        if (type == AccountChangeEnum.WM_IN.getType() || type == AccountChangeEnum.RECOVERY.getType()) {
-            supplementBusiness.tryWMSupplement(order, thirdAccount);
-        } else if (type == AccountChangeEnum.AE_IN.getType() || type == AccountChangeEnum.AE_OUT.getType()) {
-            supplementBusiness.tryAeSupplement(order, thirdAccount);
+        try {
+            //WM尝试3次补单
+            Integer type = changeEnum.getType();
+            if (type == AccountChangeEnum.WM_IN.getType() || type == AccountChangeEnum.RECOVERY.getType()) {
+                supplementBusiness.tryWMSupplement(order, thirdAccount);
+            } else if (type == AccountChangeEnum.AE_IN.getType() || type == AccountChangeEnum.AE_OUT.getType()) {
+                supplementBusiness.tryAeSupplement(order, thirdAccount);
+            }
+        }catch (Exception ex){//吃掉异常让订单ErrorOrder不回滚
+            log.error("尝试补单出现异常{}",ex.getMessage());
         }
     }
 
