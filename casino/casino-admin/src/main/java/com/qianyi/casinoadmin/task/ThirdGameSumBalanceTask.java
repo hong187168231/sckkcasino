@@ -31,7 +31,7 @@ public class ThirdGameSumBalanceTask {
     /**
      *
      */
-    @Scheduled(cron = TaskConst.BACK_GAME_ORDER)
+    @Scheduled(cron = TaskConst.THIRD_GAME_SUM)
 //    @Scheduled(cron = TaskConst.ONLINE_USER_TASK)
     public void create(){
         //查询WM总余额
