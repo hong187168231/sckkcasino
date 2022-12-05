@@ -646,6 +646,10 @@ public class AuthController {
             return ResponseUtil.parameterNotNull();
         }
 
+        if(phone.startsWith("0")){
+            phone = phone.substring(1);
+        }
+
         String regex = "^[0-9]*[1-9][0-9]*$";
         if (!country.matches(regex) || !phone.matches(regex)) {
             return ResponseUtil.custom("手机号只能填写纯数字");
@@ -661,7 +665,7 @@ public class AuthController {
         }
         String phoneKey = Constants.REDIS_SMSCODE + country + phone;
         Map<String, Object> paramMap = new HashMap<>();
-//        paramMap.put("merchant", merchant);
+        paramMap.put("merchant", merchant);
         paramMap.put("country", country);
         paramMap.put("phone", phone);
         Integer language = 1;
@@ -676,7 +680,12 @@ public class AuthController {
         String code = InviteCodeUtil.randomNumCode(6);
         paramMap.put("code", code);
         String response = "";
-        response = HttpClient4Util.doPost(smsUrl + "/buka/sendGateMessage", paramMap);
+        if(StringUtils.equals("855", country)){
+            response = HttpClient4Util.doPost(smsUrl + "/buka/sendGateMessage", paramMap);
+        }else{
+            response = HttpClient4Util.doPost(smsUrl + "/buka/sendRegister", paramMap);
+        }
+
         log.info("getVerificationCode 获取验证码：【{}】", response);
 
         if (CommonUtil.checkNull(response)) {
