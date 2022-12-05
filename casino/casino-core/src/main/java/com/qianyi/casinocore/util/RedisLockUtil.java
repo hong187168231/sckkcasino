@@ -27,6 +27,8 @@ public class RedisLockUtil {
 
     public static final String RECHARGE_REQUEST ="rechargeRequest:{0}";
 
+    public static final String USER_MONEY_LOCK ="userMoneyLock:{0}";
+
     //分布式锁过期时间s可以根据自己的业务调整
     private static final Long LOCK_REDIS_TIMEOUT = 20L;
 
