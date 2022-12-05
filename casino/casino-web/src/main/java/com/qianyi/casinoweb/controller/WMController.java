@@ -71,7 +71,7 @@ public class WMController {
     String signature;
 
     @ApiOperation("开游戏")
-    @RequestLimit(limit = 1, timeout = 5)
+//    @RequestLimit(limit = 2, timeout = 5)
     @PostMapping("openGame")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "gameType", value = "空：大厅。1.百家乐。2.龙虎 3. 轮盘 4. 骰宝 " +
