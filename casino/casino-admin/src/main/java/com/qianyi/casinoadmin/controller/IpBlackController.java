@@ -1,12 +1,14 @@
 package com.qianyi.casinoadmin.controller;
 
-
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinocore.model.IpBlack;
 import com.qianyi.casinocore.service.IpBlackService;
+import com.qianyi.casinocore.util.BillThreadPool;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -29,6 +31,11 @@ public class IpBlackController {
     @Autowired
     private IpBlackService ipBlackService;
 
+    @Autowired
+    private RedisUtil redisUtil;
+
+    private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_1);
+
     /**
      * 分页查询ip黑名单
      *
@@ -40,16 +47,17 @@ public class IpBlackController {
      */
     @ApiOperation("分页查询ip黑名单")
     @GetMapping("/findIpBlackPag")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
-            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "ip", value = "ip", required = false),
-            @ApiImplicitParam(name = "status", value = "状态/** 0:未禁用 1：禁用 */", required = false),
-    })
-    public ResponseEntity<IpBlack> findIpBlackPag(Integer pageSize, Integer pageCode, String ip, Integer status){
+    @ApiImplicitParams({@ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "ip", value = "ip", required = false),
+        @ApiImplicitParam(name = "status", value = "状态/** 0:未禁用 1：禁用 */", required = false),})
+    public ResponseEntity<IpBlack> findIpBlackPag(Integer pageSize, Integer pageCode, String ip, Integer status) {
         IpBlack ipBlack = new IpBlack();
         Sort sort = Sort.by("id").descending();
         ipBlack.setIp(ip);
+        if (!LoginUtil.checkNull(ip)) {
+            threadPool.execute(() -> this.asynDeleRedis(ip));
+        }
         ipBlack.setStatus(status);
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         Page<IpBlack> ipBlackPag = ipBlackService.findIpBlackPag(ipBlack, pageable);
@@ -58,20 +66,28 @@ public class IpBlackController {
 
     @GetMapping("/disable")
     @ApiOperation("ip黑名单删除")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "id", required = true),
-    })
-    public ResponseEntity disable(Long id){
+    @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "id", required = true),})
+    public ResponseEntity disable(Long id) {
         IpBlack byId = ipBlackService.findById(id);
-        if (LoginUtil.checkNull(byId)){
+        if (LoginUtil.checkNull(byId)) {
             return ResponseUtil.custom("找不到这个ip");
         }
-//        if(byId.getStatus() == Constants.IPBLACK_CLOSE){
-//            byId.setStatus(Constants.IPBLACK_OPEN);
-//        }else{
-//            byId.setStatus(Constants.IPBLACK_CLOSE);
-//        }
+        String ip = byId.getIp();
         ipBlackService.delete(byId);
+        if (!LoginUtil.checkNull(ip)) {
+            threadPool.execute(() -> this.asynDeleRedis(ip));
+        }
         return ResponseUtil.success();
+    }
+
+    private void asynDeleRedis(String ip) {
+        log.info("ip黑名单异步删除缓存{}开始", ip);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            log.error("ip黑名单异步删除缓存异常", ex);
+        }
+        Boolean b = redisUtil.delete(RedisUtil.IP_BLACK_LIST_KEY + ip);
+        log.info("ip黑名单异步删除缓存{}结束{}", ip, b);
     }
 }

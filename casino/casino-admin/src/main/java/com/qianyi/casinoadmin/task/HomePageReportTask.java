@@ -55,6 +55,7 @@ public class HomePageReportTask {
     @Scheduled(cron = TaskConst.HOME_PAGE_REPORT_NEW)
     public void create(){
         log.info("每日首页报表统计开始start=============================================》");
+        long startTime = System.currentTimeMillis();
         Calendar nowTime = Calendar.getInstance();
         String today = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
         nowTime.add(Calendar.DATE, -1);
@@ -63,6 +64,7 @@ public class HomePageReportTask {
         if (!LoginUtil.checkNull(byStaticsTimes) && byStaticsTimes.size() > CommonConst.NUMBER_0)
             return;
         this.begin(yesterday,today);
+        log.info("每日首页报表统计结束end耗时{}=============================================》",System.currentTimeMillis()-startTime);
     }
     public void begin(String yesterday,String today){
         try {
@@ -82,7 +84,6 @@ public class HomePageReportTask {
             this.washCodeAmount(startDate,endDate,homePageReport);
             this.extractPointsAmount(startDate, endDate, homePageReport);
             homePageReportService.save(homePageReport);
-            log.info("每日首页报表统计结束end=============================================》");
         }catch (Exception ex){
             log.error("首页报表统计失败",ex);
         }

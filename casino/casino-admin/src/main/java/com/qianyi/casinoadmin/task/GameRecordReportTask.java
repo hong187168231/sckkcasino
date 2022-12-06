@@ -68,13 +68,15 @@ public class GameRecordReportTask {
 
     @Scheduled(cron = TaskConst.GAME_RECORD_REPORT_TASK)
     public void begin() {
+        log.info("每日会员报表计算定时任务开始start=============================================》");
+        long startTime = System.currentTimeMillis();
         this.replacementOrder();
         this.comparison();
+        log.info("每日会员报表计算定时任务结束耗时{}=============================================》",System.currentTimeMillis()-startTime);
     }
 
     private void comparison(){
-        log.info("每日会员报表计算定时任务开始start=============================================》");
-        long startTime = System.currentTimeMillis();
+
         Calendar nowTime = Calendar.getInstance();
         //计算最近十天注单
         nowTime.add(Calendar.DATE, -10);
@@ -94,7 +96,6 @@ public class GameRecordReportTask {
             userGameRecordReportService.comparison(str);
             proxyGameRecordReportService.comparison(str);
         }
-        log.info("每日会员报表计算定时任务结束耗时{}=============================================》",System.currentTimeMillis()-startTime);
     }
 
     private void delete(String yesterday){
