@@ -1824,8 +1824,8 @@ public class SqlConst {
     sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0))) avg_benefit,
     sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,
     sum(ifnull(ec.water, 0)) all_water,
-        sum(ifnull(td.todayAmount, 0)) todayAward,
-            sum(ifnull(rs.riseAmount, 0)) riseAward
+        sum(ifnull(td.todayAward, 0)) todayAward,
+            sum(ifnull(rs.riseAward, 0)) riseAward
     from user u left join (
         select user_id ,
         SUM(betting_number) num,
@@ -1863,7 +1863,7 @@ public class SqlConst {
     FROM extract_points_change
     where create_time between {0} and {1}
     group by user_id
-                ) ec on u.id = ec.user_id{4}
+                ) ec on u.id = ec.user_id
                 LEFT JOIN (
                 SELECT
                     user_id,
@@ -1889,7 +1889,7 @@ public class SqlConst {
                 AND {1}
                 GROUP BY
                     user_id
-            ) rs ON u.id = rs.user_id
+            ) rs ON u.id = rs.user_id {4}
             """;
 
     //    public static String sumSql = """
