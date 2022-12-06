@@ -5,6 +5,7 @@ import com.qianyi.casinocore.model.SysUserRole;
 import com.qianyi.casinocore.repository.SysUserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.domain.Specification;
@@ -33,7 +34,7 @@ public class SysUserRoleService {
         return sysUserRoleRepository.save(sysUserRole);
     }
 
-    @CachePut(key = "#result.sysUserId", condition = "#result != null")
+    @CacheEvict(key = "#result.sysUserId", condition = "#result != null")
     public SysUserRole deleteBySysRoleId(Long roleId) {
         return sysUserRoleRepository.deleteBySysRoleId(roleId);
     }
