@@ -22,7 +22,7 @@ public class RedisKeyUtil {
 
     public static final String USER_MONEY_LOCK = "USER-MONEY-LOCK-";
 
-    public static final String ADMIN_USER_SYSPERMISSION = "ADMIN-USER-SYSPERMISSION-";
+    public static final String ADMIN_USER_SYSPERMISSION = "ADMIN-USER::SYSPERMISSION-";
     /**
      * 全局代理信誉分锁
      *
