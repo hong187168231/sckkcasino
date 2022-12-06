@@ -40,6 +40,7 @@ public class HttpClient4Util {
         try {
             response = httpclient.execute(httpGet);
         } catch (Exception e) {
+            httpclient.close();
             e.printStackTrace();
         }
         HttpEntity entity = response.getEntity();//得到请求回来的数据
@@ -67,6 +68,7 @@ public class HttpClient4Util {
         try {
             response = httpclient.execute(httpGet);
         } catch (Exception e) {
+            httpclient.close();
             e.printStackTrace();
         }
         HttpEntity entity = response.getEntity();//得到请求回来的数据
@@ -94,6 +96,7 @@ public class HttpClient4Util {
             result = EntityUtils.toString(entity, "UTF-8");
             log.info("specialGet请求返回参数{}", result);
         } catch (ClientProtocolException e) {
+            httpClient.close();
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
@@ -117,7 +120,7 @@ public class HttpClient4Util {
         return result;
     }
 
-    public static String doGet(String url) {
+    public static String doGet(String url) throws IOException {
         log.info("doGet请求参数{}",url);
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse response = null;
@@ -145,6 +148,7 @@ public class HttpClient4Util {
             result = EntityUtils.toString(entity);
             log.info("doGet请求返回参数{}",result);
         } catch (ClientProtocolException e) {
+            httpClient.close();
             e.printStackTrace();
         } catch (Throwable e) {
             log.error("http远程请求异常,msg={}",e.getMessage());
