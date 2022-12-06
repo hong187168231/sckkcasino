@@ -125,10 +125,10 @@ public class ProxyGameRecordReportService {
         Integer totalBetNumber = userGameRecordReportService.findTotalBetNumber(startTime, endTime);
         Integer totalBetNumberByAe = userGameRecordReportService.findTotalBetNumberByAe(startTime, endTime);
         Integer totalBetNumberByVnc = userGameRecordReportService.findTotalBetNumberByVnc(startTime, endTime);
-        totalBetNumber = totalBetNumber + totalBetNumberByAe  + totalBetNumberByVnc;
-        log.info("代理报表日期{} betNumber:{} totalBetNumber:{} totalBetNumberByVnc:{}", dayTime, betNumber, totalBetNumber,totalBetNumberByVnc);
-        if (betNumber.intValue() != totalBetNumber.intValue()) {
-            log.error("代理报表日期{}不相等开始重新计算betNumber:{}totalBetNumber:{} totalBetNumberByVnc:{}", dayTime, betNumber, totalBetNumber,totalBetNumberByVnc);
+        Integer total = totalBetNumber + totalBetNumberByAe  + totalBetNumberByVnc;
+        log.info("代理报表日期{} betNumber:{} total:{} totalBetNumber:{}  totalBetNumberByAe:{} totalBetNumberByVnc:{}", dayTime, betNumber,total,totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc);
+        if (betNumber.intValue() != total.intValue()) {
+            log.error("代理报表日期{}不相等开始重新计算betNumber:{}  total:{} totalBetNumber:{} totalBetNumberByAe:{} totalBetNumberByVnc:{}", dayTime, betNumber,total, totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc);
             proxyGameRecordReportRepository.deleteByOrderTimes(dayTime);
             try {
                 List<Map<String, Object>> totalMap = proxyGameRecordReportRepository.findTotal(startTime, endTime);

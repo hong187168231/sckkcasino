@@ -81,10 +81,10 @@ public class UserGameRecordReportService {
         Integer totalBetNumber = this.findTotalBetNumber(startTime, endTime);
         Integer totalBetNumberByAe = this.findTotalBetNumberByAe(startTime, endTime);
         Integer totalBetNumberByVnc = this.findTotalBetNumberByVnc(startTime, endTime);
-        totalBetNumber = totalBetNumber + totalBetNumberByAe + totalBetNumberByVnc;
-        log.info("会员报表日期{} betNumber:{} totalBetNumber:{} totalBetNumberByVnc:{}", dayTime, betNumber, totalBetNumber,totalBetNumberByVnc);
-        if (betNumber.intValue() != totalBetNumber.intValue()) {
-            log.error("会员报表日期{}不相等开始重新计算betNumber:{}totalBetNumber:{} totalBetNumberByVnc:{}", dayTime, betNumber, totalBetNumber,totalBetNumberByVnc);
+        Integer total = totalBetNumber + totalBetNumberByAe + totalBetNumberByVnc;
+        log.info("会员报表日期{} betNumber:{} total:{} totalBetNumber:{} totalBetNumberByAe:{} totalBetNumberByVnc:{}", dayTime, betNumber,total, totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc);
+        if (betNumber.intValue() != total.intValue()) {
+            log.error("会员报表日期{}不相等开始重新计算betNumber:{} total:{} totalBetNumber:{} totalBetNumberByAe:{} totalBetNumberByVnc:{}", dayTime, betNumber,total, totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc);
             userGameRecordReportRepository.deleteByOrderTimes(dayTime);
 
             List<Map<String, Object>> wm = userGameRecordReportRepository.findWm(startTime, endTime);
