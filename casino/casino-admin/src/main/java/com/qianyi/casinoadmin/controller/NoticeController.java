@@ -1,11 +1,12 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinoadmin.util.LoginUtil;
-import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.co.sys.NoticeBo;
 import com.qianyi.casinocore.model.Notice;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.NoticeService;
 import com.qianyi.casinocore.service.SysUserService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -13,13 +14,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,31 +34,9 @@ public class NoticeController {
     private SysUserService sysUserService;
     @ApiOperation("新增公告")
     @PostMapping("/saveNotice")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "title", value = "内容", required = true),
-            @ApiImplicitParam(name = "enTitle", value = "英文内容", required = true),
-            @ApiImplicitParam(name = "khTitle", value = "柬语标题", required = true),
-            @ApiImplicitParam(name = "isShelves", value = "是否上架 true false", required = true),
-            @ApiImplicitParam(name = "url", value = "详情访问页", required = false),
-            @ApiImplicitParam(name = "introduction", value = "简介", required = true),
-            @ApiImplicitParam(name = "enIntroduction", value = "英文简介", required = true),
-            @ApiImplicitParam(name = "khIntroduction", value = "柬语简介", required = true),
-            @ApiImplicitParam(name = "showType", value = "显示类型 0-所有 1-跑马灯 2-弹窗", required = true)
-    })
-    public ResponseEntity<Notice> saveNotice(String title,String enTitle,String khTitle,Boolean isShelves,String introduction,String url,String enIntroduction,String khIntroduction,Integer showType){
+    public ResponseEntity<Notice> saveNotice(@RequestBody @Validated NoticeBo noticeBo){
         Notice notice = new Notice();
-        if (ObjectUtils.isEmpty(title) || ObjectUtils.isEmpty(enTitle) || ObjectUtils.isEmpty(introduction) || ObjectUtils.isEmpty(enIntroduction) || ObjectUtils.isEmpty(khTitle) || ObjectUtils.isEmpty(khIntroduction)) {
-            return ResponseUtil.custom("必填项不允许为空");
-        }
-        notice.setTitle(title);
-        notice.setIntroduction(introduction);
-        notice.setIsShelves(isShelves);
-        notice.setUrl(url);
-        notice.setEnTitle(enTitle);
-        notice.setEnIntroduction(enIntroduction);
-        notice.setKhTitle(khTitle);
-        notice.setKhIntroduction(khIntroduction);
-        notice.setShowType(showType);
+        BeanUtils.copyProperties(noticeBo,notice);
         return this.saveNotice(notice);
     }
 
@@ -92,36 +69,15 @@ public class NoticeController {
     }
     @ApiOperation("修改公告")
     @PostMapping("/updateNotice")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "id主键", required = true),
-            @ApiImplicitParam(name = "title", value = "内容", required = true),
-            @ApiImplicitParam(name = "enTitle", value = "英文内容", required = true),
-            @ApiImplicitParam(name = "khTitle", value = "柬语标题", required = true),
-            @ApiImplicitParam(name = "isShelves", value = "是否上架 true false", required = true),
-            @ApiImplicitParam(name = "url", value = "详情访问页", required = false),
-            @ApiImplicitParam(name = "introduction", value = "简介", required = true),
-            @ApiImplicitParam(name = "enIntroduction", value = "英文简介", required = true),
-            @ApiImplicitParam(name = "khIntroduction", value = "柬语简介", required = true),
-            @ApiImplicitParam(name = "showType", value = "显示类型 0-所有 1-跑马灯 2-弹窗", required = true)
-    })
-    public ResponseEntity updateNotice(String title,String enTitle,String khTitle,Boolean isShelves,String introduction,String url,Long id,String enIntroduction,String khIntroduction,Integer showType){
-        if (ObjectUtils.isEmpty(title) || ObjectUtils.isEmpty(enTitle) || ObjectUtils.isEmpty(introduction) || ObjectUtils.isEmpty(khTitle) || ObjectUtils.isEmpty(khIntroduction) || ObjectUtils.isEmpty(showType)
-                || ObjectUtils.isEmpty(enIntroduction)) {
-            return ResponseUtil.custom("必填项不允许为空");
+    public ResponseEntity updateNotice(@RequestBody @Validated NoticeBo noticeBo){
+        if (ObjectUtils.isEmpty(noticeBo.getId()) ) {
+            return ResponseUtil.custom("id项不允许为空");
         }
-        Notice notice = noticeService.findNoticeById(id);
+        Notice notice = noticeService.findNoticeById(noticeBo.getId());
         if (notice == null){
             return ResponseUtil.custom(CommonConst.IDNOTNULL);
         }
-        notice.setUrl(url);
-        notice.setIsShelves(isShelves);
-        notice.setIntroduction(introduction);
-        notice.setTitle(title);
-        notice.setEnTitle(enTitle);
-        notice.setEnIntroduction(enIntroduction);
-        notice.setKhTitle(khTitle);
-        notice.setKhIntroduction(khIntroduction);
-        notice.setShowType(showType);
+        BeanUtils.copyProperties(noticeBo,notice);
         noticeService.saveNotice(notice);
         return ResponseUtil.success();
     }
