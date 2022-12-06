@@ -91,12 +91,12 @@ public class PersonReportVo implements Serializable, Comparable<Integer> {
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @JsonProperty("todayAward")
     @ApiModelProperty(value = "每日奖励")
-    private BigDecimal todayAward;
+    private BigDecimal todayAward = BigDecimal.ZERO;
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @JsonProperty("riseAward")
     @ApiModelProperty(value = "晋级奖励")
-    private BigDecimal riseAward;
+    private BigDecimal riseAward = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "账号")
     private String account;

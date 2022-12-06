@@ -177,7 +177,7 @@ public class SqlNewConst {
     game_record_ae grg
     WHERE  tx_status = 1 and
         platform = {5}
-    AND bet_time BETWEEN {0}
+    AND tx_time BETWEEN {0}
     AND {1}
     GROUP BY
     user_id
@@ -209,7 +209,7 @@ public class SqlNewConst {
     game_record_ae grg
     WHERE
         tx_status = 1
-    AND bet_time BETWEEN {0}
+    AND tx_time BETWEEN {0}
     AND {1}
     GROUP BY
     user_id
@@ -550,7 +550,7 @@ public class SqlNewConst {
     ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
     from game_record_ae grg
     where user_id = {2}
-    AND  tx_status = 1 and platform = {4} and bet_time between {0} and {1}
+    AND  tx_status = 1 and platform = {4} and tx_time between {0} and {1}
 	) t1,
         (
     SELECT
@@ -603,7 +603,7 @@ public class SqlNewConst {
     ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
     from game_record_ae grg
     where user_id = {2}
-    AND  tx_status = 1 and  bet_time between {0} and {1}
+    AND  tx_status = 1 and  tx_time between {0} and {1}
 	) t1,
         (
     SELECT
@@ -1067,7 +1067,7 @@ public class SqlNewConst {
     ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
     from game_record_ae grg
     where  tx_status = 1 and platform = {2}
-    and bet_time between {0} and {1}) main_t,
+    and tx_time between {0} and {1}) main_t,
         (select
     sum(amount) wash_amount
     from wash_code_change wcc
@@ -1103,7 +1103,7 @@ public class SqlNewConst {
     ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
     from game_record_ae grg
     where  tx_status = 1
-    and bet_time between {0} and {1}) main_t,
+    and tx_time between {0} and {1}) main_t,
         (select
     sum(amount) wash_amount
     from wash_code_change wcc

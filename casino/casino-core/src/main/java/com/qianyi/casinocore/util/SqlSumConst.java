@@ -66,7 +66,7 @@ public class SqlSumConst {
     game_record_ae grg
     WHERE
         tx_status = 1
-    AND bet_time BETWEEN {0}
+    AND tx_time BETWEEN {0}
     AND {1}
         """;
 

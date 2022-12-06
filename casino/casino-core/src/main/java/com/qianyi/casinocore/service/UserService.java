@@ -260,52 +260,52 @@ public class UserService {
         return userRepository.findByFirstPidAndAccount(userId, account);
     }
 
-    @SuppressWarnings("unchecked")
-    public List<PersonReportVo> findMap(String platform, String startTime, String endTime, Integer page,
-        Integer pageSize, String sort, String orderTimeStart, String orderTimeEnd, String proxy) throws Exception {
-        startTime = "'" + startTime + "'";
-        endTime = "'" + endTime + "'";
-        String sql = "";
-        // if(StringUtils.isNullOrEmpty(platform)){
-        // sql = MessageFormat.format(SqlConst.totalSql, startTime, endTime, sort, page.toString(),
-        // pageSize.toString(),orderTimeStart,orderTimeEnd,proxy);
-        // }else if (platform.equals("WM")){
-        // sql = MessageFormat.format(SqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(),
-        // "'wm'",proxy);
-        // }else{
-        // sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(),
-        // pageSize.toString(),"'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
-        // }
-        if (StringUtils.isNullOrEmpty(platform)) {
-            sql = MessageFormat.format(SqlConst.totalSqlReport, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), orderTimeStart, orderTimeEnd, proxy);// 走报表
-            // sql = MessageFormat.format(SqlConst.totalSql, startTime, endTime, sort, page.toString(),
-            // pageSize.toString(),proxy);
-        } else if (platform.equals(Constants.PLATFORM_WM_BIG)) {
-            sql = MessageFormat.format(SqlConst.wmSql, startTime, endTime, sort, page.toString(), pageSize.toString(),
-                "'wm'", proxy);
-        } else if (platform.equals(Constants.PLATFORM_OBDJ)) {
-            sql = MessageFormat.format(SqlConst.obdjSql, startTime, endTime, sort, page.toString(), pageSize.toString(),
-                "'OBDJ'", proxy);
-        } else if (platform.equals(Constants.PLATFORM_OBTY)) {
-            sql = MessageFormat.format(SqlConst.obtySql, startTime, endTime, sort, page.toString(), pageSize.toString(),
-                "'OBTY'", proxy);
-        } else if (platform.equals(Constants.PLATFORM_PG)) {
-            sql = MessageFormat.format(SqlConst.pgOrCq9Sql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'PG'", proxy);
-        } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
-            sql = MessageFormat.format(SqlConst.sabasportSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'SABASPORT'", proxy, "'Payoff'", "'Stake'");
-        } else {
-            sql = MessageFormat.format(SqlConst.pgOrCq9Sql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'CQ9'", proxy);
-        }
-        log.info(sql);
-        Query countQuery = entityManager.createNativeQuery(sql);
-        List<Object> resultList = countQuery.getResultList();
-        List<Map<String, Object>> mapList = parsePersonReportMapList(resultList);
-        return DTOUtil.map2DTO(mapList, PersonReportVo.class);
-    }
+//    @SuppressWarnings("unchecked")
+//    public List<PersonReportVo> findMap(String platform, String startTime, String endTime, Integer page,
+//        Integer pageSize, String sort, String orderTimeStart, String orderTimeEnd, String proxy) throws Exception {
+//        startTime = "'" + startTime + "'";
+//        endTime = "'" + endTime + "'";
+//        String sql = "";
+//        // if(StringUtils.isNullOrEmpty(platform)){
+//        // sql = MessageFormat.format(SqlConst.totalSql, startTime, endTime, sort, page.toString(),
+//        // pageSize.toString(),orderTimeStart,orderTimeEnd,proxy);
+//        // }else if (platform.equals("WM")){
+//        // sql = MessageFormat.format(SqlConst.wmSql,startTime, endTime, sort, page.toString(), pageSize.toString(),
+//        // "'wm'",proxy);
+//        // }else{
+//        // sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(),
+//        // pageSize.toString(),"'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
+//        // }
+//        if (StringUtils.isNullOrEmpty(platform)) {
+//            sql = MessageFormat.format(SqlConst.totalSqlReport, startTime, endTime, sort, page.toString(),
+//                pageSize.toString(), orderTimeStart, orderTimeEnd, proxy);// 走报表
+//            // sql = MessageFormat.format(SqlConst.totalSql, startTime, endTime, sort, page.toString(),
+//            // pageSize.toString(),proxy);
+//        } else if (platform.equals(Constants.PLATFORM_WM_BIG)) {
+//            sql = MessageFormat.format(SqlConst.wmSql, startTime, endTime, sort, page.toString(), pageSize.toString(),
+//                "'wm'", proxy);
+//        } else if (platform.equals(Constants.PLATFORM_OBDJ)) {
+//            sql = MessageFormat.format(SqlConst.obdjSql, startTime, endTime, sort, page.toString(), pageSize.toString(),
+//                "'OBDJ'", proxy);
+//        } else if (platform.equals(Constants.PLATFORM_OBTY)) {
+//            sql = MessageFormat.format(SqlConst.obtySql, startTime, endTime, sort, page.toString(), pageSize.toString(),
+//                "'OBTY'", proxy);
+//        } else if (platform.equals(Constants.PLATFORM_PG)) {
+//            sql = MessageFormat.format(SqlConst.pgOrCq9Sql, startTime, endTime, sort, page.toString(),
+//                pageSize.toString(), "'PG'", proxy);
+//        } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
+//            sql = MessageFormat.format(SqlConst.sabasportSql, startTime, endTime, sort, page.toString(),
+//                pageSize.toString(), "'SABASPORT'", proxy, "'Payoff'", "'Stake'");
+//        } else {
+//            sql = MessageFormat.format(SqlConst.pgOrCq9Sql, startTime, endTime, sort, page.toString(),
+//                pageSize.toString(), "'CQ9'", proxy);
+//        }
+//        log.info(sql);
+//        Query countQuery = entityManager.createNativeQuery(sql);
+//        List<Object> resultList = countQuery.getResultList();
+//        List<Map<String, Object>> mapList = parsePersonReportMapList(resultList);
+//        return DTOUtil.map2DTO(mapList, PersonReportVo.class);
+//    }
 
     @SuppressWarnings("unchecked")
     public List<PersonReportVo> findMapBet(String platform, String startTime, String endTime, Integer page,
@@ -566,9 +566,11 @@ public class UserService {
         // sql = MessageFormat.format(SqlConst.pgOrCq9Sql,startTime, endTime, sort, page.toString(),
         // pageSize.toString(),"'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
         // }
+        List<String> list = PERSON_REPORT_VO_FIELD_LIST_PLATFORM;
         if (StringUtils.isNullOrEmpty(platform)) {
             sql = MessageFormat.format(SqlConst.exportTotalSqlReport, startTime, endTime, sort, orderTimeStart,
                 orderTimeEnd, proxy);// 走报表
+            list = PERSON_REPORT_VO_FIELD_LIST;
             // sql = MessageFormat.format(SqlConst.exportTotalSql, startTime, endTime, sort,proxy);
         } else if (platform.equals(Constants.PLATFORM_WM_BIG)) {
             sql = MessageFormat.format(SqlConst.exportWmSql, startTime, endTime, sort, "'wm'", proxy);
@@ -597,12 +599,12 @@ public class UserService {
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
-        List<Map<String, Object>> mapList = parsePersonReportMapList(resultList);
+        List<Map<String, Object>> mapList = parsePersonReportMapList(resultList,list);
         return DTOUtil.map2DTO(mapList, PersonReportVo.class);
     }
 
     @SuppressWarnings("unchecked")
-    public List<PersonReportVo> findMap(String platform, String startTime, String endTime, Long userId,
+    public List<PersonReportVo> findMapOne(String platform, String startTime, String endTime, Long userId,
         String orderTimeStart, String orderTimeEnd, String proxy) {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
@@ -616,10 +618,12 @@ public class UserService {
         // sql = MessageFormat.format(SqlConst.seleOnePgOrCq9Sql,startTime, endTime,
         // userId.toString(),"'"+platform+"'",orderTimeStart,orderTimeEnd,proxy);
         // }
+        List<String> list = PERSON_REPORT_VO_FIELD_LIST_PLATFORM;
         if (StringUtils.isNullOrEmpty(platform)) {
             // 走报表
             sql = MessageFormat.format(SqlConst.seleOneTotalReport, startTime, endTime, userId.toString(),
                 orderTimeStart, orderTimeEnd, proxy);
+            list = PERSON_REPORT_VO_FIELD_LIST;
             // sql = MessageFormat.format(SqlConst.seleOneTotal,startTime,endTime,userId.toString(),proxy);
         } else if (platform.equals(Constants.PLATFORM_WM_BIG)) {
             sql = MessageFormat.format(SqlConst.seleOneWm, startTime, endTime, userId.toString(), "'wm'", proxy);
@@ -653,7 +657,7 @@ public class UserService {
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
-        List<Map<String, Object>> mapList = parsePersonReportMapList(resultList);
+        List<Map<String, Object>> mapList = parsePersonReportMapList(resultList,list);
         return DTOUtil.map2DTO(mapList, PersonReportVo.class);
     }
 
@@ -665,7 +669,7 @@ public class UserService {
         "win_loss", "wash_amount", "service_charge", "all_profit_amount", "avg_benefit", "total_amount", "all_water");
 
     @SuppressWarnings("unchecked")
-    public Map<String, Object> findMap(String platform, String startTime, String endTime, String orderTimeStart,
+    public Map<String, Object> findMapSum(String platform, String startTime, String endTime, String orderTimeStart,
         String orderTimeEnd, String proxy) {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
@@ -723,7 +727,7 @@ public class UserService {
     }
 
     @SuppressWarnings("unchecked")
-    public Map<String, Object> findMapSum(String platform, String startTime, String endTime, String orderTimeStart,
+    public Map<String, Object> findMapSumAdmin(String platform, String startTime, String endTime, String orderTimeStart,
         String orderTimeEnd) {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
@@ -774,7 +778,11 @@ public class UserService {
         "bet_amount", "validbet", "win_loss", "wash_amount", "service_charge", "all_profit_amount", "avg_benefit",
         "total_amount", "all_water", "todayAward", "riseAward");
 
-    private List<Map<String, Object>> parsePersonReportMapList(List<Object> resultList) {
+    private static final List<String> PERSON_REPORT_VO_FIELD_LIST_PLATFORM = Arrays.asList("account", "third_proxy", "id", "num",
+        "bet_amount", "validbet", "win_loss", "wash_amount", "service_charge", "all_profit_amount", "avg_benefit",
+        "total_amount", "all_water");
+
+    private List<Map<String, Object>> parsePersonReportMapList(List<Object> resultList,List<String> listString) {
         List<Map<String, Object>> list = null;
         if (resultList != null && resultList.size() > CommonConst.NUMBER_0) {
             list = new LinkedList<>();
@@ -782,8 +790,8 @@ public class UserService {
             for (Object result : resultList) {
                 Map<String, Object> map = new HashMap<>();
                 Object[] obj = (Object[])result;
-                for (int i = 0; i < PERSON_REPORT_VO_FIELD_LIST.size(); i++) {
-                    String field = PERSON_REPORT_VO_FIELD_LIST.get(i);
+                for (int i = 0; i < listString.size(); i++) {
+                    String field = listString.get(i);
                     Object value = obj[i];
                     map.put(field, value);
                 }
