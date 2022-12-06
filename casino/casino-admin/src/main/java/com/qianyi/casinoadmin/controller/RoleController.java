@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.util.LoginUtil;
@@ -168,10 +169,16 @@ public class RoleController {
         if(sysRole == null){
             return ResponseUtil.custom("角色不存在");
         }
+        List<SysUserRole> bySysRoleId = sysUserRoleService.findBySysRoleId(roleId);
+        if(CollUtil.isNotEmpty(bySysRoleId)){
+            return ResponseUtil.custom("角色已被使用");
+        }
         if("系统超级管理员".equals(sysRole.getRoleName())){
             return ResponseUtil.custom("系统生成角色，不可删除");
         }
         roleServiceBusiness.deleteRoleList(roleId);
+        //删除角色对应权限缓存
+        redisKeyUtil.getSysPermissionList(roleId.toString()).clear();
         return ResponseUtil.success();
     }
 

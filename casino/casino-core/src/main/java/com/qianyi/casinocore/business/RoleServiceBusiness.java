@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.business;
 
+import cn.hutool.core.collection.CollUtil;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -167,7 +168,12 @@ public class RoleServiceBusiness {
 
     public void deleteRoleList(Long roleId) {
         //删除角色对应的用户权限
-        sysUserRoleService.deleteBySysRoleId(roleId);
+        List<SysUserRole> bySysRoleId = sysUserRoleService.findBySysRoleId(roleId);
+        if (CollUtil.isNotEmpty(bySysRoleId)){
+            bySysRoleId.forEach(sysUserRole -> {
+                sysUserRoleService.deleteBySysUserId(sysUserRole.getSysUserId());
+            });
+        }
         sysRoleService.deleteById(roleId);
         List<SysPermissionRole> byRoleId = sysPermissionRoleService.findByRoleId(roleId);
         if(byRoleId != null && byRoleId.size() > 0){

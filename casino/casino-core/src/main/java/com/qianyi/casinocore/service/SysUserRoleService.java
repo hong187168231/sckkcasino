@@ -29,14 +29,22 @@ public class SysUserRoleService {
         return sysUserRoleRepository.findBySysUserId(id);
     }
 
+    public List<SysUserRole> findBySysRoleId(Long id) {
+        return sysUserRoleRepository.findBySysRoleId(id);
+    }
+
     @CachePut(key = "#result.sysUserId", condition = "#result != null")
     public SysUserRole save(SysUserRole sysUserRole) {
         return sysUserRoleRepository.save(sysUserRole);
     }
 
-    @CacheEvict(key = "#result.sysUserId", condition = "#result != null")
-    public SysUserRole deleteBySysRoleId(Long roleId) {
-        return sysUserRoleRepository.deleteBySysRoleId(roleId);
+    public void deleteBySysRoleId(Long roleId) {
+        sysUserRoleRepository.deleteBySysRoleId(roleId);
+    }
+
+    @CacheEvict(key = "#id")
+    public void deleteBySysUserId(Long id) {
+        sysUserRoleRepository.deleteBySysUserId(id);
     }
 
     public List<SysUserRole> findAllIds(List<Long> userIds) {

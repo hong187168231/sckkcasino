@@ -10,5 +10,9 @@ public interface SysUserRoleRepository extends JpaRepository<SysUserRole, Long>,
 
    SysUserRole findBySysUserId(Long sysUserId);
 
-   SysUserRole deleteBySysRoleId(Long roleId);
+   void deleteBySysRoleId(Long roleId);
+
+   void deleteBySysUserId(Long sysUserId);
+
+   List<SysUserRole> findBySysRoleId(Long sysRoleId);
 }
