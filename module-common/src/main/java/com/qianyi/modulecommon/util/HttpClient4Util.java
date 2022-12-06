@@ -33,8 +33,8 @@ public class HttpClient4Util {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
         RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(35000).setConnectionRequestTimeout(60000)
-                .setSocketTimeout(60000).build();
+                .setConnectTimeout(10000).setConnectionRequestTimeout(10000)
+                .setSocketTimeout(10000).build();
         httpGet.setConfig(requestConfig);
         CloseableHttpResponse response = null;
         try {
@@ -53,8 +53,8 @@ public class HttpClient4Util {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
         RequestConfig requestConfig = RequestConfig.custom()
-            .setConnectTimeout(35000).setConnectionRequestTimeout(60000)
-            .setSocketTimeout(60000).build();
+            .setConnectTimeout(10000).setConnectionRequestTimeout(10000)
+            .setSocketTimeout(10000).build();
         httpGet.setConfig(requestConfig);
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String language = request.getHeader(Constants.LANGUAGE);
@@ -86,8 +86,8 @@ public class HttpClient4Util {
             URI uri = new URI("https", url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), null);
             HttpGet httpGet = new HttpGet(uri);
             RequestConfig requestConfig = RequestConfig.custom()
-                    .setConnectTimeout(35000).setConnectionRequestTimeout(35000)
-                    .setSocketTimeout(60000).build();
+                    .setConnectTimeout(10000).setConnectionRequestTimeout(10000)
+                    .setSocketTimeout(10000).build();
             httpGet.setConfig(requestConfig);
             response = httpClient.execute(httpGet);
             HttpEntity entity = response.getEntity();//得到请求回来的数据
@@ -131,9 +131,9 @@ public class HttpClient4Util {
 //            httpGet.setHeader("Authorization", "Bearer da3efcbf-0845-4fe3-8aba-ee040be542c0");
             httpGet.setHeader("Accept-Encoding", "gzip,deflate");
             // 设置配置请求参数
-            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(60000)// 连接主机服务超时时间
-                    .setConnectionRequestTimeout(60000)// 请求超时时间
-                    .setSocketTimeout(60000)// 数据读取超时时间
+            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(10000)// 连接主机服务超时时间
+                    .setConnectionRequestTimeout(10000)// 请求超时时间
+                    .setSocketTimeout(10000)// 数据读取超时时间
                     .build();
             // 为httpGet实例设置配置
             httpGet.setConfig(requestConfig);
@@ -216,6 +216,11 @@ public class HttpClient4Util {
             log.info("doPost请求返回参数{}",result);
         } catch (ClientProtocolException e) {
             e.printStackTrace();
+            try {
+                httpClient.close();
+            } catch (IOException ex) {
+                log.info("请求处理");
+            }
         } catch (Throwable e) {
             log.error("http远程请求异常,msg={}",e.getMessage());
             e.printStackTrace();
