@@ -75,8 +75,6 @@ public class AddData implements CommandLineRunner {
 //            proxyGameRecordReportService.comparison(str);
 //        }
         log.info("初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
-
-        thirdGameSumBalanceTask.create();
         //        new Thread(()->{
         //            beginWM1();
         //        }).start();
