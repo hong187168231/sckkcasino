@@ -120,7 +120,7 @@ public class HttpClient4Util {
         return result;
     }
 
-    public static String doGet(String url) throws IOException {
+    public static String doGet(String url) {
         log.info("doGet请求参数{}",url);
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse response = null;
@@ -148,7 +148,11 @@ public class HttpClient4Util {
             result = EntityUtils.toString(entity);
             log.info("doGet请求返回参数{}",result);
         } catch (ClientProtocolException e) {
-            httpClient.close();
+            try {
+                httpClient.close();
+            } catch (IOException ex) {
+                log.info("释放线程");
+            }
             e.printStackTrace();
         } catch (Throwable e) {
             log.error("http远程请求异常,msg={}",e.getMessage());
