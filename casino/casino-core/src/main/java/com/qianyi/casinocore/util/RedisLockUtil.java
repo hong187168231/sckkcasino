@@ -15,21 +15,21 @@ public class RedisLockUtil {
     @Autowired
     private RedisTemplate redisTemplate;
 
-    public static final String PROXY_GAME_RECORD_REPORT_BUSINESS ="proxyGameRecordReportBusiness:{0}";
+    public static final String PROXY_GAME_RECORD_REPORT_BUSINESS ="proxy-Game-Record-Report-Business-Lock::lock-{0}";
 
-    public static final String GAME_RECORD_RESTART ="gameRecordRestart:{0}";
+    public static final String GAME_RECORD_RESTART ="game-Record-Restart-Lock::lock-{0}";
 
-    public static final String AWARD_RECEIVE_RESTART ="awardReceiveRestart:{0}";
+    public static final String AWARD_RECEIVE_RESTART ="award-Receive-Restart-Lock::lock-{0}";
 
-    public static final String WITHDRAW_AUDIT_ORDER ="withdrawAuditOrder:{0}";
+    public static final String WITHDRAW_AUDIT_ORDER ="withdraw-Audit-Order-Lock::lock-{0}";
 
-    public static final String CHARGEORDER_ORDER ="chargeOrder:{0}";
+    public static final String CHARGEORDER_ORDER ="charge-Order-Lock::lock-{0}";
 
-    public static final String RECHARGE_REQUEST ="rechargeRequest:{0}";
+    public static final String RECHARGE_REQUEST ="recharge-Request-Lock::lock-{0}";
     //用户钱包表全局唯一锁
-    public static final String USER_MONEY_LOCK ="userMoneyLock:{0}";
+    public static final String USER_MONEY_LOCK ="user-Money-Lock::lock-{0}";
     //用户洗码全局唯一锁
-    public static final String USER_WASH_CODE_CONFIG ="userWashCodeConfig:{0}";
+    public static final String USER_WASH_CODE_CONFIG ="user-WashCode-Config-Lock::lock-{0}";
 
     //分布式锁过期时间s可以根据自己的业务调整
     private static final Long LOCK_REDIS_TIMEOUT = 20L;
