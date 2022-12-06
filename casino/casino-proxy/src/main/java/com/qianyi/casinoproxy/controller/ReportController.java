@@ -128,7 +128,7 @@ public class ReportController {
         if(StringUtils.hasLength(userName)){
             User user = userService.findByAccount(userName);
             if(user != null){
-                List<PersonReportVo> reportResult = userService.findMap(platform,startTimeStr,endTimeStr,user.getId(),orderTimeStart,orderTimeEnd,proxy);
+                List<PersonReportVo> reportResult = userService.findMapOne(platform,startTimeStr,endTimeStr,user.getId(),orderTimeStart,orderTimeEnd,proxy);
                 PageResultVO<PersonReportVo> mapPageResultVO = combinePage(reportResult, 1, pageCode, pageSize);
                 return ResponseUtil.success(getMap(mapPageResultVO));
             }
@@ -340,7 +340,7 @@ public class ReportController {
                     proxy = seleAllThird+byId.getId();
                 }
                 userId=user.getId();
-                List<PersonReportVo> maps = userService.findMap(platform, startTime, endTime, userId,orderTimeStart,orderTimeEnd,proxy);
+                List<PersonReportVo> maps = userService.findMapOne(platform, startTime, endTime, userId,orderTimeStart,orderTimeEnd,proxy);
                 itemObject = DTOUtil.toDTO(maps.get(0), PersonReportTotalVo.class);
             }
         }else {

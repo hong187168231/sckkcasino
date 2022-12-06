@@ -107,7 +107,7 @@ public class ReportController {
         if (StringUtils.hasLength(userName)) {
             User user = userService.findByAccount(userName);
             if (user != null) {
-                List<PersonReportVo> reportResult = userService.findMap(platform, startTimeStr, endTimeStr,
+                List<PersonReportVo> reportResult = userService.findMapOne(platform, startTimeStr, endTimeStr,
                     user.getId(), orderTimeStart, orderTimeEnd, "");
                 PageResultVO<PersonReportVo> mapPageResultVO = combinePage(reportResult, 1, pageCode, pageSize);
                 return ResponseUtil.success(getMap(mapPageResultVO));
@@ -372,7 +372,7 @@ public class ReportController {
         if (StringUtils.hasLength(userName)) {
             User user = userService.findByAccount(userName);
             if (user != null) {
-                List<PersonReportVo> reportResult = userService.findMap(platform, startTimeStr, endTimeStr,
+                List<PersonReportVo> reportResult = userService.findMapOne(platform, startTimeStr, endTimeStr,
                     user.getId(), orderTimeStart, orderTimeEnd, "");
                 list = getMap(reportResult);
             }
@@ -498,7 +498,7 @@ public class ReportController {
             if (user != null) {
                 userId = user.getId();
                 List<PersonReportVo> maps =
-                    userService.findMap(platform, startTime, endTime, userId, orderTimeStart, orderTimeEnd, "");
+                    userService.findMapOne(platform, startTime, endTime, userId, orderTimeStart, orderTimeEnd, "");
                 itemObject = DTOUtil.toDTO(maps.get(0), PersonReportTotalVo.class);
             }
         } else {
