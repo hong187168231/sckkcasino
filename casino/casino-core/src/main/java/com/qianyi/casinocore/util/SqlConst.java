@@ -674,7 +674,7 @@ public class SqlConst {
     ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
     from game_record_ae grg
     where  tx_status = 1 and
-        platform = {3}  and bet_time between {0} and {1}
+        platform = {3}  and tx_time between {0} and {1}
     group by user_id
               ) goldenf_t on u.id = goldenf_t.user_id
     left join (
@@ -731,7 +731,7 @@ public class SqlConst {
     ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
     from game_record_ae grg
         where
-    tx_status = 1 and bet_time between {0} and {1}
+    tx_status = 1 and tx_time between {0} and {1}
     group by user_id
               ) goldenf_t on u.id = goldenf_t.user_id
     left join (
@@ -1423,7 +1423,7 @@ public class SqlConst {
     ifnull( sum( turnover ), 0 ) validbet,
     ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
     from game_record_ae grg
-    where  user_id={2} and tx_status = 1 and platform = {3} and bet_time between {0} and {1}
+    where  user_id={2} and tx_status = 1 and platform = {3} and tx_time between {0} and {1}
     group by user_id
                 ) goldenf_t on u.id = goldenf_t.user_id
     left join (
@@ -1479,7 +1479,7 @@ public class SqlConst {
     ifnull( sum( turnover ), 0 ) validbet,
     ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
     from game_record_ae grg
-    where user_id={2} and tx_status = 1 and bet_time between {0} and {1}
+    where user_id={2} and tx_status = 1 and tx_time between {0} and {1}
     group by user_id
                 ) goldenf_t on u.id = goldenf_t.user_id
     left join (
@@ -2270,7 +2270,7 @@ public class SqlConst {
     ifnull( sum( turnover ), 0 ) validbet,
     ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
     from game_record_ae grg
-    where tx_status = 1 and bet_time between {0} and {1}
+    where tx_status = 1 and tx_time between {0} and {1}
     group by user_id
                    ) goldenf_t on u.id = goldenf_t.user_id
     left join (

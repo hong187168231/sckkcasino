@@ -46,22 +46,22 @@ public interface GameRecordAeRepository extends JpaRepository<GameRecordAe, Long
     @Query(value = "select count(1) as amount  from game_record_ae rg where rg.bet_time <=?1 and rg.user_id=?2",nativeQuery = true)
     int countByIdLessThanEqualAndUserId(Date createTime, Long userId);
 
-    @Query(value = "select MAX(g.id) maxId,ifnull(SUM(d.user_amount), 0 ) as user_amount,ifnull(SUM(d.surplus_amount), 0 ) as surplus_amount,LEFT(g.bet_time,?2) set_time,ifnull(g.first_proxy,0) first_proxy,\n"
+    @Query(value = "select MAX(g.id) maxId,ifnull(SUM(d.user_amount), 0 ) as user_amount,ifnull(SUM(d.surplus_amount), 0 ) as surplus_amount,LEFT(g.tx_time,?2) set_time,ifnull(g.first_proxy,0) first_proxy,\n"
         + "        ifnull(g.second_proxy,0) second_proxy,ifnull(g.third_proxy,0) third_proxy,\n"
         + "        COUNT(1) num,SUM(g.bet_amount) bet,SUM(g.turnover) validbet,SUM(g.real_win_amount-g.real_bet_amount) win_loss,\n"
         + "         ifnull(SUM(w.amount),0) amount from game_record_ae g left join  \n"
         + "        wash_code_change w  on  w.game_record_id = g.id and w.platform = ?3\n"
         + "        LEFT JOIN  rebate_detail d on d.game_record_id=g.id  and d.platform = ?3\n"
-        + "         where g.id > ?1 and g.platform = ?3 and g.tx_status = 1  \n" + "   GROUP BY g.third_proxy,LEFT(g.bet_time,?2) ",nativeQuery = true)
+        + "         where g.id > ?1 and g.platform = ?3 and g.tx_status = 1  \n" + "   GROUP BY g.third_proxy,LEFT(g.tx_time,?2) ",nativeQuery = true)
     List<Map<String,Object>> queryGameRecords(Long id,Integer num,String platform);
 
-    @Query(value = "select MAX(g.id) maxId,ifnull(SUM(d.user_amount), 0 ) as user_amount,ifnull(SUM(d.surplus_amount), 0 ) as surplus_amount,LEFT(g.bet_time,?2) set_time,ifnull(g.first_proxy,0) first_proxy,\n"
+    @Query(value = "select MAX(g.id) maxId,ifnull(SUM(d.user_amount), 0 ) as user_amount,ifnull(SUM(d.surplus_amount), 0 ) as surplus_amount,LEFT(g.tx_time,?2) set_time,ifnull(g.first_proxy,0) first_proxy,\n"
         + "        ifnull(g.second_proxy,0) second_proxy,ifnull(g.third_proxy,0) third_proxy,\n"
         + "        COUNT(1) num,SUM(g.bet_amount) bet,SUM(g.turnover) validbet,SUM(g.real_win_amount-g.real_bet_amount) win_loss,\n"
         + "         ifnull(SUM(w.amount),0) amount from game_record_ae g left join  \n"
         + "        wash_code_change w  on  w.game_record_id = g.id and w.platform = ?3\n"
         + "        LEFT JOIN  rebate_detail d on d.game_record_id=g.id  and d.platform = ?3\n"
-        + "         where g.id > ?1 and g.tx_status = 1  \n" + "   GROUP BY g.third_proxy,LEFT(g.bet_time,?2) ",nativeQuery = true)
+        + "         where g.id > ?1 and g.tx_status = 1  \n" + "   GROUP BY g.third_proxy,LEFT(g.tx_time,?2) ",nativeQuery = true)
     List<Map<String,Object>> queryGameRecordsMerge(Long id,Integer num,String platform);
 
     @Query(value = "SELECT IFNULL(sum(turnover),0) turnover,count(1) betCount,IFNULL(sum(bet_amount),0) betAmount,IFNULL(sum(win_Amount),0) winAmount,\n" +

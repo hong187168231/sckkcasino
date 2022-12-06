@@ -95,7 +95,7 @@ public interface ProxyGameRecordReportRepository extends JpaRepository<ProxyGame
         + "+ ifnull( grobdj_t.win_loss, 0 )+ ifnull( grobty_t.win_loss, 0 ) win_loss FROM USER u LEFT JOIN (SELECT user_id,count( 1 ) num,"
         + "sum( bet ) bet_amount,sum( validbet ) validbet,sum( win_loss ) win_loss FROM game_record gr WHERE  bet_time >= ?1 AND bet_time <= ?2 "
         + "GROUP BY user_id ) main_t ON u.id = main_t.user_id LEFT JOIN (SELECT user_id,count( 1 ) num,sum( bet_amount ) bet_amount,sum( turnover ) validbet,"
-        + "sum( real_win_amount-real_bet_amount ) win_loss FROM game_record_ae gre WHERE gre.tx_status = 1 and gre.bet_time >= ?1 AND gre.bet_time <= ?2 GROUP BY user_id ) gre_t "
+        + "sum( real_win_amount-real_bet_amount ) win_loss FROM game_record_ae gre WHERE gre.tx_status = 1 and gre.tx_time >= ?1 AND gre.tx_time <= ?2 GROUP BY user_id ) gre_t "
         + "ON u.id = gre_t.user_id LEFT JOIN (SELECT user_id,count( 1 ) num,sum( bet_amount ) bet_amount,sum( win_amount - bet_amount )"
         + " win_loss FROM game_record_goldenf grg WHERE create_at_str >= ?1 AND create_at_str <= ?2 And vendor_code in ('PG','CQ9') GROUP BY user_id ) goldenf_t "
         + "ON u.id = goldenf_t.user_id LEFT JOIN (SELECT off.user_id user_id,off.vendor_code vendor_code,count( DISTINCT sk.bet_id ) num,ifnull( SUM( sk.bet_amount ), 0 ) bet_amount,"
@@ -112,7 +112,7 @@ public interface ProxyGameRecordReportRepository extends JpaRepository<ProxyGame
 
     @Query(value = "select ifnull( g.first_proxy, 0 ) first_proxy,ifnull( g.second_proxy, 0 ) second_proxy,ifnull( g.third_proxy, 0 ) third_proxy,"
         + "user_id user_id,count(1) num,sum(bet_amount) bet_amount,sum(real_bet_amount) validbet,sum(real_win_amount-real_bet_amount) win_loss "
-        + "from game_record_ae grg where g.tx_status = 1 and bet_time >= ?1 and bet_time <= ?2 group by user_id ;",nativeQuery = true)
+        + "from game_record_ae grg where g.tx_status = 1 and tx_time >= ?1 and tx_time <= ?2 group by user_id ;",nativeQuery = true)
     List<Map<String, Object>> findTotalAe(String startTime,String endTime);
 
     @Query(value = "SELECT user_id user_id,count(1) num,ifnull( sum( bet_money ), 0 ) bet_amount,ifnull( sum( real_money ), 0 ) validbet,"

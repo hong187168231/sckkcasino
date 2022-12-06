@@ -368,7 +368,7 @@ public class SqlShareConst {
     ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
     from game_record_ae grg
     where user_id = {2}
-    AND  tx_status = 1 and  bet_time between {0} and {1}
+    AND  tx_status = 1 and  tx_time between {0} and {1}
 	) t1,
         (
     SELECT
