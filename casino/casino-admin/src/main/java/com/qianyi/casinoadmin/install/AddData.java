@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.install;
 
+import com.qianyi.casinoadmin.task.ThirdGameSumBalanceTask;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.GameRecordGoldenF;
 import com.qianyi.casinocore.service.GameRecordGoldenFService;
@@ -46,6 +47,9 @@ public class AddData implements CommandLineRunner {
     @Autowired
     private UserGameRecordReportService userGameRecordReportService;
 
+    @Autowired
+    private ThirdGameSumBalanceTask thirdGameSumBalanceTask;
+
     private static final Integer pageSize = 1000;
 
     public static final Integer num = 50000;
@@ -72,7 +76,7 @@ public class AddData implements CommandLineRunner {
 //        }
         log.info("初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
 
-
+        thirdGameSumBalanceTask.create();
         //        new Thread(()->{
         //            beginWM1();
         //        }).start();
