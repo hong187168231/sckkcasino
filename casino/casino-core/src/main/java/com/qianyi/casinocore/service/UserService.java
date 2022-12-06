@@ -665,7 +665,7 @@ public class UserService {
         "win_loss", "wash_amount", "service_charge", "all_profit_amount", "avg_benefit", "total_amount", "all_water");
 
     @SuppressWarnings("unchecked")
-    public Map<String, Object> findMap(String platform, String startTime, String endTime, String orderTimeStart,
+    public Map<String, Object> findMapSum(String platform, String startTime, String endTime, String orderTimeStart,
         String orderTimeEnd, String proxy) {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
@@ -723,7 +723,7 @@ public class UserService {
     }
 
     @SuppressWarnings("unchecked")
-    public Map<String, Object> findMapSum(String platform, String startTime, String endTime, String orderTimeStart,
+    public Map<String, Object> findMapSumAdmin(String platform, String startTime, String endTime, String orderTimeStart,
         String orderTimeEnd) {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";

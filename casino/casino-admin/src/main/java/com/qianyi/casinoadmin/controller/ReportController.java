@@ -396,7 +396,7 @@ public class ReportController {
                     BeanUtils.copyProperties(personReportTotalVo, item);
                 } else {
                     Map<String, Object> result =
-                        userService.findMap(platform, startTimeStr, endTimeStr, orderTimeStart, orderTimeEnd, "");
+                        userService.findMapSumAdmin(platform, startTimeStr, endTimeStr, orderTimeStart, orderTimeEnd);
                     item = DTOUtil.toDTO(result, PersonReportVo.class);
                 }
                 item.setAccount("总计");
@@ -506,7 +506,7 @@ public class ReportController {
                 return ResponseUtil.success(this.sumGameRecord(startTime, endTime));
             }
             Map<String, Object> result =
-                userService.findMapSum(platform, startTime, endTime, orderTimeStart, orderTimeEnd);
+                userService.findMapSumAdmin(platform, startTime, endTime, orderTimeStart, orderTimeEnd);
             itemObject = DTOUtil.toDTO(result, PersonReportTotalVo.class);
         }
         return ResponseUtil.success(itemObject);

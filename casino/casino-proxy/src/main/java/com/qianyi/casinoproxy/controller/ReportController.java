@@ -351,7 +351,7 @@ public class ReportController {
             }else {
                 proxy = seleSumThird+byId.getId();
             }
-            Map<String,Object> result = userService.findMap(platform,startTime,endTime,orderTimeStart,orderTimeEnd,proxy);
+            Map<String,Object> result = userService.findMapSum(platform,startTime,endTime,orderTimeStart,orderTimeEnd,proxy);
             itemObject = DTOUtil.toDTO(result, PersonReportTotalVo.class);
         }
         return ResponseUtil.success(itemObject);
