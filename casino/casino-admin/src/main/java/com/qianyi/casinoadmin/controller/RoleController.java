@@ -13,6 +13,7 @@ import com.qianyi.casinocore.service.SysRoleService;
 import com.qianyi.casinocore.service.SysUserRoleService;
 import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.casinocore.util.DTOUtil;
+import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
@@ -20,6 +21,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/role")
 @Api(tags = "系统管理")
+@Slf4j
 public class RoleController {
 
     @Autowired
@@ -49,6 +52,9 @@ public class RoleController {
 
     @Autowired
     private SysRoleService sysRoleService;
+
+    @Autowired
+    private RedisKeyUtil redisKeyUtil;
 
     @GetMapping("getSysUser")
     @ApiOperation("查询用户数据")
@@ -301,6 +307,8 @@ public class RoleController {
         }
         Boolean result = roleServiceBusiness.save(roleName, remark, roleId, menuIdList, true);
         if(result){
+            redisKeyUtil.getSysPermissionList(roleId.toString()).clear();
+            log.info("删除角色缓存{}",roleId.toString());
             return ResponseUtil.success();
         }
         return ResponseUtil.fail();

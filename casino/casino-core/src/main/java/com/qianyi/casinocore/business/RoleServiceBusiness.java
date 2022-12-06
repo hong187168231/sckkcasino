@@ -167,7 +167,7 @@ public class RoleServiceBusiness {
 
     public void deleteRoleList(Long roleId) {
         //删除角色对应的用户权限
-        sysUserRoleService.deleteById(roleId);
+        sysUserRoleService.deleteBySysRoleId(roleId);
         sysRoleService.deleteById(roleId);
         List<SysPermissionRole> byRoleId = sysPermissionRoleService.findByRoleId(roleId);
         if(byRoleId != null && byRoleId.size() > 0){

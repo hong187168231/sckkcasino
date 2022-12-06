@@ -4,6 +4,9 @@ package com.qianyi.casinocore.service;
 import com.qianyi.casinocore.model.SysUserRole;
 import com.qianyi.casinocore.repository.SysUserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -14,22 +17,25 @@ import java.util.List;
 
 @Service
 @Transactional
+@CacheConfig(cacheNames = {"sysUserRole"})
 public class SysUserRoleService {
 
     @Autowired
     private SysUserRoleRepository sysUserRoleRepository;
 
-    public SysUserRole findbySysUserId(Long userid) {
-
-        return sysUserRoleRepository.findBySysUserId(userid);
+    @Cacheable(key = "#id")
+    public SysUserRole findbySysUserId(Long id) {
+        return sysUserRoleRepository.findBySysUserId(id);
     }
 
+    @CachePut(key = "#result.sysUserId", condition = "#result != null")
     public SysUserRole save(SysUserRole sysUserRole) {
         return sysUserRoleRepository.save(sysUserRole);
     }
 
-    public void deleteById(Long roleId) {
-        sysUserRoleRepository.deleteBySysRoleId(roleId);
+    @CachePut(key = "#result.sysUserId", condition = "#result != null")
+    public SysUserRole deleteBySysRoleId(Long roleId) {
+        return sysUserRoleRepository.deleteBySysRoleId(roleId);
     }
 
     public List<SysUserRole> findAllIds(List<Long> userIds) {
