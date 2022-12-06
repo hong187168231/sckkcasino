@@ -6,11 +6,15 @@ import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.Table;
 import java.math.BigDecimal;
 
 @Data
 @Entity
 @ApiModel("用户洗码配置表")
+@Table(indexes = {@Index(name="identity_index",columnList = "userId",unique=true),@Index(name="identity_index",columnList = "platform",unique=true)
+    ,@Index(name="identity_index",columnList = "gameId",unique=true)})
 public class UserWashCodeConfig extends BaseEntity{
 
     @ApiModelProperty(value = "用户id")

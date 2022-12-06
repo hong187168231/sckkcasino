@@ -24,6 +24,7 @@ public class RedisUtil {
 
     public static String USERMONEY_KEY = "userMoney::";
 
+    public static String IP_BLACK_LIST_KEY = "ipBlackList::";
     /**
      * 指定缓存失效时间
      *
