@@ -16,11 +16,13 @@ public class RedisKeyUtil {
     //系统默认锁时间
     public static final int LOCK_TIME = 120;
 
-    public static final String PROXY_CREDIT_LOCK = "PROXY-CREDIT-LOCK-";
+    public static final String PROXY_CREDIT_LOCK = "PROXY-CREDIT-LOCK::LOCK-";
 
-    public static final String PROXY_WASH_CODE_REBATE_LOCK = "PROXY-WASH-CODE-REBATE-LOCK-";
+    public static final String PROXY_WASH_CODE_REBATE_LOCK = "PROXY-WASH-CODE-REBATE-LOCK::LOCK-";
 
-    public static final String USER_MONEY_LOCK = "USER-MONEY-LOCK-";
+    public static final String USER_MONEY_LOCK = "USER-MONEY-LOCK::LOCK-";
+
+    public static final String BANK_CARDS_LOCK = "BANK-CARDS-LOCK::LOCK-";
 
     public static final String ADMIN_USER_SYSPERMISSION = "ADMIN-USER::SYSPERMISSION-";
     /**
@@ -51,6 +53,16 @@ public class RedisKeyUtil {
      */
     public RLock getUserMoneyLock(String userId) {
         return redissonClient.getFairLock(RedisKeyUtil.USER_MONEY_LOCK + userId);
+    }
+
+    /**
+     * 全局会员银行卡锁
+     *
+     * @param userId 会员id
+     * @return 全局会员银行卡锁
+     */
+    public RLock getBankcardsLock(String userId) {
+        return redissonClient.getFairLock(RedisKeyUtil.BANK_CARDS_LOCK + userId);
     }
     /**
      * 释放redis锁

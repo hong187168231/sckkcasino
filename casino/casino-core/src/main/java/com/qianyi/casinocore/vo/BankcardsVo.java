@@ -35,6 +35,8 @@ public class BankcardsVo  implements Serializable {
     private Date updateTime;
     @ApiModelProperty(value = "修后修改人")
     private String updateBy;
+    @ApiModelProperty("最后修改人")
+    private String lastModifier;
     public BankcardsVo(){
 
     }
@@ -49,6 +51,7 @@ public class BankcardsVo  implements Serializable {
         this.defaultCard = bankcards.getDefaultCard();
         this.updateTime = bankcards.getUpdateTime();
         this.updateBy = bankcards.getUpdateBy();
+        this.lastModifier = bankcards.getLastModifier();
     }
     public BankcardsVo(BankcardsDel bankcards){
         this.id = bankcards.getId();
@@ -61,5 +64,6 @@ public class BankcardsVo  implements Serializable {
         this.disable = 1;
         this.updateTime = bankcards.getUpdateTime();
         this.updateBy = bankcards.getUpdateBy();
+        this.lastModifier = bankcards.getLastModifier();
     }
 }
