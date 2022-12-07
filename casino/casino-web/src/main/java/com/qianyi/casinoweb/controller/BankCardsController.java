@@ -123,7 +123,7 @@ public class BankCardsController {
             log.error("web会员绑定银行卡出现异常:{}", ex.getMessage());
             return ResponseUtil.custom("请重试一次");
         } finally {
-
+            RedisKeyUtil.unlock(bankcardsLock);
         }
     }
 
