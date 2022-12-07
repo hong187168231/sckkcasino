@@ -121,6 +121,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
         if (token.equals(redisToken1.getOldToken())||token.equals(redisToken1.getNewToken())) {
             return true;
         }
+        log.error("proxy账号被其他人登录{}",authId);
         return false;
     }
 }
