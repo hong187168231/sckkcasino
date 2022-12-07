@@ -47,6 +47,9 @@ public class BankCardsController {
 
     @Autowired
     private PlatformConfigService platformConfigService;
+
+    @Autowired
+    private SysUserService sysUserService;
     /**
      * 查询所有银行列表
      * @return
@@ -307,6 +310,7 @@ public class BankCardsController {
         }
 
         Bankcards bankcards = boundCard(userId, bankId,bankAccount,address,realName);
+        bankcards.setLastModifier(getUpdateBy());
         boolean isSuccess= bankcardsService.boundCard(bankcards)==null?true:false;
         return ResponseUtil.success(isSuccess);
     }
@@ -376,6 +380,7 @@ public class BankCardsController {
             return ResponseUtil.custom("该银行卡已解绑");
         }
         BankcardsDel bankcardsDel = new BankcardsDel(bank);
+        bankcardsDel.setLastModifier(getUpdateBy());
         bankcardsDelService.save(bankcardsDel);
         bankcardsService.delBankcards(bank);
         return ResponseUtil.success();
@@ -402,7 +407,10 @@ public class BankCardsController {
         return bankcards==null?1:0;
     }
 
-
-
-
+    private String getUpdateBy(){
+        Long userId = LoginUtil.getLoginUserId();
+        SysUser sysUser = sysUserService.findById(userId);
+        String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
+        return lastModifier;
+    }
 }

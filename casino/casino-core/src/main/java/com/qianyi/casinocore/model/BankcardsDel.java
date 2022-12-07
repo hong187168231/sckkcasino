@@ -43,6 +43,9 @@ public class BankcardsDel extends BaseEntity {
     @ApiModelProperty(value = "开户名")
     private String realName;
 
+    @ApiModelProperty("最后修改人")
+    private String lastModifier;
+
     public BankcardsDel(){
 
     }

@@ -103,6 +103,7 @@ public class BankCardsController {
         if (!bankcardRealNameSwitch) {
             return ResponseUtil.custom("同一个持卡人只能绑定一个账号");
         }
+        bankcards.setLastModifier(user.getAccount());
         bankcards= bankcardsService.boundCard(bankcards);
         //把真实姓名保存到user
         if (!ObjectUtils.isEmpty(user.getRealName()) && !user.getRealName().equals(userRealName)) {
@@ -134,12 +135,14 @@ public class BankCardsController {
             return ResponseUtil.custom("银行卡错误");
         }
         bankcardsService.delete(bankcards);
+        User user = userService.findById(authId);
         //如果删除的是默认银行卡,重新再设置一张卡为默认卡
         if (!ObjectUtils.isEmpty(bankcards.getDefaultCard()) && bankcards.getDefaultCard() == 1) {
             List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(authId);
             if (!CollectionUtils.isEmpty(bankcardsList)) {
                 Bankcards bankcards1 = bankcardsList.get(0);
                 bankcards1.setDefaultCard(1);
+                bankcards1.setLastModifier(user.getAccount());
                 bankcardsService.boundCard(bankcards1);
             }
         }
@@ -165,6 +168,7 @@ public class BankCardsController {
             return ResponseUtil.custom("当前银行卡不存在");
         }
         Long authId = CasinoWebUtil.getAuthId();
+        User user = userService.findById(authId);
         if (!authId.equals(bankcards.getUserId())) {
             return ResponseUtil.custom("银行卡错误");
         }
@@ -174,9 +178,11 @@ public class BankCardsController {
                 return ResponseUtil.success();
             }
             defaultBankcards.setDefaultCard(0);
+            defaultBankcards.setLastModifier(user.getAccount());
             bankcardsService.boundCard(defaultBankcards);
         }
         bankcards.setDefaultCard(1);
+        bankcards.setLastModifier(user.getAccount());
         bankcardsService.boundCard(bankcards);
         return ResponseUtil.success();
     }

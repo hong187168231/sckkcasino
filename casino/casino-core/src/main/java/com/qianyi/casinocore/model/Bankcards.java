@@ -57,6 +57,9 @@ public class Bankcards extends BaseEntity{
     @ApiModelProperty("基层代理ID")
     private Long thirdProxy;
 
+    @ApiModelProperty("最后修改人")
+    private String lastModifier;
+
     /**
      *  针对绑定银行卡接口的参数合法性校验
      * @param bankId
