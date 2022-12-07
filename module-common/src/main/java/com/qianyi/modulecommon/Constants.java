@@ -66,7 +66,7 @@ public class Constants {
     public final static Integer BANK_CLOSE = 1; //银行卡禁用
     public final static Integer BANK_OPEN = 0; //银行卡启用
 
-    public final static Integer MAX_BANK_NUM = 6; //绑定银行卡最多数
+    public final static Integer MAX_BANK_NUM = 1; //绑定银行卡最多数
 
     public final static Integer WITHDRAW_PASS = 1;
     public final static Integer WITHDRAW_REFUSE = 2;
