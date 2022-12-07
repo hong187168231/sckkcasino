@@ -106,6 +106,7 @@ public class ProxyGameRecordReportBusiness {
                         return;
                     }
                     proxyGameRecordReportVo.setBetAmount(gameRecordById.getBetAmount());
+                    proxyGameRecordReportVo.setOrderTimes(gameRecordById.getTxTime());
                 }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_VNC)){
                     RptBetInfoDetail gameRecordById =
                         rptBetInfoDetailService.findGameRecordById(proxyGameRecordReportVo.getGameRecordId());

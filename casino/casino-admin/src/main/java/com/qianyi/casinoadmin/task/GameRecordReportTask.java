@@ -309,7 +309,7 @@ public class GameRecordReportTask {
                 vo.setFirstProxy(gameRecordAe.getFirstProxy());
                 vo.setSecondProxy(gameRecordAe.getSecondProxy());
                 vo.setThirdProxy(gameRecordAe.getThirdProxy());
-                vo.setOrderTimes(gameRecordAe.getBetTime());
+                vo.setOrderTimes(gameRecordAe.getTxTime());
                 vo.setUserId(gameRecordAe.getUserId());
                 vo.setValidAmount(gameRecordAe.getTurnover());
                 vo.setWinLoss(BigDecimal.ZERO);
