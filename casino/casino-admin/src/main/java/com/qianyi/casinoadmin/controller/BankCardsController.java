@@ -279,6 +279,7 @@ public class BankCardsController {
         @ApiImplicitParam(name = "bankAccount", value = "银行账号", required = true),
         @ApiImplicitParam(name = "address", value = "开户地址", required = true),
         @ApiImplicitParam(name = "realName", value = "持卡人姓名", required = true)})
+    @Transactional
     public ResponseEntity bound(Long userId, String bankId, String bankAccount, String address, String realName) {
         String checkParamFroBound = this.checkParamFroBound(realName, bankId, bankAccount, address);
         if (!LoginUtil.checkNull(checkParamFroBound)) {
