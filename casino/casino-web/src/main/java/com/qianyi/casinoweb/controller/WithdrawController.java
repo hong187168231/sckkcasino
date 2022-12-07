@@ -94,6 +94,10 @@ public class WithdrawController {
         if (!bcrypt) {
             return ResponseUtil.custom("交易密码错误");
         }
+        boolean checkBcrypt = CasinoWebUtil.checkBcrypt(withdrawPwd, user.getPassword());
+        if (!checkBcrypt) {
+            return ResponseUtil.custom("提现密码和登录密码不能相同，请重新设置");
+        }
 //        String checkResult = withdrawBusiness.checkParams(withdrawPwd,decMoney,user);
 //        if(!CasinoWebUtil.checkNull(checkResult)){
 //            return ResponseUtil.custom(checkResult);
@@ -139,6 +143,11 @@ public class WithdrawController {
                 return ResponseUtil.custom("原取款密码填写错误");
             }
         }
+        boolean checkBcrypt = CasinoWebUtil.checkBcrypt(newsWithdrawPassword, user.getPassword());
+        if (!checkBcrypt) {
+            return ResponseUtil.custom("提现密码和登录密码不能相同，请重新设置");
+        }
+
         String bcryptWithdrawPassword = CasinoWebUtil.bcrypt(newsWithdrawPassword);
         user.setWithdrawPassword(bcryptWithdrawPassword);
         withdrawBusiness.save(user);
