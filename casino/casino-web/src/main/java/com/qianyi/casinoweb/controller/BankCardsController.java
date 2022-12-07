@@ -11,10 +11,12 @@ import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
+import com.qianyi.modulecommon.util.IpUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -22,11 +24,13 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 
 @RestController
 @RequestMapping("/bankcard")
+@Slf4j
 @Api(tags = "用户中心")
 public class BankCardsController {
 
@@ -67,7 +71,8 @@ public class BankCardsController {
             @ApiImplicitParam(name = "address", value = "开户地址", required = true),
             @ApiImplicitParam(name = "realName", value = "持卡人姓名")})
     @Transactional
-    public ResponseEntity<Bankcards> bound(String bankId, String bankAccount, String address, String realName){
+    public ResponseEntity<Bankcards> bound(String bankId, String bankAccount, String address, String realName,
+        HttpServletRequest request){
         String checkParamFroBound = Bankcards.checkParamFroBound(bankId, bankAccount, address);
         if (StringUtils.hasLength(checkParamFroBound)) {
             return ResponseUtil.custom(checkParamFroBound);
@@ -77,8 +82,8 @@ public class BankCardsController {
         if (firstBankcard == null && ObjectUtils.isEmpty(realName)) {
             return ResponseUtil.custom("持卡人不能为空");
         }
-        if(isGreatThan6()){
-            return ResponseUtil.custom("最多只能添加6张银行卡");
+        if(isGreatThan1()){
+            return ResponseUtil.custom("最多只能添加1张银行卡");
         }
         List<Bankcards> bankcardsList = bankcardsService.findByBankAccount(bankAccount);
         if (!CollectionUtils.isEmpty(bankcardsList)) {
@@ -88,6 +93,8 @@ public class BankCardsController {
 //        if (checkBankcards != null) {
 //            return ResponseUtil.custom("该卡号银行卡已添加,请勿重复添加");
 //        }
+        String ip = IpUtil.getIp(request);
+        log.info("用户绑定银行卡:{}ip:{}",bankAccount,ip);
         User user = userService.findById(userId);
         String userRealName = user.getRealName();
         Bankcards bankcards = boundCard(firstBankcard,bankId,bankAccount,address,realName,user);
@@ -191,6 +198,12 @@ public class BankCardsController {
         Long userId = CasinoWebUtil.getAuthId();
         int count = bankcardsService.countByUserId(userId);
         return count>=6;
+    }
+
+    private boolean isGreatThan1(){
+        Long userId = CasinoWebUtil.getAuthId();
+        int count = bankcardsService.countByUserId(userId);
+        return count>=1;
     }
 
     private Bankcards boundCard(Bankcards firstBankcard,String bankId, String bankAccount, String address, String realName,User user){
