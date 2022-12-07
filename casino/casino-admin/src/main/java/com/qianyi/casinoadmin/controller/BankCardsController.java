@@ -299,7 +299,7 @@ public class BankCardsController {
 
         List<Bankcards> bankcardsList = bankcardsService.findBankcardsByUserId(userId);
         if(bankcardsList.size() >= Constants.MAX_BANK_NUM){
-            return ResponseUtil.custom("最多只能绑定6张银行卡");
+            return ResponseUtil.custom("最多只能绑定1张银行卡");
         }
         bankcardsList=bankcardsList.stream().filter(v ->v.getBankAccount().equals(bankAccount)).collect(Collectors.toList());
         if(bankcardsList.size() > CommonConst.NUMBER_0){
