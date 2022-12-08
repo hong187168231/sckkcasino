@@ -81,14 +81,9 @@ public class LoginController {
         if (proxyUser.getProxyRole() == CommonConst.NUMBER_3){
             return ResponseUtil.custom("代理级别不对应");
         }
-        JjwtUtil.Subject subject = new JjwtUtil.Subject();
-        subject.setUserId(proxyUser.getId() + "");
-        subject.setBcryptPassword(proxyUser.getPassWord());
-        String token = JjwtUtil.generic(subject, "casino-proxy");
-
-//        if(Constants.open != user.getGaStatus()){//谷歌验证关闭
-//            return ResponseUtil.success(token);
-//        }
+        //        if(Constants.open != user.getGaStatus()){//谷歌验证关闭
+        //            return ResponseUtil.success(token);
+        //        }
 
         String secret = proxyUser.getGaKey();
         if (CasinoProxyUtil.checkNull(secret)) {
@@ -98,7 +93,10 @@ public class LoginController {
         if (!checkCode) {
             return ResponseUtil.googleAuthNoPass();
         }
-
+        JjwtUtil.Subject subject = new JjwtUtil.Subject();
+        subject.setUserId(proxyUser.getId() + "");
+        subject.setBcryptPassword(proxyUser.getPassWord());
+        String token = JjwtUtil.generic(subject, "casino-proxy");
 
         //记录登陆日志
         String ip = IpUtil.getIp(CasinoProxyUtil.getRequest());
