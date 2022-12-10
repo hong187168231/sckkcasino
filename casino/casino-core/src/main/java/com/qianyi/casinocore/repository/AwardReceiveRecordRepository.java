@@ -26,8 +26,11 @@ public interface AwardReceiveRecordRepository extends JpaRepository<AwardReceive
     @Query(value = "update AwardReceiveRecord ar set ar.receiveStatus= 1 where ar.userId=?1 and ar.awardType =2")
     void modifyIsReceive(Long userId);
 
-    @Query(value = "select  sum(amount) from award_receive_record  arr where  arr.receive_time BETWEEN ?1 and ?2  ", nativeQuery = true)
+    @Query(value = "select  ifnull(sum(amount),0) from award_receive_record  arr where arr.award_type = 2 and  arr.receive_time BETWEEN ?1 and ?2  ", nativeQuery = true)
     BigDecimal queryBonusAmount(String startTime, String endTime);
+
+    @Query(value = "select  ifnull(sum(amount),0) from award_receive_record  arr where arr.award_type = 1  and  arr.create_time BETWEEN ?1 and ?2  ", nativeQuery = true)
+    BigDecimal queryBonusAmount2(String startTime, String endTime);
 
     @Query(value = " select  count(1) from award_receive_record  arr where arr.award_type =2 " +
             " and  arr.user_id = ?1  and  arr.level =?2 ", nativeQuery = true)

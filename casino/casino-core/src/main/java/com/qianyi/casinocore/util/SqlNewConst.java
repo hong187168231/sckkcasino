@@ -1,36 +1,60 @@
 package com.qianyi.casinocore.util;
 
 public class SqlNewConst {
-    public static String totalSqlReport = """
-    SELECT
-    u.account,
-    u.third_proxy,
-    u.id,
-    ifnull( main_t.num, 0 ) num,
-    ifnull( main_t.bet_amount, 0 ) bet_amount,
-    ifnull( main_t.validbet, 0 ) validbet,
-    ifnull( main_t.win_loss, 0 ) win_loss
-    FROM
-    USER u
-    LEFT JOIN (
-        SELECT
-            user_id,
-        SUM( betting_number ) num,
-    sum( bet_amount ) bet_amount,
-    sum( valid_amount ) validbet,
-    sum( win_loss ) win_loss
-    FROM
-    proxy_game_record_report gr
-    WHERE
-    order_times BETWEEN {0}
-    AND {1}
-    GROUP BY
-    user_id
-	) main_t ON u.id = main_t.user_id
-        WHERE
-	1 = 1{5} {2}
-    LIMIT {3},{4}
-            """;
+	public static String totalSqlReport = """
+			   SELECT
+			   u.account,
+			   u.third_proxy,
+			   u.id,
+			   ifnull( main_t.num, 0 ) num,
+			   ifnull( main_t.bet_amount, 0 ) bet_amount,
+			   ifnull( main_t.validbet, 0 ) validbet,
+			   ifnull( main_t.win_loss, 0 ) win_loss,
+			   ifnull(td.todayAward, 0) todayAward,
+			   ifnull(rs.riseAward, 0) riseAward
+			   FROM
+			   USER u
+			   LEFT JOIN (
+			       SELECT
+			           user_id,
+			       SUM( betting_number ) num,
+			   sum( bet_amount ) bet_amount,
+			   sum( valid_amount ) validbet,
+			   sum( win_loss ) win_loss
+			   FROM
+			   proxy_game_record_report gr
+			   WHERE
+			   order_times BETWEEN {0}
+			   AND {1}
+			   GROUP BY
+			   user_id
+			) main_t ON u.id = main_t.user_id
+			 left join (
+							SELECT
+								user_id,
+								SUM(amount) AS todayAward
+							FROM
+								award_receive_record
+							WHERE
+							 award_type = 1
+							GROUP BY
+								user_id
+						) td ON u.id = td.user_id
+					            left join (
+					                SELECT
+					                    user_id,
+					                    SUM(amount) AS riseAward
+					                FROM
+					                    award_receive_record
+					                WHERE         
+					                 award_type = 2
+					                GROUP BY
+					                    user_id
+					            ) rs ON u.id = rs.user_id 
+			       WHERE
+			1 = 1{5} {2}
+			   LIMIT {3},{4}
+			           """;
 
     public static String wmSql = """
     SELECT
@@ -177,7 +201,7 @@ public class SqlNewConst {
     game_record_ae grg
     WHERE  tx_status = 1 and
         platform = {5}
-    AND tx_time BETWEEN {0}
+    AND bet_time BETWEEN {0}
     AND {1}
     GROUP BY
     user_id
@@ -209,7 +233,7 @@ public class SqlNewConst {
     game_record_ae grg
     WHERE
         tx_status = 1
-    AND tx_time BETWEEN {0}
+    AND bet_time BETWEEN {0}
     AND {1}
     GROUP BY
     user_id
@@ -295,9 +319,7 @@ public class SqlNewConst {
     t1.wash_amount wash_amount,
     t2.service_charge service_charge,
     t3.all_profit_amount all_profit_amount,
-    t4.water all_water,
-	t5.todayAward,
-	t6.riseAward
+    t4.water all_water
     FROM
         (
             SELECT
@@ -334,26 +356,7 @@ public class SqlNewConst {
     WHERE
         user_id = {2}{3}
     AND create_time BETWEEN {0}
-    AND {1}) t4,(
-	 select 
-			IFNULL(SUM(amount),0) as todayAward
-		FROM
-			award_receive_record
-		WHERE
-		 1=1  and user_id = {2}
-					and  award_type = 1				
-    AND create_time BETWEEN {0} AND {1}
-	) t5
-	,(
-	 select
-		IFNULL(SUM(amount),0) as riseAward
-	FROM
-		award_receive_record
-	WHERE
-	 1=1  and user_id = {2}
-				and  award_type = 2					
-   AND receive_time BETWEEN {0} AND {1}
-	) t6
+    AND {1}) t4
         """;
 
     public static String totalSqlWash = """
@@ -550,7 +553,7 @@ public class SqlNewConst {
     ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
     from game_record_ae grg
     where user_id = {2}
-    AND  tx_status = 1 and platform = {4} and tx_time between {0} and {1}
+    AND  tx_status = 1 and platform = {4} and bet_time between {0} and {1}
 	) t1,
         (
     SELECT
@@ -603,7 +606,7 @@ public class SqlNewConst {
     ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
     from game_record_ae grg
     where user_id = {2}
-    AND  tx_status = 1 and  tx_time between {0} and {1}
+    AND  tx_status = 1 and  bet_time between {0} and {1}
 	) t1,
         (
     SELECT
@@ -1067,7 +1070,7 @@ public class SqlNewConst {
     ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
     from game_record_ae grg
     where  tx_status = 1 and platform = {2}
-    and tx_time between {0} and {1}) main_t,
+    and bet_time between {0} and {1}) main_t,
         (select
     sum(amount) wash_amount
     from wash_code_change wcc
@@ -1103,7 +1106,7 @@ public class SqlNewConst {
     ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
     from game_record_ae grg
     where  tx_status = 1
-    and tx_time between {0} and {1}) main_t,
+    and bet_time between {0} and {1}) main_t,
         (select
     sum(amount) wash_amount
     from wash_code_change wcc

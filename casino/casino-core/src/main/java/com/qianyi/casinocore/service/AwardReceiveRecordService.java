@@ -51,7 +51,9 @@ public class AwardReceiveRecordService {
     }
 
     public BigDecimal queryBonusAmount(String startTime, String endTime) {
-        return awardReceiveRecordRepository.queryBonusAmount(startTime, endTime);
+        BigDecimal amount1 =  awardReceiveRecordRepository.queryBonusAmount(startTime, endTime);
+        BigDecimal amount2 =  awardReceiveRecordRepository.queryBonusAmount2(startTime, endTime);
+        return amount1.add(amount2);
     }
 
     public int countRiseAwardNum2(Long userId, Integer level) {
