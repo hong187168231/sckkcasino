@@ -802,7 +802,7 @@ public class UserService {
     }
 
     private static final List<String> PERSON_REPORT_VO_FIELD_LIST_BET =
-        Arrays.asList("account", "third_proxy", "id", "num", "bet_amount", "validbet", "win_loss");
+        Arrays.asList("account", "third_proxy", "id", "num", "bet_amount", "validbet", "win_loss", "todayAward", "riseAward");
 
     private List<Map<String, Object>> parsePersonBetMapList(List<Object> resultList) {
         List<Map<String, Object>> list = null;
