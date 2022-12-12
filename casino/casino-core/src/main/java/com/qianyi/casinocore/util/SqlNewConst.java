@@ -9,9 +9,7 @@ public class SqlNewConst {
 			   ifnull( main_t.num, 0 ) num,
 			   ifnull( main_t.bet_amount, 0 ) bet_amount,
 			   ifnull( main_t.validbet, 0 ) validbet,
-			   ifnull( main_t.win_loss, 0 ) win_loss,
-			   ifnull(td.todayAward, 0) todayAward,
-			   ifnull(rs.riseAward, 0) riseAward
+			   ifnull( main_t.win_loss, 0 ) win_loss
 			   FROM
 			   USER u
 			   LEFT JOIN (
@@ -29,28 +27,6 @@ public class SqlNewConst {
 			   GROUP BY
 			   user_id
 			) main_t ON u.id = main_t.user_id
-			 left join (
-							SELECT
-								user_id,
-								SUM(amount) AS todayAward
-							FROM
-								award_receive_record
-							WHERE
-							 award_type = 1
-							GROUP BY
-								user_id
-						) td ON u.id = td.user_id
-					            left join (
-					                SELECT
-					                    user_id,
-					                    SUM(amount) AS riseAward
-					                FROM
-					                    award_receive_record
-					                WHERE         
-					                 award_type = 2
-					                GROUP BY
-					                    user_id
-					            ) rs ON u.id = rs.user_id 
 			       WHERE
 			1 = 1{5} {2}
 			   LIMIT {3},{4}
@@ -314,50 +290,71 @@ public class SqlNewConst {
     LIMIT {3},{4}
         """;
 
-    public static String reportSql = """
-    SELECT
-    t1.wash_amount wash_amount,
-    t2.service_charge service_charge,
-    t3.all_profit_amount all_profit_amount,
-    t4.water all_water
-    FROM
-        (
-            SELECT
-                ifnull( sum( amount ), 0 ) wash_amount
-        FROM
-    wash_code_change wcc
-    WHERE
-        user_id = {2}{3}
-    AND create_time BETWEEN {0}
-    AND {1}) t1,
-        (
-    SELECT
-    ifnull( sum( service_charge ), 0 ) service_charge
-        FROM
-    withdraw_order wo
-    WHERE
-        user_id = {2}
-    AND STATUS = 1
-    AND withdraw_time BETWEEN {0}
-    AND {1}) t2,
-        (
-    SELECT
-    ifnull( sum( amount ), 0 ) all_profit_amount
-        FROM
-    share_profit_change spc
-    WHERE user_id = {2}
-    AND bet_time BETWEEN {0}
-    AND {1}) t3,
-        (
-    SELECT
-    ifnull( sum( amount ), 0 ) AS water
-    FROM
-        extract_points_change
-    WHERE
-        user_id = {2}{3}
-    AND create_time BETWEEN {0}
-    AND {1}) t4
-        """;
+	public static String reportSql = """
+			SELECT
+			t1.wash_amount wash_amount,
+			t2.service_charge service_charge,
+			t3.all_profit_amount all_profit_amount,
+			t4.water all_water,
+			t5.todayAward,
+			t6.riseAward
+			FROM
+			    (
+			        SELECT
+			            ifnull( sum( amount ), 0 ) wash_amount
+			    FROM
+			wash_code_change wcc
+			WHERE
+			    user_id = {2}{3}
+			AND create_time BETWEEN {0}
+			AND {1}) t1,
+			    (
+			SELECT
+			ifnull( sum( service_charge ), 0 ) service_charge
+			    FROM
+			withdraw_order wo
+			WHERE
+			    user_id = {2}
+			AND STATUS = 1
+			AND withdraw_time BETWEEN {0}
+			AND {1}) t2,
+			    (
+			SELECT
+			ifnull( sum( amount ), 0 ) all_profit_amount
+			    FROM
+			share_profit_change spc
+			WHERE user_id = {2}
+			AND bet_time BETWEEN {0}
+			AND {1}) t3,
+			    (
+			SELECT
+			ifnull( sum( amount ), 0 ) AS water
+			FROM
+			    extract_points_change
+			WHERE
+			    user_id = {2}{3}
+			AND create_time BETWEEN {0}
+			AND {1}) t4,(
+			           	 select 
+								IFNULL(SUM(amount),0) as todayAward
+							FROM
+								award_receive_record
+							WHERE
+							 1=1  and user_id = {2}
+										and  award_type = 1				
+					 AND create_time BETWEEN {0} AND {1}
+			           	) t5
+			           	,(
+			           	 select
+							IFNULL(SUM(amount),0) as riseAward
+						FROM
+							award_receive_record
+						WHERE
+						 1=1  and user_id = {2}
+									and  award_type = 2					
+				       AND receive_time BETWEEN {0} AND {1}
+			           	) t6
+			    """;
 
     public static String totalSqlWash = """
     SELECT
@@ -878,7 +875,7 @@ public class SqlNewConst {
     sum(ifnull(pr.amount,0)) all_profit_amount,
     sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0))) avg_benefit,
     sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,
-    sum(ifnull(ec.water, 0)) all_water ,td.todayAward,ri.riseAward from
+    sum(ifnull(ec.water, 0)) all_water ,td.todayAward,rs.riseAward from
         (select
             SUM(betting_number) num,
     sum(bet_amount) bet_amount,
@@ -902,9 +899,9 @@ public class SqlNewConst {
     FROM extract_points_change
     where create_time between {0} and {1}) ec,
 	(SELECT IFNULL(SUM(amount),0) as todayAward FROM
-	 award_receive_record WHERE award_type = 1 and receive_time between {0} and {1} ) td,
+	 award_receive_record WHERE award_type = 1 and create_time between {0} and {1} ) td,
 	(SELECT IFNULL(SUM(amount),0) as riseAward FROM
-	 award_receive_record WHERE award_type = 2 and  receive_time between {0} and {1}) ri
+	 award_receive_record WHERE award_type = 2 and  receive_time between {0} and {1}) rs
     ;
         """;
 

@@ -127,7 +127,7 @@ public class SqlSumConst {
     wash_t.wash_amount as wash_amount,
     withdraw_t.service_charge as service_charge,
     pr.amount as all_profit_amount,
-    ec.water as all_water ,td.todayAward,ri.riseAward from
+    ec.water as all_water ,td.todayAward,rs.riseAward from
         (select
             ifnull(sum(amount),0) wash_amount
     from wash_code_change wcc
@@ -146,7 +146,7 @@ public class SqlSumConst {
     	(SELECT IFNULL(SUM(amount),0) as todayAward FROM
 			 award_receive_record WHERE award_type = 1 and create_time between {0} and {1} ) td,
 			(SELECT IFNULL(SUM(amount),0) as riseAward FROM
-			 award_receive_record WHERE award_type = 2 and  receive_time between {0} and {1}) ri
+			 award_receive_record WHERE award_type = 2 and  receive_time between {0} and {1}) rs
     ;
         """;
 

@@ -802,7 +802,7 @@ public class UserService {
     }
 
     private static final List<String> PERSON_REPORT_VO_FIELD_LIST_BET =
-        Arrays.asList("account", "third_proxy", "id", "num", "bet_amount", "validbet", "win_loss", "todayAward", "riseAward");
+        Arrays.asList("account", "third_proxy", "id", "num", "bet_amount", "validbet", "win_loss");
 
     private List<Map<String, Object>> parsePersonBetMapList(List<Object> resultList) {
         List<Map<String, Object>> list = null;
@@ -871,7 +871,7 @@ public class UserService {
     }
 
     private static final List<String> PERSON_REPORT_VO_FIELD_LIST_NOTBET =
-        Arrays.asList("wash_amount", "service_charge", "all_profit_amount", "all_water");
+        Arrays.asList("wash_amount", "service_charge", "all_profit_amount", "all_water", "todayAward", "riseAward");
 
     private Map<String, Object> parsePersonNotBetMapList(Object result) {
         Map<String, Object> map = null;
