@@ -116,7 +116,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
                 //扣减余额大于剩余余额
@@ -152,7 +152,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.addMoney(userId, money);
             } else {
@@ -179,7 +179,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
                 //扣减余额大于剩余余额
@@ -212,7 +212,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.addIntegral(userId, integral);
             } else {
@@ -257,7 +257,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
                 //扣减余额大于剩余余额
@@ -291,7 +291,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.addWashCode(userId, washCode);
             } else {
@@ -320,7 +320,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
                 //扣减余额大于剩余余额
@@ -348,7 +348,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.addCodeNum(userId, codeNum);
             } else {
@@ -377,7 +377,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.addShareProfit(userId, shareProfit);
             } else {
@@ -406,7 +406,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
                 //扣减余额大于剩余余额
@@ -440,7 +440,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.addBalance(userId, balance);
             } else {
@@ -469,7 +469,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
                 //扣减余额大于剩余余额
@@ -504,7 +504,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.addLevelWater(userId, levelWater);
             } else {
@@ -533,7 +533,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
                 //扣减余额大于剩余余额
@@ -562,7 +562,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.modifyLevelWater(userId, balance);
             } else {
@@ -591,7 +591,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.addRiseWater(userId, riseWater);
             } else {
@@ -620,7 +620,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
                 //扣减余额大于剩余余额
@@ -649,7 +649,7 @@ public class UserMoneyService {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.modifyRiseWater(userId, riseWater);
             } else {
