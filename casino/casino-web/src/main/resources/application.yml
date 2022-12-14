@@ -12,9 +12,9 @@ spring:
     #    url: jdbc:mysql://localhost:3306/casino?useUnicode=true&characterEncoding=utf-8
     #    username: root
     #    password: root
-    url: jdbc:mysql://localhost:3306/casino?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://167.179.15.36:6503/casino?useUnicode=true&characterEncoding=utf-8
     username: root
-    password: root
+    password: Mysql_123
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
@@ -24,13 +24,13 @@ spring:
       connection-timeout: 30000
       max-lifetime: 1800000
       pool-name: DatebookHikariCP
-      maximum-pool-size: 50
+      maximum-pool-size: 16
       connection-test-query: select 1
   redis:
     database: 0
     #    host: 154.204.57.237
-    host: 127.0.0.1
-    port: 8000
+    host: 167.179.15.36
+    port: 6504
     password: Redis_123P
     timeout: 3000
   rabbitmq:
