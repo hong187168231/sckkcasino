@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.service;
 
 import cn.hutool.core.util.ObjectUtil;
+import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.co.user.LevelChangeCo;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.repository.UserLevelRepository;
@@ -175,6 +176,7 @@ public class UserLevelService {
                 userMoneyService.subLevelWater(levelChangeCo.getUserId(), levelChangeCo.getBetWater());
             }
         } catch (Exception e) {
+            log.error("等级流水变动异常 ===== >> levelChangeCo {} ,错误信息 {} ", JSON.toJSONString(levelChangeCo), e);
             throw new RuntimeException("等级流水变动异常");
         }
 
