@@ -156,7 +156,7 @@ public class UserMoneyService {
             if (bool) {
                 userMoneyRepository.addMoney(userId, money);
             } else {
-                log.error("subMoney 用户增加money没拿到锁,{}", userId);
+                log.error("addMoney 用户增加money没拿到锁,{}", userId);
                 throw new BusinessException("操作money失败");
             }
         } catch (Exception e) {

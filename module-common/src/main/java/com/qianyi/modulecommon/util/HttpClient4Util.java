@@ -77,6 +77,34 @@ public class HttpClient4Util {
         return s;
     }
 
+    public static String pullGameRecord(String url) throws Exception {
+        log.info("get请求参数{}",url);
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet(url);
+        RequestConfig requestConfig = RequestConfig.custom()
+            .setConnectTimeout(60000).setConnectionRequestTimeout(60000)
+            .setSocketTimeout(60000).build();
+        httpGet.setConfig(requestConfig);
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String language = request.getHeader(Constants.LANGUAGE);
+        if (StringUtils.isNullOrEmpty(language) || language.equals(LocaleConfig.en_US.toString())){
+            httpGet.setHeader(Constants.LANGUAGE,"en_US");
+        }else if (language.equals(LocaleConfig.zh_CN.toString())){
+            httpGet.setHeader(Constants.LANGUAGE,"zh_CN");
+        }
+        CloseableHttpResponse response = null;
+        try {
+            response = httpclient.execute(httpGet);
+        } catch (Exception e) {
+            httpclient.close();
+            e.printStackTrace();
+        }
+        HttpEntity entity = response.getEntity();//得到请求回来的数据
+        String s = EntityUtils.toString(entity, "UTF-8");
+        log.info("get请求返回参数{}",s);
+        return s;
+    }
+
     public static String specialGet(String urlStr) throws Exception {
         log.info("specialGet请求参数{}", urlStr);
         CloseableHttpClient httpClient = null;

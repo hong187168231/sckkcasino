@@ -388,4 +388,33 @@ public class DateUtil {
         return cal.getTime();
     }
 
+    public static List<String> findDates(String dateType, Date dBegin, Date dEnd,int time) throws Exception {
+        List<String> listDate = new ArrayList<>();
+        listDate.add(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dBegin));
+        Calendar calBegin = Calendar.getInstance();
+        calBegin.setTime(dBegin);
+        Calendar calEnd = Calendar.getInstance();
+        calEnd.setTime(dEnd);
+        while (calEnd.after(calBegin)) {
+            if ("H".equals(dateType)){
+                calBegin.add(Calendar.HOUR, time);
+            }
+            if ("M".equals(dateType)){
+                calBegin.add(Calendar.MONTH, time);
+            }
+            if ("D".equals(dateType)){
+                calBegin.add(Calendar.DATE, time);
+            }
+            if ("N".equals(dateType)){
+                calBegin.add(Calendar.MINUTE , time);
+            }
+            if (calEnd.after(calBegin)){
+                listDate.add(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(calBegin.getTime()));
+            }
+            else{
+                // listDate.add(new SimpleDateFormat("yyyy-MM-dd HH:mm").format(calEnd.getTime()));
+            }
+        }
+        return listDate;
+    }
 }
