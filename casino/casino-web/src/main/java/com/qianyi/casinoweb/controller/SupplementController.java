@@ -9,6 +9,7 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.UserThirdService;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoweb.job.GameRecordAeJob;
 import com.qianyi.casinoweb.job.GameRecordAsyncOper;
 import com.qianyi.casinoweb.job.GameRecordGoldenFJob;
@@ -188,7 +189,7 @@ public class SupplementController {
 
             timeMsg = startTime + "到" + endTimeNew;
             log.info("开始拉取{}的注单记录", timeMsg);
-            String result = wmApi.getDateTimeReport(null, startTime, endTimeNew, 0, 1, 2, null, null);
+            String result = wmApi.getDateTimeReport(null, startTime, endTimeNew, 0, 1, 2, null, null, CommonConst.NUMBER_3);
             //远程请求异常
             if (ObjectUtils.isEmpty(result)) {
                 log.error("{}游戏记录拉取失败,远程请求异常", timeMsg);

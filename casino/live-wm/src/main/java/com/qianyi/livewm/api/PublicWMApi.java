@@ -53,7 +53,7 @@ public class PublicWMApi {
         }
 
         System.out.println("注册参数："+JSONObject.toJSONString(params));
-        String s = HttpClient4Util.wmDoPost(url, params);
+        String s = HttpClient4Util.wmDoPost(url, params, 1);
         System.out.println(s);
         if (s == null) {
             return false;
@@ -93,7 +93,7 @@ public class PublicWMApi {
         params.put("ui", ui);
         params.put("timestamp", timestamp);
 
-        String s = HttpClient4Util.wmDoPost(url, params);
+        String s = HttpClient4Util.wmDoPost(url, params,1);
         System.out.println("开游戏参数："+JSONObject.toJSONString(params));
 
         if (CommonUtil.checkNull(s)) {
@@ -117,7 +117,7 @@ public class PublicWMApi {
         if (syslang != null) {
             params.put("syslang", syslang);
         }
-        String s = HttpClient4Util.wmDoPost(url, params);
+        String s = HttpClient4Util.wmDoPost(url, params,1);
         if (CommonUtil.checkNull(s)) {
             return false;
         }
@@ -149,7 +149,7 @@ public class PublicWMApi {
             params.put("syslang", syslang);
         }
 
-        String s = HttpClient4Util.wmDoPost(url, params);
+        String s = HttpClient4Util.wmDoPost(url, params,1);
 
         if (CommonUtil.checkNull(s)) {
             return null;
@@ -174,7 +174,7 @@ public class PublicWMApi {
             params.put("syslang", syslang);
         }
 
-        String s = HttpClient4Util.wmDoPost(url, params);
+        String s = HttpClient4Util.wmDoPost(url, params,1);
         if (CommonUtil.checkNull(s)) {
             return null;
         }
@@ -203,7 +203,7 @@ public class PublicWMApi {
             params.put("syslang", syslang);
         }
 
-        String s = HttpClient4Util.wmDoPost(url, params);
+        String s = HttpClient4Util.wmDoPost(url, params,1);
         if (CommonUtil.checkNull(s)) {
             return null;
         }
@@ -221,32 +221,32 @@ public class PublicWMApi {
     //type: login:啟用, bet: 下注
     //status: Y:启用, N:停用
     //syslang: 	0:中文, 1:英文(非必要)
-    public boolean switchGame(String user, String type, String status, Integer syslang) {
-        String cmd = "EnableorDisablemem";
-
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("cmd", cmd);
-        params.put("vendorId", vendorId);
-        params.put("signature", signature);
-        params.put("user", user);
-        params.put("type", type);
-        params.put("status", status);
-        params.put("timestamp", getTimestamp());
-        if (syslang != null) {
-            params.put("syslang", syslang);
-        }
-
-        String s = HttpClient4Util.wmDoPost(url, params);
-        if (CommonUtil.checkNull(s)) {
-            return false;
-        }
-        ResponseEntity entity = entity(s);
-        if (entity.getErrorCode() == 0) {
-            return true;
-        }
-        return false;
-    }
+//    public boolean switchGame(String user, String type, String status, Integer syslang) {
+//        String cmd = "EnableorDisablemem";
+//
+//
+//        Map<String, Object> params = new HashMap<>();
+//        params.put("cmd", cmd);
+//        params.put("vendorId", vendorId);
+//        params.put("signature", signature);
+//        params.put("user", user);
+//        params.put("type", type);
+//        params.put("status", status);
+//        params.put("timestamp", getTimestamp());
+//        if (syslang != null) {
+//            params.put("syslang", syslang);
+//        }
+//
+//        String s = HttpClient4Util.wmDoPost(url, params);
+//        if (CommonUtil.checkNull(s)) {
+//            return false;
+//        }
+//        ResponseEntity entity = entity(s);
+//        if (entity.getErrorCode() == 0) {
+//            return true;
+//        }
+//        return false;
+//    }
 
     /**
      * 报表查询需间隔30秒，未搜寻到数据需间隔10秒。
@@ -263,7 +263,7 @@ public class PublicWMApi {
      * @return
      * @throws Exception
      */
-    public String getDateTimeReport(String user, String startTime, String endTime, Integer syslang, Integer timetype, Integer datatype, Integer gameno1, Integer gameno2) throws Exception {
+    public String getDateTimeReport(String user, String startTime, String endTime, Integer syslang, Integer timetype, Integer datatype, Integer gameno1, Integer gameno2,Integer tag) throws Exception {
         String cmd = "GetDateTimeReport";
         Map<String, Object> params = new HashMap<>();
         params.put("cmd", cmd);
@@ -288,7 +288,7 @@ public class PublicWMApi {
         if (gameno2 != null) {
             params.put("gameno2", gameno2);
         }
-        String s = HttpClient4Util.wmDoPost(url, params);
+        String s = HttpClient4Util.wmDoPost(url, params,tag);
         if (CommonUtil.checkNull(s)) {
             return null;
         }
@@ -338,7 +338,7 @@ public class PublicWMApi {
         if (syslang != null) {
             params.put("syslang", syslang);
         }
-        String s = HttpClient4Util.wmDoPost(url, params);
+        String s = HttpClient4Util.wmDoPost(url, params,1);
         if (CommonUtil.checkNull(s)) {
             return null;
         }

@@ -5,6 +5,7 @@ import com.qianyi.casinocore.business.ThirdGameBusiness;
 import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseCode;
@@ -85,7 +86,7 @@ public class GameRecordJob {
             timeMsg = startTime + "到" + endTime;
             log.info("开始拉取{}的wm游戏记录",timeMsg);
             //查询时间范围内的所有游戏记录，（以结算时间为条件）
-            String result = wmApi.getDateTimeReport(null, startTime, endTime, 0, 1, 2, null, null);
+            String result = wmApi.getDateTimeReport(null, startTime, endTime, 0, 1, 2, null, null, CommonConst.NUMBER_2);
             //远程请求异常
             if (ObjectUtils.isEmpty(result)) {
                 log.error("{}游戏记录拉取异常",timeMsg);

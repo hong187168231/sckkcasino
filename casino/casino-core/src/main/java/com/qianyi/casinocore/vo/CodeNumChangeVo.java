@@ -47,6 +47,8 @@ public class CodeNumChangeVo implements Serializable {
     private String updateBy;
     @ApiModelProperty(value = "0:消码，1:清0点，2上分")
     private Integer type;
+    @ApiModelProperty(value = "0:消码，1:清0点，2上分")
+    private String typeString;
     public CodeNumChangeVo(CodeNumChange codeNumChange){
         this.id = codeNumChange.getId();
         this.userId = codeNumChange.getUserId();

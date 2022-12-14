@@ -178,7 +178,7 @@ public class HttpClient4Util {
     }
 
 
-    public static String wmDoPost(String url, Map<String, Object> paramMap) {
+    public static String wmDoPost(String url, Map<String, Object> paramMap,Integer tag) {
         log.info("doPost请求路径{}",url);
         log.info("doPost请求参数{}",paramMap);
         CloseableHttpClient httpClient = null;
@@ -188,10 +188,21 @@ public class HttpClient4Util {
         httpClient = HttpClients.createDefault();
         // 创建httpPost远程连接实例
         HttpPost httpPost = new HttpPost(url);
+        if (Objects.isNull(tag)){
+            tag = 1;
+        }
         // 配置请求参数实例
-        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(5000)// 设置连接主机服务超时时间
-                .setConnectionRequestTimeout(5000)// 设置连接请求超时时间
-                .setSocketTimeout(5000)// 设置读取数据连接超时时间
+        Integer timeout = 5000;
+        if (tag == 1){
+            timeout = 5000;
+        }else if (tag == 2){
+            timeout = 8000;
+        }else {
+            timeout = 60000;
+        }
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(timeout)// 设置连接主机服务超时时间
+                .setConnectionRequestTimeout(timeout)// 设置连接请求超时时间
+                .setSocketTimeout(timeout)// 设置读取数据连接超时时间
                 .build();
         // 为httpPost实例设置配置
         httpPost.setConfig(requestConfig);
