@@ -114,9 +114,11 @@ public class UserMoneyService {
     @Transactional
     public void subMoney(Long userId, BigDecimal money) {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        String moneySuffix = RedisLockConstant.MONEYABSENT + userId;
+        redisUtil.setIfAbsent(moneySuffix, "1", 1L);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
                 //扣减余额大于剩余余额
@@ -150,13 +152,15 @@ public class UserMoneyService {
     @Transactional
     public void addMoney(Long userId, BigDecimal money) {
         RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        String moneySuffix = RedisLockConstant.MONEYABSENT + userId;
+        redisUtil.setIfAbsent(moneySuffix, "1", 1L);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.addMoney(userId, money);
             } else {
-                log.error("addMoney 用户增加money没拿到锁,{}", userId);
+                log.error("subMoney 用户增加money没拿到锁,{}", userId);
                 throw new BusinessException("操作money失败");
             }
         } catch (Exception e) {
@@ -176,10 +180,10 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void subIntegral(Long userId, BigDecimal integral) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.INTEGRAL + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
                 //扣减余额大于剩余余额
@@ -209,10 +213,10 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void addIntegral(Long userId, BigDecimal integral) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.INTEGRAL + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.addIntegral(userId, integral);
             } else {
@@ -239,11 +243,21 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void addBalanceAndCodeNumAndMoney(Long userId, BigDecimal money, BigDecimal codeNum, BigDecimal balance, Integer isFirst) {
-        String moneySuffix = RedisLockConstant.MONEY + userId;
+        String moneySuffix = RedisLockConstant.MONEYABSENT + userId;
+        String balanceSuffix = RedisLockConstant.BALANCEABSENT + userId;
+        String codeNumSuffix = RedisLockConstant.CODENUMABSENT + userId;
         if (redisUtil.hasKey(moneySuffix)) {
             throw new BusinessException("金额修改频繁,请稍后再试!");
         }
-        userMoneyRepository.addBalanceAndCodeNumAndMoney(userId, money, codeNum, balance, isFirst);
+        if (redisUtil.hasKey(balanceSuffix)) {
+            throw new BusinessException("余额修改频繁,请稍后再试!");
+        }
+        if (redisUtil.hasKey(codeNumSuffix)) {
+            throw new BusinessException("打码量修改频繁,请稍后再试!");
+        }
+        synchronized (userId) {
+            userMoneyRepository.addBalanceAndCodeNumAndMoney(userId, money, codeNum, balance, isFirst);
+        }
     }
 
 
@@ -254,10 +268,12 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void subCodeNum(Long userId, BigDecimal codeNum) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.CODENUM + userId);
+        String codeNumSuffix = RedisLockConstant.CODENUMABSENT + userId;
+        redisUtil.setIfAbsent(codeNumSuffix, "1", 1L);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
                 //扣减余额大于剩余余额
@@ -288,10 +304,10 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void addWashCode(Long userId, BigDecimal washCode) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.WASHCODE + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.addWashCode(userId, washCode);
             } else {
@@ -317,10 +333,10 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void subWashCode(Long userId, BigDecimal washCode) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.WASHCODE + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
                 //扣减余额大于剩余余额
@@ -345,10 +361,12 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void addCodeNum(Long userId, BigDecimal codeNum) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.CODENUM + userId);
+        String codeNumSuffix = RedisLockConstant.CODENUMABSENT + userId;
+        redisUtil.setIfAbsent(codeNumSuffix, "1", 1L);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.addCodeNum(userId, codeNum);
             } else {
@@ -374,10 +392,10 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void addShareProfit(Long userId, BigDecimal shareProfit) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.SHAREPROFIT + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.addShareProfit(userId, shareProfit);
             } else {
@@ -403,10 +421,10 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void subShareProfit(Long userId, BigDecimal shareProfit) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.SHAREPROFIT + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
                 //扣减余额大于剩余余额
@@ -437,10 +455,12 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void addBalance(Long userId, BigDecimal balance) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.BALANCE + userId);
+        String balanceSuffix = RedisLockConstant.BALANCEABSENT + userId;
+        redisUtil.setIfAbsent(balanceSuffix, "1", 1L);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.addBalance(userId, balance);
             } else {
@@ -466,10 +486,12 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void subBalance(Long userId, BigDecimal balance) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.BALANCE + userId);
+        String balanceSuffix = RedisLockConstant.BALANCEABSENT + userId;
+        redisUtil.setIfAbsent(balanceSuffix, "1", 1L);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
                 //扣减余额大于剩余余额
@@ -501,10 +523,10 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void addLevelWater(Long userId, BigDecimal levelWater) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.LevelWater + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.addLevelWater(userId, levelWater);
             } else {
@@ -530,10 +552,10 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void subLevelWater(Long userId, BigDecimal levelWater) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.LevelWater + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
                 //扣减余额大于剩余余额
@@ -559,10 +581,10 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void modifyLevelWater(Long userId, BigDecimal balance) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.LevelWater + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.modifyLevelWater(userId, balance);
             } else {
@@ -588,10 +610,10 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void addRiseWater(Long userId, BigDecimal riseWater) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.RiseWater + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.addRiseWater(userId, riseWater);
             } else {
@@ -617,10 +639,10 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void subRiseWater(Long userId, BigDecimal riseWater) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.RiseWater + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
                 //扣减余额大于剩余余额
@@ -646,10 +668,10 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void modifyRiseWater(Long userId, BigDecimal riseWater) {
-        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.RiseWater + userId);
         boolean bool;
         try {
-            bool = lock.writeLock().tryLock(2, 5, TimeUnit.SECONDS);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
                 userMoneyRepository.modifyRiseWater(userId, riseWater);
             } else {
