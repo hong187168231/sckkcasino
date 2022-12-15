@@ -86,7 +86,7 @@ public class GameRecordJob {
             timeMsg = startTime + "到" + endTime;
             log.info("开始拉取{}的wm游戏记录",timeMsg);
             //查询时间范围内的所有游戏记录，（以结算时间为条件）
-            String result = wmApi.getDateTimeReport(null, startTime, endTime, 0, 1, 2, null, null, CommonConst.NUMBER_2);
+            String result = wmApi.getDateTimeReport(null, startTime, endTime, 0, 1, 2, null, null, CommonConst.NUMBER_3);
             //远程请求异常
             if (ObjectUtils.isEmpty(result)) {
                 log.error("{}游戏记录拉取异常",timeMsg);
