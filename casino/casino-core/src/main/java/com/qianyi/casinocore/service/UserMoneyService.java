@@ -92,13 +92,11 @@ public class UserMoneyService {
     private String VNC_recycleUrl = "/vncGame/oneKeyRecoverApi?";
 
     public UserMoney findUserByUserIdUseLock(Long userId) {
-        //return userMoneyRepository.findUserByUserIdUseLock(userId);
         return userMoneyRepository.findUserMoneyByUserId(userId);
     }
 
     public UserMoney findUserByUserIdUse(Long userId) {
         return userMoneyRepository.findByUserId(userId);
-        // return userMoneyRepository.findUserMoneyByUserId(userId);
     }
 
 
