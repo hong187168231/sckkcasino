@@ -100,7 +100,8 @@ public class UserMoneyService {
     }
 
     @CacheEvict(key = "#userId")
-    /*    @Transactional*/ public void changeProfit(Long userId, BigDecimal shareProfit) {
+    @Transactional
+    public void changeProfit(Long userId, BigDecimal shareProfit) {
         userMoneyRepository.changeProfit(userId, shareProfit);
     }
 
@@ -108,30 +109,30 @@ public class UserMoneyService {
      * @param userId 用户id
      * @param money 金额
      */
-    //    @CacheEvict(key = "#userId")
-    //    @Transactional
-    //    public void subMoney(Long userId, BigDecimal money) {
-    //        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
-    //        try {
-    //            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-    //            UserMoney userMoneyLock2 = findUserByUserIdUseLock(userId);
-    //            // 扣减余额大于剩余余额
-    //            if (money.compareTo(userMoneyLock2.getMoney()) == 1) {
-    //                redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
-    //                throw new UserMoneyChangeException("扣减余额超过本地剩余额度");
-    //            }
-    //            userMoneyRepository.subMoney(userId, money);
-    //        } catch (Exception e) {
-    //            throw new RuntimeException(e);
-    //        } finally {
-    //            // 释放锁
-    //            RedisKeyUtil.unlock(userMoneyLock);
-    //            log.info("subMoney用户减少money释放锁{}", userId);
-    //        }
-    //    }
+    // @CacheEvict(key = "#userId")
+    // @Transactional
+    // public void subMoney(Long userId, BigDecimal money) {
+    // RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+    // try {
+    // userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+    // UserMoney userMoneyLock2 = findUserByUserIdUseLock(userId);
+    // // 扣减余额大于剩余余额
+    // if (money.compareTo(userMoneyLock2.getMoney()) == 1) {
+    // redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+    // throw new UserMoneyChangeException("扣减余额超过本地剩余额度");
+    // }
+    // userMoneyRepository.subMoney(userId, money);
+    // } catch (Exception e) {
+    // throw new RuntimeException(e);
+    // } finally {
+    // // 释放锁
+    // RedisKeyUtil.unlock(userMoneyLock);
+    // log.info("subMoney用户减少money释放锁{}", userId);
+    // }
+    // }
     @CacheEvict(key = "#userId")
-    @org.springframework.transaction.annotation.Transactional
-    public void subMoney(Long userId, BigDecimal money,UserMoney userMoney) {
+    @Transactional
+    public void subMoney(Long userId, BigDecimal money, UserMoney userMoney) {
         // 扣减余额大于剩余余额
         if (money.compareTo(userMoney.getMoney()) == 1) {
             redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
@@ -148,23 +149,23 @@ public class UserMoneyService {
      * @param userId 用户id
      * @param money 金额
      */
-    //    @CacheEvict(key = "#userId")
-    //    @Transactional
-    //    public void addMoney(Long userId, BigDecimal money) {
-    //        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
-    //        try {
-    //            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-    //            userMoneyRepository.addMoney(userId, money);
-    //        } catch (Exception e) {
-    //            throw new RuntimeException(e);
-    //        } finally {
-    //            // 释放锁
-    //            RedisKeyUtil.unlock(userMoneyLock);
-    //            log.info("addMoney用户增加money释放锁{}", userId);
-    //        }
-    //    }
+    // @CacheEvict(key = "#userId")
+    // @Transactional
+    // public void addMoney(Long userId, BigDecimal money) {
+    // RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+    // try {
+    // userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+    // userMoneyRepository.addMoney(userId, money);
+    // } catch (Exception e) {
+    // throw new RuntimeException(e);
+    // } finally {
+    // // 释放锁
+    // RedisKeyUtil.unlock(userMoneyLock);
+    // log.info("addMoney用户增加money释放锁{}", userId);
+    // }
+    // }
     @CacheEvict(key = "#userId")
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void addMoney(Long userId, BigDecimal money) {
         userMoneyRepository.addMoney(userId, money);
     }
@@ -246,7 +247,7 @@ public class UserMoneyService {
     // userMoneyRepository.addBalanceAndCodeNumAndMoney(userId, money, codeNum, balance, isFirst);
     // }
     @CacheEvict(key = "#userId")
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void addBalanceAndCodeNumAndMoney(Long userId, BigDecimal money, BigDecimal codeNum, BigDecimal balance,
         Integer isFirst) {
         userMoneyRepository.addBalanceAndCodeNumAndMoney(userId, money, codeNum, balance, isFirst);
@@ -278,7 +279,7 @@ public class UserMoneyService {
     // }
     // }
     @CacheEvict(key = "#userId")
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void subCodeNum(Long userId, BigDecimal codeNum, UserMoney userMoney) {
         // 扣减余额大于剩余余额
         if (codeNum.compareTo(userMoney.getCodeNum()) == 1) {
@@ -310,7 +311,7 @@ public class UserMoneyService {
     // }
     // }
     @CacheEvict(key = "#userId")
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void addWashCode(Long userId, BigDecimal washCode) {
         userMoneyRepository.addWashCode(userId, washCode);
     }
@@ -321,30 +322,30 @@ public class UserMoneyService {
      * @param userId 用户id
      * @param washCode 冻结金额
      */
-    //    @CacheEvict(key = "#userId")
-    //    @Transactional
-    //    public void subWashCode(Long userId, BigDecimal washCode) {
-    //        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
-    //        try {
-    //            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-    //            UserMoney userMoneyLock2 = findUserByUserIdUseLock(userId);
-    //            // 扣减余额大于剩余余额
-    //            if (washCode.compareTo(userMoneyLock2.getWashCode()) == 1) {
-    //                redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
-    //                throw new UserMoneyChangeException("扣减洗码额超过本地剩余额度");
-    //            }
-    //            userMoneyRepository.subWashCode(userId, washCode);
-    //        } catch (Exception e) {
-    //            throw new RuntimeException(e);
-    //        } finally {
-    //            // 释放锁
-    //            RedisKeyUtil.unlock(userMoneyLock);
-    //            log.info("subWashCode 用户扣减washCode释放锁", userId);
-    //        }
-    //    }
+    // @CacheEvict(key = "#userId")
+    // @Transactional
+    // public void subWashCode(Long userId, BigDecimal washCode) {
+    // RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+    // try {
+    // userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+    // UserMoney userMoneyLock2 = findUserByUserIdUseLock(userId);
+    // // 扣减余额大于剩余余额
+    // if (washCode.compareTo(userMoneyLock2.getWashCode()) == 1) {
+    // redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+    // throw new UserMoneyChangeException("扣减洗码额超过本地剩余额度");
+    // }
+    // userMoneyRepository.subWashCode(userId, washCode);
+    // } catch (Exception e) {
+    // throw new RuntimeException(e);
+    // } finally {
+    // // 释放锁
+    // RedisKeyUtil.unlock(userMoneyLock);
+    // log.info("subWashCode 用户扣减washCode释放锁", userId);
+    // }
+    // }
     @CacheEvict(key = "#userId")
-    @org.springframework.transaction.annotation.Transactional
-    public void subWashCode(Long userId, BigDecimal washCode,UserMoney userMoney) {
+    @Transactional
+    public void subWashCode(Long userId, BigDecimal washCode, UserMoney userMoney) {
         // 扣减余额大于剩余余额
         if (washCode.compareTo(userMoney.getWashCode()) == 1) {
             redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
@@ -352,26 +353,28 @@ public class UserMoneyService {
         }
         userMoneyRepository.subWashCode(userId, washCode);
     }
-    //    @CacheEvict(key = "#userId")
-    //    @Transactional
-    //    public void addCodeNum(Long userId, BigDecimal codeNum) {
-    //        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
-    //        try {
-    //            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-    //            userMoneyRepository.addCodeNum(userId, codeNum);
-    //        } catch (Exception e) {
-    //            throw new RuntimeException(e);
-    //        } finally {
-    //            // 释放锁
-    //            RedisKeyUtil.unlock(userMoneyLock);
-    //            log.info("addCodeNum 用户增加codeNum释放锁", userId);
-    //        }
-    //    }
+
+    // @CacheEvict(key = "#userId")
+    // @Transactional
+    // public void addCodeNum(Long userId, BigDecimal codeNum) {
+    // RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+    // try {
+    // userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+    // userMoneyRepository.addCodeNum(userId, codeNum);
+    // } catch (Exception e) {
+    // throw new RuntimeException(e);
+    // } finally {
+    // // 释放锁
+    // RedisKeyUtil.unlock(userMoneyLock);
+    // log.info("addCodeNum 用户增加codeNum释放锁", userId);
+    // }
+    // }
     @CacheEvict(key = "#userId")
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void addCodeNum(Long userId, BigDecimal codeNum) {
         userMoneyRepository.addCodeNum(userId, codeNum);
     }
+
     /**
      * 增加分润金额
      *
@@ -379,7 +382,7 @@ public class UserMoneyService {
      * @param shareProfit 分润金额
      */
     @CacheEvict(key = "#userId")
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void addShareProfit(Long userId, BigDecimal shareProfit) {
         userMoneyRepository.addShareProfit(userId, shareProfit);
     }
@@ -391,7 +394,7 @@ public class UserMoneyService {
      * @param shareProfit 分润金额
      */
     @CacheEvict(key = "#userId")
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void subShareProfit(Long userId, BigDecimal shareProfit) {
         UserMoney userMoneyLock2 = findUserByUserIdUseLock(userId);
         // 扣减余额大于剩余余额
@@ -424,7 +427,7 @@ public class UserMoneyService {
     // }
     // }
     @CacheEvict(key = "#userId")
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void addBalance(Long userId, BigDecimal balance) {
         userMoneyRepository.addBalance(userId, balance);
     }
@@ -457,7 +460,7 @@ public class UserMoneyService {
     // }
     // }
     @CacheEvict(key = "#userId")
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void subBalance(Long userId, BigDecimal balance, UserMoney user) {
         // 扣减余额大于剩余余额
         if (balance.compareTo(user.getBalance()) == 1) {
@@ -473,57 +476,58 @@ public class UserMoneyService {
      * @param userId 用户id
      * @param levelWater 等级流水
      */
-    //    @CacheEvict(key = "#userId")
-    //    @Transactional
-    //    public void addLevelWater(Long userId, BigDecimal levelWater) {
-    //        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
-    //        try {
-    //            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-    //            userMoneyRepository.addLevelWater(userId, levelWater);
-    //        } catch (Exception e) {
-    //            throw new RuntimeException(e);
-    //        } finally {
-    //            // 释放锁
-    //            RedisKeyUtil.unlock(userMoneyLock);
-    //            log.info("addLevelWater 用户增加levelWater释放锁", userId);
-    //        }
-    //    }
+    // @CacheEvict(key = "#userId")
+    // @Transactional
+    // public void addLevelWater(Long userId, BigDecimal levelWater) {
+    // RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+    // try {
+    // userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+    // userMoneyRepository.addLevelWater(userId, levelWater);
+    // } catch (Exception e) {
+    // throw new RuntimeException(e);
+    // } finally {
+    // // 释放锁
+    // RedisKeyUtil.unlock(userMoneyLock);
+    // log.info("addLevelWater 用户增加levelWater释放锁", userId);
+    // }
+    // }
     @CacheEvict(key = "#userId")
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void addLevelWater(Long userId, BigDecimal levelWater) {
         userMoneyRepository.addLevelWater(userId, levelWater);
     }
+
     /**
      * 扣减等级流水
      *
      * @param userId 用户id
      * @param levelWater 等级流水
      */
-    //    @CacheEvict(key = "#userId")
-    //    @Transactional
-    //    public void subLevelWater(Long userId, BigDecimal levelWater) {
-    //        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
-    //        try {
-    //            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-    //            UserMoney userMoneyLock2 = findUserByUserIdUseLock(userId);
-    //            // 扣减余额大于剩余余额
-    //            if (levelWater.compareTo(userMoneyLock2.getLevelWater()) == 1) {
-    //                redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
-    //                throw new UserMoneyChangeException("扣减洗码额超过本地剩余额度");
-    //            }
-    //            userMoneyRepository.subLevelWater(userId, levelWater);
+    // @CacheEvict(key = "#userId")
+    // @Transactional
+    // public void subLevelWater(Long userId, BigDecimal levelWater) {
+    // RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+    // try {
+    // userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+    // UserMoney userMoneyLock2 = findUserByUserIdUseLock(userId);
+    // // 扣减余额大于剩余余额
+    // if (levelWater.compareTo(userMoneyLock2.getLevelWater()) == 1) {
+    // redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+    // throw new UserMoneyChangeException("扣减洗码额超过本地剩余额度");
+    // }
+    // userMoneyRepository.subLevelWater(userId, levelWater);
     //
-    //        } catch (Exception e) {
-    //            throw new RuntimeException(e);
-    //        } finally {
-    //            // 释放锁
-    //            RedisKeyUtil.unlock(userMoneyLock);
-    //            log.info("subLevelWater 用户扣减subLevelWater释放锁", userId);
-    //        }
-    //    }
+    // } catch (Exception e) {
+    // throw new RuntimeException(e);
+    // } finally {
+    // // 释放锁
+    // RedisKeyUtil.unlock(userMoneyLock);
+    // log.info("subLevelWater 用户扣减subLevelWater释放锁", userId);
+    // }
+    // }
     @CacheEvict(key = "#userId")
-    @org.springframework.transaction.annotation.Transactional
-    public void subLevelWater(Long userId, BigDecimal levelWater,UserMoney userMoney) {
+    @Transactional
+    public void subLevelWater(Long userId, BigDecimal levelWater, UserMoney userMoney) {
         // 扣减余额大于剩余余额
         if (levelWater.compareTo(userMoney.getLevelWater()) == 1) {
             redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
@@ -531,6 +535,7 @@ public class UserMoneyService {
         }
         userMoneyRepository.subLevelWater(userId, levelWater);
     }
+
     // @CacheEvict(key = "#userId")
     // @Transactional
     // public void modifyLevelWater(Long userId, BigDecimal balance) {
@@ -547,7 +552,7 @@ public class UserMoneyService {
     // }
     // }
     @CacheEvict(key = "#userId")
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void modifyLevelWater(Long userId, BigDecimal balance) {
         userMoneyRepository.modifyLevelWater(userId, balance);
     }
@@ -558,57 +563,58 @@ public class UserMoneyService {
      * @param userId 用户id
      * @param riseWater 等级流水
      */
-    //    @CacheEvict(key = "#userId")
-    //    @Transactional
-    //    public void addRiseWater(Long userId, BigDecimal riseWater) {
-    //        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
-    //        try {
-    //            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-    //            userMoneyRepository.addRiseWater(userId, riseWater);
+    // @CacheEvict(key = "#userId")
+    // @Transactional
+    // public void addRiseWater(Long userId, BigDecimal riseWater) {
+    // RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+    // try {
+    // userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+    // userMoneyRepository.addRiseWater(userId, riseWater);
     //
-    //        } catch (Exception e) {
-    //            throw new RuntimeException(e);
-    //        } finally {
-    //            // 释放锁
-    //            RedisKeyUtil.unlock(userMoneyLock);
-    //            log.info("addRiseWater 用户增加levelWater释放锁", userId);
-    //        }
-    //    }
+    // } catch (Exception e) {
+    // throw new RuntimeException(e);
+    // } finally {
+    // // 释放锁
+    // RedisKeyUtil.unlock(userMoneyLock);
+    // log.info("addRiseWater 用户增加levelWater释放锁", userId);
+    // }
+    // }
     @CacheEvict(key = "#userId")
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void addRiseWater(Long userId, BigDecimal riseWater) {
         userMoneyRepository.addRiseWater(userId, riseWater);
     }
+
     /**
      * 扣减等级流水
      *
      * @param userId 用户id
      * @param riseWater 等级流水
      */
-    //    @CacheEvict(key = "#userId")
-    //    @Transactional
-    //    public void subRiseWater(Long userId, BigDecimal riseWater) {
-    //        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
-    //        try {
-    //            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-    //            UserMoney userMoneyLock2 = findUserByUserIdUseLock(userId);
-    //            // 扣减余额大于剩余余额
-    //            if (riseWater.compareTo(userMoneyLock2.getRiseWater()) == 1) {
-    //                redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
-    //                throw new UserMoneyChangeException("扣减洗码额超过本地剩余额度");
-    //            }
-    //            userMoneyRepository.subRiseWater(userId, riseWater);
-    //        } catch (Exception e) {
-    //            throw new RuntimeException(e);
-    //        } finally {
-    //            // 释放锁
-    //            RedisKeyUtil.unlock(userMoneyLock);
-    //            log.info("subRiseWater 用户扣减subLevelWater释放锁", userId);
-    //        }
-    //    }
+    // @CacheEvict(key = "#userId")
+    // @Transactional
+    // public void subRiseWater(Long userId, BigDecimal riseWater) {
+    // RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+    // try {
+    // userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+    // UserMoney userMoneyLock2 = findUserByUserIdUseLock(userId);
+    // // 扣减余额大于剩余余额
+    // if (riseWater.compareTo(userMoneyLock2.getRiseWater()) == 1) {
+    // redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+    // throw new UserMoneyChangeException("扣减洗码额超过本地剩余额度");
+    // }
+    // userMoneyRepository.subRiseWater(userId, riseWater);
+    // } catch (Exception e) {
+    // throw new RuntimeException(e);
+    // } finally {
+    // // 释放锁
+    // RedisKeyUtil.unlock(userMoneyLock);
+    // log.info("subRiseWater 用户扣减subLevelWater释放锁", userId);
+    // }
+    // }
     @CacheEvict(key = "#userId")
-    @org.springframework.transaction.annotation.Transactional
-    public void subRiseWater(Long userId, BigDecimal riseWater,UserMoney userMoneyLock2) {
+    @Transactional
+    public void subRiseWater(Long userId, BigDecimal riseWater, UserMoney userMoneyLock2) {
         // 扣减余额大于剩余余额
         if (riseWater.compareTo(userMoneyLock2.getRiseWater()) == 1) {
             redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
@@ -617,28 +623,26 @@ public class UserMoneyService {
         userMoneyRepository.subRiseWater(userId, riseWater);
     }
 
-    //    @CacheEvict(key = "#userId")
-    //    @Transactional
-    //    public void modifyRiseWater(Long userId, BigDecimal riseWater) {
-    //        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
-    //        try {
-    //            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-    //            userMoneyRepository.modifyRiseWater(userId, riseWater);
-    //        } catch (Exception e) {
-    //            throw new RuntimeException(e);
-    //        } finally {
-    //            // 释放锁
-    //            RedisKeyUtil.unlock(userMoneyLock);
-    //            log.info("modifyLevelWater 用户修改等级流水释放锁", userId);
-    //        }
-    //    }
+    // @CacheEvict(key = "#userId")
+    // @Transactional
+    // public void modifyRiseWater(Long userId, BigDecimal riseWater) {
+    // RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+    // try {
+    // userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+    // userMoneyRepository.modifyRiseWater(userId, riseWater);
+    // } catch (Exception e) {
+    // throw new RuntimeException(e);
+    // } finally {
+    // // 释放锁
+    // RedisKeyUtil.unlock(userMoneyLock);
+    // log.info("modifyLevelWater 用户修改等级流水释放锁", userId);
+    // }
+    // }
     @CacheEvict(key = "#userId")
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void modifyRiseWater(Long userId, BigDecimal riseWater) {
         userMoneyRepository.modifyRiseWater(userId, riseWater);
     }
-
-
 
     @Cacheable(key = "#userId")
     public UserMoney findByUserId(Long userId) {
@@ -708,8 +712,8 @@ public class UserMoneyService {
             log.info("{}查询web接口返回{}", user.getAccount(), s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
-            //            Object data = parse.get("data");
-            //            return new BigDecimal(data.toString());
+            // Object data = parse.get("data");
+            // return new BigDecimal(data.toString());
         } catch (Exception e) {
             return null;
         }
@@ -757,7 +761,6 @@ public class UserMoneyService {
             return null;
         }
     }
-
 
     public JSONObject oneKeyRecover(User user) {
         try {
@@ -876,7 +879,6 @@ public class UserMoneyService {
         }
     }
 
-
     public JSONObject oneKeyRecoverApi(User user) {
         try {
             String param = "userId={0}";
@@ -946,7 +948,8 @@ public class UserMoneyService {
         CriteriaQuery<UserMoney> query = builder.createQuery(UserMoney.class);
         Root<UserMoney> root = query.from(UserMoney.class);
 
-        query.multiselect(builder.sum(root.get("money").as(BigDecimal.class)).alias("money"), builder.sum(root.get("washCode").as(BigDecimal.class)).alias("washCode"));
+        query.multiselect(builder.sum(root.get("money").as(BigDecimal.class)).alias("money"),
+            builder.sum(root.get("washCode").as(BigDecimal.class)).alias("washCode"));
 
         List<Predicate> predicates = new ArrayList();
 
@@ -974,21 +977,21 @@ public class UserMoneyService {
     public JSONObject refreshAE(Long userId) {
         try {
             String param = "";
-            if(userId != null && userId != 0){
-                param = MessageFormat.format("userId={0}",userId.toString());
+            if (userId != null && userId != 0) {
+                param = MessageFormat.format("userId={0}", userId.toString());
             }
 
             PlatformConfig first = platformConfigService.findFirst();
 
-            if(first == null){
+            if (first == null) {
                 return null;
             }
             String aEUrl = first.getWebConfiguration() + AE_refreshUrl;
-            if(!CommonUtil.checkNull(param)){
-                aEUrl = aEUrl +  param;
+            if (!CommonUtil.checkNull(param)) {
+                aEUrl = aEUrl + param;
             }
             String s = HttpClient4Util.getWeb(aEUrl);
-            log.info("查询AE余额web接口返回{}",s);
+            log.info("查询AE余额web接口返回{}", s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
         } catch (Exception e) {
