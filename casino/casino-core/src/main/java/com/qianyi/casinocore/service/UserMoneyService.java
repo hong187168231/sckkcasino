@@ -91,6 +91,10 @@ public class UserMoneyService {
         return userMoneyRepository.findUserMoneyByUserId(userId);
     }
 
+    public UserMoney findUserByUserIdUNotLock(Long userId) {
+        return userMoneyRepository.findUserByUserIdUNotLock(userId);
+    }
+
     public UserMoney findUserByUserIdUse(Long userId) {
         return userMoneyRepository.findByUserId(userId);
         // return userMoneyRepository.findUserMoneyByUserId(userId);
@@ -120,7 +124,7 @@ public class UserMoneyService {
         try {
             bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
-                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                UserMoney userMoneyLock = findUserByUserIdUNotLock(userId);
                 //扣减余额大于剩余余额
                 if (money.compareTo(userMoneyLock.getMoney()) == 1) {
                     redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
@@ -185,7 +189,7 @@ public class UserMoneyService {
         try {
             bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
-                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                UserMoney userMoneyLock = findUserByUserIdUNotLock(userId);
                 //扣减余额大于剩余余额
                 if (integral.compareTo(userMoneyLock.getIntegral()) == 1) {
                     redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
@@ -275,7 +279,7 @@ public class UserMoneyService {
         try {
             bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
-                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                UserMoney userMoneyLock = findUserByUserIdUNotLock(userId);
                 //扣减余额大于剩余余额
                 if (codeNum.compareTo(userMoneyLock.getCodeNum()) == 1) {
                     redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
@@ -338,7 +342,7 @@ public class UserMoneyService {
         try {
             bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
-                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                UserMoney userMoneyLock = findUserByUserIdUNotLock(userId);
                 //扣减余额大于剩余余额
                 if (washCode.compareTo(userMoneyLock.getWashCode()) == 1) {
                     redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
@@ -426,7 +430,7 @@ public class UserMoneyService {
         try {
             bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
-                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                UserMoney userMoneyLock = findUserByUserIdUNotLock(userId);
                 //扣减余额大于剩余余额
                 if (shareProfit.compareTo(userMoneyLock.getShareProfit()) == 1) {
                     redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
@@ -493,7 +497,7 @@ public class UserMoneyService {
         try {
             bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
-                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                UserMoney userMoneyLock = findUserByUserIdUNotLock(userId);
                 //扣减余额大于剩余余额
                 if (balance.compareTo(userMoneyLock.getBalance()) == 1) {
                     redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
@@ -557,7 +561,7 @@ public class UserMoneyService {
         try {
             bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
-                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                UserMoney userMoneyLock = findUserByUserIdUNotLock(userId);
                 //扣减余额大于剩余余额
                 if (levelWater.compareTo(userMoneyLock.getLevelWater()) == 1) {
                     redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
@@ -644,7 +648,7 @@ public class UserMoneyService {
         try {
             bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
             if (bool) {
-                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                UserMoney userMoneyLock = findUserByUserIdUNotLock(userId);
                 //扣减余额大于剩余余额
                 if (riseWater.compareTo(userMoneyLock.getRiseWater()) == 1) {
                     redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);

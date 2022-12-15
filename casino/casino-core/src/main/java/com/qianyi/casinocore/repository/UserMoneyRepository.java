@@ -16,6 +16,8 @@ public interface UserMoneyRepository extends JpaRepository<UserMoney,Long>, JpaS
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     UserMoney findUserMoneyByUserId(Long userId);
 
+    UserMoney findUserByUserIdUNotLock(Long userId);
+
     @Modifying(clearAutomatically = true)
     @Query("update UserMoney u set u.shareProfit= u.shareProfit+?2 where u.userId=?1")
     void changeProfit(Long userId, BigDecimal profit);
