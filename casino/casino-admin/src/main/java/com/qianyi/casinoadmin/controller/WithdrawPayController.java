@@ -6,6 +6,7 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.BillThreadPool;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.WithdrawOrderVo;
 import com.qianyi.modulecommon.Constants;
@@ -17,6 +18,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -60,6 +63,9 @@ public class WithdrawPayController {
 
     @Autowired
     private RedisUtil redisUtil;
+
+    @Autowired
+    private RedisKeyUtil redisKeyUtil;
 
     private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_3);
 
@@ -199,8 +205,25 @@ public class WithdrawPayController {
         Long userId = LoginUtil.getLoginUserId();
         SysUser sysUser = sysUserService.findById(userId);
         String lastModifier = (sysUser == null || sysUser.getUserName() == null) ? "" : sysUser.getUserName();
-        ResponseEntity responseEntity = withdrawBusiness.payWithdraw(id, lastModifier, status, remark);
-
+        WithdrawOrder order = withdrawOrderService.findById(id);
+        if (order == null) {
+            return ResponseUtil.custom("订单已被处理");
+        }
+        if (order.getStatus() != Constants.pass_the_audit) {
+            return ResponseUtil.custom("订单已被处理");
+        }
+        ResponseEntity responseEntity = null;
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(order.getUserId().toString());
+        try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            responseEntity = withdrawBusiness.payWithdraw(id, lastModifier, status, remark);
+        } catch (Exception e) {
+            log.error("提现审核出现异常id{}userId{} {}", order.getId(), order.getUserId(), e.getMessage());
+            return ResponseUtil.custom("操作失败");
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
+        }
         if (responseEntity.getCode() == CommonConst.NUMBER_0){
             Object data = responseEntity.getData();
             WithdrawOrder withdrawOrder = (WithdrawOrder)data;

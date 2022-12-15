@@ -10,13 +10,11 @@ import java.math.BigDecimal;
 public interface UserMoneyRepository extends JpaRepository<UserMoney,Long>, JpaSpecificationExecutor<UserMoney> {
 
     //    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query(value = "select * from user_money u where u.user_id = ? for update",nativeQuery = true)
-    UserMoney findUserByUserIdUseLock(Long userId);
-
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    UserMoney findUserMoneyByUserId(Long userId);
-
-    UserMoney findUserByUserIdUNotLock(Long userId);
+//    @Query(value = "select * from user_money u where u.user_id = ? for update",nativeQuery = true)
+//    UserMoney findUserByUserIdUseLock(Long userId);
+//
+//    @Lock(LockModeType.PESSIMISTIC_WRITE)
+//    UserMoney findUserMoneyByUserId(Long userId);
 
     @Modifying(clearAutomatically = true)
     @Query("update UserMoney u set u.shareProfit= u.shareProfit+?2 where u.userId=?1")

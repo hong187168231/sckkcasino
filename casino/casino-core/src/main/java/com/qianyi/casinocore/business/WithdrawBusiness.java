@@ -22,8 +22,6 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -311,7 +309,7 @@ public class WithdrawBusiness {
         WithdrawOrder withdrawOrder = getWidrawOrder(money, bankId, userId, bankcards);
         withdrawOrderService.saveOrder(withdrawOrder);
         log.info("money is {}, draw money is {}", money, userMoney.getMoney());
-        userMoneyService.subMoney(userId, money);
+        userMoneyService.subMoney(userId, money,userMoney);
         // 账变中心记录账变
         AccountChangeVo vo = new AccountChangeVo();
         vo.setUserId(userId);
@@ -433,14 +431,14 @@ public class WithdrawBusiness {
     public void checkClearCodeNum(Long userId, UserMoney user, BigDecimal minCodeNumVal) {
         // 打码已经归0，实时余额直接归0
         if (user.getCodeNum().compareTo(BigDecimal.ZERO) == 0) {
-            userMoneyService.subBalance(userId, user.getBalance());
+            userMoneyService.subBalance(userId, user.getBalance(),user);
             return;
         }
 
         // 余额小于等于最小清零打码量时 直接清0
         // 打码量和实时余额都清0
-        userMoneyService.subCodeNum(userId, user.getCodeNum());
-        userMoneyService.subBalance(userId, user.getBalance());
+        userMoneyService.subCodeNum(userId, user.getCodeNum(),user);
+        userMoneyService.subBalance(userId, user.getBalance(),user);
         CodeNumChange codeNumChange =
             CodeNumChange.setCodeNumChange(userId, null, null, user.getCodeNum(), BigDecimal.ZERO);
         codeNumChange.setType(1);

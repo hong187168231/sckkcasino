@@ -4,6 +4,7 @@ import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.vo.ProxyCentreVo;
@@ -15,6 +16,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.CollectionUtils;
@@ -29,10 +32,12 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("proxyCentre")
 @Api(tags = "代理中心")
+@Slf4j
 public class ProxyCentreController {
 
     @Autowired
@@ -53,6 +58,8 @@ public class ProxyCentreController {
     @Autowired
     @Qualifier("asyncExecutor")
     private Executor executor;
+    @Autowired
+    private RedisKeyUtil redisKeyUtil;
 
 
     @ApiOperation("查询今日，昨日，本周佣金")
@@ -248,27 +255,36 @@ public class ProxyCentreController {
         }
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
-        UserMoney userMoney = userMoneyService.findByUserId(userId);
-        BigDecimal shareProfit = BigDecimal.ZERO;
-        if (userMoney != null && userMoney.getShareProfit() != null) {
-            shareProfit = userMoney.getShareProfit();
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            UserMoney userMoney = userMoneyService.findByUserId(userId);
+            BigDecimal shareProfit = BigDecimal.ZERO;
+            if (userMoney != null && userMoney.getShareProfit() != null) {
+                shareProfit = userMoney.getShareProfit();
+            }
+            if (shareProfit.compareTo(BigDecimal.ONE) == -1) {
+                return ResponseUtil.custom("金额小于1,不能领取");
+            }
+            userMoneyService.addMoney(userId, shareProfit);
+            userMoneyService.subShareProfit(userId, shareProfit);
+            AccountChangeVo vo = new AccountChangeVo();
+            vo.setUserId(userId);
+            vo.setChangeEnum(AccountChangeEnum.SHARE_PROFIT);
+            vo.setAmount(shareProfit);
+            vo.setAmountBefore(userMoney.getMoney());
+            vo.setAmountAfter(userMoney.getMoney().add(shareProfit));
+            asyncService.executeAsync(vo);
+            //后台异步增减平台总余额
+            platformConfigService.reception(CommonConst.NUMBER_0,shareProfit.stripTrailingZeros());
+            return ResponseUtil.success("成功领取金额" , shareProfit.stripTrailingZeros().toPlainString());
+        } catch (Exception e) {
+            log.error("用户领取分润金额出现异常userId{} {}", userId, e.getMessage());
+            return ResponseUtil.custom("请重试一次");
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
         }
-        if (shareProfit.compareTo(BigDecimal.ONE) == -1) {
-            return ResponseUtil.custom("金额小于1,不能领取");
-        }
-        userMoneyService.addMoney(userId, shareProfit);
-        userMoneyService.subShareProfit(userId, shareProfit);
-
-        AccountChangeVo vo = new AccountChangeVo();
-        vo.setUserId(userId);
-        vo.setChangeEnum(AccountChangeEnum.SHARE_PROFIT);
-        vo.setAmount(shareProfit);
-        vo.setAmountBefore(userMoney.getMoney());
-        vo.setAmountAfter(userMoney.getMoney().add(shareProfit));
-        asyncService.executeAsync(vo);
-        //后台异步增减平台总余额
-        platformConfigService.reception(CommonConst.NUMBER_0,shareProfit.stripTrailingZeros());
-        return ResponseUtil.success("成功领取金额" , shareProfit.stripTrailingZeros().toPlainString());
     }
 
     /**

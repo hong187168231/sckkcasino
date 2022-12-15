@@ -2,6 +2,7 @@ package com.qianyi.casinoadmin.controller;
 
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.WithdrawOrderVo;
 import com.qianyi.casinocore.business.WithdrawBusiness;
@@ -16,6 +17,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -55,6 +58,9 @@ public class WithdrawOrderController {
 
     @Autowired
     PlatformConfigService platformConfigService;
+
+    @Autowired
+    private RedisKeyUtil redisKeyUtil;
 
     @ApiOperation("提现列表")
     @ApiImplicitParams({
@@ -189,36 +195,43 @@ public class WithdrawOrderController {
         withdrawOrderVo.setBankName(bankInfo==null ? null : bankInfo.getBankName());
     }
     @ApiOperation("提现审核")
-    @ApiImplicitParams({
-        @ApiImplicitParam(name = "id", value = "订单id", required = true),
+    @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "订单id", required = true),
         @ApiImplicitParam(name = "status", value = "审核状态，1：通过，2：拒绝", required = true),
-        @ApiImplicitParam(name = "remark", value = "备注", required = false),
-    })
+        @ApiImplicitParam(name = "remark", value = "备注", required = false),})
     @PostMapping("saveWithdraw")
-    public ResponseEntity saveWithdraw(Long id, Integer status,String remark){
-        if (LoginUtil.checkNull(id,status)){
+    public ResponseEntity saveWithdraw(Long id, Integer status, String remark) {
+        if (LoginUtil.checkNull(id, status)) {
             return ResponseUtil.custom("参数不合法");
         }
-        if(status != CommonConst.NUMBER_1 && status != CommonConst.NUMBER_2){
+        if (status != CommonConst.NUMBER_1 && status != CommonConst.NUMBER_2) {
             return ResponseUtil.custom("参数不合法");
         }
-        //        WithdrawOrder byId = withdrawOrderService.findById(id);
-        //        if (LoginUtil.checkNull(byId)){
-        //            return ResponseUtil.custom("订单不存在");
-        //        }
-        //        if (byId.getThirdProxy() != null && byId.getThirdProxy() >= CommonConst.LONG_1){
-        //            return ResponseUtil.custom("代理提现订单不能处理");
-        //        }
+        WithdrawOrder withdrawOrder = withdrawOrderService.findWithdrawOrderById(id);
+        if (withdrawOrder == null || withdrawOrder.getStatus() != 0) {
+            return ResponseUtil.custom("订单已被处理");
+        }
         Long userId = LoginUtil.getLoginUserId();
         SysUser sysUser = sysUserService.findById(userId);
-        String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
-        ResponseEntity responseEntity = withdrawBusiness.updateWithdrawAndUser(id, status, lastModifier, remark);
+        String lastModifier = (sysUser == null || sysUser.getUserName() == null) ? "" : sysUser.getUserName();
+        ResponseEntity responseEntity = null;
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(withdrawOrder.getUserId().toString());
+        try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            responseEntity = withdrawBusiness.updateWithdrawAndUser(id, status, lastModifier, remark);
+        } catch (Exception e) {
+            log.error("提现审核出现异常id{}userId{} {}", withdrawOrder.getId(), withdrawOrder.getUserId(), e.getMessage());
+            return ResponseUtil.custom("操作失败");
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
+        }
         if (responseEntity.getCode() == CommonConst.NUMBER_0 && status == CommonConst.NUMBER_1) {
             Object data = responseEntity.getData();
             platformConfigService.backstage(CommonConst.NUMBER_1, new BigDecimal(String.valueOf(data)));
         }
         return responseEntity;
     }
+
 
 
     /**

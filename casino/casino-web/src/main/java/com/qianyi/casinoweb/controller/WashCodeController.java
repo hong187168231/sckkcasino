@@ -5,7 +5,7 @@ import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.casinocore.util.RedisLockUtil;
+import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.vo.WashCodeVo;
@@ -18,6 +18,7 @@ import com.qianyi.modulecommon.util.DateUtil;
 import io.swagger.annotations.*;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,6 +34,7 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("washCode")
@@ -51,7 +53,7 @@ public class WashCodeController {
     @Autowired
     private PlatformConfigService platformConfigService;
     @Autowired
-    private RedisLockUtil redisLockUtil;
+    private RedisKeyUtil redisKeyUtil;
     @Autowired
     @Qualifier("accountChangeJob")
     AsyncService asyncService;
@@ -158,45 +160,39 @@ public class WashCodeController {
     @ApiOperation("用户领取洗码")
     @GetMapping("/receiveWashCode")
     public ResponseEntity<String> receiveWashCode() {
-        // 获取登陆用户
+        //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
-        String value = userId.toString();
-        String key = MessageFormat.format(RedisLockUtil.USER_MONEY_LOCK, value);
         BigDecimal washCode = BigDecimal.ZERO;
-        Boolean lock = false;
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
         try {
-            lock = redisLockUtil.getLock(key, value);
-            if (lock) {
-                UserMoney userMoney = userMoneyService.findByUserId(userId);
-                if (userMoney != null && userMoney.getWashCode() != null) {
-                    washCode = userMoney.getWashCode();
-                }
-                if (washCode.compareTo(BigDecimal.ONE) == -1) {
-                    return ResponseUtil.custom("金额小于1,不能领取");
-                }
-                userMoneyService.addMoney(userId, washCode);
-                userMoneyService.subWashCode(userId, washCode);
-                AccountChangeVo vo = new AccountChangeVo();
-                vo.setUserId(userId);
-                vo.setChangeEnum(AccountChangeEnum.WASH_CODE);
-                vo.setAmount(washCode);
-                vo.setAmountBefore(userMoney.getMoney());
-                vo.setAmountAfter(userMoney.getMoney().add(washCode));
-                asyncService.executeAsync(vo);
-                // 后台异步增减平台总余额
-                platformConfigService.reception(CommonConst.NUMBER_0, washCode.stripTrailingZeros());
-            } else {
-                return ResponseUtil.custom("请重试一次");
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            UserMoney userMoney = userMoneyService.findByUserId(userId);
+
+            if (userMoney != null && userMoney.getWashCode() != null) {
+                washCode = userMoney.getWashCode();
             }
-        } catch (Exception ex) {
-            log.error("用户领取洗码异常{}", ex.getMessage());
+            if (washCode.compareTo(BigDecimal.ONE) == -1) {
+                return ResponseUtil.custom("金额小于1,不能领取");
+            }
+            userMoneyService.addMoney(userId, washCode);
+            userMoneyService.subWashCode(userId, washCode,userMoney);
+
+            AccountChangeVo vo = new AccountChangeVo();
+            vo.setUserId(userId);
+            vo.setChangeEnum(AccountChangeEnum.WASH_CODE);
+            vo.setAmount(washCode);
+            vo.setAmountBefore(userMoney.getMoney());
+            vo.setAmountAfter(userMoney.getMoney().add(washCode));
+            asyncService.executeAsync(vo);
+            //后台异步增减平台总余额
+            platformConfigService.reception(CommonConst.NUMBER_0,washCode.stripTrailingZeros());
+        }catch (Exception ex){
+            log.error("会员领取洗码出现异常:{}", ex.getMessage());
             return ResponseUtil.custom("请重试一次");
-        } finally {
-            if (lock) {
-                log.info("领取洗码释放redis锁{}", key);
-                redisLockUtil.releaseLock(key, value);
-            }
+        }finally {
+            RedisKeyUtil.unlock(userMoneyLock);
         }
+
         return ResponseUtil.success("成功领取金额", washCode.stripTrailingZeros().setScale(2, BigDecimal.ROUND_HALF_UP));
     }
 

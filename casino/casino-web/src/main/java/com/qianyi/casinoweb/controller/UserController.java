@@ -9,6 +9,7 @@ import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.util.GenerateInviteCodeRunner;
+import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinocore.util.RedisLockUtil;
 import com.qianyi.casinocore.vo.UserLevelVo;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
@@ -27,6 +28,7 @@ import com.qianyi.modulecommon.util.IpUtil;
 import com.qianyi.modulespringrabbitmq.config.RabbitMqConstants;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
@@ -39,6 +41,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.text.MessageFormat;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("user")
@@ -65,6 +68,9 @@ public class UserController {
 
     @Autowired
     private RedisLockUtil redisLockUtil;
+
+    @Autowired
+    private RedisKeyUtil redisKeyUtil;
 
     @GetMapping("info")
     @ApiOperation("获取当前用户的基本信息(不包含 余额，打码量，可提现金额,洗码金额)")
@@ -320,32 +326,27 @@ public class UserController {
     @PostMapping("receiveAward")
     @ApiOperation("领取vip奖励")
     @ApiImplicitParams({@ApiImplicitParam(name = "awardType", value = "奖励类型 1每日奖励 2 晋级奖励", required = true),
-            @ApiImplicitParam(name = "level", value = "晋级奖励等级", required = false)})
+        @ApiImplicitParam(name = "level", value = "晋级奖励等级", required = false)})
     public ResponseEntity<UserLevelVo> receiveAward(Integer awardType,Integer level) {
         Long userId = CasinoWebUtil.getAuthId();
-        String key = MessageFormat.format(RedisLockUtil.AWARD_RECEIVE_RESTART, userId);
-        Boolean lock = false;
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
         try {
-            lock = redisLockUtil.getLock(key, userId + "");
-            if (lock) {
-                if (awardType < 1 || awardType > 2) {
-                    return ResponseUtil.custom("参数错误");
-                }
-                if (awardType.equals(2) && ObjectUtil.isNull(level)) {
-                    return ResponseUtil.custom("参数错误");
-                }
-                boolean flag = userLevelBusiness.receiveAward(userId, awardType,level);
-                return ResponseUtil.success(flag);
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            if (awardType < 1 || awardType > 2) {
+                return ResponseUtil.custom("参数错误");
             }
-        } catch (Exception ex) {
+            if (awardType.equals(2) && ObjectUtil.isNull(level)) {
+                return ResponseUtil.custom("参数错误");
+            }
+            boolean flag = userLevelBusiness.receiveAward(userId, awardType,level);
+            return ResponseUtil.success(flag);
+        } catch (Exception e) {
             return ResponseUtil.custom("操作频繁,稍后再试");
         } finally {
-            if (lock) {
-                log.info("重新计算报表释放redis锁{}", key);
-                redisLockUtil.releaseLock(key, userId + "");
-            }
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
+            log.info("领取vip奖励 用户领取vip释放锁", userId);
         }
-        return ResponseUtil.success(false);
     }
 
 

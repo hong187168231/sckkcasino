@@ -51,6 +51,10 @@ public class WithdrawOrderService {
         return withdrawOrderRepository.findUserByWithdrawIdOrderLock(userId);
     }
 
+    public WithdrawOrder findWithdrawOrderById(Long userId){
+        return withdrawOrderRepository.findWithdrawOrderById(userId);
+    }
+
     @Transactional
     public void updateWithdrawOrderRemark(String remark,Long id){
         withdrawOrderRepository.updateWithdrawOrderRemark(remark,id);

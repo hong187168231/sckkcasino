@@ -1,6 +1,5 @@
 package com.qianyi.casinocore.business;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.modulecommon.util.HttpClient4Util;
 import lombok.extern.slf4j.Slf4j;

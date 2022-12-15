@@ -6,6 +6,7 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.liveae.constants.LanguageEnum;
 import com.qianyi.lottery.api.PublicLotteryApi;
@@ -21,6 +22,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/vncGame")
@@ -53,6 +56,8 @@ public class GameVNDController {
     private ErrorOrderService errorOrderService;
     @Autowired
     private PlatformConfigService platformConfigService;
+    @Autowired
+    private RedisKeyUtil redisKeyUtil;
 
     @ApiOperation("启动游戏")
     @PostMapping("/openGame")
@@ -99,34 +104,44 @@ public class GameVNDController {
         }
         //回收其他游戏的余额
         thirdGameBusiness.oneKeyRecoverOtherGame(authId, Constants.PLATFORM_VNC);
-        //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
-        UserMoney userMoney = userMoneyService.findByUserId(authId);
-        BigDecimal userCenterMoney = BigDecimal.ZERO;
-        if (userMoney != null && userMoney.getMoney() != null) {
-            userCenterMoney = userMoney.getMoney().divideToIntegralValue(BigDecimal.ONE);
-        }
-        if (userCenterMoney.compareTo(BigDecimal.ZERO) == 1) {
-            //钱转入第三方后本地扣减记录账变  优先扣减本地余额，否则会出现三方加点成功，本地扣减失败的情况
-            //先扣本地款
-            userMoneyService.subMoney(authId, userCenterMoney);
-            String orderNo = orderService.getOrderNo();
-            //加点
-            PublicLotteryApi.ResponseEntity responseEntity = lotteryApi.changeBalance(account, 1, userCenterMoney, orderNo);
-            if (responseEntity == null) {
-                log.error("userId:{},account:{},money:{},进VNC游戏加点失败,远程请求异常", third.getUserId(), user.getAccount(), userCenterMoney);
-                //异步记录错误订单并重试补偿
-                errorOrderService.syncSaveVNCErrorOrder(third.getVncAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.VNC_IN, Constants.PLATFORM_VNC);
-                return ResponseUtil.custom("服务器异常,请重新操作");
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(authId.toString());
+        try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
+            UserMoney userMoney = userMoneyService.findByUserId(authId);
+            BigDecimal userCenterMoney = BigDecimal.ZERO;
+            if (userMoney != null && userMoney.getMoney() != null) {
+                userCenterMoney = userMoney.getMoney().divideToIntegralValue(BigDecimal.ONE);
             }
-            String status = responseEntity.getErrorCode();
-            if (!"0".equals(status)) {
-                log.error("userId:{},进VNC游戏加点失败,result:{}", authId, responseEntity);
-                //三方加扣点失败再把钱加回来
-                userMoneyService.addMoney(authId, userCenterMoney);
-                return ResponseUtil.custom("服务器异常,请重新操作");
+            if (userCenterMoney.compareTo(BigDecimal.ZERO) == 1) {
+                //钱转入第三方后本地扣减记录账变  优先扣减本地余额，否则会出现三方加点成功，本地扣减失败的情况
+                //先扣本地款
+                userMoneyService.subMoney(authId, userCenterMoney,userMoney);
+                String orderNo = orderService.getOrderNo();
+                //加点
+                PublicLotteryApi.ResponseEntity responseEntity = lotteryApi.changeBalance(account, 1, userCenterMoney, orderNo);
+                if (responseEntity == null) {
+                    log.error("userId:{},account:{},money:{},进VNC游戏加点失败,远程请求异常", third.getUserId(), user.getAccount(), userCenterMoney);
+                    //异步记录错误订单并重试补偿
+                    errorOrderService.syncSaveVNCErrorOrder(third.getVncAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.VNC_IN, Constants.PLATFORM_VNC);
+                    return ResponseUtil.custom("服务器异常,请重新操作");
+                }
+                String status = responseEntity.getErrorCode();
+                if (!"0".equals(status)) {
+                    log.error("userId:{},进VNC游戏加点失败,result:{}", authId, responseEntity);
+                    //三方加扣点失败再把钱加回来
+                    userMoneyService.addMoney(authId, userCenterMoney);
+                    return ResponseUtil.custom("服务器异常,请重新操作");
+                }
+                //记录账变
+                thirdGameBusiness.inSaveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, "自动转入VNC", Constants.PLATFORM_VNC, AccountChangeEnum.VNC_IN);
             }
-            //记录账变
-            thirdGameBusiness.inSaveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, "自动转入VNC", Constants.PLATFORM_VNC, AccountChangeEnum.VNC_IN);
+        } catch (Exception e) {
+            log.error("VND上分出现异常userId{} {}", authId, e.getMessage());
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
         }
         //开游戏
         String language = request.getHeader(Constants.LANGUAGE);

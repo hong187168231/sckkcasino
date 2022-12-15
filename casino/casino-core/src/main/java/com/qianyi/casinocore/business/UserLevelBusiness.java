@@ -2,7 +2,6 @@ package com.qianyi.casinocore.business;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.co.user.LevelChangeCo;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
@@ -17,16 +16,13 @@ import com.qianyi.casinocore.vo.UserLevelVo;
 import com.qianyi.modulecommon.executor.AsyncService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -212,6 +208,7 @@ public class UserLevelBusiness {
      * @param awardType
      * @return
      */
+    @Transactional
     public boolean receiveAward(Long userId, Integer awardType, Integer level) {
         User user = userService.findById(userId);
         boolean flag = getUserLevelAndSchedule(user, awardType);

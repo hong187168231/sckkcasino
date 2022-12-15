@@ -8,6 +8,7 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.liveae.api.PublicAeApi;
 import com.qianyi.liveae.constants.LanguageEnum;
@@ -22,6 +23,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/aeGame")
@@ -55,6 +58,8 @@ public class AeGameController {
     private ErrorOrderService errorOrderService;
     @Autowired
     private PlatformConfigService platformConfigService;
+    @Autowired
+    private RedisKeyUtil redisKeyUtil;
 
     @ApiOperation("开游戏")
     @PostMapping("/openGame")
@@ -64,21 +69,21 @@ public class AeGameController {
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
-        //判断平台和游戏状态
+        // 判断平台和游戏状态
         ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(Constants.PLATFORM_AE, platform);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
             return response;
         }
-        //获取登陆用户
+        // 获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         User user = userService.findById(authId);
         String account = user.getAccount();
         UserThird third = null;
         synchronized (authId) {
             third = userThirdService.findByUserId(authId);
-            //未注册自动注册到第三方
+            // 未注册自动注册到第三方
             if (third == null || ObjectUtils.isEmpty(third.getAeAccount())) {
-                //三方大写都会转成小写
+                // 三方大写都会转成小写
                 account = createMember(account);
                 if (ObjectUtils.isEmpty(account)) {
                     return ResponseUtil.custom("服务器异常,请重新操作");
@@ -97,38 +102,53 @@ public class AeGameController {
                 }
             }
         }
-        //回收其他游戏的余额
+        // 回收其他游戏的余额
         thirdGameBusiness.oneKeyRecoverOtherGame(authId, Constants.PLATFORM_AE);
-        //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
-        UserMoney userMoney = userMoneyService.findByUserId(authId);
-        BigDecimal userCenterMoney = BigDecimal.ZERO;
-        if (userMoney != null && userMoney.getMoney() != null) {
-            userCenterMoney = userMoney.getMoney();
-        }
-        if (userCenterMoney.compareTo(BigDecimal.ZERO) == 1) {
-            //钱转入第三方后本地扣减记录账变  优先扣减本地余额，否则会出现三方加点成功，本地扣减失败的情况
-            //先扣本地款
-            userMoneyService.subMoney(authId, userCenterMoney);
-            String orderNo = orderService.getOrderNo();
-            //加点
-            JSONObject deposit = aeApi.deposit(account, orderNo, userCenterMoney.toString());
-            if (ObjectUtils.isEmpty(deposit)) {
-                log.error("userId:{},account:{},money:{},进AE游戏加点失败,远程请求异常", third.getUserId(), user.getAccount(), userCenterMoney);
-                //异步记录错误订单并重试补偿
-                errorOrderService.syncSaveErrorOrder(third.getAeAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.AE_IN, Constants.PLATFORM_AE);
-                return ResponseUtil.custom("服务器异常,请重新操作");
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(authId.toString());
+        try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            // TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
+            UserMoney userMoney = userMoneyService.findByUserId(authId);
+            BigDecimal userCenterMoney = BigDecimal.ZERO;
+            if (userMoney != null && userMoney.getMoney() != null) {
+                userCenterMoney = userMoney.getMoney();
             }
-            String status = deposit.getString("status");
-            if (!PublicAeApi.SUCCESS_CODE.equals(status)) {
-                log.error("userId:{},进AE游戏加点失败,result:{}", authId, deposit);
-                //三方加扣点失败再把钱加回来
-                userMoneyService.addMoney(authId, userCenterMoney);
-                return ResponseUtil.custom("服务器异常,请重新操作");
+            if (userCenterMoney.compareTo(BigDecimal.ZERO) == 1) {
+                // 钱转入第三方后本地扣减记录账变 优先扣减本地余额，否则会出现三方加点成功，本地扣减失败的情况
+                // 先扣本地款
+                userMoneyService.subMoney(authId, userCenterMoney,userMoney);
+                String orderNo = orderService.getOrderNo();
+                // 加点
+                JSONObject deposit = aeApi.deposit(account, orderNo, userCenterMoney.toString());
+                if (ObjectUtils.isEmpty(deposit)) {
+                    log.error("userId:{},account:{},money:{},进AE游戏加点失败,远程请求异常", third.getUserId(), user.getAccount(),
+                        userCenterMoney);
+                    // 异步记录错误订单并重试补偿
+                    errorOrderService.syncSaveErrorOrder(third.getAeAccount(), user.getId(), user.getAccount(), orderNo,
+                        userCenterMoney, AccountChangeEnum.AE_IN, Constants.PLATFORM_AE);
+                    return ResponseUtil.custom("服务器异常,请重新操作");
+                }
+                String status = deposit.getString("status");
+                if (!PublicAeApi.SUCCESS_CODE.equals(status)) {
+                    log.error("userId:{},进AE游戏加点失败,result:{}", authId, deposit);
+                    // 三方加扣点失败再把钱加回来
+                    userMoneyService.addMoney(authId, userCenterMoney);
+                    return ResponseUtil.custom("服务器异常,请重新操作");
+                }
+                // 记录账变
+                thirdGameBusiness.inSaveAccountChange(authId, userCenterMoney, userMoney.getMoney(),
+                    userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, "自动转入AE", Constants.PLATFORM_AE,
+                    AccountChangeEnum.AE_IN);
             }
-            //记录账变
-            thirdGameBusiness.inSaveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, "自动转入AE", Constants.PLATFORM_AE, AccountChangeEnum.AE_IN);
+        } catch (Exception e) {
+            log.error("AE上分出现异常userId{} {}", authId, e.getMessage());
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
         }
-        //开游戏
+
+        // 开游戏
         String language = request.getHeader(Constants.LANGUAGE);
         String languageCode = LanguageEnum.getLanguageCode(language);
         String gameType = null;
@@ -143,7 +163,8 @@ public class AeGameController {
             gameCode = "E1-ESPORTS-001";
             gameType = "ESPORTS";
         }
-        JSONObject login = aeApi.doLoginAndLaunchGame(account, null, null, platform, gameType, gameCode, languageCode, null, null,null);
+        JSONObject login = aeApi.doLoginAndLaunchGame(account, null, null, platform, gameType, gameCode, languageCode,
+            null, null, null);
         if (ObjectUtils.isEmpty(login)) {
             log.error("userId:{}，account:{},进AE游戏登录失败,远程请求异常", authId, user.getAccount());
             return ResponseUtil.custom("服务器异常,请重新操作");
@@ -165,7 +186,7 @@ public class AeGameController {
             return null;
         }
         String status = jsonObject.getString("status");
-        //KK平台账号在AE重复,随机生成一个
+        // KK平台账号在AE重复,随机生成一个
         if ("1001".equals(status)) {
             account = UUID.randomUUID().toString().replaceAll("-", "");
             if (account.length() > 16) {
@@ -183,7 +204,7 @@ public class AeGameController {
     @ApiOperation("查询当前登录用户AE余额")
     @GetMapping("/getBalance")
     public ResponseEntity<BigDecimal> getBalance() {
-        //获取登陆用户
+        // 获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
         if (third == null || ObjectUtils.isEmpty(third.getAeAccount())) {
@@ -202,9 +223,7 @@ public class AeGameController {
     @ApiOperation("查询用户AE余额外部接口")
     @GetMapping("/getBalanceApi")
     @NoAuthentication
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "用户ID,为空时查全部", required = false)
-    })
+    @ApiImplicitParams({@ApiImplicitParam(name = "userId", value = "用户ID,为空时查全部", required = false)})
     public ResponseEntity<BigDecimal> getBalanceApi(Long userId) {
         log.info("开始查询AE余额:userId={}", userId);
         Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
@@ -226,7 +245,7 @@ public class AeGameController {
     @ApiOperation(value = "一键回收当前登录用户AE余额")
     @GetMapping("/oneKeyRecover")
     public ResponseEntity oneKeyRecover() {
-        //获取登陆用户
+        // 获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
         return thirdGameBusiness.oneKeyRecoverAe(userId);
     }

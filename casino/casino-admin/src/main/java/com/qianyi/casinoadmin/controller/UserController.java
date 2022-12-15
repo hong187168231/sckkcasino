@@ -28,6 +28,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -99,6 +100,9 @@ public class UserController {
 
     @Autowired
     private UserLevelService userLevelService;
+
+    @Autowired
+    private RedisKeyUtil redisKeyUtil;
 
     private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_10);
 
@@ -1311,9 +1315,9 @@ public class UserController {
         if (money.compareTo(new BigDecimal(CommonConst.NUMBER_99999999)) >= CommonConst.NUMBER_1){
             return ResponseUtil.custom("金额不能大于99999999");
         }
-//        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
-//            return ResponseUtil.custom("测试环境加钱不能超过100RMB");
-//        }
+        //        if (money.compareTo(new BigDecimal(CommonConst.NUMBER_100)) >= CommonConst.NUMBER_1){
+        //            return ResponseUtil.custom("测试环境加钱不能超过100RMB");
+        //        }
         User user = userService.findById(id);
         if (LoginUtil.checkNull(user)){
             return ResponseUtil.custom("账户不存在");
@@ -1340,7 +1344,18 @@ public class UserController {
         if (!aBoolean){
             return ResponseUtil.custom("上分失败,平台额度不足");
         }
-        ResponseEntity responseEntity = chargeOrderBusiness.saveOrderSuccess(user, chargeOrder, Constants.chargeOrder_masterControl, Constants.remitType_general, Constants.CODENUMCHANGE_MASTERCONTROL);
+        ResponseEntity responseEntity = null;
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(user.getId().toString());
+        try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            responseEntity = chargeOrderBusiness.saveOrderSuccess(user, chargeOrder, Constants.chargeOrder_masterControl, Constants.remitType_general, Constants.CODENUMCHANGE_MASTERCONTROL);
+        } catch (Exception e) {
+            log.error("后台新增充值订单订单出现异常userId{} {}",user.getId(), e.getMessage());
+            return ResponseUtil.custom("操作失败");
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
+        }
         if(responseEntity.getCode()==CommonConst.NUMBER_0){
             threadPool.execute(() -> this.asynDeleRedis(chargeOrder.getUserId().toString()));
             platformConfigService.backstage(CommonConst.NUMBER_0, new BigDecimal(chargeAmount));
@@ -1352,12 +1367,12 @@ public class UserController {
 
     @ApiOperation("系统上分")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "会员id", required = true),
-            @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = false),
-            @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
-            @ApiImplicitParam(name = "chargeAmount", value = "汇款金额", required = true),
-            @ApiImplicitParam(name = "remark", value = "汇款备注", required = false),
-            @ApiImplicitParam(name = "betRate", value = "打码倍率", required = true),
+        @ApiImplicitParam(name = "id", value = "会员id", required = true),
+        @ApiImplicitParam(name = "remitter", value = "汇款人姓名", required = false),
+        @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
+        @ApiImplicitParam(name = "chargeAmount", value = "汇款金额", required = true),
+        @ApiImplicitParam(name = "remark", value = "汇款备注", required = false),
+        @ApiImplicitParam(name = "betRate", value = "打码倍率", required = true),
     })
     @PostMapping("/saveSystemChargeOrder")
     public ResponseEntity saveSystemChargeOrder(String orderNo,Long id,String remitter,String remark, String chargeAmount,BigDecimal betRate){
@@ -1378,27 +1393,38 @@ public class UserController {
         if (LoginUtil.checkNull(user)){
             return ResponseUtil.custom("账户不存在");
         }
-        Long userId = LoginUtil.getLoginUserId();
-        SysUser sysUser = sysUserService.findById(userId);
-        String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
-        ChargeOrder chargeOrder = new ChargeOrder();
-        chargeOrder.setUserId(id);
-        //打码倍率
-        chargeOrder.setBetRate(betRate);
-        chargeOrder.setRemitter(remitter);
-        chargeOrder.setRemark(remark);
-        chargeOrder.setOrderNo(orderService.getOrderNo());
-        chargeOrder.setChargeAmount(money);
-        chargeOrder.setLastModifier(lastModifier);
-        chargeOrder.setType(user.getType());
-        chargeOrder.setSucceedTime(new Date());
-        Boolean aBoolean = platformConfigService.queryTotalPlatformQuota();
-        if (!aBoolean){
-            return ResponseUtil.custom("上分失败,平台额度不足");
+        ResponseEntity responseEntity = null;
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(user.getId().toString());
+        try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            Long userId = LoginUtil.getLoginUserId();
+            SysUser sysUser = sysUserService.findById(userId);
+            String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
+            ChargeOrder chargeOrder = new ChargeOrder();
+            chargeOrder.setUserId(id);
+            //打码倍率
+            chargeOrder.setBetRate(betRate);
+            chargeOrder.setRemitter(remitter);
+            chargeOrder.setRemark(remark);
+            chargeOrder.setOrderNo(orderService.getOrderNo());
+            chargeOrder.setChargeAmount(money);
+            chargeOrder.setLastModifier(lastModifier);
+            chargeOrder.setType(user.getType());
+            chargeOrder.setSucceedTime(new Date());
+            Boolean aBoolean = platformConfigService.queryTotalPlatformQuota();
+            if (!aBoolean){
+                return ResponseUtil.custom("上分失败,平台额度不足");
+            }
+            responseEntity = chargeOrderBusiness.saveSystemOrderSuccess(orderNo,user, chargeOrder, Constants.chargeOrder_masterControl, Constants.remitType_general, Constants.CODENUMCHANGE_MASTERCONTROL);
+        } catch (Exception e) {
+            log.error("系统上分出现异常userId{} {}",user.getId(), e.getMessage());
+            return ResponseUtil.custom("操作失败");
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
         }
-        ResponseEntity responseEntity = chargeOrderBusiness.saveSystemOrderSuccess(orderNo,user, chargeOrder, Constants.chargeOrder_masterControl, Constants.remitType_general, Constants.CODENUMCHANGE_MASTERCONTROL);
         if(responseEntity.getCode()==CommonConst.NUMBER_0){
-            threadPool.execute(() -> this.asynDeleRedis(chargeOrder.getUserId().toString()));
+            threadPool.execute(() -> this.asynDeleRedis(user.getId().toString()));
             platformConfigService.backstage(CommonConst.NUMBER_0, new BigDecimal(chargeAmount));
         }
         return responseEntity;
@@ -1445,19 +1471,26 @@ public class UserController {
         if (LoginUtil.checkNull(user)){
             return ResponseUtil.custom("找不到这个会员");
         }
-        //        if (user.getThirdProxy() != null && user.getThirdProxy() >= CommonConst.LONG_1){
-        //            return ResponseUtil.custom("代理会员不能操作");
-        //        }
         Long userId = LoginUtil.getLoginUserId();
-        //        SysUser sysUser = sysUserService.findById(userId);
-        //        String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
-        ResponseEntity responseEntity = withdrawBusiness.updateWithdrawAndUser(user, id, money, bankId, Constants.withdrawOrder_masterControl, userId, remark);
+        ResponseEntity responseEntity = null;
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(user.getId().toString());
+        try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            responseEntity = withdrawBusiness.updateWithdrawAndUser(user, id, money, bankId, Constants.withdrawOrder_masterControl, userId, remark);
+        } catch (Exception e) {
+            log.error("后台新增提现订单出现异常userId{} {}",user.getId(), e.getMessage());
+            return ResponseUtil.custom("操作失败");
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
+        }
         if (responseEntity.getCode()==CommonConst.NUMBER_0){
             threadPool.execute(() -> this.asynDeleRedis(id.toString()));
             platformConfigService.backstage(CommonConst.NUMBER_1,new BigDecimal(withdrawMoney));
         }
         return responseEntity;
     }
+
 
     @ApiOperation("后台下分检验可提款金额")
     @ApiImplicitParams({

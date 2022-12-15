@@ -13,9 +13,9 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -87,7 +87,7 @@ public class UserMoneyBusiness {
         if (codeNum.compareTo(BigDecimal.ZERO) == 1) {
             //有效投注额大于等于等于剩余打码量，最多只扣减剩余的
             validbet = validbet.compareTo(codeNum) > -1 ? codeNum : validbet;
-            userMoneyService.subCodeNum(userId, validbet);
+            userMoneyService.subCodeNum(userId, validbet,userMoney);
             BigDecimal codeNumAfter = userMoney.getCodeNum().subtract(validbet);
             CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, record, validbet.negate(), userMoney.getCodeNum(), codeNumAfter);
             codeNumChange.setType(0);
@@ -126,7 +126,7 @@ public class UserMoneyBusiness {
     public void checkClearCodeNum(PlatformConfig platformConfig, Long userId, UserMoney user) {
         //打码已经归0，实时余额直接归0
         if (user.getCodeNum().compareTo(BigDecimal.ZERO) == 0) {
-            userMoneyService.subBalance(userId, user.getBalance());
+            userMoneyService.subBalance(userId, user.getBalance(),user);
             return;
         }
         BigDecimal minCodeNumVal = DEFAULT_CLEAR;
@@ -136,8 +136,8 @@ public class UserMoneyBusiness {
         //余额小于等于最小清零打码量时 直接清0
         if (user.getBalance().compareTo(minCodeNumVal) < 1) {
             //打码量和实时余额都清0
-            userMoneyService.subCodeNum(userId, user.getCodeNum());
-            userMoneyService.subBalance(userId, user.getBalance());
+            userMoneyService.subCodeNum(userId, user.getCodeNum(),user);
+            userMoneyService.subBalance(userId, user.getBalance(),user);
             CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, null, null, user.getCodeNum(), BigDecimal.ZERO);
             codeNumChange.setType(1);
             codeNumChange.setClearCodeNum(minCodeNumVal);
@@ -256,7 +256,7 @@ public class UserMoneyBusiness {
      * @param userId
      * @param balance
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void addBalance(Long userId, BigDecimal balance) {
         UserMoney userMoney = userMoneyService.findUserByUserIdUse(userId);
         if (userMoney.getBalance().compareTo(BigDecimal.ZERO) == 0) {
@@ -264,7 +264,7 @@ public class UserMoneyBusiness {
         }
         //打码量清0或者balance已经归0后不再累加
         if (userMoney.getCodeNum().compareTo(BigDecimal.ZERO) == 0) {
-            userMoneyService.subBalance(userId, userMoney.getBalance());
+            userMoneyService.subBalance(userId, userMoney.getBalance(),userMoney);
             return;
         }
         //打码量和balance清0后不再累加
@@ -279,7 +279,7 @@ public class UserMoneyBusiness {
      * @param userId
      * @param balance
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void subBalance(Long userId, BigDecimal balance) {
         UserMoney userMoney = userMoneyService.findUserByUserIdUse(userId);
         if (userMoney.getBalance().compareTo(BigDecimal.ZERO) == 0) {
@@ -287,7 +287,7 @@ public class UserMoneyBusiness {
         }
         //打码量等于0时，balance也要清0
         if (userMoney.getCodeNum().compareTo(BigDecimal.ZERO) == 0) {
-            userMoneyService.subBalance(userId, userMoney.getBalance());
+            userMoneyService.subBalance(userId, userMoney.getBalance(),userMoney);
             return;
         }
         if (balance != null && balance.compareTo(BigDecimal.ZERO) == 1) {
@@ -296,7 +296,7 @@ public class UserMoneyBusiness {
                 balance = userMoney.getBalance();
             }
             if (balance.compareTo(BigDecimal.ZERO) == 1) {
-                userMoneyService.subBalance(userId, balance);
+                userMoneyService.subBalance(userId, balance,userMoney);
             }
         }
     }
@@ -329,7 +329,7 @@ public class UserMoneyBusiness {
                 balance = userMoney.getBalance();
             }
             if (balance.compareTo(BigDecimal.ZERO) == 1) {
-                userMoneyService.subBalance(userId, balance);
+                userMoneyService.subBalance(userId, balance,userMoney);
             }
         }
     }

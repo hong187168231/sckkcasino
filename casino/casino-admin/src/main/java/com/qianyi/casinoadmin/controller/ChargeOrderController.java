@@ -5,6 +5,7 @@ import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.BillThreadPool;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinocore.vo.ChargeOrderVo;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.business.ChargeOrderBusiness;
@@ -20,6 +21,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +35,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -69,6 +72,9 @@ public class ChargeOrderController {
 
     @Autowired
     private RedisUtil redisUtil;
+
+    @Autowired
+    private RedisKeyUtil redisKeyUtil;
 
     private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_3);
     /**
@@ -209,13 +215,6 @@ public class ChargeOrderController {
         if(status != CommonConst.NUMBER_1 && status != CommonConst.NUMBER_2){
             return ResponseUtil.custom("参数不合法");
         }
-        //        ChargeOrder byId = chargeOrderService.findById(id);
-        //        if (LoginUtil.checkNull(byId)){
-        //            return ResponseUtil.custom("订单不存在");
-        //        }
-        //        if (byId.getThirdProxy() != null && byId.getThirdProxy() >= CommonConst.LONG_1){
-        //            return ResponseUtil.custom("代理充值订单不能处理");
-        //        }
         Long userId = LoginUtil.getLoginUserId();
         SysUser sysUser = sysUserService.findById(userId);
         String lastModifier = (sysUser == null || sysUser.getUserName() == null)? "" : sysUser.getUserName();
@@ -226,7 +225,22 @@ public class ChargeOrderController {
                 return  ResponseUtil.custom("审核通过失败,平台额度不足");
             }
         }
-        ResponseEntity responseEntity = chargeOrderBusiness.checkOrderSuccess(id, status, remark, lastModifier);
+        ChargeOrder order = chargeOrderService.findById(id);
+        if (order == null || order.getStatus() != Constants.chargeOrder_wait) {
+            return ResponseUtil.custom("订单不存在或已被处理");
+        }
+        ResponseEntity responseEntity = null;
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(order.getUserId().toString());
+        try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            responseEntity = chargeOrderBusiness.checkOrderSuccess(id, status, remark, lastModifier);
+        } catch (Exception e) {
+            log.error("充值审核出现异常id{}userId{} {}",order.getId(),order.getUserId(),e.getMessage());
+            return ResponseUtil.custom("操作失败");
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
+        }
         if (responseEntity.getCode() == CommonConst.NUMBER_0 && status == CommonConst.NUMBER_1) {
             Object data = responseEntity.getData();
             ChargeOrder chargeOrder = (ChargeOrder)data;

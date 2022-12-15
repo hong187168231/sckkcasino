@@ -9,6 +9,7 @@ import com.qianyi.casinocore.model.WithdrawOrder;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.BillThreadPool;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.WithdrawOrderVo;
 import com.qianyi.modulecommon.Constants;
@@ -20,6 +21,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -58,6 +61,9 @@ public class WithdrawAuditController {
 
     @Autowired
     private RedisUtil redisUtil;
+
+    @Autowired
+    private RedisKeyUtil redisKeyUtil;
 
     private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_3);
 
@@ -195,8 +201,23 @@ public class WithdrawAuditController {
         if (LoginUtil.checkNull(id, status)) {
             return ResponseUtil.custom("参数不合法");
         }
+        WithdrawOrder order = withdrawOrderService.findById(id);
+        if (order == null) {
+            return ResponseUtil.custom("订单已被处理");
+        }
         Long operator = LoginUtil.getLoginUserId();
-        ResponseEntity responseEntity = withdrawBusiness.auditWithdraw(id, operator, status, remark);
+        ResponseEntity responseEntity = null;
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(order.getUserId().toString());
+        try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            responseEntity = withdrawBusiness.auditWithdraw(id, operator, status, remark);
+        } catch (Exception e) {
+            log.error("风控审核出现异常id{}userId{} {}", order.getId(), order.getUserId(), e.getMessage());
+            return ResponseUtil.custom("操作失败");
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
+        }
         if (responseEntity.getCode() == CommonConst.NUMBER_0 && status == Constants.withdrawOrder_fail){
             Object data = responseEntity.getData();
             WithdrawOrder withdrawOrder = (WithdrawOrder)data;

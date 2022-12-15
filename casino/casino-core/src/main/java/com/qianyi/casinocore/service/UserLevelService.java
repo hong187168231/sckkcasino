@@ -172,8 +172,9 @@ public class UserLevelService {
                 userMoneyService.addRiseWater(levelChangeCo.getUserId(), levelChangeCo.getBetWater());
                 userMoneyService.addLevelWater(levelChangeCo.getUserId(), levelChangeCo.getBetWater());
             } else {
-                userMoneyService.subRiseWater(levelChangeCo.getUserId(), levelChangeCo.getBetWater());
-                userMoneyService.subLevelWater(levelChangeCo.getUserId(), levelChangeCo.getBetWater());
+                UserMoney userMoneyLock2 = userMoneyService.findUserByUserIdUseLock(levelChangeCo.getUserId());
+                userMoneyService.subRiseWater(levelChangeCo.getUserId(), levelChangeCo.getBetWater(),userMoneyLock2);
+                userMoneyService.subLevelWater(levelChangeCo.getUserId(), levelChangeCo.getBetWater(),userMoneyLock2);
             }
         } catch (Exception e) {
             log.error("等级流水变动异常 ===== >> levelChangeCo {} ,错误信息 {} ", JSON.toJSONString(levelChangeCo), e);

@@ -6,6 +6,7 @@ import com.qianyi.casinocore.business.ThirdGameBusiness;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.vo.MaintenanceGameVo;
@@ -25,6 +26,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,6 +43,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/golednf")
@@ -70,14 +73,14 @@ public class GoldenFController {
     private AsyncService asyncService;
     @Value("${project.goldenf.currency:null}")
     private String currency;
+    @Autowired
+    private RedisKeyUtil redisKeyUtil;
 
     @ApiOperation("开游戏")
-//    @RequestLimit(limit = 1, timeout = 5)
+    // @RequestLimit(limit = 1, timeout = 5)
     @PostMapping("/openGame")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = true),
-            @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = true),
-    })
+    @ApiImplicitParams({@ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = true),
+        @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = true),})
     public ResponseEntity openGame(String vendorCode, String gameCode, HttpServletRequest request) {
         boolean checkNull = CommonUtil.checkNull(vendorCode, gameCode);
         if (checkNull) {
@@ -87,12 +90,12 @@ public class GoldenFController {
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
             return response;
         }
-        //获取登陆用户
+        // 获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = null;
         synchronized (authId) {
             third = userThirdService.findByUserId(authId);
-            //未注册自动注册到第三方
+            // 未注册自动注册到第三方
             if (third == null || ObjectUtils.isEmpty(third.getGoldenfAccount())) {
                 String account = UUID.randomUUID().toString();
                 account = account.replaceAll("-", "");
@@ -118,51 +121,66 @@ public class GoldenFController {
                 }
             }
         }
-        //回收其他游戏的余额
-        //适配之前的游戏
+        // 回收其他游戏的余额
+        // 适配之前的游戏
         String platform = Constants.PLATFORM_PG_CQ9;
         AccountChangeEnum changeEnum = AccountChangeEnum.PG_CQ9_IN;
         if (Constants.PLATFORM_SABASPORT.equals(vendorCode)) {
             platform = Constants.PLATFORM_SABASPORT;
             changeEnum = AccountChangeEnum.SABASPORT_IN;
         }
-        thirdGameBusiness.oneKeyRecoverOtherGame(authId,platform);
-        //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
-        UserMoney userMoney = userMoneyService.findByUserId(authId);
-        BigDecimal userCenterMoney = BigDecimal.ZERO;
-        if (userMoney != null && userMoney.getMoney() != null) {
-            userCenterMoney = userMoney.getMoney();
+        thirdGameBusiness.oneKeyRecoverOtherGame(authId, platform);
+        String goldenfAccount = third.getGoldenfAccount();
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(authId.toString());
+        try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            // TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
+            UserMoney userMoney = userMoneyService.findByUserId(authId);
+            BigDecimal userCenterMoney = BigDecimal.ZERO;
+            if (userMoney != null && userMoney.getMoney() != null) {
+                userCenterMoney = userMoney.getMoney();
+            }
+            if (userCenterMoney.compareTo(BigDecimal.ZERO) == 1) {
+                String orderNo = orderService.getOrderNo();
+                // 加点
+                ResponseEntity responseEntity = transferIn(vendorCode, goldenfAccount, authId, userCenterMoney, orderNo,
+                    platform, changeEnum, userMoney);
+                if (responseEntity != null) {
+                    return responseEntity;
+                }
+                // 记录账变
+                saveAccountChange(authId, userCenterMoney, userMoney.getMoney(),
+                    userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, platform, changeEnum);
+            }
+        } catch (Exception e) {
+            log.error("GF上分出现异常userId{} {}", authId, e.getMessage());
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
         }
 
-        String goldenfAccount = third.getGoldenfAccount();
-        if (userCenterMoney.compareTo(BigDecimal.ZERO) == 1) {
-            String orderNo = orderService.getOrderNo();
-            //加点
-            ResponseEntity responseEntity = transferIn(vendorCode, goldenfAccount, authId, userCenterMoney, orderNo, platform, changeEnum);
-            if (responseEntity != null) {
-                return responseEntity;
-            }
-            //记录账变
-            saveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, platform, changeEnum);
-        }
-        //开游戏
+        // 开游戏
         String language = request.getHeader(Constants.LANGUAGE);
         String languageCode = LanguageEnum.getLanguageCode(language);
         String oddstype = null;
         if (Constants.PLATFORM_SABASPORT.equals(platform)) {
-            oddstype = "1";//欧洲盘
+            oddstype = "1";// 欧洲盘
         }
-        PublicGoldenFApi.ResponseEntity entity = goldenFApi.startGame(goldenfAccount, gameCode, languageCode, null,oddstype);
+        PublicGoldenFApi.ResponseEntity entity =
+            goldenFApi.startGame(goldenfAccount, gameCode, languageCode, null, oddstype);
         if (entity == null) {
             log.error("userId:{},进游戏获取gameUrl失败", third.getUserId());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
-        if ("1035".equals(entity.getErrorCode())){
-            log.error("userId:{},errorCode={},errorMsg={}", third.getUserId(), entity.getErrorCode(), entity.getErrorMessage());
+        if ("1035".equals(entity.getErrorCode())) {
+            log.error("userId:{},errorCode={},errorMsg={}", third.getUserId(), entity.getErrorCode(),
+                entity.getErrorMessage());
             return ResponseUtil.custom("当前游戏维护中,请选择其他游戏");
         }
         if (!ObjectUtils.isEmpty(entity.getErrorCode())) {
-            log.error("userId:{},errorCode={},errorMsg={}", third.getUserId(), entity.getErrorCode(), entity.getErrorMessage());
+            log.error("userId:{},errorCode={},errorMsg={}", third.getUserId(), entity.getErrorCode(),
+                entity.getErrorMessage());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         JSONObject jsonData = JSONObject.parseObject(entity.getData());
@@ -170,7 +188,8 @@ public class GoldenFController {
         return ResponseUtil.success(gameUrl);
     }
 
-    public void saveAccountChange(Long userId, BigDecimal amount, BigDecimal amountBefore, BigDecimal amountAfter, Integer type, String orderNo, String platform, AccountChangeEnum changeEnum) {
+    public void saveAccountChange(Long userId, BigDecimal amount, BigDecimal amountBefore, BigDecimal amountAfter,
+        Integer type, String orderNo, String platform, AccountChangeEnum changeEnum) {
         User user = userService.findById(userId);
         String remark = "自动转入PG/CQ9";
         if (Constants.PLATFORM_SABASPORT.equals(platform)) {
@@ -189,7 +208,7 @@ public class GoldenFController {
         order.setThirdProxy(user.getThirdProxy());
         orderService.save(order);
 
-        //账变中心记录账变
+        // 账变中心记录账变
         AccountChangeVo vo = new AccountChangeVo();
         vo.setUserId(userId);
         vo.setChangeEnum(changeEnum);
@@ -199,16 +218,18 @@ public class GoldenFController {
         asyncService.executeAsync(vo);
     }
 
-    public ResponseEntity transferIn(String vendorCode, String playerName, Long userId, BigDecimal userCenterMoney, String orderNo, String platform, AccountChangeEnum changeEnum) {
-        //优先扣减本地的钱
-        userMoneyService.subMoney(userId, userCenterMoney);
+    public ResponseEntity transferIn(String vendorCode, String playerName, Long userId, BigDecimal userCenterMoney,
+        String orderNo, String platform, AccountChangeEnum changeEnum, UserMoney userMoney) {
+        // 优先扣减本地的钱
+        userMoneyService.subMoney(userId, userCenterMoney, userMoney);
         double amount = userCenterMoney.doubleValue();
         String walletCode = WalletCodeEnum.getWalletCodeByVendorCode(vendorCode);
         PublicGoldenFApi.ResponseEntity entity = goldenFApi.transferIn(playerName, amount, orderNo, walletCode);
         if (entity == null) {
             User user = userService.findById(userId);
-            errorOrderService.syncGoldenFSaveErrorOrder(playerName, userId, user.getAccount(), orderNo, userCenterMoney, changeEnum, platform,walletCode);
-            log.error("userId:{},money={{},进游戏加扣点失败", userId,userCenterMoney);
+            errorOrderService.syncGoldenFSaveErrorOrder(playerName, userId, user.getAccount(), orderNo, userCenterMoney,
+                changeEnum, platform, walletCode);
+            log.error("userId:{},money={{},进游戏加扣点失败", userId, userCenterMoney);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         if (!ObjectUtils.isEmpty(entity.getErrorCode())) {
@@ -216,18 +237,21 @@ public class GoldenFController {
             userMoneyService.addMoney(userId, userCenterMoney);
             return ResponseUtil.custom("加点失败,请联系客服");
         }
-        //三方强烈建议提值/充值后使用 5.9 获取单个玩家的转账记录 进一步确认交易是否成功，避免造成金额损失
+        // 三方强烈建议提值/充值后使用 5.9 获取单个玩家的转账记录 进一步确认交易是否成功，避免造成金额损失
         long time = System.currentTimeMillis();
-        PublicGoldenFApi.ResponseEntity playerTransactionRecord = goldenFApi.getPlayerTransactionRecord(playerName, time, time, walletCode, orderNo, null);
+        PublicGoldenFApi.ResponseEntity playerTransactionRecord =
+            goldenFApi.getPlayerTransactionRecord(playerName, time, time, walletCode, orderNo, null);
         if (playerTransactionRecord == null) {
             User user = userService.findById(userId);
-            errorOrderService.syncGoldenFSaveErrorOrder(playerName, userId, user.getAccount(), orderNo, userCenterMoney, changeEnum, platform,walletCode);
-            log.error("userId:{},money={},进游戏查询转账记录失败", userId,userCenterMoney);
+            errorOrderService.syncGoldenFSaveErrorOrder(playerName, userId, user.getAccount(), orderNo, userCenterMoney,
+                changeEnum, platform, walletCode);
+            log.error("userId:{},money={},进游戏查询转账记录失败", userId, userCenterMoney);
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         String errorCode = playerTransactionRecord.getErrorCode();
         if (!ObjectUtils.isEmpty(errorCode)) {
-            log.error("userId:{},errorCode={},errorMsg={}", userId, playerTransactionRecord.getErrorCode(), playerTransactionRecord.getErrorMessage());
+            log.error("userId:{},errorCode={},errorMsg={}", userId, playerTransactionRecord.getErrorCode(),
+                playerTransactionRecord.getErrorMessage());
             if ("9402".equals(errorCode)) {
                 userMoneyService.addMoney(userId, userCenterMoney);
                 return ResponseUtil.custom("加点失败,请联系客服");
@@ -240,17 +264,15 @@ public class GoldenFController {
 
     @ApiOperation("PG游戏试玩,CQ9,沙巴不支持试玩")
     @PostMapping("/openGameDemo")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = true),
-            @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = true),
-    })
+    @ApiImplicitParams({@ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = true),
+        @ApiImplicitParam(name = "gameCode", value = "游戏代码", required = true),})
     @NoAuthentication
     public ResponseEntity gameDemo(String vendorCode, String gameCode, HttpServletRequest request) {
         boolean checkNull = CommonUtil.checkNull(vendorCode, gameCode);
         if (checkNull) {
             return ResponseUtil.parameterNotNull();
         }
-        //判断平台和游戏状态
+        // 判断平台和游戏状态
         ResponseEntity response = thirdGameBusiness.checkPlatformAndGameStatus(vendorCode, gameCode);
         if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
             return response;
@@ -258,7 +280,7 @@ public class GoldenFController {
         if (!Constants.PLATFORM_PG.equals(vendorCode)) {
             return ResponseUtil.custom("游戏不支持试玩");
         }
-        //开游戏
+        // 开游戏
         String language = request.getHeader(Constants.LANGUAGE);
         String languageCode = LanguageEnum.getLanguageCode(language);
         PublicGoldenFApi.ResponseEntity entity = goldenFApi.startGameDemo(gameCode, languageCode);
@@ -279,13 +301,14 @@ public class GoldenFController {
     @GetMapping("/getBalance")
     @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = false)
     public ResponseEntity<BigDecimal> getBalance(String vendorCode) {
-        //获取登陆用户
+        // 获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
         if (third == null || ObjectUtils.isEmpty(third.getGoldenfAccount())) {
             return ResponseUtil.success(BigDecimal.ZERO);
         }
-        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getBalanceGoldenF(third.getGoldenfAccount(), authId, vendorCode);
+        ResponseEntity<BigDecimal> responseEntity =
+            thirdGameBusiness.getBalanceGoldenF(third.getGoldenfAccount(), authId, vendorCode);
         if (responseEntity.getData() != null) {
             responseEntity.setData(responseEntity.getData().setScale(2, BigDecimal.ROUND_HALF_UP));
         }
@@ -295,12 +318,10 @@ public class GoldenFController {
     @ApiOperation("查询用户PG/CQ9/SABASPORT余额外部接口")
     @GetMapping("/getBalanceApi")
     @NoAuthentication
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "用户ID", required = true),
-            @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = false)
-    })
-    public ResponseEntity<BigDecimal> getBalanceApi(Long userId,String vendorCode) {
-        log.info("开始查询{}余额:userId={}", vendorCode,userId);
+    @ApiImplicitParams({@ApiImplicitParam(name = "userId", value = "用户ID", required = true),
+        @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = false)})
+    public ResponseEntity<BigDecimal> getBalanceApi(Long userId, String vendorCode) {
+        log.info("开始查询{}余额:userId={}", vendorCode, userId);
         Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
         if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
@@ -312,7 +333,8 @@ public class GoldenFController {
         if (third == null || ObjectUtils.isEmpty(third.getGoldenfAccount())) {
             return ResponseUtil.custom("当前用户暂未进入过游戏");
         }
-        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getBalanceGoldenF(third.getGoldenfAccount(), userId, vendorCode);
+        ResponseEntity<BigDecimal> responseEntity =
+            thirdGameBusiness.getBalanceGoldenF(third.getGoldenfAccount(), userId, vendorCode);
         return responseEntity;
     }
 
@@ -320,24 +342,22 @@ public class GoldenFController {
     @GetMapping("/oneKeyRecover")
     @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = false)
     public ResponseEntity oneKeyRecover(String vendorCode) {
-        //获取登陆用户
+        // 获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
-        return thirdGameBusiness.oneKeyRecoverGoldenF(userId,vendorCode);
+        return thirdGameBusiness.oneKeyRecoverGoldenF(userId, vendorCode);
     }
 
     @ApiOperation("一键回收用户PG/CQ9/SABASPORT余额外部接口")
     @GetMapping("/oneKeyRecoverApi")
     @NoAuthentication
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "用户ID", required = true),
-            @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = false)
-    })
-    public ResponseEntity oneKeyRecoverApi(Long userId,String vendorCode) {
+    @ApiImplicitParams({@ApiImplicitParam(name = "userId", value = "用户ID", required = true),
+        @ApiImplicitParam(name = "vendorCode", value = "产品代码:PG/CQ9/SABASPORT", required = false)})
+    public ResponseEntity oneKeyRecoverApi(Long userId, String vendorCode) {
         Boolean ipWhiteCheck = thirdGameBusiness.ipWhiteCheck();
         if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
-        return thirdGameBusiness.oneKeyRecoverGoldenF(userId,vendorCode);
+        return thirdGameBusiness.oneKeyRecoverGoldenF(userId, vendorCode);
     }
 
     @ApiOperation("查询WM,PG,CQ9,OB电竞,OB体育,沙巴体育,VNC，隐藏、维护状态的游戏")
@@ -360,11 +380,12 @@ public class GoldenFController {
         MaintenanceGameVo vo = new MaintenanceGameVo();
         vo.setGamePlatformName(platformGame.getGamePlatformName());
         vo.setPlatformStatus(platformGame.getGameStatus());
-        //维护关闭状态的游戏
+        // 维护关闭状态的游戏
         List<Integer> gameStatusList = new ArrayList<>();
         gameStatusList.add(0);
         gameStatusList.add(2);
-        List<AdGame> gameList = adGamesService.findByGamePlatformNameAndGamesStatusIn(platformGame.getGamePlatformName(), gameStatusList);
+        List<AdGame> gameList =
+            adGamesService.findByGamePlatformNameAndGamesStatusIn(platformGame.getGamePlatformName(), gameStatusList);
         vo.setGameList(gameList);
         return vo;
     }
