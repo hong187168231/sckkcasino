@@ -133,9 +133,20 @@ public class WMController {
 //        }
         String language = request.getHeader(Constants.LANGUAGE);
         Integer lang = LanguageEnum.getLanguageCode(language);
+
+        //开游戏
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        String mode = getMode(gameType);
+        //获取进游戏地址
+        String url = getOpenGameUrl(request, third, mode, lang,platformConfig);
+        if (CommonUtil.checkNull(url)) {
+            log.error("userId:{},account:{},进游戏失败",third.getUserId(),user.getAccount());
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
         //回收其他游戏的余额
         thirdGameBusiness.oneKeyRecoverOtherGame(authId,Constants.PLATFORM_WM_BIG);
-        PlatformConfig platformConfig = platformConfigService.findFirst();
+
+
         //TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
         UserMoney userMoney = userMoneyService.findByUserId(authId);
         BigDecimal userCenterMoney = BigDecimal.ZERO;
@@ -193,14 +204,7 @@ public class WMController {
             vo.setAmountAfter(userMoney.getMoney().subtract(userCenterMoney));
             asyncService.executeAsync(vo);
         }
-        //开游戏
-        String mode = getMode(gameType);
-        //获取进游戏地址
-        String url = getOpenGameUrl(request, third, mode, lang,platformConfig);
-        if (CommonUtil.checkNull(url)) {
-            log.error("userId:{},account:{},进游戏失败",third.getUserId(),user.getAccount());
-            return ResponseUtil.custom("服务器异常,请重新操作");
-        }
+
         return ResponseUtil.success(url);
     }
 
