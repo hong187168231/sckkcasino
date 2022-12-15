@@ -551,6 +551,8 @@ public class ThirdGameBusiness {
      * @return
      */
     public ResponseEntity oneKeyRecoverOtherGame(Long userId, String platform) {
+        log.info("进入游戏统一回收余额开始==============================================>");
+        long startTime = System.currentTimeMillis();
         List<CompletableFuture> completableFutures = new ArrayList<>();
         if (!Constants.PLATFORM_WM_BIG.equals(platform)) {
             CompletableFuture<Void> oneKeyRecoverWm = CompletableFuture.runAsync(() -> {
@@ -596,6 +598,7 @@ public class ThirdGameBusiness {
         }
         // 等待所有子线程计算完成
         CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[completableFutures.size()])).join();
+        log.info("进入游戏统一回收余额结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
         return ResponseUtil.success();
     }
 
