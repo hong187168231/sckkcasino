@@ -53,7 +53,7 @@ public class CodeNumChangeController {
         map.put(CommonConst.NUMBER_2,"充值");
         map.put(CommonConst.NUMBER_3,"总控上分");
         map.put(CommonConst.NUMBER_4,"代理上分");
-        map.put(CommonConst.NUMBER_5,"积分兑换");
+        map.put(CommonConst.NUMBER_5,"总控人工清零");
         map.put(CommonConst.NUMBER_6,"每日奖励");
         map.put(CommonConst.NUMBER_7,"晋级奖励");
     }
