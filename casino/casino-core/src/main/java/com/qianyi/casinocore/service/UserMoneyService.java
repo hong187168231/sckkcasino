@@ -10,14 +10,12 @@ import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.repository.UserMoneyRepository;
 import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.HttpClient4Util;
 import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.api.RLock;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,9 +60,6 @@ public class UserMoneyService {
     private RedissonClient redissonClient;
 
     @Autowired
-    private RedisKeyUtil redisKeyUtil;
-
-    @Autowired
     private PlatformConfigService platformConfigService;
 
     private String refreshUrl = "/wm/getWmBalanceApi?";
@@ -92,11 +87,13 @@ public class UserMoneyService {
     private String VNC_recycleUrl = "/vncGame/oneKeyRecoverApi?";
 
     public UserMoney findUserByUserIdUseLock(Long userId) {
+        //return userMoneyRepository.findUserByUserIdUseLock(userId);
         return userMoneyRepository.findUserMoneyByUserId(userId);
     }
 
     public UserMoney findUserByUserIdUse(Long userId) {
         return userMoneyRepository.findByUserId(userId);
+        // return userMoneyRepository.findUserMoneyByUserId(userId);
     }
 
 
@@ -116,21 +113,29 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void subMoney(Long userId, BigDecimal money) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        String moneySuffix = RedisLockConstant.MONEYABSENT + userId;
+        redisUtil.setIfAbsent(moneySuffix, "1", 1L);
+        boolean bool;
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            UserMoney userMoneyLock2 = findUserByUserIdUseLock(userId);
-            //扣减余额大于剩余余额
-            if (money.compareTo(userMoneyLock2.getMoney()) == 1) {
-                redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
-                throw new UserMoneyChangeException("扣减余额超过本地剩余额度");
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                //扣减余额大于剩余余额
+                if (money.compareTo(userMoneyLock.getMoney()) == 1) {
+                    redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+                    throw new UserMoneyChangeException("扣减余额超过本地剩余额度");
+                }
+                userMoneyRepository.subMoney(userId, money);
+            } else {
+                log.error("subMoney 用户减少money没拿到锁,{}", userId);
+                throw new BusinessException("操作money失败");
             }
-            userMoneyRepository.subMoney(userId, money);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("subMoney用户减少money释放锁{}", userId);
         }
     }
@@ -146,15 +151,23 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void addMoney(Long userId, BigDecimal money) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.MONEY + userId);
+        String moneySuffix = RedisLockConstant.MONEYABSENT + userId;
+        redisUtil.setIfAbsent(moneySuffix, "1", 1L);
+        boolean bool;
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            userMoneyRepository.addMoney(userId, money);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                userMoneyRepository.addMoney(userId, money);
+            } else {
+                log.error("subMoney 用户增加money没拿到锁,{}", userId);
+                throw new BusinessException("操作money失败");
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("addMoney用户增加money释放锁{}", userId);
         }
     }
@@ -167,21 +180,27 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void subIntegral(Long userId, BigDecimal integral) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.INTEGRAL + userId);
+        boolean bool;
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            UserMoney userMoneyLock2 = findUserByUserIdUseLock(userId);
-            //扣减余额大于剩余余额
-            if (integral.compareTo(userMoneyLock2.getIntegral()) == 1) {
-                redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
-                throw new UserMoneyChangeException("扣减积分超过本地剩余额度");
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                //扣减余额大于剩余余额
+                if (integral.compareTo(userMoneyLock.getIntegral()) == 1) {
+                    redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+                    throw new UserMoneyChangeException("扣减积分超过本地剩余额度");
+                }
+                userMoneyRepository.subIntegral(userId, integral);
+            } else {
+                log.error("subIntegral 用户扣减integral没拿到锁,{}", userId);
+                throw new BusinessException("操作integral失败");
             }
-            userMoneyRepository.subIntegral(userId, integral);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("subIntegral 用户扣减integral释放锁", userId);
         }
 
@@ -208,7 +227,7 @@ public class UserMoneyService {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-//            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("addIntegral 用户增加money释放锁", userId);
         }
     }
@@ -224,6 +243,18 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void addBalanceAndCodeNumAndMoney(Long userId, BigDecimal money, BigDecimal codeNum, BigDecimal balance, Integer isFirst) {
+        String moneySuffix = RedisLockConstant.MONEYABSENT + userId;
+        String balanceSuffix = RedisLockConstant.BALANCEABSENT + userId;
+        String codeNumSuffix = RedisLockConstant.CODENUMABSENT + userId;
+        if (redisUtil.hasKey(moneySuffix)) {
+            throw new BusinessException("金额修改频繁,请稍后再试!");
+        }
+        if (redisUtil.hasKey(balanceSuffix)) {
+            throw new BusinessException("余额修改频繁,请稍后再试!");
+        }
+        if (redisUtil.hasKey(codeNumSuffix)) {
+            throw new BusinessException("打码量修改频繁,请稍后再试!");
+        }
         synchronized (userId) {
             userMoneyRepository.addBalanceAndCodeNumAndMoney(userId, money, codeNum, balance, isFirst);
         }
@@ -237,21 +268,29 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void subCodeNum(Long userId, BigDecimal codeNum) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.CODENUM + userId);
+        String codeNumSuffix = RedisLockConstant.CODENUMABSENT + userId;
+        redisUtil.setIfAbsent(codeNumSuffix, "1", 1L);
+        boolean bool;
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            UserMoney userMoneyLock2 = findUserByUserIdUseLock(userId);
-            //扣减余额大于剩余余额
-            if (codeNum.compareTo(userMoneyLock2.getCodeNum()) == 1) {
-                redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
-                throw new UserMoneyChangeException("扣减打码量超过本地剩余额度");
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                //扣减余额大于剩余余额
+                if (codeNum.compareTo(userMoneyLock.getCodeNum()) == 1) {
+                    redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+                    throw new UserMoneyChangeException("扣减打码量超过本地剩余额度");
+                }
+                userMoneyRepository.subCodeNum(userId, codeNum);
+            } else {
+                log.error("subCodeNum 用户扣减codeNum没拿到锁,{}", userId);
+                throw new BusinessException("操作money失败");
             }
-            userMoneyRepository.subCodeNum(userId, codeNum);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("subCodeNum 用户增加codeNum释放锁", userId);
         }
     }
@@ -265,15 +304,21 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void addWashCode(Long userId, BigDecimal washCode) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.WASHCODE + userId);
+        boolean bool;
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            userMoneyRepository.addWashCode(userId, washCode);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                userMoneyRepository.addWashCode(userId, washCode);
+            } else {
+                log.error("addWashCode 用户增加washCode没拿到锁,{}", userId);
+                throw new BusinessException("操作money失败");
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("addWashCode 用户增加washCode释放锁", userId);
         }
     }
@@ -288,22 +333,27 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void subWashCode(Long userId, BigDecimal washCode) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.WASHCODE + userId);
+        boolean bool;
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            UserMoney userMoneyLock2 = findUserByUserIdUseLock(userId);
-            //扣减余额大于剩余余额
-            if (washCode.compareTo(userMoneyLock2.getWashCode()) == 1) {
-                redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
-                throw new UserMoneyChangeException("扣减洗码额超过本地剩余额度");
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                //扣减余额大于剩余余额
+                if (washCode.compareTo(userMoneyLock.getWashCode()) == 1) {
+                    redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+                    throw new UserMoneyChangeException("扣减洗码额超过本地剩余额度");
+                }
+                userMoneyRepository.subWashCode(userId, washCode);
+            } else {
+                log.error("subWashCode 用户扣减washCode没拿到锁,{}", userId);
+                throw new BusinessException("操作money失败");
             }
-            userMoneyRepository.subWashCode(userId, washCode);
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("subWashCode 用户扣减washCode释放锁", userId);
         }
     }
@@ -311,16 +361,23 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void addCodeNum(Long userId, BigDecimal codeNum) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.CODENUM + userId);
+        String codeNumSuffix = RedisLockConstant.CODENUMABSENT + userId;
+        redisUtil.setIfAbsent(codeNumSuffix, "1", 1L);
+        boolean bool;
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            userMoneyRepository.addCodeNum(userId, codeNum);
-
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                userMoneyRepository.addCodeNum(userId, codeNum);
+            } else {
+                log.error("subMoney 用户增加codeNum没拿到锁,{}", userId);
+                throw new BusinessException("操作codeNum失败");
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("addCodeNum 用户增加codeNum释放锁", userId);
         }
     }
@@ -349,7 +406,7 @@ public class UserMoneyService {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-//            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("addShareProfit 用户增加shareProfit释放锁", userId);
         }
     }
@@ -364,21 +421,27 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void subShareProfit(Long userId, BigDecimal shareProfit) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.SHAREPROFIT + userId);
+        boolean bool;
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            UserMoney userMoneyLock2 = findUserByUserIdUseLock(userId);
-            //扣减余额大于剩余余额
-            if (shareProfit.compareTo(userMoneyLock2.getShareProfit()) == 1) {
-                redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
-                throw new UserMoneyChangeException("扣减分润金额超过本地剩余额度");
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                //扣减余额大于剩余余额
+                if (shareProfit.compareTo(userMoneyLock.getShareProfit()) == 1) {
+                    redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+                    throw new UserMoneyChangeException("扣减分润金额超过本地剩余额度");
+                }
+                userMoneyRepository.subShareProfit(userId, shareProfit);
+            } else {
+                log.error("subShareProfit 用户增扣减shareProfit没拿到锁,{}", userId);
+                throw new BusinessException("操作subShareProfit失败");
             }
-            userMoneyRepository.subShareProfit(userId, shareProfit);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("subShareProfit 释放锁", userId);
         }
     }
@@ -392,15 +455,23 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void addBalance(Long userId, BigDecimal balance) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.BALANCE + userId);
+        String balanceSuffix = RedisLockConstant.BALANCEABSENT + userId;
+        redisUtil.setIfAbsent(balanceSuffix, "1", 1L);
+        boolean bool;
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            userMoneyRepository.addBalance(userId, balance);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                userMoneyRepository.addBalance(userId, balance);
+            } else {
+                log.error("addBalance 用户增加balance没拿到锁,{}", userId);
+                throw new BusinessException("操作balance失败");
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("addBalance 用户增加balance释放锁", userId);
         }
     }
@@ -415,22 +486,29 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void subBalance(Long userId, BigDecimal balance) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.BALANCE + userId);
+        String balanceSuffix = RedisLockConstant.BALANCEABSENT + userId;
+        redisUtil.setIfAbsent(balanceSuffix, "1", 1L);
+        boolean bool;
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            UserMoney userMoneyLock2 = findUserByUserIdUseLock(userId);
-            //扣减余额大于剩余余额
-            if (balance.compareTo(userMoneyLock2.getBalance()) == 1) {
-                redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
-                throw new UserMoneyChangeException("扣减实时余额超过本地剩余额度");
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                //扣减余额大于剩余余额
+                if (balance.compareTo(userMoneyLock.getBalance()) == 1) {
+                    redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+                    throw new UserMoneyChangeException("扣减实时余额超过本地剩余额度");
+                }
+                userMoneyRepository.subBalance(userId, balance);
+            } else {
+                log.error("subBalance 用户扣减banance没拿到锁,{}", userId);
+                throw new BusinessException("操作banance失败");
             }
-            userMoneyRepository.subBalance(userId, balance);
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("subBalance 用户扣减banance释放锁", userId);
         }
     }
@@ -445,16 +523,21 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void addLevelWater(Long userId, BigDecimal levelWater) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.LevelWater + userId);
+        boolean bool;
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            userMoneyRepository.addLevelWater(userId, levelWater);
-
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                userMoneyRepository.addLevelWater(userId, levelWater);
+            } else {
+                log.error("levelWater 用户增加washCode没拿到锁,{}", userId);
+                throw new BusinessException("操作levelWater失败");
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("addWashCode 用户增加levelWater释放锁", userId);
         }
     }
@@ -469,22 +552,27 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void subLevelWater(Long userId, BigDecimal levelWater) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.LevelWater + userId);
+        boolean bool;
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            UserMoney userMoneyLock2 = findUserByUserIdUseLock(userId);
-            //扣减余额大于剩余余额
-            if (levelWater.compareTo(userMoneyLock2.getLevelWater()) == 1) {
-                redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
-                throw new UserMoneyChangeException("扣减洗码额超过本地剩余额度");
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                //扣减余额大于剩余余额
+                if (levelWater.compareTo(userMoneyLock.getLevelWater()) == 1) {
+                    redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+                    throw new UserMoneyChangeException("扣减洗码额超过本地剩余额度");
+                }
+                userMoneyRepository.subLevelWater(userId, levelWater);
+            } else {
+                log.error("subLevelWater 用户扣减levelWater没拿到锁,{}", userId);
+                throw new BusinessException("操作levelWater失败");
             }
-            userMoneyRepository.subLevelWater(userId, levelWater);
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("subLevelWater 用户扣减subLevelWater释放锁", userId);
         }
     }
@@ -493,16 +581,21 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void modifyLevelWater(Long userId, BigDecimal balance) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.LevelWater + userId);
+        boolean bool;
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            userMoneyRepository.modifyLevelWater(userId, balance);
-
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                userMoneyRepository.modifyLevelWater(userId, balance);
+            } else {
+                log.error("modifyLevelWater 用户修改等级流水没拿到锁,{}", userId);
+                throw new BusinessException("操作modifyLevelWater失败");
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("modifyLevelWater 用户修改等级流水释放锁", userId);
         }
     }
@@ -517,16 +610,21 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void addRiseWater(Long userId, BigDecimal riseWater) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.RiseWater + userId);
+        boolean bool;
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            userMoneyRepository.addRiseWater(userId, riseWater);
-
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                userMoneyRepository.addRiseWater(userId, riseWater);
+            } else {
+                log.error("levelWater 用户增加washCode没拿到锁,{}", userId);
+                throw new BusinessException("操作levelWater失败");
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("addWashCode 用户增加levelWater释放锁", userId);
         }
     }
@@ -541,22 +639,27 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void subRiseWater(Long userId, BigDecimal riseWater) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.RiseWater + userId);
+        boolean bool;
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            UserMoney userMoneyLock2 = findUserByUserIdUseLock(userId);
-            //扣减余额大于剩余余额
-            if (riseWater.compareTo(userMoneyLock2.getRiseWater()) == 1) {
-                redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
-                throw new UserMoneyChangeException("扣减洗码额超过本地剩余额度");
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                UserMoney userMoneyLock = findUserByUserIdUseLock(userId);
+                //扣减余额大于剩余余额
+                if (riseWater.compareTo(userMoneyLock.getRiseWater()) == 1) {
+                    redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+                    throw new UserMoneyChangeException("扣减洗码额超过本地剩余额度");
+                }
+                userMoneyRepository.subRiseWater(userId, riseWater);
+            } else {
+                log.error("subLevelWater 用户扣减levelWater没拿到锁,{}", userId);
+                throw new BusinessException("操作levelWater失败");
             }
-            userMoneyRepository.subRiseWater(userId, riseWater);
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("subLevelWater 用户扣减subLevelWater释放锁", userId);
         }
     }
@@ -565,15 +668,21 @@ public class UserMoneyService {
     @CacheEvict(key = "#userId")
     @Transactional
     public void modifyRiseWater(Long userId, BigDecimal riseWater) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        RReadWriteLock lock = redissonClient.getReadWriteLock(RedisLockConstant.RiseWater + userId);
+        boolean bool;
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            userMoneyRepository.modifyRiseWater(userId, riseWater);
+            bool = lock.writeLock().tryLock(100, 20, TimeUnit.SECONDS);
+            if (bool) {
+                userMoneyRepository.modifyRiseWater(userId, riseWater);
+            } else {
+                log.error("modifyLevelWater 用户修改等级流水没拿到锁,{}", userId);
+                throw new BusinessException("操作modifyLevelWater失败");
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+            lock.writeLock().unlock();
             log.info("modifyLevelWater 用户修改等级流水释放锁", userId);
         }
     }
@@ -913,21 +1022,21 @@ public class UserMoneyService {
     public JSONObject refreshAE(Long userId) {
         try {
             String param = "";
-            if (userId != null && userId != 0) {
-                param = MessageFormat.format("userId={0}", userId.toString());
+            if(userId != null && userId != 0){
+                param = MessageFormat.format("userId={0}",userId.toString());
             }
 
             PlatformConfig first = platformConfigService.findFirst();
 
-            if (first == null) {
+            if(first == null){
                 return null;
             }
             String aEUrl = first.getWebConfiguration() + AE_refreshUrl;
-            if (!CommonUtil.checkNull(param)) {
-                aEUrl = aEUrl + param;
+            if(!CommonUtil.checkNull(param)){
+                aEUrl = aEUrl +  param;
             }
             String s = HttpClient4Util.getWeb(aEUrl);
-            log.info("查询AE余额web接口返回{}", s);
+            log.info("查询AE余额web接口返回{}",s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
         } catch (Exception e) {
