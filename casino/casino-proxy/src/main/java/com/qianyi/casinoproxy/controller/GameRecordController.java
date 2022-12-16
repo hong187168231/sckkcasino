@@ -1114,12 +1114,13 @@ public class GameRecordController {
         @ApiImplicitParam(name = "betDetailOrder", value = "注单号明细号", required = false),
         @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
         @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+        @ApiImplicitParam(name = "gamePlay", value = "玩法类型:(0:越南玩法,1:柬埔寨玩法)", required = false),
         @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
         @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
     })
     @NoAuthorization
     public ResponseEntity<GameRecordVNCVo> findGameRecordVNCPage(Integer pageSize, Integer pageCode, String userName, String betOrder,
-        String account,Integer tag,String betDetailOrder,
+        String account,Integer tag,String betDetailOrder,Integer gamePlay,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         Sort sort = Sort.by("id").descending();
@@ -1140,6 +1141,7 @@ public class GameRecordController {
             userId = byAccount.getId();
         }
         game.setUserId(userId);
+        game.setGamePlay(gamePlay);
         Page<RptBetInfoDetail> gameRecordPage;
         if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
             String startTime = DateUtil.getSimpleDateFormat().format(startDate);
@@ -1174,12 +1176,13 @@ public class GameRecordController {
         @ApiImplicitParam(name = "betDetailOrder", value = "注单号明细号", required = false),
         @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
         @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+        @ApiImplicitParam(name = "gamePlay", value = "玩法类型:(0:越南玩法,1:柬埔寨玩法)", required = false),
         @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
         @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
     })
     @NoAuthorization
     public ResponseEntity<GameRecordVNCVo> findGameRecordVNCSum(String userName, String betOrder,
-        String account,Integer tag,String betDetailOrder,
+        String account,Integer tag,String betDetailOrder,Integer gamePlay,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         RptBetInfoDetail game = new RptBetInfoDetail();
@@ -1197,6 +1200,7 @@ public class GameRecordController {
             }
             userId = byAccount.getId();
         }
+        game.setGamePlay(gamePlay);
         game.setUserId(userId);
         RptBetInfoDetail recordRecordSum;
         if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {

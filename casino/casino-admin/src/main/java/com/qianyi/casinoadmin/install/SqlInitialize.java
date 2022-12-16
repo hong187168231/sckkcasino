@@ -1,10 +1,7 @@
 package com.qianyi.casinoadmin.install;
 
 import com.qianyi.casinocore.model.GameRecordEndIndex;
-import com.qianyi.casinocore.service.ChargeOrderService;
-import com.qianyi.casinocore.service.GameRecordEndIndexService;
-import com.qianyi.casinocore.service.GameRecordReportNewService;
-import com.qianyi.casinocore.service.WithdrawOrderService;
+import com.qianyi.casinocore.service.*;
 import com.qianyi.modulecommon.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +25,9 @@ public class SqlInitialize  implements CommandLineRunner {
     @Autowired
     private ChargeOrderService chargeOrderService;
 
+    @Autowired
+    private RptBetInfoDetailService rptBetInfoDetailService;
+
     @Override
     public void run(String... args) throws Exception {
 //        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
@@ -40,5 +40,7 @@ public class SqlInitialize  implements CommandLineRunner {
         chargeOrderService.updateChargeOrderSucceedTime();
 
         withdrawOrderService.updateWithdrawWithdrawTime();
+
+        rptBetInfoDetailService.updateRptBetInfoDetailGamePlay();
     }
 }

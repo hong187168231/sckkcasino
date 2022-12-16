@@ -120,6 +120,9 @@ public class RptBetInfoDetailService {
                 //                if (gameRecord.getGid() != null) {
                 //                    list.add(cb.equal(root.get("gid").as(Integer.class), gameRecord.getGid()));
                 //                }
+                if (gameRecordVNC.getGamePlay() != null) {
+                    list.add(cb.equal(root.get("gamePlay").as(Integer.class), gameRecordVNC.getGamePlay()));
+                }
                 if (gameRecordVNC.getUserId() != null) {
                     list.add(cb.equal(root.get("userId").as(Long.class), gameRecordVNC.getUserId()));
                 }
@@ -174,6 +177,9 @@ public class RptBetInfoDetailService {
         //        }
         if (!CommonUtil.checkNull(gameRecordVNC.getUserName())) {
             list.add(cb.equal(root.get("userName").as(String.class), gameRecordVNC.getUserName()));
+        }
+        if (gameRecordVNC.getGamePlay() != null) {
+            list.add(cb.equal(root.get("gamePlay").as(Integer.class), gameRecordVNC.getGamePlay()));
         }
         if (gameRecordVNC.getUserId() != null) {
             list.add(cb.equal(root.get("userId").as(Long.class), gameRecordVNC.getUserId()));
@@ -230,5 +236,9 @@ public class RptBetInfoDetailService {
             }
         };
         return specification;
+    }
+
+    public void updateRptBetInfoDetailGamePlay(){
+        repository.updateRptBetInfoDetailGamePlay();
     }
 }

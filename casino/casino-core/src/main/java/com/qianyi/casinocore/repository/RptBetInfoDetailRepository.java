@@ -46,4 +46,8 @@ public interface RptBetInfoDetailRepository extends JpaRepository<RptBetInfoDeta
     List<Map<String,Object>> queryGameRecords(Long id,Integer num,String platform);
 
     RptBetInfoDetail findByMerchantCodeAndBetOrder(String merchantCode, String betDetailOrder);
+
+    @Modifying
+    @Query(value = "update rpt_bet_info_detail r set r.game_play = 0 where r.game_play is null ",nativeQuery = true)
+    void updateRptBetInfoDetailGamePlay();
 }
