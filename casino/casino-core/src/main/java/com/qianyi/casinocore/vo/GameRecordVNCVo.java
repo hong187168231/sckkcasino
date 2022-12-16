@@ -17,7 +17,8 @@ public class GameRecordVNCVo implements Serializable {
 
     @ApiModelProperty(value = "玩家 ID")
     private String account;
-
+    @ApiModelProperty("玩法类型:(0:越南玩法,1:柬埔寨玩法)")
+    private Integer gamePlay;
     @ApiModelProperty("会员账号")
     private String userName;
     @ApiModelProperty("商户号")

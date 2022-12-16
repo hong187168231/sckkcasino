@@ -20,7 +20,8 @@ public class RptBetInfoDetail extends BaseEntity{
 
     @ApiModelProperty(value = "我方账号Id")
     private Long userKkId;
-
+    @ApiModelProperty("玩法类型:(0:越南玩法,1:柬埔寨玩法)")
+    private Integer gamePlay;
     @ApiModelProperty("主键")
     private Long id;
     @ApiModelProperty("期号")
