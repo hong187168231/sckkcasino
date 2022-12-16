@@ -34,6 +34,7 @@ public class RedissonConfig {
         if (StringUtil.isNotBlank(password)) {
             singleServerConfig.setPassword(password);
         }
+        singleServerConfig.setDatabase(redissonProperties.getDatabase());
         return config;
     }
 
