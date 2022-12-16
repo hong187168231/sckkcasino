@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -314,8 +315,10 @@ public class RoleController {
         }
         Boolean result = roleServiceBusiness.save(roleName, remark, roleId, menuIdList, true);
         if(result){
-            redisKeyUtil.getSysPermissionList(roleId.toString()).clear();
-            log.info("删除角色缓存{}",roleId.toString());
+            if (Objects.nonNull(roleId)){
+                redisKeyUtil.getSysPermissionList(roleId.toString()).clear();
+                log.info("删除角色缓存{}",roleId.toString());
+            }
             return ResponseUtil.success();
         }
         return ResponseUtil.fail();
