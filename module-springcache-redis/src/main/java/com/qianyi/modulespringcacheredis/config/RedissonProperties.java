@@ -18,6 +18,7 @@ public class RedissonProperties {
     private String password;
     private String host;
     private String port;
+    private Integer database;
 
     public static class cluster {
         private List<String> nodes;
