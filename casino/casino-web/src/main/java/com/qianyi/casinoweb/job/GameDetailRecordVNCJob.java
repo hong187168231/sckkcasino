@@ -298,7 +298,7 @@ public class GameDetailRecordVNCJob {
     @SneakyThrows
     private String setEndTime(String startTime) {
         Date startDateTime = sdf.parse(startTime);
-        Date endTime = DateUtil.addMinuteDate(startDateTime, 5);
+        Date endTime = DateUtil.addMinuteDate(startDateTime, 25);
         if(endTime.getTime() < new Date().getTime()){
             return sdf.format(endTime);
         }
