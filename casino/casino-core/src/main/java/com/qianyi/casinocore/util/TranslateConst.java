@@ -23,6 +23,12 @@ public class TranslateConst {
         betPlayTypes.put("GROUP_HEAD_7","顶部包组7");
         betPlayTypes.put("GROUP_MIDDLE_7","中部包组7");
         betPlayTypes.put("GROUP_TAIL_7","底部包组7");
+        betPlayTypes.put("A","A");
+        betPlayTypes.put("B","B");
+        betPlayTypes.put("C","C");
+        betPlayTypes.put("D","D");
+        betPlayTypes.put("ABCD","ABCD");
+        betPlayTypes.put("GROUP_ALL_2","包组2");
     }
 
     public static final Map<String, String> citys = new HashMap<>();

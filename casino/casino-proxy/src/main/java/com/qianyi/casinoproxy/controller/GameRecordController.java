@@ -3,6 +3,7 @@ package com.qianyi.casinoproxy.controller;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.util.TranslateConst;
 import com.qianyi.casinocore.vo.*;
 import com.qianyi.casinoproxy.util.CasinoProxyUtil;
 import com.qianyi.modulecommon.Constants;
@@ -1161,6 +1162,12 @@ public class GameRecordController {
             content.stream().forEach(gameRecord ->{
                 GameRecordVNCVo vo = new GameRecordVNCVo();
                 BeanUtils.copyProperties(gameRecord,vo);
+                String language = TranslateConst.getLanguage();
+                vo.setBetCities(TranslateConst.getBetCity(language,gameRecord.getBetCity()));
+                vo.setBetPlayType(TranslateConst.getBetPlayType(language,gameRecord.getBetPlayType()));
+                vo.setBetTimeStr(cn.hutool.core.date.DateUtil.formatDateTime(vo.getBetTime()));
+                vo.setSettleTimeStr(cn.hutool.core.date.DateUtil.formatDateTime(vo.getSettleTime()));
+                vo.setBetCategory(vo.getBetCategory() +"-"+vo.getBetPlayType());
                 gameRecordVNCVos.add(vo);
             });
             pageResultVO.setContent(gameRecordVNCVos);
