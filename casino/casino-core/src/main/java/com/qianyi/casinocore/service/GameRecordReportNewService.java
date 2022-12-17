@@ -348,6 +348,144 @@ public class GameRecordReportNewService {
     }
 
     @Transactional
+    public void saveGameRecordReportHORSEBOOK(){
+        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
+        if (first == null){
+            return;
+        }
+        log.info("得到HORSEBOOK注单下标{}",first.getHORSEBOOKMaxId());
+        List<Map<String, Object>> reportResult = gameRecordAeService.queryGameRecords(first.getHORSEBOOKMaxId(), 13,Constants.PLATFORM_AE_HORSEBOOK);
+        try {
+            if (reportResult == null || reportResult.size() == CommonConst.NUMBER_0){
+                return;
+            }
+            if (reportResult.get(0).get("num") == null || Integer.parseInt(reportResult.get(0).get("num").toString()) == CommonConst.NUMBER_0){
+                return;
+            }
+            Long max = 0L;
+            for (Map<String, Object> map:reportResult){
+                GameRecordReportNew gameRecordReport = new GameRecordReportNew();
+                Long maxId= Long.parseLong(map.get("maxId").toString());
+                if (maxId > max)
+                    max = maxId;
+                gameRecordReport.setStaticsTimes(map.get("set_time").toString());
+                gameRecordReport.setAmount(new BigDecimal(map.get("amount").toString()));
+                gameRecordReport.setBetAmount(new BigDecimal(map.get("bet").toString()));
+                gameRecordReport.setValidAmount(new BigDecimal(map.get("validbet").toString()));
+                gameRecordReport.setWinLossAmount(new BigDecimal(map.get("win_loss").toString()));
+                gameRecordReport.setBettingNumber(Integer.parseInt(map.get("num").toString()));
+                gameRecordReport.setUserAmount(new BigDecimal(map.get("user_amount").toString()));
+                gameRecordReport.setSurplusAmount(new BigDecimal(map.get("surplus_amount").toString()));
+                gameRecordReport.setPlatform(Constants.PLATFORM_AE_HORSEBOOK);
+                gameRecordReport.setFirstProxy(Long.parseLong(map.get("first_proxy").toString()));
+                gameRecordReport.setSecondProxy(Long.parseLong(map.get("second_proxy").toString()));
+                gameRecordReport.setThirdProxy(Long.parseLong(map.get("third_proxy").toString()));
+                gameRecordReport.setGameRecordReportId(CommonUtil.toHash(gameRecordReport.getStaticsTimes()+gameRecordReport.getThirdProxy()+gameRecordReport.getPlatform()));
+                gameRecordReport01Repository.updateKey(gameRecordReport.getGameRecordReportId(),gameRecordReport.getStaticsTimes(),
+                    gameRecordReport.getBetAmount(),gameRecordReport.getValidAmount(),gameRecordReport.getWinLossAmount(),gameRecordReport.getAmount(),
+                    gameRecordReport.getBettingNumber(),gameRecordReport.getFirstProxy(),gameRecordReport.getSecondProxy(),gameRecordReport.getThirdProxy(),gameRecordReport.getPlatform(),gameRecordReport.getSurplusAmount(),gameRecordReport.getUserAmount());
+            }
+            first.setHORSEBOOKMaxId(max);
+            log.info("保存HORSEBOOK注单下标{}",first.getHORSEBOOKMaxId());
+            gameRecordEndIndexService.save(first);
+        }catch (Exception ex){
+            log.error("每小时HORSEBOOK报表统计失败",ex);
+        }
+    }
+
+    @Transactional
+    public void saveGameRecordReportSV388(){
+        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
+        if (first == null){
+            return;
+        }
+        log.info("得到SV388注单下标{}",first.getSV388MaxId());
+        List<Map<String, Object>> reportResult = gameRecordAeService.queryGameRecords(first.getSV388MaxId(), 13,Constants.PLATFORM_AE_SV388);
+        try {
+            if (reportResult == null || reportResult.size() == CommonConst.NUMBER_0){
+                return;
+            }
+            if (reportResult.get(0).get("num") == null || Integer.parseInt(reportResult.get(0).get("num").toString()) == CommonConst.NUMBER_0){
+                return;
+            }
+            Long max = 0L;
+            for (Map<String, Object> map:reportResult){
+                GameRecordReportNew gameRecordReport = new GameRecordReportNew();
+                Long maxId= Long.parseLong(map.get("maxId").toString());
+                if (maxId > max)
+                    max = maxId;
+                gameRecordReport.setStaticsTimes(map.get("set_time").toString());
+                gameRecordReport.setAmount(new BigDecimal(map.get("amount").toString()));
+                gameRecordReport.setBetAmount(new BigDecimal(map.get("bet").toString()));
+                gameRecordReport.setValidAmount(new BigDecimal(map.get("validbet").toString()));
+                gameRecordReport.setWinLossAmount(new BigDecimal(map.get("win_loss").toString()));
+                gameRecordReport.setBettingNumber(Integer.parseInt(map.get("num").toString()));
+                gameRecordReport.setUserAmount(new BigDecimal(map.get("user_amount").toString()));
+                gameRecordReport.setSurplusAmount(new BigDecimal(map.get("surplus_amount").toString()));
+                gameRecordReport.setPlatform(Constants.PLATFORM_AE_SV388);
+                gameRecordReport.setFirstProxy(Long.parseLong(map.get("first_proxy").toString()));
+                gameRecordReport.setSecondProxy(Long.parseLong(map.get("second_proxy").toString()));
+                gameRecordReport.setThirdProxy(Long.parseLong(map.get("third_proxy").toString()));
+                gameRecordReport.setGameRecordReportId(CommonUtil.toHash(gameRecordReport.getStaticsTimes()+gameRecordReport.getThirdProxy()+gameRecordReport.getPlatform()));
+                gameRecordReport01Repository.updateKey(gameRecordReport.getGameRecordReportId(),gameRecordReport.getStaticsTimes(),
+                    gameRecordReport.getBetAmount(),gameRecordReport.getValidAmount(),gameRecordReport.getWinLossAmount(),gameRecordReport.getAmount(),
+                    gameRecordReport.getBettingNumber(),gameRecordReport.getFirstProxy(),gameRecordReport.getSecondProxy(),gameRecordReport.getThirdProxy(),gameRecordReport.getPlatform(),gameRecordReport.getSurplusAmount(),gameRecordReport.getUserAmount());
+            }
+            first.setSV388MaxId(max);
+            log.info("保存SV388注单下标{}",first.getSV388MaxId());
+            gameRecordEndIndexService.save(first);
+        }catch (Exception ex){
+            log.error("每小时SV388报表统计失败",ex);
+        }
+    }
+
+    @Transactional
+    public void saveGameRecordReportE1SPORT(){
+        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
+        if (first == null){
+            return;
+        }
+        log.info("得到E1SPORT注单下标{}",first.getE1SPORTMaxId());
+        List<Map<String, Object>> reportResult = gameRecordAeService.queryGameRecords(first.getE1SPORTMaxId(), 13,Constants.PLATFORM_AE_E1SPORT);
+        try {
+            if (reportResult == null || reportResult.size() == CommonConst.NUMBER_0){
+                return;
+            }
+            if (reportResult.get(0).get("num") == null || Integer.parseInt(reportResult.get(0).get("num").toString()) == CommonConst.NUMBER_0){
+                return;
+            }
+            Long max = 0L;
+            for (Map<String, Object> map:reportResult){
+                GameRecordReportNew gameRecordReport = new GameRecordReportNew();
+                Long maxId= Long.parseLong(map.get("maxId").toString());
+                if (maxId > max)
+                    max = maxId;
+                gameRecordReport.setStaticsTimes(map.get("set_time").toString());
+                gameRecordReport.setAmount(new BigDecimal(map.get("amount").toString()));
+                gameRecordReport.setBetAmount(new BigDecimal(map.get("bet").toString()));
+                gameRecordReport.setValidAmount(new BigDecimal(map.get("validbet").toString()));
+                gameRecordReport.setWinLossAmount(new BigDecimal(map.get("win_loss").toString()));
+                gameRecordReport.setBettingNumber(Integer.parseInt(map.get("num").toString()));
+                gameRecordReport.setUserAmount(new BigDecimal(map.get("user_amount").toString()));
+                gameRecordReport.setSurplusAmount(new BigDecimal(map.get("surplus_amount").toString()));
+                gameRecordReport.setPlatform(Constants.PLATFORM_AE_E1SPORT);
+                gameRecordReport.setFirstProxy(Long.parseLong(map.get("first_proxy").toString()));
+                gameRecordReport.setSecondProxy(Long.parseLong(map.get("second_proxy").toString()));
+                gameRecordReport.setThirdProxy(Long.parseLong(map.get("third_proxy").toString()));
+                gameRecordReport.setGameRecordReportId(CommonUtil.toHash(gameRecordReport.getStaticsTimes()+gameRecordReport.getThirdProxy()+gameRecordReport.getPlatform()));
+                gameRecordReport01Repository.updateKey(gameRecordReport.getGameRecordReportId(),gameRecordReport.getStaticsTimes(),
+                    gameRecordReport.getBetAmount(),gameRecordReport.getValidAmount(),gameRecordReport.getWinLossAmount(),gameRecordReport.getAmount(),
+                    gameRecordReport.getBettingNumber(),gameRecordReport.getFirstProxy(),gameRecordReport.getSecondProxy(),gameRecordReport.getThirdProxy(),gameRecordReport.getPlatform(),gameRecordReport.getSurplusAmount(),gameRecordReport.getUserAmount());
+            }
+            first.setE1SPORTMaxId(max);
+            log.info("保存E1SPORT注单下标{}",first.getE1SPORTMaxId());
+            gameRecordEndIndexService.save(first);
+        }catch (Exception ex){
+            log.error("每小时E1SPORT报表统计失败",ex);
+        }
+    }
+
+    @Transactional
     public void saveGameRecordReportAE(){
         GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
         if (first == null){
@@ -438,7 +576,96 @@ public class GameRecordReportNewService {
             log.error("每小时VNC报表统计失败",ex);
         }
     }
-
+    @Transactional
+    public void saveGameRecordReportDmc(){
+        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
+        if (first == null){
+            return;
+        }
+        log.info("得到DMC注单下标{}",first.getDMCMaxId());
+        List<Map<String, Object>> reportResult = rptBetInfoDetailService.queryGameRecords(first.getDMCMaxId(), 13,Constants.PLATFORM_DMC);
+        try {
+            if (reportResult == null || reportResult.size() == CommonConst.NUMBER_0){
+                return;
+            }
+            if (reportResult.get(0).get("num") == null || Integer.parseInt(reportResult.get(0).get("num").toString()) == CommonConst.NUMBER_0){
+                return;
+            }
+            Long max = 0L;
+            for (Map<String, Object> map:reportResult){
+                GameRecordReportNew gameRecordReport = new GameRecordReportNew();
+                Long maxId= Long.parseLong(map.get("maxId").toString());
+                if (maxId > max)
+                    max = maxId;
+                gameRecordReport.setStaticsTimes(map.get("set_time").toString());
+                gameRecordReport.setAmount(new BigDecimal(map.get("amount").toString()));
+                gameRecordReport.setBetAmount(new BigDecimal(map.get("bet").toString()));
+                gameRecordReport.setValidAmount(new BigDecimal(map.get("validbet").toString()));
+                gameRecordReport.setWinLossAmount(new BigDecimal(map.get("win_loss").toString()));
+                gameRecordReport.setBettingNumber(Integer.parseInt(map.get("num").toString()));
+                gameRecordReport.setUserAmount(new BigDecimal(map.get("user_amount").toString()));
+                gameRecordReport.setSurplusAmount(new BigDecimal(map.get("surplus_amount").toString()));
+                gameRecordReport.setPlatform(Constants.PLATFORM_DMC);
+                gameRecordReport.setFirstProxy(Long.parseLong(map.get("first_proxy").toString()));
+                gameRecordReport.setSecondProxy(Long.parseLong(map.get("second_proxy").toString()));
+                gameRecordReport.setThirdProxy(Long.parseLong(map.get("third_proxy").toString()));
+                gameRecordReport.setGameRecordReportId(CommonUtil.toHash(gameRecordReport.getStaticsTimes()+gameRecordReport.getThirdProxy()+gameRecordReport.getPlatform()));
+                gameRecordReport01Repository.updateKey(gameRecordReport.getGameRecordReportId(),gameRecordReport.getStaticsTimes(),
+                        gameRecordReport.getBetAmount(),gameRecordReport.getValidAmount(),gameRecordReport.getWinLossAmount(),gameRecordReport.getAmount(),
+                        gameRecordReport.getBettingNumber(),gameRecordReport.getFirstProxy(),gameRecordReport.getSecondProxy(),gameRecordReport.getThirdProxy(),gameRecordReport.getPlatform(),gameRecordReport.getSurplusAmount(),gameRecordReport.getUserAmount());
+            }
+            first.setDMCMaxId(max);
+            log.info("保存DMC注单下标{}",first.getDMCMaxId());
+            gameRecordEndIndexService.save(first);
+        }catch (Exception ex){
+            log.error("每小时DMC报表统计失败",ex);
+        }
+    }
+    @Transactional
+    public void saveGameRecordReportDG(){
+        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
+        if (first == null){
+            return;
+        }
+        log.info("得到DG注单下标{}",first.getDGMaxId());
+        List<Map<String, Object>> reportResult = rptBetInfoDetailService.queryGameRecords(first.getDGMaxId(), 13,Constants.PLATFORM_DG);
+        try {
+            if (reportResult == null || reportResult.size() == CommonConst.NUMBER_0){
+                return;
+            }
+            if (reportResult.get(0).get("num") == null || Integer.parseInt(reportResult.get(0).get("num").toString()) == CommonConst.NUMBER_0){
+                return;
+            }
+            Long max = 0L;
+            for (Map<String, Object> map:reportResult){
+                GameRecordReportNew gameRecordReport = new GameRecordReportNew();
+                Long maxId= Long.parseLong(map.get("maxId").toString());
+                if (maxId > max)
+                    max = maxId;
+                gameRecordReport.setStaticsTimes(map.get("set_time").toString());
+                gameRecordReport.setAmount(new BigDecimal(map.get("amount").toString()));
+                gameRecordReport.setBetAmount(new BigDecimal(map.get("bet").toString()));
+                gameRecordReport.setValidAmount(new BigDecimal(map.get("validbet").toString()));
+                gameRecordReport.setWinLossAmount(new BigDecimal(map.get("win_loss").toString()));
+                gameRecordReport.setBettingNumber(Integer.parseInt(map.get("num").toString()));
+                gameRecordReport.setUserAmount(new BigDecimal(map.get("user_amount").toString()));
+                gameRecordReport.setSurplusAmount(new BigDecimal(map.get("surplus_amount").toString()));
+                gameRecordReport.setPlatform(Constants.PLATFORM_DG);
+                gameRecordReport.setFirstProxy(Long.parseLong(map.get("first_proxy").toString()));
+                gameRecordReport.setSecondProxy(Long.parseLong(map.get("second_proxy").toString()));
+                gameRecordReport.setThirdProxy(Long.parseLong(map.get("third_proxy").toString()));
+                gameRecordReport.setGameRecordReportId(CommonUtil.toHash(gameRecordReport.getStaticsTimes()+gameRecordReport.getThirdProxy()+gameRecordReport.getPlatform()));
+                gameRecordReport01Repository.updateKey(gameRecordReport.getGameRecordReportId(),gameRecordReport.getStaticsTimes(),
+                        gameRecordReport.getBetAmount(),gameRecordReport.getValidAmount(),gameRecordReport.getWinLossAmount(),gameRecordReport.getAmount(),
+                        gameRecordReport.getBettingNumber(),gameRecordReport.getFirstProxy(),gameRecordReport.getSecondProxy(),gameRecordReport.getThirdProxy(),gameRecordReport.getPlatform(),gameRecordReport.getSurplusAmount(),gameRecordReport.getUserAmount());
+            }
+            first.setDGMaxId(max);
+            log.info("保存DG注单下标{}",first.getDGMaxId());
+            gameRecordEndIndexService.save(first);
+        }catch (Exception ex){
+            log.error("每小时DG报表统计失败",ex);
+        }
+    }
     /**’
      * 分组分页
      */
@@ -645,6 +872,7 @@ public class GameRecordReportNewService {
     public void deleteByPlatform(String platform){
         gameRecordReport01Repository.deleteByPlatform(platform);
     }
+
 
     public  GameRecordReportNew  findGameRecordReportNewSum(GameRecordReportNew game,String startBetTime,String endBetTime) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();

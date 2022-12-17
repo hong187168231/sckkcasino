@@ -113,6 +113,18 @@ project:   #不同环境需配置相应的值
     aesKey: c20ad4d76fe97759aa27a0c99bff6710
     md5Key: c20ad4d76fe97759aa27a0c99bff6710
     currency: USD
+  dmc: # 大马彩
+    apiUrl: http://api.kk-lotto.com:8080
+    merchantId: 1
+    language: ch
+  dg: # DG
+    apiUrl: http://api.dg99web.com
+    agentName: DGTE0105I9
+    apiKey: 6ca8309628194eeabea9686d064ed6ad
+    currencyName: 2
+  #    1	CNY	人民币
+  #    2	USD	美元
+  #    5	THB	泰珠
   swagger:
     enable: true                           #是否开启swagger接口文档
   telegramBot:  #定时器执行异常推送消息

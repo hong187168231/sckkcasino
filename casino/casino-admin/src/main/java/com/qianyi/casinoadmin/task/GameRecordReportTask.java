@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.task;
 
+import cn.hutool.core.date.DatePattern;
 import com.qianyi.casinocore.business.ProxyGameRecordReportBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
@@ -39,6 +40,12 @@ public class GameRecordReportTask {
 
     @Autowired
     private GameRecordAeService gameRecordAeService;
+
+    @Autowired
+    private GameRecordDMCService gameRecordDMCService;
+
+    @Autowired
+    private GameRecordDGService gameRecordDGService;
 
     @Autowired
     private RptBetInfoDetailService rptBetInfoDetailService;
@@ -174,12 +181,25 @@ public class GameRecordReportTask {
         if (gameRecordAes != null && gameRecordAes.size() >= 1) {
             proxyGameRecordReportVos = assemblyGameRecordAe(proxyGameRecordReportVos, gameRecordAes);
         }
+        GameRecordDMC gameRecordDMC = new GameRecordDMC();
+        gameRecordDMC.setGameRecordStatus(0);
+        List<GameRecordDMC> gameRecordDMCs = gameRecordDMCService.findGameRecordDMC(gameRecordDMC, startTime, endTime);
+        if (gameRecordDMCs != null && gameRecordDMCs.size() >= 1) {
+            proxyGameRecordReportVos = assemblyGameRecordDmc(proxyGameRecordReportVos, gameRecordDMCs);
+        }
 
         RptBetInfoDetail gameRecordVNC = new RptBetInfoDetail();
         gameRecordVNC.setGameRecordStatus(0);
         List<RptBetInfoDetail> gameRecordVNCS = rptBetInfoDetailService.findRptBetInfoDetail(gameRecordVNC, startTime, endTime);
         if (gameRecordVNCS != null && gameRecordVNCS.size() >= 1) {
             proxyGameRecordReportVos = assemblyGameRecordVNC(proxyGameRecordReportVos, gameRecordVNCS);
+        }
+
+        GameRecordDG gameRecordDG = new GameRecordDG();
+        gameRecordDG.setGameRecordStatus(0);
+        List<GameRecordDG> gameRecordDGs = gameRecordDGService.findGameRecordDG(gameRecordDG, startTime, endTime);
+        if (gameRecordDGs != null && gameRecordDGs.size() >= 1) {
+            proxyGameRecordReportVos = assemblyGameRecordDG(proxyGameRecordReportVos, gameRecordDGs);
         }
 
         if (proxyGameRecordReportVos.size() >= 1) {
@@ -351,6 +371,62 @@ public class GameRecordReportTask {
             }
         } catch (Exception ex) {
             log.error("组装VNC注单异常{}", ex);
+        }
+
+        return proxyGameRecordReportVos;
+    }
+
+    private List<ProxyGameRecordReportVo> assemblyGameRecordDmc(List<ProxyGameRecordReportVo> proxyGameRecordReportVos,
+                                                                List<GameRecordDMC> gameRecordDMCs) {
+        try {
+            for (GameRecordDMC gameRecordDMC : gameRecordDMCs) {
+                ProxyGameRecordReportVo vo = new ProxyGameRecordReportVo();
+                vo.setGameRecordId(gameRecordDMC.getId());
+                vo.setOrderId(gameRecordDMC.getBetOrderNo());
+                vo.setFirstProxy(gameRecordDMC.getFirstProxy());
+                vo.setSecondProxy(gameRecordDMC.getSecondProxy());
+                vo.setThirdProxy(gameRecordDMC.getThirdProxy());
+                vo.setOrderTimes(DatePattern.NORM_DATE_FORMAT.format(gameRecordDMC.getBetTime()));
+                vo.setUserId(gameRecordDMC.getUserId());
+                vo.setValidAmount(gameRecordDMC.getRealMoney());
+                vo.setWinLoss(BigDecimal.ZERO.subtract(gameRecordDMC.getRealMoney()));
+                if (gameRecordDMC.getWinMoney() != null) {
+                    vo.setWinLoss(gameRecordDMC.getWinMoney().subtract(gameRecordDMC.getRealMoney()));
+                }
+                vo.setBetAmount(gameRecordDMC.getBetMoney());
+                vo.setPlatform(Constants.PLATFORM_DMC);
+                proxyGameRecordReportVos.add(vo);
+            }
+        } catch (Exception ex) {
+            log.error("组装DMC注单异常{}", ex);
+        }
+
+        return proxyGameRecordReportVos;
+    }
+
+    private List<ProxyGameRecordReportVo> assemblyGameRecordDG(List<ProxyGameRecordReportVo> proxyGameRecordReportVos,
+                                                                List<GameRecordDG> gameRecordDGs) {
+        try {
+            for (GameRecordDG gameRecordDG : gameRecordDGs) {
+                ProxyGameRecordReportVo vo = new ProxyGameRecordReportVo();
+                vo.setGameRecordId(gameRecordDG.getId());
+                vo.setOrderId(String.valueOf(gameRecordDG.getBetOrderNo()));
+                vo.setFirstProxy(gameRecordDG.getFirstProxy());
+                vo.setSecondProxy(gameRecordDG.getSecondProxy());
+                vo.setThirdProxy(gameRecordDG.getThirdProxy());
+                vo.setOrderTimes(DatePattern.NORM_DATE_FORMAT.format(gameRecordDG.getBetTime()));
+                vo.setUserId(gameRecordDG.getUserId());
+                vo.setValidAmount(gameRecordDG.getRealMoney());
+                vo.setWinLoss(BigDecimal.ZERO.subtract(gameRecordDG.getRealMoney()));
+                if (gameRecordDG.getWinMoney() != null) {
+                    vo.setWinLoss(gameRecordDG.getWinMoney().subtract(gameRecordDG.getRealMoney()));
+                }
+                vo.setBetAmount(gameRecordDG.getBetPoints());
+                vo.setPlatform(Constants.PLATFORM_DG);
+                proxyGameRecordReportVos.add(vo);
+            }
+        } catch (Exception ex) {
+            log.error("组装DG注单异常{}", ex);
         }
 
         return proxyGameRecordReportVos;

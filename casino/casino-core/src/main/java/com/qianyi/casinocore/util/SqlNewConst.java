@@ -250,6 +250,68 @@ public class SqlNewConst {
     LIMIT {3},{4}
         """;
 
+	public static String dmcSql = """
+    SELECT
+    u.account,
+    u.third_proxy,
+    u.id,
+    ifnull( goldenf_t.num, 0 ) num,
+    ifnull( goldenf_t.bet_amount, 0 ) bet_amount,
+    ifnull( goldenf_t.validbet, 0 ) validbet,
+    ifnull( goldenf_t.win_loss, 0 ) win_loss
+    FROM
+    USER u
+    LEFT JOIN (
+        SELECT
+            user_id,
+        count(1) num,
+    ifnull( sum( bet_money ), 0 ) bet_amount,
+    ifnull( sum( real_money ), 0 ) validbet,
+    ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss
+        FROM
+    game_record_dmc grv
+    WHERE
+    bet_time BETWEEN {0}
+    AND {1}
+    GROUP BY
+    user_id
+	) goldenf_t ON u.id = goldenf_t.user_id
+        WHERE
+	1 = 1{6} {2}
+    LIMIT {3},{4}
+        """;
+
+	public static String dgSql = """
+    SELECT
+    u.account,
+    u.third_proxy,
+    u.id,
+    ifnull( goldenf_t.num, 0 ) num,
+    ifnull( goldenf_t.bet_amount, 0 ) bet_amount,
+    ifnull( goldenf_t.validbet, 0 ) validbet,
+    ifnull( goldenf_t.win_loss, 0 ) win_loss
+    FROM
+    USER u
+    LEFT JOIN (
+        SELECT
+            user_id,
+        count(1) num,
+    ifnull( sum( bet_points ), 0 ) bet_amount,
+    ifnull( sum( real_money ), 0 ) validbet,
+    ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss
+        FROM
+    game_record_dg grv
+    WHERE
+    bet_time BETWEEN {0}
+    AND {1}
+    GROUP BY
+    user_id
+	) goldenf_t ON u.id = goldenf_t.user_id
+        WHERE
+	1 = 1{6} {2}
+    LIMIT {3},{4}
+        """;
+
     public static String sabasportSql = """
     SELECT
     u.account,
@@ -658,6 +720,116 @@ public class SqlNewConst {
     rpt_bet_info_detail grv
     WHERE user_id = {2}
     AND settle_time BETWEEN {0}
+    AND {1}
+	) t1,
+        (
+    SELECT
+    ifnull( sum( service_charge ), 0 ) service_charge
+        FROM
+    withdraw_order wo
+    WHERE
+        user_id = {2}
+    AND STATUS = 1
+    AND withdraw_time BETWEEN {0}
+    AND {1}
+	) t2,
+        (
+    SELECT
+    ifnull( sum( amount ), 0 ) all_profit_amount
+        FROM
+    share_profit_change spc
+    WHERE
+        user_id = {2}
+    AND bet_time BETWEEN {0}
+    AND {1}
+	) t3,
+        (
+    SELECT
+    ifnull( sum( amount ), 0 ) AS water
+    FROM
+        extract_points_change
+    WHERE
+        user_id = {2}{3}
+    AND create_time BETWEEN {0}
+    AND {1}
+	) t4
+        """;
+
+	public static String reportDmcSql = """
+    SELECT
+    t1.num num,
+    t1.bet_amount bet_amount,
+    t1.validbet validbet,
+    t1.win_loss win_loss,
+    t2.service_charge service_charge,
+    t3.all_profit_amount all_profit_amount,
+    t4.water all_water
+    FROM
+        (
+            SELECT
+                count(1) num,
+    ifnull( sum( bet_money ), 0 ) bet_amount,
+    ifnull( sum( real_money ), 0 ) validbet,
+    ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss
+        FROM
+    game_record_dmc grv
+    WHERE user_id = {2}
+    AND bet_time BETWEEN {0}
+    AND {1}
+	) t1,
+        (
+    SELECT
+    ifnull( sum( service_charge ), 0 ) service_charge
+        FROM
+    withdraw_order wo
+    WHERE
+        user_id = {2}
+    AND STATUS = 1
+    AND withdraw_time BETWEEN {0}
+    AND {1}
+	) t2,
+        (
+    SELECT
+    ifnull( sum( amount ), 0 ) all_profit_amount
+        FROM
+    share_profit_change spc
+    WHERE
+        user_id = {2}
+    AND bet_time BETWEEN {0}
+    AND {1}
+	) t3,
+        (
+    SELECT
+    ifnull( sum( amount ), 0 ) AS water
+    FROM
+        extract_points_change
+    WHERE
+        user_id = {2}{3}
+    AND create_time BETWEEN {0}
+    AND {1}
+	) t4
+        """;
+
+	public static String reportDgSql = """
+    SELECT
+    t1.num num,
+    t1.bet_amount bet_amount,
+    t1.validbet validbet,
+    t1.win_loss win_loss,
+    t2.service_charge service_charge,
+    t3.all_profit_amount all_profit_amount,
+    t4.water all_water
+    FROM
+        (
+            SELECT
+                count(1) num,
+    ifnull( sum( bet_money ), 0 ) bet_amount,
+    ifnull( sum( real_money ), 0 ) validbet,
+    ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss
+        FROM
+    game_record_dg grv
+    WHERE user_id = {2}
+    AND bet_time BETWEEN {0}
     AND {1}
 	) t1,
         (
@@ -1141,6 +1313,82 @@ public class SqlNewConst {
     rpt_bet_info_detail grv
     WHERE
     settle_time BETWEEN {0}
+    AND {1}) main_t,
+        (select
+    sum(amount) wash_amount
+    from wash_code_change wcc
+    where platform = {2} and create_time between {0} and {1}) wash_t,
+        (select
+    sum(ifnull(service_charge,0)) service_charge
+    from withdraw_order wo
+    where status = 1 and withdraw_time between {0} and {1}) withdraw_t,
+        (select
+    sum(amount) amount from share_profit_change spc
+    where bet_time between {0} and {1}) pr,
+        (SELECT
+    SUM(amount) as water
+    FROM extract_points_change
+    where platform = {2} and create_time between {0} and {1}) ec;
+        """;
+
+	public static String dmcSumSql = """
+    select sum(ifnull(main_t.num,0)) num,
+    sum(ifnull(main_t.bet_amount,0)) bet_amount ,
+    sum(ifnull(main_t.validbet,0)) validbet ,
+    sum(ifnull(main_t.win_loss,0)) win_loss ,
+    sum(ifnull(wash_t.wash_amount,0)) wash_amount,
+    sum(ifnull(withdraw_t.service_charge,0)) service_charge,
+    sum(ifnull(pr.amount,0)) all_profit_amount,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0))) avg_benefit,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,
+    sum(ifnull(ec.water, 0)) all_water from
+        (SELECT
+            count(1) num,
+    ifnull( sum( bet_money ), 0 ) bet_amount,
+    ifnull( sum( real_money ), 0 ) validbet,
+    ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss
+        FROM
+    game_record_dmc grv
+    WHERE
+    bet_time BETWEEN {0}
+    AND {1}) main_t,
+        (select
+    sum(amount) wash_amount
+    from wash_code_change wcc
+    where platform = {2} and create_time between {0} and {1}) wash_t,
+        (select
+    sum(ifnull(service_charge,0)) service_charge
+    from withdraw_order wo
+    where status = 1 and withdraw_time between {0} and {1}) withdraw_t,
+        (select
+    sum(amount) amount from share_profit_change spc
+    where bet_time between {0} and {1}) pr,
+        (SELECT
+    SUM(amount) as water
+    FROM extract_points_change
+    where platform = {2} and create_time between {0} and {1}) ec;
+        """;
+
+	public static String dgSumSql = """
+    select sum(ifnull(main_t.num,0)) num,
+    sum(ifnull(main_t.bet_amount,0)) bet_amount ,
+    sum(ifnull(main_t.validbet,0)) validbet ,
+    sum(ifnull(main_t.win_loss,0)) win_loss ,
+    sum(ifnull(wash_t.wash_amount,0)) wash_amount,
+    sum(ifnull(withdraw_t.service_charge,0)) service_charge,
+    sum(ifnull(pr.amount,0)) all_profit_amount,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0)+ifnull(ec.water,0))) avg_benefit,
+    sum(-(ifnull(main_t.win_loss,0)+ifnull(wash_t.wash_amount,0))-ifnull(pr.amount,0)-ifnull(ec.water,0)+ifnull(withdraw_t.service_charge,0)) total_amount,
+    sum(ifnull(ec.water, 0)) all_water from
+        (SELECT
+            count(1) num,
+    ifnull( sum( bet_points ), 0 ) bet_amount,
+    ifnull( sum( real_money ), 0 ) validbet,
+    ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss
+        FROM
+    game_record_dg grv
+    WHERE
+    bet_time BETWEEN {0}
     AND {1}) main_t,
         (select
     sum(amount) wash_amount

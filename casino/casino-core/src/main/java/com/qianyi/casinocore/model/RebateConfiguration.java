@@ -49,6 +49,14 @@ public class RebateConfiguration  extends BaseEntity{
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal VNCRate;
 
+    @ApiModelProperty(value = "DMC返利比例")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    private BigDecimal DMCRate;
+
+    @ApiModelProperty(value = "DG返利比例")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    private BigDecimal DGRate;
+
     //全局配置 userId=0
     @ApiModelProperty("会员id")
     private Long userId;

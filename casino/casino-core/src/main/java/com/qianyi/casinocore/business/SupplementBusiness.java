@@ -9,14 +9,18 @@ import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.repository.ErrorOrderRepository;
 import com.qianyi.casinocore.service.UserMoneyService;
 import com.qianyi.casinocore.vo.AccountChangeVo;
+import com.qianyi.casinocore.vo.TransactionDetailDmc;
 import com.qianyi.casinocore.vo.TransferVo;
 import com.qianyi.casinocore.vo.WmMemberTradeReportVo;
 import com.qianyi.liveae.api.PublicAeApi;
+import com.qianyi.livedg.api.DgApi;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
 import com.qianyi.livewm.api.PublicWMApi;
+import com.qianyi.lottery.api.LotteryDmcApi;
 import com.qianyi.lottery.api.PublicLotteryApi;
 import com.qianyi.modulecommon.executor.AsyncService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -44,6 +48,12 @@ public class SupplementBusiness {
     @Autowired
     @Qualifier("accountChangeJob")
     private AsyncService asyncService;
+
+    @Autowired
+    private LotteryDmcApi lotteryDmcApi;
+
+    @Autowired
+    private DgApi dgApi;
 
     /**
      * 尝试3次补单
@@ -373,6 +383,120 @@ public class SupplementBusiness {
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("查询AE交易记录时异常,msg={}", e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 尝试3次补单
+     *
+     * @param errorOrder
+     */
+    public void tryDMCSupplement(ErrorOrder errorOrder, Long userId) {
+        String orderNo = errorOrder.getOrderNo();
+        int requestNum = 0;
+        while (true) {
+            try {
+                if (requestNum >= 3) {
+                    log.error("大马彩尝试3次补单失败,errorOrder={}", errorOrder.toString());
+                    break;
+                }
+                requestNum++;
+                //报表查询需间隔30秒，未搜寻到数据需间隔10秒。
+//                Thread.sleep(30 * 1000);
+                //查询转账记录
+                JSONObject jsonObject = lotteryDmcApi.getTransactionDetail2(errorOrder.getOrderNo());
+                if (jsonObject == null) {
+                    log.error("查询DMC交易记录时远程请求异常");
+                    continue;
+                }
+                TransactionDetailDmc transactionDetailDmc = new TransactionDetailDmc();
+                BeanUtils.copyProperties(jsonObject, transactionDetailDmc);
+                log.error("查询DMC交易记录时远程请求异常");
+                log.info("订单号:{}查询无记录", orderNo);
+                //转入DMC时，DMC查询无记录说明DMC加点失败，要把本地的钱加回来，
+                if (errorOrder.getType() == AccountChangeEnum.DMC_IN.getType()) {
+                    //更新错误订单表状态
+                    Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + errorOrder.getMoney().stripTrailingZeros().toPlainString() + ",转入DMC时加点失败,加回本地额度");
+                    if (count > 0) {
+                        //加回额度
+                        addMoney(errorOrder.getUserId(), errorOrder.getMoney());
+                        //记录账变
+                        saveAccountChange(errorOrder, errorOrder.getMoney());
+                    }
+                } else if (errorOrder.getType() == AccountChangeEnum.DMC_OUT.getType()) {
+                    //转出DMC时，是先扣减DMC的钱再加回本地，DMC查询无记录说明没有扣点成功，本地也不用把钱加回来,更新状态就行
+                    updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转出DMC时扣点失败,额度未丢失");
+                }
+                break;
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("查询DMC交易记录时异常,msg={}", e.getMessage());
+            }
+        }
+    }
+
+    public void tryDgSupplement(ErrorOrder errorOrder, String dgAccount) {
+        String orderNo = errorOrder.getOrderNo();
+        int requestNum = 0;
+        while (true) {
+            try {
+                if (requestNum >= 3) {
+                    log.error("Dg尝试3次补单失败,errorOrder={}", errorOrder.toString());
+                    break;
+                }
+                requestNum++;
+                Thread.sleep(30 * 1000);
+                JSONObject apiResponseData = dgApi.checkTransfer(orderNo);
+                if (apiResponseData == null) {
+                    log.error("查询DG交易记录时远程请求异常");
+                    continue;
+                }
+                String errorCode = apiResponseData.getString("codeId");
+                BigDecimal money = errorOrder.getMoney();
+                Integer orderType = errorOrder.getType();
+                if ("324".equals(errorCode)) { //转账订单不存在
+                    log.info("DG订单号:{}查询无记录", orderNo);
+                    //转入AE时，AE查询无记录说明AE加点失败，要把本地的钱加回来，
+                    if (orderType == AccountChangeEnum.DG_IN.getType()) {
+                        //更新错误订单表状态
+                        Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + money.stripTrailingZeros().toPlainString() + ",转入DG时加点失败,加回本地额度");
+                        if (count > 0) {
+                            //加回额度
+                            addMoney(errorOrder.getUserId(), money);
+                            //记录账变
+                            saveAccountChange(errorOrder, money);
+                        }
+                    } else if (orderType == AccountChangeEnum.DG_OUT.getType()) {
+                        //转出VNC时，是先扣减DG的钱再加回本地，DG查询无记录说明没有扣点成功，本地也不用把钱加回来,更新状态就行
+                        updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转出DG时扣点失败,额度未丢失");
+                    }
+                    break;
+                }
+                if (!"0".equals(errorCode)) {
+                    log.info("DG订单号:{}查询交易记录异常,result={}", orderNo, apiResponseData);
+                    continue;
+                }
+                if ("0".equals(errorCode)) {
+                    //转入DG时，DG查询无记录说明DG加点失败，要把本地的钱加回来，
+                    if (errorOrder.getType() == AccountChangeEnum.DG_IN.getType()) {
+                        //更新错误订单表状态
+                        Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + errorOrder.getMoney().stripTrailingZeros().toPlainString() + ",转入DG时加点失败,加回本地额度");
+                        if (count > 0) {
+                            //加回额度
+                            addMoney(errorOrder.getUserId(), errorOrder.getMoney());
+                            //记录账变
+                            saveAccountChange(errorOrder, errorOrder.getMoney());
+                        }
+                    } else if (errorOrder.getType() == AccountChangeEnum.DG_OUT.getType()) {
+                        //转出DG时，是先扣减DG的钱再加回本地，DG查询无记录说明没有扣点成功，本地也不用把钱加回来,更新状态就行
+                        updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转出DG时扣点失败,额度未丢失");
+                    }
+                    break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("查询DG交易记录时异常,msg={}", e.getMessage());
             }
         }
     }

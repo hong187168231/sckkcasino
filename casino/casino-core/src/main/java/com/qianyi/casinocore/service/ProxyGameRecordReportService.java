@@ -233,6 +233,10 @@ public class ProxyGameRecordReportService {
             sql = MessageFormat.format(SqlSumConst.sabasportSumSql, startTime, endTime, "'SABASPORT'","'Payoff'","'Stake'","'cancelPayoff'");
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlSumConst.vncSumMergeSql, startTime, endTime);
+        } else if (platform.equals(Constants.PLATFORM_DMC)) {
+            sql = MessageFormat.format(SqlSumConst.dmcSumMergeSql, startTime, endTime);
+        } else if (platform.equals(Constants.PLATFORM_DG)) {
+            sql = MessageFormat.format(SqlSumConst.dgSumMergeSql, startTime, endTime);
         } else {
             sql = MessageFormat.format(SqlSumConst.PGAndCQ9SumSql, startTime, endTime, "'CQ9'");
         }

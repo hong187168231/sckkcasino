@@ -1085,6 +1085,178 @@ public class UserController {
         }
     }
 
+
+    @ApiOperation("刷新大马彩彩余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @NoAuthorization
+    @GetMapping("refreshDMC")
+    public ResponseEntity refreshDMC(Long id){
+        UserThird userThird = userThirdService.findByUserId(id);
+        if (LoginUtil.checkNull(userThird) || StringUtils.isBlank(userThird.getDmcAccount())){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
+        }
+        JSONObject jsonObject = userMoneyService.refreshDMC(id);
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("查询DMC余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (LoginUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询DMC余额失败");
+        }
+    }
+
+    /**
+     * 大马彩查询总余额接口
+     *
+     * @return
+     */
+    @ApiOperation("查询平台大马彩总余额")
+    @GetMapping("refreshDMCTotal")
+    @NoAuthorization
+    public ResponseEntity refreshDMCTotal(){
+        JSONObject jsonObject = userMoneyService.refreshDMC(null);
+        ThridBalanceSumVo thridBalanceSumVo = new ThridBalanceSumVo();
+        thridBalanceSumVo.setQueryTime(DateUtil.dateToString(new Date(), DateUtil.patten));
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            thridBalanceSumVo.setSunBalance(BigDecimal.ZERO);
+            return ResponseUtil.success(thridBalanceSumVo);
+        }else {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
+                BigDecimal sunAamount = new BigDecimal(jsonObject.get("data").toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+                thridBalanceSumVo.setSunBalance(sunAamount);
+                return ResponseUtil.success(thridBalanceSumVo);
+            }
+        }
+        thridBalanceSumVo.setSunBalance(BigDecimal.ZERO);
+
+        return ResponseUtil.success(thridBalanceSumVo);
+    }
+
+    @ApiOperation("一键回收用户大马彩余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @NoAuthorization
+    @GetMapping("recoveryDMCBalance")
+    public ResponseEntity recoveryDMCBalance(Long id){
+        UserThird userThird = userThirdService.findByUserId(id);
+        if (LoginUtil.checkNull(userThird) || StringUtils.isBlank(userThird.getDmcAccount())){
+            return ResponseUtil.success();
+        }
+        JSONObject jsonObject = userMoneyService.oneKeyDMCRecoverApi(id);
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("回收DMC余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                return ResponseUtil.success();
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("回收VDMC余额失败");
+        }
+    }
+
+    @ApiOperation("刷新DG彩余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @NoAuthorization
+    @GetMapping("refreshDG")
+    public ResponseEntity refreshDG(Long id){
+        UserThird userThird = userThirdService.findByUserId(id);
+        if (LoginUtil.checkNull(userThird) || StringUtils.isBlank(userThird.getDgAccount())){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
+        }
+        JSONObject jsonObject = userMoneyService.refreshDG(id);
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("查询DG余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (LoginUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询DG余额失败");
+        }
+    }
+
+    /**
+     * DG查询总余额接口
+     *
+     * @return
+     */
+    @ApiOperation("查询平台DG总余额")
+    @GetMapping("refreshDGTotal")
+    @NoAuthorization
+    public ResponseEntity refreshDGTotal(){
+        JSONObject jsonObject = userMoneyService.refreshDG(null);
+        ThridBalanceSumVo thridBalanceSumVo = new ThridBalanceSumVo();
+        thridBalanceSumVo.setQueryTime(DateUtil.dateToString(new Date(), DateUtil.patten));
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            thridBalanceSumVo.setSunBalance(BigDecimal.ZERO);
+            return ResponseUtil.success(thridBalanceSumVo);
+        }else {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
+                BigDecimal sunAamount = new BigDecimal(jsonObject.get("data").toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+                thridBalanceSumVo.setSunBalance(sunAamount);
+                return ResponseUtil.success(thridBalanceSumVo);
+            }
+        }
+        thridBalanceSumVo.setSunBalance(BigDecimal.ZERO);
+
+        return ResponseUtil.success(thridBalanceSumVo);
+    }
+
+    @ApiOperation("一键回收用户DG余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @NoAuthorization
+    @GetMapping("recoveryDGBalance")
+    public ResponseEntity recoveryDGBalance(Long id){
+        UserThird userThird = userThirdService.findByUserId(id);
+        if (LoginUtil.checkNull(userThird) || StringUtils.isBlank(userThird.getDgAccount())){
+            return ResponseUtil.success();
+        }
+        JSONObject jsonObject = userMoneyService.oneKeyDGRecoverApi(id);
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("回收DG余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                return ResponseUtil.success();
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("回收VDG余额失败");
+        }
+    }
+
+
     @ApiOperation("添加用户")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "account", value = "用户名", required = true),

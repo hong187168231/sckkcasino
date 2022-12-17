@@ -32,4 +32,8 @@ public interface UserThirdRepository extends JpaRepository<UserThird,Long> {
     List<UserThird> findAllOBTYAccount();
 
     UserThird findByVncAccount(String account);
+
+    UserThird findByDmcAccount(String account);
+
+    UserThird findByDgAccount(String account);
 }

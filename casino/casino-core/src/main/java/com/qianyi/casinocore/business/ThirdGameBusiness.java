@@ -1,18 +1,22 @@
 package com.qianyi.casinocore.business;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.beust.jcommander.internal.Lists;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.liveae.api.PublicAeApi;
+import com.qianyi.livedg.api.DgApi;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
 import com.qianyi.livegoldenf.constants.WalletCodeEnum;
 import com.qianyi.liveob.api.PublicObdjApi;
 import com.qianyi.liveob.api.PublicObtyApi;
 import com.qianyi.livewm.api.PublicWMApi;
+import com.qianyi.lottery.api.LotteryDmcApi;
 import com.qianyi.lottery.api.PublicLotteryApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.executor.AsyncService;
@@ -77,8 +81,13 @@ public class ThirdGameBusiness {
     private Executor executor;
     @Value("${project.ipWhite:null}")
     private String ipWhite;
+
+    @Autowired
+    private LotteryDmcApi lottoApi;
     @Autowired
     private RedisKeyUtil redisKeyUtil;
+    @Autowired
+    private DgApi dgApi;
 
     public ResponseEntity oneKeyRecoverGoldenF(Long userId, String vendorCode) {
         // 适配PG/CQ9
@@ -590,9 +599,21 @@ public class ThirdGameBusiness {
             }, executor);
             completableFutures.add(oneKeyRecoverAe);
         }
+        if (!Constants.PLATFORM_DMC.equals(platform)) {
+            CompletableFuture<Void> oneKeyRecoverDmc = CompletableFuture.runAsync(() -> {
+                oneKeyRecoverDMC(userId);
+            }, executor);
+            completableFutures.add(oneKeyRecoverDmc);
+        }
         if (!Constants.PLATFORM_VNC.equals(platform)) {
             CompletableFuture<Void> oneKeyRecoverAe = CompletableFuture.runAsync(() -> {
                 oneKeyRecoverVNC(userId);
+            }, executor);
+            completableFutures.add(oneKeyRecoverAe);
+        }
+        if (!Constants.PLATFORM_DG.equals(platform)) {
+            CompletableFuture<Void> oneKeyRecoverAe = CompletableFuture.runAsync(() -> {
+                oneKeyRecoverDG(userId);
             }, executor);
             completableFutures.add(oneKeyRecoverAe);
         }
@@ -600,6 +621,82 @@ public class ThirdGameBusiness {
         CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[completableFutures.size()])).join();
         log.info("进入游戏统一回收余额结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
         return ResponseUtil.success();
+    }
+    public ResponseEntity oneKeyRecoverDG(Long userId) {
+        ResponseEntity aeEnable = checkPlatformStatus(Constants.PLATFORM_DG);
+        if (aeEnable.getCode() != ResponseCode.SUCCESS.getCode()) {
+            log.info("后台开启DG维护，禁止回收，response={}", aeEnable);
+            return aeEnable;
+        }
+        log.info("开始回收DG余额，userId={}", userId);
+        if (userId == null) {
+            return ResponseUtil.parameterNotNull();
+        }
+        UserThird third = userThirdService.findByUserId(userId);
+        String account = third.getDgAccount();
+        if (third == null || ObjectUtils.isEmpty(account)) {
+            return ResponseUtil.custom("DG账号不存在");
+        }
+        User user = userService.findById(userId);
+        ResponseEntity<BigDecimal> aeBalanceResponse = getDgBalanceByAccount(account);
+        if (aeBalanceResponse.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return aeBalanceResponse;
+        }
+        BigDecimal balance = aeBalanceResponse.getData();
+        if (balance.compareTo(BigDecimal.ONE) == -1) {
+            log.info("userId:{},account={},balance={},DG金额小于1，不可回收", userId, user.getAccount(), balance);
+            return ResponseUtil.custom("DG余额小于1,不可回收");
+        }
+        String orderNo = orderService.getDGOrderNo();
+        //调用加扣点接口扣减DG电竞余额  存在精度问题，只回收整数部分
+        balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
+        JSONObject apiResponseData = null;
+        try {
+            apiResponseData = dgApi.transterWallet(account, balance.negate(),orderNo);//正数存款负数取款
+        } catch (Exception e) {
+            //异步记录错误订单
+            errorOrderService.syncSaveDgErrorOrder(third.getVncAccount(), user.getId(), user.getAccount(), orderNo, balance, AccountChangeEnum.DG_OUT, Constants.PLATFORM_DG);
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+
+        log.info("DG下分返回结果：【{}】, 用户id：【{}】", apiResponseData, userId);
+        if (null != apiResponseData && "0".equals(apiResponseData.getString("codeId"))){
+            //把额度加回本地
+            UserMoney userMoney = userMoneyService.findByUserId(userId);
+            BigDecimal money = userMoney.getMoney();
+            userMoneyService.addMoney(userId, balance);
+            log.info("DG余额,userMoney加回成功，userId={},balance={}", userId, balance);
+            saveAccountChange(Constants.PLATFORM_VNC, userId, balance, money, balance.add(money), 1, orderNo, AccountChangeEnum.DG_OUT, "自动转出DG", user);
+            log.info("DG余额回收成功，userId={},account={},money={}", userId, user.getAccount(), balance);
+            return ResponseUtil.success();
+        }else{
+            log.error("DG扣点失败,远程请求异常,userId:{},account={},result={}", userId, user.getAccount(), apiResponseData);
+            return dgApi.errorCode(apiResponseData.getIntValue("codeId"), apiResponseData.getString("random"));
+        }
+
+    }
+
+    /**
+     * 查询DG余额
+     *
+     * @param account
+     * @return
+     */
+    public ResponseEntity<BigDecimal> getDgBalanceByAccount(String account) {
+        JSONObject apiResponseData = null;
+        try {
+            apiResponseData = dgApi.fetchWalletBalance(account);
+        } catch (Exception e) {
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        if (null != apiResponseData && "0".equals(apiResponseData.getString("codeId"))){
+            JSONObject member = apiResponseData.getJSONObject("member");
+            BigDecimal amount = member.getBigDecimal("balance");
+            return ResponseUtil.success(amount);
+        }else{
+            return dgApi.errorCode(apiResponseData.getIntValue("codeId"), apiResponseData.getString("random"));
+        }
+
     }
 
     public ResponseEntity oneKeyRecoverVNC(Long userId) {
@@ -664,6 +761,76 @@ public class ThirdGameBusiness {
             // 释放锁
             RedisKeyUtil.unlock(userMoneyLock);
         }
+    }
+
+    public ResponseEntity oneKeyRecoverDMC(Long userId) {
+        ResponseEntity response = checkPlatformStatus(Constants.PLATFORM_DMC);
+        if (response.getCode() != ResponseCode.SUCCESS.getCode()) {
+            log.info("后台开启DMC维护，禁止回收，response={}", response);
+            return response;
+        }
+        log.info("开始回收DMC余额，userId={}", userId);
+        if (userId == null) {
+            return ResponseUtil.parameterNotNull();
+        }
+        UserThird third = userThirdService.findByUserId(userId);
+        if (third == null || ObjectUtils.isEmpty(third.getAccount())) {
+            return ResponseUtil.custom("DMC余额为0");
+        }
+        User user = userService.findById(userId);
+
+        String account = third.getDmcAccount();
+        //大马彩没有退出游戏功能
+        String token = lottoApi.fetchToken();
+
+        //查询用户在wm的余额
+        BigDecimal balance = BigDecimal.ZERO;
+        try {
+            List<String> idList = Lists.newArrayList(user.getId() + "");
+            balance = lottoApi.fetchWalletBalance(idList, token);
+            if (balance == null) {
+                log.error("userId:{},account={},获取用户DMC余额为null", userId, user.getAccount());
+                return ResponseUtil.custom("服务器异常,请重新操作");
+            }
+        } catch (Exception e) {
+            log.error("userIdList:{},获取用户DMC余额失败{}", userId, user.getAccount(), e.getMessage());
+            e.printStackTrace();
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        if (balance.compareTo(BigDecimal.ONE) == -1) {
+            log.info("userId:{},account={},balance={},DMC金额小于1，不可回收", userId, user.getAccount(), balance);
+            return ResponseUtil.custom("DMC余额小于1,不可回收");
+        }
+        //调用加扣点接口扣减DMC余额  存在精度问题，只回收整数部分
+        BigDecimal recoverMoney = balance.setScale(0, BigDecimal.ROUND_DOWN);
+        //订单号三方返回
+        String orderNo = orderService.getOrderNo();
+        JSONObject jsonObject = lottoApi.transterWallet(user.getId() + "", account, recoverMoney, 2, token,orderNo);
+        if (jsonObject == null) {
+            log.error("DMC加扣点失败,远程请求异常,userId:{},account={},money={}", userId, user.getAccount(), recoverMoney);
+            //异步记录错误订单并重试补偿
+//            errorOrderService.syncSaveDMCErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, recoverMoney, AccountChangeEnum.RECOVERY, Constants.PLATFORM_WM_BIG);
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+        if (!lottoApi.getResultCode(jsonObject)) {
+            log.error("DMC加扣点失败，userId:{},account={},money={},result={}", userId, user.getAccount(), recoverMoney, jsonObject);
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+
+        //订单号是三方返回，所以
+        orderNo = orderNo + "_" + lottoApi.getTransterId(jsonObject);
+        balance = recoverMoney.abs();
+        //把额度加回本地
+        UserMoney userMoney = userMoneyService.findByUserId(userId);
+        if (ObjectUtil.isEmpty(userMoney)) {
+            userMoney = new UserMoney();
+            userMoney.setUserId(userId);
+            userMoneyService.save(userMoney);
+        }
+        userMoneyService.addMoney(userId, balance);
+        saveAccountChange(Constants.PLATFORM_DMC, userId, balance, userMoney.getMoney(), balance.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.DMC_OUT, "自动转出DMC", user);
+        log.info("大马彩余额回收成功，userId={},account={}", userId, user.getAccount());
+        return ResponseUtil.success();
     }
 
     /**
@@ -835,6 +1002,19 @@ public class ThirdGameBusiness {
             BigDecimal balance1 = jsonObject.getBigDecimal("balance");
             balance = balance.add(balance1);
         }
+        return ResponseUtil.success(balance);
+    }
+
+    public BigDecimal getDMCBalanceByAccount(String dmcAccount) {
+        String token = lottoApi.fetchToken();
+        List<String> userIdList = Lists.newArrayList(dmcAccount + "");
+        BigDecimal balance = lottoApi.fetchWalletBalance(userIdList, token);
+        return balance;
+    }
+
+    public ResponseEntity<BigDecimal> getAllDMCBalance() {
+        String token = lottoApi.fetchToken();
+        BigDecimal balance = lottoApi.fetchTotalBalance(token);
         return ResponseUtil.success(balance);
     }
 

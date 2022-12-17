@@ -143,14 +143,24 @@ public class ErrorOrderService {
 
     }
 
-//    @Async("asyncExecutor")
-//    public void syncSaveDMCErrorOrder(String thirdAccount, Long userId, String account, String orderNo, BigDecimal money, AccountChangeEnum changeEnum, String platform) {
-//        ErrorOrder order = saveErrorOrder(userId,account,orderNo,money,changeEnum,platform);
-//        //大马彩尝试3次补单
-//        Integer type = changeEnum.getType();
-//        if (type == AccountChangeEnum.DMC_IN.getType() || type == AccountChangeEnum.DMC_OUT.getType()) {
-//            supplementBusiness.tryDMCSupplement(order, thirdAccount);
-//        }
-//
-//    }
+    @Async("asyncExecutor")
+    public void syncSaveDMCErrorOrder(String thirdAccount, Long userId, String account, String orderNo, BigDecimal money, AccountChangeEnum changeEnum, String platform) {
+        ErrorOrder order = saveErrorOrder(userId,account,orderNo,money,changeEnum,platform);
+        //大马彩尝试3次补单
+        Integer type = changeEnum.getType();
+        if (type == AccountChangeEnum.DMC_IN.getType() || type == AccountChangeEnum.DMC_OUT.getType()) {
+            supplementBusiness.tryDMCSupplement(order, userId);
+        }
+
+    }
+
+    public void syncSaveDgErrorOrder(String vncAccount, Long userId, String account, String orderNo, BigDecimal money, AccountChangeEnum changeEnum, String platform) {
+        ErrorOrder order = saveErrorOrder(userId,account,orderNo,money,changeEnum,platform);
+        //WM尝试3次补单
+        Integer type = changeEnum.getType();
+        if (type == AccountChangeEnum.DG_IN.getType() || type == AccountChangeEnum.DG_OUT.getType()) {
+            supplementBusiness.tryDgSupplement(order, vncAccount);
+        }
+
+    }
 }

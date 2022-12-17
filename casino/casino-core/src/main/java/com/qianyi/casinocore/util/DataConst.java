@@ -17,6 +17,8 @@ public class DataConst {
         platforms.add(Constants.PLATFORM_SABASPORT);
         platforms.add(Constants.PLATFORM_AE);
         platforms.add(Constants.PLATFORM_VNC);
+        platforms.add(Constants.PLATFORM_DMC);
+        platforms.add(Constants.PLATFORM_DG);
     }
 
     public static final List<String> platformsReport = new ArrayList<>();
@@ -31,5 +33,8 @@ public class DataConst {
         platformsReport.add(Constants.PLATFORM_AE_HORSEBOOK);
         platformsReport.add(Constants.PLATFORM_AE_SV388);
         platformsReport.add(Constants.PLATFORM_AE_E1SPORT);
+        platformsReport.add(Constants.PLATFORM_VNC);
+        platformsReport.add(Constants.PLATFORM_DMC);
+        platformsReport.add(Constants.PLATFORM_DG);
     }
 }

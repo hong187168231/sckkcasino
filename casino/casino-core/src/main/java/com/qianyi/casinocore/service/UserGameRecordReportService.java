@@ -117,6 +117,12 @@ public class UserGameRecordReportService {
             List<Map<String, Object>> VNC = userGameRecordReportRepository.findVnc(startTime, endTime);
             this.addData(VNC, dayTime, Constants.PLATFORM_VNC);
 
+            List<Map<String, Object>> DMC = userGameRecordReportRepository.findDmc(startTime, endTime);
+            this.addData(DMC, dayTime, Constants.PLATFORM_DMC);
+
+            List<Map<String, Object>> DG = userGameRecordReportRepository.findDg(startTime, endTime);
+            this.addData(DG, dayTime, Constants.PLATFORM_DG);
+
             userRunningWaterService.statistics(dayTime);
         }
     }

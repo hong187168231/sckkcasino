@@ -40,9 +40,15 @@ public class UserThird extends BaseEntity{
     private String aeAccount;
 
     @Column(unique = true)
+    @ApiModelProperty(value = "DG账号")
+    private String dgAccount;
+
+    @Column(unique = true)
     @ApiModelProperty(value = "越南彩账号")
     private String vncAccount;
 
+    @Column(unique = true)
+    @ApiModelProperty(value = "大马彩账号")
     private String dmcAccount;
 
     private String password;

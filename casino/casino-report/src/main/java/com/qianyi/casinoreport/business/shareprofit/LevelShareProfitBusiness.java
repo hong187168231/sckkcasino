@@ -49,6 +49,14 @@ public class LevelShareProfitBusiness {
     @Autowired
     private GameRecordAeService gameRecordAeService;
 
+    @Autowired
+    private GameRecordVNCService gameRecordVNCService;
+    @Autowired
+    private GameRecordDMCService gameRecordDMCService;
+
+    @Autowired
+    private GameRecordDGService gameRecordDGService;
+
     /**
      * 处理分润
      * @param shareProfitMqVo
@@ -86,6 +94,33 @@ public class LevelShareProfitBusiness {
                 gameRecord.setBetId(gameRecordAe.getPlatformTxId());
                 gameRecord.setUserId(gameRecordAe.getUserId());
                 gameRecord.setValidbet(gameRecordAe.getTurnover().toPlainString());
+                record=gameRecord;
+            }else if(shareProfitMqVo.getPlatform().equals(Constants.PLATFORM_VNC)){
+                GameRecordVNC gameRecordVNC = gameRecordVNCService.findGameRecordById(shareProfitMqVo.getGameRecordId());
+                gameType=8;
+                GameRecord gameRecord=new GameRecord();
+                gameRecord.setCreateTime(gameRecordVNC.getCreateTime());
+                gameRecord.setBetId(gameRecordVNC.getBetOrder());
+                gameRecord.setUserId(gameRecordVNC.getUserId());
+                gameRecord.setValidbet(gameRecordVNC.getOldTurnover().toPlainString());
+                record=gameRecord;
+            }else if(shareProfitMqVo.getPlatform().equals(Constants.PLATFORM_DMC)){
+                GameRecordDMC gameRecordDMC = gameRecordDMCService.findGameRecordById(shareProfitMqVo.getGameRecordId());
+                gameType=9;
+                GameRecord gameRecord=new GameRecord();
+                gameRecord.setCreateTime(gameRecordDMC.getCreateTime());
+                gameRecord.setBetId(gameRecordDMC.getBetOrderNo());
+                gameRecord.setUserId(gameRecordDMC.getUserId());
+                gameRecord.setValidbet(gameRecordDMC.getOldTurnover().toPlainString());
+                record=gameRecord;
+            }else if(shareProfitMqVo.getPlatform().equals(Constants.PLATFORM_DG)){
+                GameRecordDG gameRecordDG = gameRecordDGService.findGameRecordById(shareProfitMqVo.getGameRecordId());
+                gameType=10;
+                GameRecord gameRecord=new GameRecord();
+                gameRecord.setCreateTime(gameRecordDG.getCreateTime());
+                gameRecord.setBetId(String.valueOf(gameRecordDG.getBetOrderNo()));
+                gameRecord.setUserId(gameRecordDG.getUserId());
+                gameRecord.setValidbet(gameRecordDG.getOldTurnover().toPlainString());
                 record=gameRecord;
             }else {
                 GameRecordGoldenF recordGoldenF = gameRecordGoldenFService.findGameRecordById(shareProfitMqVo.getGameRecordId());

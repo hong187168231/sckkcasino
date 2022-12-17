@@ -55,7 +55,11 @@ public class UserMoneyBusiness {
 
     @Autowired
     private GameRecordVNCService gameRecordVNCService;
+    @Autowired
+    private GameRecordDMCService gameRecordDMCService;
 
+    @Autowired
+    private GameRecordDGService gameRecordDGService;
     @Autowired
     private UserLevelBusiness userLevelBusiness;
 
@@ -111,6 +115,10 @@ public class UserMoneyBusiness {
             gameRecordAeService.updateCodeNumStatus(record.getId(), Constants.yes);
         } else if(Constants.PLATFORM_VNC.equals(platform)){
             gameRecordVNCService.updateCodeNumStatus(record.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_DMC.equals(platform)) {
+            gameRecordDMCService.updateCodeNumStatus(record.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_DG.equals(platform)) {
+            gameRecordDGService.updateCodeNumStatus(record.getId(), Constants.yes);
         }
         log.info("打码结束,平台={},注单ID={}", platform, record.getBetId());
     }
@@ -197,6 +205,10 @@ public class UserMoneyBusiness {
             gameRecordAeService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
         }else if (Constants.PLATFORM_VNC.equals(platform)) {
             gameRecordVNCService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_DMC.equals(platform)) {
+            gameRecordDMCService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_DG.equals(platform)) {
+            gameRecordDGService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
         }
         log.info("洗码完成,平台={},注单ID={}", platform, gameRecord.getBetId());
     }
@@ -221,10 +233,13 @@ public class UserMoneyBusiness {
             gameRecordAeService.updateLevelWaterStatus(gameRecord.getId(), Constants.yes);
         } else if (Constants.PLATFORM_VNC.equals(platform)) {
             gameRecordVNCService.updateLevelWaterStatus(gameRecord.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_DMC.equals(platform)) {
+            gameRecordDMCService.updateLevelWaterStatus(gameRecord.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_DG.equals(platform)) {
+            gameRecordDGService.updateLevelWaterStatus(gameRecord.getId(), Constants.yes);
         }
         log.info("洗码完成,平台={},注单ID={}", platform, gameRecord.getBetId());
     }
-
 
     /**
      * 三级分润
@@ -399,6 +414,10 @@ public class UserMoneyBusiness {
             gameRecordAeService.updateRebateStatus(record.getId(), Constants.yes);
         }else if (Constants.PLATFORM_VNC.equals(platform)) {
             gameRecordVNCService.updateRebateStatus(record.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_DMC.equals(platform)) {
+            gameRecordDMCService.updateRebateStatus(record.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_DG.equals(platform)) {
+            gameRecordDGService.updateRebateStatus(record.getId(), Constants.yes);
         }
         if (rebateDetail.getTotalAmount().compareTo(BigDecimal.ZERO)>0){
             //后台异步增减平台总余额
@@ -426,6 +445,12 @@ public class UserMoneyBusiness {
             rate = rebateConfiguration.getOBTYRate();
         } else if (Constants.PLATFORM_AE.equals(platform)) {
             rate = rebateConfiguration.getAERate();
+        } else if (Constants.PLATFORM_VNC.equals(platform)) {
+            rate = rebateConfiguration.getVNCRate();
+        } else if (Constants.PLATFORM_DMC.equals(platform)) {
+            rate = rebateConfiguration.getDMCRate();
+        } else if (Constants.PLATFORM_DG.equals(platform)) {
+            rate = rebateConfiguration.getDGRate();
         }
         return rate;
     }

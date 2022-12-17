@@ -180,4 +180,28 @@ public class SqlSumConst {
     settle_time BETWEEN {0}
     AND {1}
         """;
+    public static String dmcSumMergeSql = """
+    SELECT
+    count(1) num,
+    ifnull( sum( bet_money ), 0 ) bet_amount,
+    ifnull( sum( real_money ), 0 ) validbet,
+    ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss
+        FROM
+    game_record_dmc grv
+    WHERE
+    bet_time BETWEEN {0}
+    AND {1}
+        """;
+    public static String dgSumMergeSql = """
+    SELECT
+    count(1) num,
+    ifnull( sum( bet_points ), 0 ) bet_amount,
+    ifnull( sum( real_money ), 0 ) validbet,
+    ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss
+        FROM
+    game_record_dg grv
+    WHERE
+    bet_time BETWEEN {0}
+    AND {1}
+        """;
 }

@@ -81,6 +81,14 @@ public class UserMoneyService {
 
     private String VNC_recycleUrl = "/vncGame/oneKeyRecoverApi?";
 
+    private String DMC_refreshUrl = "/dmcGame/getBalanceApi?";
+
+    private String DMC_recycleUrl = "/dmcGame/oneKeyRecoverApi?";
+
+    private String DG_refreshUrl = "/dgGame/getBalanceApi?";
+
+    private String DG_recycleUrl = "/dgGame/oneKeyRecoverApi?";
+
     public UserMoney findUserByUserIdUseLock(Long userId) {
         // return userMoneyRepository.findUserByUserIdUseLock(userId);
         return userMoneyRepository.findByUserId(userId);
@@ -1049,6 +1057,93 @@ public class UserMoneyService {
             aeUrl = aeUrl + VNC_recycleUrl;
             String s = HttpClient4Util.getWeb(aeUrl + param);
             log.info("{}回收VNC余额web接口返回{}", userId, s);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+
+    public JSONObject refreshDMC(Long userId) {
+        try {
+            String param = "";
+            if (Objects.nonNull(userId) && userId.longValue() != 0L) {
+                param = MessageFormat.format("userId={0}", userId.toString());
+            } else {
+                param = "userId=";
+            }
+            PlatformConfig first = platformConfigService.findFirst();
+            if (first == null) {
+                return null;
+            }
+            String dmcUrl = first.getWebConfiguration() + DMC_refreshUrl;
+//            dmcUrl = "http://127.0.0.1:9200" + DMC_refreshUrl;
+            if (!CommonUtil.checkNull(param)) {
+                dmcUrl = dmcUrl + param;
+            }
+            String s = HttpClient4Util.getWeb(dmcUrl);
+            log.info("查询DMC余额web接口返回{}", s);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public JSONObject oneKeyDMCRecoverApi(Long userId) {
+        try {
+            String param = "userId={0}";
+            param = MessageFormat.format(param, userId.toString());
+            PlatformConfig first = platformConfigService.findFirst();
+            String dmcUrl = first == null ? "" : first.getWebConfiguration();
+            dmcUrl = dmcUrl + DMC_recycleUrl;
+//            dmcUrl = "http://127.0.0.1:9200" + DMC_recycleUrl;
+            String s = HttpClient4Util.getWeb(dmcUrl + param);
+            log.info("{}回收DMC余额web接口返回{}", userId, s);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public JSONObject refreshDG(Long userId) {
+        try {
+            String param = "";
+            if (Objects.nonNull(userId) && userId.longValue() != 0L) {
+                param = MessageFormat.format("userId={0}", userId.toString());
+            } else {
+                param = "userId=";
+            }
+            PlatformConfig first = platformConfigService.findFirst();
+            if (first == null) {
+                return null;
+            }
+            String dgUrl = first.getWebConfiguration() + DG_refreshUrl;
+//            dmcUrl = "http://127.0.0.1:9200" + DMC_refreshUrl;
+            if (!CommonUtil.checkNull(param)) {
+                dgUrl = dgUrl + param;
+            }
+            String s = HttpClient4Util.getWeb(dgUrl);
+            log.info("查询DG余额web接口返回{}", s);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public JSONObject oneKeyDGRecoverApi(Long userId) {
+        try {
+            String param = "userId={0}";
+            param = MessageFormat.format(param, userId.toString());
+            PlatformConfig first = platformConfigService.findFirst();
+            String dgUrl = first == null ? "" : first.getWebConfiguration();
+            dgUrl = dgUrl + DG_recycleUrl;
+//            dmcUrl = "http://127.0.0.1:9200" + DMC_recycleUrl;
+            String s = HttpClient4Util.getWeb(dgUrl + param);
+            log.info("{}回收DG余额web接口返回{}", userId, s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
         } catch (Exception e) {

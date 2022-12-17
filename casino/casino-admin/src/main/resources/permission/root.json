@@ -21,6 +21,13 @@
             "url": "/user/transferUser"
           },
           {
+            "descritpion": "绑定上级",
+            "englishName": "Binding The Superior",
+            "menuLevel": 3,
+            "name": "绑定上级",
+            "url": "/user/bindingTheSuperior"
+          },
+          {
             "descritpion": "上分",
             "englishName": "Top-Up",
             "menuLevel": 3,
@@ -306,6 +313,13 @@
             "menuLevel": 3,
             "name": "查询玩家AE总余额",
             "url": "/user/refreshAETotal"
+          },
+          {
+            "descritpion": "查询玩家VNC总余额",
+            "englishName": "Search VNC player total balance",
+            "menuLevel": 3,
+            "name": "查询玩家VNC总余额",
+            "url": "/user/refreshVNCTotal"
           },
           {
             "descritpion": "当前查询结果总计",
@@ -1752,6 +1766,66 @@
         ]
       },
       {
+        "descritpion": "DMC游戏管理",
+        "englishName": "DMC game management",
+        "menuLevel": 2,
+        "name": "DMC游戏管理",
+        "url": "/adGame/platformListDMC",
+        "children": [
+          {
+            "descritpion": "游戏列表",
+            "englishName": "Game listing",
+            "menuLevel": 3,
+            "name": "DMC游戏列表",
+            "url": "/adGame/findGameList"
+          },
+          {
+            "descritpion": "平台是否维护",
+            "englishName": "Platform under maintenance",
+            "menuLevel": 3,
+            "name": "DMC平台是否维护",
+            "url": "/adGame/updatePlatformStatus"
+          },
+          {
+            "descritpion": "游戏状态修改",
+            "englishName": "Did the game modify",
+            "menuLevel": 3,
+            "name": "DMC游戏状态修改",
+            "url": "/adGame/updateDomainName"
+          }
+        ]
+      },
+      {
+        "descritpion": "DG游戏管理",
+        "englishName": "DG game management",
+        "menuLevel": 2,
+        "name": "DG游戏管理",
+        "url": "/adGame/platformListDG",
+        "children": [
+          {
+            "descritpion": "游戏列表",
+            "englishName": "Game listing",
+            "menuLevel": 3,
+            "name": "DG游戏列表",
+            "url": "/adGame/findGameList"
+          },
+          {
+            "descritpion": "平台是否维护",
+            "englishName": "Platform under maintenance",
+            "menuLevel": 3,
+            "name": "DG平台是否维护",
+            "url": "/adGame/updatePlatformStatus"
+          },
+          {
+            "descritpion": "游戏状态修改",
+            "englishName": "Did the game modify",
+            "menuLevel": 3,
+            "name": "DG游戏状态修改",
+            "url": "/adGame/updateDomainName"
+          }
+        ]
+      },
+      {
         "descritpion": "CQ9电子游戏管理",
         "englishName": "CQ9 game management",
         "menuLevel": 2,
@@ -1808,6 +1882,157 @@
             "menuLevel": 3,
             "name": "WM游戏状态修改",
             "url": "/adGame/updateDomainName"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "descritpion": "全民狂欢活动",
+    "englishName": "activity management",
+    "menuLevel": 1,
+    "name": "全民狂欢活动",
+    "url": "/activityManagement",
+    "children": [
+      {
+        "descritpion": "活动记录",
+        "englishName": "Activation Record",
+        "menuLevel": 2,
+        "name": "活动记录",
+        "url": "/activityPrizes/findActivityReport",
+        "children": [
+          {
+            "descritpion": "会员积分记录",
+            "englishName": "Membership Points",
+            "menuLevel": 3,
+            "name": "会员积分记录",
+            "url": "/activityPrizes/findMembership"
+          },
+          {
+            "descritpion": "会员积分账变",
+            "englishName": "Member Integral Change",
+            "menuLevel": 3,
+            "name": "会员积分账变",
+            "url": "/activityPrizes/findIntegralChangeRecord"
+
+          },
+          {
+            "descritpion": "积分奖励记录",
+            "englishName": "Integral Award Record",
+            "menuLevel": 3,
+            "name": "积分奖励记录",
+            "url": "/activityPrizes/findPrizeIntegralRecord"
+          },
+          {
+            "descritpion": "推荐好友查询",
+            "englishName": "Recommended List",
+            "menuLevel": 3,
+            "name": "推荐好友查询",
+            "url": "/activityPrizes/findPopularizeList"
+          }
+        ]
+      },
+      {
+        "descritpion": "图片审核",
+        "englishName": "Image Review List",
+        "menuLevel": 2,
+        "name": "图片审核",
+        "url": "/activityPrizes/findDailySharing",
+        "children": [
+          {
+            "descritpion": "推广图片审核",
+            "englishName": "Image review",
+            "menuLevel": 3,
+            "name": "推广图片审核",
+            "url": "/activityPrizes/updateDailySharing"
+          }]
+      },{
+        "descritpion": "活动配置",
+        "englishName": "Active configuration",
+        "menuLevel": 2,
+        "name": "活动配置",
+        "url": "/activityPrizes/findSignIn",
+        "children": [
+          {
+            "descritpion": "签到编辑",
+            "englishName": "Sign in to edit",
+            "menuLevel": 3,
+            "name": "签到编辑",
+            "url": "/activityPrizes/saveSignInRule"
+          },
+          {
+            "descritpion": "大转盘奖品列表查询",
+            "englishName": "The Prize List",
+            "menuLevel": 3,
+            "name": "大转盘奖品列表查询",
+            "url": "/activityPrizes/findActivityPrizes"
+          },
+          {
+            "descritpion": "大转盘活动编辑或新增",
+            "englishName": "The Prize Edit",
+            "menuLevel": 3,
+            "name": "大转盘活动编辑或新增",
+            "url": "/activityPrizes/saveOrUpdatePrizes"
+          }
+        ,
+          {
+            "descritpion": "活动任务查询",
+            "englishName": "The Activity Task List",
+            "menuLevel": 3,
+            "name": "活动任务查询",
+            "url": "/activityPrizes/findActivityTask"
+          },
+          {
+            "descritpion": "编辑活动任务",
+            "englishName": "Activity Task Edit",
+            "menuLevel": 3,
+            "name": "编辑活动任务",
+            "url": "/activityPrizes/updateActivityTask"
+          }
+        ,
+          {
+            "descritpion": "活动推广好友查询",
+            "englishName": "The Activity Promotion List",
+            "menuLevel": 3,
+            "name": "活动推广好友查询",
+            "url": "/activityPrizes/findActivityPromotion"
+          },
+          {
+            "descritpion": "编辑活动推广好友",
+            "englishName": "Activity Promotion Edit",
+            "menuLevel": 3,
+            "name": "编辑活动推广好友",
+            "url": "/activityPrizes/updateActivityPromotion"
+          }
+        ,
+          {
+            "descritpion": "活动积分兑换查询",
+            "englishName": "The Activity Integral Exchange List",
+            "menuLevel": 3,
+            "name": "活动积分兑换查询",
+            "url": "/activityPrizes/findActivityIntegralExchange"
+          },
+          {
+            "descritpion": "编辑活动积分兑换",
+            "englishName": "Activity Integral Exchange Edit",
+            "menuLevel": 3,
+            "name": "编辑活动积分兑换",
+            "url": "/activityPrizes/updateActivityIntegral"
+          }
+        ,
+          {
+            "descritpion": "活动开关查询",
+            "englishName": "The Activity Switch List",
+            "menuLevel": 3,
+            "name": "活动开关查询",
+            "url": "/activityPrizes/findActivitySwitch"
+          },
+          {
+            "descritpion": "修改活动开关",
+            "englishName": "Activity Switch Edit",
+            "menuLevel": 3,
+            "name": "修改活动开关",
+            "url": "/activityPrizes/updateActivitySwitch"
           }
         ]
       }

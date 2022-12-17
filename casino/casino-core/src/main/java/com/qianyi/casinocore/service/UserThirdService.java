@@ -26,6 +26,9 @@ public class UserThirdService {
             @CachePut(key = "'findByObdjAccount::'+#result.obdjAccount",condition = "#result.obdjAccount != null"),
             @CachePut(key = "'findByObtyAccount::'+#result.obtyAccount",condition = "#result.obtyAccount != null"),
             @CachePut(key = "'findByAEAccount::'+#result.aeAccount",condition = "#result.aeAccount != null"),
+                @CachePut(key = "'findByDmcAccount::'+#result.dmcAccount",condition = "#result.dmcAccount != null"),
+                @CachePut(key = "'findByDmcAccount::'+#result.dgAccount",condition = "#result.dgAccount != null"),
+                @CachePut(key = "'findByVncAccount::'+#result.vncAccount",condition = "#result.vncAccount != null")
         }
     )
     public UserThird save(UserThird third) {
@@ -81,5 +84,11 @@ public class UserThirdService {
     @Cacheable(key = "#root.methodName+'::'+#p0")
     public UserThird findByVncAccount(String account) {
         return userThirdRepository.findByVncAccount(account);
+    }
+    public UserThird findByDmcAccount(String account) {
+        return userThirdRepository.findByDmcAccount(account);
+    }
+    public UserThird findByDgAccount(String account) {
+        return userThirdRepository.findByDgAccount(account);
     }
 }

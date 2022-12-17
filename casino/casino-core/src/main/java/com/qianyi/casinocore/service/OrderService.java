@@ -59,6 +59,13 @@ public class OrderService {
         return orderNo;
     }
 
+    public String getDGOrderNo() {
+        String today = DateUtil.today("yyyyMMddHHmmssSSS");
+        String randNum = CommonUtil.random(2);
+        String orderNo = today + randNum;
+        return orderNo;
+    }
+
     public Order save(Order order) {
         return orderRepository.save(order);
     }

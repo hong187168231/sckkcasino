@@ -71,6 +71,8 @@ public class ReportController {
         platforms.add("CQ9");
         platforms.add(Constants.PLATFORM_OBDJ);
         platforms.add(Constants.PLATFORM_OBTY);
+        platforms.add(Constants.PLATFORM_DMC);
+        platforms.add(Constants.PLATFORM_DG);
     }
 
     //    @NoAuthorization
@@ -149,6 +151,7 @@ public class ReportController {
                 reportResult = this.findBetOrderBy(platform,startTimeStr,endTimeStr,page,pageSize,statement,orderTimeStart,orderTimeEnd,proxy);
             }
         } catch (Exception e) {
+            log.error("查询失败", e);
             return ResponseUtil.custom("查询失败");
         }
 

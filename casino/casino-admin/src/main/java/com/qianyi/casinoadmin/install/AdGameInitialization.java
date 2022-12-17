@@ -128,6 +128,9 @@ public class AdGameInitialization implements CommandLineRunner {
             platformGames.add(new PlatformGame("PG", 1));
             platformGames.add(new PlatformGame("CQ9", 1));
             platformGames.add(new PlatformGame("OB", 1));
+            platformGames.add(new PlatformGame("VNC", 1));
+            platformGames.add(new PlatformGame("DMC", 1));
+            platformGames.add(new PlatformGame("DG", 1));
             platformGameService.saveAll(platformGames);
         }
 
@@ -171,13 +174,30 @@ public class AdGameInitialization implements CommandLineRunner {
 
         }
 
-
         if(!collect.contains("VNC")) {
             platforms.add(new PlatformGame("VNC", 2));
             platformGameService.saveAll(platforms);
-            AdGame sv388 = new AdGame("VNC", "VNC", "越南彩", "KK VN Lottery", 1);
+            AdGame vn = new AdGame("VNC", "VNC", "越南彩", "KK VN Lottery", 1);
             List<AdGame> adGameList = new ArrayList<>();
-            adGameList.add(sv388);
+            adGameList.add(vn);
+            adGamesService.saveAll(adGameList);
+
+        }
+        if(!collect.contains("DMC")) {
+            platforms.add(new PlatformGame("DMC", 2));
+            platformGameService.saveAll(platforms);
+            AdGame dmc = new AdGame("DMC", "DMC", "大马彩", "KK DMC Lottery", 1);
+            List<AdGame> adGameList = new ArrayList<>();
+            adGameList.add(dmc);
+            adGamesService.saveAll(adGameList);
+
+        }
+        if(!collect.contains("DG")) {
+            platforms.add(new PlatformGame("DG", 2));
+            platformGameService.saveAll(platforms);
+            AdGame dmc = new AdGame("DG", "DG", "DreamGame", "DreamGaming", 1);
+            List<AdGame> adGameList = new ArrayList<>();
+            adGameList.add(dmc);
             adGamesService.saveAll(adGameList);
 
         }

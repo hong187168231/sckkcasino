@@ -46,6 +46,12 @@ public class ProxyGameRecordReportBusiness {
     private GameRecordAeService gameRecordAeService;
 
     @Autowired
+    private GameRecordDMCService gameRecordDMCService;
+
+    @Autowired
+    private GameRecordDGService gameRecordDGService;
+
+    @Autowired
     private RedisLockUtil redisLockUtil;
 
     @Autowired
@@ -115,6 +121,32 @@ public class ProxyGameRecordReportBusiness {
                         return;
                     }
                     proxyGameRecordReportVo.setBetAmount(gameRecordById.getBetMoney());
+                    proxyGameRecordReportVo.setValidAmount(gameRecordById.getRealMoney());
+                    if (Objects.isNull(gameRecordById.getWinMoney())){
+                        gameRecordById.setWinMoney(BigDecimal.ZERO);
+                    }
+                    proxyGameRecordReportVo.setWinLoss(gameRecordById.getWinMoney().subtract(gameRecordById.getRealMoney()));
+                }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_DMC)){
+                    GameRecordDMC gameRecordById =
+                            gameRecordDMCService.findGameRecordById(proxyGameRecordReportVo.getGameRecordId());
+                    if (gameRecordById == null || gameRecordById.getGameRecordStatus() == Constants.yes){
+                        log.error("DMC彩票注单状态异常{}",proxyGameRecordReportVo.getGameRecordId());
+                        return;
+                    }
+                    proxyGameRecordReportVo.setBetAmount(gameRecordById.getBetMoney());
+                    proxyGameRecordReportVo.setValidAmount(gameRecordById.getRealMoney());
+                    if (Objects.isNull(gameRecordById.getWinMoney())){
+                        gameRecordById.setWinMoney(BigDecimal.ZERO);
+                    }
+                    proxyGameRecordReportVo.setWinLoss(gameRecordById.getWinMoney().subtract(gameRecordById.getRealMoney()));
+                }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_DG)){
+                    GameRecordDG gameRecordById =
+                            gameRecordDGService.findGameRecordById(proxyGameRecordReportVo.getGameRecordId());
+                    if (gameRecordById == null || gameRecordById.getGameRecordStatus() == Constants.yes){
+                        log.error("DG彩票注单状态异常{}",proxyGameRecordReportVo.getGameRecordId());
+                        return;
+                    }
+                    proxyGameRecordReportVo.setBetAmount(gameRecordById.getBetPoints());
                     proxyGameRecordReportVo.setValidAmount(gameRecordById.getRealMoney());
                     if (Objects.isNull(gameRecordById.getWinMoney())){
                         gameRecordById.setWinMoney(BigDecimal.ZERO);
@@ -196,6 +228,10 @@ public class ProxyGameRecordReportBusiness {
                     proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE)){
                     gameRecordAeService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_VNC)){
+                    rptBetInfoDetailService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
+                }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_DMC)){
+                    rptBetInfoDetailService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
+                }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_DG)){
                     rptBetInfoDetailService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }else {
                     gameRecordGoldenFService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
