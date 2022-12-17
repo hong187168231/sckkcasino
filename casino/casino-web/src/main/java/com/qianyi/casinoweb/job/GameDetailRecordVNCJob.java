@@ -65,7 +65,7 @@ public class GameDetailRecordVNCJob {
 
 
     //每隔5分钟30秒执行一次
-    @Scheduled(cron = "50 0/5 * * * ?")
+    @Scheduled(cron = "50 0/3 * * * ?")
     public void pullGameRecord() {
         //日志打印traceId，同一次请求的traceId相同，方便定位日志
         ThreadContext.put("traceId", UUID.randomUUID().toString().replaceAll("-",""));
@@ -298,7 +298,7 @@ public class GameDetailRecordVNCJob {
     @SneakyThrows
     private String setEndTime(String startTime) {
         Date startDateTime = sdf.parse(startTime);
-        Date endTime = DateUtil.addMinuteDate(startDateTime, 5);
+        Date endTime = DateUtil.addMinuteDate(startDateTime, 25);
         if(endTime.getTime() < new Date().getTime()){
             return sdf.format(endTime);
         }
