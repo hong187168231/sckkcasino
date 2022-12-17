@@ -1113,6 +1113,7 @@ public class GameRecordController {
                 vo.setBetPlayType(TranslateConst.getBetPlayType(language,gameRecord.getBetPlayType()));
                 vo.setBetTimeStr(cn.hutool.core.date.DateUtil.formatDateTime(vo.getBetTime()));
                 vo.setSettleTimeStr(cn.hutool.core.date.DateUtil.formatDateTime(vo.getSettleTime()));
+                vo.setBetCategory(vo.getBetCategory() +"-"+vo.getBetPlayType());
                 gameRecordVNCVos.add(vo);
             });
             pageResultVO.setContent(gameRecordVNCVos);
