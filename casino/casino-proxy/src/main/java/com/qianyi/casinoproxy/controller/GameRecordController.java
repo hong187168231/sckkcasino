@@ -1369,7 +1369,7 @@ public class GameRecordController {
         if (CasinoProxyUtil.setParameter(game)){
             return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
         }
-        game.setBetOrderNo(Long.valueOf(betOrder));
+        game.setBetOrderNo(null!=betOrder?Long.valueOf(betOrder):null);
         game.setBetDetail(betDetailOrder);
         game.setUserName(userName);
         Long userId = null;
@@ -1427,7 +1427,7 @@ public class GameRecordController {
         if (CasinoProxyUtil.setParameter(game)){
             return ResponseUtil.custom(CommonConst.NETWORK_ANOMALY);
         }
-        game.setBetOrderNo(Long.valueOf(betOrder));
+        game.setBetOrderNo(null!=betOrder?Long.valueOf(betOrder):null);
         game.setBetDetail(betDetailOrder);
         game.setUserName(userName);
         Long userId = null;

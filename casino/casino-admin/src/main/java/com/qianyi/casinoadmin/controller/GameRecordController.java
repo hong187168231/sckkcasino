@@ -1284,7 +1284,7 @@ public class GameRecordController {
         Sort sort = Sort.by("id").descending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         GameRecordDG game = new GameRecordDG();
-        game.setBetOrderNo(Long.valueOf(betOrder));
+        game.setBetOrderNo(null!=betOrder?Long.valueOf(betOrder):null);
         game.setUserName(userName);
         game.setUserName(account);
         Page<GameRecordDG> gameRecordPage;
@@ -1330,7 +1330,7 @@ public class GameRecordController {
                                                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         GameRecordDG game = new GameRecordDG();
-        game.setBetOrderNo(Long.valueOf(betOrder));
+        game.setBetOrderNo(null!=betOrder?Long.valueOf(betOrder):null);
         game.setUserName(userName);
         GameRecordDG recordRecordSum;
         if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
