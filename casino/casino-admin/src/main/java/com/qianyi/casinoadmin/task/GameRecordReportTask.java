@@ -410,7 +410,7 @@ public class GameRecordReportTask {
             for (GameRecordDG gameRecordDG : gameRecordDGs) {
                 ProxyGameRecordReportVo vo = new ProxyGameRecordReportVo();
                 vo.setGameRecordId(gameRecordDG.getId());
-                vo.setOrderId(String.valueOf(gameRecordDG.getBetOrderNo()));
+                vo.setOrderId(gameRecordDG.getBetOrderNo());
                 vo.setFirstProxy(gameRecordDG.getFirstProxy());
                 vo.setSecondProxy(gameRecordDG.getSecondProxy());
                 vo.setThirdProxy(gameRecordDG.getThirdProxy());

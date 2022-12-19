@@ -118,7 +118,7 @@ public class LevelShareProfitBusiness {
                 gameType=10;
                 GameRecord gameRecord=new GameRecord();
                 gameRecord.setCreateTime(gameRecordDG.getCreateTime());
-                gameRecord.setBetId(String.valueOf(gameRecordDG.getBetOrderNo()));
+                gameRecord.setBetId(gameRecordDG.getBetOrderNo());
                 gameRecord.setUserId(gameRecordDG.getUserId());
                 gameRecord.setValidbet(gameRecordDG.getOldTurnover().toPlainString());
                 record=gameRecord;

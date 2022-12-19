@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 @ApiModel("DG游戏记录")
 public class GameRecordDG extends BaseEntity{
     @ApiModelProperty(value = "注单唯一Id")
-    private Long betOrderNo;//	Long
+    private String betOrderNo;
     @ApiModelProperty(value = "游戏大厅号 1:旗舰厅；2:亚洲厅；3，4:现场厅；5:欧美厅,7:国际厅,8:区块链厅")
     private Integer lobbyId;//	Integer   可以为空
     @ApiModelProperty(value = "游戏桌号")

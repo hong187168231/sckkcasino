@@ -187,7 +187,7 @@ public class GameRecordDGJob {
     @SneakyThrows
     public GameRecordDG save(DGTradeReportVo gameRecordDGVo) {
         GameRecordDG gameRecordDG = new GameRecordDG();
-        gameRecordDG.setBetOrderNo(gameRecordDGVo.getId());
+        gameRecordDG.setBetOrderNo(String.valueOf(gameRecordDGVo.getId()));
         BeanUtils.copyProperties(gameRecordDGVo, gameRecordDG);
         GameRecordDG gameRecord = gameRecordDGService.findByBetOrderNo(String.valueOf(gameRecordDG.getBetOrderNo()));
         if (gameRecord == null) {
