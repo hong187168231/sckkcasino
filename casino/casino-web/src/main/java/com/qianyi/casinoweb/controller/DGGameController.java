@@ -82,7 +82,7 @@ public class DGGameController {
         synchronized (authId) {
             third = userThirdService.findByUserId(authId);
             //未注册自动注册到第三方
-            if (third == null || ObjectUtils.isEmpty(third.getDmcAccount())) {
+            if (third == null || ObjectUtils.isEmpty(third.getDgAccount())) {
                 if (third == null) {
                     third = new UserThird();
                     third.setUserId(authId);
@@ -121,10 +121,10 @@ public class DGGameController {
             JSONObject deposit = null;
             try {
                 //加点
-                deposit = dgApi.transterWallet( third.getDmcAccount(), userCenterMoney,orderNo);
+                deposit = dgApi.transterWallet( third.getDgAccount(), userCenterMoney,orderNo);
                 if (null != deposit && "0".equals(deposit.getString("codeId"))){
                     //记录账变
-                    thirdGameBusiness.inSaveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, "自动转入DG", Constants.PLATFORM_DG, AccountChangeEnum.DMC_IN);
+                    thirdGameBusiness.inSaveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, "自动转入DG", Constants.PLATFORM_DG, AccountChangeEnum.DG_IN);
 
                 }else {
                     log.error("userId:{},DG游戏加点失败,result:{}", authId, deposit);
@@ -134,11 +134,11 @@ public class DGGameController {
                 }
 
             } catch (Exception e) {
-                log.error("userId:{},account:{},money:{},DMC游戏加点失败,远程请求异常", third.getUserId(), user.getAccount(), userCenterMoney);
+                log.error("userId:{},account:{},money:{},DG游戏加点失败,远程请求异常", third.getUserId(), user.getAccount(), userCenterMoney);
                 //三方加扣点失败再把钱加回来
                 userMoneyService.addMoney(authId, userCenterMoney);
                 //异步记录错误订单并重试补偿
-                errorOrderService.syncSaveDgErrorOrder(third.getAeAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.DMC_IN, Constants.PLATFORM_DG);
+                errorOrderService.syncSaveDgErrorOrder(third.getAeAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.DG_IN, Constants.PLATFORM_DG);
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
 
@@ -195,7 +195,7 @@ public class DGGameController {
         //获取登陆用户
         Long authId = CasinoWebUtil.getAuthId();
         UserThird third = userThirdService.findByUserId(authId);
-        if (third == null || ObjectUtils.isEmpty(third.getDmcAccount())) {
+        if (third == null || ObjectUtils.isEmpty(third.getDgAccount())) {
             return ResponseUtil.success(BigDecimal.ZERO);
         }
         BigDecimal balance = BigDecimal.ZERO;
@@ -220,18 +220,18 @@ public class DGGameController {
         if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
-        String dmcAccount = "null";
+        String DGAccount = "null";
         if (userId != null) {
             UserThird third = userThirdService.findByUserId(userId);
-            if (third == null || ObjectUtils.isEmpty(third.getDmcAccount())) {
+            if (third == null || ObjectUtils.isEmpty(third.getDgAccount())) {
                 return ResponseUtil.custom("当前用户暂未进入过游戏");
             }
-            dmcAccount = third.getDmcAccount();
+            DGAccount = third.getDgAccount();
         }
         List<String> idList = new LinkedList<>();
         idList.add(userId + "");
         BigDecimal balance = BigDecimal.ZERO;
-        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getDgBalanceByAccount(dmcAccount);
+        ResponseEntity<BigDecimal> responseEntity = thirdGameBusiness.getDgBalanceByAccount(DGAccount);
         if (responseEntity.getData() != null) {
             balance = responseEntity.getData();
         }

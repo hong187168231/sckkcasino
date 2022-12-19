@@ -69,9 +69,9 @@ public class GameRecordDGJob {
             GameRecordDGEndTime gameRecordDGEndTime = gameRecordDGEndTimeService.findFirstByPlatformAndStatusOrderByEndTimeDesc(Constants.PLATFORM_DG, Constants.yes);
             String time = gameRecordDGEndTime == null ? null : gameRecordDGEndTime.getEndTime();
             //获取查询游戏记录的时间范围
-            String startTime = getStartTime(time, Constants.PLATFORM_DG);
-            pullGameRecord(startTime, Constants.PLATFORM_DG);
-            log.info("定时器拉取完成VNC注单记录");
+//            String startTime = getStartTime(time, Constants.PLATFORM_DG);
+            pullGameRecord(time, Constants.PLATFORM_DG);
+            log.info("定时器拉取完成DG注单记录");
 
         }
     }

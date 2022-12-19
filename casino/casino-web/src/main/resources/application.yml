@@ -121,7 +121,7 @@ project:   #不同环境需配置相应的值
     apiUrl: http://api.dg99web.com
     agentName: DGTE0105I9
     apiKey: 6ca8309628194eeabea9686d064ed6ad
-    currencyName: 2
+    currencyName: USD
   #    1	CNY	人民币
   #    2	USD	美元
   #    5	THB	泰珠
