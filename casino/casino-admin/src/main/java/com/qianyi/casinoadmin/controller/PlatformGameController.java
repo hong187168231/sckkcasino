@@ -143,6 +143,34 @@ public class PlatformGameController {
         return ResponseUtil.success();
     }
 
+    @GetMapping("/platformListDMC")
+    @ApiOperation("平台列表DMC")
+    public ResponseEntity<PlatformGame> platformListDMC() {
+        List<PlatformGame> platformGames =  platformGameService.findAll();
+        if(platformGames != null && !platformGames.isEmpty()){
+            for (PlatformGame platformGame : platformGames) {
+                if(platformGame.getGamePlatformName().equals(Constants.PLATFORM_DMC)){
+                    return ResponseUtil.success(platformGame);
+                }
+            }
+        }
+        return ResponseUtil.success();
+    }
+
+    @GetMapping("/platformListDG")
+    @ApiOperation("平台列表DG")
+    public ResponseEntity<PlatformGame> platformListDG() {
+        List<PlatformGame> platformGames =  platformGameService.findAll();
+        if(platformGames != null && !platformGames.isEmpty()){
+            for (PlatformGame platformGame : platformGames) {
+                if(platformGame.getGamePlatformName().equals(Constants.PLATFORM_DG)){
+                    return ResponseUtil.success(platformGame);
+                }
+            }
+        }
+        return ResponseUtil.success();
+    }
+
     @ApiOperation("三方平台维护")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "id", value = "id", required = true),
