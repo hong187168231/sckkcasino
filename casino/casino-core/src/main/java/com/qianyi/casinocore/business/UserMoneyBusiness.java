@@ -114,11 +114,6 @@ public class UserMoneyBusiness {
     }
 
 
-    public static void main(String[] args) {
-        int i = BigDecimal.ONE.compareTo(BigDecimal.ZERO);
-        System.out.println(i);
-
-    }
 
     /**
      * 最小清0打码量检查
