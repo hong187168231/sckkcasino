@@ -346,6 +346,12 @@ public class UserService {
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlNewConst.vncSql, startTime, endTime, sort, page.toString(),
                 pageSize.toString(), "'VNC'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_DMC)) {
+            sql = MessageFormat.format(SqlNewConst.dmcSql, startTime, endTime, sort, page.toString(),
+                    pageSize.toString(), "'DMC'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_DG)) {
+            sql = MessageFormat.format(SqlNewConst.dgSql, startTime, endTime, sort, page.toString(),
+                    pageSize.toString(), "'DG'", proxy);
         } else {
             sql = MessageFormat.format(SqlNewConst.pgOrCq9Sql, startTime, endTime, sort, page.toString(),
                 pageSize.toString(), "'CQ9'", proxy);
@@ -396,6 +402,12 @@ public class UserService {
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
                 pageSize.toString(), proxy, " platform = \'VNC\' And");
+        } else if (platform.equals(Constants.PLATFORM_DMC)) {
+            sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
+                    pageSize.toString(), proxy, " platform = \'DMC\' And");
+        } else if (platform.equals(Constants.PLATFORM_DG)) {
+            sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
+                    pageSize.toString(), proxy, " platform = \'DG\' And");
         } else {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
                 pageSize.toString(), proxy, " platform = \'CQ9\' And");
@@ -451,6 +463,10 @@ public class UserService {
                 " And platform = \'SABASPORT\'");
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlNewConst.reportSql, startTime, endTime, userId, " And platform = \'VNC\'");
+        } else if (platform.equals(Constants.PLATFORM_DMC)) {
+            sql = MessageFormat.format(SqlNewConst.reportSql, startTime, endTime, userId, " And platform = \'DMC\'");
+        } else if (platform.equals(Constants.PLATFORM_DG)) {
+            sql = MessageFormat.format(SqlNewConst.reportSql, startTime, endTime, userId, " And platform = \'DG\'");
         } else {
             sql = MessageFormat.format(SqlNewConst.reportSql, startTime, endTime, userId, " And platform = \'CQ9\'");
         }
@@ -499,6 +515,12 @@ public class UserService {
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlNewConst.reportVncSql, startTime, endTime, userId, " And platform = \'VNC\'",
                 "'VNC'");
+        } else if (platform.equals(Constants.PLATFORM_DMC)) {
+            sql = MessageFormat.format(SqlNewConst.reportDmcSql, startTime, endTime, userId, " And platform = \'DMC\'",
+                    "'DMC'");
+        } else if (platform.equals(Constants.PLATFORM_DG)) {
+            sql = MessageFormat.format(SqlNewConst.reportDgSql, startTime, endTime, userId, " And platform = \'DG\'",
+                    "'DG'");
         } else {
             sql = MessageFormat.format(SqlNewConst.reportPgOrCq9Sql, startTime, endTime, userId,
                 " And platform = \'CQ9\'", "'CQ9'");
@@ -539,6 +561,12 @@ public class UserService {
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlShareConst.reportVncSql, startTime, endTime, userId,
                 " And platform = \'VNC\'", "'VNC'");
+        } else if (platform.equals(Constants.PLATFORM_DMC)) {
+            sql = MessageFormat.format(SqlShareConst.reportDmcSql, startTime, endTime, userId,
+                    " And platform = \'DMC\'", "'DMC'");
+        } else if (platform.equals(Constants.PLATFORM_DG)) {
+            sql = MessageFormat.format(SqlShareConst.reportDgSql, startTime, endTime, userId,
+                    " And platform = \'DG\'", "'DG'");
         } else {
             sql = MessageFormat.format(SqlNewConst.reportPgOrCq9Sql, startTime, endTime, userId,
                 " And platform = \'CQ9\'", "'CQ9'");
@@ -593,6 +621,10 @@ public class UserService {
                 "'Payoff'", "'Stake'", "'cancelPayoff'");
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlConst.exportVncSql, startTime, endTime, sort, "'VNC'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_DMC)) {
+            sql = MessageFormat.format(SqlConst.exportDmcSql, startTime, endTime, sort, "'DMC'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_DG)) {
+            sql = MessageFormat.format(SqlConst.exportDgSql, startTime, endTime, sort, "'DG'", proxy);
         } else {
             sql = MessageFormat.format(SqlConst.exportPgOrCq9Sql, startTime, endTime, sort, "'CQ9'", proxy);
         }
@@ -650,6 +682,10 @@ public class UserService {
                 "'SABASPORT'", proxy, "'Payoff'", "'Stake'", "'cancelPayoff'");
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlConst.seleOneVncSql, startTime, endTime, userId.toString(), "'VNC'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_DMC)) {
+            sql = MessageFormat.format(SqlConst.seleOneDmcSql, startTime, endTime, userId.toString(), "'DMC'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_DG)) {
+            sql = MessageFormat.format(SqlConst.seleOneDgSql, startTime, endTime, userId.toString(), "'DG'", proxy);
         } else {
             sql =
                 MessageFormat.format(SqlConst.seleOnePgOrCq9Sql, startTime, endTime, userId.toString(), "'CQ9'", proxy);
@@ -700,6 +736,10 @@ public class UserService {
             sql = MessageFormat.format(SqlConst.aeSumMergeSql, startTime, endTime, "'AE'", proxy);
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlConst.vncSumSql, startTime, endTime, "'VNC'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_DMC)) {
+            sql = MessageFormat.format(SqlConst.dmcSumSql, startTime, endTime, "'DMC'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_DG)) {
+            sql = MessageFormat.format(SqlConst.dgSumSql, startTime, endTime, "'DG'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE_HORSEBOOK)) {
             sql = MessageFormat.format(SqlConst.aeSumSql, startTime, endTime, "'HORSEBOOK'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE_SV388)) {
@@ -758,6 +798,10 @@ public class UserService {
                 "'Stake'", "'cancelPayoff'");
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlNewConst.vncSumSql, startTime, endTime, "'VNC'");
+        } else if (platform.equals(Constants.PLATFORM_DMC)) {
+            sql = MessageFormat.format(SqlNewConst.dmcSumSql, startTime, endTime, "'DMC'");
+        } else if (platform.equals(Constants.PLATFORM_DG)) {
+            sql = MessageFormat.format(SqlNewConst.dgSumSql, startTime, endTime, "'DG'");
         } else {
             sql = MessageFormat.format(SqlNewConst.PGAndCQ9SumSql, startTime, endTime, "'CQ9'");
         }
@@ -972,6 +1016,12 @@ public class UserService {
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(RebateSqlConst.vncSql, startTime, endTime, sort, page.toString(),
                 pageSize.toString(), "'VNC'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_DMC)) {
+            sql = MessageFormat.format(RebateSqlConst.dmcSql, startTime, endTime, sort, page.toString(),
+                    pageSize.toString(), "'DMC'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_DG)) {
+            sql = MessageFormat.format(RebateSqlConst.dgSql, startTime, endTime, sort, page.toString(),
+                    pageSize.toString(), "'DG'", proxy);
         } else {
             sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql, startTime, endTime, sort, page.toString(),
                 pageSize.toString(), "'CQ9'", proxy);
@@ -1013,6 +1063,10 @@ public class UserService {
                 proxy, "'Payoff'", "'Stake'", "'cancelPayoff'");
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(RebateSqlConst.exportVncSql, startTime, endTime, sort, "'VNC'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_DMC)) {
+            sql = MessageFormat.format(RebateSqlConst.exportDmcSql, startTime, endTime, sort, "'DMC'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_DG)) {
+            sql = MessageFormat.format(RebateSqlConst.exportDgSql, startTime, endTime, sort, "'DG'", proxy);
         } else {
             sql = MessageFormat.format(RebateSqlConst.exportPgOrCq9Sql, startTime, endTime, sort, "'CQ9'", proxy);
         }
@@ -1070,6 +1124,12 @@ public class UserService {
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(RebateSqlConst.seleOneVncSql, startTime, endTime, userId.toString(), "'VNC'",
                 proxy);
+        } else if (platform.equals(Constants.PLATFORM_DMC)) {
+            sql = MessageFormat.format(RebateSqlConst.seleOneDmcSql, startTime, endTime, userId.toString(), "'DMC'",
+                    proxy);
+        } else if (platform.equals(Constants.PLATFORM_DG)) {
+            sql = MessageFormat.format(RebateSqlConst.seleOneDgSql, startTime, endTime, userId.toString(), "'DG'",
+                    proxy);
         } else {
             sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql, startTime, endTime, userId.toString(), "'CQ9'",
                 proxy);
@@ -1121,6 +1181,10 @@ public class UserService {
 
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(RebateSqlConst.vncSumSql, startTime, endTime, "'VNC'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_DMC)) {
+            sql = MessageFormat.format(RebateSqlConst.dmcSumSql, startTime, endTime, "'DMC'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_DG)) {
+            sql = MessageFormat.format(RebateSqlConst.dgSumSql, startTime, endTime, "'DG'", proxy);
         } else {
             sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql, startTime, endTime, "'CQ9'", proxy);
         }

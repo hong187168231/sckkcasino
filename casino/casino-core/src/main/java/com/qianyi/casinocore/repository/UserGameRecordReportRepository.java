@@ -115,7 +115,7 @@ public interface UserGameRecordReportRepository extends JpaRepository<UserGameRe
     List<Map<String, Object>> findVnc(String startTime,String endTime);
 
     @Query(value = "SELECT user_id user_id,count(1) num,ifnull( sum( bet_money ), 0 ) bet_amount,ifnull( sum( real_money ), 0 ) validbet,"
-            + "ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss FROM game_record_dmc grv WHERE settle_time BETWEEN ?1 AND ?2 "
+            + "ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss FROM game_record_dmc grv WHERE bet_time BETWEEN ?1 AND ?2 "
             + "group by user_id ;",nativeQuery = true)
     List<Map<String, Object>> findDmc(String startTime,String endTime);
 
