@@ -359,8 +359,12 @@ public class UserService {
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
-        List<Map<String, Object>> mapList = parsePersonBetMapList(resultList);
-        return DTOUtil.map2DTO(mapList, PersonReportVo.class);
+        if(null!=resultList&&resultList.size()>0) {
+            List<Map<String, Object>> mapList = parsePersonBetMapList(resultList);
+            return DTOUtil.map2DTO(mapList, PersonReportVo.class);
+        }else {
+            return null;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -415,8 +419,12 @@ public class UserService {
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
-        List<Map<String, Object>> mapList = parsePersonWashMapList(resultList);
-        return DTOUtil.map2DTO(mapList, PersonReportVo.class);
+        if(null!=resultList&&resultList.size()>0) {
+            List<Map<String, Object>> mapList = parsePersonWashMapList(resultList);
+            return DTOUtil.map2DTO(mapList, PersonReportVo.class);
+        }else {
+            return null;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -631,8 +639,12 @@ public class UserService {
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
-        List<Map<String, Object>> mapList = parsePersonReportMapList(resultList,list);
-        return DTOUtil.map2DTO(mapList, PersonReportVo.class);
+        if(null!=resultList&&resultList.size()>0) {
+            List<Map<String, Object>> mapList = parsePersonReportMapList(resultList,list);
+            return DTOUtil.map2DTO(mapList, PersonReportVo.class);
+        }else {
+            return null;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -693,8 +705,12 @@ public class UserService {
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
-        List<Map<String, Object>> mapList = parsePersonReportMapList(resultList,list);
-        return DTOUtil.map2DTO(mapList, PersonReportVo.class);
+        if(null!=resultList&&resultList.size()>0) {
+            List<Map<String, Object>> mapList = parsePersonReportMapList(resultList,list);
+            return DTOUtil.map2DTO(mapList, PersonReportVo.class);
+        }else {
+            return null;
+        }
     }
 
     private static final List<String> PERSON_REPORT_TOTAL_FIELD_LIST =
@@ -1028,8 +1044,12 @@ public class UserService {
         }
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
-        List<Map<String, Object>> mapList = parseRebateReportMapList(resultList);
-        return DTOUtil.map2DTO(mapList, RebateReportVo.class);
+        if(null!=resultList&&resultList.size()>0) {
+            List<Map<String, Object>> mapList = parseRebateReportMapList(resultList);
+            return DTOUtil.map2DTO(mapList, RebateReportVo.class);
+        }else {
+            return null;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -1072,8 +1092,12 @@ public class UserService {
         }
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
-        List<Map<String, Object>> mapList = parseRebateReportMapList(resultList);
-        return DTOUtil.map2DTO(mapList, RebateReportVo.class);
+            if(null!=resultList&&resultList.size()>0) {
+            List<Map<String, Object>> mapList = parseRebateReportMapList(resultList);
+            return DTOUtil.map2DTO(mapList, RebateReportVo.class);
+        }else {
+            return null;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -1137,8 +1161,12 @@ public class UserService {
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
-        List<Map<String, Object>> mapList = parseRebateReportMapList(resultList);
-        return DTOUtil.map2DTO(mapList, RebateReportVo.class);
+        if(null!=resultList&&resultList.size()>0) {
+            List<Map<String, Object>> mapList = parseRebateReportMapList(resultList);
+            return DTOUtil.map2DTO(mapList, RebateReportVo.class);
+        }else {
+            return null;
+        }
     }
 
     private static final List<String> REBATE_REPORT_TOTAL_FIELD_LIST = Arrays.asList("num", "bet_amount", "validbet",
