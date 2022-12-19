@@ -95,9 +95,7 @@ public class UserMoneyBusiness {
             codeNumChangeService.save(codeNumChange);
             userMoney.setCodeNum(codeNumAfter);
             //检查最小清零打码量
-            if (userMoney.getBalance().compareTo(BigDecimal.ZERO) == 1) {
-                checkClearCodeNum(platformConfig, userId, userMoney);
-            }
+            checkClearCodeNum(platformConfig, userId, userMoney);
         }
         if (Constants.PLATFORM_WM.equals(platform)) {
             gameRecordService.updateCodeNumStatus(record.getId(), Constants.yes);
@@ -113,6 +111,13 @@ public class UserMoneyBusiness {
             gameRecordVNCService.updateCodeNumStatus(record.getId(), Constants.yes);
         }
         log.info("打码结束,平台={},注单ID={}", platform, record.getBetId());
+    }
+
+
+    public static void main(String[] args) {
+        int i = BigDecimal.ONE.compareTo(BigDecimal.ZERO);
+        System.out.println(i);
+
     }
 
     /**
