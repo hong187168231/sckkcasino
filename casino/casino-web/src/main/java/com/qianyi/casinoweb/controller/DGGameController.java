@@ -174,6 +174,7 @@ public class DGGameController {
                 }
                 builder.append(urlStr).append(dgApiResponseData.getString("token"));
                 builder.append("&language=").append(lang);
+                log.error("DG登录完整请求地址,url:{}", builder.toString());
                 //登录
                 return ResponseUtil.success(builder.toString());
             }else {

@@ -52,8 +52,8 @@ public class GameRecordDGJob {
     @Autowired
     private PlatformGameService platformGameService;
 
-    //每隔2分钟执行一次
-    @Scheduled(fixedDelay = 10000)
+    //每隔4分钟执行一次
+    @Scheduled(fixedDelay = 20000)
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_DG);
         //平台关闭，但是拉单还是要继续进行
