@@ -232,6 +232,7 @@ public class UserLevelBusiness {
             awardReceiveRecordService.save(awardReceiveRecord);
             // 增加用户余额
             userMoneyService.addMoney(userId, awardReceiveRecord.getAmount());
+            userMoneyService.addBalance(userId, awardReceiveRecord.getAmount());
             // 处理打码量
             processCodeNum(userMoney, awardReceiveRecord.getAmount(), 1);
             // 记录账变
@@ -246,6 +247,7 @@ public class UserLevelBusiness {
             }
             // 增加用户余额
             userMoneyService.addMoney(userId, awardReceiveRecord.getAmount());
+            userMoneyService.addBalance(userId, awardReceiveRecord.getAmount());
             // 处理打码量
             processCodeNum(userMoney, awardReceiveRecord.getAmount(), 2);
             // 记录账变
