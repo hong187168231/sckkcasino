@@ -164,8 +164,8 @@ public class GameRecordDGService {
         Root<GameRecordDG> root = query.from(GameRecordDG.class);
 
         query.multiselect(
-                cb.sum(root.get("betMoney").as(BigDecimal.class)).alias("betMoney"),
-                cb.sum(root.get("backWaterMoney").as(BigDecimal.class)).alias("backWaterMoney"),
+                cb.sum(root.get("betPoints").as(BigDecimal.class)).alias("betPoints"),
+                cb.sum(root.get("winOrLoss").as(BigDecimal.class)).alias("winOrLoss"),
                 cb.sum(root.get("realMoney").as(BigDecimal.class)).alias("realMoney"),
                 cb.sum(root.get("winMoney").as(BigDecimal.class)).alias("winMoney")
         );
