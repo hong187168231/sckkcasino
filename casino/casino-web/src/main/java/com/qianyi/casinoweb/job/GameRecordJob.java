@@ -6,12 +6,14 @@ import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.reponse.ResponseCode;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +29,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
@@ -58,6 +61,8 @@ public class GameRecordJob {
     PlatformGameService platformGameService;
     @Value("${spring.profiles.active}")
     String active;
+    @Autowired
+    private RedisKeyUtil redisKeyUtil;
 
     //每隔5分钟执行一次
     @Scheduled(cron = "0 0/5 * * * ?")
@@ -234,7 +239,9 @@ public class GameRecordJob {
      * @param result
      */
     private void changeUserBalance(Long userId, String result) {
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
         try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             if (ObjectUtils.isEmpty(result)) {
                 return;
             }
@@ -248,8 +255,11 @@ public class GameRecordJob {
             } else {
                 userMoneyBusiness.subBalance(userId, amount.abs());
             }
-        }catch (Exception e){
+        }catch (Exception e) {
             log.error("改变用户实时余额时报错，msg={}",e.getMessage());
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
         }
     }
 

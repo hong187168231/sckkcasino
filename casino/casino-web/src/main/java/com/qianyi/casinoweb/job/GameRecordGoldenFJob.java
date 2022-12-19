@@ -5,12 +5,14 @@ import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.constant.GoldenFConstant;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinoweb.util.DateUtil;
 import com.qianyi.casinoweb.vo.GameRecordObj;
 import com.qianyi.casinoweb.vo.GoldenFTimeVO;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
 import com.qianyi.modulecommon.Constants;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -19,6 +21,7 @@ import org.springframework.util.ObjectUtils;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
@@ -49,8 +52,12 @@ public class GameRecordGoldenFJob {
 
     @Autowired
     private GameRecordAsyncOper gameRecordAsyncOper;
+
     @Autowired
     private PlatformGameService platformGameService;
+
+    @Autowired
+    private RedisKeyUtil redisKeyUtil;
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -249,24 +256,29 @@ public class GameRecordGoldenFJob {
      * 改变用户实时余额
      */
     private void changeUserBalance(GameRecordGoldenF gameRecordGoldenF) {
+        Long userId = gameRecordGoldenF.getUserId();
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
         try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             BigDecimal betAmount = gameRecordGoldenF.getBetAmount();
             BigDecimal winAmount = gameRecordGoldenF.getWinAmount();
             if (betAmount == null || winAmount == null) {
                 return;
             }
             BigDecimal winLossAmount = winAmount.subtract(betAmount);
-            Long userId = gameRecordGoldenF.getUserId();
-            //下注金额大于0，扣减
+            // 下注金额大于0，扣减
             if (betAmount.compareTo(BigDecimal.ZERO) == 1) {
                 userMoneyBusiness.subBalance(userId, betAmount);
             }
-            //派彩金额大于0，增加
+            // 派彩金额大于0，增加
             if (winLossAmount.compareTo(BigDecimal.ZERO) == 1) {
                 userMoneyBusiness.addBalance(userId, winLossAmount);
             }
         } catch (Exception e) {
             log.error("改变用户实时余额时报错，msg={}", e.getMessage());
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
         }
     }
 
