@@ -45,7 +45,7 @@ public class DgApi {
         String sign = DigestUtils.md5Hex(stringBuilder.toString());
         map.put("token", sign);
         map.put("random", random);
-        map.put("data", "G");
+        map.put("data", "A");
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("username", username);
         jsonObject.put("password", password);
