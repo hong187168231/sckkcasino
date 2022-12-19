@@ -314,7 +314,7 @@ public class GameDetailRecordVNCJob {
         }
         //时间范围重叠两分钟
         Date startDateTime = sdf.parse(startTime);
-        startTime = getBeforeTime(startDateTime, -2);
+        startTime = getBeforeTime(startDateTime, -8);
         return startTime;
     }
 
