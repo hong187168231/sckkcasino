@@ -293,8 +293,10 @@ public class PublicLotteryApi {
         startTime = DateUtil.dateToPatten(date);
         endTime = DateUtil.dateToPatten(endDate);
 
-//        startTime = "2022-09-29 18:30:30";
-//        endTime = "2022-09-29 18:40:30";
+//        startTime = "2022-12-16 18:35:30";
+//        endTime = "2022-12-16 18:40:30";
+
+        log.info("越南彩拉单时间开始时间：【{}】，结束时间：【{}】", startTime, endTime);
         String url = apiUrl + "/gameBetDetailInfo";
         Map<String, Object> map = new HashMap<>();
         setBasicParams(playerName, map);

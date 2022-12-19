@@ -65,7 +65,7 @@ public class CustomUserServiceBusiness {// 自定义UserDetailsService 接口
             List<SysPermission> sysPermissionList = new ArrayList<>();
             RList<SysPermission> rList = redisKeyUtil.getSysPermissionList(sysRole.getId().toString());
             if (CollUtil.isNotEmpty(rList)) {
-                log.info("查询角色权限走缓存{}rList{}", sysRole.getId(), rList.size());
+//                log.info("查询角色权限走缓存{}rList{}", sysRole.getId(), rList.size());
                 sysPermissionList.addAll(rList);
             } else {
                 sysPermissionList = findBySysRoleId(sysRole.getId());

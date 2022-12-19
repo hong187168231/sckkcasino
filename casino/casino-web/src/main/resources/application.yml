@@ -106,12 +106,12 @@ project:   #不同环境需配置相应的值
     passWord: kk@login
     userId: kk
   vnc: #越南彩
-    apiUrl: https://lotterygateway.kk88821.net/api-reception/gameApi/v2
+    apiUrl: http://lotterygateway.kk000.net/api-reception/gameApi/v2
     #    apiUrl: http://127.0.0.1:9900/api-reception/gameApi/v2
     platformId: 1
-    merchantCode: KKA02
-    aesKey: c20ad4d76fe97759aa27a0c99bff6710
-    md5Key: c20ad4d76fe97759aa27a0c99bff6710
+    merchantCode: KK-test
+    aesKey: 514f1b439f404f86f77090fa9edc96ce
+    md5Key: 514f1b439f404f86f77090fa9edc96ce
     currency: USD
   dmc: # 大马彩
     apiUrl: http://api.kk-lotto.com:8080
