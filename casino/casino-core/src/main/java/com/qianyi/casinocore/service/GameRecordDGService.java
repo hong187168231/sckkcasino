@@ -117,14 +117,14 @@ public class GameRecordDGService {
             public Predicate toPredicate(Root<GameRecordDG> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 Predicate predicate = cb.conjunction();
                 List<Predicate> list = new ArrayList<Predicate>();
-                if (!CommonUtil.checkNull(String.valueOf(GameRecordDG.getBetOrderNo()))) {
-                    list.add(cb.equal(root.get("bet_order_no").as(String.class), GameRecordDG.getBetOrderNo()));
+                if (!CommonUtil.checkNull(GameRecordDG.getBetOrderNo())) {
+                    list.add(cb.equal(root.get("betOrderNo").as(String.class), GameRecordDG.getBetOrderNo()));
                 }
 //                if (!CommonUtil.checkNull(GameRecordDG.getAccount())) {
 //                    list.add(cb.equal(root.get("account").as(String.class), GameRecordDG.getAccount()));
 //                }
                 if (!CommonUtil.checkNull(GameRecordDG.getUserName())) {
-                    list.add(cb.equal(root.get("user_name").as(String.class), GameRecordDG.getUserName()));
+                    list.add(cb.equal(root.get("userName").as(String.class), GameRecordDG.getUserName()));
                 }
 //                if (gameRecord.getGid() != null) {
 //                    list.add(cb.equal(root.get("gid").as(Integer.class), gameRecord.getGid()));
@@ -173,13 +173,13 @@ public class GameRecordDGService {
         List<Predicate> list = new ArrayList();
 
         if (!CommonUtil.checkNull(String.valueOf(GameRecordDG.getBetOrderNo()))) {
-            list.add(cb.equal(root.get("bet_order_no").as(String.class), GameRecordDG.getBetOrderNo()));
+            list.add(cb.equal(root.get("betOrderNo").as(String.class), GameRecordDG.getBetOrderNo()));
         }
 //        if (!CommonUtil.checkNull(GameRecordDG.getAccount())) {
 //            list.add(cb.equal(root.get("account").as(String.class), GameRecordDG.getAccount()));
 //        }
         if (!CommonUtil.checkNull(GameRecordDG.getUserName())) {
-            list.add(cb.equal(root.get("user_name").as(String.class), GameRecordDG.getUserName()));
+            list.add(cb.equal(root.get("userName").as(String.class), GameRecordDG.getUserName()));
         }
         if (GameRecordDG.getUserId() != null) {
             list.add(cb.equal(root.get("userId").as(Long.class), GameRecordDG.getUserId()));
