@@ -121,4 +121,11 @@ public class GameRecordDG extends BaseEntity{
     @Transient
     @ApiModelProperty(value = "旧有效下注")
     private BigDecimal oldTurnover;
+
+    public GameRecordDG(BigDecimal betPoints,BigDecimal winOrLoss,BigDecimal realMoney,BigDecimal winMoney){
+        this.betPoints = betPoints==null?BigDecimal.ZERO:betPoints;
+        this.winOrLoss = winOrLoss==null?BigDecimal.ZERO:winOrLoss;
+        this.realMoney = realMoney==null?BigDecimal.ZERO:realMoney;
+        this.winMoney = winMoney==null?BigDecimal.ZERO:winMoney;
+    }
 }
