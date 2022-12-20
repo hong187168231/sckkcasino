@@ -28,6 +28,7 @@ import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -70,6 +71,8 @@ public class LoginController {
     @Autowired
     RedisUtil redisUtil;
 
+    @Value("${project.ipEnable}")
+    private Boolean ipEnable;
 //    @NoAuthentication
 //    @ApiOperation("帐密登陆.谷歌验证码")
 //    @ApiImplicitParams({
@@ -130,10 +133,12 @@ public class LoginController {
         //记录登陆日志
         String ip = IpUtil.getIp(LoginUtil.getRequest());
 
-        IpWhite ipWhite = ipWhiteService.findByIpAndType(ip, CommonConst.NUMBER_1);
-        if (LoginUtil.checkNull(ipWhite)){
-            log.error("IP未绑定{}",ip);
-            return ResponseUtil.custom("IP未绑定");
+        if (ipEnable){
+            IpWhite ipWhite = ipWhiteService.findByIpAndType(ip, CommonConst.NUMBER_1);
+            if (LoginUtil.checkNull(ipWhite)){
+                log.error("IP未绑定{}",ip);
+                return ResponseUtil.custom("IP未绑定");
+            }
         }
 
         SysUser user = sysUserService.findByUserName(userName);
