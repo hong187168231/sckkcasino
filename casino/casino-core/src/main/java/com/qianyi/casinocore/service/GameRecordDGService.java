@@ -167,7 +167,9 @@ public class GameRecordDGService {
                 cb.sum(root.get("betPoints").as(BigDecimal.class)).alias("betPoints"),
                 cb.sum(root.get("winOrLoss").as(BigDecimal.class)).alias("winOrLoss"),
                 cb.sum(root.get("realMoney").as(BigDecimal.class)).alias("realMoney"),
-                cb.sum(root.get("winMoney").as(BigDecimal.class)).alias("winMoney")
+                cb.sum(root.get("winMoney").as(BigDecimal.class)).alias("winMoney"),
+                cb.sum(root.get("availableBet").as(BigDecimal.class)).alias("availableBet")
+
         );
 
         List<Predicate> list = new ArrayList();

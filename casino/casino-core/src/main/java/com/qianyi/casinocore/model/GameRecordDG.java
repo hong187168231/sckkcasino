@@ -127,10 +127,11 @@ public class GameRecordDG extends BaseEntity{
 
     public GameRecordDG(){
     }
-    public GameRecordDG(BigDecimal betPoints,BigDecimal winOrLoss,BigDecimal realMoney,BigDecimal winMoney){
+    public GameRecordDG(BigDecimal betPoints,BigDecimal winOrLoss,BigDecimal realMoney,BigDecimal winMoney,BigDecimal availableBet){
         this.betPoints = betPoints==null?BigDecimal.ZERO:betPoints;
         this.winOrLoss = winOrLoss==null?BigDecimal.ZERO:winOrLoss;
         this.realMoney = realMoney==null?BigDecimal.ZERO:realMoney;
         this.winMoney = winMoney==null?BigDecimal.ZERO:winMoney;
+        this.availableBet = availableBet==null?BigDecimal.ZERO:availableBet;
     }
 }
