@@ -77,8 +77,11 @@ public class GameRecordDG extends BaseEntity{
     @ApiModelProperty(value = "追注转账流水号 共享钱包API可用于对账,普通转账API可忽略")
     private Long pluginid;//	Long
 
-    @ApiModelProperty(value = "我方账号")
+    @ApiModelProperty(value = "我方用户ID")
     private Long userId;
+
+    @ApiModelProperty(value = "我方用户账号")
+    private String userAcct;
 
     @ApiModelProperty(value = "洗码状态：1：成功")
     private Integer washCodeStatus;

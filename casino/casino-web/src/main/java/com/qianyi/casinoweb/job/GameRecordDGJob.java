@@ -216,6 +216,7 @@ public class GameRecordDGJob {
         //查询3级代理
         User user = userService.findById(gameRecord.getUserId());
         if (user != null) {
+            gameRecord.setUserAcct(user.getAccount());
             gameRecord.setFirstProxy(user.getFirstProxy());
             gameRecord.setSecondProxy(user.getSecondProxy());
             gameRecord.setThirdProxy(user.getThirdProxy());

@@ -1379,8 +1379,10 @@ public class GameRecordController {
                 return ResponseUtil.custom("用户不存在");
             }
             userId = byAccount.getId();
+            game.setUserAcct(byAccount.getAccount());
         }
         game.setUserId(userId);
+
         Page<GameRecordDG> gameRecordPage;
         if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
             String startTime = DateUtil.getSimpleDateFormat().format(startDate);
@@ -1437,6 +1439,7 @@ public class GameRecordController {
                 return ResponseUtil.custom("用户不存在");
             }
             userId = byAccount.getId();
+            game.setUserAcct(byAccount.getAccount());
         }
         game.setUserId(userId);
         GameRecordDG recordRecordSum;

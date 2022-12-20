@@ -72,8 +72,11 @@ public class GameRecordDGVo implements Serializable {
     @ApiModelProperty(value = "追注转账流水号 共享钱包API可用于对账,普通转账API可忽略")
     private Long pluginid;//	Long
 
-    @ApiModelProperty(value = "我方账号")
-    private Long userId;
+    @ApiModelProperty(value = "我方用户ID")
+    private String userId;
+
+    @ApiModelProperty(value = "我方用户账号")
+    private Long userAcct;
 
     @ApiModelProperty(value = "洗码状态：1：成功")
     private Integer washCodeStatus;
