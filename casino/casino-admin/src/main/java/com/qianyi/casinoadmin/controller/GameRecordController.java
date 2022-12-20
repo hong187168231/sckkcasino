@@ -11,10 +11,7 @@ import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.DateUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -1305,6 +1302,7 @@ public class GameRecordController {
             List<GameRecordDGVo> gameRecordDGVos = new LinkedList<>();
             content.stream().forEach(gameRecord ->{
                 GameRecordDGVo vo = new GameRecordDGVo();
+                //结算时间字符串(下注多城市情况下,记入最后结算城市)
                 BeanUtils.copyProperties(gameRecord,vo);
                 gameRecordDGVos.add(vo);
             });
