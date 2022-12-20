@@ -189,7 +189,7 @@ public class GameRecordDGJob {
         GameRecordDG gameRecordDG = new GameRecordDG();
         gameRecordDG.setBetOrderNo(String.valueOf(gameRecordDGVo.getId()));
         BeanUtils.copyProperties(gameRecordDGVo, gameRecordDG);
-        GameRecordDG gameRecord = gameRecordDGService.findByBetOrderNo(String.valueOf(gameRecordDG.getBetOrderNo()));
+        GameRecordDG gameRecord = gameRecordDGService.findByBetOrderNo(gameRecordDG.getBetOrderNo());
         if (gameRecord == null) {
             gameRecord = new GameRecordDG();
             BeanUtils.copyProperties(gameRecordDG, gameRecord);
@@ -279,7 +279,7 @@ public class GameRecordDGJob {
 
     public GameRecord combineGameRecord(GameRecordDG item) {
         GameRecord gameRecord = new GameRecord();
-        gameRecord.setBetId(String.valueOf(item.getBetOrderNo()));
+        gameRecord.setBetId(item.getBetOrderNo());
         gameRecord.setUserId(item.getUserId());
         gameRecord.setGameCode("DG");
         gameRecord.setGname(Constants.PLATFORM_DG);

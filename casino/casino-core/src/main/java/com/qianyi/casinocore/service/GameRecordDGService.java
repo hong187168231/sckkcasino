@@ -172,7 +172,7 @@ public class GameRecordDGService {
 
         List<Predicate> list = new ArrayList();
 
-        if (!CommonUtil.checkNull(String.valueOf(GameRecordDG.getBetOrderNo()))) {
+        if (!CommonUtil.checkNull(GameRecordDG.getBetOrderNo())) {
             list.add(cb.equal(root.get("betOrderNo").as(String.class), GameRecordDG.getBetOrderNo()));
         }
 //        if (!CommonUtil.checkNull(GameRecordDG.getAccount())) {
