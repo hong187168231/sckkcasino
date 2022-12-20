@@ -220,13 +220,12 @@ public class GameRecordDGJob {
             gameRecord.setSecondProxy(user.getSecondProxy());
             gameRecord.setThirdProxy(user.getThirdProxy());
         }
-        BigDecimal amount = gameRecord.getWinOrLoss().subtract(gameRecord.getBetPointsz());
         //实付金额 派彩金额减去有效下注金额
-        if(amount.compareTo(BigDecimal.ZERO.stripTrailingZeros()) == -1){
-            gameRecord.setRealMoney(amount.abs());
+        if(gameRecord.getWinOrLoss().compareTo(BigDecimal.ZERO.stripTrailingZeros()) == 0){
+            gameRecord.setRealMoney(gameRecord.getBetPoints());
         }else {
             //派彩金额减去下注金额
-            gameRecord.setWinMoney(amount);
+            gameRecord.setWinMoney(gameRecord.getWinOrLoss().subtract(gameRecord.getBetPoints()));
         }
         GameRecordDG record = gameRecordDGService.save(gameRecord);
         return record;
