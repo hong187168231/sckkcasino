@@ -77,6 +77,8 @@ public class WashCodeConfigRunner implements CommandLineRunner {
         list.add(setData(Constants.PLATFORM_SABASPORT,Constants.PLATFORM_SABASPORT, "沙巴体育", "SABASPORT"));
         list.add(setData(Constants.PLATFORM_AE,Constants.PLATFORM_AE, "AE", "AE"));
         list.add(setData(Constants.PLATFORM_VNC,Constants.PLATFORM_VNC, "VNC", "VNC"));
+        list.add(setData(Constants.PLATFORM_DMC,Constants.PLATFORM_DMC, "DMC", "DMC"));
+        list.add(setData(Constants.PLATFORM_DG,Constants.PLATFORM_DG, "DG", "DG"));
         return list;
     }
 
