@@ -450,6 +450,63 @@ public class ThridUserController {
         }
     }
 
+    @ApiOperation("刷新大马彩余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("refreshDMC")
+    public ResponseEntity refreshDMC(Long id){
+        UserThird userThird = userThirdService.findByUserId(id);
+        if (CasinoProxyUtil.checkNull(userThird) || StringUtils.isBlank(userThird.getDmcAccount())){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
+        }
+        JSONObject jsonObject = userMoneyService.refreshDMC(id);
+        if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("查询DMC余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (CasinoProxyUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询DMC余额失败");
+        }
+    }
+
+    @ApiOperation("刷新DG余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    public ResponseEntity refreshDG(Long id){
+        UserThird userThird = userThirdService.findByUserId(id);
+        if (CasinoProxyUtil.checkNull(userThird) || StringUtils.isBlank(userThird.getDgAccount())){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
+        }
+        JSONObject jsonObject = userMoneyService.refreshDG(id);
+        if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("查询DG余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (CasinoProxyUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询DG余额失败");
+        }
+    }
+
     //    public void setWMMoney(List<User> userList) {
 //
 //        log.info("query WM money data：【{}】 ", userList);

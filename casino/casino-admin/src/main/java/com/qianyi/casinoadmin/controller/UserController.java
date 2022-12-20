@@ -1171,7 +1171,7 @@ public class UserController {
         }
     }
 
-    @ApiOperation("刷新DG彩余额")
+    @ApiOperation("刷新DG余额")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "客户id", required = true),
     })

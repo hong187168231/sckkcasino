@@ -117,6 +117,15 @@ public class GameRecordDMC extends BaseEntity{
     @ApiModelProperty(value = "旧有效下注")
     private BigDecimal oldTurnover;
 
+    public GameRecordDMC(){
 
+    }
+
+    public GameRecordDMC(BigDecimal betMoney,BigDecimal backWaterMoney,BigDecimal realMoney,BigDecimal winMoney){
+        this.betMoney = betMoney==null?BigDecimal.ZERO:betMoney;
+        this.backWaterMoney = backWaterMoney==null?BigDecimal.ZERO:backWaterMoney;
+        this.realMoney = realMoney==null?BigDecimal.ZERO:realMoney;
+        this.winMoney = winMoney==null?BigDecimal.ZERO:winMoney;
+    }
 
 }

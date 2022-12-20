@@ -118,13 +118,13 @@ public class GameRecordDMCService {
                 Predicate predicate = cb.conjunction();
                 List<Predicate> list = new ArrayList<Predicate>();
                 if (!CommonUtil.checkNull(GameRecordDMC.getBetOrderNo())) {
-                    list.add(cb.equal(root.get("bet_order_no").as(String.class), GameRecordDMC.getBetOrderNo()));
+                    list.add(cb.equal(root.get("betOrderNo").as(String.class), GameRecordDMC.getBetOrderNo()));
                 }
 //                if (!CommonUtil.checkNull(GameRecordDMC.getAccount())) {
 //                    list.add(cb.equal(root.get("account").as(String.class), GameRecordDMC.getAccount()));
 //                }
                 if (!CommonUtil.checkNull(GameRecordDMC.getUserName())) {
-                    list.add(cb.equal(root.get("user_name").as(String.class), GameRecordDMC.getUserName()));
+                    list.add(cb.equal(root.get("userName").as(String.class), GameRecordDMC.getUserName()));
                 }
 //                if (gameRecord.getGid() != null) {
 //                    list.add(cb.equal(root.get("gid").as(Integer.class), gameRecord.getGid()));
@@ -173,13 +173,13 @@ public class GameRecordDMCService {
         List<Predicate> list = new ArrayList();
 
         if (!CommonUtil.checkNull(GameRecordDMC.getBetOrderNo())) {
-            list.add(cb.equal(root.get("bet_order_no").as(String.class), GameRecordDMC.getBetOrderNo()));
+            list.add(cb.equal(root.get("betOrderNo").as(String.class), GameRecordDMC.getBetOrderNo()));
         }
 //        if (!CommonUtil.checkNull(GameRecordDMC.getAccount())) {
 //            list.add(cb.equal(root.get("account").as(String.class), GameRecordDMC.getAccount()));
 //        }
         if (!CommonUtil.checkNull(GameRecordDMC.getUserName())) {
-            list.add(cb.equal(root.get("user_name").as(String.class), GameRecordDMC.getUserName()));
+            list.add(cb.equal(root.get("userName").as(String.class), GameRecordDMC.getUserName()));
         }
         if (GameRecordDMC.getUserId() != null) {
             list.add(cb.equal(root.get("userId").as(Long.class), GameRecordDMC.getUserId()));
