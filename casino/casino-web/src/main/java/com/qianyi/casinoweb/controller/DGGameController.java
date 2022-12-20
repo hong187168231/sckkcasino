@@ -161,8 +161,8 @@ public class DGGameController {
             }else {
                 lang = "en";
             }
-            dgApiResponseData = dgApi.loginDgGameFree(user.getAccount(), lang);//测试环境会员试玩登入
-//            dgApiResponseData = dgApi.loginDgGame(user.getAccount(),  lang);//正式环境会员登入
+//            dgApiResponseData = dgApi.loginDgGameFree(user.getAccount(), lang);//测试环境会员试玩登入
+            dgApiResponseData = dgApi.loginDgGame(user.getAccount(),  lang);//正式环境会员登入
             if (null != dgApiResponseData && "0".equals(dgApiResponseData.getString("codeId"))) {
                 StringBuilder builder = new StringBuilder();
 //                1：PC浏览器  0：手机浏览器进入游戏
