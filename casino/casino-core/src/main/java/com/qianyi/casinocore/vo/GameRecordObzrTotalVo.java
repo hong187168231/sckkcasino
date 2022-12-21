@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Data
 public class GameRecordObzrTotalVo implements Serializable {
 
-    private static final long serialVersionUID = -587693640305179L;
+    private static final long serialVersionUID = -5876936402231305179L;
 
     @ApiModelProperty(value = "订单实际投注金额")
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
