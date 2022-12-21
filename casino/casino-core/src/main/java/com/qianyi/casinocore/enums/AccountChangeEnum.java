@@ -30,12 +30,17 @@ public enum AccountChangeEnum {
     AE_OUT(22, "AEOUT","AE转出"),
     VNC_IN(25, "VNCIN","VNC转入"),
     VNC_OUT(26, "VNCOUT","VNC转出"),
+
     TODAY_AWARD(27, "TODAYAWARD", "每日奖励"),
     UPGRADE_AWARD(28, "UPGRADEAWARD", "升级奖励"),
     DMC_IN(23, "DMCIN", "DMC转入"),
     DMC_OUT(24, "DMCOUT", "DMC转出"),
     DG_IN(29, "DGIN", "DG转入"),
-    DG_OUT(30, "DGOUT", "DG转出")
+    DG_OUT(30, "DGOUT", "DG转出"),
+
+    OBZR_IN(31, "OBZRIN","OB体真人转入"),
+    OBZR_OUT(32, "OBZROUT","OB真人转出"),
+
     ;
 
     private Integer type;

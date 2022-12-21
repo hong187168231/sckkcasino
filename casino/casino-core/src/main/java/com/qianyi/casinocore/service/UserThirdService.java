@@ -16,7 +16,7 @@ public class UserThirdService {
     @Autowired
     UserThirdRepository userThirdRepository;
 
-    @Cacheable(key = "#p0")
+//    @Cacheable(key = "#p0")
     public UserThird findByUserId(Long userId) {
         return userThirdRepository.findByUserId(userId);
     }
@@ -79,6 +79,10 @@ public class UserThirdService {
 
     public List<UserThird> findAllOBTYAccount() {
         return userThirdRepository.findAllOBTYAccount();
+    }
+
+    public List<UserThird> findAllOBZRAccount() {
+        return userThirdRepository.findAllOBZRAccount();
     }
 
     @Cacheable(key = "#root.methodName+'::'+#p0")

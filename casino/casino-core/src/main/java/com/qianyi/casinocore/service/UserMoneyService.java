@@ -77,6 +77,10 @@ public class UserMoneyService {
 
     private String OBTY_recycleUrl = "/obtyGame/oneKeyRecoverApi?";
 
+    private String OBZR_refreshUrl = "/obzrGame/getBalanceApi?";
+
+    private String OBZR_recycleUrl = "/obzrGame/oneKeyRecoverApi?";
+
     private String VNC_refreshUrl = "/vncGame/getBalanceApi?";
 
     private String VNC_recycleUrl = "/vncGame/oneKeyRecoverApi?";
@@ -935,6 +939,22 @@ public class UserMoneyService {
         }
     }
 
+    public JSONObject refreshOBZR(Long userId) {
+        try {
+            String param = "userId={0}";
+            param = MessageFormat.format(param, userId.toString());
+            PlatformConfig first = platformConfigService.findFirst();
+            String WMurl = first == null ? "" : first.getWebConfiguration();
+            WMurl = WMurl + OBZR_refreshUrl;
+            String s = HttpClient4Util.get(WMurl + param);
+            log.info("{}查询OB体育web接口返回{}", userId, s);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public JSONObject oneKeyOBTYRecoverApi(User user) {
         try {
             String param = "userId={0}";
@@ -942,6 +962,22 @@ public class UserMoneyService {
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null ? "" : first.getWebConfiguration();
             WMurl = WMurl + OBTY_recycleUrl;
+            String s = HttpClient4Util.getWeb(WMurl + param);
+            log.info("{}回收OB体育余额web接口返回{}", user.getAccount(), s);
+            JSONObject parse = JSONObject.parseObject(s);
+            return parse;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public JSONObject oneKeyOBZRRecoverApi(User user) {
+        try {
+            String param = "userId={0}";
+            param = MessageFormat.format(param, user.getId().toString());
+            PlatformConfig first = platformConfigService.findFirst();
+            String WMurl = first == null ? "" : first.getWebConfiguration();
+            WMurl = WMurl + OBZR_recycleUrl;
             String s = HttpClient4Util.getWeb(WMurl + param);
             log.info("{}回收OB体育余额web接口返回{}", user.getAccount(), s);
             JSONObject parse = JSONObject.parseObject(s);

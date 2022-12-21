@@ -91,6 +91,7 @@ public class Constants {
     public final static String PLATFORM_OB = "OB";
     public final static String PLATFORM_OBDJ = "OBDJ";
     public final static String PLATFORM_OBTY = "OBTY";
+    public final static String PLATFORM_OBZR = "OBZR";
     public final static String PLATFORM_SABASPORT = "SABASPORT";
     public final static String PLATFORM_AE = "AE";
     public final static String PLATFORM_AE_HORSEBOOK = "HORSEBOOK";

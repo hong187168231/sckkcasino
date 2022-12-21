@@ -835,6 +835,110 @@ public class UserController {
         }
     }
 
+    @ApiOperation("查询玩家OB真人总余额")
+    @GetMapping("refreshOBTYTotal")
+    public ResponseEntity refreshOBZRTotal(){
+        String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_OBZR;
+        Object obtyBalance = redisUtil.get(key);
+        Object time = redisUtil.get(key + "TIME");
+        ThridBalanceSumVo thridBalanceSumVo = new ThridBalanceSumVo();
+        if(!LoginUtil.checkNull(obtyBalance) && !LoginUtil.checkNull(time)){
+            thridBalanceSumVo.setSunBalance(new BigDecimal(obtyBalance.toString()));
+            thridBalanceSumVo.setQueryTime(time.toString());
+            return ResponseUtil.success(thridBalanceSumVo);
+
+        }
+
+        List<UserThird> allOBZRAccount = userThirdService.findAllOBZRAccount();
+        if (LoginUtil.checkNull(allOBZRAccount) || allOBZRAccount.size() == CommonConst.NUMBER_0){
+            return ResponseUtil.success(BigDecimal.ZERO);
+        }
+        ReentrantLock reentrantLock = new ReentrantLock();
+        Condition condition = reentrantLock.newCondition();
+        AtomicInteger atomicInteger = new AtomicInteger(allOBZRAccount.size());
+        Vector<BigDecimal> list = new Vector<>();
+        for (UserThird u:allOBZRAccount){
+            threadPool.execute(() ->{
+                try {
+                    JSONObject jsonObject = userMoneyService.refreshOBZR(u.getUserId());
+                    if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+                        list.add(BigDecimal.ZERO);
+                    }else {
+                        Integer code = (Integer) jsonObject.get("code");
+                        if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
+                            list.add(new BigDecimal(jsonObject.get("data").toString()));
+                        }
+                    }
+                }finally {
+                    atomicInteger.decrementAndGet();
+                    BillThreadPool.toResume(reentrantLock, condition);
+                }
+            });
+        }
+        BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
+        BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+        thridBalanceSumVo.setSunBalance(sum);
+        thridBalanceSumVo.setQueryTime(DateUtil.dateToString(new Date(), DateUtil.patten));
+        return ResponseUtil.success(thridBalanceSumVo);
+    }
+
+    @ApiOperation("查询用户OB真人余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("refreshOBZR")
+    public ResponseEntity refreshOBZR(Long id){
+        UserThird third = userThirdService.findByUserId(id);
+        if (LoginUtil.checkNull(third) || ObjectUtils.isEmpty(third.getObtyAccount())){
+            return ResponseUtil.success(CommonConst.NUMBER_0);
+        }
+        JSONObject jsonObject = userMoneyService.refreshOBZR(third.getUserId());
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("OB真人余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                if (LoginUtil.checkNull(jsonObject.get("data"))){
+                    return ResponseUtil.success(CommonConst.NUMBER_0);
+                }
+                return ResponseUtil.success(jsonObject.get("data"));
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("查询OB真人余额失败");
+        }
+    }
+
+
+    @ApiOperation("一键回收用户OB真人余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户id", required = true),
+    })
+    @GetMapping("oneOBZRRecoverApi")
+    public ResponseEntity oneOBZRRecoverApi(Long id){
+        User user = userService.findById(id);
+        if (LoginUtil.checkNull(user)){
+            return ResponseUtil.custom("客户不存在");
+        }
+        JSONObject jsonObject = userMoneyService.oneKeyOBZRRecoverApi(user);
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            return ResponseUtil.custom("回收OB真人余额失败");
+        }
+        try {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0){
+                return ResponseUtil.success();
+            }else {
+                return ResponseUtil.custom(jsonObject.get("msg").toString());
+            }
+        }catch (Exception ex){
+            return ResponseUtil.custom("回收OB真人余额失败");
+        }
+    }
+
 
     @ApiOperation("查询用户PG/CQ9余额")
     @ApiImplicitParams({
