@@ -777,7 +777,7 @@ public class GameRecordController {
             @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
     })
     @NoAuthorization
-    public ResponseEntity<GameRecordObtyVo> findOBZRGameRecordPage(Integer pageSize, Integer pageCode, String user, String orderNo,
+    public ResponseEntity<GameRecordObzrVo> findOBZRGameRecordPage(Integer pageSize, Integer pageCode, String user, String orderNo,
                                                                    String account,Integer tag,
                                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
@@ -808,7 +808,7 @@ public class GameRecordController {
         }else {
             gameRecordObzrPage = gameRecordObzrService.findGameRecordPage(gameRecordObzr, pageable,null,null,null,null);
         }
-        PageResultVO<GameRecordObtyVo> pageResultVO =new PageResultVO(gameRecordObzrPage);
+        PageResultVO<GameRecordObzrVo> pageResultVO =new PageResultVO(gameRecordObzrPage);
         List<GameRecordObzr> content = gameRecordObzrPage.getContent();
         if(content != null && content.size() > 0){
             List<GameRecordObzrVo> gameRecordVoList = new LinkedList<>();
@@ -851,7 +851,7 @@ public class GameRecordController {
             @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
     })
     @NoAuthorization
-    public ResponseEntity<GameRecordObtyTotalVo> findOBZRGameRecordTotal(String user, String orderNo,Integer outcome,String account,Integer tag,
+    public ResponseEntity<GameRecordObzrTotalVo> findOBZRGameRecordTotal(String user, String orderNo,Integer outcome,String account,Integer tag,
                                                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         GameRecordObzr gameRecordObzr = new GameRecordObzr();
