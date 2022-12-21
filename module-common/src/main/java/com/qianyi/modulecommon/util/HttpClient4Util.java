@@ -54,8 +54,8 @@ public class HttpClient4Util {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
         RequestConfig requestConfig = RequestConfig.custom()
-            .setConnectTimeout(30000).setConnectionRequestTimeout(35000)
-            .setSocketTimeout(35000).build();
+            .setConnectTimeout(60000).setConnectionRequestTimeout(60000)
+            .setSocketTimeout(60000).build();
         httpGet.setConfig(requestConfig);
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String language = request.getHeader(Constants.LANGUAGE);
