@@ -836,7 +836,7 @@ public class UserController {
     }
 
     @ApiOperation("查询玩家OB真人总余额")
-    @GetMapping("refreshOBTYTotal")
+    @GetMapping("refreshOBZRTotal")
     public ResponseEntity refreshOBZRTotal(){
         String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_OBZR;
         Object obtyBalance = redisUtil.get(key);
