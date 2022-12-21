@@ -132,6 +132,9 @@ public class GameRecordDGService {
                 if (GameRecordDG.getUserId() != null) {
                     list.add(cb.equal(root.get("userId").as(Long.class), GameRecordDG.getUserId()));
                 }
+                if (GameRecordDG.getUserAcct() != null) {
+                    list.add(cb.equal(root.get("userAcct").as(Long.class), GameRecordDG.getUserAcct()));
+                }
                 if (GameRecordDG.getFirstProxy() != null) {
                     list.add(cb.equal(root.get("firstProxy").as(Long.class), GameRecordDG.getFirstProxy()));
                 }

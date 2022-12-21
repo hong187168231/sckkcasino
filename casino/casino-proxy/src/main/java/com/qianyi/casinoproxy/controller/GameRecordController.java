@@ -1372,6 +1372,7 @@ public class GameRecordController {
         game.setBetOrderNo(betOrder);
         game.setBetDetail(betDetailOrder);
         game.setUserName(userName);
+        game.setUserAcct(account);
         Long userId = null;
         if (!CasinoProxyUtil.checkNull(account)){
             User byAccount = userService.findByAccount(account);
@@ -1379,10 +1380,9 @@ public class GameRecordController {
                 return ResponseUtil.custom("用户不存在");
             }
             userId = byAccount.getId();
-            game.setUserAcct(byAccount.getAccount());
+
         }
         game.setUserId(userId);
-
         Page<GameRecordDG> gameRecordPage;
         if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
             String startTime = DateUtil.getSimpleDateFormat().format(startDate);

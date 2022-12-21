@@ -1415,7 +1415,7 @@ public class GameRecordController {
         GameRecordDG game = new GameRecordDG();
         game.setBetOrderNo(betOrder);
         game.setUserName(userName);
-        game.setUserName(account);
+        game.setUserAcct(account);
         Page<GameRecordDG> gameRecordPage;
         if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
             String startTime = DateUtil.getSimpleDateFormat().format(startDate);
