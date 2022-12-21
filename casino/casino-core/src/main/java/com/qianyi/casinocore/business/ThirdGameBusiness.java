@@ -7,6 +7,7 @@ import com.beust.jcommander.internal.Lists;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.ExpirationTimeUtil;
 import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.liveae.api.PublicAeApi;
@@ -110,6 +111,9 @@ public class ThirdGameBusiness {
                 return pgEnable;
             }
         }
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(vendorCode,userId.toString());
+
         if (Constants.PLATFORM_SABASPORT.equals(vendorCode)) {
             ResponseEntity sabaEnable = checkPlatformStatus(Constants.PLATFORM_SABASPORT);
             if (sabaEnable.getCode() != ResponseCode.SUCCESS.getCode()) {
@@ -224,6 +228,9 @@ public class ThirdGameBusiness {
         if (lang == null) {
             lang = 0;
         }
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_WM_BIG,userId.toString());
+
         String account = third.getAccount();
         // 先退出游戏
         Boolean aBoolean = wmApi.logoutGame(account, lang);
@@ -303,6 +310,10 @@ public class ThirdGameBusiness {
         if (third == null || ObjectUtils.isEmpty(third.getObdjAccount())) {
             return ResponseUtil.custom("OB电竞余额为0");
         }
+
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBDJ,userId.toString());
+
         User user = userService.findById(userId);
         String account = third.getObdjAccount();
 
@@ -381,6 +392,7 @@ public class ThirdGameBusiness {
         if (third == null || ObjectUtils.isEmpty(third.getObtyAccount())) {
             return ResponseUtil.custom("OB体育余额为0");
         }
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBTY,userId.toString());
         User user = userService.findById(userId);
         String account = third.getObtyAccount();
         // 先退出
@@ -533,7 +545,12 @@ public class ThirdGameBusiness {
         JSONObject jsonData = JSONObject.parseObject(playerBalance.getData());
         BigDecimal balance = new BigDecimal(jsonData.getDouble("balance"));
         balance = new BigDecimal(balance.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
-
+        log.info("查询GF余额walletCode{}",walletCode);
+        if (!ObjectUtils.isEmpty(walletCode)){
+            ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_SABASPORT,userId.toString(),balance);
+        }else {
+            ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_PG_CQ9,userId.toString(),balance);
+        }
         return ResponseUtil.success(balance);
     }
 
@@ -611,6 +628,7 @@ public class ThirdGameBusiness {
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         BigDecimal balance = new BigDecimal(balanceResult.getData());
+        ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_OBDJ,userId.toString(),balance);
         return ResponseUtil.success(balance);
     }
 
@@ -626,6 +644,7 @@ public class ThirdGameBusiness {
         }
         JSONObject jsonObject = JSONObject.parseObject(balanceResult.getData());
         BigDecimal balance = new BigDecimal(jsonObject.getString("balance"));
+        ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_OBTY,userId.toString(),balance);
         return ResponseUtil.success(balance);
     }
 

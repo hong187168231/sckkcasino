@@ -6,6 +6,7 @@ import com.qianyi.casinocore.business.ThirdGameBusiness;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.ExpirationTimeUtil;
 import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
@@ -129,6 +130,9 @@ public class GoldenFController {
             platform = Constants.PLATFORM_SABASPORT;
             changeEnum = AccountChangeEnum.SABASPORT_IN;
         }
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(platform,authId.toString());
+
         thirdGameBusiness.oneKeyRecoverOtherGame(authId, platform);
         String goldenfAccount = third.getGoldenfAccount();
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(authId.toString());
