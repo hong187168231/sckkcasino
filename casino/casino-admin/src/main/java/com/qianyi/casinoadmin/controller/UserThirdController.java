@@ -107,6 +107,20 @@ public class UserThirdController {
                     jsonObject.put("platform",Constants.PLATFORM_VNC);
                     json.add(jsonObject);
                 }
+                if (!LoginUtil.checkNull(userThird.getDmcAccount())){
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("account",user.getAccount());
+                    jsonObject.put("thirdAccount",userThird.getDmcAccount());
+                    jsonObject.put("platform",Constants.PLATFORM_DMC);
+                    json.add(jsonObject);
+                }
+                if (!LoginUtil.checkNull(userThird.getDgAccount())){
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("account",user.getAccount());
+                    jsonObject.put("thirdAccount",userThird.getDgAccount());
+                    jsonObject.put("platform",Constants.PLATFORM_DG);
+                    json.add(jsonObject);
+                }
             }else if (platform.equals("WM")){
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("account",user.getAccount());
@@ -136,6 +150,18 @@ public class UserThirdController {
                 jsonObject.put("account",user.getAccount());
                 jsonObject.put("thirdAccount",userThird.getVncAccount());
                 jsonObject.put("platform",Constants.PLATFORM_VNC);
+                json.add(jsonObject);
+            }else if(platform.equals(Constants.PLATFORM_DMC)){
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("account",user.getAccount());
+                jsonObject.put("thirdAccount",userThird.getDmcAccount());
+                jsonObject.put("platform",Constants.PLATFORM_DMC);
+                json.add(jsonObject);
+            }else if(platform.equals(Constants.PLATFORM_DG)){
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("account",user.getAccount());
+                jsonObject.put("thirdAccount",userThird.getDgAccount());
+                jsonObject.put("platform",Constants.PLATFORM_DG);
                 json.add(jsonObject);
             }else {
                 JSONObject jsonObject = new JSONObject();
@@ -228,6 +254,34 @@ public class UserThirdController {
                     return ResponseUtil.success(json);
                 }
 
+                userThird =  userThirdService.findByDmcAccount(userAccount);
+                if(!LoginUtil.checkNull(userThird)){
+                    user = userService.findById(userThird.getUserId());
+                    if (LoginUtil.checkNull(user)){
+                        return ResponseUtil.success();
+                    }
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("account",user.getAccount());
+                    jsonObject.put("thirdAccount",userThird.getDmcAccount());
+                    jsonObject.put("platform",Constants.PLATFORM_DMC);
+                    json.add(jsonObject);
+                    return ResponseUtil.success(json);
+                }
+
+                userThird =  userThirdService.findByDgAccount(userAccount);
+                if(!LoginUtil.checkNull(userThird)){
+                    user = userService.findById(userThird.getUserId());
+                    if (LoginUtil.checkNull(user)){
+                        return ResponseUtil.success();
+                    }
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("account",user.getAccount());
+                    jsonObject.put("thirdAccount",userThird.getDgAccount());
+                    jsonObject.put("platform",Constants.PLATFORM_DG);
+                    json.add(jsonObject);
+                    return ResponseUtil.success(json);
+                }
+
             }else if (platform.equals("WM")){
                 userThird = userThirdService.findByAccount(userAccount);
                 if (LoginUtil.checkNull(userThird)){
@@ -297,6 +351,34 @@ public class UserThirdController {
                 jsonObject.put("account",user.getAccount());
                 jsonObject.put("thirdAccount",userThird.getVncAccount());
                 jsonObject.put("platform",Constants.PLATFORM_VNC);
+                json.add(jsonObject);
+            }else if(platform.equals(Constants.PLATFORM_DG)){
+                userThird =  userThirdService.findByDgAccount(userAccount);
+                if (LoginUtil.checkNull(userThird)){
+                    return ResponseUtil.success();
+                }
+                user = userService.findById(userThird.getUserId());
+                if (LoginUtil.checkNull(user)){
+                    return ResponseUtil.success();
+                }
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("account",user.getAccount());
+                jsonObject.put("thirdAccount",userThird.getDgAccount());
+                jsonObject.put("platform",Constants.PLATFORM_DG);
+                json.add(jsonObject);
+            }else if(platform.equals(Constants.PLATFORM_DMC)){
+                userThird =  userThirdService.findByDmcAccount(userAccount);
+                if (LoginUtil.checkNull(userThird)){
+                    return ResponseUtil.success();
+                }
+                user = userService.findById(userThird.getUserId());
+                if (LoginUtil.checkNull(user)){
+                    return ResponseUtil.success();
+                }
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("account",user.getAccount());
+                jsonObject.put("thirdAccount",userThird.getDmcAccount());
+                jsonObject.put("platform",Constants.PLATFORM_DMC);
                 json.add(jsonObject);
             }else {
                 userThird =  userThirdService.findByGoldenfAccount(userAccount);
