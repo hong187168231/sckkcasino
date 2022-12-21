@@ -45,6 +45,8 @@ public class GameRecordController {
     @Autowired
     private GameRecordObtyService gameRecordObtyService;
 
+    private GameRecordObzrService  gameRecordObzrService;
+
     @Autowired
     private GameRecordGoldenFService gameRecordGoldenFService;
 
@@ -747,6 +749,136 @@ public class GameRecordController {
         gameRecordObtyTotalVo.setProfitAmount(content.getProfitAmount());
         gameRecordObtyTotalVo.setSettleAmount(content.getSettleAmount());
         return ResponseUtil.success(gameRecordObtyTotalVo);
+    }
+
+
+    /**
+     * 分页查询OBZR游戏注单
+     *
+     * @param user 会员账号
+     * @param orderNo 注单号
+     * @return
+     */
+    @ApiOperation("分页查询OBZR游戏注单")
+    @GetMapping("/findOBZRGameRecordPage")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+            @ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+            @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
+            @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+            @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+            @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
+    })
+    @NoAuthorization
+    public ResponseEntity<GameRecordObtyVo> findOBZRGameRecordPage(Integer pageSize, Integer pageCode, String user, String orderNo,
+                                                                   String account,Integer tag,
+                                                                   @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+                                                                   @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+        Sort sort = Sort.by("id").descending();
+        Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
+        GameRecordObzr gameRecordObzr = new GameRecordObzr();
+        gameRecordObzr.setPlayerName(user);
+        gameRecordObzr.setOrderNo(orderNo);
+        Long userId = null;
+        if (!LoginUtil.checkNull(account)){
+            User byAccount = userService.findByAccount(account);
+            if (LoginUtil.checkNull(byAccount)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        gameRecordObzr.setUserId(userId);
+
+        Page<GameRecordObzr> gameRecordObzrPage;
+        if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
+            String startTime = DateUtil.getSimpleDateFormat().format(startDate);
+            String endTime = DateUtil.getSimpleDateFormat().format(endDate);
+            if (LoginUtil.checkNull(tag) || tag == CommonConst.NUMBER_0){
+                gameRecordObzrPage = gameRecordObzrService.findGameRecordPage(gameRecordObzr,pageable,startTime,endTime,null,null);
+            }else {
+                gameRecordObzrPage = gameRecordObzrService.findGameRecordPage(gameRecordObzr, pageable,null,null,startTime,endTime);
+            }
+        }else {
+            gameRecordObzrPage = gameRecordObzrService.findGameRecordPage(gameRecordObzr, pageable,null,null,null,null);
+        }
+        PageResultVO<GameRecordObtyVo> pageResultVO =new PageResultVO(gameRecordObzrPage);
+        List<GameRecordObzr> content = gameRecordObzrPage.getContent();
+        if(content != null && content.size() > 0){
+            List<GameRecordObzrVo> gameRecordVoList = new LinkedList<>();
+            List<Long> userIds = content.stream().map(GameRecordObzr::getUserId).collect(Collectors.toList());
+            List<User> userList = userService.findAll(userIds);
+            if(userList != null){
+                content.stream().forEach(gameRecord ->{
+                    GameRecordObzrVo vo = new GameRecordObzrVo();
+                    BeanUtils.copyProperties(gameRecord,vo);
+                    userList.stream().forEach(u->{
+                        if (u.getId().equals(gameRecord.getUserId())){
+                            vo.setAccount(u.getAccount());
+                        }
+                    });
+                    gameRecordVoList.add(vo);
+                });
+            }
+            pageResultVO.setContent(gameRecordVoList);
+        }
+        return ResponseUtil.success(pageResultVO);
+    }
+
+
+    /**
+     * 统计OBZR游戏注单
+     *
+     * @param user 会员账号
+     * @param orderNo 注单号
+     * @return
+     */
+    @ApiOperation("统计OBZR游戏注单")
+    @GetMapping("/findOBZRGameRecordTotal")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
+            @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
+            @ApiImplicitParam(name = "outcome", value = "订单结算结果0-无结果 2-走水 3-输 4-赢 5-赢一半 6-输一半", required = false),
+            @ApiImplicitParam(name = "account", value = "我方会员账号", required = false),
+            @ApiImplicitParam(name = "tag", value = "查询时间类型(0按照投注 1按照结算)", required = false),
+            @ApiImplicitParam(name = "startDate", value = "查询起始时间查询", required = false),
+            @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
+    })
+    @NoAuthorization
+    public ResponseEntity<GameRecordObtyTotalVo> findOBZRGameRecordTotal(String user, String orderNo,Integer outcome,String account,Integer tag,
+                                                                         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+                                                                         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
+        GameRecordObzr gameRecordObzr = new GameRecordObzr();
+        gameRecordObzr.setPlayerName(user);
+        gameRecordObzr.setOrderNo(orderNo);
+        Long userId = null;
+        if (!LoginUtil.checkNull(account)){
+            User byAccount = userService.findByAccount(account);
+            if (LoginUtil.checkNull(byAccount)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        gameRecordObzr.setUserId(userId);
+        GameRecordObzr content;
+        if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
+            String startTime = DateUtil.getSimpleDateFormat().format(startDate);
+            String endTime = DateUtil.getSimpleDateFormat().format(endDate);
+            if (LoginUtil.checkNull(tag) || tag == CommonConst.NUMBER_0){
+                content = gameRecordObzrService.findRecordRecordSum(gameRecordObzr,startTime,endTime,null,null);
+            }else {
+                content = gameRecordObzrService.findRecordRecordSum(gameRecordObzr, null,null,startTime,endTime);
+            }
+        }else {
+            content = gameRecordObzrService.findRecordRecordSum(gameRecordObzr,null,null,null,null);
+        }
+
+        GameRecordObzrTotalVo gameRecordObzrTotalVo = new GameRecordObzrTotalVo();
+        gameRecordObzrTotalVo.setOrderAmount(content.getValidBetAmount());
+        gameRecordObzrTotalVo.setProfitAmount(content.getNetAmount());
+        gameRecordObzrTotalVo.setSettleAmount(content.getPayoutAmount());
+        return ResponseUtil.success(gameRecordObzrTotalVo);
     }
 
 

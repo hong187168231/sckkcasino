@@ -1,8 +1,13 @@
 package com.qianyi.liveob.utils;
 
+import cn.hutool.crypto.Mode;
+import cn.hutool.crypto.SecureUtil;
+import cn.hutool.crypto.symmetric.AES;
+import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
@@ -14,6 +19,7 @@ public class GenerateSignUtil {
 
     /**
      * 生成sign
+     *
      * @param treeMap
      * @return
      */
@@ -39,7 +45,7 @@ public class GenerateSignUtil {
         String params = "";
         for (Map.Entry entry : treeMap.entrySet()) {
             String name = entry.getKey().toString();
-            if ("key".equals(name)){
+            if ("key".equals(name)) {
                 continue;
             }
             if (ObjectUtils.isEmpty(entry.getValue())) {
@@ -58,8 +64,8 @@ public class GenerateSignUtil {
 
     public static String getObtyMd5Sign(Object... params) {
         String signatureKey = "";
-        for (Object param:params){
-            signatureKey=signatureKey+param+"&";
+        for (Object param : params) {
+            signatureKey = signatureKey + param + "&";
         }
         if (!ObjectUtils.isEmpty(signatureKey)) {
             signatureKey = signatureKey.substring(0, signatureKey.length() - 1);
@@ -77,6 +83,7 @@ public class GenerateSignUtil {
 
     /**
      * 获取两位随机数
+     *
      * @return
      */
     public static Integer getTwoRandom() {
@@ -84,4 +91,6 @@ public class GenerateSignUtil {
         int num = 10 + random.nextInt(90);
         return num;
     }
+
+
 }

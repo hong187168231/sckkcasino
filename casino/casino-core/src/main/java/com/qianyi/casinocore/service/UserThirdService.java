@@ -16,7 +16,7 @@ public class UserThirdService {
     @Autowired
     UserThirdRepository userThirdRepository;
 
-    @Cacheable(key = "#p0")
+//    @Cacheable(key = "#p0")
     public UserThird findByUserId(Long userId) {
         return userThirdRepository.findByUserId(userId);
     }

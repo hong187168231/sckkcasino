@@ -12,6 +12,7 @@ import com.qianyi.livegoldenf.api.PublicGoldenFApi;
 import com.qianyi.livegoldenf.constants.WalletCodeEnum;
 import com.qianyi.liveob.api.PublicObdjApi;
 import com.qianyi.liveob.api.PublicObtyApi;
+import com.qianyi.liveob.api.PublicObzrApi;
 import com.qianyi.livewm.api.PublicWMApi;
 import com.qianyi.lottery.api.PublicLotteryApi;
 import com.qianyi.modulecommon.Constants;
@@ -59,6 +60,8 @@ public class ThirdGameBusiness {
     private PublicObdjApi obdjApi;
     @Autowired
     private PublicObtyApi obtyApi;
+    @Autowired
+    private PublicObzrApi obzrApi;
     @Autowired
     private PublicAeApi aeApi;
     @Autowired
@@ -432,6 +435,80 @@ public class ThirdGameBusiness {
         }
     }
 
+
+    public ResponseEntity oneKeyRecoverObzr(Long userId) {
+        ResponseEntity obtyEnable = checkPlatformAndGameStatus(Constants.PLATFORM_OB, Constants.PLATFORM_OBZR);
+        if (obtyEnable.getCode() != ResponseCode.SUCCESS.getCode()) {
+            log.info("后台开启OBZR维护，禁止回收，response={}", obtyEnable);
+            return obtyEnable;
+        }
+        log.info("开始回收OB真人余额，userId={}", userId);
+        if (userId == null) {
+            return ResponseUtil.parameterNotNull();
+        }
+        UserThird third = userThirdService.findByUserId(userId);
+        if (third == null || ObjectUtils.isEmpty(third.getObzrAccount())) {
+            return ResponseUtil.custom("OB真人余额为0");
+        }
+        User user = userService.findById(userId);
+        String account = third.getObzrAccount();
+        // 先调用离桌
+        boolean flag = obzrApi.foreLeaveTable(account);
+        if (!flag) {
+            log.error("userId:{},account={},OB真人退出失败,远程请求异常", userId, user.getAccount());
+//            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            ResponseEntity<BigDecimal> balanceObzr = getBalanceObzr(account, userId);
+            if (balanceObzr.getCode() != ResponseCode.SUCCESS.getCode()) {
+                return balanceObzr;
+            }
+            BigDecimal balance = balanceObzr.getData();
+            if (balance.compareTo(BigDecimal.ONE) == -1) {
+                log.info("userId:{},account={},balance={},OB真人金额小于1，不可回收", userId, user.getAccount(), balance);
+                return ResponseUtil.custom("OB真人余额小于1,不可回收");
+            }
+            // 调用加扣点接口扣减OB电竞余额 存在精度问题，只回收整数部分
+            balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
+            String orderNo = orderService.getObtyOrderNo();
+            PublicObzrApi.ResponseEntity withdraw = obzrApi.withdraw(account,  balance, orderNo);
+            if (withdraw == null) {
+                log.error("OB真人扣点失败,远程请求异常,userId:{},account={},money={}", userId, user.getAccount(), balance);
+                // 异步记录错误订单
+                errorOrderService.syncSaveErrorOrder(third.getObtyAccount(), user.getId(), user.getAccount(), orderNo,
+                        balance, AccountChangeEnum.OBZR_OUT, Constants.PLATFORM_OBZR);
+                return ResponseUtil.custom("回收失败,请联系客服");
+            }
+            if (!withdraw.getCode().equals("200")) {
+                log.error("OB真人扣点失败,userId:{},account={},money={},msg={}", userId, user.getAccount(), balance,
+                        withdraw.toString());
+                return ResponseUtil.custom("回收失败,请联系客服");
+            }
+            // 把额度加回本地
+            UserMoney userMoney = userMoneyService.findByUserId(userId);
+            if (userMoney == null) {
+                userMoney = new UserMoney();
+                userMoney.setUserId(userId);
+                userMoneyService.save(userMoney);
+            }
+            userMoneyService.addMoney(userId, balance);
+            log.info("OB真人余额,userMoney加回成功，userId={},balance={}", userId, balance);
+            saveAccountChange(Constants.PLATFORM_OBZR, userId, balance, userMoney.getMoney(),
+                    balance.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.OBZR_OUT, "自动转出OB真人", user);
+            log.info("OB真人余额回收成功，userId={},account={},money={}", userId, user.getAccount(), balance);
+            return ResponseUtil.success();
+        } catch (Exception e) {
+            log.error("OB真人下分出现异常userId{} {}", userId, e.getMessage());
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
+        }
+    }
+
+
     public ResponseEntity<BigDecimal> getBalanceGoldenF(String account, Long userId, String vendorCode) {
         String walletCode = WalletCodeEnum.getWalletCodeByVendorCode(vendorCode);
         PublicGoldenFApi.ResponseEntity playerBalance = goldenFApi.getPlayerBalance(account, walletCode);
@@ -535,6 +612,21 @@ public class ThirdGameBusiness {
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         if (!balanceResult.getStatus()) {
+            log.error("userId:{},查询OB体育余额失败,balanceResult={}", userId, balanceResult.toString());
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        JSONObject jsonObject = JSONObject.parseObject(balanceResult.getData());
+        BigDecimal balance = new BigDecimal(jsonObject.getString("balance"));
+        return ResponseUtil.success(balance);
+    }
+
+    public ResponseEntity<BigDecimal> getBalanceObzr(String account, Long userId) {
+        PublicObzrApi.ResponseEntity balanceResult = obzrApi.checkBalance(account);
+        if (balanceResult == null) {
+            log.error("userId:{},查询OB体育余额失败,远程请求异常", userId);
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        if (!balanceResult.getCode().equals("200")) {
             log.error("userId:{},查询OB体育余额失败,balanceResult={}", userId, balanceResult.toString());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }

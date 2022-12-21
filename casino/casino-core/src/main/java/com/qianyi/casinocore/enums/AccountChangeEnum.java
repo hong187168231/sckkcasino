@@ -34,6 +34,9 @@ public enum AccountChangeEnum {
     TODAY_AWARD(27, "TODAYAWARD", "每日奖励"),
     UPGRADE_AWARD(28, "UPGRADEAWARD", "升级奖励"),
 
+    OBZR_IN(29, "OBZRIN","OB体真人转入"),
+    OBZR_OUT(30, "OBZROUT","OB真人转出"),
+
     ;
 
     private Integer type;
