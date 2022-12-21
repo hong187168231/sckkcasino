@@ -113,7 +113,6 @@ public class GameRecordDG extends BaseEntity{
     @ApiModelProperty("基层代理ID")
     private Long thirdProxy;
 
-    @Transient
     @ApiModelProperty(value = "是否新增，0.修改,1.新增")
     private Integer isAdd = 0;
 
