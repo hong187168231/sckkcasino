@@ -5,6 +5,7 @@ import com.qianyi.casinocore.business.ThirdGameBusiness;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.ExpirationTimeUtil;
 import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.vo.ObdjGameUrlVo;
@@ -99,6 +100,8 @@ public class ObdjGameController {
         }
         String obAccount = third.getObdjAccount();
         User user = userService.findById(authId);
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBDJ,authId.toString());
         //回收其他游戏的余额
         thirdGameBusiness.oneKeyRecoverOtherGame(authId, Constants.PLATFORM_OBDJ);
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(authId.toString());
@@ -224,6 +227,8 @@ public class ObdjGameController {
     public ResponseEntity oneKeyRecover() {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBDJ,userId.toString());
         return thirdGameBusiness.oneKeyRecoverObdj(userId);
     }
 
@@ -236,6 +241,8 @@ public class ObdjGameController {
         if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBDJ,userId.toString());
         return thirdGameBusiness.oneKeyRecoverObdj(userId);
     }
 }

@@ -403,6 +403,7 @@ public class UserController {
                 if (LoginUtil.checkNull(jsonObject.get("data"))){
                     return ResponseUtil.success(CommonConst.NUMBER_0);
                 }
+                ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_WM_BIG,id.toString(),new BigDecimal(jsonObject.get("data").toString()));
                 return ResponseUtil.success(jsonObject.get("data"));
             }else {
                 return ResponseUtil.custom(jsonObject.get("msg").toString());

@@ -7,6 +7,7 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.ExpirationTimeUtil;
 import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.util.DeviceUtil;
@@ -98,6 +99,8 @@ public class ObtyGameController {
         }
         String obAccount = third.getObtyAccount();
         User user = userService.findById(authId);
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBTY,authId.toString());
         // 回收其他游戏的余额
         thirdGameBusiness.oneKeyRecoverOtherGame(authId, Constants.PLATFORM_OBTY);
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(authId.toString());
@@ -215,6 +218,7 @@ public class ObtyGameController {
     public ResponseEntity oneKeyRecover() {
         // 获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBTY,userId.toString());
         return thirdGameBusiness.oneKeyRecoverObty(userId);
     }
 
@@ -227,6 +231,7 @@ public class ObtyGameController {
         if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBTY,userId.toString());
         return thirdGameBusiness.oneKeyRecoverObty(userId);
     }
 }

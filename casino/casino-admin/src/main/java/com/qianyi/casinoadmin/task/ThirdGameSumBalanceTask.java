@@ -7,6 +7,7 @@ import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.service.UserThirdService;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinocore.util.TaskConst;
+import com.qianyi.modulecommon.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -31,8 +32,8 @@ public class ThirdGameSumBalanceTask {
     /**
      *
      */
-    @Scheduled(cron = TaskConst.THIRD_GAME_SUM)
-//    @Scheduled(cron = TaskConst.GAME_BALANCE_ORDER)
+//    @Scheduled(cron = TaskConst.THIRD_GAME_SUM)
+    @Scheduled(cron = TaskConst.GAME_BALANCE_ORDER)
     public void create(){
         log.info("查询三方总余额统计开始start=============================================》");
         long startTime = System.currentTimeMillis();
@@ -66,7 +67,7 @@ public class ThirdGameSumBalanceTask {
         long startTimeWM = System.currentTimeMillis();
         //WM总余额
         try {
-            thridUserBalanceSumService.setRedisWMMoneyTotal(wmThird);
+            thridUserBalanceSumService.setRedisWMMoneyTotal(wmThird, Constants.PLATFORM_WM_BIG,startTime);
         }catch (Exception e){
             log.error("WM余额查询失败：【{}】", e.getMessage());
         }
@@ -75,7 +76,7 @@ public class ThirdGameSumBalanceTask {
         long startTimePG = System.currentTimeMillis();
         //PG/CQ9总余额
         try {
-            thridUserBalanceSumService.setRedisPGMoneyTotal(pgCq9Third);
+            thridUserBalanceSumService.setRedisPGMoneyTotal(pgCq9Third, Constants.PLATFORM_PG_CQ9,startTime);
         }catch (Exception e){
             log.error("CQ9余额查询失败：【{}】", e.getMessage());
         }
@@ -84,7 +85,7 @@ public class ThirdGameSumBalanceTask {
         long startTimeOBDJ = System.currentTimeMillis();
         //查询OB电竞总余额
         try {
-            thridUserBalanceSumService.setRedisOBDJMoneyTotal(obdjThird);
+            thridUserBalanceSumService.setRedisOBDJMoneyTotal(obdjThird, Constants.PLATFORM_OBDJ,startTime);
         }catch (Exception e){
             log.error("OBDJ余额查询失败：【{}】", e.getMessage());
         }
@@ -93,7 +94,7 @@ public class ThirdGameSumBalanceTask {
         long startTimeOBTY = System.currentTimeMillis();
         //查询OB体育总余额
         try {
-            thridUserBalanceSumService.setRedisOBTYMoneyTotal(obtyThird);
+            thridUserBalanceSumService.setRedisOBTYMoneyTotal(obtyThird, Constants.PLATFORM_OBTY,startTime);
         }catch  (Exception e){
             log.error("OBTY余额查询失败：【{}】", e.getMessage());
         }
@@ -102,7 +103,7 @@ public class ThirdGameSumBalanceTask {
         long startTimeSABA = System.currentTimeMillis();
         //查询沙巴体育总余额
         try {
-            thridUserBalanceSumService.setRedisSABAMoneyTotal(sabaThird);
+            thridUserBalanceSumService.setRedisSABAMoneyTotal(sabaThird, Constants.PLATFORM_SABASPORT,startTime);
         }catch (Exception e){
             log.error("沙巴余额查询失败：【{}】", e.getMessage());
         }

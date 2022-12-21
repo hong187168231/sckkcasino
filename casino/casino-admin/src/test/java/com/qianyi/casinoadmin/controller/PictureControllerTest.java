@@ -77,8 +77,9 @@ public class PictureControllerTest {
 
     @Test
     public void getLastLoginInt(){
-        RAtomicLong wm = redisKeyUtil.getLastLoginInt("WM", "2");
-        System.out.println(wm.get());    }
+        RAtomicLong wm = redisKeyUtil.getLastLoginInt("WM", "1");
+        long l = System.currentTimeMillis() - wm.get();
+        System.out.println(l);    }
 
     @Test
     public void  getTripartiteBalance(){

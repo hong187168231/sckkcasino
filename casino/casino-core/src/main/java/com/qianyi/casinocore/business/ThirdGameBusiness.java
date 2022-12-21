@@ -7,6 +7,7 @@ import com.beust.jcommander.internal.Lists;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.ExpirationTimeUtil;
 import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.liveae.api.PublicAeApi;
@@ -533,7 +534,12 @@ public class ThirdGameBusiness {
         JSONObject jsonData = JSONObject.parseObject(playerBalance.getData());
         BigDecimal balance = new BigDecimal(jsonData.getDouble("balance"));
         balance = new BigDecimal(balance.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
-
+        log.info("查询GF余额walletCode{}",walletCode);
+        if (!ObjectUtils.isEmpty(walletCode)){
+            ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_SABASPORT,userId.toString(),balance);
+        }else {
+            ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_PG_CQ9,userId.toString(),balance);
+        }
         return ResponseUtil.success(balance);
     }
 
@@ -611,6 +617,7 @@ public class ThirdGameBusiness {
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         BigDecimal balance = new BigDecimal(balanceResult.getData());
+        ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_OBDJ,userId.toString(),balance);
         return ResponseUtil.success(balance);
     }
 
@@ -626,6 +633,7 @@ public class ThirdGameBusiness {
         }
         JSONObject jsonObject = JSONObject.parseObject(balanceResult.getData());
         BigDecimal balance = new BigDecimal(jsonObject.getString("balance"));
+        ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_OBTY,userId.toString(),balance);
         return ResponseUtil.success(balance);
     }
 

@@ -9,6 +9,7 @@ import com.qianyi.casinocore.business.ThirdGameBusiness;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.ExpirationTimeUtil;
 import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinocore.vo.AccountChangeVo;
 import com.qianyi.casinoweb.util.DeviceUtil;
@@ -147,6 +148,8 @@ public class WMController {
             log.error("userId:{},account:{},进游戏失败", third.getUserId(), user.getAccount());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_WM_BIG,authId.toString());
         // 回收其他游戏的余额
         thirdGameBusiness.oneKeyRecoverOtherGame(authId, Constants.PLATFORM_WM_BIG);
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(authId.toString());
@@ -333,6 +336,7 @@ public class WMController {
                 log.error("userId:{},获取用户WM余额为null", authId);
                 return ResponseUtil.custom("服务器异常,请重新操作");
             }
+            ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_WM_BIG,authId.toString(),balance);
             return ResponseUtil.success(balance.setScale(2, BigDecimal.ROUND_HALF_UP));
         } catch (Exception e) {
             e.printStackTrace();
@@ -386,6 +390,8 @@ public class WMController {
         }
         // 获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_WM_BIG,userId.toString());
         return thirdGameBusiness.oneKeyRecoverWm(userId);
     }
 
@@ -403,6 +409,8 @@ public class WMController {
         if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_WM_BIG,userId.toString());
         return thirdGameBusiness.oneKeyRecoverWm(userId);
     }
 
