@@ -14,6 +14,7 @@ public class DataConst {
         platforms.add(Constants.PLATFORM_CQ9);
         platforms.add(Constants.PLATFORM_OBDJ);
         platforms.add(Constants.PLATFORM_OBTY);
+        platforms.add(Constants.PLATFORM_OBZR);
         platforms.add(Constants.PLATFORM_SABASPORT);
         platforms.add(Constants.PLATFORM_AE);
         platforms.add(Constants.PLATFORM_VNC);
@@ -29,6 +30,7 @@ public class DataConst {
         platformsReport.add(Constants.PLATFORM_CQ9);
         platformsReport.add(Constants.PLATFORM_OBDJ);
         platformsReport.add(Constants.PLATFORM_OBTY);
+        platformsReport.add(Constants.PLATFORM_OBZR);
         platformsReport.add(Constants.PLATFORM_SABASPORT);
         platformsReport.add(Constants.PLATFORM_AE_HORSEBOOK);
         platformsReport.add(Constants.PLATFORM_AE_SV388);
