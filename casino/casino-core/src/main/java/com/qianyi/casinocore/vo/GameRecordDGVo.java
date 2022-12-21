@@ -76,7 +76,7 @@ public class GameRecordDGVo implements Serializable {
     private String userId;
 
     @ApiModelProperty(value = "我方用户账号")
-    private Long userAcct;
+    private String userAcct;
 
     @ApiModelProperty(value = "洗码状态：1：成功")
     private Integer washCodeStatus;
