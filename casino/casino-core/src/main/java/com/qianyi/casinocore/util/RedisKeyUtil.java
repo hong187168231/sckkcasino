@@ -1,11 +1,12 @@
 package com.qianyi.casinocore.util;
 
 import com.qianyi.casinocore.model.SysPermission;
-import org.redisson.api.RList;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
+import org.redisson.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.text.MessageFormat;
 
 @Service
 public class RedisKeyUtil {
@@ -25,6 +26,10 @@ public class RedisKeyUtil {
     public static final String BANK_CARDS_LOCK = "BANK-CARDS-LOCK::LOCK-";
 
     public static final String ADMIN_USER_SYSPERMISSION = "ADMIN-USER::SYSPERMISSION-";
+
+    public static final String TRIPARTITE_BALANCE = "TRIPARTITE-BALANCE::{0}::USERID-{1}";
+
+    public static final String LAST_LOGIN_INT = "LAST-LOGIN-INT::{0}::USERID-{1}";
     /**
      * 全局代理信誉分锁
      *
@@ -84,4 +89,25 @@ public class RedisKeyUtil {
         return redissonClient.getList(RedisKeyUtil.ADMIN_USER_SYSPERMISSION + id);
     }
 
+    /**
+     * 三方平台余额缓存
+     *
+     * @param userId 会员id
+     * @param platform 平台名称
+     */
+    public RAtomicDouble getTripartiteBalance(String platform,String userId) {
+        RAtomicDouble atomicDouble = redissonClient.getAtomicDouble(MessageFormat.format(RedisKeyUtil.TRIPARTITE_BALANCE, platform,userId));
+        return atomicDouble;
+//        return new BigDecimal(atomicDouble.get());
+    }
+
+    /**
+     * 三方平台最后登录时间
+     *
+     * @param userId 会员id
+     * @param platform 平台名称
+     */
+    public RAtomicLong getLastLoginInt(String platform,String userId) {
+        return redissonClient.getAtomicLong(MessageFormat.format(RedisKeyUtil.LAST_LOGIN_INT, platform,userId));
+    }
 }

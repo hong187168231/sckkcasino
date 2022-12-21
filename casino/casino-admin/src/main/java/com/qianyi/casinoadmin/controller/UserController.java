@@ -562,7 +562,7 @@ public class UserController {
 
         }
 
-        JSONObject jsonObject = userMoneyService.refreshAE(null);
+        JSONObject jsonObject = userMoneyService.refreshAE(null,true);
         thridBalanceSumVo.setQueryTime(DateUtil.dateToString(new Date(), DateUtil.patten));
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             thridBalanceSumVo.setSunBalance(BigDecimal.ZERO);
@@ -591,7 +591,7 @@ public class UserController {
         if (LoginUtil.checkNull(third) || ObjectUtils.isEmpty(third.getAeAccount())){
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
-        JSONObject jsonObject = userMoneyService.refreshAE(id);
+        JSONObject jsonObject = userMoneyService.refreshAE(id,true);
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             return ResponseUtil.custom("AE余额失败");
         }
@@ -661,7 +661,7 @@ public class UserController {
         for (UserThird u:allOBDJAccount){
             threadPool.execute(() ->{
                 try {
-                    JSONObject jsonObject = userMoneyService.refreshOB(u.getUserId());
+                    JSONObject jsonObject = userMoneyService.refreshOB(u.getUserId(),true);
                     if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
                         list.add(BigDecimal.ZERO);
                     }else {
@@ -742,7 +742,7 @@ public class UserController {
         if (LoginUtil.checkNull(third) || ObjectUtils.isEmpty(third.getObdjAccount())){
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
-        JSONObject jsonObject = userMoneyService.refreshOB(third.getUserId());
+        JSONObject jsonObject = userMoneyService.refreshOB(third.getUserId(),true);
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             return ResponseUtil.custom("OB余额失败");
         }
@@ -1127,7 +1127,7 @@ public class UserController {
         if (LoginUtil.checkNull(userThird) || StringUtils.isBlank(userThird.getVncAccount())){
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
-        JSONObject jsonObject = userMoneyService.refreshVNC(id);
+        JSONObject jsonObject = userMoneyService.refreshVNC(id,true);
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             return ResponseUtil.custom("查询VNC余额失败");
         }
@@ -1165,7 +1165,7 @@ public class UserController {
 
         }
 
-        JSONObject jsonObject = userMoneyService.refreshVNC(null);
+        JSONObject jsonObject = userMoneyService.refreshVNC(null,true);
         thridBalanceSumVo.setQueryTime(DateUtil.dateToString(new Date(), DateUtil.patten));
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             thridBalanceSumVo.setSunBalance(BigDecimal.ZERO);
@@ -1221,7 +1221,7 @@ public class UserController {
         if (LoginUtil.checkNull(userThird) || StringUtils.isBlank(userThird.getDmcAccount())){
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
-        JSONObject jsonObject = userMoneyService.refreshDMC(id);
+        JSONObject jsonObject = userMoneyService.refreshDMC(id,true);
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             return ResponseUtil.custom("查询DMC余额失败");
         }
@@ -1249,7 +1249,7 @@ public class UserController {
     @GetMapping("refreshDMCTotal")
     @NoAuthorization
     public ResponseEntity refreshDMCTotal(){
-        JSONObject jsonObject = userMoneyService.refreshDMC(null);
+        JSONObject jsonObject = userMoneyService.refreshDMC(null,true);
         ThridBalanceSumVo thridBalanceSumVo = new ThridBalanceSumVo();
         thridBalanceSumVo.setQueryTime(DateUtil.dateToString(new Date(), DateUtil.patten));
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
@@ -1306,7 +1306,7 @@ public class UserController {
         if (LoginUtil.checkNull(userThird) || StringUtils.isBlank(userThird.getDgAccount())){
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
-        JSONObject jsonObject = userMoneyService.refreshDG(id);
+        JSONObject jsonObject = userMoneyService.refreshDG(id,true);
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             return ResponseUtil.custom("查询DG余额失败");
         }
@@ -1334,7 +1334,7 @@ public class UserController {
     @GetMapping("refreshDGTotal")
     @NoAuthorization
     public ResponseEntity refreshDGTotal(){
-        JSONObject jsonObject = userMoneyService.refreshDG(null);
+        JSONObject jsonObject = userMoneyService.refreshDG(null,true);
         ThridBalanceSumVo thridBalanceSumVo = new ThridBalanceSumVo();
         thridBalanceSumVo.setQueryTime(DateUtil.dateToString(new Date(), DateUtil.patten));
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){

@@ -49,20 +49,22 @@ public class HttpClient4Util {
         return s;
     }
 
-    public static String getWeb(String url) throws Exception {
+    public static String getWeb(String url,Boolean tag) throws Exception {
         log.info("get请求参数{}",url);
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
         RequestConfig requestConfig = RequestConfig.custom()
-            .setConnectTimeout(60000).setConnectionRequestTimeout(60000)
-            .setSocketTimeout(60000).build();
+            .setConnectTimeout(20000).setConnectionRequestTimeout(20000)
+            .setSocketTimeout(20000).build();
         httpGet.setConfig(requestConfig);
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        String language = request.getHeader(Constants.LANGUAGE);
-        if (StringUtils.isNullOrEmpty(language) || language.equals(LocaleConfig.en_US.toString())){
-            httpGet.setHeader(Constants.LANGUAGE,"en_US");
-        }else if (language.equals(LocaleConfig.zh_CN.toString())){
-            httpGet.setHeader(Constants.LANGUAGE,"zh_CN");
+        if (tag){
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+            String language = request.getHeader(Constants.LANGUAGE);
+            if (StringUtils.isNullOrEmpty(language) || language.equals(LocaleConfig.en_US.toString())){
+                httpGet.setHeader(Constants.LANGUAGE,"en_US");
+            }else if (language.equals(LocaleConfig.zh_CN.toString())){
+                httpGet.setHeader(Constants.LANGUAGE,"zh_CN");
+            }
         }
         CloseableHttpResponse response = null;
         try {

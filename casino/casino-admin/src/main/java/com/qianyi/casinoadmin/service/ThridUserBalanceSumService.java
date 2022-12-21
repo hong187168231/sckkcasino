@@ -124,7 +124,7 @@ public class ThridUserBalanceSumService {
         for (UserThird u:obdjThird){
             threadPool.execute(() ->{
                 try {
-                    JSONObject jsonObject = userMoneyService.refreshOB(u.getUserId());
+                    JSONObject jsonObject = userMoneyService.refreshOB(u.getUserId(),false);
                     if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
                         list.add(BigDecimal.ZERO);
                     }else {
@@ -223,7 +223,7 @@ public class ThridUserBalanceSumService {
     }
 
     public void setRedisAEMoneyTotal(){
-        JSONObject jsonObject = userMoneyService.refreshAE(null);
+        JSONObject jsonObject = userMoneyService.refreshAE(null,false);
         BigDecimal sum = null;
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             sum = BigDecimal.ZERO;
@@ -243,7 +243,7 @@ public class ThridUserBalanceSumService {
     }
 
     public void setRedisVNCMoneyTotal(){
-        JSONObject jsonObject = userMoneyService.refreshVNC(null);
+        JSONObject jsonObject = userMoneyService.refreshVNC(null,false);
         BigDecimal sum = null;
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             sum = BigDecimal.ZERO;
