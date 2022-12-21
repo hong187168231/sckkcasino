@@ -414,7 +414,7 @@ public class GameRecordReportTask {
                 vo.setFirstProxy(gameRecordDG.getFirstProxy());
                 vo.setSecondProxy(gameRecordDG.getSecondProxy());
                 vo.setThirdProxy(gameRecordDG.getThirdProxy());
-                vo.setOrderTimes(DatePattern.NORM_DATE_FORMAT.format(gameRecordDG.getBetTime()));
+                vo.setOrderTimes(gameRecordDG.getBetTime());
                 vo.setUserId(gameRecordDG.getUserId());
                 vo.setValidAmount(gameRecordDG.getRealMoney());
                 vo.setWinLoss(BigDecimal.ZERO.subtract(gameRecordDG.getRealMoney()));
