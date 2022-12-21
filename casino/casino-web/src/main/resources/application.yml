@@ -80,6 +80,15 @@ project:   #不同环境需配置相应的值
     secretKey: yI>o@R#%DEY3&dnx7:BfpW+Y6>2I:r
     apiUrl: https://sandbox-gateway.sportxxxw1box.com
     currency: 2 #美元
+  obzr: #OB真人
+    merchantCode: Y7MYG
+    merchantName: casino220411DEV
+    aesKey: tCs5nRbehZpFwMdy
+    md5Key: nbGtBa7Z9E85nltB
+    apiUrl: https://api.obothapi.com/api/merchant
+    apiDataUrl: https://api.obothapi.com
+    currency: 2 #美元
+    tester: 1  #用户类型： 1-测试、0-正式
   ae: #AE
     cert: DlmZxZMoiXeIesH87rY
     agentId: kkcasino
