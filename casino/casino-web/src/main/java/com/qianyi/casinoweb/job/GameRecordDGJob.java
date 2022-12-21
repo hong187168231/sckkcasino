@@ -53,7 +53,7 @@ public class GameRecordDGJob {
     private PlatformGameService platformGameService;
 
     //每隔4分钟执行一次
-//    @Scheduled(fixedDelay = 20000)
+    @Scheduled(fixedDelay = 20000)
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_DG);
         //平台关闭，但是拉单还是要继续进行
@@ -175,7 +175,7 @@ public class GameRecordDGJob {
         for (DGTradeReportVo gameRecordDGVo : gameRecordDGVoList) {
 
             GameRecordDG gameRecord = save(gameRecordDGVo);
-            if ("1".equals(gameRecord.getIsRevocation())){//是否结算：1：已结算 2:撤销
+            if (1==gameRecord.getIsRevocation()){//是否结算：1：已结算 2:撤销
                 business(Constants.PLATFORM_DG, gameRecord, platformConfig);
             }
             idList.add(gameRecordDGVo.getId());
