@@ -781,7 +781,7 @@ public class UserMoneyService {
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null ? "" : first.getWebConfiguration();
             WMurl = WMurl + recycleUrl;
-            String s = HttpClient4Util.getWeb(WMurl + param);
+            String s = HttpClient4Util.getWeb(WMurl + param,true);
             log.info("{}回收余额web接口返回{}", user.getAccount(), s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
@@ -796,14 +796,14 @@ public class UserMoneyService {
      * @param userId
      * @return
      */
-    public JSONObject refreshOB(Long userId) {
+    public JSONObject refreshOB(Long userId,Boolean tag) {
         try {
             String param = "userId={0}";
             param = MessageFormat.format(param, userId.toString());
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null ? "" : first.getWebConfiguration();
             WMurl = WMurl + OB_refreshUrl;
-            String s = HttpClient4Util.getWeb(WMurl + param);
+            String s = HttpClient4Util.getWeb(WMurl + param,tag);
             log.info("{}查询OB余额web接口返回{}", userId, s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
@@ -852,7 +852,7 @@ public class UserMoneyService {
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null ? "" : first.getWebConfiguration();
             WMurl = WMurl + PG_recycleUrl;
-            String s = HttpClient4Util.getWeb(WMurl + param);
+            String s = HttpClient4Util.getWeb(WMurl + param,true);
             log.info("{}回收PG余额web接口返回{}", user.getAccount(), s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
@@ -876,14 +876,14 @@ public class UserMoneyService {
         }
     }
 
-    public JSONObject refreshSABAUserId(String userId) {
+    public JSONObject refreshSABAUserId(String userId,Boolean tag) {
         try {
             String param = "userId={0}&vendorCode={1}";
             param = MessageFormat.format(param, userId, Constants.PLATFORM_SABASPORT);
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null ? "" : first.getWebConfiguration();
             WMurl = WMurl + PG_refreshUrl;
-            String s = HttpClient4Util.getWeb(WMurl + param);
+            String s = HttpClient4Util.getWeb(WMurl + param,tag);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
         } catch (Exception e) {
@@ -898,7 +898,7 @@ public class UserMoneyService {
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null ? "" : first.getWebConfiguration();
             WMurl = WMurl + PG_recycleUrl;
-            String s = HttpClient4Util.getWeb(WMurl + param);
+            String s = HttpClient4Util.getWeb(WMurl + param,true);
             log.info("{}回收PG余额web接口返回{}", user.getAccount(), s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
@@ -914,7 +914,7 @@ public class UserMoneyService {
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null ? "" : first.getWebConfiguration();
             WMurl = WMurl + OB_recycleUrl;
-            String s = HttpClient4Util.getWeb(WMurl + param);
+            String s = HttpClient4Util.getWeb(WMurl + param,true);
             log.info("{}回收OB电竞余额web接口返回{}", user.getAccount(), s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
@@ -962,7 +962,7 @@ public class UserMoneyService {
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null ? "" : first.getWebConfiguration();
             WMurl = WMurl + OBTY_recycleUrl;
-            String s = HttpClient4Util.getWeb(WMurl + param);
+            String s = HttpClient4Util.getWeb(WMurl + param,true);
             log.info("{}回收OB体育余额web接口返回{}", user.getAccount(), s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
@@ -978,7 +978,7 @@ public class UserMoneyService {
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null ? "" : first.getWebConfiguration();
             WMurl = WMurl + OBZR_recycleUrl;
-            String s = HttpClient4Util.getWeb(WMurl + param);
+            String s = HttpClient4Util.getWeb(WMurl + param,true);
             log.info("{}回收OB体育余额web接口返回{}", user.getAccount(), s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
@@ -1018,7 +1018,7 @@ public class UserMoneyService {
         return singleResult;
     }
 
-    public JSONObject refreshAE(Long userId) {
+    public JSONObject refreshAE(Long userId,Boolean tag) {
         try {
             String param = "";
             if (userId != null && userId != 0) {
@@ -1034,7 +1034,7 @@ public class UserMoneyService {
             if (!CommonUtil.checkNull(param)) {
                 aEUrl = aEUrl + param;
             }
-            String s = HttpClient4Util.getWeb(aEUrl);
+            String s = HttpClient4Util.getWeb(aEUrl,tag);
             log.info("查询AE余额web接口返回{}", s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
@@ -1050,7 +1050,7 @@ public class UserMoneyService {
             PlatformConfig first = platformConfigService.findFirst();
             String aeUrl = first == null ? "" : first.getWebConfiguration();
             aeUrl = aeUrl + AE_recycleUrl;
-            String s = HttpClient4Util.getWeb(aeUrl + param);
+            String s = HttpClient4Util.getWeb(aeUrl + param,true);
             log.info("{}回收AE余额web接口返回{}", user.getAccount(), s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
@@ -1059,7 +1059,7 @@ public class UserMoneyService {
         }
     }
 
-    public JSONObject refreshVNC(Long userId) {
+    public JSONObject refreshVNC(Long userId,Boolean tag) {
         try {
             String param = "";
             if (Objects.nonNull(userId) && userId.longValue() != 0L) {
@@ -1075,7 +1075,7 @@ public class UserMoneyService {
             if (!CommonUtil.checkNull(param)) {
                 aEUrl = aEUrl + param;
             }
-            String s = HttpClient4Util.getWeb(aEUrl);
+            String s = HttpClient4Util.getWeb(aEUrl,tag);
             log.info("查询VNC余额web接口返回{}", s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
@@ -1091,7 +1091,7 @@ public class UserMoneyService {
             PlatformConfig first = platformConfigService.findFirst();
             String aeUrl = first == null ? "" : first.getWebConfiguration();
             aeUrl = aeUrl + VNC_recycleUrl;
-            String s = HttpClient4Util.getWeb(aeUrl + param);
+            String s = HttpClient4Util.getWeb(aeUrl + param,true);
             log.info("{}回收VNC余额web接口返回{}", userId, s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
@@ -1101,7 +1101,7 @@ public class UserMoneyService {
     }
 
 
-    public JSONObject refreshDMC(Long userId) {
+    public JSONObject refreshDMC(Long userId,Boolean tag) {
         try {
             String param = "";
             if (Objects.nonNull(userId) && userId.longValue() != 0L) {
@@ -1118,7 +1118,7 @@ public class UserMoneyService {
             if (!CommonUtil.checkNull(param)) {
                 dmcUrl = dmcUrl + param;
             }
-            String s = HttpClient4Util.getWeb(dmcUrl);
+            String s = HttpClient4Util.getWeb(dmcUrl,tag);
             log.info("查询DMC余额web接口返回{}", s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
@@ -1135,7 +1135,7 @@ public class UserMoneyService {
             String dmcUrl = first == null ? "" : first.getWebConfiguration();
             dmcUrl = dmcUrl + DMC_recycleUrl;
 //            dmcUrl = "http://127.0.0.1:9200" + DMC_recycleUrl;
-            String s = HttpClient4Util.getWeb(dmcUrl + param);
+            String s = HttpClient4Util.getWeb(dmcUrl + param,true);
             log.info("{}回收DMC余额web接口返回{}", userId, s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
@@ -1144,7 +1144,7 @@ public class UserMoneyService {
         }
     }
 
-    public JSONObject refreshDG(Long userId) {
+    public JSONObject refreshDG(Long userId,Boolean tag) {
         try {
             String param = "";
             if (Objects.nonNull(userId) && userId.longValue() != 0L) {
@@ -1161,7 +1161,7 @@ public class UserMoneyService {
             if (!CommonUtil.checkNull(param)) {
                 dgUrl = dgUrl + param;
             }
-            String s = HttpClient4Util.getWeb(dgUrl);
+            String s = HttpClient4Util.getWeb(dgUrl,tag);
             log.info("查询DG余额web接口返回{}", s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
@@ -1178,7 +1178,7 @@ public class UserMoneyService {
             String dgUrl = first == null ? "" : first.getWebConfiguration();
             dgUrl = dgUrl + DG_recycleUrl;
 //            dmcUrl = "http://127.0.0.1:9200" + DMC_recycleUrl;
-            String s = HttpClient4Util.getWeb(dgUrl + param);
+            String s = HttpClient4Util.getWeb(dgUrl + param,true);
             log.info("{}回收DG余额web接口返回{}", userId, s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;

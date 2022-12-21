@@ -5,10 +5,13 @@ import com.qianyi.casinocore.repository.CompanyProxyMonthRepository;
 import com.qianyi.casinocore.repository.GameRecordGoldenFRepository;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.modulecommon.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.redisson.api.RAtomicDouble;
+import org.redisson.api.RAtomicLong;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -54,6 +57,34 @@ public class PictureControllerTest {
     
     @Autowired
     private ReportService reportService;
+
+    @Autowired
+    private RedisKeyUtil redisKeyUtil;
+
+    @Test
+    public void getLastLoginIntSet(){
+        RAtomicLong wm = redisKeyUtil.getLastLoginInt("WM", "1");
+        long startTime = System.currentTimeMillis();
+        wm.set(startTime);
+    }
+
+    @Test
+    public void  getTripartiteBalanceSet(){
+        RAtomicDouble atomicDouble = redisKeyUtil.getTripartiteBalance("WM", "1");
+        BigDecimal bigDecimal = new BigDecimal(30);
+        atomicDouble.set(bigDecimal.doubleValue());
+    }
+
+    @Test
+    public void getLastLoginInt(){
+        RAtomicLong wm = redisKeyUtil.getLastLoginInt("WM", "2");
+        System.out.println(wm.get());    }
+
+    @Test
+    public void  getTripartiteBalance(){
+        RAtomicDouble atomicDouble = redisKeyUtil.getTripartiteBalance("WM", "1");
+        System.out.println(new BigDecimal(atomicDouble.get()));
+    }
 
     @Test
     public void enddIndex(){
