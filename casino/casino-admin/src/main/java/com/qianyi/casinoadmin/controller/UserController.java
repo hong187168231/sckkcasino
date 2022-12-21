@@ -551,8 +551,18 @@ public class UserController {
     @ApiOperation("查询平台AE总余额")
     @GetMapping("refreshAETotal")
     public ResponseEntity refreshAETotal(){
-        JSONObject jsonObject = userMoneyService.refreshAE(null);
         ThridBalanceSumVo thridBalanceSumVo = new ThridBalanceSumVo();
+        String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_AE;
+        Object pgBalance = redisUtil.get(key);
+        Object time = redisUtil.get(key + "TIME");
+        if(!LoginUtil.checkNull(pgBalance) && !LoginUtil.checkNull(time)){
+            thridBalanceSumVo.setSunBalance(new BigDecimal(pgBalance.toString()));
+            thridBalanceSumVo.setQueryTime(time.toString());
+            return ResponseUtil.success(thridBalanceSumVo);
+
+        }
+
+        JSONObject jsonObject = userMoneyService.refreshAE(null);
         thridBalanceSumVo.setQueryTime(DateUtil.dateToString(new Date(), DateUtil.patten));
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             thridBalanceSumVo.setSunBalance(BigDecimal.ZERO);
@@ -890,7 +900,7 @@ public class UserController {
     @GetMapping("refreshOBZR")
     public ResponseEntity refreshOBZR(Long id){
         UserThird third = userThirdService.findByUserId(id);
-        if (LoginUtil.checkNull(third) || ObjectUtils.isEmpty(third.getObtyAccount())){
+        if (LoginUtil.checkNull(third) || ObjectUtils.isEmpty(third.getObzrAccount())){
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
         JSONObject jsonObject = userMoneyService.refreshOBZR(third.getUserId());
@@ -1144,8 +1154,18 @@ public class UserController {
     @ApiOperation("查询平台越南彩总余额")
     @GetMapping("refreshVNCTotal")
     public ResponseEntity refreshVNCTotal(){
-        JSONObject jsonObject = userMoneyService.refreshVNC(null);
         ThridBalanceSumVo thridBalanceSumVo = new ThridBalanceSumVo();
+        String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_VNC;
+        Object pgBalance = redisUtil.get(key);
+        Object time = redisUtil.get(key + "TIME");
+        if(!LoginUtil.checkNull(pgBalance) && !LoginUtil.checkNull(time)){
+            thridBalanceSumVo.setSunBalance(new BigDecimal(pgBalance.toString()));
+            thridBalanceSumVo.setQueryTime(time.toString());
+            return ResponseUtil.success(thridBalanceSumVo);
+
+        }
+
+        JSONObject jsonObject = userMoneyService.refreshVNC(null);
         thridBalanceSumVo.setQueryTime(DateUtil.dateToString(new Date(), DateUtil.patten));
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             thridBalanceSumVo.setSunBalance(BigDecimal.ZERO);

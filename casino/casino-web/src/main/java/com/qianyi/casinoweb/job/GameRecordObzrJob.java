@@ -63,10 +63,13 @@ public class GameRecordObzrJob {
     @Autowired
     private PlatformGameService platformGameService;
 
+
+
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
 
+
     //每隔7分钟执行一次
-    @Scheduled(cron = "0 0/7 * * * ?")
+    @Scheduled(cron = "0 0/5 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
         if (platformGame != null && platformGame.getGameStatus() == 2) {

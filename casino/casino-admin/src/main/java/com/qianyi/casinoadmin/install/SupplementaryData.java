@@ -28,9 +28,9 @@ public class SupplementaryData implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        log.info("初始化推广贷佣金开始============================================》");
-        this.supplementaryData();
-        log.info("初始化推广贷佣金结束============================================》");
+//        log.info("初始化推广贷佣金开始============================================》");
+//        this.supplementaryData();
+//        log.info("初始化推广贷佣金结束============================================》");
     }
 
     //补充推广贷佣金company_proxy_month

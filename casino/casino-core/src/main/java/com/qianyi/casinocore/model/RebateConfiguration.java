@@ -41,6 +41,10 @@ public class RebateConfiguration  extends BaseEntity{
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal OBTYRate;
 
+    @ApiModelProperty(value = "OBZR返利比例")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    private BigDecimal OBZRRate;
+
     @ApiModelProperty(value = "AE返利比例")
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal AERate;
