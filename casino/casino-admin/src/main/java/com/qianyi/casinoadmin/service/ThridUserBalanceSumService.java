@@ -237,6 +237,7 @@ public class ThridUserBalanceSumService {
         sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
         //存入缓存
         String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_AE;
+        log.info("查询AE总余额{}=============================================》",sum);
         redisUtil.set(key, sum, Constants.THIRD_BALANCE_ALL);
         redisUtil.set(key + "TIME", DateUtil.dateToString(new Date(), DateUtil.patten), Constants.THIRD_BALANCE_ALL);
     }
@@ -256,6 +257,7 @@ public class ThridUserBalanceSumService {
         sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
         //存入缓存
         String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_VNC;
+        log.info("查询VNC总余额{}=============================================》",sum);
         redisUtil.set(key, sum, Constants.THIRD_BALANCE_ALL);
         redisUtil.set(key + "TIME", DateUtil.dateToString(new Date(), DateUtil.patten), Constants.THIRD_BALANCE_ALL);
     }
