@@ -944,19 +944,20 @@ public class ThirdGameBusiness {
     }
 
     public Boolean ipWhiteCheck() {
-        if (ObjectUtils.isEmpty(ipWhite)) {
-            return false;
-        }
-        HttpServletRequest request =
-            ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-        String ip = IpUtil.getIp(request);
-        String[] ipWhiteArray = ipWhite.split(",");
-        for (String ipw : ipWhiteArray) {
-            if (!ObjectUtils.isEmpty(ipw) && ipw.trim().equals(ip)) {
-                return true;
-            }
-        }
-        return false;
+//        if (ObjectUtils.isEmpty(ipWhite)) {
+//            return false;
+//        }
+//        HttpServletRequest request =
+//            ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+//        String ip = IpUtil.getIp(request);
+//        String[] ipWhiteArray = ipWhite.split(",");
+//        for (String ipw : ipWhiteArray) {
+//            if (!ObjectUtils.isEmpty(ipw) && ipw.trim().equals(ip)) {
+//                return true;
+//            }
+//        }
+//        return false;
+        return true;
     }
 
     public ResponseEntity<BigDecimal> getAeBalanceByAccount(String aeAccount) {

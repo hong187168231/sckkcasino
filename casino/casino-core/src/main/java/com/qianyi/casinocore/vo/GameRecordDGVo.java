@@ -41,9 +41,9 @@ public class GameRecordDGVo implements Serializable {
     @ApiModelProperty(value = "好路追注金额")
     private BigDecimal betPointsz;//	Double		betPoints为总金额
 
-    @ApiModelProperty("实付金额")
+    @ApiModelProperty("输金额")
     private BigDecimal realMoney;//派彩金额减去有效下注金额
-    @ApiModelProperty("中奖金额")
+    @ApiModelProperty("赢金额")
     private BigDecimal winMoney;//派彩金额减去下注金额
     @ApiModelProperty(value = "有效下注金额")
     private BigDecimal availableBet;//	Double		可以为空

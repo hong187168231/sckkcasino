@@ -89,6 +89,12 @@ public class RebateUserConfigurationController {
         if (proxyWashCodeConfig.getVNCRate().compareTo(new BigDecimal(CommonConst.NUMBER_100)) > 0 || proxyWashCodeConfig.getVNCRate().compareTo(BigDecimal.ZERO) < 0){
             return ResponseUtil.custom("参数不合法");
         }
+        if (proxyWashCodeConfig.getDMCRate().compareTo(new BigDecimal(CommonConst.NUMBER_100)) > 0 || proxyWashCodeConfig.getDMCRate().compareTo(BigDecimal.ZERO) < 0){
+            return ResponseUtil.custom("参数不合法");
+        }
+        if (proxyWashCodeConfig.getDGRate().compareTo(new BigDecimal(CommonConst.NUMBER_100)) > 0 || proxyWashCodeConfig.getDGRate().compareTo(BigDecimal.ZERO) < 0){
+            return ResponseUtil.custom("参数不合法");
+        }
         Boolean tag = false;
         if (proxyWashCodeConfig.getPGRate().compareTo(BigDecimal.ZERO) == 0 &&
             proxyWashCodeConfig.getCQ9Rate().compareTo(BigDecimal.ZERO) == 0 &&
@@ -97,7 +103,9 @@ public class RebateUserConfigurationController {
             proxyWashCodeConfig.getOBTYRate().compareTo(BigDecimal.ZERO) == 0 &&
             proxyWashCodeConfig.getSABASPORTRate().compareTo(BigDecimal.ZERO) == 0 &&
             proxyWashCodeConfig.getAERate().compareTo(BigDecimal.ZERO) == 0 &&
-            proxyWashCodeConfig.getVNCRate().compareTo(BigDecimal.ZERO) == 0){
+            proxyWashCodeConfig.getVNCRate().compareTo(BigDecimal.ZERO) == 0 &&
+            proxyWashCodeConfig.getDMCRate().compareTo(BigDecimal.ZERO) == 0 &&
+                proxyWashCodeConfig.getDGRate().compareTo(BigDecimal.ZERO) == 0){
             tag = true;
         }
         if (LoginUtil.checkNull(byThirdProxy)){
@@ -122,6 +130,8 @@ public class RebateUserConfigurationController {
         byThirdProxy.setSABASPORTRate(proxyWashCodeConfig.getSABASPORTRate());
         byThirdProxy.setAERate(proxyWashCodeConfig.getAERate());
         byThirdProxy.setVNCRate(proxyWashCodeConfig.getVNCRate());
+        byThirdProxy.setDMCRate(proxyWashCodeConfig.getDMCRate());
+        byThirdProxy.setDGRate(proxyWashCodeConfig.getDGRate());
         rebateConfigurationService.save(byThirdProxy);
         return ResponseUtil.success();
     }

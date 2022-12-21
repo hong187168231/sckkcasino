@@ -278,6 +278,8 @@ public class Initialization implements CommandLineRunner {
                 proxyWashCodeConfig.setSABASPORTRate(new BigDecimal(0.9));
                 proxyWashCodeConfig.setAERate(new BigDecimal(0.9));
                 proxyWashCodeConfig.setVNCRate(new BigDecimal(0.9));
+                proxyWashCodeConfig.setDMCRate(new BigDecimal(0.9));
+                proxyWashCodeConfig.setDGRate(new BigDecimal(0.9));
                 proxyWashCodeConfig.setUserId(0L);
                 proxyWashCodeConfig.setType(Constants.OVERALL_TYPE);
                 rebateConfigurationService.save(proxyWashCodeConfig);
