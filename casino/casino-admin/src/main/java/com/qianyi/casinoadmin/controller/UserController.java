@@ -890,7 +890,7 @@ public class UserController {
     @GetMapping("refreshOBZR")
     public ResponseEntity refreshOBZR(Long id){
         UserThird third = userThirdService.findByUserId(id);
-        if (LoginUtil.checkNull(third) || ObjectUtils.isEmpty(third.getObtyAccount())){
+        if (LoginUtil.checkNull(third) || ObjectUtils.isEmpty(third.getObzrAccount())){
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
         JSONObject jsonObject = userMoneyService.refreshOBZR(third.getUserId());

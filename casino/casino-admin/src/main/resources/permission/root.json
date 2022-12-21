@@ -273,6 +273,20 @@
             "url": "/user/oneOBTYRecoverApi"
           },
           {
+            "descritpion": "查询用户OB真人余额",
+            "englishName": "OBZR Balance",
+            "menuLevel": 3,
+            "name": "查询用户OB真人余额",
+            "url": "/user/refreshOBZR"
+          },
+          {
+            "descritpion": "一键回收用户OB真人余额",
+            "englishName": "Restore All OBZR Balance",
+            "menuLevel": 3,
+            "name": "一键回收用户OB真人余额",
+            "url": "/user/oneOBZRRecoverApi"
+          },
+          {
             "descritpion": "请求玩家再WM余额总余额",
             "englishName": "WM total balance",
             "menuLevel": 3,
@@ -299,6 +313,13 @@
             "menuLevel": 3,
             "name": "查询玩家OBTY总余额",
             "url": "/user/refreshOBTYTotal"
+          },
+          {
+            "descritpion": "查询玩家OBZR总余额",
+            "englishName": "Search OBZR player total balance",
+            "menuLevel": 3,
+            "name": "查询玩家OBZR总余额",
+            "url": "/user/refreshOBZRTotal"
           },
           {
             "descritpion": "查询玩家沙巴总余额",
