@@ -69,6 +69,7 @@ public class HttpClient4Util {
             response = httpclient.execute(httpGet);
         } catch (Exception e) {
             httpclient.close();
+            log.error("查询web服务出现异常url{} Exception:{}",url,e.getMessage());
             e.printStackTrace();
         }
         HttpEntity entity = response.getEntity();//得到请求回来的数据
