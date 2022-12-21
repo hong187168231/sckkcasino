@@ -327,7 +327,7 @@ public class UserController {
         if (CasinoProxyUtil.checkNull(third) || ObjectUtils.isEmpty(third.getGoldenfAccount())){
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
-        JSONObject jsonObject = userMoneyService.refreshOB(third.getUserId());
+        JSONObject jsonObject = userMoneyService.refreshOB(third.getUserId(),true);
         if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             return ResponseUtil.custom("OB余额失败");
         }
@@ -414,7 +414,7 @@ public class UserController {
         if (CasinoProxyUtil.checkNull(third) || ObjectUtils.isEmpty(third.getObdjAccount())){
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
-        JSONObject jsonObject = userMoneyService.refreshAE(id);
+        JSONObject jsonObject = userMoneyService.refreshAE(id,true);
         if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             return ResponseUtil.custom("AE余额失败");
         }
@@ -443,7 +443,7 @@ public class UserController {
         if (CasinoProxyUtil.checkNull(userThird) || StringUtils.isBlank(userThird.getVncAccount())){
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
-        JSONObject jsonObject = userMoneyService.refreshVNC(id);
+        JSONObject jsonObject = userMoneyService.refreshVNC(id,true);
         if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             return ResponseUtil.custom("查询VNC余额失败");
         }
@@ -472,7 +472,7 @@ public class UserController {
         if (CasinoProxyUtil.checkNull(userThird) || StringUtils.isBlank(userThird.getDmcAccount())){
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
-        JSONObject jsonObject = userMoneyService.refreshDMC(id);
+        JSONObject jsonObject = userMoneyService.refreshDMC(id,true);
         if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             return ResponseUtil.custom("查询DMC余额失败");
         }
@@ -501,7 +501,7 @@ public class UserController {
         if (CasinoProxyUtil.checkNull(userThird) || StringUtils.isBlank(userThird.getDgAccount())){
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
-        JSONObject jsonObject = userMoneyService.refreshDG(id);
+        JSONObject jsonObject = userMoneyService.refreshDG(id,true);
         if (CasinoProxyUtil.checkNull(jsonObject) || CasinoProxyUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
             return ResponseUtil.custom("查询DG余额失败");
         }
