@@ -221,4 +221,42 @@ public class ThridUserBalanceSumService {
         redisUtil.set(key, sum, Constants.THIRD_BALANCE_ALL);
         redisUtil.set(key + "TIME", DateUtil.dateToString(new Date(), DateUtil.patten), Constants.THIRD_BALANCE_ALL);
     }
+
+    public void setRedisAEMoneyTotal(){
+        JSONObject jsonObject = userMoneyService.refreshAE(null);
+        BigDecimal sum = null;
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            sum = BigDecimal.ZERO;
+        }else {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
+                BigDecimal sunAamount = new BigDecimal(jsonObject.get("data").toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+                sum = sunAamount;
+            }
+        }
+        sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+        //存入缓存
+        String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_AE;
+        redisUtil.set(key, sum, Constants.THIRD_BALANCE_ALL);
+        redisUtil.set(key + "TIME", DateUtil.dateToString(new Date(), DateUtil.patten), Constants.THIRD_BALANCE_ALL);
+    }
+
+    public void setRedisVNCMoneyTotal(){
+        JSONObject jsonObject = userMoneyService.refreshVNC(null);
+        BigDecimal sum = null;
+        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"),jsonObject.get("msg"))){
+            sum = BigDecimal.ZERO;
+        }else {
+            Integer code = (Integer) jsonObject.get("code");
+            if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))){
+                BigDecimal sunAamount = new BigDecimal(jsonObject.get("data").toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+                sum = sunAamount;
+            }
+        }
+        sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+        //存入缓存
+        String key = Constants.REDIS_THRID_SUMBALANCE + Constants.PLATFORM_VNC;
+        redisUtil.set(key, sum, Constants.THIRD_BALANCE_ALL);
+        redisUtil.set(key + "TIME", DateUtil.dateToString(new Date(), DateUtil.patten), Constants.THIRD_BALANCE_ALL);
+    }
 }

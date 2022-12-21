@@ -150,7 +150,7 @@ public class Constants {
     public static final Long ADMIN_REFRESH_TTL = 60 * 60L * 24;//秒
     public static final Long PROXY_REFRESH_TTL = 60 * 60L * 24;//秒
     public static final Long THIRD_BALANCE_TTL = 35 * 60L;//30分钟
-    public static final Long THIRD_BALANCE_ALL = 35 * 60L * 24;//30分钟
+    public static final Long THIRD_BALANCE_ALL = 60 * 60L * 25;//一天
 
     public static final String LANGUAGE_CN= "zh-cn"; //中文
     public static final String LANGUAGE_EH= "eh"; //泰语
