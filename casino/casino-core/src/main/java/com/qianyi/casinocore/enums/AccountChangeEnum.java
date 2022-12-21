@@ -36,7 +36,7 @@ public enum AccountChangeEnum {
     DMC_IN(23, "DMCIN", "DMC转入"),
     DMC_OUT(24, "DMCOUT", "DMC转出"),
     DG_IN(29, "DGIN", "DG转入"),
-    DG_OUT(30, "DGOUT", "DG转出")
+    DG_OUT(30, "DGOUT", "DG转出"),
 
     OBZR_IN(31, "OBZRIN","OB体真人转入"),
     OBZR_OUT(32, "OBZROUT","OB真人转出"),
