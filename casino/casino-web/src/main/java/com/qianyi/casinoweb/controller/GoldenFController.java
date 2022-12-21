@@ -348,6 +348,13 @@ public class GoldenFController {
     public ResponseEntity oneKeyRecover(String vendorCode) {
         // 获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
+        String platform = Constants.PLATFORM_SABASPORT;
+        // 适配PG/CQ9
+        if (ObjectUtils.isEmpty(vendorCode)) {
+            platform = Constants.PLATFORM_PG_CQ9;
+        }
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(platform,userId.toString());
         return thirdGameBusiness.oneKeyRecoverGoldenF(userId, vendorCode);
     }
 
@@ -361,6 +368,13 @@ public class GoldenFController {
         if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
+        String platform = Constants.PLATFORM_SABASPORT;
+        // 适配PG/CQ9
+        if (ObjectUtils.isEmpty(vendorCode)) {
+            platform = Constants.PLATFORM_PG_CQ9;
+        }
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(platform,userId.toString());
         return thirdGameBusiness.oneKeyRecoverGoldenF(userId, vendorCode);
     }
 

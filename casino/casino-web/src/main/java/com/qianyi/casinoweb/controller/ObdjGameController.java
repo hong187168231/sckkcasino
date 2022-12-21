@@ -227,6 +227,8 @@ public class ObdjGameController {
     public ResponseEntity oneKeyRecover() {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBDJ,userId.toString());
         return thirdGameBusiness.oneKeyRecoverObdj(userId);
     }
 
@@ -239,6 +241,8 @@ public class ObdjGameController {
         if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBDJ,userId.toString());
         return thirdGameBusiness.oneKeyRecoverObdj(userId);
     }
 }

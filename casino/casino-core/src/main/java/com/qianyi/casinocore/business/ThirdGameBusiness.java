@@ -111,9 +111,6 @@ public class ThirdGameBusiness {
                 return pgEnable;
             }
         }
-        //重置缓存时间
-        ExpirationTimeUtil.resetExpirationTime(vendorCode,userId.toString());
-
         if (Constants.PLATFORM_SABASPORT.equals(vendorCode)) {
             ResponseEntity sabaEnable = checkPlatformStatus(Constants.PLATFORM_SABASPORT);
             if (sabaEnable.getCode() != ResponseCode.SUCCESS.getCode()) {
@@ -228,9 +225,6 @@ public class ThirdGameBusiness {
         if (lang == null) {
             lang = 0;
         }
-        //重置缓存时间
-        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_WM_BIG,userId.toString());
-
         String account = third.getAccount();
         // 先退出游戏
         Boolean aBoolean = wmApi.logoutGame(account, lang);
@@ -310,10 +304,6 @@ public class ThirdGameBusiness {
         if (third == null || ObjectUtils.isEmpty(third.getObdjAccount())) {
             return ResponseUtil.custom("OB电竞余额为0");
         }
-
-        //重置缓存时间
-        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBDJ,userId.toString());
-
         User user = userService.findById(userId);
         String account = third.getObdjAccount();
 
@@ -392,7 +382,6 @@ public class ThirdGameBusiness {
         if (third == null || ObjectUtils.isEmpty(third.getObtyAccount())) {
             return ResponseUtil.custom("OB体育余额为0");
         }
-        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBTY,userId.toString());
         User user = userService.findById(userId);
         String account = third.getObtyAccount();
         // 先退出
