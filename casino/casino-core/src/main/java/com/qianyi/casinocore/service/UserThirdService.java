@@ -81,6 +81,10 @@ public class UserThirdService {
         return userThirdRepository.findAllOBTYAccount();
     }
 
+    public List<UserThird> findAllOBZRAccount() {
+        return userThirdRepository.findAllOBZRAccount();
+    }
+
     @Cacheable(key = "#root.methodName+'::'+#p0")
     public UserThird findByVncAccount(String account) {
         return userThirdRepository.findByVncAccount(account);
