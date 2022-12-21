@@ -125,10 +125,12 @@ public class ProxyGameRecordReportService {
         Integer totalBetNumber = userGameRecordReportService.findTotalBetNumber(startTime, endTime);
         Integer totalBetNumberByAe = userGameRecordReportService.findTotalBetNumberByAe(startTime, endTime);
         Integer totalBetNumberByVnc = userGameRecordReportService.findTotalBetNumberByVnc(startTime, endTime);
-        Integer total = totalBetNumber + totalBetNumberByAe  + totalBetNumberByVnc;
-        log.info("代理报表日期{} betNumber:{} total:{} totalBetNumber:{}  totalBetNumberByAe:{} totalBetNumberByVnc:{}", dayTime, betNumber,total,totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc);
+        Integer totalBetNumberByDmc = userGameRecordReportService.findTotalBetNumberByDmc(startTime, endTime);
+        Integer totalBetNumberByDg = userGameRecordReportService.findTotalBetNumberByDg(startTime, endTime);
+        Integer total = totalBetNumber + totalBetNumberByAe  + totalBetNumberByVnc+totalBetNumberByDmc+totalBetNumberByDg;
+        log.info("代理报表日期{} betNumber:{} total:{} totalBetNumber:{}  totalBetNumberByAe:{} totalBetNumberByVnc:{} totalBetNumberByDmc:{} totalBetNumberByDg:{}", dayTime, betNumber,total,totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc,totalBetNumberByDmc,totalBetNumberByDg);
         if (betNumber.intValue() != total.intValue()) {
-            log.error("代理报表日期{}不相等开始重新计算betNumber:{}  total:{} totalBetNumber:{} totalBetNumberByAe:{} totalBetNumberByVnc:{}", dayTime, betNumber,total, totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc);
+            log.error("代理报表日期{}不相等开始重新计算betNumber:{}  total:{} totalBetNumber:{} totalBetNumberByAe:{} totalBetNumberByVnc:{} totalBetNumberByDmc:{} totalBetNumberByDg:{}", dayTime, betNumber,total, totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc,totalBetNumberByDmc,totalBetNumberByDg);
             proxyGameRecordReportRepository.deleteByOrderTimes(dayTime);
             try {
                 List<Map<String, Object>> totalMap = proxyGameRecordReportRepository.findTotal(startTime, endTime);

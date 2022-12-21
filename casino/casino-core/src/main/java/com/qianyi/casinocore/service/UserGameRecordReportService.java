@@ -73,6 +73,14 @@ public class UserGameRecordReportService {
         return userGameRecordReportRepository.findTotalBetNumberByVnc(startTime,endTime);
     }
 
+    public Integer findTotalBetNumberByDmc(String startTime,String endTime){
+        return userGameRecordReportRepository.findTotalBetNumberByDmc(startTime,endTime);
+    }
+
+    public Integer findTotalBetNumberByDg(String startTime,String endTime){
+        return userGameRecordReportRepository.findTotalBetNumberByDg(startTime,endTime);
+    }
+
     @Transactional
     public void comparison(String dayTime) {// dayTime为一天yyyy-MM-dd
         String startTime = dayTime + start;
@@ -81,10 +89,12 @@ public class UserGameRecordReportService {
         Integer totalBetNumber = this.findTotalBetNumber(startTime, endTime);
         Integer totalBetNumberByAe = this.findTotalBetNumberByAe(startTime, endTime);
         Integer totalBetNumberByVnc = this.findTotalBetNumberByVnc(startTime, endTime);
-        Integer total = totalBetNumber + totalBetNumberByAe + totalBetNumberByVnc;
-        log.info("会员报表日期{} betNumber:{} total:{} totalBetNumber:{} totalBetNumberByAe:{} totalBetNumberByVnc:{}", dayTime, betNumber,total, totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc);
+        Integer totalBetNumberByDmc = this.findTotalBetNumberByDmc(startTime, endTime);
+        Integer totalBetNumberByDg = this.findTotalBetNumberByDg(startTime, endTime);
+        Integer total = totalBetNumber + totalBetNumberByAe + totalBetNumberByVnc+totalBetNumberByDmc+totalBetNumberByDg;
+        log.info("会员报表日期{} betNumber:{} total:{} totalBetNumber:{} totalBetNumberByAe:{} totalBetNumberByVnc:{} totalBetNumberByDmc:{} totalBetNumberByDg:{}", dayTime, betNumber,total, totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc,totalBetNumberByDmc,totalBetNumberByDg);
         if (betNumber.intValue() != total.intValue()) {
-            log.error("会员报表日期{}不相等开始重新计算betNumber:{} total:{} totalBetNumber:{} totalBetNumberByAe:{} totalBetNumberByVnc:{}", dayTime, betNumber,total, totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc);
+            log.error("会员报表日期{}不相等开始重新计算betNumber:{} total:{} totalBetNumber:{} totalBetNumberByAe:{} totalBetNumberByVnc:{} totalBetNumberByDmc:{} totalBetNumberByDg:{}", dayTime, betNumber,total, totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc,totalBetNumberByDmc,totalBetNumberByDg);
             userGameRecordReportRepository.deleteByOrderTimes(dayTime);
 
             List<Map<String, Object>> wm = userGameRecordReportRepository.findWm(startTime, endTime);
