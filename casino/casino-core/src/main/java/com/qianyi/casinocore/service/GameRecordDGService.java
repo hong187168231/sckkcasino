@@ -133,7 +133,7 @@ public class GameRecordDGService {
                     list.add(cb.equal(root.get("userId").as(Long.class), GameRecordDG.getUserId()));
                 }
                 if (GameRecordDG.getUserAcct() != null) {
-                    list.add(cb.equal(root.get("userAcct").as(Long.class), GameRecordDG.getUserAcct()));
+                    list.add(cb.equal(root.get("userAcct").as(String.class), GameRecordDG.getUserAcct()));
                 }
                 if (GameRecordDG.getFirstProxy() != null) {
                     list.add(cb.equal(root.get("firstProxy").as(Long.class), GameRecordDG.getFirstProxy()));
