@@ -53,7 +53,7 @@ public class GameRecordDGJob {
     private PlatformGameService platformGameService;
 
     //每隔4分钟执行一次
-    @Scheduled(fixedDelay = 20000)
+//    @Scheduled(fixedDelay = 20000)
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_DG);
         //平台关闭，但是拉单还是要继续进行
@@ -186,16 +186,13 @@ public class GameRecordDGJob {
 
     @SneakyThrows
     public GameRecordDG save(DGTradeReportVo gameRecordDGVo) {
-        GameRecordDG gameRecordDG = new GameRecordDG();
-        gameRecordDG.setBetOrderNo(String.valueOf(gameRecordDGVo.getId()));
-        BeanUtils.copyProperties(gameRecordDGVo, gameRecordDG);
-        GameRecordDG gameRecord = gameRecordDGService.findByBetOrderNo(gameRecordDG.getBetOrderNo());
+        GameRecordDG gameRecord = gameRecordDGService.findByBetOrderNo(String.valueOf(gameRecordDGVo.getId()));
         if (gameRecord == null) {
             gameRecord = new GameRecordDG();
-            BeanUtils.copyProperties(gameRecordDG, gameRecord);
+            BeanUtils.copyProperties(gameRecordDGVo, gameRecord);
             gameRecord.setIsAdd(1);//新增
         }else {
-            BeanUtils.copyProperties(gameRecordDG, gameRecord);
+            BeanUtils.copyProperties(gameRecordDGVo, gameRecord);
             gameRecord.setIsAdd(0);//0.修改
         }
         UserThird account = userThirdService.findByDgAccount(gameRecord.getUserName());
