@@ -88,12 +88,12 @@ public class GameRecordObzrService {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<GameRecordObzr> query = cb.createQuery(GameRecordObzr.class);
         Root<GameRecordObzr> root = query.from(GameRecordObzr.class);
-
-        query.multiselect(
-            cb.sum(root.get("netAmount").as(BigDecimal.class)).alias("netAmount"),
-            cb.sum(root.get("validBetAmount").as(BigDecimal.class)).alias("validBetAmount"),
-            cb.sum(root.get("payoutAmount").as(BigDecimal.class)).alias("payoutAmount")
-        );
+//
+//        query.multiselect(
+//            cb.sum(root.get("netAmount").as(BigDecimal.class)).alias("netAmount"),
+//            cb.sum(root.get("validBetAmount").as(BigDecimal.class)).alias("validBetAmount"),
+//            cb.sum(root.get("payoutAmount").as(BigDecimal.class)).alias("payoutAmount")
+//        );
 
         List<Predicate> list = new ArrayList();
         if (!CommonUtil.checkNull(gameRecordObty.getPlayerName())) {
