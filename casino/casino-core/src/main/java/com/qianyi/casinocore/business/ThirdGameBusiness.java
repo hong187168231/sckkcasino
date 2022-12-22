@@ -755,7 +755,7 @@ public class ThirdGameBusiness {
             apiResponseData = dgApi.transterWallet(account, balance.negate(),orderNo);//正数存款负数取款
         } catch (Exception e) {
             //异步记录错误订单
-            errorOrderService.syncSaveDgErrorOrder(third.getVncAccount(), user.getId(), user.getAccount(), orderNo, balance, AccountChangeEnum.DG_OUT, Constants.PLATFORM_DG);
+            errorOrderService.syncSaveDgErrorOrder(third.getDgAccount(), user.getId(), user.getAccount(), orderNo, balance, AccountChangeEnum.DG_OUT, Constants.PLATFORM_DG);
             return ResponseUtil.custom("回收失败,请联系客服");
         }
 
@@ -766,7 +766,7 @@ public class ThirdGameBusiness {
             BigDecimal money = userMoney.getMoney();
             userMoneyService.addMoney(userId, balance);
             log.info("DG余额,userMoney加回成功，userId={},balance={}", userId, balance);
-            saveAccountChange(Constants.PLATFORM_VNC, userId, balance, money, balance.add(money), 1, orderNo, AccountChangeEnum.DG_OUT, "自动转出DG", user);
+            saveAccountChange(Constants.PLATFORM_DG, userId, balance, money, balance.add(money), 1, orderNo, AccountChangeEnum.DG_OUT, "自动转出DG", user);
             log.info("DG余额回收成功，userId={},account={},money={}", userId, user.getAccount(), balance);
             return ResponseUtil.success();
         }else{
