@@ -126,6 +126,11 @@ public class DGGameController {
                     //记录账变
                     thirdGameBusiness.inSaveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, "自动转入DG", Constants.PLATFORM_DG, AccountChangeEnum.DG_IN);
 
+                }else if(null == deposit) {
+                    log.error("userId:{},DG游戏加点失败,result:{}", authId, deposit);
+                    //三方加扣点失败再把钱加回来
+                    userMoneyService.addMoney(authId, userCenterMoney);
+                    return ResponseUtil.custom("服务器异常,请重新操作");
                 }else {
                     log.error("userId:{},DG游戏加点失败,result:{}", authId, deposit);
                     //三方加扣点失败再把钱加回来
@@ -139,7 +144,7 @@ public class DGGameController {
                 userMoneyService.addMoney(authId, userCenterMoney);
                 //异步记录错误订单并重试补偿
                 errorOrderService.syncSaveDgErrorOrder(third.getAeAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.DG_IN, Constants.PLATFORM_DG);
-                return ResponseUtil.custom("服务器异常,请重新操作");
+                return dgApi.errorCode(deposit.getIntValue("codeId"), deposit.getString("random"));
             }
 
         }
