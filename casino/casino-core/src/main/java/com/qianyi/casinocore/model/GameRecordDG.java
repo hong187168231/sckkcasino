@@ -47,9 +47,9 @@ public class GameRecordDG extends BaseEntity{
     private BigDecimal betPointsz;//	Double		betPoints为总金额
 
     @ApiModelProperty("实付金额")
-    private BigDecimal realMoney;//派彩金额减去有效下注金额
+    private BigDecimal realMoney = BigDecimal.ZERO;//派彩金额减去有效下注金额
     @ApiModelProperty("中奖金额")
-    private BigDecimal winMoney;//派彩金额减去下注金额
+    private BigDecimal winMoney = BigDecimal.ZERO;;//派彩金额减去下注金额
     @ApiModelProperty(value = "有效下注金额")
     private BigDecimal availableBet;//	Double		可以为空
     @ApiModelProperty(value = "会员登入账号")
