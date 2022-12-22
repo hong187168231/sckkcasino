@@ -19,14 +19,14 @@ public class GameRecordObzr extends BaseEntity{
     @ApiModelProperty(value = "我方账号")
     private Long userId;
 
+    @ApiModelProperty(value = "玩家账号")
+    private String playerName;
+
     @ApiModelProperty(value = "注单号。区别唯一性")
     private String orderNo;
 
     @ApiModelProperty(value = "玩家编号")
     private Long playerId;
-
-    @ApiModelProperty(value = "玩家账号")
-    private String playerName;
 
     @ApiModelProperty(value = "代理编号")
     private Long agentId;

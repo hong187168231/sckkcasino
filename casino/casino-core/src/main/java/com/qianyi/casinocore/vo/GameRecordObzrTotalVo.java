@@ -15,13 +15,13 @@ public class GameRecordObzrTotalVo implements Serializable {
 
     @ApiModelProperty(value = "订单实际投注金额")
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
-    private BigDecimal orderAmount = BigDecimal.ZERO;
+    private BigDecimal validBetAmount = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "结算金额")
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
-    private BigDecimal settleAmount = BigDecimal.ZERO;
+    private BigDecimal netAmount = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "盈利金额")
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
-    private BigDecimal profitAmount = BigDecimal.ZERO;
+    private BigDecimal payoutAmount = BigDecimal.ZERO;
 }
