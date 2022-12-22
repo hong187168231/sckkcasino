@@ -51,6 +51,7 @@ public class ThridUserBalanceSumService {
             threadPool.execute(() -> {
                 try {
                     if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time, ExpirationTimeUtil.sports)) {
+                        log.info("平台{}查询{}余额走缓存",platform, u.getUserId().toString());
                         list.add(ExpirationTimeUtil.getTripartiteBalance(platform, u.getUserId().toString()));
                     } else {
                         JSONObject jsonObject = userMoneyService.refreshSABA(u.getUserId());
@@ -100,6 +101,7 @@ public class ThridUserBalanceSumService {
             threadPool.execute(() -> {
                 try {
                     if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time, ExpirationTimeUtil.sports)) {
+                        log.info("平台{}查询{}余额走缓存",platform, u.getUserId().toString());
                         list.add(ExpirationTimeUtil.getTripartiteBalance(platform, u.getUserId().toString()));
                     } else {
                         JSONObject jsonObject = userMoneyService.refreshOBTY(u.getUserId());
@@ -139,6 +141,7 @@ public class ThridUserBalanceSumService {
             threadPool.execute(() -> {
                 try {
                     if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time, ExpirationTimeUtil.universality)) {
+                        log.info("平台{}查询{}余额走缓存",platform, u.getUserId().toString());
                         list.add(ExpirationTimeUtil.getTripartiteBalance(platform, u.getUserId().toString()));
                     } else {
                         JSONObject jsonObject = userMoneyService.refreshOB(u.getUserId(), false);
@@ -179,6 +182,7 @@ public class ThridUserBalanceSumService {
             threadPool.execute(() -> {
                 try {
                     if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time, ExpirationTimeUtil.universality)) {
+                        log.info("平台{}查询{}余额走缓存",platform, u.getUserId().toString());
                         list.add(ExpirationTimeUtil.getTripartiteBalance(platform, u.getUserId().toString()));
                     } else {
                         JSONObject jsonObject = userMoneyService.refreshPGAndCQ9UserId(u.getUserId().toString());
@@ -219,6 +223,7 @@ public class ThridUserBalanceSumService {
             threadPool.execute(() -> {
                 try {
                     if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time, ExpirationTimeUtil.universality)) {
+                        log.info("平台{}查询{}余额走缓存",platform, u.getUserId().toString());
                         list.add(ExpirationTimeUtil.getTripartiteBalance(platform, u.getUserId().toString()));
                     } else {
                         JSONObject jsonObject = userMoneyService.getWMonetUser(u);
