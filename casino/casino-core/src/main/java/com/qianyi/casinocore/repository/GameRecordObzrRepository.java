@@ -2,11 +2,14 @@ package com.qianyi.casinocore.repository;
 
 import com.qianyi.casinocore.model.GameRecordObzr;
 import com.qianyi.casinocore.model.GameRecordObzr;
+import io.swagger.annotations.ApiModelProperty;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import javax.persistence.Column;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +17,7 @@ import java.util.Map;
 public interface GameRecordObzrRepository extends JpaRepository<GameRecordObzr, Long>, JpaSpecificationExecutor<GameRecordObzr> {
 
 
-@Query(value = "select first_proxy first_proxy ,second_proxy second_proxy ,third_proxy third_proxy, user_id as  userId,count(distinct user_id) player_num ,max(bet_str_time) bet_time, sum(order_amount) validbet,1 as gameType \n" +
+@Query(value = "select first_proxy first_proxy ,second_proxy second_proxy ,third_proxy third_proxy, user_id as  userId,count(distinct user_id) player_num ,max(bet_str_time) bet_time, sum(valid_bet_amount) validbet,1 as gameType \n" +
             "from game_record_obzr gr\n" +
             "where\n" +
             "bet_str_time between ?1 and ?2\n" +
@@ -57,7 +60,7 @@ public interface GameRecordObzrRepository extends JpaRepository<GameRecordObzr, 
 
     @Query(value = "select MAX(g.id) maxId,ifnull(SUM(d.user_amount), 0 ) as user_amount,ifnull(SUM(d.surplus_amount), 0 ) as surplus_amount,LEFT(g.settle_str_time,?2) set_time,ifnull(g.first_proxy,0) first_proxy,\n"
         + "        ifnull(g.second_proxy,0) second_proxy,ifnull(g.third_proxy,0) third_proxy,\n"
-        + "        COUNT(1) num,SUM(g.order_amount) bet,SUM(g.order_amount) validbet,SUM(g.profit_amount) win_loss,\n"
+        + "        COUNT(1) num,SUM(g.bet_amount) bet,SUM(g.valid_bet_amount) validbet,SUM(g.net_amount) win_loss,\n"
         + "         ifnull(SUM(w.amount),0) amount from game_record_obzr g left join  \n"
         + "        wash_code_change w  on  w.game_record_id = g.id and w.platform = 'OBZR'\n"
         + "        LEFT JOIN  rebate_detail d on d.game_record_id=g.id  and d.platform = 'OBZR'\n"
