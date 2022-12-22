@@ -22,7 +22,7 @@ public class CompanyProxyTask {
     private CompanyProxyMonthBusiness companyProxyMonthBusiness;
 
     //每天凌晨05分进行启动
-    @Scheduled(cron = "0 5 0 * * ?")
+   // @Scheduled(cron = "0 5 0 * * ?")
     public void processTask(){
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String dayTime = df.format(LocalDateTime.now());
@@ -32,7 +32,7 @@ public class CompanyProxyTask {
     }
 
     //每天凌晨05分进行启动
-    @Scheduled(cron = "0 5 0 * * ?")
+   // @Scheduled(cron = "0 5 0 * * ?")
     public void processMonthTask(){
         log.info("---------------推广贷计算开始---------------");
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
