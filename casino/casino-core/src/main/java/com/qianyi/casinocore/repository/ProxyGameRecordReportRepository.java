@@ -115,8 +115,19 @@ public interface ProxyGameRecordReportRepository extends JpaRepository<ProxyGame
         + "from game_record_ae grg where g.tx_status = 1 and tx_time >= ?1 and tx_time <= ?2 group by user_id ;",nativeQuery = true)
     List<Map<String, Object>> findTotalAe(String startTime,String endTime);
 
-    @Query(value = "SELECT user_id user_id,count(1) num,ifnull( sum( bet_money ), 0 ) bet_amount,ifnull( sum( real_money ), 0 ) validbet,"
+    @Query(value = "SELECT ifnull( grv.first_proxy, 0 ) first_proxy,ifnull( grv.second_proxy, 0 ) second_proxy,ifnull( grv.third_proxy, 0 ) third_proxy,"
+        + "user_id user_id,count(1) num,ifnull( sum( bet_money ), 0 ) bet_amount,ifnull( sum( real_money ), 0 ) validbet,"
         + "ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss FROM rpt_bet_info_detail grv WHERE settle_time BETWEEN ?1 AND ?2 "
         + "group by user_id ;",nativeQuery = true)
     List<Map<String, Object>> findVnc(String startTime,String endTime);
+
+    @Query(value = "SELECT ifnull( grd.first_proxy, 0 ) first_proxy,ifnull( grd.second_proxy, 0 ) second_proxy,ifnull( grd.third_proxy, 0 ) third_proxy,"
+        + "user_id user_id,count(1) num,ifnull( sum( bet_points ), 0 ) bet_amount,ifnull( sum( available_bet ), 0 ) validbet,"
+        + "ifnull( sum( win_money ),0 ) win_loss FROM game_record_dg grd WHERE bet_time BETWEEN ?1 AND ?2 group by user_id ;",nativeQuery = true)
+    List<Map<String, Object>> findDg(String startTime,String endTime);
+
+    @Query(value = "SELECT ifnull( grd.first_proxy, 0 ) first_proxy,ifnull( grd.second_proxy, 0 ) second_proxy,ifnull( grd.third_proxy, 0 ) third_proxy,"
+        + "user_id user_id,count(1) num,ifnull( sum( bet_money ), 0 ) bet_amount,ifnull( sum( real_money ), 0 ) validbet,"
+        + "ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss FROM game_record_dmc grd WHERE bet_time BETWEEN ?1 AND ?2 group by user_id ;",nativeQuery = true)
+    List<Map<String, Object>> findDmc(String startTime,String endTime);
 }
