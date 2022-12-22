@@ -882,9 +882,9 @@ public class GameRecordController {
         }
 
         GameRecordObzrTotalVo gameRecordObzrTotalVo = new GameRecordObzrTotalVo();
-        gameRecordObzrTotalVo.setOrderAmount(content.getValidBetAmount());
-        gameRecordObzrTotalVo.setProfitAmount(content.getNetAmount());
-        gameRecordObzrTotalVo.setSettleAmount(content.getPayoutAmount());
+        gameRecordObzrTotalVo.setValidBetAmount(content.getValidBetAmount());
+        gameRecordObzrTotalVo.setNetAmount(content.getNetAmount());
+        gameRecordObzrTotalVo.setPayoutAmount(content.getPayoutAmount());
         return ResponseUtil.success(gameRecordObzrTotalVo);
     }
 
