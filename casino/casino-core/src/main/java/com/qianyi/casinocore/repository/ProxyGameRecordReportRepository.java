@@ -85,32 +85,161 @@ public interface ProxyGameRecordReportRepository extends JpaRepository<ProxyGame
     @Query(value = "DELETE from proxy_game_record_report where order_times >= ?1 and order_times <= ?2 ;",nativeQuery = true)
     void deleteByOrderTimes(String startTime,String endTime);
 
-    @Query(value = "SELECT a.user_id user_id,a.first_proxy first_proxy,a.second_proxy second_proxy,a.third_proxy third_proxy,"
-        + "a.num num,a.bet_amount bet_amount,a.validbet validbet,a.win_loss win_loss FROM (SELECT u.id user_id,u.first_proxy "
-        + "first_proxy,u.second_proxy second_proxy,u.third_proxy third_proxy, ifnull( main_t.num, 0 )+ifnull( gre_t.num, 0 )+ ifnull( goldenf_t.num, 0 )+ "
-        + "ifnull( goldenf_sb.num, 0)+ ifnull( grobdj_t.num, 0 )+ ifnull( grobty_t.num, 0 )+ ifnull( dmc.num, 0 )+ ifnull( dg.num, 0 ) num, ifnull( main_t.bet_amount, 0 )+ ifnull( gre_t.bet_amount, 0 )+"
-        + "ifnull( goldenf_t.bet_amount, 0 )+ ifnull( goldenf_sb.bet_amount, 0 )+ ifnull( grobdj_t.bet_amount, 0 )+  ifnull( grobty_t.bet_amount, 0 )+ ifnull( dmc.bet_amount, 0 )+ ifnull( dg.bet_amount, 0 ) "
-        + "bet_amount,ifnull( main_t.validbet, 0 )+ ifnull( gre_t.validbet, 0 )+ ifnull( goldenf_t.bet_amount, 0 )+ ifnull( goldenf_sb.bet_amount,0)+ ifnull( grobdj_t.bet_amount, 0 )"
-        + "+ ifnull( grobty_t.bet_amount, 0 )+ ifnull( dmc.validbet, 0 )+ ifnull( dg.validbet, 0 ) validbet,ifnull( main_t.win_loss, 0 )+ ifnull( gre_t.win_loss, 0 )+ ifnull( goldenf_t.win_loss, 0 )+ ifnull( goldenf_sb.win_loss, 0 )"
-        + "+ ifnull( grobdj_t.win_loss, 0 )+ ifnull( grobty_t.win_loss, 0 )+ ifnull( dmc.win_loss, 0 )+ ifnull( dg.win_loss, 0 ) win_loss FROM USER u LEFT JOIN (SELECT user_id,count( 1 ) num,"
-        + "sum( bet ) bet_amount,sum( validbet ) validbet,sum( win_loss ) win_loss FROM game_record gr WHERE  bet_time >= ?1 AND bet_time <= ?2 "
-        + "GROUP BY user_id ) main_t ON u.id = main_t.user_id LEFT JOIN (SELECT user_id,count( 1 ) num,sum( bet_amount ) bet_amount,sum( turnover ) validbet,"
-        + "sum( real_win_amount-real_bet_amount ) win_loss FROM game_record_ae gre WHERE gre.tx_status = 1 and gre.tx_time >= ?1 AND gre.tx_time <= ?2 GROUP BY user_id ) gre_t "
-        + "ON u.id = gre_t.user_id LEFT JOIN (SELECT user_id,count( 1 ) num,sum( bet_amount ) bet_amount,sum( win_amount - bet_amount )"
-        + " win_loss FROM game_record_goldenf grg WHERE create_at_str >= ?1 AND create_at_str <= ?2 And vendor_code in ('PG','CQ9') GROUP BY user_id ) goldenf_t "
-        + "ON u.id = goldenf_t.user_id LEFT JOIN (SELECT off.user_id user_id,off.vendor_code vendor_code,count( DISTINCT sk.bet_id ) num,ifnull( SUM( sk.bet_amount ), 0 ) bet_amount,"
-        + "ifnull( SUM( sk.bet_amount ), 0 ) validbet,ifnull(sum(off.win_amount), 0 )-ifnull(sum( sk.bet_amount ), 0 )+ifnull(sum(t3.win_amount), 0 ) win_loss FROM "
-        + "(SELECT user_id user_id,vendor_code vendor_code,bet_id bet_id,SUM( win_amount ) win_amount FROM game_record_goldenf t1 WHERE t1.vendor_code = 'SABASPORT' "
-        + "AND t1.trans_type = 'Payoff' AND t1.create_at_str BETWEEN ?1 AND ?2 GROUP BY t1.bet_id) off LEFT JOIN ( SELECT bet_amount, "
-        + "bet_id FROM game_record_goldenf WHERE vendor_code = 'SABASPORT' AND trans_type = 'Stake' ) sk ON off.bet_id = sk.bet_id LEFT JOIN ( SELECT SUM(win_amount) win_amount,"
-        + " bet_id FROM game_record_goldenf WHERE vendor_code = 'SABASPORT' AND trans_type = 'cancelPayoff' GROUP BY bet_id) t3 ON off.bet_id = t3.bet_id GROUP BY off.user_id) "
-        + "goldenf_sb ON u.id = goldenf_sb.user_id   LEFT JOIN (SELECT user_id,count( 1 ) num,sum( bet_amount ) bet_amount,sum( win_amount - bet_amount ) win_loss "
-        + "FROM game_record_obdj grobdj  WHERE bet_status IN ( 5, 6, 8, 9, 10 ) AND set_str_time >= ?1 AND set_str_time <= ?2 GROUP BY user_id ) grobdj_t "
-        + "ON u.id = grobdj_t.user_id " +
-            " LEFT JOIN (SELECT user_id,count( 1 ) num,sum( dg.bet_points ) bet_amount,sum( dg.available_bet ) validbet,sum( dg.win_money - dg.bet_points ) win_loss FROM game_record_dg dg  WHERE dg.is_revocation ='1' AND dg.cal_time >= ? 1  AND dg.cal_time <= ? 2  GROUP BY user_id  ) dg ON u.id = dg.user_id"+
-            " LEFT JOIN (SELECT user_id, count( 1 ) num, sum( dmc.bet_money ) bet_amount, sum( dmc.bet_money ) validbet, sum( dmc.win_money - dmc.bet_money ) win_loss  FROM game_record_dmc dmc  WHERE  dmc.bet_time >= ? 1  AND dmc.bet_time <= ? 2  GROUP BY dmc.user_id  ) dmc ON u.id = dmc.user_id "+
-            " LEFT JOIN (SELECT user_id,count( 1 ) num,sum( order_amount ) bet_amount,sum( profit_amount ) win_loss FROM game_record_obty grobty "
-        + "WHERE settle_str_time >= ?1 AND settle_str_time <= ?2 GROUP BY user_id ) grobty_t ON u.id = grobty_t.user_id ) a WHERE num > 0;",nativeQuery = true)
+    @Query(value = "SELECT\n" +
+            "\ta.user_id user_id,\n" +
+            "\ta.first_proxy first_proxy,\n" +
+            "\ta.second_proxy second_proxy,\n" +
+            "\ta.third_proxy third_proxy,\n" +
+            "\ta.num num,\n" +
+            "\ta.bet_amount bet_amount,\n" +
+            "\ta.validbet validbet,\n" +
+            "\ta.win_loss win_loss \n" +
+            "FROM\n" +
+            "\t(\n" +
+            "\tSELECT\n" +
+            "\t\tu.id user_id,\n" +
+            "\t\tu.first_proxy first_proxy,\n" +
+            "\t\tu.second_proxy second_proxy,\n" +
+            "\t\tu.third_proxy third_proxy,\n" +
+            "\t\tifnull( main_t.num, 0 )+ ifnull( gre_t.num, 0 )+ ifnull( goldenf_t.num, 0 )+ ifnull( goldenf_sb.num, 0 )+ ifnull( grobdj_t.num, 0 )+ ifnull( grobty_t.num, 0 )+ ifnull( dmc.num, 0 )+ ifnull( dg.num, 0 ) num,\n" +
+            "\t\tifnull( main_t.bet_amount, 0 )+ ifnull( gre_t.bet_amount, 0 )+ ifnull( goldenf_t.bet_amount, 0 )+ ifnull( goldenf_sb.bet_amount, 0 )+ ifnull( grobdj_t.bet_amount, 0 )+ ifnull( grobty_t.bet_amount, 0 )+ ifnull( dmc.bet_amount, 0 )+ ifnull( dg.bet_amount, 0 ) bet_amount,\n" +
+            "\t\tifnull( main_t.validbet, 0 )+ ifnull( gre_t.validbet, 0 )+ ifnull( goldenf_t.bet_amount, 0 )+ ifnull( goldenf_sb.bet_amount, 0 )+ ifnull( grobdj_t.bet_amount, 0 ) + ifnull( grobty_t.bet_amount, 0 )+ ifnull( dmc.validbet, 0 )+ ifnull( dg.validbet, 0 ) validbet,\n" +
+            "\t\tifnull( main_t.win_loss, 0 )+ ifnull( gre_t.win_loss, 0 )+ ifnull( goldenf_t.win_loss, 0 )+ ifnull( goldenf_sb.win_loss, 0 ) + ifnull( grobdj_t.win_loss, 0 )+ ifnull( grobty_t.win_loss, 0 )+ ifnull( dmc.win_loss, 0 )+ ifnull( dg.win_loss, 0 ) win_loss \n" +
+            "\tFROM\n" +
+            "\t\tUSER u\n" +
+            "\t\tLEFT JOIN (\n" +
+            "\t\tSELECT\n" +
+            "\t\t\tuser_id,\n" +
+            "\t\t\tcount( 1 ) num,\n" +
+            "\t\t\tsum( bet ) bet_amount,\n" +
+            "\t\t\tsum( validbet ) validbet,\n" +
+            "\t\t\tsum( win_loss ) win_loss \n" +
+            "\t\tFROM\n" +
+            "\t\t\tgame_record gr \n" +
+            "\t\tWHERE\n" +
+            "\t\t\tbet_time >= ?1 \n" +
+            "\t\t\tAND bet_time <= ?2 \n" +
+            "\t\tGROUP BY\n" +
+            "\t\t\tuser_id \n" +
+            "\t\t) main_t ON u.id = main_t.user_id\n" +
+            "\t\tLEFT JOIN (\n" +
+            "\t\tSELECT\n" +
+            "\t\t\tuser_id,\n" +
+            "\t\t\tcount( 1 ) num,\n" +
+            "\t\t\tsum( bet_amount ) bet_amount,\n" +
+            "\t\t\tsum( turnover ) validbet,\n" +
+            "\t\t\tsum( real_win_amount - real_bet_amount ) win_loss \n" +
+            "\t\tFROM\n" +
+            "\t\t\tgame_record_ae gre \n" +
+            "\t\tWHERE\n" +
+            "\t\t\tgre.tx_status = 1 \n" +
+            "\t\t\tAND gre.tx_time >= ?1 \n" +
+            "\t\t\tAND gre.tx_time <= ?2 \n" +
+            "\t\tGROUP BY\n" +
+            "\t\t\tuser_id \n" +
+            "\t\t) gre_t ON u.id = gre_t.user_id\n" +
+            "\t\tLEFT JOIN (\n" +
+            "\t\tSELECT\n" +
+            "\t\t\tuser_id,\n" +
+            "\t\t\tcount( 1 ) num,\n" +
+            "\t\t\tsum( bet_amount ) bet_amount,\n" +
+            "\t\t\tsum( win_amount - bet_amount ) win_loss \n" +
+            "\t\tFROM\n" +
+            "\t\t\tgame_record_goldenf grg \n" +
+            "\t\tWHERE\n" +
+            "\t\t\tcreate_at_str >= ?1 \n" +
+            "\t\t\tAND create_at_str <= ?2 \n" +
+            "\t\t\tAND vendor_code IN ( 'PG', 'CQ9' ) \n" +
+            "\t\tGROUP BY\n" +
+            "\t\t\tuser_id \n" +
+            "\t\t) goldenf_t ON u.id = goldenf_t.user_id\n" +
+            "\t\tLEFT JOIN (\n" +
+            "\t\tSELECT\n" +
+            "\t\t\toff.user_id user_id,\n" +
+            "\t\t\toff.vendor_code vendor_code,\n" +
+            "\t\t\tcount( DISTINCT sk.bet_id ) num,\n" +
+            "\t\t\tifnull( SUM( sk.bet_amount ), 0 ) bet_amount,\n" +
+            "\t\t\tifnull( SUM( sk.bet_amount ), 0 ) validbet,\n" +
+            "\t\t\tifnull( sum( off.win_amount ), 0 )- ifnull( sum( sk.bet_amount ), 0 )+ ifnull( sum( t3.win_amount ), 0 ) win_loss \n" +
+            "\t\tFROM\n" +
+            "\t\t\t(\n" +
+            "\t\t\tSELECT\n" +
+            "\t\t\t\tuser_id user_id,\n" +
+            "\t\t\t\tvendor_code vendor_code,\n" +
+            "\t\t\t\tbet_id bet_id,\n" +
+            "\t\t\t\tSUM( win_amount ) win_amount \n" +
+            "\t\t\tFROM\n" +
+            "\t\t\t\tgame_record_goldenf t1 \n" +
+            "\t\t\tWHERE\n" +
+            "\t\t\t\tt1.vendor_code = 'SABASPORT' \n" +
+            "\t\t\t\tAND t1.trans_type = 'Payoff' \n" +
+            "\t\t\t\tAND t1.create_at_str BETWEEN ?1 \n" +
+            "\t\t\t\tAND ?2 \n" +
+            "\t\t\tGROUP BY\n" +
+            "\t\t\t\tt1.bet_id \n" +
+            "\t\t\t) off\n" +
+            "\t\t\tLEFT JOIN ( SELECT bet_amount, bet_id FROM game_record_goldenf WHERE vendor_code = 'SABASPORT' AND trans_type = 'Stake' ) sk ON off.bet_id = sk.bet_id\n" +
+            "\t\t\tLEFT JOIN ( SELECT SUM( win_amount ) win_amount, bet_id FROM game_record_goldenf WHERE vendor_code = 'SABASPORT' AND trans_type = 'cancelPayoff' GROUP BY bet_id ) t3 ON off.bet_id = t3.bet_id \n" +
+            "\t\tGROUP BY\n" +
+            "\t\t\toff.user_id \n" +
+            "\t\t) goldenf_sb ON u.id = goldenf_sb.user_id\n" +
+            "\t\tLEFT JOIN (\n" +
+            "\t\tSELECT\n" +
+            "\t\t\tuser_id,\n" +
+            "\t\t\tcount( 1 ) num,\n" +
+            "\t\t\tsum( bet_amount ) bet_amount,\n" +
+            "\t\t\tsum( win_amount - bet_amount ) win_loss \n" +
+            "\t\tFROM\n" +
+            "\t\t\tgame_record_obdj grobdj \n" +
+            "\t\tWHERE\n" +
+            "\t\t\tbet_status IN ( 5, 6, 8, 9, 10 ) \n" +
+            "\t\t\tAND set_str_time >= ?1 \n" +
+            "\t\t\tAND set_str_time <= ?2 \n" +
+            "\t\tGROUP BY\n" +
+            "\t\t\tuser_id \n" +
+            "\t\t) grobdj_t ON u.id = grobdj_t.user_id\n" +
+            "\t\tLEFT JOIN (\n" +
+            "\t\tSELECT\n" +
+            "\t\t\tuser_id,\n" +
+            "\t\t\tcount( 1 ) num,\n" +
+            "\t\t\tsum( dg.bet_points ) bet_amount,\n" +
+            "\t\t\tsum( dg.available_bet ) validbet,\n" +
+            "\t\t\tsum( dg.win_money - dg.bet_points ) win_loss \n" +
+            "\t\tFROM\n" +
+            "\t\t\tgame_record_dg dg \n" +
+            "\t\tWHERE\n" +
+            "\t\t\tdg.is_revocation = '1' \n" +
+            "\t\t\tAND dg.cal_time >= ?1 \n" +
+            "\t\t\tAND dg.cal_time <= ?2 \n" +
+            "\t\tGROUP BY\n" +
+            "\t\t\tuser_id \n" +
+            "\t\t) dg ON u.id = dg.user_id\n" +
+            "\t\tLEFT JOIN (\n" +
+            "\t\tSELECT\n" +
+            "\t\t\tuser_id,\n" +
+            "\t\t\tcount( 1 ) num,\n" +
+            "\t\t\tsum( dmc.bet_money ) bet_amount,\n" +
+            "\t\t\tsum( dmc.bet_money ) validbet,\n" +
+            "\t\t\tsum( dmc.win_money - dmc.bet_money ) win_loss \n" +
+            "\t\tFROM\n" +
+            "\t\t\tgame_record_dmc dmc \n" +
+            "\t\tWHERE\n" +
+            "\t\t\tdmc.bet_time >= ?1\n" +
+            "\t\t\tAND dmc.bet_time <= ?2 \n" +
+            "\t\tGROUP BY\n" +
+            "\t\t\tdmc.user_id \n" +
+            "\t\t) dmc ON u.id = dmc.user_id\n" +
+            "\t\tLEFT JOIN (\n" +
+            "\t\tSELECT\n" +
+            "\t\t\tuser_id,\n" +
+            "\t\t\tcount( 1 ) num,\n" +
+            "\t\t\tsum( order_amount ) bet_amount,\n" +
+            "\t\t\tsum( profit_amount ) win_loss \n" +
+            "\t\tFROM\n" +
+            "\t\t\tgame_record_obty grobty \n" +
+            "\t\tWHERE\n" +
+            "\t\tsettle_str_time >= ?1 \n" +
+            "\tAND settle_str_time <= ?2 GROUP BY user_id ) grobty_t ON u.id = grobty_t.user_id ) a WHERE num > 0;",nativeQuery = true)
     List<Map<String, Object>> findTotal(String startTime,String endTime);
 
     @Query(value = "select ifnull( g.first_proxy, 0 ) first_proxy,ifnull( g.second_proxy, 0 ) second_proxy,ifnull( g.third_proxy, 0 ) third_proxy,"
