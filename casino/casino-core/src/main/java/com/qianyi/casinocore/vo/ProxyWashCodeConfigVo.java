@@ -34,6 +34,10 @@ public class ProxyWashCodeConfigVo implements Serializable {
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal OBTYRate = BigDecimal.ZERO;
 
+    @ApiModelProperty(value = "OBZR返利比例")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    private BigDecimal OBZRRate = BigDecimal.ZERO;
+
     @ApiModelProperty(value = "SABASPORT返利比例")
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal SABASPORTRate = BigDecimal.ZERO;
