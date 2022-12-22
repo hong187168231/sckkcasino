@@ -84,7 +84,7 @@ public class GameRecordObzrService {
         return gameRecordObzrRepository.save(gameRecord);
     }
 
-    public  GameRecordObzr  findRecordRecordSum(GameRecordObzr gameRecordObty,String startBetTime,String endBetTime,String startSetTime,String endSetTime) {
+    public  GameRecordObzr  findRecordRecordSum(GameRecordObzr gameRecordObzr,String startBetTime,String endBetTime,String startSetTime,String endSetTime) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<GameRecordObzr> query = cb.createQuery(GameRecordObzr.class);
         Root<GameRecordObzr> root = query.from(GameRecordObzr.class);
@@ -96,32 +96,32 @@ public class GameRecordObzrService {
 //        );
 
         List<Predicate> list = new ArrayList();
-        if (!CommonUtil.checkNull(gameRecordObty.getPlayerName())) {
-            list.add(cb.equal(root.get("userName").as(String.class), gameRecordObty.getPlayerName()));
+        if (!CommonUtil.checkNull(gameRecordObzr.getPlayerName())) {
+            list.add(cb.equal(root.get("userName").as(String.class), gameRecordObzr.getPlayerName()));
         }
-        if (!CommonUtil.checkNull(gameRecordObty.getOrderNo())) {
-            list.add(cb.equal(root.get("orderNo").as(String.class), gameRecordObty.getOrderNo()));
+        if (!CommonUtil.checkNull(gameRecordObzr.getOrderNo())) {
+            list.add(cb.equal(root.get("orderNo").as(String.class), gameRecordObzr.getOrderNo()));
         }
-        if (gameRecordObty.getUserId() != null) {
-            list.add(cb.equal(root.get("userId").as(Long.class), gameRecordObty.getUserId()));
+        if (gameRecordObzr.getUserId() != null) {
+            list.add(cb.equal(root.get("userId").as(Long.class), gameRecordObzr.getUserId()));
         }
-        if (gameRecordObty.getFirstProxy() != null) {
-            list.add(cb.equal(root.get("firstProxy").as(Long.class), gameRecordObty.getFirstProxy()));
+        if (gameRecordObzr.getFirstProxy() != null) {
+            list.add(cb.equal(root.get("firstProxy").as(Long.class), gameRecordObzr.getFirstProxy()));
         }
-        if (gameRecordObty.getSecondProxy() != null) {
-            list.add(cb.equal(root.get("secondProxy").as(Long.class), gameRecordObty.getSecondProxy()));
+        if (gameRecordObzr.getSecondProxy() != null) {
+            list.add(cb.equal(root.get("secondProxy").as(Long.class), gameRecordObzr.getSecondProxy()));
         }
-        if (gameRecordObty.getThirdProxy() != null) {
-            list.add(cb.equal(root.get("thirdProxy").as(Long.class), gameRecordObty.getThirdProxy()));
+        if (gameRecordObzr.getThirdProxy() != null) {
+            list.add(cb.equal(root.get("thirdProxy").as(Long.class), gameRecordObzr.getThirdProxy()));
         }
         if (!ObjectUtils.isEmpty(startBetTime) && !ObjectUtils.isEmpty(endBetTime)) {
             list.add(
-                cb.between(root.get("createdAt").as(String.class), startBetTime, endBetTime)
+                    cb.between(root.get("betStrTime").as(String.class), startBetTime, endBetTime)
             );
         }
         if (!ObjectUtils.isEmpty(startSetTime) && !ObjectUtils.isEmpty(endSetTime)) {
             list.add(
-                cb.between(root.get("netAt").as(String.class), startSetTime, endSetTime)
+                    cb.between(root.get("settleStrTime").as(String.class), startSetTime, endSetTime)
             );
         }
         query
@@ -137,7 +137,7 @@ public class GameRecordObzrService {
     }
 
     private Specification<GameRecordObzr> getCondition(GameRecordObzr gameRecordObzr, String startTime, String endTime, String startSetTime, String endSetTime) {
-        Specification<GameRecordObzr> specification = (Specification<GameRecordObzr>) (root, criteriaQuery, cb) -> {
+        Specification<GameRecordObzr> specification = (root, criteriaQuery, cb) -> {
             Predicate predicate;
             List<Predicate> list = new ArrayList<Predicate>();
             if (!CommonUtil.checkNull(gameRecordObzr.getPlayerName())) {
@@ -160,12 +160,12 @@ public class GameRecordObzrService {
             }
             if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
                 list.add(
-                    cb.between(root.get("createdAt").as(String.class), startTime, endTime)
+                        cb.between(root.get("betStrTime").as(String.class), startTime, endTime)
                 );
             }
             if (!ObjectUtils.isEmpty(startSetTime) && !ObjectUtils.isEmpty(endSetTime)) {
                 list.add(
-                    cb.between(root.get("netAt").as(String.class), startSetTime, endSetTime)
+                        cb.between(root.get("settleStrTime").as(String.class), startSetTime, endSetTime)
                 );
             }
             predicate = cb.and(list.toArray(new Predicate[list.size()]));
