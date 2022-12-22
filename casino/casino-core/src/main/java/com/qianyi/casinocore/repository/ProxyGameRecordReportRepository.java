@@ -87,12 +87,12 @@ public interface ProxyGameRecordReportRepository extends JpaRepository<ProxyGame
 
     @Query(value = "SELECT a.user_id user_id,a.first_proxy first_proxy,a.second_proxy second_proxy,a.third_proxy third_proxy,"
         + "a.num num,a.bet_amount bet_amount,a.validbet validbet,a.win_loss win_loss FROM (SELECT u.id user_id,u.first_proxy "
-        + "first_proxy,u.second_proxy second_proxy,u.third_proxy third_proxy, ifnull( main_t.num, 0 )+ifnull( gre_t.num, 0 )+ ifnull( goldenf_t.num, 0 )+ "
-        + "ifnull( goldenf_sb.num, 0)+ ifnull( grobdj_t.num, 0 )+ ifnull( grobty_t.num, 0 ) num, ifnull( main_t.bet_amount, 0 )+ ifnull( gre_t.bet_amount, 0 )+"
-        + "ifnull( goldenf_t.bet_amount, 0 )+ ifnull( goldenf_sb.bet_amount, 0 )+ ifnull( grobdj_t.bet_amount, 0 )+  ifnull( grobty_t.bet_amount, 0 ) "
-        + "bet_amount,ifnull( main_t.validbet, 0 )+ ifnull( gre_t.validbet, 0 )+ ifnull( goldenf_t.bet_amount, 0 )+ ifnull( goldenf_sb.bet_amount,0)+ ifnull( grobdj_t.bet_amount, 0 )"
-        + "+ ifnull( grobty_t.bet_amount, 0 ) validbet,ifnull( main_t.win_loss, 0 )+ ifnull( gre_t.win_loss, 0 )+ ifnull( goldenf_t.win_loss, 0 )+ ifnull( goldenf_sb.win_loss, 0 )"
-        + "+ ifnull( grobdj_t.win_loss, 0 )+ ifnull( grobty_t.win_loss, 0 ) win_loss FROM USER u LEFT JOIN (SELECT user_id,count( 1 ) num,"
+        + "first_proxy,u.second_proxy second_proxy,u.third_proxy third_proxy, " +
+            "ifnull( main_t.num, 0 )+ ifnull( gre_t.num, 0 )+ ifnull( goldenf_t.num, 0 )+ ifnull( goldenf_sb.num, 0 )+ ifnull( grobdj_t.num, 0 )+ ifnull( grobty_t.num, 0 )+ ifnull( dmc.num, 0 )+ ifnull( dg.num, 0 ) num, " +
+            "ifnull( main_t.bet_amount, 0 )+ ifnull( gre_t.bet_amount, 0 )+ ifnull( goldenf_t.bet_amount, 0 )+ ifnull( goldenf_sb.bet_amount, 0 )+ ifnull( grobdj_t.bet_amount, 0 )+ ifnull( grobty_t.bet_amount, 0 )+ ifnull( dmc.bet_amount, 0 )+ ifnull( dg.bet_amount, 0 ) bet_amount, " +
+            "ifnull( main_t.validbet, 0 )+ ifnull( gre_t.validbet, 0 )+ ifnull( goldenf_t.bet_amount, 0 )+ ifnull( goldenf_sb.bet_amount, 0 )+ ifnull( grobdj_t.bet_amount, 0 ) + ifnull( grobty_t.bet_amount, 0 )+ ifnull( dmc.validbet, 0 )+ ifnull( dg.validbet, 0 ) validbet, " +
+            "ifnull( main_t.win_loss, 0 )+ ifnull( gre_t.win_loss, 0 )+ ifnull( goldenf_t.win_loss, 0 )+ ifnull( goldenf_sb.win_loss, 0 ) + ifnull( grobdj_t.win_loss, 0 )+ ifnull( grobty_t.win_loss, 0 )+ ifnull( dmc.win_loss, 0 )+ ifnull( dg.win_loss, 0 ) win_loss " +
+            "FROM USER u LEFT JOIN (SELECT user_id,count( 1 ) num,"
         + "sum( bet ) bet_amount,sum( validbet ) validbet,sum( win_loss ) win_loss FROM game_record gr WHERE  bet_time >= ?1 AND bet_time <= ?2 "
         + "GROUP BY user_id ) main_t ON u.id = main_t.user_id LEFT JOIN (SELECT user_id,count( 1 ) num,sum( bet_amount ) bet_amount,sum( turnover ) validbet,"
         + "sum( real_win_amount-real_bet_amount ) win_loss FROM game_record_ae gre WHERE gre.tx_status = 1 and gre.tx_time >= ?1 AND gre.tx_time <= ?2 GROUP BY user_id ) gre_t "
@@ -104,7 +104,10 @@ public interface ProxyGameRecordReportRepository extends JpaRepository<ProxyGame
         + "AND t1.trans_type = 'Payoff' AND t1.create_at_str BETWEEN ?1 AND ?2 GROUP BY t1.bet_id) off LEFT JOIN ( SELECT bet_amount, "
         + "bet_id FROM game_record_goldenf WHERE vendor_code = 'SABASPORT' AND trans_type = 'Stake' ) sk ON off.bet_id = sk.bet_id LEFT JOIN ( SELECT SUM(win_amount) win_amount,"
         + " bet_id FROM game_record_goldenf WHERE vendor_code = 'SABASPORT' AND trans_type = 'cancelPayoff' GROUP BY bet_id) t3 ON off.bet_id = t3.bet_id GROUP BY off.user_id) "
-        + "goldenf_sb ON u.id = goldenf_sb.user_id   LEFT JOIN (SELECT user_id,count( 1 ) num,sum( bet_amount ) bet_amount,sum( win_amount - bet_amount ) win_loss "
+        + "goldenf_sb ON u.id = goldenf_sb.user_id " +
+            " LEFT JOIN (SELECT user_id,count( 1 ) num,sum( bet_points ) bet_amount,sum( available_bet ) validbet,sum( win_money - bet_points ) win_loss FROM game_record_dg  WHERE is_revocation = '1' AND cal_time >= ?1  AND cal_time <= ?2  GROUP BY user_id ) dg ON u.id = dg.user_id " +
+            " LEFT JOIN (SELECT user_id,count( 1 ) num,sum( bet_money ) bet_amount,sum( bet_money ) validbet,sum( win_money - bet_money ) win_loss FROM game_record_dmc  WHERE bet_time >= ?1 AND bet_time <= ?2 GROUP BY user_id ) dmc ON u.id = dmc.user_id " +
+            " LEFT JOIN (SELECT user_id,count( 1 ) num,sum( bet_amount ) bet_amount,sum( win_amount - bet_amount ) win_loss "
         + "FROM game_record_obdj grobdj  WHERE bet_status IN ( 5, 6, 8, 9, 10 ) AND set_str_time >= ?1 AND set_str_time <= ?2 GROUP BY user_id ) grobdj_t "
         + "ON u.id = grobdj_t.user_id LEFT JOIN (SELECT user_id,count( 1 ) num,sum( order_amount ) bet_amount,sum( profit_amount ) win_loss FROM game_record_obty grobty "
         + "WHERE settle_str_time >= ?1 AND settle_str_time <= ?2 GROUP BY user_id ) grobty_t ON u.id = grobty_t.user_id ) a WHERE num > 0;",nativeQuery = true)
