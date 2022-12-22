@@ -32,18 +32,23 @@ public class GameRecordObzr extends BaseEntity{
     private Long agentId;
 
     @ApiModelProperty(value = "投注额")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal betAmount;
 
     @ApiModelProperty(value = "有效投注额")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal validBetAmount;
 
     @ApiModelProperty(value = "输赢额")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal netAmount;
 
     @ApiModelProperty(value = "派彩额", required = true)
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal payoutAmount;
 
     @ApiModelProperty(value = "下注前余额")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal beforeAmount;
 
     @ApiModelProperty(value = "投注时间")

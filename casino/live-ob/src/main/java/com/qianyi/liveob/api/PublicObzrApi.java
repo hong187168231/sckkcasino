@@ -90,7 +90,7 @@ public class PublicObzrApi {
         if (SUCCESS_CODE.equals(entity.getCode())) {
             return true;
         }
-        log.error("OB进入创建玩家账号出错{}", entity.getData());
+        log.error("OB进入创建玩家账号出错{}", JSONObject.toJSONString(entity));
         return false;
     }
 
@@ -232,10 +232,10 @@ public class PublicObzrApi {
         try {
             jsonObject = JSONObject.parseObject(result);
         } catch (Exception e) {
-            String msg = "解析OB体育数据时出错,msg=" + e.getMessage();
-            log.error(msg);
+            String message = "解析OB体育数据时出错,msg=" + e.getMessage();
+            log.error(message);
             entity.setCode("500");
-            entity.setMsg(msg);
+            entity.setMessage(message);
             entity.setData("远程请求OB体育异常");
             return entity;
         }
@@ -244,7 +244,7 @@ public class PublicObzrApi {
         }
         entity.setCode(jsonObject.getString("code"));
         entity.setData(jsonObject.getString("data"));
-        entity.setMsg(jsonObject.getString("msg"));
+        entity.setMessage(jsonObject.getString("message"));
         return entity;
     }
 
@@ -280,10 +280,8 @@ public class PublicObzrApi {
 
         private String code;
 
-        private String msg;
+        private String message;
 
         private String data;
     }
 }
-
-
