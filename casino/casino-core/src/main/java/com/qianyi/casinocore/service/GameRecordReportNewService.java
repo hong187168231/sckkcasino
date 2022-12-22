@@ -63,6 +63,9 @@ public class GameRecordReportNewService {
     @Autowired
     private RptBetInfoDetailService rptBetInfoDetailService;
 
+    @Autowired
+    private GameRecordDGService gameRecordDGService;
+
     @Transactional
     public void saveGameRecordReportWM(){
         GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
@@ -628,7 +631,7 @@ public class GameRecordReportNewService {
             return;
         }
         log.info("得到DG注单下标{}",first.getDGMaxId());
-        List<Map<String, Object>> reportResult = rptBetInfoDetailService.queryGameRecords(first.getDGMaxId(), 13,Constants.PLATFORM_DG);
+        List<Map<String, Object>> reportResult = gameRecordDGService.queryGameRecords(first.getDGMaxId(), 13);
         try {
             if (reportResult == null || reportResult.size() == CommonConst.NUMBER_0){
                 return;
