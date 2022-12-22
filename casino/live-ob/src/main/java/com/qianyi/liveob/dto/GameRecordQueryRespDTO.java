@@ -49,8 +49,20 @@ public class GameRecordQueryRespDTO {
     @ApiModelProperty(value = "投注时间")
     private Long createdAt;
 
+    @ApiModelProperty(value = "投注时间")
+    private Long betTime;
+
+    @ApiModelProperty(value = "投注时间(yyyy-MM-dd)")
+    private String betStrTime;
+
     @ApiModelProperty(value = "结算时间")
     private Long netAt;
+
+    @ApiModelProperty(value = "结算时间")
+    private Long settleTime;
+
+    @ApiModelProperty(value = "结算时间(yyyy-MM-dd)")
+    private String settleStrTime;
 
     @ApiModelProperty(value = "注单重新派彩时间，此参数会是注单拉取的关键。默认等同netTime")
     private Long recalcuAt;
