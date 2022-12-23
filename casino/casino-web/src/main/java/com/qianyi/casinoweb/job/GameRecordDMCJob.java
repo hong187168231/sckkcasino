@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
@@ -58,6 +59,8 @@ public class GameRecordDMCJob {
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
+
+    public static final long ORDER_RXPIRE_TIME = 7 * 24l;
 
     //每隔2分钟执行一次
     @Scheduled(cron = "50 0/2 * * * ?")
@@ -179,11 +182,12 @@ public class GameRecordDMCJob {
             //封装数据
             GameParentRecordDMC gameParentRecordDMC = getGameParentRecordDMC(gameRecordDMCVo);
             //判断注单是否已经入库
-            int existNum = existBetRecord(gameParentRecordDMC);
+            String redisKey = "DMC:" + gameParentRecordDMC.getTicketNo();
+            int existNum = existBetRecord(gameParentRecordDMC, redisKey);
             if(existNum == 0){//无变化
                 continue;
             }
-
+            boolean resultFlag = false;
             GameRecordDMC gameRecord;
             try {
                 List<TicketSlaves> ticketSlavesList = gameRecordDMCVo.getTicket_slaves();
@@ -195,9 +199,16 @@ public class GameRecordDMCJob {
                     //业务处理
                     business(Constants.PLATFORM_DMC, gameRecord, platformConfig);
                 }
+                resultFlag = true;
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("保存{}游戏记录时报错,message={}", platform, e.getMessage());
+            }finally {
+                if(resultFlag){
+                    ValueOperations<String, String> opsForValue = redisTemplate.opsForValue();
+                    opsForValue.set(redisKey, gameParentRecordDMC.getMd5(), ORDER_RXPIRE_TIME, TimeUnit.HOURS);
+                    log.info("set gameParentRecordDMC bill no to redisKey：【{}】", redisKey);
+                }
             }
         }
     }
@@ -226,9 +237,9 @@ public class GameRecordDMCJob {
         return recordDMC;
     }
 
-    private int existBetRecord(GameParentRecordDMC recordDMC){
+    private int existBetRecord(GameParentRecordDMC recordDMC, String redisKey){
         ValueOperations<String, String> opsForValue = redisTemplate.opsForValue();
-        String rowMd5 = opsForValue.get(recordDMC.getTicketNo());
+        String rowMd5 = opsForValue.get(redisKey);
         if(StringUtils.isBlank(rowMd5)){
             return -1; //不存在
         }
