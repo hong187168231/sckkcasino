@@ -186,6 +186,9 @@ public class GameRecordDGService {
         if (!CommonUtil.checkNull(GameRecordDG.getUserName())) {
             list.add(cb.equal(root.get("userName").as(String.class), GameRecordDG.getUserName()));
         }
+        if (GameRecordDG.getUserAcct() != null) {
+            list.add(cb.equal(root.get("userAcct").as(String.class), GameRecordDG.getUserAcct()));
+        }
         if (GameRecordDG.getUserId() != null) {
             list.add(cb.equal(root.get("userId").as(Long.class), GameRecordDG.getUserId()));
         }

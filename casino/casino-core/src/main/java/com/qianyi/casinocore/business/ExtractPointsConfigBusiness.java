@@ -51,6 +51,8 @@ public class ExtractPointsConfigBusiness {
     @Autowired
     private GameRecordObtyService gameRecordObtyService;
     @Autowired
+    private GameRecordObzrService gameRecordObzrService;
+    @Autowired
     private GameRecordAeService gameRecordAeService;
     @Autowired
     private GameRecordVNCService gameRecordVNCService;
@@ -452,6 +454,8 @@ public class ExtractPointsConfigBusiness {
             gameRecordObdjService.updateExtractStatus(gameRecord.getId(), Constants.yes);
         } else if (Constants.PLATFORM_OBTY.equals(platform)) {
             gameRecordObtyService.updateExtractStatus(gameRecord.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_OBZR.equals(platform)) {
+            gameRecordObzrService.updateExtractStatus(gameRecord.getId(), Constants.yes);
         } else if (Constants.PLATFORM_AE.equals(platform)) {
             gameRecordAeService.updateExtractStatus(gameRecord.getId(), Constants.yes);
         } else if (Constants.PLATFORM_VNC.equals(platform)) {

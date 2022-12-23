@@ -30,12 +30,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * 查询用户投注记录接口,查询最近一周的数据,每次最大100条
- */
+
 @Component
 @Slf4j
 public class GameRecordObzrJob {
@@ -64,7 +63,6 @@ public class GameRecordObzrJob {
     private PlatformGameService platformGameService;
 
 
-
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
 
 
@@ -89,7 +87,7 @@ public class GameRecordObzrJob {
 
     public void pullGameRecord(String lastTime) {
         // 每次只粒取30分钟的闻磨(根据年小时单量情况来定，如果是并单可以调整到30分钟一次，如果是正常拉单没有必要)
-        int mins = +30;
+        int mins = +5;
         int startTimePlusSeconds = -40;
         int endTimePlusSeconds = -40;
 
@@ -101,7 +99,6 @@ public class GameRecordObzrJob {
         if (endTime.isAfter(now)) {
             endTime = now;
         }
-
         boolean flag = true;
         String start = startTime.format(DATETIME_FORMAT);
         String end = endTime.format(DATETIME_FORMAT);
@@ -117,11 +114,11 @@ public class GameRecordObzrJob {
             PageRespDTO data = resultDTO.getData();
             if (data.getTotalRecord() > 0) {
                 List<GameRecordQueryRespDTO> list = data.getRecord();
-                // todo ruku
-                int count = 0;
-                log.info("商户第{}页/{}页，已入库，条数：{}，拉单时间：{}", pageIndex, data.getTotalPage(), count, e - s);
+                //保存数据
+                saveAll(list);
+                log.info("商户第{}页/{}页，已入库，条数：{}，拉单时间：{}", pageIndex, data.getTotalPage(), list.size(), e - s);
             } else {
-
+                log.info("商户没有获取到数据,但需要更新时间戳");
             }
             if (data.getTotalPage() > 1) {
                 for (int i = 2; i < data.getTotalPage(); i++) {
@@ -132,10 +129,9 @@ public class GameRecordObzrJob {
                         data = resultDTO2.getData();
                         if (data.getTotalRecord() > 0) {
                             List<GameRecordQueryRespDTO> list = data.getRecord();
-                            // todo ruku
-                            // 全量replace into到库
-                            int count = 0;
-                            log.info("商户第{}页/{}页，已入库，条数：{}，拉单时间：{}", i, data.getTotalPage(), count, e1 - s1);
+                            //保存数据
+                            saveAll(list);
+                            log.info("商户第{}页/{}页，已入库，条数：{}，拉单时间：{}", i, data.getTotalPage(), list.size(), e1 - s1);
                         } else {
                             log.info("商户没有获取到数据，但需要更新时间戳");
                         }
@@ -158,24 +154,22 @@ public class GameRecordObzrJob {
     }
 
 
-    public void saveAll(List<GameRecordObtyVo> gameRecordList) {
+    public void saveAll(List<GameRecordQueryRespDTO> gameRecordList) {
         if (CollectionUtils.isEmpty(gameRecordList)) {
             return;
         }
         log.info("开始处理OB真人游戏记录数据");
         //查询最小清0打码量
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        for (GameRecordObtyVo gameRecordObtyVo : gameRecordList) {
+        for (GameRecordQueryRespDTO gameRecordQueryRespDTO : gameRecordList) {
             GameRecordObty gameRecord = null;
             try {
-                gameRecord = save(gameRecordObtyVo);
+                gameRecord = save(gameRecordQueryRespDTO);
                 if (gameRecord == null) {
                     continue;
                 }
                 //业务处理
                 business(Constants.PLATFORM_OBZR, gameRecord, platformConfig);
-                //保存明细数据
-                saveBatchDetail(gameRecordObtyVo.getDetailList());
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("保存OB真人游戏记录时报错,message={}", e.getMessage());
@@ -232,24 +226,25 @@ public class GameRecordObzrJob {
         }
     }
 
-    public GameRecordObty save(GameRecordObtyVo gameRecordObtyVo) {
-        UserThird account = userThirdService.findByObtyAccount(gameRecordObtyVo.getUserName());
+    public GameRecordObty save(GameRecordQueryRespDTO gameRecordQueryRespDTO) {
+        UserThird account = userThirdService.findByObtyAccount(gameRecordQueryRespDTO.getPlayerName());
         if (account == null || account.getUserId() == null) {
-            log.error("同步游戏记录时，UserThird查询结果为null,account={}", gameRecordObtyVo.getUserName());
+            log.error("同步游戏记录时，UserThird查询结果为null,account={}", gameRecordQueryRespDTO.getPlayerName());
             return null;
         }
-        gameRecordObtyVo.setBetTime(gameRecordObtyVo.getCreateTime());
+        gameRecordQueryRespDTO.setBetTime(gameRecordQueryRespDTO.getCreatedAt());
         SimpleDateFormat format = DateUtil.getSimpleDateFormat();
         //投注时间转yyyy-MM-dd
-        if (!ObjectUtils.isEmpty(gameRecordObtyVo.getBetTime()) && gameRecordObtyVo.getBetTime() != 0) {
-            gameRecordObtyVo.setBetStrTime(format.format(gameRecordObtyVo.getBetTime()));
+        if (!ObjectUtils.isEmpty(gameRecordQueryRespDTO.getBetTime()) && gameRecordQueryRespDTO.getBetTime() != 0) {
+            gameRecordQueryRespDTO.setBetStrTime(format.format(gameRecordQueryRespDTO.getBetTime()));
         }
+        gameRecordQueryRespDTO.setSettleTime(gameRecordQueryRespDTO.getNetAt());
         //结算时间转yyyy-MM-dd
-        if (!ObjectUtils.isEmpty(gameRecordObtyVo.getSettleTime()) && gameRecordObtyVo.getSettleTime() != 0) {
-            gameRecordObtyVo.setSettleStrTime(format.format(gameRecordObtyVo.getSettleTime()));
+        if (!ObjectUtils.isEmpty(gameRecordQueryRespDTO.getSettleTime()) && gameRecordQueryRespDTO.getSettleTime() != 0) {
+            gameRecordQueryRespDTO.setSettleStrTime(format.format(gameRecordQueryRespDTO.getSettleTime()));
         }
         GameRecordObty gameRecord = new GameRecordObty();
-        BeanUtils.copyProperties(gameRecordObtyVo, gameRecord);
+        BeanUtils.copyProperties(gameRecordQueryRespDTO, gameRecord);
         gameRecord.setUserId(account.getUserId());
         BigDecimal validbet = ObjectUtils.isEmpty(gameRecord.getOrderAmount()) ? BigDecimal.ZERO : gameRecord.getOrderAmount();
         //有效投注额为0不参与洗码,打码,分润,抽點
@@ -267,25 +262,10 @@ public class GameRecordObzrJob {
             gameRecord.setSecondProxy(user.getSecondProxy());
             gameRecord.setThirdProxy(user.getThirdProxy());
         }
-
         GameRecordObty record = gameRecordObtyService.save(gameRecord);
         return record;
     }
 
-    private void saveBatchDetail(List<GameRecordObtyDetail> detailList) {
-        if (CollectionUtils.isEmpty(detailList)) {
-            return;
-        }
-        for (GameRecordObtyDetail detail : detailList) {
-            try {
-                gameRecordObtyDetailService.save(detail);
-            } catch (DataIntegrityViolationException e) {
-                log.info("保存OB真人游戏记录时报错GameRecordObtyDetail唯一索引异常，GameRecordObtyDetail={}", detail.toString());
-            } catch (Exception e) {
-                log.error("保存OB真人注单明细时出错，msg={},GameRecordObtyDetail={}", e.getMessage(), detail.toString());
-            }
-        }
-    }
 
     private GameRecord combineGameRecord(GameRecordObty item) {
         GameRecord gameRecord = new GameRecord();
@@ -309,10 +289,4 @@ public class GameRecordObzrJob {
     }
 
 
-
-    @Data
-    public static class StartTimeAndEndTime {
-        private Long startTime;
-        private Long endTime;
-    }
 }

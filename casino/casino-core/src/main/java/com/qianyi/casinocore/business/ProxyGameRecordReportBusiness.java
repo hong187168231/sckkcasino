@@ -43,6 +43,9 @@ public class ProxyGameRecordReportBusiness {
     private GameRecordObtyService gameRecordObtyService;
 
     @Autowired
+    private GameRecordObzrService gameRecordObzrService;
+
+    @Autowired
     private GameRecordAeService gameRecordAeService;
 
     @Autowired
@@ -220,6 +223,8 @@ public class ProxyGameRecordReportBusiness {
                     gameRecordObdjService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_OBTY)){
                     gameRecordObtyService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
+                }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_OBZR)){
+                    gameRecordObzrService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_SABASPORT)){
                     gameRecordGoldenFService.updateGameRecordStatus(proxyGameRecordReportVo.getBetId(),Constants.PLATFORM_SABASPORT,Constants.yes);
                 }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE_HORSEBOOK) ||
@@ -230,9 +235,9 @@ public class ProxyGameRecordReportBusiness {
                 }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_VNC)){
                     rptBetInfoDetailService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_DMC)){
-                    rptBetInfoDetailService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
+                    gameRecordDMCService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_DG)){
-                    rptBetInfoDetailService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
+                    gameRecordDGService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }else {
                     gameRecordGoldenFService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }

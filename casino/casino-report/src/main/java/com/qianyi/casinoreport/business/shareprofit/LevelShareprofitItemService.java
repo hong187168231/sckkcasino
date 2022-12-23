@@ -58,62 +58,68 @@ public class LevelShareprofitItemService {
     private GameRecordObtyService gameRecordObtyService;
 
     @Autowired
+    private GameRecordObzrService gameRecordObzrService;
+
+    @Autowired
     private GameRecordAeService gameRecordAeService;
 
     /**
-     *  处理各级代理分润入库
+     * 处理各级代理分润入库
+     *
      * @param shareProfitBO
      */
     @Transactional(rollbackFor = Exception.class)
-    public void levelProcessItem(ShareProfitBO shareProfitBO){
+    public void levelProcessItem(ShareProfitBO shareProfitBO) {
         Long startTime = System.currentTimeMillis();
         ShareProfitChange ShareProfitChangeInfo = shareProfitChangeService.findByUserIdAndOrderNo(shareProfitBO.getUserId(), shareProfitBO.getRecordBetId());
-        if (ShareProfitChangeInfo==null){
+        if (ShareProfitChangeInfo == null) {
             UserMoney userMoney = userMoneyService.findUserByUserIdUse(shareProfitBO.getUserId());
             User user = userReportService.findUserByUserIdUse(shareProfitBO.getRecordUserId());
-            if(userMoney==null)return;
-            log.info("shareProfitBOList processItem That took {} milliseconds",System.currentTimeMillis()-startTime);
+            if (userMoney == null) return;
+            log.info("shareProfitBOList processItem That took {} milliseconds", System.currentTimeMillis() - startTime);
             //明细入库
-            levelProcessProfitDetail(shareProfitBO,userMoney);
+            levelProcessProfitDetail(shareProfitBO, userMoney);
             //进行分润
             //userMoney.setShareProfit(userMoney.getShareProfit().add(shareProfitBO.getProfitAmount()));
-            userMoneyService.changeProfit(userMoney.getUserId(),shareProfitBO.getProfitAmount());
+            userMoneyService.changeProfit(userMoney.getUserId(), shareProfitBO.getProfitAmount());
 
             //进行日报表处理
             levelProxyDayReportBusiness.processReport(shareProfitBO);
             //进行总报表处理
             levelproxyReportBusiness.processReport(shareProfitBO);
 
-            if(user.getIsFirstBet()==Constants.no){
+            if (user.getIsFirstBet() == Constants.no) {
                 //设置第一次投注用户
                 userService.updateIsFirstBet(user.getId(), Constants.yes);
             }
-            log.info("all store That took {} milliseconds",System.currentTimeMillis()-startTime);
+            log.info("all store That took {} milliseconds", System.currentTimeMillis() - startTime);
 
             //根据不同的游戏修改游戏分润状态
-            if (shareProfitBO.getGameType()==1){
+            if (shareProfitBO.getGameType() == 1) {
                 gameRecordService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
-            }else if(shareProfitBO.getGameType()==4){
+            } else if (shareProfitBO.getGameType() == 4) {
                 gameRecordObdjService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
-            }else if(shareProfitBO.getGameType()==5){
+            } else if (shareProfitBO.getGameType() == 5) {
                 gameRecordObtyService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
-            }else if(shareProfitBO.getGameType()==7){
+            } else if (shareProfitBO.getGameType() == 11) {
+                gameRecordObzrService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
+            } else if (shareProfitBO.getGameType() == 7) {
                 gameRecordAeService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
-            }else {
+            } else {
                 gameRecordGoldenFService.updateProfitStatus(shareProfitBO.getRecordId(), Constants.yes);
             }
 
-            log.info("processShareProfitList That took {} milliseconds",System.currentTimeMillis()-startTime);
+            log.info("processShareProfitList That took {} milliseconds", System.currentTimeMillis() - startTime);
         }
     }
 
-    private void levelProcessProfitDetail(ShareProfitBO shareProfitBO,UserMoney userMoney) {
+    private void levelProcessProfitDetail(ShareProfitBO shareProfitBO, UserMoney userMoney) {
         ShareProfitChange shareProfitChange = new ShareProfitChange();
         shareProfitChange.setAmount(shareProfitBO.getProfitAmount());
         shareProfitChange.setUserId(shareProfitBO.getUserId());
         shareProfitChange.setOrderNo(shareProfitBO.getRecordBetId());
         shareProfitChange.setAmountBefore(userMoney.getShareProfit());
-        shareProfitChange.setAmountAfter(getAfterAmount(shareProfitBO,userMoney));
+        shareProfitChange.setAmountAfter(getAfterAmount(shareProfitBO, userMoney));
         shareProfitChange.setType(ShareProfitConstant.SHARE_PROFIT_TYPE);
         shareProfitChange.setFromUserId(shareProfitBO.getRecordUserId());
         shareProfitChange.setProfitRate(shareProfitBO.getCommission());
@@ -121,11 +127,11 @@ public class LevelShareprofitItemService {
         shareProfitChange.setValidbet(shareProfitBO.getBetAmount());
         shareProfitChange.setBetTime(shareProfitBO.getBetDate());
         shareProfitChange.setGameType(shareProfitBO.getGameType());
-        log.info("shareProfitBO:{}",shareProfitBO);
+        log.info("shareProfitBO:{}", shareProfitBO);
         shareProfitChangeService.save(shareProfitChange);
     }
 
-    private BigDecimal getAfterAmount(ShareProfitBO shareProfitBO, UserMoney userMoney){
-        return userMoney.getShareProfit().add(shareProfitBO.getProfitAmount()).setScale(6,BigDecimal.ROUND_HALF_UP);
+    private BigDecimal getAfterAmount(ShareProfitBO shareProfitBO, UserMoney userMoney) {
+        return userMoney.getShareProfit().add(shareProfitBO.getProfitAmount()).setScale(6, BigDecimal.ROUND_HALF_UP);
     }
 }

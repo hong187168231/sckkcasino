@@ -71,12 +71,13 @@ public class AddData implements CommandLineRunner {
 //        betweenDate.add("2022-12-20");
 //        betweenDate.add("2022-12-21");
 //        betweenDate.add("2022-12-22");
-//
+//        betweenDate.add("2022-12-23");
 //        for (String str:betweenDate){
 //            this.delete(str);
 //            userGameRecordReportService.comparison(str);
 //            proxyGameRecordReportService.comparison(str);
 //        }
+
 //        thirdGameSumBalanceTask.create();
 
         log.info("初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
