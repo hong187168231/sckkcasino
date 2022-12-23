@@ -1,4 +1,4 @@
-package com.qianyi.casinoadmin.util;
+package com.qianyi.casinocore.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

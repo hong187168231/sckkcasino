@@ -15,11 +15,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -52,8 +56,11 @@ public class GameRecordDMCJob {
     @Autowired
     private PlatformGameService platformGameService;
 
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
     //每隔2分钟执行一次
-//    @Scheduled(fixedDelay = 10000)
+    @Scheduled(cron = "50 0/2 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_DMC);
         //平台关闭，但是拉单还是要继续进行
@@ -126,15 +133,17 @@ public class GameRecordDMCJob {
 
     public void pullGameRecordByTime(String startTime, String platform) throws Exception {
         String endTime = sdf.format(new Date());
-        String transactions = publicLottoApi.getDateTimeReport(startTime, endTime);
-        if (StringUtils.isBlank(transactions)) {
-            log.info("拉取{}注单当前时间无记录,startTime={},result={}", platform, startTime, transactions);
+
+        //注单数据结果
+        String resultData = publicLottoApi.getDateTimeReport(startTime, endTime);
+        if (StringUtils.isBlank(resultData)) {
+            log.info("拉取{}注单当前时间无记录,startTime={},result={}", platform, startTime, resultData);
             saveGameRecordDMCEndTime(startTime, endTime, platform, Constants.yes);
             return;
         }
-        List<DMCTradeReportVo> gameRecords = JSON.parseArray(transactions, DMCTradeReportVo.class);
+        List<DMCTradeReportVo> gameRecords = JSON.parseArray(resultData, DMCTradeReportVo.class);
         if (gameRecords.isEmpty()) {
-            log.info("拉取{}注单当前时间无记录,startTime={},result={}", platform, startTime, transactions);
+            log.info("拉取{}注单当前时间无记录,startTime={},result={}", platform, startTime, resultData);
             saveGameRecordDMCEndTime(startTime, endTime, platform, Constants.yes);
             return;
         }
@@ -163,7 +172,19 @@ public class GameRecordDMCJob {
         //查询最小清0打码量
         PlatformConfig platformConfig = platformConfigService.findFirst();
         for (DMCTradeReportVo gameRecordDMCVo : gameRecordDMCVoList) {
-            GameRecordDMC gameRecord = null;
+
+            if(!StringUtils.equals(gameRecordDMCVo.getTicket_status(), "SETTLED")){
+                continue;
+            }
+            //封装数据
+            GameParentRecordDMC gameParentRecordDMC = getGameParentRecordDMC(gameRecordDMCVo);
+            //判断注单是否已经入库
+            int existNum = existBetRecord(gameParentRecordDMC);
+            if(existNum == 0){//无变化
+                continue;
+            }
+
+            GameRecordDMC gameRecord;
             try {
                 List<TicketSlaves> ticketSlavesList = gameRecordDMCVo.getTicket_slaves();
                 for (TicketSlaves ticketSlaves : ticketSlavesList) {
@@ -181,6 +202,43 @@ public class GameRecordDMCJob {
         }
     }
 
+    private GameParentRecordDMC getGameParentRecordDMC(DMCTradeReportVo gameRecordDMCVo) {
+        GameParentRecordDMC recordDMC = new GameParentRecordDMC();
+        recordDMC.setId(gameRecordDMCVo.getId());
+        recordDMC.setMemberId(gameRecordDMCVo.getMember_id());
+        recordDMC.setMerchantId(gameRecordDMCVo.getMerchant_id());
+        recordDMC.setBetNumber(gameRecordDMCVo.getBet_number());
+        recordDMC.setGamePlayId(gameRecordDMCVo.getGame_play_id());
+        recordDMC.setBetType(gameRecordDMCVo.getBet_type());
+        recordDMC.setTotalAmount(gameRecordDMCVo.getTotal_amount());
+        recordDMC.setNetAmount(gameRecordDMCVo.getNet_amount());
+        recordDMC.setRebateAmount(gameRecordDMCVo.getRebate_amount());
+        recordDMC.setRebatePercentage(gameRecordDMCVo.getRebate_percentage());
+        recordDMC.setBettingDate(gameRecordDMCVo.getBetting_date());
+        recordDMC.setDrawDate(gameRecordDMCVo.getDraw_date());
+        recordDMC.setDrawNumber(gameRecordDMCVo.getDraw_number());
+        recordDMC.setTicketStatus(gameRecordDMCVo.getTicket_status());
+        recordDMC.setProgressStatus(gameRecordDMCVo.getProgress_status());
+        recordDMC.setCreatedAt(recordDMC.getCreatedAt());
+        recordDMC.setUpdatedAt(gameRecordDMCVo.getUpdated_at());
+        recordDMC.setCustomerId(gameRecordDMCVo.getCustomer_id());
+        recordDMC.setCustomerName(gameRecordDMCVo.getCustomer_name());
+        recordDMC.setTicketNo(gameRecordDMCVo.getTicket_no());
+        return recordDMC;
+    }
+
+    private int existBetRecord(GameParentRecordDMC recordDMC){
+        ValueOperations<String, String> opsForValue = redisTemplate.opsForValue();
+        String rowMd5 = opsForValue.get(recordDMC.getTicketNo());
+        if(StringUtils.isBlank(rowMd5)){
+            return -1; //不存在
+        }
+        if(!rowMd5.equalsIgnoreCase(recordDMC.getMd5())){//有变化
+            return -2; //有变化
+        }
+        return 0; //无变化
+    }
+
 
     @SneakyThrows
     public GameRecordDMC save(DMCTradeReportVo gameRecordDMCVo, TicketSlaves ticketSlaves) {
@@ -194,7 +252,7 @@ public class GameRecordDMCJob {
         gameRecordDMC.setBigBetAmount(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getBig_bet_amount()) ? "0" : ticketSlaves.getBig_bet_amount()));
         gameRecordDMC.setSmallBetAmount(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getSmall_bet_amount()) ? "0" : ticketSlaves.getSmall_bet_amount()));
         gameRecordDMC.setSlaveAmount(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getBet_amount()) ? "0" : ticketSlaves.getBet_amount()));
-        gameRecordDMC.setWinMoney(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getWinning_amount()) ? "0" : ticketSlaves.getWinning_amount()));
+        gameRecordDMC.setWinMoney(ObjectUtil.isNull(ticketSlaves.getWinning_amount()) ? BigDecimal.ZERO : ticketSlaves.getWinning_amount());
         gameRecordDMC.setPrizeType(ticketSlaves.getPrize_type());
         gameRecordDMC.setBetMoney(gameRecordDMCVo.getTotal_amount());
         gameRecordDMC.setRealMoney(gameRecordDMCVo.getNet_amount());
