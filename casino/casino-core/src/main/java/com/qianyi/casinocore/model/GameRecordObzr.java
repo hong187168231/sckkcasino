@@ -10,11 +10,9 @@ import java.math.BigDecimal;
 
 @Data
 @Entity
-@Table(name ="game_record_obzr",uniqueConstraints={@UniqueConstraint(columnNames={"orderNo"})},indexes = {
-    @Index(columnList = "netAt"),@Index(columnList = "userId")
-})
+@Table(name = "game_record_obzr", uniqueConstraints = {@UniqueConstraint(columnNames = {"orderNo"})}, indexes = {@Index(columnList = "netAt"), @Index(columnList = "userId")})
 @ApiModel("OB真人游戏记录")
-public class GameRecordObzr extends BaseEntity{
+public class GameRecordObzr extends BaseEntity {
 
     @ApiModelProperty(value = "我方账号")
     private Long userId;
@@ -33,19 +31,19 @@ public class GameRecordObzr extends BaseEntity{
 
     @ApiModelProperty(value = "投注额")
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
-    private BigDecimal betAmount  = BigDecimal.ZERO;
+    private BigDecimal betAmount = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "有效投注额")
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
-    private BigDecimal validBetAmount  = BigDecimal.ZERO;
+    private BigDecimal validBetAmount = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "输赢额")
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
-    private BigDecimal netAmount  = BigDecimal.ZERO ;
+    private BigDecimal netAmount = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "派彩额", required = true)
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
-    private BigDecimal payoutAmount  = BigDecimal.ZERO;
+    private BigDecimal payoutAmount = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "下注前余额")
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
@@ -70,7 +68,6 @@ public class GameRecordObzr extends BaseEntity{
 
     @ApiModelProperty(value = "结算时间(yyyy-MM-dd)")
     private String settleStrTime;
-
 
 
     @ApiModelProperty(value = "注单重新派彩时间，此参数会是注单拉取的关键。默认等同netTime")
@@ -137,7 +134,6 @@ public class GameRecordObzr extends BaseEntity{
     private BigDecimal payAmount;
 
 
-
     @ApiModelProperty("总代ID")
     private Long firstProxy;
 
@@ -167,5 +163,17 @@ public class GameRecordObzr extends BaseEntity{
 
     @ApiModelProperty(value = "游戏报表状态：0:失败，1：成功")
     private Integer gameRecordStatus = Constants.no;
+
+
+    public GameRecordObzr(BigDecimal payoutAmount, BigDecimal netAmount, BigDecimal betAmount, BigDecimal validBetAmount) {
+        this.payoutAmount = payoutAmount == null ? BigDecimal.ZERO : payoutAmount;
+        this.netAmount = netAmount == null ? BigDecimal.ZERO : netAmount;
+        this.betAmount = betAmount == null ? BigDecimal.ZERO : betAmount;
+        this.validBetAmount = validBetAmount == null ? BigDecimal.ZERO : validBetAmount;
+    }
+
+    public GameRecordObzr() {
+
+    }
 
 }

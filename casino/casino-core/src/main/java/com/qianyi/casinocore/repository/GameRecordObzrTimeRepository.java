@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 public interface GameRecordObzrTimeRepository extends JpaRepository<GameRecordObzrTime, Long>, JpaSpecificationExecutor<GameRecordObzrTime> {
 
 
-    @Query(value = "select max(endTime) from gamerecord_Obzr_time",nativeQuery = true)
+    @Query(value = "select max(endTime) from game_record_obzr_time",nativeQuery = true)
     String findLastEndTime();
 
 }

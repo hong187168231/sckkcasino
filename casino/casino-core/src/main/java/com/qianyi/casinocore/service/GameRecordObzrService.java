@@ -36,14 +36,14 @@ public class GameRecordObzrService {
     private EntityManager entityManager;
 
     public List<CompanyOrderAmountVo> getStatisticsResult(String startTime, String endTime) {
-        List<Map<String,Object>> orderAmountVoList = gameRecordObzrRepository.getStatisticsResult(startTime,endTime);
+        List<Map<String, Object>> orderAmountVoList = gameRecordObzrRepository.getStatisticsResult(startTime, endTime);
         String json = JSON.toJSONString(orderAmountVoList);
-        return JSON.parseArray(json,CompanyOrderAmountVo.class);
+        return JSON.parseArray(json, CompanyOrderAmountVo.class);
 
     }
 
     public int countByIdLessThanEqualAndUserId(Date createTime, Long userId) {
-        return gameRecordObzrRepository.countByIdLessThanEqualAndUserId(createTime,userId);
+        return gameRecordObzrRepository.countByIdLessThanEqualAndUserId(createTime, userId);
     }
 
 
@@ -55,9 +55,10 @@ public class GameRecordObzrService {
         gameRecordObzrRepository.updateWashCodeStatus(id, washCodeStatus);
     }
 
-    public void updateLevelWaterStatus(Long id,Integer levelWater){
-        gameRecordObzrRepository.updateLevelWaterStatus(id,levelWater);
+    public void updateLevelWaterStatus(Long id, Integer levelWater) {
+        gameRecordObzrRepository.updateLevelWaterStatus(id, levelWater);
     }
+
     public void updateRebateStatus(Long id, Integer rebateStatus) {
         gameRecordObzrRepository.updateRebateStatus(id, rebateStatus);
     }
@@ -71,29 +72,32 @@ public class GameRecordObzrService {
     }
 
     public void updateExtractStatus(Long id, Integer extractStatus) {
-        gameRecordObzrRepository.updateExtractStatus(id,extractStatus);
+        gameRecordObzrRepository.updateExtractStatus(id, extractStatus);
     }
 
-    public List<Map<String,Object>> queryGameRecords(Long id,Integer num){
-        return gameRecordObzrRepository.queryGameRecords(id,num);
+    public List<Map<String, Object>> queryGameRecords(Long id, Integer num) {
+        return gameRecordObzrRepository.queryGameRecords(id, num);
     }
 
-    public GameRecordObzr findGameRecordById(Long gameId){return gameRecordObzrRepository.findById(gameId).orElse(null);}
+    public GameRecordObzr findGameRecordById(Long gameId) {
+        return gameRecordObzrRepository.findById(gameId).orElse(null);
+    }
 
     public GameRecordObzr save(GameRecordObzr gameRecord) {
         return gameRecordObzrRepository.save(gameRecord);
     }
 
-    public  GameRecordObzr  findRecordRecordSum(GameRecordObzr gameRecordObzr,String startBetTime,String endBetTime,String startSetTime,String endSetTime) {
+    public GameRecordObzr findRecordRecordSum(GameRecordObzr gameRecordObzr, String startBetTime, String endBetTime, String startSetTime, String endSetTime) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<GameRecordObzr> query = cb.createQuery(GameRecordObzr.class);
         Root<GameRecordObzr> root = query.from(GameRecordObzr.class);
-//
-//        query.multiselect(
-//            cb.sum(root.get("netAmount").as(BigDecimal.class)).alias("netAmount"),
-//            cb.sum(root.get("validBetAmount").as(BigDecimal.class)).alias("validBetAmount"),
-//            cb.sum(root.get("payoutAmount").as(BigDecimal.class)).alias("payoutAmount")
-//        );
+
+        query.multiselect(
+                cb.sum(root.get("payoutAmount").as(BigDecimal.class)).alias("payoutAmount"),
+                cb.sum(root.get("netAmount").as(BigDecimal.class)).alias("netAmount"),
+                cb.sum(root.get("betAmount").as(BigDecimal.class)).alias("betAmount"),
+                cb.sum(root.get("validBetAmount").as(BigDecimal.class)).alias("validBetAmount")
+        );
 
         List<Predicate> list = new ArrayList();
         if (!CommonUtil.checkNull(gameRecordObzr.getPlayerName())) {
@@ -125,13 +129,13 @@ public class GameRecordObzrService {
             );
         }
         query
-            .where(list.toArray(new Predicate[list.size()]));
+                .where(list.toArray(new Predicate[list.size()]));
         GameRecordObzr singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
     }
 
-    public Page<GameRecordObzr> findGameRecordPage(GameRecordObzr gameRecordObzr, Pageable pageable, String startBetTime, String endBetTime, String startSetTime, String endSetTime)  {
-        Specification<GameRecordObzr> condition = getCondition(gameRecordObzr,startBetTime,endBetTime,startSetTime,endSetTime);
+    public Page<GameRecordObzr> findGameRecordPage(GameRecordObzr gameRecordObzr, Pageable pageable, String startBetTime, String endBetTime, String startSetTime, String endSetTime) {
+        Specification<GameRecordObzr> condition = getCondition(gameRecordObzr, startBetTime, endBetTime, startSetTime, endSetTime);
 
         return gameRecordObzrRepository.findAll(condition, pageable);
     }
@@ -174,8 +178,8 @@ public class GameRecordObzrService {
         return specification;
     }
 
-    public List<GameRecordObzr> findGameRecord(GameRecordObzr gameRecord,String startTime,String endTime)  {
-        Specification<GameRecordObzr> condition = getConditionGameRecord(gameRecord,startTime,endTime);
+    public List<GameRecordObzr> findGameRecord(GameRecordObzr gameRecord, String startTime, String endTime) {
+        Specification<GameRecordObzr> condition = getConditionGameRecord(gameRecord, startTime, endTime);
 
         return gameRecordObzrRepository.findAll(condition);
     }
@@ -190,7 +194,7 @@ public class GameRecordObzrService {
 
             if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
                 list.add(
-                    cb.between(root.get("createTime").as(String.class), startTime, endTime)
+                        cb.between(root.get("createTime").as(String.class), startTime, endTime)
                 );
             }
             predicate = cb.and(list.toArray(new Predicate[list.size()]));

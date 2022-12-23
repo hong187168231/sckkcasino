@@ -129,7 +129,7 @@ public class ObzrGameController {
                     errorOrderService.syncSaveErrorOrder(third.getObzrAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.OBZR_IN, Constants.PLATFORM_OBZR);
                     return ResponseUtil.custom("服务器异常,请重新操作");
                 }
-                if (PublicObzrApi.SUCCESS_CODE.equals(transfer.getCode())) {
+                if (!PublicObzrApi.SUCCESS_CODE.equals(transfer.getCode())) {
                     log.error("userId:{},进OB真人游戏加点失败,msg:{}", authId, transfer.getData());
                     //三方加扣点失败再把钱加回来
                     userMoneyService.addMoney(authId, userCenterMoney);

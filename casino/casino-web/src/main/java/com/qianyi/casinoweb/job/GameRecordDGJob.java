@@ -230,6 +230,7 @@ public class GameRecordDGJob {
             gameRecord.setWinMoney(amount);
         }
         GameRecordDG record = gameRecordDGService.save(gameRecord);
+        log.info("DG保存注单id:{}userId:{}isAdd:{} isRevocation:{}",gameRecordDG.getId(),gameRecordDG.getUserId(),record.getIsAdd(),gameRecord.getIsRevocation());
         return record;
     }
 
@@ -237,11 +238,13 @@ public class GameRecordDGJob {
     public void business(String platform, GameRecordDG gameRecordDG, PlatformConfig platformConfig) {
         //计算用户账号实时余额
         Integer isAdd = gameRecordDG.getIsAdd();
+        log.info("DG开始处理业务逻辑id:{}userId:{}isAdd:{}",gameRecordDG.getId(),gameRecordDG.getUserId(),isAdd);
         if (isAdd == 1) {
             gameRecordAsyncOper.changeUserBalance(gameRecordDG.getUserId(), gameRecordDG.getBetPoints(), gameRecordDG.getWinOrLoss());
         }
         //组装gameRecord
         GameRecord record = combineGameRecord(gameRecordDG);
+        log.info("DG组装完成准备推送报表id:{}userId:{}isAdd:{} record:{}",record.getId(),record.getUserId(),isAdd,record.toString());
         //发送注单消息到MQ后台要统计数据
         if (isAdd == 1) {
             gameRecordAsyncOper.proxyGameRecordReport(platform, record);
