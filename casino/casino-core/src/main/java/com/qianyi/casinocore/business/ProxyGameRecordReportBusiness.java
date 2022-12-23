@@ -230,9 +230,9 @@ public class ProxyGameRecordReportBusiness {
                 }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_VNC)){
                     rptBetInfoDetailService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_DMC)){
-                    rptBetInfoDetailService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
+                    gameRecordDMCService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_DG)){
-                    rptBetInfoDetailService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
+                    gameRecordDGService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }else {
                     gameRecordGoldenFService.updateGameRecordStatus(proxyGameRecordReportVo.getGameRecordId(),Constants.yes);
                 }
