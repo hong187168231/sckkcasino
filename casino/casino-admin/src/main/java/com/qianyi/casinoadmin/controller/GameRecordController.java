@@ -1464,7 +1464,16 @@ public class GameRecordController {
         GameRecordDG game = new GameRecordDG();
         game.setBetOrderNo(betOrder);
         game.setUserName(userName);
-        game.setUserAcct(account);
+        Long userId = null;
+        if (!LoginUtil.checkNull(account)){
+            User byAccount = userService.findByAccount(account);
+            if (LoginUtil.checkNull(byAccount)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+            game.setUserId(userId);
+            game.setUserAcct(byAccount.getAccount());
+        }
         GameRecordDG recordRecordSum;
         if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
             String startTime = DateUtil.getSimpleDateFormat().format(startDate);
