@@ -63,6 +63,18 @@ public class GameRecordAsyncOper {
     @Async("asyncExecutor")
     public void extractPoints(String platform, GameRecord gameRecord) {
         extractPointsConfigBusiness.extractPoints(platform, gameRecord);
+
+        //        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(gameRecord.getUserId().toString());
+        //        try {
+        //            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+        //            extractPointsConfigBusiness.extractPoints(platform, gameRecord);
+        //        } catch (Exception e) {
+        //            log.error("异步抽点出现异常id{}platform{}userId{} {}",gameRecord.getId(),platform,gameRecord.getUserId(),e.getMessage());
+        //        } finally {
+        //            // 释放锁
+        //            RedisKeyUtil.unlock(userMoneyLock);
+        //            log.info("extractPoints 用户extractPoints释放锁", gameRecord.getUserId());
+        //        }
     }
 
     /**
@@ -127,26 +139,6 @@ public class GameRecordAsyncOper {
     }
 
     /**
-     * 更新用户balance
-     * @param userId
-     * @param betAmount
-     * @param winAmount
-     */
-    @Async("asyncExecutor")
-    public void changeUserBalance(Long userId, BigDecimal betAmount,BigDecimal winAmount) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
-        try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            userMoneyBusiness.changeUserBalance(userId, betAmount,winAmount);
-        } catch (Exception e) {
-            log.error("更新用户balance出现异常userId{} {}",userId,e.getMessage());
-        } finally {
-            // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
-        }
-    }
-
-    /**
      * 异步更新等级流水
      * @param platform
      * @param record
@@ -163,6 +155,26 @@ public class GameRecordAsyncOper {
             // 释放锁
             RedisKeyUtil.unlock(userMoneyLock);
             log.info("levelWater 用户levelWater释放锁", record.getUserId());
+        }
+    }
+
+    /**
+     * 更新用户balance
+     * @param userId
+     * @param betAmount
+     * @param winAmount
+     */
+    @Async("asyncExecutor")
+    public void changeUserBalance(Long userId, BigDecimal betAmount,BigDecimal winAmount) {
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            userMoneyBusiness.changeUserBalance(userId, betAmount,winAmount);
+        } catch (Exception e) {
+            log.error("更新用户balance出现异常userId{} {}",userId,e.getMessage());
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
         }
     }
 

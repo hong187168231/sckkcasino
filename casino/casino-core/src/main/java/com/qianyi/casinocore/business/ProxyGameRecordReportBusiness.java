@@ -150,7 +150,7 @@ public class ProxyGameRecordReportBusiness {
                         return;
                     }
                     proxyGameRecordReportVo.setBetAmount(gameRecordById.getBetPoints());
-                    proxyGameRecordReportVo.setValidAmount(gameRecordById.getRealMoney());
+                    proxyGameRecordReportVo.setValidAmount(gameRecordById.getAvailableBet());
                     if (Objects.isNull(gameRecordById.getWinMoney())){
                         gameRecordById.setWinMoney(BigDecimal.ZERO);
                     }

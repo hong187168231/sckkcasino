@@ -175,6 +175,7 @@ public class GameRecordDGJob {
         for (DGTradeReportVo gameRecordDGVo : gameRecordDGVoList) {
 
             GameRecordDG gameRecord = save(gameRecordDGVo);
+            log.info("DG保存注单完毕id:{}userId:{}isRevocation:{}",gameRecord.getId(),gameRecord.getUserId(),gameRecord.getIsRevocation());
             if (1==gameRecord.getIsRevocation()){//是否结算：1：已结算 2:撤销
                 business(Constants.PLATFORM_DG, gameRecord, platformConfig);
             }
@@ -230,6 +231,7 @@ public class GameRecordDGJob {
             gameRecord.setWinMoney(amount);
         }
         GameRecordDG record = gameRecordDGService.save(gameRecord);
+        log.info("DG保存注单id:{}userId:{}isAdd:{} isRevocation:{}",record.getId(),record.getUserId(),record.getIsAdd(),record.getIsRevocation());
         return record;
     }
 
@@ -237,11 +239,13 @@ public class GameRecordDGJob {
     public void business(String platform, GameRecordDG gameRecordDG, PlatformConfig platformConfig) {
         //计算用户账号实时余额
         Integer isAdd = gameRecordDG.getIsAdd();
+        log.info("DG开始处理业务逻辑id:{}userId:{}isAdd:{}",gameRecordDG.getId(),gameRecordDG.getUserId(),isAdd);
         if (isAdd == 1) {
-            gameRecordAsyncOper.changeUserBalance(gameRecordDG.getUserId(), gameRecordDG.getBetPoints(), gameRecordDG.getWinMoney());
+            gameRecordAsyncOper.changeUserBalance(gameRecordDG.getUserId(), gameRecordDG.getBetPoints(), gameRecordDG.getWinOrLoss());
         }
         //组装gameRecord
         GameRecord record = combineGameRecord(gameRecordDG);
+        log.info("DG组装完成准备推送报表id:{}userId:{}isAdd:{} record:{}",record.getId(),record.getUserId(),isAdd,record.toString());
         //发送注单消息到MQ后台要统计数据
         if (isAdd == 1) {
             gameRecordAsyncOper.proxyGameRecordReport(platform, record);
@@ -297,7 +301,7 @@ public class GameRecordDGJob {
                 gameRecord.setBet(item.getBetPoints().toString());
             }
             if (item.getWinMoney() != null) {
-                BigDecimal winLoss = item.getWinMoney();
+                BigDecimal winLoss = item.getWinMoney().subtract(item.getRealMoney());
                 gameRecord.setWinLoss(winLoss.toString());
             }
         } else {
@@ -307,7 +311,7 @@ public class GameRecordDGJob {
                 gameRecord.setValidbet(turnover.toString());
             }
             if (item.getWinMoney() != null && item.getWinMoney() != null) {
-                BigDecimal newWinLoss = item.getWinMoney();
+                BigDecimal newWinLoss  = item.getWinMoney().subtract(item.getRealMoney());
                 gameRecord.setWinLoss(newWinLoss.toString());
             }
         }
