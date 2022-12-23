@@ -31,6 +31,8 @@ public class GameRecordDMC extends BaseEntity{
     private String currency;
     @ApiModelProperty("注单号")
     private String betOrderNo;
+    @ApiModelProperty("父注单号")
+    private String parentBetOrderNo;
     @ApiModelProperty("下注时间")
     private String betTime;
     @ApiModelProperty("下注类型")

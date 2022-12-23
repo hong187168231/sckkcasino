@@ -192,12 +192,13 @@ public class LotteryDmcApi {
     public String getDateTimeReport(String startTime, String endTime) throws Exception {
         Date date = DateUtils.addHours(DateUtil.getDatePatten(startTime), -1);
         Date endDate = DateUtils.addHours(DateUtil.getDatePatten(endTime), -1);
-        startTime = DateUtil.dateToPatten(date);
-        endTime = DateUtil.dateToPatten(endDate);
+        startTime = DateUtil.dateToPattenP2(date);
+        endTime = DateUtil.dateToPattenP2(endDate);
         Map<String, Object> params = new HashMap<>();
         String date_range = startTime+"-"+endTime;
         params.put("merchant_id", merchantId);
         params.put("date_range", date_range);
+        params.put("customer_id", "");
         String token = fetchToken();
         String url = apiUrl + "/frontend-api/fetchBettingReport";
         String json = JSON.toJSONString(params);

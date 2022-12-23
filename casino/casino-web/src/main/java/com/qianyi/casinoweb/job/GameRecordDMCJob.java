@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -184,13 +185,13 @@ public class GameRecordDMCJob {
             //判断注单是否已经入库
             String redisKey = "DMC:" + gameParentRecordDMC.getTicketNo();
             int existNum = existBetRecord(gameParentRecordDMC, redisKey);
-            if(existNum == 0){//无变化
-                continue;
-            }
+//            if(existNum == 0){//无变化
+//                continue;
+//            }
             boolean resultFlag = false;
             GameRecordDMC gameRecord;
             try {
-                List<TicketSlaves> ticketSlavesList = gameRecordDMCVo.getTicket_slaves();
+                List<TicketSlaves> ticketSlavesList = JSON.parseArray(gameRecordDMCVo.getTicket_slaves(), TicketSlaves.class);
                 for (TicketSlaves ticketSlaves : ticketSlavesList) {
                     gameRecord = save(gameRecordDMCVo, ticketSlaves);
                     if (gameRecord == null) {
@@ -255,18 +256,18 @@ public class GameRecordDMCJob {
         GameRecordDMC gameRecordDMC = new GameRecordDMC();
         gameRecordDMC.setUserName(gameRecordDMCVo.getCustomer_name());
         gameRecordDMC.setCustomerId(gameRecordDMCVo.getCustomer_id());
-        gameRecordDMC.setBetOrderNo(gameRecordDMCVo.getTicket_no());
+        gameRecordDMC.setBetOrderNo(ticketSlaves.getChild_ticket_no());
+        gameRecordDMC.setParentBetOrderNo(gameRecordDMCVo.getTicket_no());
         gameRecordDMC.setBetTime(ticketSlaves.getCreated_at());
         gameRecordDMC.setBetType(gameRecordDMCVo.getBet_type() + "");
         gameRecordDMC.setBackWaterMoney(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getBig_bet_amount()) ? "0" : ticketSlaves.getBig_bet_amount()));
         gameRecordDMC.setBigBetAmount(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getBig_bet_amount()) ? "0" : ticketSlaves.getBig_bet_amount()));
         gameRecordDMC.setSmallBetAmount(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getSmall_bet_amount()) ? "0" : ticketSlaves.getSmall_bet_amount()));
-        gameRecordDMC.setSlaveAmount(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getBet_amount()) ? "0" : ticketSlaves.getBet_amount()));
+        gameRecordDMC.setSlaveAmount(ObjectUtil.isNull(ticketSlaves.getBet_amount()) ? BigDecimal.ZERO : ticketSlaves.getBet_amount());
         gameRecordDMC.setWinMoney(ObjectUtil.isNull(ticketSlaves.getWinning_amount()) ? BigDecimal.ZERO : ticketSlaves.getWinning_amount());
         gameRecordDMC.setPrizeType(ticketSlaves.getPrize_type());
-        gameRecordDMC.setBetMoney(gameRecordDMCVo.getTotal_amount());
-        gameRecordDMC.setRealMoney(gameRecordDMCVo.getNet_amount());
-        gameRecordDMC.setBetOrderNo(UUID.fastUUID().toString());
+        gameRecordDMC.setBetMoney(ticketSlaves.getBet_amount());
+        gameRecordDMC.setRealMoney(ticketSlaves.getBet_net_amount());
         UserThird account = userThirdService.findByDmcAccount(gameRecordDMC.getUserName());
         if (account == null || account.getUserId() == null) {
             log.error("同步游戏记录时，UserThird查询结果为null,account={}", gameRecordDMC.getUserName());
@@ -275,7 +276,7 @@ public class GameRecordDMCJob {
         GameRecordDMC gameRecord = gameRecordDMCService.findByEnterpriseIdAndBetOrderNo(gameRecordDMC.getEnterpriseId(), gameRecordDMC.getBetOrderNo());
         if (gameRecord == null) {
             gameRecord = new GameRecordDMC();
-            gameRecord.setIsAdd(1);//新增
+            gameRecordDMC.setIsAdd(1);//新增
         }
         BeanUtils.copyProperties(gameRecordDMC, gameRecord);
         gameRecord.setUserId(account.getUserId());
@@ -296,7 +297,8 @@ public class GameRecordDMCJob {
             gameRecord.setThirdProxy(user.getThirdProxy());
         }
         GameRecordDMC record = gameRecordDMCService.save(gameRecord);
-        return record;
+        gameRecord.setId(record.getId());
+        return gameRecord;
     }
 
 

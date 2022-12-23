@@ -17,6 +17,8 @@ public class DateUtil {
 
     private static String patten2 = "yyyy-MM-dd HH";
 
+    private static String patten3 = "dd/MM/yyyy";
+
     private static String pattenMonth = "yyyy-MM";
 
     private static String pattenYear = "yyyy";
@@ -416,5 +418,10 @@ public class DateUtil {
             }
         }
         return listDate;
+    }
+
+    public static String dateToPattenP2(Date time) {
+        SimpleDateFormat formatter = new SimpleDateFormat(DateUtil.patten3); //定义将日期格式要换成的格式
+        return formatter.format(time);
     }
 }

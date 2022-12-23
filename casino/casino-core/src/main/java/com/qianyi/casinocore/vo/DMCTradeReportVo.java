@@ -33,6 +33,7 @@ public class DMCTradeReportVo {
     private String ticket_no;   //注单号
 
 
-    private List<TicketSlaves> ticket_slaves;
+//    private List<TicketSlaves> ticket_slaves;
+    private String ticket_slaves;
 
 }
