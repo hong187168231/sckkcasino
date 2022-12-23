@@ -132,7 +132,7 @@ public class LevelShareProfitBusiness {
                 gameRecord.setCreateTime(gameRecordDG.getCreateTime());
                 gameRecord.setBetId(gameRecordDG.getBetOrderNo());
                 gameRecord.setUserId(gameRecordDG.getUserId());
-                gameRecord.setValidbet(gameRecordDG.getOldTurnover().toPlainString());
+                gameRecord.setValidbet(gameRecordDG.getAvailableBet().toPlainString());
                 record = gameRecord;
             } else {
                 GameRecordGoldenF recordGoldenF = gameRecordGoldenFService.findGameRecordById(shareProfitMqVo.getGameRecordId());

@@ -302,15 +302,13 @@ public class GameRecordDGJob {
             }
         } else {
             gameRecord.setBet("0");//经过三方确认下注金额不会更新
-            if (item.getBetPoints() != null && item.getOldTurnover() != null) {
-                BigDecimal turnover = item.getBetPoints().subtract(item.getOldTurnover());
+            if (item.getBetPoints() != null && item.getBetPoints() != null) {
+                BigDecimal turnover = item.getBetPoints();
                 gameRecord.setValidbet(turnover.toString());
             }
-            if (item.getWinMoney() != null && item.getOldRealWinAmount() != null) {
+            if (item.getWinMoney() != null && item.getWinMoney() != null) {
                 BigDecimal newWinLoss = item.getWinMoney();
-                BigDecimal oldWinLoss = item.getOldRealWinAmount();
-                BigDecimal winLoss = newWinLoss.subtract(oldWinLoss);
-                gameRecord.setWinLoss(winLoss.toString());
+                gameRecord.setWinLoss(newWinLoss.toString());
             }
         }
         return gameRecord;
