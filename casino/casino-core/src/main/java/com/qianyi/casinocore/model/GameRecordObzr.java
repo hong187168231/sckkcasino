@@ -33,7 +33,7 @@ public class GameRecordObzr extends BaseEntity{
 
     @ApiModelProperty(value = "投注额")
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
-    private BigDecimal betAmount;
+    private BigDecimal betAmount  = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "有效投注额")
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
