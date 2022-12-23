@@ -95,6 +95,7 @@ public class GameRecordObzrService {
         query.multiselect(
                 cb.sum(root.get("payoutAmount").as(BigDecimal.class)).alias("payoutAmount"),
                 cb.sum(root.get("netAmount").as(BigDecimal.class)).alias("netAmount"),
+                cb.sum(root.get("betAmount").as(BigDecimal.class)).alias("betAmount"),
                 cb.sum(root.get("validBetAmount").as(BigDecimal.class)).alias("validBetAmount")
         );
 

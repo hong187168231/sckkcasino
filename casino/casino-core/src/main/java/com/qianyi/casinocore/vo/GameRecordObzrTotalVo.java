@@ -19,6 +19,10 @@ public class GameRecordObzrTotalVo implements Serializable {
 
     @ApiModelProperty(value = "下注总计")
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    private BigDecimal betAmount = BigDecimal.ZERO;
+
+    @ApiModelProperty(value = "输赢总计")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal netAmount = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "盈利总计")

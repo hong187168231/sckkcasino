@@ -165,9 +165,10 @@ public class GameRecordObzr extends BaseEntity {
     private Integer gameRecordStatus = Constants.no;
 
 
-    public GameRecordObzr(BigDecimal payoutAmount, BigDecimal netAmount, BigDecimal validBetAmount) {
+    public GameRecordObzr(BigDecimal payoutAmount, BigDecimal netAmount, BigDecimal betAmount, BigDecimal validBetAmount) {
         this.payoutAmount = payoutAmount == null ? BigDecimal.ZERO : payoutAmount;
         this.netAmount = netAmount == null ? BigDecimal.ZERO : netAmount;
+        this.betAmount = betAmount == null ? BigDecimal.ZERO : betAmount;
         this.validBetAmount = validBetAmount == null ? BigDecimal.ZERO : validBetAmount;
     }
 
