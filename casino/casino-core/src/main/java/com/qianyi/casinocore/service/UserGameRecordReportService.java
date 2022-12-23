@@ -112,8 +112,8 @@ public class UserGameRecordReportService {
             List<Map<String, Object>> obty = userGameRecordReportRepository.findObty(startTime, endTime);
             this.addData(obty, dayTime, Constants.PLATFORM_OBTY);
 
-            List<Map<String, Object>> obzr = userGameRecordReportRepository.findObzr(startTime, endTime);
-            this.addData(obzr, dayTime, Constants.PLATFORM_OBZR);
+//            List<Map<String, Object>> obzr = userGameRecordReportRepository.findObzr(startTime, endTime);
+//            this.addData(obzr, dayTime, Constants.PLATFORM_OBZR);
 
             //            List<Map<String, Object>> HORSEBOOK = userGameRecordReportRepository.findAe(startTime, endTime, Constants.PLATFORM_AE_HORSEBOOK);
             //            this.addData(HORSEBOOK, dayTime, Constants.PLATFORM_AE_HORSEBOOK);
