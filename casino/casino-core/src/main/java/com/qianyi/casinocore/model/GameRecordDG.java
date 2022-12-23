@@ -116,14 +116,6 @@ public class GameRecordDG extends BaseEntity{
     @ApiModelProperty(value = "是否新增，0.修改,1.新增")
     private Integer isAdd = 0;
 
-    @Transient
-    @ApiModelProperty(value = "旧真实返还金额")
-    private BigDecimal oldRealWinAmount;
-
-    @Transient
-    @ApiModelProperty(value = "旧有效下注")
-    private BigDecimal oldTurnover;
-
     public GameRecordDG(){
     }
     public GameRecordDG(BigDecimal betPoints,BigDecimal winOrLoss,BigDecimal realMoney,BigDecimal winMoney,BigDecimal availableBet){

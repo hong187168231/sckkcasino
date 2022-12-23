@@ -1432,6 +1432,7 @@ public class GameRecordController {
         game.setBetOrderNo(betOrder);
         game.setBetDetail(betDetailOrder);
         game.setUserName(userName);
+        game.setUserAcct(account);
         Long userId = null;
         if (!CasinoProxyUtil.checkNull(account)){
             User byAccount = userService.findByAccount(account);
