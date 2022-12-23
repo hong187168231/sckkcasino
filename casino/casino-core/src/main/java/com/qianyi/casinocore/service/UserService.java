@@ -309,43 +309,46 @@ public class UserService {
 
     @SuppressWarnings("unchecked")
     public List<PersonReportVo> findMapBet(String platform, String startTime, String endTime, Integer page,
-        Integer pageSize, String sort, String orderTimeStart, String orderTimeEnd, String proxy) {
+                                           Integer pageSize, String sort, String orderTimeStart, String orderTimeEnd, String proxy) {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
         String sql = "";
         if (StringUtils.isNullOrEmpty(platform)) {
             sql = MessageFormat.format(SqlNewConst.totalSqlReport, orderTimeStart, orderTimeEnd, sort, page.toString(),
-                pageSize.toString(), proxy);// 走报表
+                    pageSize.toString(), proxy);// 走报表
         } else if (platform.equals(Constants.PLATFORM_WM_BIG)) {
             sql = MessageFormat.format(SqlNewConst.wmSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), proxy);
+                    pageSize.toString(), proxy);
         } else if (platform.equals(Constants.PLATFORM_OBDJ)) {
             sql = MessageFormat.format(SqlNewConst.obdjSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), proxy);
+                    pageSize.toString(), proxy);
         } else if (platform.equals(Constants.PLATFORM_OBTY)) {
             sql = MessageFormat.format(SqlNewConst.obtySql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), proxy);
+                    pageSize.toString(), proxy);
+        } else if (platform.equals(Constants.PLATFORM_OBZR)) {
+            sql = MessageFormat.format(SqlNewConst.obzrSql, startTime, endTime, sort, page.toString(),
+                    pageSize.toString(), proxy);
         } else if (platform.equals(Constants.PLATFORM_PG)) {
             sql = MessageFormat.format(SqlNewConst.pgOrCq9Sql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'PG'", proxy);
+                    pageSize.toString(), "'PG'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE)) {
             sql = MessageFormat.format(SqlNewConst.aeMergeSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'AE'", proxy);
+                    pageSize.toString(), "'AE'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE_HORSEBOOK)) {
             sql = MessageFormat.format(SqlNewConst.aeSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'HORSEBOOK'", proxy);
+                    pageSize.toString(), "'HORSEBOOK'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE_SV388)) {
             sql = MessageFormat.format(SqlNewConst.aeSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'SV388'", proxy);
+                    pageSize.toString(), "'SV388'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE_E1SPORT)) {
             sql = MessageFormat.format(SqlNewConst.aeSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'E1SPORT'", proxy);
+                    pageSize.toString(), "'E1SPORT'", proxy);
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlNewConst.sabasportSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'SABASPORT'", proxy, "'Payoff'", "'Stake'", "'cancelPayoff'");
+                    pageSize.toString(), "'SABASPORT'", proxy, "'Payoff'", "'Stake'", "'cancelPayoff'");
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlNewConst.vncSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'VNC'", proxy);
+                    pageSize.toString(), "'VNC'", proxy);
         } else if (platform.equals(Constants.PLATFORM_DMC)) {
             sql = MessageFormat.format(SqlNewConst.dmcSql, startTime, endTime, sort, page.toString(),
                     pageSize.toString(), "'DMC'", proxy);
@@ -354,58 +357,61 @@ public class UserService {
                     pageSize.toString(), "'DG'", proxy);
         } else {
             sql = MessageFormat.format(SqlNewConst.pgOrCq9Sql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'CQ9'", proxy);
+                    pageSize.toString(), "'CQ9'", proxy);
         }
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
-        if(null!=resultList&&resultList.size()>0) {
+        if (null != resultList && resultList.size() > 0) {
             List<Map<String, Object>> mapList = parsePersonBetMapList(resultList);
             return DTOUtil.map2DTO(mapList, PersonReportVo.class);
-        }else {
+        } else {
             return null;
         }
     }
 
     @SuppressWarnings("unchecked")
     public List<PersonReportVo> findMapWash(String platform, String startTime, String endTime, Integer page,
-        Integer pageSize, String sort, String proxy) {
+                                            Integer pageSize, String sort, String proxy) {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
         String sql = "";
         if (StringUtils.isNullOrEmpty(platform)) {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), proxy, "");
+                    pageSize.toString(), proxy, "");
         } else if (platform.equals(Constants.PLATFORM_WM_BIG)) {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), proxy, " platform = \'wm\' And");
+                    pageSize.toString(), proxy, " platform = \'wm\' And");
         } else if (platform.equals(Constants.PLATFORM_OBDJ)) {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), proxy, " platform = \'OBDJ\' And");
+                    pageSize.toString(), proxy, " platform = \'OBDJ\' And");
         } else if (platform.equals(Constants.PLATFORM_OBTY)) {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), proxy, " platform = \'OBTY\' And");
+                    pageSize.toString(), proxy, " platform = \'OBTY\' And");
+        } else if (platform.equals(Constants.PLATFORM_OBZR)) {
+            sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
+                    pageSize.toString(), proxy, " platform = \'OBZR\' And");
         } else if (platform.equals(Constants.PLATFORM_PG)) {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), proxy, " platform = \'PG\' And");
+                    pageSize.toString(), proxy, " platform = \'PG\' And");
         } else if (platform.equals(Constants.PLATFORM_AE)) {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), proxy, " platform = \'AE\' And");
+                    pageSize.toString(), proxy, " platform = \'AE\' And");
         } else if (platform.equals(Constants.PLATFORM_AE_HORSEBOOK)) {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), proxy, " platform = \'HORSEBOOK\' And");
+                    pageSize.toString(), proxy, " platform = \'HORSEBOOK\' And");
         } else if (platform.equals(Constants.PLATFORM_AE_SV388)) {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), proxy, " platform = \'SV388\' And");
+                    pageSize.toString(), proxy, " platform = \'SV388\' And");
         } else if (platform.equals(Constants.PLATFORM_AE_E1SPORT)) {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), proxy, " platform = \'E1SPORT\' And");
+                    pageSize.toString(), proxy, " platform = \'E1SPORT\' And");
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), proxy, " platform = \'SABASPORT\' And");
+                    pageSize.toString(), proxy, " platform = \'SABASPORT\' And");
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), proxy, " platform = \'VNC\' And");
+                    pageSize.toString(), proxy, " platform = \'VNC\' And");
         } else if (platform.equals(Constants.PLATFORM_DMC)) {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
                     pageSize.toString(), proxy, " platform = \'DMC\' And");
@@ -414,26 +420,26 @@ public class UserService {
                     pageSize.toString(), proxy, " platform = \'DG\' And");
         } else {
             sql = MessageFormat.format(SqlNewConst.totalSqlWash, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), proxy, " platform = \'CQ9\' And");
+                    pageSize.toString(), proxy, " platform = \'CQ9\' And");
         }
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
-        if(null!=resultList&&resultList.size()>0) {
+        if (null != resultList && resultList.size() > 0) {
             List<Map<String, Object>> mapList = parsePersonWashMapList(resultList);
             return DTOUtil.map2DTO(mapList, PersonReportVo.class);
-        }else {
+        } else {
             return null;
         }
     }
 
     @SuppressWarnings("unchecked")
     public List<PersonReportVo> findShareProfit(String startTime, String endTime, Integer page, Integer pageSize,
-        String sort, String proxy) {
+                                                String sort, String proxy) {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
         String sql = MessageFormat.format(SqlShareConst.sqlShareProfit, startTime, endTime, sort, page.toString(),
-            pageSize.toString(), proxy);
+                pageSize.toString(), proxy);
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
@@ -454,21 +460,23 @@ public class UserService {
             sql = MessageFormat.format(SqlNewConst.reportSql, startTime, endTime, userId, " And platform = \'OBDJ\'");
         } else if (platform.equals(Constants.PLATFORM_OBTY)) {
             sql = MessageFormat.format(SqlNewConst.reportSql, startTime, endTime, userId, " And platform = \'OBTY\'");
+        } else if (platform.equals(Constants.PLATFORM_OBZR)) {
+            sql = MessageFormat.format(SqlNewConst.reportSql, startTime, endTime, userId, " And platform = \'OBZR\'");
         } else if (platform.equals(Constants.PLATFORM_PG)) {
             sql = MessageFormat.format(SqlNewConst.reportSql, startTime, endTime, userId, " And platform = \'PG\'");
         } else if (platform.equals(Constants.PLATFORM_AE)) {
             sql = MessageFormat.format(SqlNewConst.reportSql, startTime, endTime, userId, " And platform = \'AE\'");
         } else if (platform.equals(Constants.PLATFORM_AE_HORSEBOOK)) {
             sql = MessageFormat.format(SqlNewConst.reportSql, startTime, endTime, userId,
-                " And platform = \'HORSEBOOK\'");
+                    " And platform = \'HORSEBOOK\'");
         } else if (platform.equals(Constants.PLATFORM_AE_SV388)) {
             sql = MessageFormat.format(SqlNewConst.reportSql, startTime, endTime, userId, " And platform = \'SV388\'");
         } else if (platform.equals(Constants.PLATFORM_AE_E1SPORT)) {
             sql =
-                MessageFormat.format(SqlNewConst.reportSql, startTime, endTime, userId, " And platform = \'E1SPORT\'");
+                    MessageFormat.format(SqlNewConst.reportSql, startTime, endTime, userId, " And platform = \'E1SPORT\'");
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlNewConst.reportSql, startTime, endTime, userId,
-                " And platform = \'SABASPORT\'");
+                    " And platform = \'SABASPORT\'");
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlNewConst.reportSql, startTime, endTime, userId, " And platform = \'VNC\'");
         } else if (platform.equals(Constants.PLATFORM_DMC)) {
@@ -487,42 +495,45 @@ public class UserService {
 
     @SuppressWarnings("unchecked")
     public PersonReportVo findMapWash(String platform, String startTime, String endTime, String userId,
-        String orderTimeStart, String orderTimeEnd) {
+                                      String orderTimeStart, String orderTimeEnd) {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
         String sql = "";
         if (StringUtils.isNullOrEmpty(platform)) {
             sql = MessageFormat.format(SqlNewConst.reportAllSql, startTime, endTime, userId, "", orderTimeStart,
-                orderTimeEnd);
+                    orderTimeEnd);
         } else if (platform.equals(Constants.PLATFORM_WM_BIG)) {
             sql = MessageFormat.format(SqlNewConst.reportWmSql, startTime, endTime, userId, " And platform = \'wm\'");
         } else if (platform.equals(Constants.PLATFORM_OBDJ)) {
             sql =
-                MessageFormat.format(SqlNewConst.reportObdjSql, startTime, endTime, userId, " And platform = \'OBDJ\'");
+                    MessageFormat.format(SqlNewConst.reportObdjSql, startTime, endTime, userId, " And platform = \'OBDJ\'");
         } else if (platform.equals(Constants.PLATFORM_OBTY)) {
             sql =
-                MessageFormat.format(SqlNewConst.reportObtySql, startTime, endTime, userId, " And platform = \'OBTY\'");
+                    MessageFormat.format(SqlNewConst.reportObtySql, startTime, endTime, userId, " And platform = \'OBTY\'");
+        } else if (platform.equals(Constants.PLATFORM_OBZR)) {
+            sql =
+                    MessageFormat.format(SqlNewConst.reportObzrSql, startTime, endTime, userId, " And platform = \'OBTY\'");
         } else if (platform.equals(Constants.PLATFORM_PG)) {
             sql = MessageFormat.format(SqlNewConst.reportPgOrCq9Sql, startTime, endTime, userId,
-                " And platform = \'PG\'", "'PG'");
+                    " And platform = \'PG\'", "'PG'");
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlNewConst.reportSabasportSql, startTime, endTime, userId,
-                " And platform = \'SABASPORT\'", "'SABASPORT'", "'Payoff'", "'Stake'", "'cancelPayoff'");
+                    " And platform = \'SABASPORT\'", "'SABASPORT'", "'Payoff'", "'Stake'", "'cancelPayoff'");
         } else if (platform.equals(Constants.PLATFORM_AE)) {
             sql = MessageFormat.format(SqlNewConst.reportAeMergeSql, startTime, endTime, userId,
-                " And platform = \'AE\'", "'AE'");
+                    " And platform = \'AE\'", "'AE'");
         } else if (platform.equals(Constants.PLATFORM_AE_HORSEBOOK)) {
             sql = MessageFormat.format(SqlNewConst.reportAeSql, startTime, endTime, userId,
-                " And platform = \'HORSEBOOK\'", "'HORSEBOOK'");
+                    " And platform = \'HORSEBOOK\'", "'HORSEBOOK'");
         } else if (platform.equals(Constants.PLATFORM_AE_SV388)) {
             sql = MessageFormat.format(SqlNewConst.reportAeSql, startTime, endTime, userId, " And platform = \'SV388\'",
-                "'SV388'");
+                    "'SV388'");
         } else if (platform.equals(Constants.PLATFORM_AE_E1SPORT)) {
             sql = MessageFormat.format(SqlNewConst.reportAeSql, startTime, endTime, userId,
-                " And platform = \'E1SPORT\'", "'E1SPORT'");
+                    " And platform = \'E1SPORT\'", "'E1SPORT'");
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlNewConst.reportVncSql, startTime, endTime, userId, " And platform = \'VNC\'",
-                "'VNC'");
+                    "'VNC'");
         } else if (platform.equals(Constants.PLATFORM_DMC)) {
             sql = MessageFormat.format(SqlNewConst.reportDmcSql, startTime, endTime, userId, " And platform = \'DMC\'",
                     "'DMC'");
@@ -531,7 +542,7 @@ public class UserService {
                     "'DG'");
         } else {
             sql = MessageFormat.format(SqlNewConst.reportPgOrCq9Sql, startTime, endTime, userId,
-                " And platform = \'CQ9\'", "'CQ9'");
+                    " And platform = \'CQ9\'", "'CQ9'");
         }
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
@@ -542,33 +553,36 @@ public class UserService {
 
     @SuppressWarnings("unchecked")
     public PersonReportVo findShareProfit(String platform, String startTime, String endTime, String userId,
-        String orderTimeStart, String orderTimeEnd) {
+                                          String orderTimeStart, String orderTimeEnd) {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
         String sql = "";
         if (StringUtils.isNullOrEmpty(platform)) {
             sql = MessageFormat.format(SqlShareConst.reportAllSql, startTime, endTime, userId, "", orderTimeStart,
-                orderTimeEnd);
+                    orderTimeEnd);
         } else if (platform.equals(Constants.PLATFORM_WM_BIG)) {
             sql = MessageFormat.format(SqlShareConst.reportWmSql, startTime, endTime, userId, " And platform = \'wm\'");
         } else if (platform.equals(Constants.PLATFORM_OBDJ)) {
             sql =
-                MessageFormat.format(SqlNewConst.reportObdjSql, startTime, endTime, userId, " And platform = \'OBDJ\'");
+                    MessageFormat.format(SqlNewConst.reportObdjSql, startTime, endTime, userId, " And platform = \'OBDJ\'");
         } else if (platform.equals(Constants.PLATFORM_OBTY)) {
             sql =
-                MessageFormat.format(SqlNewConst.reportObtySql, startTime, endTime, userId, " And platform = \'OBTY\'");
+                    MessageFormat.format(SqlNewConst.reportObtySql, startTime, endTime, userId, " And platform = \'OBTY\'");
+        } else if (platform.equals(Constants.PLATFORM_OBZR)) {
+            sql =
+                    MessageFormat.format(SqlNewConst.reportObzrSql, startTime, endTime, userId, " And platform = \'OBZR\'");
         } else if (platform.equals(Constants.PLATFORM_PG)) {
             sql = MessageFormat.format(SqlNewConst.reportPgOrCq9Sql, startTime, endTime, userId,
-                " And platform = \'PG\'", "'PG'");
+                    " And platform = \'PG\'", "'PG'");
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlNewConst.reportSabasportSql, startTime, endTime, userId,
-                " And platform = \'SABASPORT\'", "'SABASPORT'", "'Payoff'", "'Stake'", "'cancelPayoff'");
+                    " And platform = \'SABASPORT\'", "'SABASPORT'", "'Payoff'", "'Stake'", "'cancelPayoff'");
         } else if (platform.equals(Constants.PLATFORM_AE)) {
             sql = MessageFormat.format(SqlNewConst.reportAeMergeSql, startTime, endTime, userId,
-                " And platform = \'AE\'", "'AE'");
+                    " And platform = \'AE\'", "'AE'");
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlShareConst.reportVncSql, startTime, endTime, userId,
-                " And platform = \'VNC\'", "'VNC'");
+                    " And platform = \'VNC\'", "'VNC'");
         } else if (platform.equals(Constants.PLATFORM_DMC)) {
             sql = MessageFormat.format(SqlShareConst.reportDmcSql, startTime, endTime, userId,
                     " And platform = \'DMC\'", "'DMC'");
@@ -577,7 +591,7 @@ public class UserService {
                     " And platform = \'DG\'", "'DG'");
         } else {
             sql = MessageFormat.format(SqlNewConst.reportPgOrCq9Sql, startTime, endTime, userId,
-                " And platform = \'CQ9\'", "'CQ9'");
+                    " And platform = \'CQ9\'", "'CQ9'");
         }
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
@@ -588,7 +602,7 @@ public class UserService {
 
     @SuppressWarnings("unchecked")
     public List<PersonReportVo> findMapExport(String platform, String startTime, String endTime, String sort,
-        String orderTimeStart, String orderTimeEnd, String proxy) throws Exception {
+                                              String orderTimeStart, String orderTimeEnd, String proxy) throws Exception {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
         String sql = "";
@@ -605,7 +619,7 @@ public class UserService {
         List<String> list = PERSON_REPORT_VO_FIELD_LIST_PLATFORM;
         if (StringUtils.isNullOrEmpty(platform)) {
             sql = MessageFormat.format(SqlConst.exportTotalSqlReport, startTime, endTime, sort, orderTimeStart,
-                orderTimeEnd, proxy);// 走报表
+                    orderTimeEnd, proxy);// 走报表
             list = PERSON_REPORT_VO_FIELD_LIST;
             // sql = MessageFormat.format(SqlConst.exportTotalSql, startTime, endTime, sort,proxy);
         } else if (platform.equals(Constants.PLATFORM_WM_BIG)) {
@@ -614,6 +628,8 @@ public class UserService {
             sql = MessageFormat.format(SqlConst.exportObdjSql, startTime, endTime, sort, "'OBDJ'", proxy);
         } else if (platform.equals(Constants.PLATFORM_OBTY)) {
             sql = MessageFormat.format(SqlConst.exportObtySql, startTime, endTime, sort, "'OBTY'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_OBZR)) {
+            sql = MessageFormat.format(SqlConst.exportObzrSql, startTime, endTime, sort, "'OBZR'", proxy);
         } else if (platform.equals(Constants.PLATFORM_PG)) {
             sql = MessageFormat.format(SqlConst.exportPgOrCq9Sql, startTime, endTime, sort, "'PG'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE)) {
@@ -626,7 +642,7 @@ public class UserService {
             sql = MessageFormat.format(SqlConst.exportAeSql, startTime, endTime, sort, "'E1SPORT'", proxy);
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlConst.exportSabasportSql, startTime, endTime, sort, "'SABASPORT'", proxy,
-                "'Payoff'", "'Stake'", "'cancelPayoff'");
+                    "'Payoff'", "'Stake'", "'cancelPayoff'");
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlConst.exportVncSql, startTime, endTime, sort, "'VNC'", proxy);
         } else if (platform.equals(Constants.PLATFORM_DMC)) {
@@ -639,17 +655,17 @@ public class UserService {
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
-        if(null!=resultList&&resultList.size()>0) {
-            List<Map<String, Object>> mapList = parsePersonReportMapList(resultList,list);
+        if (null != resultList && resultList.size() > 0) {
+            List<Map<String, Object>> mapList = parsePersonReportMapList(resultList, list);
             return DTOUtil.map2DTO(mapList, PersonReportVo.class);
-        }else {
+        } else {
             return null;
         }
     }
 
     @SuppressWarnings("unchecked")
     public List<PersonReportVo> findMapOne(String platform, String startTime, String endTime, Long userId,
-        String orderTimeStart, String orderTimeEnd, String proxy) {
+                                           String orderTimeStart, String orderTimeEnd, String proxy) {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
         String sql = "";
@@ -666,7 +682,7 @@ public class UserService {
         if (StringUtils.isNullOrEmpty(platform)) {
             // 走报表
             sql = MessageFormat.format(SqlConst.seleOneTotalReport, startTime, endTime, userId.toString(),
-                orderTimeStart, orderTimeEnd, proxy);
+                    orderTimeStart, orderTimeEnd, proxy);
             list = PERSON_REPORT_VO_FIELD_LIST;
             // sql = MessageFormat.format(SqlConst.seleOneTotal,startTime,endTime,userId.toString(),proxy);
         } else if (platform.equals(Constants.PLATFORM_WM_BIG)) {
@@ -675,23 +691,25 @@ public class UserService {
             sql = MessageFormat.format(SqlConst.seleOneObdj, startTime, endTime, userId.toString(), "'OBDJ'", proxy);
         } else if (platform.equals(Constants.PLATFORM_OBTY)) {
             sql = MessageFormat.format(SqlConst.seleOneObty, startTime, endTime, userId.toString(), "'OBTY'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_OBZR)) {
+            sql = MessageFormat.format(SqlConst.seleOneObzr, startTime, endTime, userId.toString(), "'OBZR'", proxy);
         } else if (platform.equals(Constants.PLATFORM_PG)) {
             sql =
-                MessageFormat.format(SqlConst.seleOnePgOrCq9Sql, startTime, endTime, userId.toString(), "'PG'", proxy);
+                    MessageFormat.format(SqlConst.seleOnePgOrCq9Sql, startTime, endTime, userId.toString(), "'PG'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE)) {
             sql =
-                MessageFormat.format(SqlConst.seleOneAeMergeSql, startTime, endTime, userId.toString(), "'AE'", proxy);
+                    MessageFormat.format(SqlConst.seleOneAeMergeSql, startTime, endTime, userId.toString(), "'AE'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE_HORSEBOOK)) {
             sql = MessageFormat.format(SqlConst.seleOneAeSql, startTime, endTime, userId.toString(), "'HORSEBOOK'",
-                proxy);
+                    proxy);
         } else if (platform.equals(Constants.PLATFORM_AE_SV388)) {
             sql = MessageFormat.format(SqlConst.seleOneAeSql, startTime, endTime, userId.toString(), "'SV388'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE_E1SPORT)) {
             sql =
-                MessageFormat.format(SqlConst.seleOneAeSql, startTime, endTime, userId.toString(), "'E1SPORT'", proxy);
+                    MessageFormat.format(SqlConst.seleOneAeSql, startTime, endTime, userId.toString(), "'E1SPORT'", proxy);
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlConst.seleOneSabasportSql, startTime, endTime, userId.toString(),
-                "'SABASPORT'", proxy, "'Payoff'", "'Stake'", "'cancelPayoff'");
+                    "'SABASPORT'", proxy, "'Payoff'", "'Stake'", "'cancelPayoff'");
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlConst.seleOneVncSql, startTime, endTime, userId.toString(), "'VNC'", proxy);
         } else if (platform.equals(Constants.PLATFORM_DMC)) {
@@ -700,29 +718,29 @@ public class UserService {
             sql = MessageFormat.format(SqlConst.seleOneDgSql, startTime, endTime, userId.toString(), "'DG'", proxy);
         } else {
             sql =
-                MessageFormat.format(SqlConst.seleOnePgOrCq9Sql, startTime, endTime, userId.toString(), "'CQ9'", proxy);
+                    MessageFormat.format(SqlConst.seleOnePgOrCq9Sql, startTime, endTime, userId.toString(), "'CQ9'", proxy);
         }
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
-        if(null!=resultList&&resultList.size()>0) {
-            List<Map<String, Object>> mapList = parsePersonReportMapList(resultList,list);
+        if (null != resultList && resultList.size() > 0) {
+            List<Map<String, Object>> mapList = parsePersonReportMapList(resultList, list);
             return DTOUtil.map2DTO(mapList, PersonReportVo.class);
-        }else {
+        } else {
             return null;
         }
     }
 
     private static final List<String> PERSON_REPORT_TOTAL_FIELD_LIST =
-        Arrays.asList("num", "bet_amount", "validbet", "win_loss", "wash_amount", "service_charge", "all_profit_amount",
-            "avg_benefit", "total_amount", "all_water", "todayAward", "riseAward");
+            Arrays.asList("num", "bet_amount", "validbet", "win_loss", "wash_amount", "service_charge", "all_profit_amount",
+                    "avg_benefit", "total_amount", "all_water", "todayAward", "riseAward");
 
     private static final List<String> PERSON_REPORT_FIELD_LIST = Arrays.asList("num", "bet_amount", "validbet",
-        "win_loss", "wash_amount", "service_charge", "all_profit_amount", "avg_benefit", "total_amount", "all_water");
+            "win_loss", "wash_amount", "service_charge", "all_profit_amount", "avg_benefit", "total_amount", "all_water");
 
     @SuppressWarnings("unchecked")
     public Map<String, Object> findMapSum(String platform, String startTime, String endTime, String orderTimeStart,
-        String orderTimeEnd, String proxy) {
+                                          String orderTimeEnd, String proxy) {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
         String sql = "";
@@ -746,6 +764,8 @@ public class UserService {
             sql = MessageFormat.format(SqlConst.obdjSumSql, startTime, endTime, "'OBDJ'", proxy);
         } else if (platform.equals(Constants.PLATFORM_OBTY)) {
             sql = MessageFormat.format(SqlConst.obtySumSql, startTime, endTime, "'OBTY'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_OBZR)) {
+            sql = MessageFormat.format(SqlConst.obzrSumSql, startTime, endTime, "'OBZR'", proxy);
         } else if (platform.equals(Constants.PLATFORM_PG)) {
             sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql, startTime, endTime, "'PG'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE)) {
@@ -764,7 +784,7 @@ public class UserService {
             sql = MessageFormat.format(SqlConst.aeSumSql, startTime, endTime, "'E1SPORT'", proxy);
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlConst.sabasportSumSql, startTime, endTime, "'SABASPORT'", proxy, "'Payoff'",
-                "'Stake'", "'cancelPayoff'");
+                    "'Stake'", "'cancelPayoff'");
         } else {
             sql = MessageFormat.format(SqlConst.PGAndCQ9SumSql, startTime, endTime, "'CQ9'", proxy);
         }
@@ -772,7 +792,7 @@ public class UserService {
         Query countQuery = entityManager.createNativeQuery(sql);
         Object result = countQuery.getSingleResult();
         Map<String, Object> map = new HashMap<>();
-        Object[] obj = (Object[])result;
+        Object[] obj = (Object[]) result;
         for (int i = 0; i < list.size(); i++) {
             String field = list.get(i);
             Object value = obj[i];
@@ -784,7 +804,7 @@ public class UserService {
 
     @SuppressWarnings("unchecked")
     public Map<String, Object> findMapSumAdmin(String platform, String startTime, String endTime, String orderTimeStart,
-        String orderTimeEnd) {
+                                               String orderTimeEnd) {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
         String sql = "";
@@ -799,6 +819,8 @@ public class UserService {
             sql = MessageFormat.format(SqlNewConst.obdjSumSql, startTime, endTime, "'OBDJ'");
         } else if (platform.equals(Constants.PLATFORM_OBTY)) {
             sql = MessageFormat.format(SqlNewConst.obtySumSql, startTime, endTime, "'OBTY'");
+        } else if (platform.equals(Constants.PLATFORM_OBZR)) {
+            sql = MessageFormat.format(SqlNewConst.obzrSumSql, startTime, endTime, "'OBZR'");
         } else if (platform.equals(Constants.PLATFORM_PG)) {
             sql = MessageFormat.format(SqlNewConst.PGAndCQ9SumSql, startTime, endTime, "'PG'");
         } else if (platform.equals(Constants.PLATFORM_AE)) {
@@ -811,7 +833,7 @@ public class UserService {
             sql = MessageFormat.format(SqlNewConst.aeSumSql, startTime, endTime, "'E1SPORT'");
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(SqlNewConst.sabasportSumSql, startTime, endTime, "'SABASPORT'", "'Payoff'",
-                "'Stake'", "'cancelPayoff'");
+                    "'Stake'", "'cancelPayoff'");
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(SqlNewConst.vncSumSql, startTime, endTime, "'VNC'");
         } else if (platform.equals(Constants.PLATFORM_DMC)) {
@@ -825,7 +847,7 @@ public class UserService {
         Query countQuery = entityManager.createNativeQuery(sql);
         Object result = countQuery.getSingleResult();
         Map<String, Object> map = new HashMap<>();
-        Object[] obj = (Object[])result;
+        Object[] obj = (Object[]) result;
         for (int i = 0; i < list.size(); i++) {
             String field = list.get(i);
             Object value = obj[i];
@@ -835,21 +857,21 @@ public class UserService {
     }
 
     private static final List<String> PERSON_REPORT_VO_FIELD_LIST = Arrays.asList("account", "third_proxy", "id", "num",
-        "bet_amount", "validbet", "win_loss", "wash_amount", "service_charge", "all_profit_amount", "avg_benefit",
-        "total_amount", "all_water", "todayAward", "riseAward");
+            "bet_amount", "validbet", "win_loss", "wash_amount", "service_charge", "all_profit_amount", "avg_benefit",
+            "total_amount", "all_water", "todayAward", "riseAward");
 
     private static final List<String> PERSON_REPORT_VO_FIELD_LIST_PLATFORM = Arrays.asList("account", "third_proxy", "id", "num",
-        "bet_amount", "validbet", "win_loss", "wash_amount", "service_charge", "all_profit_amount", "avg_benefit",
-        "total_amount", "all_water");
+            "bet_amount", "validbet", "win_loss", "wash_amount", "service_charge", "all_profit_amount", "avg_benefit",
+            "total_amount", "all_water");
 
-    private List<Map<String, Object>> parsePersonReportMapList(List<Object> resultList,List<String> listString) {
+    private List<Map<String, Object>> parsePersonReportMapList(List<Object> resultList, List<String> listString) {
         List<Map<String, Object>> list = null;
         if (resultList != null && resultList.size() > CommonConst.NUMBER_0) {
             list = new LinkedList<>();
 
             for (Object result : resultList) {
                 Map<String, Object> map = new HashMap<>();
-                Object[] obj = (Object[])result;
+                Object[] obj = (Object[]) result;
                 for (int i = 0; i < listString.size(); i++) {
                     String field = listString.get(i);
                     Object value = obj[i];
@@ -862,7 +884,7 @@ public class UserService {
     }
 
     private static final List<String> PERSON_REPORT_VO_FIELD_LIST_BET =
-        Arrays.asList("account", "third_proxy", "id", "num", "bet_amount", "validbet", "win_loss");
+            Arrays.asList("account", "third_proxy", "id", "num", "bet_amount", "validbet", "win_loss");
 
     private List<Map<String, Object>> parsePersonBetMapList(List<Object> resultList) {
         List<Map<String, Object>> list = null;
@@ -871,7 +893,7 @@ public class UserService {
             Integer sort = 0;
             for (Object result : resultList) {
                 Map<String, Object> map = new HashMap<>();
-                Object[] obj = (Object[])result;
+                Object[] obj = (Object[]) result;
                 for (int i = 0; i < PERSON_REPORT_VO_FIELD_LIST_BET.size(); i++) {
                     String field = PERSON_REPORT_VO_FIELD_LIST_BET.get(i);
                     Object value = obj[i];
@@ -885,7 +907,7 @@ public class UserService {
     }
 
     private static final List<String> PERSON_REPORT_VO_FIELD_LIST_WASH =
-        Arrays.asList("account", "third_proxy", "id", "wash_amount");
+            Arrays.asList("account", "third_proxy", "id", "wash_amount");
 
     private List<Map<String, Object>> parsePersonWashMapList(List<Object> resultList) {
         List<Map<String, Object>> list = null;
@@ -894,7 +916,7 @@ public class UserService {
             Integer sort = 0;
             for (Object result : resultList) {
                 Map<String, Object> map = new HashMap<>();
-                Object[] obj = (Object[])result;
+                Object[] obj = (Object[]) result;
                 for (int i = 0; i < PERSON_REPORT_VO_FIELD_LIST_WASH.size(); i++) {
                     String field = PERSON_REPORT_VO_FIELD_LIST_WASH.get(i);
                     Object value = obj[i];
@@ -908,7 +930,7 @@ public class UserService {
     }
 
     private static final List<String> PERSON_REPORT_VO_FIELD_LIST_SHARE_PROFIT =
-        Arrays.asList("account", "third_proxy", "id", "all_profit_amount");
+            Arrays.asList("account", "third_proxy", "id", "all_profit_amount");
 
     private List<Map<String, Object>> parseShareProfitMapList(List<Object> resultList) {
         List<Map<String, Object>> list = null;
@@ -917,7 +939,7 @@ public class UserService {
             Integer sort = 0;
             for (Object result : resultList) {
                 Map<String, Object> map = new HashMap<>();
-                Object[] obj = (Object[])result;
+                Object[] obj = (Object[]) result;
                 for (int i = 0; i < PERSON_REPORT_VO_FIELD_LIST_SHARE_PROFIT.size(); i++) {
                     String field = PERSON_REPORT_VO_FIELD_LIST_SHARE_PROFIT.get(i);
                     Object value = obj[i];
@@ -931,13 +953,13 @@ public class UserService {
     }
 
     private static final List<String> PERSON_REPORT_VO_FIELD_LIST_NOTBET =
-        Arrays.asList("wash_amount", "service_charge", "all_profit_amount", "all_water", "todayAward", "riseAward");
+            Arrays.asList("wash_amount", "service_charge", "all_profit_amount", "all_water", "todayAward", "riseAward");
 
     private Map<String, Object> parsePersonNotBetMapList(Object result) {
         Map<String, Object> map = null;
         if (Objects.nonNull(result)) {
             map = new HashMap<>();
-            Object[] obj = (Object[])result;
+            Object[] obj = (Object[]) result;
             for (int i = 0; i < PERSON_REPORT_VO_FIELD_LIST_NOTBET.size(); i++) {
                 String field = PERSON_REPORT_VO_FIELD_LIST_NOTBET.get(i);
                 Object value = obj[i];
@@ -948,13 +970,13 @@ public class UserService {
     }
 
     private static final List<String> PERSON_REPORT_VO_FIELD_LIST_NOTWASH =
-        Arrays.asList("num", "bet_amount", "validbet", "win_loss", "service_charge", "all_profit_amount", "all_water");
+            Arrays.asList("num", "bet_amount", "validbet", "win_loss", "service_charge", "all_profit_amount", "all_water");
 
     private Map<String, Object> parsePersonNotWashMapList(Object result) {
         Map<String, Object> map = null;
         if (Objects.nonNull(result)) {
             map = new HashMap<>();
-            Object[] obj = (Object[])result;
+            Object[] obj = (Object[]) result;
             for (int i = 0; i < PERSON_REPORT_VO_FIELD_LIST_NOTWASH.size(); i++) {
                 String field = PERSON_REPORT_VO_FIELD_LIST_NOTWASH.get(i);
                 Object value = obj[i];
@@ -965,13 +987,13 @@ public class UserService {
     }
 
     private static final List<String> PERSON_REPORT_VO_FIELD_LIST_NOTSHARE =
-        Arrays.asList("num", "bet_amount", "validbet", "win_loss", "service_charge", "wash_amount", "all_water");
+            Arrays.asList("num", "bet_amount", "validbet", "win_loss", "service_charge", "wash_amount", "all_water");
 
     private Map<String, Object> parsePersonNotShareMapList(Object result) {
         Map<String, Object> map = null;
         if (Objects.nonNull(result)) {
             map = new HashMap<>();
-            Object[] obj = (Object[])result;
+            Object[] obj = (Object[]) result;
             for (int i = 0; i < PERSON_REPORT_VO_FIELD_LIST_NOTSHARE.size(); i++) {
                 String field = PERSON_REPORT_VO_FIELD_LIST_NOTSHARE.get(i);
                 Object value = obj[i];
@@ -983,7 +1005,7 @@ public class UserService {
 
     @SuppressWarnings("unchecked")
     public List<RebateReportVo> findRebateMap(String platform, String startTime, String endTime, Integer page,
-        Integer pageSize, String sort, String orderTimeStart, String orderTimeEnd, String proxy) throws Exception {
+                                              Integer pageSize, String sort, String orderTimeStart, String orderTimeEnd, String proxy) throws Exception {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
         String sql = "";
@@ -999,39 +1021,43 @@ public class UserService {
         // }
         if (StringUtils.isNullOrEmpty(platform)) {
             sql = MessageFormat.format(RebateSqlConst.totalSqlReport, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), orderTimeStart, orderTimeEnd, proxy);
+                    pageSize.toString(), orderTimeStart, orderTimeEnd, proxy);
             // sql = MessageFormat.format(RebateSqlConst.totalSql, startTime, endTime, sort, page.toString(),
             // pageSize.toString(),proxy);
         } else if (platform.equals(Constants.PLATFORM_WM_BIG)) {
             sql = MessageFormat.format(RebateSqlConst.wmSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'wm'", proxy);
+                    pageSize.toString(), "'wm'", proxy);
         } else if (platform.equals(Constants.PLATFORM_OBDJ)) {
             sql = MessageFormat.format(RebateSqlConst.obdjSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'OBDJ'", proxy);
+                    pageSize.toString(), "'OBDJ'", proxy);
         } else if (platform.equals(Constants.PLATFORM_OBTY)) {
             sql = MessageFormat.format(RebateSqlConst.obtySql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'OBTY'", proxy);
-        } else if (platform.equals(Constants.PLATFORM_PG)) {
+                    pageSize.toString(), "'OBTY'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_OBZR)) {
+            sql = MessageFormat.format(RebateSqlConst.obzrSql, startTime, endTime, sort, page.toString(),
+                    pageSize.toString(), "'OBZR'", proxy);
+        }
+        else if (platform.equals(Constants.PLATFORM_PG)) {
             sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'PG'", proxy);
+                    pageSize.toString(), "'PG'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE)) {
             sql = MessageFormat.format(RebateSqlConst.aeMergeSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'AE'", proxy);
+                    pageSize.toString(), "'AE'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE_HORSEBOOK)) {
             sql = MessageFormat.format(RebateSqlConst.aeSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'HORSEBOOK'", proxy);
+                    pageSize.toString(), "'HORSEBOOK'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE_SV388)) {
             sql = MessageFormat.format(RebateSqlConst.aeSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'SV388'", proxy);
+                    pageSize.toString(), "'SV388'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE_E1SPORT)) {
             sql = MessageFormat.format(RebateSqlConst.aeSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'E1SPORT'", proxy);
+                    pageSize.toString(), "'E1SPORT'", proxy);
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(RebateSqlConst.sabasportSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'SABASPORT'", proxy, "'Payoff'", "'Stake'", "'cancelPayoff'");
+                    pageSize.toString(), "'SABASPORT'", proxy, "'Payoff'", "'Stake'", "'cancelPayoff'");
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(RebateSqlConst.vncSql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'VNC'", proxy);
+                    pageSize.toString(), "'VNC'", proxy);
         } else if (platform.equals(Constants.PLATFORM_DMC)) {
             sql = MessageFormat.format(RebateSqlConst.dmcSql, startTime, endTime, sort, page.toString(),
                     pageSize.toString(), "'DMC'", proxy);
@@ -1040,27 +1066,27 @@ public class UserService {
                     pageSize.toString(), "'DG'", proxy);
         } else {
             sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql, startTime, endTime, sort, page.toString(),
-                pageSize.toString(), "'CQ9'", proxy);
+                    pageSize.toString(), "'CQ9'", proxy);
         }
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
-        if(null!=resultList&&resultList.size()>0) {
+        if (null != resultList && resultList.size() > 0) {
             List<Map<String, Object>> mapList = parseRebateReportMapList(resultList);
             return DTOUtil.map2DTO(mapList, RebateReportVo.class);
-        }else {
+        } else {
             return null;
         }
     }
 
     @SuppressWarnings("unchecked")
     public List<RebateReportVo> findRebateMapExport(String platform, String startTime, String endTime, String sort,
-        String orderTimeStart, String orderTimeEnd, String proxy) throws Exception {
+                                                    String orderTimeStart, String orderTimeEnd, String proxy) throws Exception {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
         String sql = "";
         if (StringUtils.isNullOrEmpty(platform)) {
             sql = MessageFormat.format(RebateSqlConst.exportTotalSqlReport, startTime, endTime, sort, orderTimeStart,
-                orderTimeEnd, proxy);
+                    orderTimeEnd, proxy);
             // sql = MessageFormat.format(RebateSqlConst.exportTotalSql, startTime, endTime, sort,proxy);
         } else if (platform.equals(Constants.PLATFORM_WM_BIG)) {
             sql = MessageFormat.format(RebateSqlConst.exportWmSql, startTime, endTime, sort, "'wm'", proxy);
@@ -1068,7 +1094,10 @@ public class UserService {
             sql = MessageFormat.format(RebateSqlConst.exportObdjSql, startTime, endTime, sort, "'OBDJ'", proxy);
         } else if (platform.equals(Constants.PLATFORM_OBTY)) {
             sql = MessageFormat.format(RebateSqlConst.exportObtySql, startTime, endTime, sort, "'OBTY'", proxy);
-        } else if (platform.equals(Constants.PLATFORM_PG)) {
+        } else if (platform.equals(Constants.PLATFORM_OBZR)) {
+            sql = MessageFormat.format(RebateSqlConst.exportObzrSql, startTime, endTime, sort, "'OBTY'", proxy);
+        }
+        else if (platform.equals(Constants.PLATFORM_PG)) {
             sql = MessageFormat.format(RebateSqlConst.exportPgOrCq9Sql, startTime, endTime, sort, "'PG'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE)) {
             sql = MessageFormat.format(RebateSqlConst.exportAeMergeSql, startTime, endTime, sort, "'AE'", proxy);
@@ -1080,7 +1109,7 @@ public class UserService {
             sql = MessageFormat.format(RebateSqlConst.exportAeSql, startTime, endTime, sort, "'E1SPORT'", proxy);
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(RebateSqlConst.exportSabasportSql, startTime, endTime, sort, "'SABASPORT'",
-                proxy, "'Payoff'", "'Stake'", "'cancelPayoff'");
+                    proxy, "'Payoff'", "'Stake'", "'cancelPayoff'");
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(RebateSqlConst.exportVncSql, startTime, endTime, sort, "'VNC'", proxy);
         } else if (platform.equals(Constants.PLATFORM_DMC)) {
@@ -1092,17 +1121,17 @@ public class UserService {
         }
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
-            if(null!=resultList&&resultList.size()>0) {
+        if (null != resultList && resultList.size() > 0) {
             List<Map<String, Object>> mapList = parseRebateReportMapList(resultList);
             return DTOUtil.map2DTO(mapList, RebateReportVo.class);
-        }else {
+        } else {
             return null;
         }
     }
 
     @SuppressWarnings("unchecked")
     public List<RebateReportVo> findRebateMap(String platform, String startTime, String endTime, Long userId,
-        String orderTimeStart, String orderTimeEnd, String proxy) {
+                                              String orderTimeStart, String orderTimeEnd, String proxy) {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
         String sql = "";
@@ -1117,37 +1146,40 @@ public class UserService {
         // }
         if (StringUtils.isNullOrEmpty(platform)) {
             sql = MessageFormat.format(RebateSqlConst.seleOneTotalReport, startTime, endTime, userId.toString(),
-                orderTimeStart, orderTimeEnd, proxy);
+                    orderTimeStart, orderTimeEnd, proxy);
             // sql = MessageFormat.format(RebateSqlConst.seleOneTotal,startTime,endTime,userId.toString(),proxy);
         } else if (platform.equals(Constants.PLATFORM_WM_BIG)) {
             sql = MessageFormat.format(RebateSqlConst.seleOneWm, startTime, endTime, userId.toString(), "'wm'", proxy);
         } else if (platform.equals(Constants.PLATFORM_OBDJ)) {
             sql = MessageFormat.format(RebateSqlConst.seleOneObdj, startTime, endTime, userId.toString(), "'OBDJ'",
-                proxy);
+                    proxy);
         } else if (platform.equals(Constants.PLATFORM_OBTY)) {
             sql = MessageFormat.format(RebateSqlConst.seleOneObty, startTime, endTime, userId.toString(), "'OBTY'",
-                proxy);
-        } else if (platform.equals(Constants.PLATFORM_PG)) {
+                    proxy);
+        } else if (platform.equals(Constants.PLATFORM_OBZR)) {
+            sql = MessageFormat.format(RebateSqlConst.seleOneObzr, startTime, endTime, userId.toString(), "'OBTY'",
+                    proxy);
+        }else if (platform.equals(Constants.PLATFORM_PG)) {
             sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql, startTime, endTime, userId.toString(), "'PG'",
-                proxy);
+                    proxy);
         } else if (platform.equals(Constants.PLATFORM_AE)) {
             sql = MessageFormat.format(RebateSqlConst.seleOneAeMergeSql, startTime, endTime, userId.toString(), "'AE'",
-                proxy);
+                    proxy);
         } else if (platform.equals(Constants.PLATFORM_AE_HORSEBOOK)) {
             sql = MessageFormat.format(RebateSqlConst.seleOneAeSql, startTime, endTime, userId.toString(),
-                "'HORSEBOOK'", proxy);
+                    "'HORSEBOOK'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE_SV388)) {
             sql = MessageFormat.format(RebateSqlConst.seleOneAeSql, startTime, endTime, userId.toString(), "'SV388'",
-                proxy);
+                    proxy);
         } else if (platform.equals(Constants.PLATFORM_AE_E1SPORT)) {
             sql = MessageFormat.format(RebateSqlConst.seleOneAeSql, startTime, endTime, userId.toString(), "'E1SPORT'",
-                proxy);
+                    proxy);
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             sql = MessageFormat.format(RebateSqlConst.seleOneSabasportSql, startTime, endTime, userId.toString(),
-                "'SABASPORT'", proxy, "'Payoff'", "'Stake'", "'cancelPayoff'");
+                    "'SABASPORT'", proxy, "'Payoff'", "'Stake'", "'cancelPayoff'");
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
             sql = MessageFormat.format(RebateSqlConst.seleOneVncSql, startTime, endTime, userId.toString(), "'VNC'",
-                proxy);
+                    proxy);
         } else if (platform.equals(Constants.PLATFORM_DMC)) {
             sql = MessageFormat.format(RebateSqlConst.seleOneDmcSql, startTime, endTime, userId.toString(), "'DMC'",
                     proxy);
@@ -1156,31 +1188,31 @@ public class UserService {
                     proxy);
         } else {
             sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql, startTime, endTime, userId.toString(), "'CQ9'",
-                proxy);
+                    proxy);
         }
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
-        if(null!=resultList&&resultList.size()>0) {
+        if (null != resultList && resultList.size() > 0) {
             List<Map<String, Object>> mapList = parseRebateReportMapList(resultList);
             return DTOUtil.map2DTO(mapList, RebateReportVo.class);
-        }else {
+        } else {
             return null;
         }
     }
 
     private static final List<String> REBATE_REPORT_TOTAL_FIELD_LIST = Arrays.asList("num", "bet_amount", "validbet",
-        "win_loss", "total_rebate", "user_amount", "surplus_amount", "service_charge", "avg_benefit", "total_amount");
+            "win_loss", "total_rebate", "user_amount", "surplus_amount", "service_charge", "avg_benefit", "total_amount");
 
     @SuppressWarnings("unchecked")
     public Map<String, Object> findRebateMap(String platform, String startTime, String endTime, String orderTimeStart,
-        String orderTimeEnd, String proxy) {
+                                             String orderTimeEnd, String proxy) {
         startTime = "'" + startTime + "'";
         endTime = "'" + endTime + "'";
         String sql = "";
         if (StringUtils.isNullOrEmpty(platform)) {
             sql = MessageFormat.format(RebateSqlConst.sumSqlReport, startTime, endTime, orderTimeStart, orderTimeEnd,
-                proxy);
+                    proxy);
             // sql = MessageFormat.format(RebateSqlConst.sumSql,startTime,endTime,proxy);
         } else if (platform.equals(Constants.PLATFORM_WM_BIG)) {
             sql = MessageFormat.format(RebateSqlConst.WMSumSql, startTime, endTime, "'wm'", proxy);
@@ -1188,6 +1220,8 @@ public class UserService {
             sql = MessageFormat.format(RebateSqlConst.obdjSumSql, startTime, endTime, "'OBDJ'", proxy);
         } else if (platform.equals(Constants.PLATFORM_OBTY)) {
             sql = MessageFormat.format(RebateSqlConst.obtySumSql, startTime, endTime, "'OBTY'", proxy);
+        } else if (platform.equals(Constants.PLATFORM_OBZR)) {
+            sql = MessageFormat.format(RebateSqlConst.obzrSumSql, startTime, endTime, "'OBTY'", proxy);
         } else if (platform.equals(Constants.PLATFORM_PG)) {
             sql = MessageFormat.format(RebateSqlConst.PGAndCQ9SumSql, startTime, endTime, "'PG'", proxy);
         } else if (platform.equals(Constants.PLATFORM_AE)) {
@@ -1201,10 +1235,10 @@ public class UserService {
         } else if (platform.equals(Constants.PLATFORM_SABASPORT)) {
             if (StringUtils.isNullOrEmpty(proxy)) {
                 sql = MessageFormat.format(RebateSqlConst.sabasportAdminSumSql, startTime, endTime, "'SABASPORT'",
-                    "'Payoff'", "'Stake'", "'cancelPayoff'");
+                        "'Payoff'", "'Stake'", "'cancelPayoff'");
             } else {
                 sql = MessageFormat.format(RebateSqlConst.sabasportProxySumSql, startTime, endTime, "'SABASPORT'",
-                    proxy, "'Payoff'", "'Stake'");
+                        proxy, "'Payoff'", "'Stake'");
             }
 
         } else if (platform.equals(Constants.PLATFORM_VNC)) {
@@ -1220,7 +1254,7 @@ public class UserService {
         Query countQuery = entityManager.createNativeQuery(sql);
         Object result = countQuery.getSingleResult();
         Map<String, Object> map = new HashMap<>();
-        Object[] obj = (Object[])result;
+        Object[] obj = (Object[]) result;
         for (int i = 0; i < REBATE_REPORT_TOTAL_FIELD_LIST.size(); i++) {
             String field = REBATE_REPORT_TOTAL_FIELD_LIST.get(i);
             Object value = obj[i];
@@ -1231,8 +1265,8 @@ public class UserService {
     }
 
     private static final List<String> REBATE_REPORT_VO_FIELD_LIST =
-        Arrays.asList("account", "third_proxy", "id", "num", "bet_amount", "validbet", "win_loss", "total_rebate",
-            "user_amount", "surplus_amount", "service_charge", "avg_benefit", "total_amount");
+            Arrays.asList("account", "third_proxy", "id", "num", "bet_amount", "validbet", "win_loss", "total_rebate",
+                    "user_amount", "surplus_amount", "service_charge", "avg_benefit", "total_amount");
 
     private List<Map<String, Object>> parseRebateReportMapList(List<Object> resultList) {
         List<Map<String, Object>> list = null;
@@ -1241,7 +1275,7 @@ public class UserService {
 
             for (Object result : resultList) {
                 Map<String, Object> map = new HashMap<>();
-                Object[] obj = (Object[])result;
+                Object[] obj = (Object[]) result;
                 for (int i = 0; i < REBATE_REPORT_VO_FIELD_LIST.size(); i++) {
                     String field = REBATE_REPORT_VO_FIELD_LIST.get(i);
                     Object value = obj[i];
