@@ -465,7 +465,7 @@ public class UserMoneyBusiness {
     }
 
     public void proxyGameRecordReport(String platform, GameRecord record) {
-        log.info("开始推送后台proxyGameRecordReport MQ消息,平台={},注单ID={},注单明细={}", platform, record.getBetId(), record.toString());
+        log.info("开始推送后台proxyGameRecordReport MQ消息,平台={},注单ID={},注单BetId={},注单明细={}",platform,record.getId(),record.getBetId(),record.toString());
         ProxyGameRecordReportVo vo = new ProxyGameRecordReportVo();
         vo.setPlatform(platform);
         vo.setOrderId(record.getBetId());
@@ -486,7 +486,7 @@ public class UserMoneyBusiness {
             vo.setBetAmount(new BigDecimal(record.getBet()));
         }
         rabbitTemplate.convertAndSend(RabbitMqConstants.PROXYG_AMERECORD_REPORT_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.PROXYG_AMERECORD_REPORT_DIRECT, vo, new CorrelationData(UUID.randomUUID().toString()));
-        log.info("proxyGameRecordReport MQ消息发送成功,平台={},注单ID={},消息明细={}", platform, record.getBetId(), vo);
+        log.info("proxyGameRecordReport MQ消息发送成功,平台={},注单ID={},注单BetId={},消息明细={}", platform,record.getId(),record.getBetId(), vo);
     }
 
     public void changeUserBalance(Long userId, BigDecimal betAmount, BigDecimal winAmount) {
