@@ -244,6 +244,7 @@ public class GameRecordDGJob {
         }
         //组装gameRecord
         GameRecord record = combineGameRecord(gameRecordDG);
+        log.info("DG组装完成准备推送报表id:{}userId:{}isAdd:{} record:{}",record.getId(),record.getUserId(),isAdd,record.toString());
         //发送注单消息到MQ后台要统计数据
         if (isAdd == 1) {
             gameRecordAsyncOper.proxyGameRecordReport(platform, record);
