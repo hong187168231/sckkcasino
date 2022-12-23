@@ -1,6 +1,7 @@
 package com.qianyi.casinoweb.job;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.model.*;
@@ -63,11 +64,11 @@ public class GameRecordObzrJob {
     private PlatformGameService platformGameService;
 
 
-    private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+    private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern(DateUtil.patten);
 
 
     //每隔7分钟执行一次
-    @Scheduled(cron = "0 0/5 * * * ?")
+    @Scheduled(fixedDelay = 500000)
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
         if (platformGame != null && platformGame.getGameStatus() == 2) {
@@ -90,7 +91,9 @@ public class GameRecordObzrJob {
         int mins = +5;
         int startTimePlusSeconds = -40;
         int endTimePlusSeconds = -40;
-
+        if(StrUtil.isBlank(lastTime)){
+            lastTime = DateUtil.dateToPatten(new Date());
+        }
         LocalDateTime lastEndTime = LocalDateTime.parse(lastTime, DATETIME_FORMAT);
         LocalDateTime startTime = lastEndTime.plusSeconds(startTimePlusSeconds);
         LocalDateTime endTime = startTime.plusMinutes(mins);
@@ -100,6 +103,8 @@ public class GameRecordObzrJob {
             endTime = now;
         }
         boolean flag = true;
+//        String start = "2022-12-23 20:39:10";
+//        String end = "2022-12-23 21:05:10";
         String start = startTime.format(DATETIME_FORMAT);
         String end = endTime.format(DATETIME_FORMAT);
         int pageIndex = 1;

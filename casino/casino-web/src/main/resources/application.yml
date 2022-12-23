@@ -86,7 +86,7 @@ project:   #不同环境需配置相应的值
     aesKey: tCs5nRbehZpFwMdy
     md5Key: nbGtBa7Z9E85nltB
     apiUrl: https://api.obothapi.com/api/merchant
-    apiDataUrl: https://api.obothapi.com
+    apiDataUrl: https://api-data.obothapi.com/data/merchant
     currency: 2 #美元
     tester: 1  #用户类型： 1-测试、0-正式
   ae: #AE
@@ -139,5 +139,3 @@ project:   #不同环境需配置相应的值
   telegramBot:  #定时器执行异常推送消息
     token: 5075415436:AAHw20_vMAaajpIlGjCtdoF-ONH2Pnqwdhs    #telegram机器人token
     chatId: -734299530
-
-
