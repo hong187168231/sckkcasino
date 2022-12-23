@@ -175,6 +175,7 @@ public class GameRecordDGJob {
         for (DGTradeReportVo gameRecordDGVo : gameRecordDGVoList) {
 
             GameRecordDG gameRecord = save(gameRecordDGVo);
+            log.info("DG保存注单完毕id:{}userId:{}isRevocation:{}",gameRecord.getId(),gameRecord.getUserId(),gameRecord.getIsRevocation());
             if (1==gameRecord.getIsRevocation()){//是否结算：1：已结算 2:撤销
                 business(Constants.PLATFORM_DG, gameRecord, platformConfig);
             }
@@ -230,7 +231,7 @@ public class GameRecordDGJob {
             gameRecord.setWinMoney(amount);
         }
         GameRecordDG record = gameRecordDGService.save(gameRecord);
-        log.info("DG保存注单id:{}userId:{}isAdd:{} isRevocation:{}",gameRecordDG.getId(),gameRecordDG.getUserId(),record.getIsAdd(),gameRecord.getIsRevocation());
+        log.info("DG保存注单id:{}userId:{}isAdd:{} isRevocation:{}",record.getId(),record.getUserId(),record.getIsAdd(),record.getIsRevocation());
         return record;
     }
 
