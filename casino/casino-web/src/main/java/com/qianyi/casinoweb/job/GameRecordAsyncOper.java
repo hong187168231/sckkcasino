@@ -63,6 +63,18 @@ public class GameRecordAsyncOper {
     @Async("asyncExecutor")
     public void extractPoints(String platform, GameRecord gameRecord) {
         extractPointsConfigBusiness.extractPoints(platform, gameRecord);
+
+        //        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(gameRecord.getUserId().toString());
+        //        try {
+        //            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+        //            extractPointsConfigBusiness.extractPoints(platform, gameRecord);
+        //        } catch (Exception e) {
+        //            log.error("异步抽点出现异常id{}platform{}userId{} {}",gameRecord.getId(),platform,gameRecord.getUserId(),e.getMessage());
+        //        } finally {
+        //            // 释放锁
+        //            RedisKeyUtil.unlock(userMoneyLock);
+        //            log.info("extractPoints 用户extractPoints释放锁", gameRecord.getUserId());
+        //        }
     }
 
     /**
