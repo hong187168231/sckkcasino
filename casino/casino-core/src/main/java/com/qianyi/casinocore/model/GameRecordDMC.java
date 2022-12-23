@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @Data
 @Entity
 @Table(name ="game_record_dmc",uniqueConstraints={@UniqueConstraint(columnNames={"betOrderNo"})})
-@ApiModel("大马彩彩游戏记录")
+@ApiModel("大马彩彩游戏子单记录")
 public class GameRecordDMC extends BaseEntity{
 
     @ApiModelProperty(value = "我方账号")
