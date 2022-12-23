@@ -238,7 +238,7 @@ public class GameRecordDGJob {
         //计算用户账号实时余额
         Integer isAdd = gameRecordDG.getIsAdd();
         if (isAdd == 1) {
-            gameRecordAsyncOper.changeUserBalance(gameRecordDG.getUserId(), gameRecordDG.getBetPoints(), gameRecordDG.getWinMoney());
+            gameRecordAsyncOper.changeUserBalance(gameRecordDG.getUserId(), gameRecordDG.getBetPoints(), gameRecordDG.getWinOrLoss());
         }
         //组装gameRecord
         GameRecord record = combineGameRecord(gameRecordDG);
@@ -297,7 +297,7 @@ public class GameRecordDGJob {
                 gameRecord.setBet(item.getBetPoints().toString());
             }
             if (item.getWinMoney() != null) {
-                BigDecimal winLoss = item.getWinMoney();
+                BigDecimal winLoss = item.getWinMoney().subtract(item.getRealMoney());
                 gameRecord.setWinLoss(winLoss.toString());
             }
         } else {
@@ -307,7 +307,7 @@ public class GameRecordDGJob {
                 gameRecord.setValidbet(turnover.toString());
             }
             if (item.getWinMoney() != null && item.getWinMoney() != null) {
-                BigDecimal newWinLoss = item.getWinMoney();
+                BigDecimal newWinLoss  = item.getWinMoney().subtract(item.getRealMoney());
                 gameRecord.setWinLoss(newWinLoss.toString());
             }
         }
