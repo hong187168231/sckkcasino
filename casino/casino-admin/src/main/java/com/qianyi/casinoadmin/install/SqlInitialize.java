@@ -54,28 +54,28 @@ public class SqlInitialize  implements CommandLineRunner {
 
         rptBetInfoDetailService.updateRptBetInfoDetailGamePlay();
 
-//        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
-//        first.setDGMaxId(0L);
-//        gameRecordEndIndexService.save(first);
-//        gameRecordReportNewService.deleteByPlatform(Constants.PLATFORM_DG);
-//        gameRecordReportNewService.saveGameRecordReportDG();
-//
-//                // 计算最近十天注单
-//        Calendar nowTime = Calendar.getInstance();
-//        nowTime.add(Calendar.DATE, -10);
-//        Date startDate = nowTime.getTime();
-//        String startDay = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(startDate);
-//        String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(new Date());
-//
-//         List<String> betweenDate = DateUtil.getBetweenDate(startDay, yesterday);
-//         for (String str : betweenDate) {
-//           Date date = DateUtil.getDate(str);
-//           Calendar cal = Calendar.getInstance();
-//           cal.setTime(date );
-//           cal.add(Calendar.DATE, 1);
-//           String tomorrow = DateUtil.getSimpleDateFormat1().format(cal.getTime());
-//           gameRecordReportNewService.statisticsWashCode(Constants.PLATFORM_DG, Constants.PLATFORM_DG, str + staticsTimesEnd,
-//           str + start, tomorrow+end);
-//         }
+        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
+        first.setDGMaxId(0L);
+        gameRecordEndIndexService.save(first);
+        gameRecordReportNewService.deleteByPlatform(Constants.PLATFORM_DG);
+        gameRecordReportNewService.saveGameRecordReportDG();
+
+                // 计算最近十天注单
+        Calendar nowTime = Calendar.getInstance();
+        nowTime.add(Calendar.DATE, -10);
+        Date startDate = nowTime.getTime();
+        String startDay = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(startDate);
+        String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(new Date());
+
+         List<String> betweenDate = DateUtil.getBetweenDate(startDay, yesterday);
+         for (String str : betweenDate) {
+           Date date = DateUtil.getDate(str);
+           Calendar cal = Calendar.getInstance();
+           cal.setTime(date );
+           cal.add(Calendar.DATE, 1);
+           String tomorrow = DateUtil.getSimpleDateFormat1().format(cal.getTime());
+           gameRecordReportNewService.statisticsWashCode(Constants.PLATFORM_DG, Constants.PLATFORM_DG, str + staticsTimesEnd,
+           str + start, tomorrow+end);
+         }
     }
 }
