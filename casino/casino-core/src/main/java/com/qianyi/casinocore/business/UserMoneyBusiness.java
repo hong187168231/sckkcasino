@@ -221,6 +221,7 @@ public class UserMoneyBusiness {
 
     @Transactional
     public void changeLevelWater(String platform, GameRecord gameRecord) {
+        log.info("DG开始处理等级流水业务逻辑id:{}userId:{} gameRecord{}",gameRecord.getId(),gameRecord.getUserId(),gameRecord.toString());
         //已经处理过的不需要再次处理
         if (gameRecord.getLevelWaterStatus() != null && gameRecord.getLevelWaterStatus() == Constants.yes) {
             return;

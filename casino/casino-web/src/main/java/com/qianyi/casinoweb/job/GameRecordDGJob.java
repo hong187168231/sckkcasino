@@ -230,6 +230,7 @@ public class GameRecordDGJob {
             gameRecord.setWinMoney(amount);
         }
         GameRecordDG record = gameRecordDGService.save(gameRecord);
+        log.info("DG保存注单id:{}userId:{}isAdd:{} isRevocation:{}",gameRecordDG.getId(),gameRecordDG.getUserId(),record.getIsAdd(),gameRecord.getIsRevocation());
         return record;
     }
 
@@ -237,7 +238,7 @@ public class GameRecordDGJob {
     public void business(String platform, GameRecordDG gameRecordDG, PlatformConfig platformConfig) {
         //计算用户账号实时余额
         Integer isAdd = gameRecordDG.getIsAdd();
-        log.info("开始处理业务逻辑id:{}userId:{}isAdd:{}",gameRecordDG.getId(),gameRecordDG.getUserId(),isAdd);
+        log.info("DG开始处理业务逻辑id:{}userId:{}isAdd:{}",gameRecordDG.getId(),gameRecordDG.getUserId(),isAdd);
         if (isAdd == 1) {
             gameRecordAsyncOper.changeUserBalance(gameRecordDG.getUserId(), gameRecordDG.getBetPoints(), gameRecordDG.getWinMoney());
         }
