@@ -178,7 +178,7 @@ public class PublicObzrApi {
         dto.setAmount(amount);
         dto.setTransferNo(transferId);
         dto.setTimestamp(System.currentTimeMillis());
-        String result = submit("deposit", dto);
+        String result = submit("/deposit", dto);
         System.out.println(result);
         PublicObzrApi.ResponseEntity entity = entity(result);
         return entity;
@@ -190,7 +190,7 @@ public class PublicObzrApi {
         dto.setAmount(amount);
         dto.setTransferNo(transferId);
         dto.setTimestamp(System.currentTimeMillis());
-        String result = submit("withdraw", dto);
+        String result = submit("/withdraw", dto);
         PublicObzrApi.ResponseEntity entity = entity(result);
         return entity;
     }
@@ -200,7 +200,7 @@ public class PublicObzrApi {
         dto.setLoginName(userName);
         dto.setTransferNo(transferId);
         dto.setTimestamp(System.currentTimeMillis());
-        String result = submit("transfer", dto);
+        String result = submit("/transfer", dto);
         PublicObzrApi.ResponseEntity entity = entity(result);
         return entity;
     }
