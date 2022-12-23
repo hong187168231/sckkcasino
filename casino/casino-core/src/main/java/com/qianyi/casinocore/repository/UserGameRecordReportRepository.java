@@ -107,7 +107,7 @@ public interface UserGameRecordReportRepository extends JpaRepository<UserGameRe
         + " group by user_id ;",nativeQuery = true)
     List<Map<String, Object>> findObdj(String startTime,String endTime);
 
-    @Query(value = "select user_id user_id,count(1) num,sum(bet_amount) bet_amount,sum(valid_betAmount) validbet,sum(payout_amount) win_loss from game_record_obzr grg "
+    @Query(value = "select user_id user_id,count(1) num,sum(bet_amount) bet_amount,sum(valid_bet_amount) validbet,sum(payout_amount) win_loss from game_record_obzr grg "
             + "where settle_str_time >= ?1 and settle_str_time <= ?2 group by user_id ;",nativeQuery = true)
     List<Map<String, Object>> findObzr(String startTime,String endTime);
 
