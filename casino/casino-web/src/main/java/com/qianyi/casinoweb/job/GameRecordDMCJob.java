@@ -204,7 +204,6 @@ public class GameRecordDMCJob {
 
     private GameParentRecordDMC getGameParentRecordDMC(DMCTradeReportVo gameRecordDMCVo) {
         GameParentRecordDMC recordDMC = new GameParentRecordDMC();
-        recordDMC.setId(gameRecordDMCVo.getId());
         recordDMC.setMemberId(gameRecordDMCVo.getMember_id());
         recordDMC.setMerchantId(gameRecordDMCVo.getMerchant_id());
         recordDMC.setBetNumber(gameRecordDMCVo.getBet_number());

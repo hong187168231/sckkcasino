@@ -201,6 +201,7 @@ public class LotteryDmcApi {
         String token = fetchToken();
         String url = apiUrl + "/frontend-api/fetchBettingReport";
         String json = JSON.toJSONString(params);
+        log.info("大马彩请求路径url：【{}】，params：【{}】", url, json);
         String result = HttpClient4Util.doPostJson(url, json, token);
         log.info("Lotto fetchToken结果{}", result);
         String data = analysisResult2(result);

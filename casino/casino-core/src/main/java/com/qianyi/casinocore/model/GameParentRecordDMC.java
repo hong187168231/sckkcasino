@@ -5,18 +5,14 @@ import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
 @Entity
-@Table(name ="game_parent_record_dmc",uniqueConstraints={@UniqueConstraint(columnNames={"betOrderNo"})})
 @ApiModel("大马彩彩游戏记录")
 public class GameParentRecordDMC extends BaseEntity{
 
-    private Integer id; //大马彩客户ID
     private Integer memberId; //大马彩客户ID
     private Integer merchantId; //商户ID
     private String betNumber;  //下注号码
@@ -39,7 +35,7 @@ public class GameParentRecordDMC extends BaseEntity{
 
     public String getMd5(){
         StringBuffer sb = new StringBuffer();
-        sb.append(this.id).append(this.merchantId).append(this.betNumber).append(this.betType)
+        sb.append(this.merchantId).append(this.betNumber).append(this.betType)
                 .append(this.getGamePlayId()).append(this.getTotalAmount()).append(this.getNetAmount())
                 .append(this.getRebateAmount()).append(this.getBettingDate()).append(this.getDrawDate())
                 .append(this.getDrawNumber()).append(this.getTicketStatus()).append(this.getProgressStatus())
