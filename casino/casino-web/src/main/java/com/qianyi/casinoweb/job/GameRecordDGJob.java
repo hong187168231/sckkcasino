@@ -237,6 +237,7 @@ public class GameRecordDGJob {
     public void business(String platform, GameRecordDG gameRecordDG, PlatformConfig platformConfig) {
         //计算用户账号实时余额
         Integer isAdd = gameRecordDG.getIsAdd();
+        log.info("开始处理业务逻辑id:{}userId:{}isAdd:{}",gameRecordDG.getId(),gameRecordDG.getUserId(),isAdd);
         if (isAdd == 1) {
             gameRecordAsyncOper.changeUserBalance(gameRecordDG.getUserId(), gameRecordDG.getBetPoints(), gameRecordDG.getWinMoney());
         }
