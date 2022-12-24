@@ -62,4 +62,10 @@ public class UserGameRecordReport {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
 
+    public UserGameRecordReport(){
+    }
+
+    public UserGameRecordReport(BigDecimal validAmount){
+        this.validAmount = validAmount==null?BigDecimal.ZERO:validAmount;
+    }
 }

@@ -354,8 +354,10 @@ public class GameRecordService {
         CriteriaQuery<UserGameRecordReport> query = builder.createQuery(UserGameRecordReport.class);
         Root<UserGameRecordReport> root = query.from(UserGameRecordReport.class);
 
+
         query.multiselect(
-                builder.sum(root.get("validAmount").as(BigDecimal.class))
+                builder.sum(root.get("validAmount").as(BigDecimal.class)).alias("validAmount")
+
         );
 
         List<Predicate> predicates = new ArrayList();
