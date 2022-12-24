@@ -20,7 +20,7 @@ public class ShareProfitBO {
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal betAmount;
     @ApiModelProperty(value = "分润金额")
-    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+//    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     private BigDecimal profitAmount;
     @ApiModelProperty(value = "是否第一次下注")
     private boolean isFirst;
