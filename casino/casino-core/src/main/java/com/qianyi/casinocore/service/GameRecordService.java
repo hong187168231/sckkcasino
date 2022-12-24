@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.service;
 
 import com.qianyi.casinocore.model.GameRecord;
+import com.qianyi.casinocore.model.UserGameRecordReport;
 import com.qianyi.casinocore.repository.GameRecordRepository;
 import com.qianyi.casinocore.util.DTOUtil;
 import com.qianyi.casinocore.vo.CompanyOrderAmountVo;
@@ -347,6 +348,28 @@ public class GameRecordService {
         GameRecord singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
     }
+
+    public UserGameRecordReport findUserGameRecordReportSum(Long userId) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<UserGameRecordReport> query = builder.createQuery(UserGameRecordReport.class);
+        Root<UserGameRecordReport> root = query.from(UserGameRecordReport.class);
+
+        query.multiselect(
+                builder.sum(root.get("validAmount").as(BigDecimal.class)).alias("validAmount")
+        );
+
+        List<Predicate> predicates = new ArrayList();
+        if (userId != null) {
+            predicates.add(
+                    builder.equal(root.get("userId").as(Long.class), userId)
+            );
+        }
+        query
+                .where(predicates.toArray(new Predicate[predicates.size()]));
+        UserGameRecordReport singleResult = entityManager.createQuery(query).getSingleResult();
+        return singleResult;
+    }
+
     public  GameRecord  findRecordRecordSum(String startTime,String endTime) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<GameRecord> query = builder.createQuery(GameRecord.class);

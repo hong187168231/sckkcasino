@@ -235,7 +235,9 @@ public class LevelShareProfitBusiness {
         int obtyAmount = gameRecordObtyService.countByIdLessThanEqualAndUserId(record.getCreateTime(), userId);
         int obzrAmount = gameRecordObzrService.countByIdLessThanEqualAndUserId(record.getCreateTime(), userId);
         int aeAmount = gameRecordAeService.countByIdLessThanEqualAndUserId(record.getCreateTime(), userId);
-        amount = recordAmount + goldenFAmount + obdjAmount + obtyAmount + obzrAmount + aeAmount;
+        int dmcAmount = gameRecordDMCService.countByIdLessThanEqualAndUserId(record.getCreateTime(), userId);
+        int dgAmount = gameRecordDGService.countByIdLessThanEqualAndUserId(record.getCreateTime(), userId);
+        amount = recordAmount + goldenFAmount + obdjAmount + obtyAmount + obzrAmount + aeAmount + dmcAmount +dgAmount;
         if (amount == Constants.yes) {
             return true;
         }

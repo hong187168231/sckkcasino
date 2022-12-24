@@ -238,8 +238,8 @@ public class ThridUserController {
     })
     @GetMapping("getPerformance")
     public ResponseEntity getPerformance(Long id){
-        GameRecord gameRecord = gameRecordService.findRecordRecordSum(id, null, null);
-        return ResponseUtil.success((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
+        UserGameRecordReport gameRecord = gameRecordService.findUserGameRecordReportSum(id);
+        return ResponseUtil.success((gameRecord == null || gameRecord.getValidAmount() == null) ? BigDecimal.ZERO:gameRecord.getValidAmount());
     }
 
 

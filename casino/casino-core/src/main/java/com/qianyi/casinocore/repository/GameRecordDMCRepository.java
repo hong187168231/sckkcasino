@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +41,9 @@ public interface GameRecordDMCRepository extends JpaRepository<GameRecordDMC, Lo
     @Query(value = "SELECT IFNULL(sum(real_money),0) turnover,count(1) betCount,IFNULL(sum(bet_money),0) betAmount,IFNULL(sum(win_money),0) winAmount,\n" +
             "from game_record_dmc where platform=?1 and bet_time_str BETWEEN ?2 and ?3",nativeQuery = true)
     Map<String,Object> findSumByPlatformAndTime(String platform, String startTime, String endTime);
+
+    @Query(value = "select count(1) as amount  from game_record_dmc rg where rg.bet_time <=?1 and rg.user_id=?2",nativeQuery = true)
+    int countByIdLessThanEqualAndUserId(Date createTime, Long userId);
 
     @Query(value = "select MAX(g.id) maxId,ifnull(SUM(d.user_amount), 0 ) as user_amount,ifnull(SUM(d.surplus_amount), 0 ) as surplus_amount,LEFT(g.settle_time,?2) set_time,ifnull(g.first_proxy,0) first_proxy,\n"
         + "        ifnull(g.second_proxy,0) second_proxy,ifnull(g.third_proxy,0) third_proxy,\n"
