@@ -1357,7 +1357,7 @@ public class UserController {
                         list.add(
                             ExpirationTimeUtil.getTripartiteBalance(Constants.PLATFORM_DG, u.getUserId().toString()));
                     }else {
-                        JSONObject jsonObject = userMoneyService.refreshDG(u.getUserId(), true);
+                        JSONObject jsonObject = userMoneyService.refreshDG(u.getUserId(), false);
                         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"), jsonObject.get("msg"))) {
                             list.add(BigDecimal.ZERO);
                         }
