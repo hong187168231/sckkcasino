@@ -205,6 +205,7 @@ public class LevelShareProfitBusiness {
         shareProfitBO.setUserId(userId);
         shareProfitBO.setBetAmount(betAmount);
         shareProfitBO.setProfitAmount(betAmount.multiply(commission.divide(BigDecimal.valueOf(100))));
+        log.info("计算分润userId:{} fromUserId:{}得到{}",userId,user.getId(),shareProfitBO.getProfitAmount());
         shareProfitBO.setFirst(isFirst);
         shareProfitBO.setBetTime(betTime);
         Date startDate = null;
