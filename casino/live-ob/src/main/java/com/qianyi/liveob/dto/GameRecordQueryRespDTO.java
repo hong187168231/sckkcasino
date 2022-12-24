@@ -22,6 +22,9 @@ public class GameRecordQueryRespDTO {
     @ApiModelProperty(value = "注单号。区别唯一性")
     private Long id;
 
+    @ApiModelProperty(value = "注单号。区别唯一性")
+    private String orderNo;
+
     @ApiModelProperty(value = "玩家编号")
     private Long playerId;
 

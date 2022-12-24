@@ -1,6 +1,7 @@
 package com.qianyi.casinocore.service;
 
 import com.alibaba.fastjson.JSON;
+import com.qianyi.casinocore.model.GameRecordDG;
 import com.qianyi.casinocore.model.GameRecordObty;
 import com.qianyi.casinocore.model.GameRecordObzr;
 import com.qianyi.casinocore.repository.GameRecordObtyRepository;
@@ -40,6 +41,10 @@ public class GameRecordObzrService {
         String json = JSON.toJSONString(orderAmountVoList);
         return JSON.parseArray(json, CompanyOrderAmountVo.class);
 
+    }
+
+    public GameRecordObzr findByBetOrderNo(String orderNo) {
+        return gameRecordObzrRepository.findByOrderNo(orderNo);
     }
 
     public int countByIdLessThanEqualAndUserId(Date createTime, Long userId) {

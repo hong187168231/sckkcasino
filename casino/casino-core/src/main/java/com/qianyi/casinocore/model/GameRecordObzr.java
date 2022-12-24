@@ -165,6 +165,19 @@ public class GameRecordObzr extends BaseEntity {
     private Integer gameRecordStatus = Constants.no;
 
 
+    @Transient
+    @ApiModelProperty(value = "是否新增，0.修改,1.新增")
+    private Integer isAdd = 0;
+
+    @Transient
+    @ApiModelProperty(value = "旧真实返还金额")
+    private BigDecimal oldRealWinAmount;
+
+    @Transient
+    @ApiModelProperty(value = "旧有效下注")
+    private BigDecimal oldTurnover;
+
+
     public GameRecordObzr(BigDecimal payoutAmount, BigDecimal netAmount, BigDecimal betAmount, BigDecimal validBetAmount) {
         this.payoutAmount = payoutAmount == null ? BigDecimal.ZERO : payoutAmount;
         this.netAmount = netAmount == null ? BigDecimal.ZERO : netAmount;

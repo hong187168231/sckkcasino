@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.repository;
 
+import com.qianyi.casinocore.model.GameRecordDG;
 import com.qianyi.casinocore.model.GameRecordObzr;
 import com.qianyi.casinocore.model.GameRecordObzr;
 import io.swagger.annotations.ApiModelProperty;
@@ -16,6 +17,8 @@ import java.util.Map;
 
 public interface GameRecordObzrRepository extends JpaRepository<GameRecordObzr, Long>, JpaSpecificationExecutor<GameRecordObzr> {
 
+
+    GameRecordObzr findByOrderNo(String orderNo);
 
 @Query(value = "select first_proxy first_proxy ,second_proxy second_proxy ,third_proxy third_proxy, user_id as  userId,count(distinct user_id) player_num ,max(bet_str_time) bet_time, sum(valid_bet_amount) validbet,1 as gameType \n" +
             "from game_record_obzr gr\n" +
