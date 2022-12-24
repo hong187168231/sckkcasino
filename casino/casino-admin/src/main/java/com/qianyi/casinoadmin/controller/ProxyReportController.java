@@ -367,7 +367,7 @@ public class ProxyReportController {
         //电子有效投注
         //        proxyReportVo.setPerformance(gameRecordGoldenFService.findSumBetAmount(user.getId(),startTime+start,endTime+end).add(proxyReportVo.getPerformance()));
 
-        BigDecimal validbet = userGameRecordReportService.sumUserRunningWaterByUserId(startTime, endTime, userId);
+        BigDecimal validbet = userGameRecordReportService.sumUserRunningWaterByUserId(startTime, endTime, user.getId());
         proxyReportVo.setPerformance(validbet);
 
         if (tag == CommonConst.NUMBER_0){
