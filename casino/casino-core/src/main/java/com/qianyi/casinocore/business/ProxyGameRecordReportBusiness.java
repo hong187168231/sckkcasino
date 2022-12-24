@@ -96,6 +96,13 @@ public class ProxyGameRecordReportBusiness {
                         log.error("OB体育注单状态异常{}",proxyGameRecordReportVo.getGameRecordId());
                         return;
                     }
+                }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_OBZR)){
+                    GameRecordObzr gameRecordById =
+                            gameRecordObzrService.findGameRecordById(proxyGameRecordReportVo.getGameRecordId());
+                    if (gameRecordById == null || gameRecordById.getGameRecordStatus() == Constants.yes){
+                        log.error("OB体育注单状态异常{}",proxyGameRecordReportVo.getGameRecordId());
+                        return;
+                    }
                 }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE_HORSEBOOK) || proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE_SV388) ||
                     proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE_E1SPORT) || proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE)){
                     GameRecordAe gameRecordById = gameRecordAeService.findGameRecordById(proxyGameRecordReportVo.getGameRecordId());

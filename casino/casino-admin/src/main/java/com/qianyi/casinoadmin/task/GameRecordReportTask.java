@@ -36,6 +36,9 @@ public class GameRecordReportTask {
     private GameRecordObtyService gameRecordObtyService;
 
     @Autowired
+    private GameRecordObzrService gameRecordObzrService;
+
+    @Autowired
     private GameRecordGoldenFService gameRecordGoldenFService;
 
     @Autowired
@@ -174,6 +177,14 @@ public class GameRecordReportTask {
             proxyGameRecordReportVos = assemblyGameRecordObty(proxyGameRecordReportVos, gameRecordObtys);
         }
 
+        GameRecordObzr gameRecordObzr = new GameRecordObzr();
+        gameRecordObzr.setGameRecordStatus(0);
+        List<GameRecordObzr> gameRecordObzrs = gameRecordObzrService.findGameRecord(gameRecordObzr, startTime, endTime);
+        if (gameRecordObzrs != null && gameRecordObzrs.size() >= 1) {
+            proxyGameRecordReportVos = assemblyGameRecordObzr(proxyGameRecordReportVos, gameRecordObzrs);
+        }
+
+
         GameRecordAe gameRecordAe = new GameRecordAe();
         gameRecordAe.setTxStatus(1);
         gameRecordAe.setGameRecordStatus(0);
@@ -310,6 +321,34 @@ public class GameRecordReportTask {
                 }
                 vo.setBetAmount(gameRecord.getOrderAmount());
                 vo.setPlatform(Constants.PLATFORM_OBTY);
+                proxyGameRecordReportVos.add(vo);
+            }
+        } catch (Exception ex) {
+            log.error("组装OBTY注单异常{}", ex);
+        }
+
+        return proxyGameRecordReportVos;
+    }
+
+    private List<ProxyGameRecordReportVo> assemblyGameRecordObzr(List<ProxyGameRecordReportVo> proxyGameRecordReportVos,
+                                                                 List<GameRecordObzr> gameRecords) {
+        try {
+            for (GameRecordObzr gameRecord : gameRecords) {
+                ProxyGameRecordReportVo vo = new ProxyGameRecordReportVo();
+                vo.setGameRecordId(gameRecord.getId());
+                vo.setOrderId(gameRecord.getOrderNo());
+                vo.setFirstProxy(gameRecord.getFirstProxy());
+                vo.setSecondProxy(gameRecord.getSecondProxy());
+                vo.setThirdProxy(gameRecord.getThirdProxy());
+                vo.setOrderTimes(gameRecord.getSettleStrTime());
+                vo.setUserId(gameRecord.getUserId());
+                vo.setValidAmount(gameRecord.getValidBetAmount());
+                vo.setWinLoss(BigDecimal.ZERO);
+                if (gameRecord.getNetAmount() != null) {
+                    vo.setWinLoss(gameRecord.getNetAmount());
+                }
+                vo.setBetAmount(gameRecord.getBetAmount());
+                vo.setPlatform(Constants.PLATFORM_OBZR);
                 proxyGameRecordReportVos.add(vo);
             }
         } catch (Exception ex) {
