@@ -32,8 +32,7 @@ public class ThirdGameSumBalanceTask {
     /**
      *
      */
-//    @Scheduled(cron = TaskConst.THIRD_GAME_SUM)
-    @Scheduled(cron = TaskConst.GAME_BALANCE_ORDER)
+    @Scheduled(cron = TaskConst.THIRD_GAME_SUM)
     public void create(){
         log.info("查询三方总余额统计开始start=============================================》");
         long startTime = System.currentTimeMillis();
@@ -47,6 +46,7 @@ public class ThirdGameSumBalanceTask {
         List<UserThird> obdjThird = allAcount.stream().filter(o -> Objects.nonNull(o.getObdjAccount())).collect(Collectors.toList());
         List<UserThird> obtyThird = allAcount.stream().filter(o -> Objects.nonNull(o.getObtyAccount())).collect(Collectors.toList());
         List<UserThird> sabaThird = allAcount.stream().filter(o -> Objects.nonNull(o.getGoldenfAccount())).collect(Collectors.toList());
+        List<UserThird> dgThird = allAcount.stream().filter(o -> Objects.nonNull(o.getDgAccount())).collect(Collectors.toList());
         //异步方法，查询三方总余额，缓存到redis
         long startTimeAE = System.currentTimeMillis();
         try {
@@ -72,7 +72,11 @@ public class ThirdGameSumBalanceTask {
             log.error("WM余额查询失败：【{}】", e.getMessage());
         }
         log.info("查询WM总余额统计结束end耗时{}=============================================》",System.currentTimeMillis()-startTimeWM);
-
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            log.error("暂停【{}】", e.getMessage());
+        }
         long startTimePG = System.currentTimeMillis();
         //PG/CQ9总余额
         try {
@@ -81,7 +85,11 @@ public class ThirdGameSumBalanceTask {
             log.error("CQ9余额查询失败：【{}】", e.getMessage());
         }
         log.info("查询PG总余额统计结束end耗时{}=============================================》",System.currentTimeMillis()-startTimePG);
-
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            log.error("暂停【{}】", e.getMessage());
+        }
         long startTimeOBDJ = System.currentTimeMillis();
         //查询OB电竞总余额
         try {
@@ -90,7 +98,11 @@ public class ThirdGameSumBalanceTask {
             log.error("OBDJ余额查询失败：【{}】", e.getMessage());
         }
         log.info("查询OBDJ总余额统计结束end耗时{}=============================================》",System.currentTimeMillis()-startTimeOBDJ);
-
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            log.error("暂停【{}】", e.getMessage());
+        }
         long startTimeOBTY = System.currentTimeMillis();
         //查询OB体育总余额
         try {
@@ -100,6 +112,11 @@ public class ThirdGameSumBalanceTask {
         }
         log.info("查询OBTY总余额统计结束end耗时{}=============================================》",System.currentTimeMillis()-startTimeOBTY);
 
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            log.error("暂停【{}】", e.getMessage());
+        }
         long startTimeSABA = System.currentTimeMillis();
         //查询沙巴体育总余额
         try {
@@ -108,6 +125,19 @@ public class ThirdGameSumBalanceTask {
             log.error("沙巴余额查询失败：【{}】", e.getMessage());
         }
         log.info("查询SABA总余额统计结束end耗时{}=============================================》",System.currentTimeMillis()-startTimeSABA);
+
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            log.error("暂停【{}】", e.getMessage());
+        }
+        long startTimeDg = System.currentTimeMillis();
+        try {
+            thridUserBalanceSumService.setRedisDGMoneyTotal(dgThird, Constants.PLATFORM_DG,startTime);
+        }catch (Exception e){
+            log.error("DG余额查询失败：【{}】", e.getMessage());
+        }
+        log.info("查询DG总余额统计结束end耗时{}=============================================》",System.currentTimeMillis()-startTimeDg);
         log.info("查询三方总余额统计结束end总耗时{}=============================================》",System.currentTimeMillis()-startTime);
     }
 

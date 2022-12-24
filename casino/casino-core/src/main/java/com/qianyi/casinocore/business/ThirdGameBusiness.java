@@ -722,6 +722,7 @@ public class ThirdGameBusiness {
         log.info("进入游戏统一回收余额结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
         return ResponseUtil.success();
     }
+    
     public ResponseEntity oneKeyRecoverDG(Long userId) {
         ResponseEntity aeEnable = checkPlatformStatus(Constants.PLATFORM_DG);
         if (aeEnable.getCode() != ResponseCode.SUCCESS.getCode()) {
@@ -761,14 +762,25 @@ public class ThirdGameBusiness {
 
         log.info("DG下分返回结果：【{}】, 用户id：【{}】", apiResponseData, userId);
         if (null != apiResponseData && "0".equals(apiResponseData.getString("codeId"))){
-            //把额度加回本地
-            UserMoney userMoney = userMoneyService.findByUserId(userId);
-            BigDecimal money = userMoney.getMoney();
-            userMoneyService.addMoney(userId, balance);
-            log.info("DG余额,userMoney加回成功，userId={},balance={}", userId, balance);
-            saveAccountChange(Constants.PLATFORM_DG, userId, balance, money, balance.add(money), 1, orderNo, AccountChangeEnum.DG_OUT, "自动转出DG", user);
-            log.info("DG余额回收成功，userId={},account={},money={}", userId, user.getAccount(), balance);
-            return ResponseUtil.success();
+            RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+            try {
+                userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+                // 把额度加回本地
+                UserMoney userMoney = userMoneyService.findByUserId(userId);
+                BigDecimal money = userMoney.getMoney();
+                userMoneyService.addMoney(userId, balance);
+                log.info("DG余额,userMoney加回成功，userId={},balance={}", userId, balance);
+                saveAccountChange(Constants.PLATFORM_DG, userId, balance, money, balance.add(money), 1, orderNo,
+                    AccountChangeEnum.DG_OUT, "自动转出DG", user);
+                log.info("DG余额回收成功，userId={},account={},money={}", userId, user.getAccount(), balance);
+                return ResponseUtil.success();
+            } catch (Exception e) {
+                log.error("DG余额下分出现异常userId{} {}", userId, e.getMessage());
+                return ResponseUtil.custom("服务器异常,请重新操作");
+            } finally {
+                // 释放锁
+                RedisKeyUtil.unlock(userMoneyLock);
+            }
         }else{
             log.error("DG扣点失败,远程请求异常,userId:{},account={},result={}", userId, user.getAccount(), apiResponseData);
             return dgApi.errorCode(apiResponseData.getIntValue("codeId"), apiResponseData.getString("random"));

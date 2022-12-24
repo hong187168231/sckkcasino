@@ -73,6 +73,10 @@ public class UserThirdService {
         return userThirdRepository.findAllGoldenfAccount();
     }
 
+    public List<UserThird> findAllDgAccount(){
+        return userThirdRepository.findAllDgAccount();
+    }
+
     public List<UserThird> findAllOBDJAccount() {
         return userThirdRepository.findAllOBDJAccount();
     }
