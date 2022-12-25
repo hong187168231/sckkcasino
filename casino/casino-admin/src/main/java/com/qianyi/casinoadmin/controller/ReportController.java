@@ -351,6 +351,8 @@ public class ReportController {
     public void exportReport(String userName, @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startTime,
         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endTime, String platform, Integer sort, Integer time,
         Integer tag, HttpServletRequest request, HttpServletResponse response) {
+        log.info("导出会员报表数据开始==============================================>");
+        long startLong = System.currentTimeMillis();
         String orderTimeStart = "'" + DateUtil.formatDate(startTime) + "'";
         String orderTimeEnd = "'" + DateUtil.formatDate(endTime) + "'";
         if (LoginUtil.checkNull(time)) {
@@ -403,6 +405,7 @@ public class ReportController {
                 list.add(item);
             }
         }
+        log.info("统计数据结束耗时{}==============================================>",System.currentTimeMillis()-startLong);
         String[] title = {"会员账号", "基层代理", "投注笔数", "投注金额", "有效投注", "总洗码", "贡献代理抽点", "用户输赢", "平台盈亏结算(毛利1)", "累计人人贷佣金",
                 "提款手续费", "总结算(毛利2)","每日奖励", "晋级奖励"};
         // excel文件名
@@ -430,6 +433,7 @@ public class ReportController {
         }
         // 创建HSSFWorkbook
         HSSFWorkbook wb = ExcelUtil.getHSSFWorkbook(sheetName, title, content, null);
+        log.info("导出结束耗时{}==============================================>",System.currentTimeMillis()-startLong);
         // 响应到客户端
         try {
             this.setResponseHeader(response, fileName);
@@ -438,7 +442,7 @@ public class ReportController {
             os.flush();
             os.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("导出失败{}",e.getMessage());
         }
     }
 
