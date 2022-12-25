@@ -13,7 +13,7 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table(indexes = {@Index(columnList = "createTime")})
+@Table(indexes = {@Index(columnList = "createTime"),@Index(columnList = "receiveTime")})
 public class AwardReceiveRecord extends BaseEntity {
 
     @ApiModelProperty("会员id")

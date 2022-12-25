@@ -314,8 +314,8 @@ public class SqlConst {
                     SUM(amount) AS todayAward
                 FROM
                     award_receive_record
-                WHERE
-                 award_type = 1
+                WHERE create_time BETWEEN {0} AND {1}  AND
+        award_type = 1
                 GROUP BY
                     user_id
             ) td ON u.id = td.user_id
@@ -325,8 +325,8 @@ public class SqlConst {
                     SUM(amount) AS riseAward
                 FROM
                     award_receive_record
-                WHERE          
-                 award_type = 2
+                WHERE  receive_time BETWEEN {0} AND {1} AND
+        award_type = 2
                 GROUP BY
                     user_id
             ) rs ON u.id = rs.user_id   
