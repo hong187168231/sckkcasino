@@ -405,11 +405,11 @@ public class ReportController {
                 list.add(item);
             }
         }
-        try {
-            Thread.sleep(1000*120);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Thread.sleep(1000*120);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         log.info("统计数据结束耗时{}==============================================>",System.currentTimeMillis()-startLong);
         String[] title = {"会员账号", "基层代理", "投注笔数", "投注金额", "有效投注", "总洗码", "贡献代理抽点", "用户输赢", "平台盈亏结算(毛利1)", "累计人人贷佣金",
                 "提款手续费", "总结算(毛利2)","每日奖励", "晋级奖励"};
