@@ -87,7 +87,7 @@ public class GameRecordObzrJob {
 
     public void pullGameRecord(String lastTime) {
         // 每次只粒取30分钟的闻磨(根据年小时单量情况来定，如果是并单可以调整到30分钟一次，如果是正常拉单没有必要)
-        int mins = +2;
+        int mins = +30;
         int startTimePlusSeconds = -40;
         int endTimePlusSeconds = -40;
         if (StrUtil.isBlank(lastTime)) {
