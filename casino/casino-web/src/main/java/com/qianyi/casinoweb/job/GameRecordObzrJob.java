@@ -67,7 +67,7 @@ public class GameRecordObzrJob {
 
 
     //每隔7分钟执行一次
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(cron = "0 0/1 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
         if (platformGame != null && platformGame.getGameStatus() == 2) {
@@ -102,10 +102,10 @@ public class GameRecordObzrJob {
             endTime = now;
         }
         boolean flag = true;
-        String start = "2022-12-26 19:25:53";
-        String end = "2022-12-26 19:55:53";
-//        String start = startTime.format(DATETIME_FORMAT);
-//        String end = endTime.format(DATETIME_FORMAT);
+//        String start = "2022-12-26 19:25:53";
+//        String end = "2022-12-26 19:55:53";
+        String start = startTime.format(DATETIME_FORMAT);
+        String end = endTime.format(DATETIME_FORMAT);
         int pageIndex = 1;
 
         long s = System.currentTimeMillis();
