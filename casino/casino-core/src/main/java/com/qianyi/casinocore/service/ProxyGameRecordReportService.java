@@ -134,8 +134,9 @@ public class ProxyGameRecordReportService {
         Integer totalBetNumberByVnc = userGameRecordReportService.findTotalBetNumberByVnc(startTime, endTime);
         Integer totalBetNumberByDmc = userGameRecordReportService.findTotalBetNumberByDmc(startTime, endTime);
         Integer totalBetNumberByDg = userGameRecordReportService.findTotalBetNumberByDg(startTime, endTime);
+        Integer totalBetNumberByObzr = userGameRecordReportService.findTotalBetNumberByObzr(startTime, endTime);
         Integer total =
-            totalBetNumber + totalBetNumberByAe + totalBetNumberByVnc + totalBetNumberByDmc + totalBetNumberByDg;
+            totalBetNumber + totalBetNumberByAe + totalBetNumberByVnc + totalBetNumberByDmc + totalBetNumberByDg + totalBetNumberByObzr;
         log.info(
             "代理报表日期{} betNumber:{} total:{} totalBetNumber:{}  totalBetNumberByAe:{} totalBetNumberByVnc:{} totalBetNumberByDmc:{} totalBetNumberByDg:{}",
             dayTime, betNumber, total, totalBetNumber, totalBetNumberByAe, totalBetNumberByVnc, totalBetNumberByDmc,
