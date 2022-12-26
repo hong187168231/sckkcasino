@@ -259,6 +259,40 @@ public class Initialization implements CommandLineRunner {
                 extractPointsConfigService.save(extractPointsConfig);
                 log.info("VNC代理抽点配置保存成功{}",extractPointsConfig);
             }
+
+            log.info("初始化DG代理抽点配置");
+            List<ExtractPointsConfig> dg = extractPointsConfigService.findByPlatform(Constants.PLATFORM_DG);
+            log.info("DG代理抽点配置{}",dg);
+            if (dg == null || dg.size() == 0){
+                ExtractPointsConfig extractPointsConfig = new ExtractPointsConfig();
+                extractPointsConfig.setGameId(Constants.PLATFORM_DG);
+                extractPointsConfig.setGameName("DG");
+                extractPointsConfig.setPlatform(Constants.PLATFORM_DG);
+                extractPointsConfig.setGameEnName(Constants.PLATFORM_DG);
+                extractPointsConfig.setRate(BigDecimal.ZERO);
+                extractPointsConfig.setState(1);
+                extractPointsConfig.setCreateBy("0");
+                extractPointsConfig.setUpdateBy("0");
+                extractPointsConfigService.save(extractPointsConfig);
+                log.info("dg代理抽点配置保存成功{}",extractPointsConfig);
+            }
+
+            log.info("初始化DMC代理抽点配置");
+            List<ExtractPointsConfig> dmc = extractPointsConfigService.findByPlatform(Constants.PLATFORM_DMC);
+            log.info("DMC代理抽点配置{}",dmc);
+            if (dmc == null || dmc.size() == 0){
+                ExtractPointsConfig extractPointsConfig = new ExtractPointsConfig();
+                extractPointsConfig.setGameId(Constants.PLATFORM_DMC);
+                extractPointsConfig.setGameName("DMC");
+                extractPointsConfig.setPlatform(Constants.PLATFORM_DMC);
+                extractPointsConfig.setGameEnName(Constants.PLATFORM_DMC);
+                extractPointsConfig.setRate(BigDecimal.ZERO);
+                extractPointsConfig.setState(1);
+                extractPointsConfig.setCreateBy("0");
+                extractPointsConfig.setUpdateBy("0");
+                extractPointsConfigService.save(extractPointsConfig);
+                log.info("dmc代理抽点配置保存成功{}",extractPointsConfig);
+            }
         }catch (Exception ex){
             log.error("初始化代理抽点配置失败{}",ex);
         }
@@ -333,6 +367,8 @@ public class Initialization implements CommandLineRunner {
             first.setE1SPORTMaxId(0L);
             first.setAEMaxId(0L);
             first.setVNCMaxId(0L);
+            first.setDGMaxId(0L);
+            first.setDMCMaxId(0L);
             gameRecordEndIndexService.save(first);
         }else {
             first.setGameRecordId(first.getGameRecordId()==null?0L:first.getGameRecordId());
@@ -346,6 +382,8 @@ public class Initialization implements CommandLineRunner {
             first.setE1SPORTMaxId(first.getE1SPORTMaxId()==null?0L:first.getE1SPORTMaxId());
             first.setAEMaxId(first.getAEMaxId()==null?0L:first.getAEMaxId());
             first.setVNCMaxId(first.getVNCMaxId()==null?0L:first.getVNCMaxId());
+            first.setDGMaxId(first.getDGMaxId()==null?0L:first.getDGMaxId());
+            first.setDMCMaxId(first.getDMCMaxId()==null?0L:first.getDMCMaxId());
             gameRecordEndIndexService.save(first);
         }
     }
@@ -493,6 +531,16 @@ public class Initialization implements CommandLineRunner {
             log.info("全局代理返佣等级配置VNC{}",vnc);
             if(vnc==null){
                 addRebateConfig(8);
+            }
+            RebateConfig dmc = rebateConfigService.findGameType(9);
+            log.info("全局代理返佣等级配置dmc{}",dmc);
+            if(dmc==null){
+                addRebateConfig(9);
+            }
+            RebateConfig dg = rebateConfigService.findGameType(10);
+            log.info("全局代理返佣等级配置dg{}",dg);
+            if(dg==null){
+                addRebateConfig(10);
             }
         }catch (Exception ex){
             log.error("初始全局代理返佣等级配置失败{}",ex);
