@@ -42,6 +42,8 @@ public class ExportReportBusiness {
 
     @Transactional
     public void comparison(String dayTime) {// dayTime为一天yyyy-MM-dd
+        log.info("计算导出报表数据开始{}==============================================>",dayTime);
+        long startLong = System.currentTimeMillis();
         exportReportService.deleteByOrderTimes(dayTime);
         String orderTimeStart = "'" + dayTime + "'";
         String orderTimeEnd = "'" + dayTime + "'";
@@ -86,6 +88,7 @@ public class ExportReportBusiness {
             exportReports = getMap(exportReportList);
             Lists.partition(exportReports, 200).forEach(reports -> exportReportService.saveAll(reports));
         }
+        log.info("计算导出报表数据结束{}耗时{}==============================================>",dayTime,System.currentTimeMillis()-startLong);
     }
 
     private List<ExportReport> getMap(List<ExportReport> content) {
