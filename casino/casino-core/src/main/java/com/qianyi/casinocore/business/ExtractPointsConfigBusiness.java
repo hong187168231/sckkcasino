@@ -58,6 +58,12 @@ public class ExtractPointsConfigBusiness {
     private GameRecordVNCService gameRecordVNCService;
 
     @Autowired
+    private GameRecordDGService gameRecordDGService;
+
+    @Autowired
+    private GameRecordDMCService gameRecordDMCService;
+
+    @Autowired
     private UserService userService;
 
     /**
@@ -460,6 +466,10 @@ public class ExtractPointsConfigBusiness {
             gameRecordAeService.updateExtractStatus(gameRecord.getId(), Constants.yes);
         } else if (Constants.PLATFORM_VNC.equals(platform)) {
             gameRecordVNCService.updateExtractStatus(gameRecord.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_DG.equals(platform)) {
+            gameRecordDGService.updateExtractStatus(gameRecord.getId(), Constants.yes);
+        } else if (Constants.PLATFORM_DMC.equals(platform)) {
+            gameRecordDMCService.updateExtractStatus(gameRecord.getId(), Constants.yes);
         }
 
         log.info("抽点完成，平台={}, 注单id={}", platform, gameRecord.getBetId());
