@@ -196,7 +196,9 @@ public class GameRecordDGJob {
             BeanUtils.copyProperties(gameRecordDG, gameRecord);
             gameRecord.setIsAdd(1);//新增
         }else {
+            Long id = gameRecord.getId();
             BeanUtils.copyProperties(gameRecordDG, gameRecord);
+            gameRecord.setId(id);
             gameRecord.setIsAdd(0);//0.修改
         }
         UserThird account = userThirdService.findByDgAccount(gameRecord.getUserName());
