@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -50,7 +51,7 @@ public class GameRecordObzrJob {
     private UserThirdService userThirdService;
     @Autowired
     private UserService userService;
-    @Autowired
+    @Resource
     private PlatformConfigService platformConfigService;
     @Autowired
     private GameRecordAsyncOper gameRecordAsyncOper;
@@ -66,7 +67,7 @@ public class GameRecordObzrJob {
 
 
     //每隔7分钟执行一次
-//    @Scheduled(fixedDelay = 500000)
+    @Scheduled(cron = "0 0/5 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
         if (platformGame != null && platformGame.getGameStatus() == 2) {
@@ -89,7 +90,7 @@ public class GameRecordObzrJob {
         int mins = +5;
         int startTimePlusSeconds = -40;
         int endTimePlusSeconds = -40;
-        if(StrUtil.isBlank(lastTime)){
+        if (StrUtil.isBlank(lastTime)) {
             lastTime = DateUtil.dateToPatten(new Date());
         }
         LocalDateTime lastEndTime = LocalDateTime.parse(lastTime, DATETIME_FORMAT);
@@ -210,12 +211,12 @@ public class GameRecordObzrJob {
 
 
     public GameRecordObzr save(GameRecordQueryRespDTO gameRecordQueryRespDTO) {
-        UserThird account = userThirdService.findByObtyAccount(gameRecordQueryRespDTO.getPlayerName());
+        UserThird account = userThirdService.findByObzrAccount(gameRecordQueryRespDTO.getPlayerName());
         if (account == null || account.getUserId() == null) {
             log.error("同步游戏记录时，UserThird查询结果为null,account={}", gameRecordQueryRespDTO.getPlayerName());
             return null;
         }
-        gameRecordQueryRespDTO.setOrderNo(gameRecordQueryRespDTO.getId()+"");
+        gameRecordQueryRespDTO.setOrderNo(gameRecordQueryRespDTO.getId() + "");
         GameRecordObzr gameRecord = gameRecordObzrService.findByBetOrderNo(gameRecordQueryRespDTO.getOrderNo());
         if (gameRecord == null) {
             gameRecord = new GameRecordObzr();
@@ -238,6 +239,7 @@ public class GameRecordObzrJob {
             gameRecordQueryRespDTO.setSettleStrTime(format.format(gameRecordQueryRespDTO.getSettleTime()));
         }
         BeanUtils.copyProperties(gameRecordQueryRespDTO, gameRecord);
+        gameRecord.setPayoutAmount(gameRecord.getPayAmount());
         gameRecord.setUserId(account.getUserId());
         BigDecimal validbet = ObjectUtils.isEmpty(gameRecord.getValidBetAmount()) ? BigDecimal.ZERO : gameRecord.getValidBetAmount();
         //有效投注额为0不参与洗码,打码,分润,抽點

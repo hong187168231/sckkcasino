@@ -30,6 +30,8 @@ public class GameRecordObzrVo implements Serializable {
     private String betStrTime;
     @ApiModelProperty(value = "派彩时间")
     private String netAt;
+    @ApiModelProperty(value = "结算时间")
+    private String settleStrTime;
 
 
 

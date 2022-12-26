@@ -16,6 +16,7 @@ public interface UserThirdRepository extends JpaRepository<UserThird,Long> {
     UserThird findByObdjAccount(String account);
 
     UserThird findByObtyAccount(String account);
+    UserThird findByObzrAccount(String account);
 
     UserThird findByAeAccount(String account);
 

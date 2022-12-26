@@ -31,7 +31,7 @@ public class PlatformConfigService {
         return platformConfigRepository.findAll();
     }
 
-    @Cacheable(cacheNames = "platformConfig")
+//    @Cacheable(cacheNames = "platformConfig")
     public PlatformConfig findFirst() {
         List<PlatformConfig> configList = platformConfigRepository.findAll();
         if (!CollectionUtils.isEmpty(configList)) {
