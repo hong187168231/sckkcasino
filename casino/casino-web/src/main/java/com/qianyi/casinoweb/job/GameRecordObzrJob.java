@@ -218,11 +218,11 @@ public class GameRecordObzrJob {
         }
         gameRecordQueryRespDTO.setOrderNo(gameRecordQueryRespDTO.getId() + "");
         GameRecordObzr gameRecord = gameRecordObzrService.findByBetOrderNo(gameRecordQueryRespDTO.getOrderNo());
-        Long gameRecordId = gameRecord.getId();
         if (gameRecord == null) {
             gameRecord = new GameRecordObzr();
             gameRecord.setIsAdd(1);//新增
         }
+        Long gameRecordId = gameRecord.getId();
         //有效投注
         BigDecimal oldTurnover = gameRecordQueryRespDTO.getValidBetAmount();
         //用户输赢
