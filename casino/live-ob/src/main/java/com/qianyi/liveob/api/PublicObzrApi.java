@@ -1,5 +1,6 @@
 package com.qianyi.liveob.api;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.liveob.dto.*;
 import com.qianyi.liveob.utils.*;
@@ -219,6 +220,7 @@ public class PublicObzrApi {
 
         String result = submitData("/betHistoryRecord", dto, headers);
         ResultDTO entity = resultEntity(result);
+        log.info(" OBZR 返回注单结果 ======[{}]", JSON.toJSONString(entity.getData()));
         return entity;
     }
 
