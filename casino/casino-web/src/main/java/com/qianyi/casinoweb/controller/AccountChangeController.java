@@ -89,6 +89,7 @@ public class AccountChangeController {
                 int[] types = {AccountChangeEnum.WASH_CODE.getType(), AccountChangeEnum.WM_IN.getType(), AccountChangeEnum.RECOVERY.getType(),
                         AccountChangeEnum.SHARE_PROFIT.getType(), AccountChangeEnum.PG_CQ9_IN.getType(), AccountChangeEnum.PG_CQ9_OUT.getType(),
                         AccountChangeEnum.OBDJ_IN.getType(), AccountChangeEnum.OBDJ_OUT.getType(), AccountChangeEnum.OBTY_IN.getType(),AccountChangeEnum.OBTY_OUT.getType(),
+                        AccountChangeEnum.OBZR_IN.getType(),AccountChangeEnum.OBZR_OUT.getType(),
                         AccountChangeEnum.SABASPORT_IN.getType(),AccountChangeEnum.SABASPORT_OUT.getType(),AccountChangeEnum.INTEGRAL_EXCHANGE.getType(),
                         AccountChangeEnum.AE_IN.getType(),AccountChangeEnum.AE_OUT.getType(), AccountChangeEnum.DMC_IN.getType(),AccountChangeEnum.DMC_OUT.getType(),
                         AccountChangeEnum.VNC_IN.getType(),AccountChangeEnum.VNC_OUT.getType(),AccountChangeEnum.TODAY_AWARD.getType(),AccountChangeEnum.UPGRADE_AWARD.getType(),
