@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.task;
 
 import cn.hutool.core.date.DatePattern;
+import com.qianyi.casinocore.business.ExportReportBusiness;
 import com.qianyi.casinocore.business.ProxyGameRecordReportBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
@@ -52,6 +53,9 @@ public class GameRecordReportTask {
 
     @Autowired
     private RptBetInfoDetailService rptBetInfoDetailService;
+
+    @Autowired
+    private ExportReportBusiness exportReportBusiness;
 
     public static final List<Integer> betStatus = new ArrayList<>();
 
@@ -105,6 +109,8 @@ public class GameRecordReportTask {
         for (String str:betweenDate){
             userGameRecordReportService.comparison(str);
             proxyGameRecordReportService.comparison(str);
+
+            exportReportBusiness.comparison(str);
         }
     }
 

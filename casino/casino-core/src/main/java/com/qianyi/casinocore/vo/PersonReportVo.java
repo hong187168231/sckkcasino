@@ -38,6 +38,7 @@ public class PersonReportVo implements Serializable, Comparable<Integer> {
     }
 
     @JsonIgnore
+    @JsonProperty("third_proxy_name")
     private String thirdProxyName;
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)

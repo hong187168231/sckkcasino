@@ -3,6 +3,7 @@ package com.qianyi.casinoadmin.controller;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.business.ExportReportBusiness;
 import com.qianyi.casinocore.exception.BusinessException;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.User;
@@ -67,6 +68,12 @@ public class ReportController {
     @Autowired
     private RedisLockUtil redisLockUtil;
 
+    @Autowired
+    private ExportReportService exportReportService;
+
+    @Autowired
+    private ExportReportBusiness exportReportBusiness;
+
     private static final BillThreadPool threadPool = new BillThreadPool(CommonConst.NUMBER_10);
 
     // @NoAuthorization
@@ -118,7 +125,7 @@ public class ReportController {
         int page = (pageCode - 1) * pageSize;
         List<PersonReportVo> reportResult = null;
         try {
-            String statement = getOrderByStatement(tag, sort);
+            String statement = CommonUtil.getOrderByStatement(tag, sort);
             // reportResult = userService.findMap(platform, startTimeStr, endTimeStr, page, pageSize, statement,
             // orderTimeStart, orderTimeEnd, "");
 
@@ -263,41 +270,6 @@ public class ReportController {
         return reportResult;
     }
 
-    // 获取 order by 语句
-    private String getOrderByStatement(Integer tag, Integer sort) {
-        if (LoginUtil.checkNull(tag)) {
-            return "";
-        }
-        String str = "ORDER BY {0} ";
-        switch (tag) {
-            case 1:
-                str = MessageFormat.format(str, "num");
-                break;
-            case 2:
-                str = MessageFormat.format(str, "bet_amount");
-                break;
-            case 3:
-                str = MessageFormat.format(str, "validbet");
-                break;
-            case 4:
-                str = MessageFormat.format(str, "wash_amount");
-                break;
-            case 5:
-                str = MessageFormat.format(str, "win_loss");
-            case 6:
-                str = MessageFormat.format(str, "all_profit_amount");
-                break;
-            default:
-                throw new BusinessException("参数不合法");
-        }
-        if (LoginUtil.checkNull(sort) || sort == CommonConst.NUMBER_1) {
-            str = str + "ASC";
-        } else {
-            str = str + "DESC";
-        }
-        return str;
-    }
-
     private PageResultVO<PersonReportVo> getMap(PageResultVO<PersonReportVo> mapPageResultVO) {
         List<PersonReportVo> content = (List<PersonReportVo>)mapPageResultVO.getContent();
         if (!LoginUtil.checkNull(content) && content.size() > CommonConst.NUMBER_0) {
@@ -380,15 +352,25 @@ public class ReportController {
             }
         } else {
             List<PersonReportVo> reportResult = null;
-            try {
-                String statement = getOrderByStatement(tag, sort);
-                reportResult = userService.findMapExport(platform, startTimeStr, endTimeStr, statement, orderTimeStart,
-                    orderTimeEnd, "");
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.error("查询会员报表失败");
+            String statement = CommonUtil.getOrderByStatement(tag, sort);
+            if (com.mysql.cj.util.StringUtils.isNullOrEmpty(platform)) {
+                try {
+                    list = exportReportService.findMapExport(orderTimeStart,orderTimeEnd, statement,  "");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    log.error("查询会员报表失败");
+                }
+
+            }else {
+                try {
+                    reportResult = userService.findMapExport(platform, startTimeStr, endTimeStr, statement, orderTimeStart,
+                        orderTimeEnd, "");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    log.error("查询会员报表失败");
+                }
+                list = getMap(reportResult);
             }
-            list = getMap(reportResult);
 
             if (Objects.nonNull(list)) {
                 PersonReportVo item = null;
@@ -446,6 +428,7 @@ public class ReportController {
             wb.write(os);
             os.flush();
             os.close();
+            log.info("关闭流耗时{}==============================================>",System.currentTimeMillis()-startLong);
         } catch (Exception e) {
             log.error("导出失败{}",e.getMessage());
             e.printStackTrace();
@@ -579,6 +562,8 @@ public class ReportController {
                 userGameRecordReportService.comparison(orderTime);
 
                 proxyGameRecordReportService.comparison(orderTime);
+
+                exportReportBusiness.comparison(orderTime);
             }
         } catch (Exception ex) {
             return ResponseUtil.custom("操作频繁,稍后再试");

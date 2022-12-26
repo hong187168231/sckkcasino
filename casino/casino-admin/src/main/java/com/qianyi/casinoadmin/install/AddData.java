@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.install;
 
 import com.qianyi.casinoadmin.task.ThirdGameSumBalanceTask;
+import com.qianyi.casinocore.business.ExportReportBusiness;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.GameRecordGoldenF;
 import com.qianyi.casinocore.service.GameRecordGoldenFService;
@@ -50,6 +51,9 @@ public class AddData implements CommandLineRunner {
     @Autowired
     private ThirdGameSumBalanceTask thirdGameSumBalanceTask;
 
+    @Autowired
+    private ExportReportBusiness exportReportBusiness;
+
     private static final Integer pageSize = 1000;
 
     public static final Integer num = 50000;
@@ -57,13 +61,13 @@ public class AddData implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("初始化计算数据开始==============================================>");
         long startTime = System.currentTimeMillis();
-//        Calendar nowTime = Calendar.getInstance();
+        Calendar nowTime = Calendar.getInstance();
 //        //计算最近十天注单
-//        nowTime.add(Calendar.DATE, -40);
-//        Date startDate = nowTime.getTime();
-//        String startDay = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(startDate);
-//        String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(DateUtil.getYesterday());
-//        List<String> betweenDate = DateUtil.getBetweenDate(startDay, yesterday);
+        nowTime.add(Calendar.DATE, -60);
+        Date startDate = nowTime.getTime();
+        String startDay = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(startDate);
+        String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(DateUtil.getYesterday());
+        List<String> betweenDate = DateUtil.getBetweenDate(startDay, yesterday);
 
 //        List<String> betweenDate = new ArrayList<>();
 //        betweenDate.add("2022-12-18");
@@ -72,12 +76,17 @@ public class AddData implements CommandLineRunner {
 //        betweenDate.add("2022-12-21");
 //        betweenDate.add("2022-12-22");
 //        betweenDate.add("2022-12-23");
+//        betweenDate.add("2022-12-24");
 //        for (String str:betweenDate){
 //            this.delete(str);
 //            userGameRecordReportService.comparison(str);
 //            proxyGameRecordReportService.comparison(str);
+//
+//            exportReportBusiness.comparison(str);
 //        }
-
+        for (String str:betweenDate){
+            exportReportBusiness.comparison(str);
+        }
 //        thirdGameSumBalanceTask.create();
 
         log.info("初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
