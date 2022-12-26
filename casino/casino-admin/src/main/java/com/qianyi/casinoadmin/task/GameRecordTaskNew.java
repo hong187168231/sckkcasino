@@ -38,6 +38,7 @@ public class GameRecordTaskNew {
         gameRecordReportService.saveGameRecordReportCQ9();
         gameRecordReportService.saveGameRecordReportOBDJ();
         gameRecordReportService.saveGameRecordReportOBTY();
+        gameRecordReportService.saveGameRecordReportOBZR();
         gameRecordReportService.saveGameRecordReportSABASPORT();
         gameRecordReportService.saveGameRecordReportAE();
         gameRecordReportService.saveGameRecordReportVNC();
@@ -71,6 +72,7 @@ public class GameRecordTaskNew {
         gameRecordReportService.statisticsWashCode(Constants.PLATFORM_CQ9,Constants.PLATFORM_CQ9,staticsTimes,startTime,endTime);
         gameRecordReportService.statisticsWashCode(Constants.PLATFORM_OBDJ,Constants.PLATFORM_OBDJ,staticsTimes,startTime,endTime);
         gameRecordReportService.statisticsWashCode(Constants.PLATFORM_OBTY,Constants.PLATFORM_OBTY,staticsTimes,startTime,endTime);
+        gameRecordReportService.statisticsWashCode(Constants.PLATFORM_OBZR,Constants.PLATFORM_OBZR,staticsTimes,startTime,endTime);
         gameRecordReportService.statisticsWashCode(Constants.PLATFORM_SABASPORT,Constants.PLATFORM_SABASPORT,staticsTimes,startTime,endTime);
         gameRecordReportService.statisticsWashCode(Constants.PLATFORM_AE,Constants.PLATFORM_AE,staticsTimes,startTime,endTime);
         gameRecordReportService.statisticsWashCode(Constants.PLATFORM_VNC,Constants.PLATFORM_VNC,staticsTimes,startTime,endTime);
