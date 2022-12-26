@@ -240,6 +240,7 @@ public class GameRecordObzrJob {
         }
         BeanUtils.copyProperties(gameRecordQueryRespDTO, gameRecord);
         gameRecord.setPayoutAmount(gameRecord.getPayAmount());
+        gameRecord.setId(gameRecord.getId());
         gameRecord.setUserId(account.getUserId());
         BigDecimal validbet = ObjectUtils.isEmpty(gameRecord.getValidBetAmount()) ? BigDecimal.ZERO : gameRecord.getValidBetAmount();
         //有效投注额为0不参与洗码,打码,分润,抽點
