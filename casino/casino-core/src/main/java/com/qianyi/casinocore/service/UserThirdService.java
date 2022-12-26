@@ -55,7 +55,7 @@ public class UserThirdService {
         return userThirdRepository.findByObtyAccount(account);
     }
 
-    @Cacheable(key = "#root.methodName+'::'+#p0")
+//    @Cacheable(key = "#root.methodName+'::'+#p0")
     public UserThird findByObzrAccount(String account) {
         return userThirdRepository.findByObzrAccount(account);
     }
