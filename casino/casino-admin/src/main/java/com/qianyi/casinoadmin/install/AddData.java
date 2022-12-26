@@ -24,10 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -100,21 +97,27 @@ public class AddData implements CommandLineRunner {
         long startTime = System.currentTimeMillis();
         Calendar nowTime = Calendar.getInstance();
         //        //计算最近十天注单
-        nowTime.add(Calendar.DATE, -200);
+        nowTime.add(Calendar.DATE, -50);
         Date startDate = nowTime.getTime();
         String startDay = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(startDate);
         String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(DateUtil.getYesterday());
         List<String> betweenDate = DateUtil.getBetweenDate(startDay, yesterday);
-        for (String str:betweenDate){
-            this.delete(str);
-            userGameRecordReportService.comparison(str);
-            proxyGameRecordReportService.comparison(str);
-
-            exportReportBusiness.comparison(str);
-        }
 //        for (String str:betweenDate){
+//            this.delete(str);
+//            userGameRecordReportService.comparison(str);
+//            proxyGameRecordReportService.comparison(str);
+//
 //            exportReportBusiness.comparison(str);
 //        }
+        Collections.reverse(betweenDate);
+        for (String str : betweenDate) {
+            exportReportBusiness.comparison(str);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         log.info("异步初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
     }
 
