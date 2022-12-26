@@ -152,7 +152,7 @@ public class GameRecordObzrService {
             if (!CommonUtil.checkNull(gameRecordObzr.getPlayerName())) {
                 list.add(cb.equal(root.get("playerName").as(String.class), gameRecordObzr.getPlayerName()));
             }
-            if (!CommonUtil.checkNull(gameRecordObzr.getPlayerName())) {
+            if (!CommonUtil.checkNull(gameRecordObzr.getOrderNo())) {
                 list.add(cb.equal(root.get("orderNo").as(String.class), gameRecordObzr.getOrderNo()));
             }
             if (gameRecordObzr.getUserId() != null) {

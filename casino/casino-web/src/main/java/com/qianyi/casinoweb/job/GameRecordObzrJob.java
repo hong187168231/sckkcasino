@@ -67,7 +67,7 @@ public class GameRecordObzrJob {
 
 
     //每隔7分钟执行一次
-    @Scheduled(cron = "0 0/5 * * * ?")
+    @Scheduled(cron = "0 0/2 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
         if (platformGame != null && platformGame.getGameStatus() == 2) {
@@ -87,7 +87,7 @@ public class GameRecordObzrJob {
 
     public void pullGameRecord(String lastTime) {
         // 每次只粒取30分钟的闻磨(根据年小时单量情况来定，如果是并单可以调整到30分钟一次，如果是正常拉单没有必要)
-        int mins = +5;
+        int mins = +2;
         int startTimePlusSeconds = -40;
         int endTimePlusSeconds = -40;
         if (StrUtil.isBlank(lastTime)) {
