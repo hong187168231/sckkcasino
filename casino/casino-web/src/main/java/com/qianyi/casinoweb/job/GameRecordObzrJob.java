@@ -94,7 +94,7 @@ public class GameRecordObzrJob {
             lastTime = DateUtil.dateToPatten(new Date());
         }
         LocalDateTime lastEndTime = LocalDateTime.parse(lastTime, DATETIME_FORMAT);
-        LocalDateTime startTime = lastEndTime.plusSeconds(startTimePlusSeconds);
+        LocalDateTime startTime = LocalDateTime.now().plusMinutes(-28);
         LocalDateTime endTime = startTime.plusMinutes(mins);
 
         LocalDateTime now = LocalDateTime.now().plusSeconds(endTimePlusSeconds);
