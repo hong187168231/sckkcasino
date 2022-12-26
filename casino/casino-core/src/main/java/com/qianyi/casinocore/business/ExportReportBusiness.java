@@ -73,8 +73,7 @@ public class ExportReportBusiness {
             ExportReport exportReport = new ExportReport();
             BeanUtils.copyProperties(personReportVo, exportReport);
             exportReport.setId(null);
-            if (exportReport.getSum().compareTo(BigDecimal.ZERO) == 1
-                || exportReport.getNum() >= CommonConst.NUMBER_1) {
+            if (exportReport.check() || exportReport.getNum() >= CommonConst.NUMBER_1) {
                 exportReport.setUserId(personReportVo.getId());
                 try {
                     exportReport.setOrderTimes(DateUtil.getDate(dayTime));
