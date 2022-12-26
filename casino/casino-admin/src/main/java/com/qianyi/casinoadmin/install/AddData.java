@@ -102,6 +102,9 @@ public class AddData implements CommandLineRunner {
         String startDay = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(startDate);
         String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(DateUtil.getYesterday());
         List<String> betweenDate = DateUtil.getBetweenDate(startDay, yesterday);
+//        List<String> betweenDate = new ArrayList<>();
+//        betweenDate.add("2022-12-23");
+//        betweenDate.add("2022-12-24");
 //        for (String str:betweenDate){
 //            this.delete(str);
 //            userGameRecordReportService.comparison(str);

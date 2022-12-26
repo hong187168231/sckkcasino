@@ -86,4 +86,41 @@ public class ExportReport {
         return this.betAmount.add(this.validbet).add(this.winLoss).add(this.washAmount).add(this.allProfitAmount).
             add(this.serviceCharge).add(this.allWater).add(this.todayAward).add(this.riseAward).add(this.avgBenefit).add(this.totalAmount);
     }
+
+    public Boolean check(){
+        if (this.betAmount.compareTo(BigDecimal.ZERO) != 0){
+            return true;
+        }
+        if (this.validbet.compareTo(BigDecimal.ZERO) != 0){
+            return true;
+        }
+        if (this.winLoss.compareTo(BigDecimal.ZERO) != 0){
+            return true;
+        }
+        if (this.washAmount.compareTo(BigDecimal.ZERO) != 0){
+            return true;
+        }
+        if (this.allProfitAmount.compareTo(BigDecimal.ZERO) != 0){
+            return true;
+        }
+        if (this.serviceCharge.compareTo(BigDecimal.ZERO) != 0){
+            return true;
+        }
+        if (this.allWater.compareTo(BigDecimal.ZERO) != 0){
+            return true;
+        }
+        if (this.todayAward.compareTo(BigDecimal.ZERO) != 0){
+            return true;
+        }
+        if (this.riseAward.compareTo(BigDecimal.ZERO) != 0){
+            return true;
+        }
+        if (this.avgBenefit.compareTo(BigDecimal.ZERO) != 0){
+            return true;
+        }
+        if (this.totalAmount.compareTo(BigDecimal.ZERO) != 0){
+            return true;
+        }
+        return false;
+    }
 }
