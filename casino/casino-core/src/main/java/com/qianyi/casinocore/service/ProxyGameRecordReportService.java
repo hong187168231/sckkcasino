@@ -317,6 +317,8 @@ public class ProxyGameRecordReportService {
             sql = MessageFormat.format(SqlSumConst.obdjSumSql, startTime, endTime);
         } else if (platform.equals(Constants.PLATFORM_OBTY)) {
             sql = MessageFormat.format(SqlSumConst.obtySumSql, startTime, endTime);
+        } else if (platform.equals(Constants.PLATFORM_OBZR)) {
+            sql = MessageFormat.format(SqlSumConst.obzrSumSql, startTime, endTime);
         } else if (platform.equals(Constants.PLATFORM_PG)) {
             sql = MessageFormat.format(SqlSumConst.PGAndCQ9SumSql, startTime, endTime, "'PG'");
         } else if (platform.equals(Constants.PLATFORM_AE)) {
