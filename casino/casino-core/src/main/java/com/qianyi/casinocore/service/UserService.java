@@ -652,7 +652,7 @@ public class UserService {
         } else {
             sql = MessageFormat.format(SqlConst.exportPgOrCq9Sql, startTime, endTime, sort, "'CQ9'", proxy);
         }
-        log.info(sql);
+//        log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
         if (null != resultList && resultList.size() > 0) {

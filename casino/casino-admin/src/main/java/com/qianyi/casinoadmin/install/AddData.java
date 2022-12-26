@@ -88,7 +88,7 @@ public class AddData implements CommandLineRunner {
 //            exportReportBusiness.comparison(str);
 //        }
 //        thirdGameSumBalanceTask.create();
-        
+
         new Thread(()->{
             this.asynchronization();
         }).start();
