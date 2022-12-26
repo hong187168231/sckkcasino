@@ -294,6 +294,39 @@ public class ProxyGameRecordReportService {
             } catch (Exception ex) {
                 log.error("代理报表计算DG失败日期{}", dayTime);
             }
+            try {
+                List<Map<String, Object>> obzrMap = proxyGameRecordReportRepository.findObzr(startTime, endTime);
+                if (CollUtil.isNotEmpty(obzrMap)) {
+                    obzrMap.forEach(map -> {
+                        Long userId = Long.parseLong(map.get("user_id").toString());
+                        Long firstProxy = 0L;
+                        Long secondProxy = 0L;
+                        Long thirdProxy = 0L;
+                        if (Objects.nonNull(map.get("first_proxy"))
+                                && StringUtils.hasLength(map.get("first_proxy").toString())) {
+                            firstProxy = Long.parseLong(map.get("first_proxy").toString());
+                        }
+                        if (Objects.nonNull(map.get("second_proxy"))
+                                && StringUtils.hasLength(map.get("second_proxy").toString())) {
+                            secondProxy = Long.parseLong(map.get("second_proxy").toString());
+                        }
+                        if (Objects.nonNull(map.get("third_proxy"))
+                                && StringUtils.hasLength(map.get("third_proxy").toString())) {
+                            thirdProxy = Long.parseLong(map.get("third_proxy").toString());
+                        }
+                        Integer bettingNumber = Integer.parseInt(map.get("num").toString());
+                        BigDecimal betAmount = new BigDecimal(map.get("bet_amount").toString());
+                        BigDecimal validAmount = new BigDecimal(map.get("validbet").toString());
+                        BigDecimal winLoss = new BigDecimal(map.get("win_loss").toString());
+                        Long proxyGameRecordReportId = CommonUtil.toHash(dayTime + userId.toString());
+                        this.updateKey(proxyGameRecordReportId, userId, dayTime, validAmount, winLoss, firstProxy,
+                                secondProxy, thirdProxy, betAmount, bettingNumber);
+                    });
+                    obzrMap.clear();
+                }
+            } catch (Exception ex) {
+                log.error("代理报表计算obzr失败日期{}", dayTime);
+            }
         }
     }
 
