@@ -61,13 +61,13 @@ public class AddData implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("初始化计算数据开始==============================================>");
         long startTime = System.currentTimeMillis();
-        Calendar nowTime = Calendar.getInstance();
-//        //计算最近十天注单
-        nowTime.add(Calendar.DATE, -60);
-        Date startDate = nowTime.getTime();
-        String startDay = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(startDate);
-        String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(DateUtil.getYesterday());
-        List<String> betweenDate = DateUtil.getBetweenDate(startDay, yesterday);
+//        Calendar nowTime = Calendar.getInstance();
+////        //计算最近十天注单
+//        nowTime.add(Calendar.DATE, -200);
+//        Date startDate = nowTime.getTime();
+//        String startDay = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(startDate);
+//        String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(DateUtil.getYesterday());
+//        List<String> betweenDate = DateUtil.getBetweenDate(startDay, yesterday);
 
 //        List<String> betweenDate = new ArrayList<>();
 //        betweenDate.add("2022-12-18");
@@ -82,44 +82,42 @@ public class AddData implements CommandLineRunner {
 //            userGameRecordReportService.comparison(str);
 //            proxyGameRecordReportService.comparison(str);
 //
+////            exportReportBusiness.comparison(str);
+//        }
+//        for (String str:betweenDate){
 //            exportReportBusiness.comparison(str);
 //        }
+//        thirdGameSumBalanceTask.create();
+        
+        new Thread(()->{
+            this.asynchronization();
+        }).start();
+        log.info("初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
+    }
+
+    private void asynchronization(){
+        log.info("异步初始化计算数据开始==============================================>");
+        long startTime = System.currentTimeMillis();
+        Calendar nowTime = Calendar.getInstance();
+        //        //计算最近十天注单
+        nowTime.add(Calendar.DATE, -200);
+        Date startDate = nowTime.getTime();
+        String startDay = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(startDate);
+        String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(DateUtil.getYesterday());
+        List<String> betweenDate = DateUtil.getBetweenDate(startDay, yesterday);
         for (String str:betweenDate){
+            this.delete(str);
+            userGameRecordReportService.comparison(str);
+            proxyGameRecordReportService.comparison(str);
+
             exportReportBusiness.comparison(str);
         }
-//        thirdGameSumBalanceTask.create();
-
-        log.info("初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
-        //        new Thread(()->{
-        //            beginWM1();
-        //        }).start();
-        //        new Thread(()->{
-        //            beginWM2();
-        //        }).start();
-        //        new Thread(()->{
-        //            beginPG1();
-        //        }).start();
-        //        new Thread(()->{
-        //            beginPG2();
-        //        }).start();
-        //        List<ProxyGameRecordReport> all = proxyGameRecordReportService.findAll();
-        //        if (all == null || all.isEmpty()){
-        //            Long gameRecordMaxId = gameRecordService.findMaxId();
-        //            if (gameRecordMaxId != null && gameRecordMaxId.longValue() != 0L){
-        //                new Thread(()->{
-        //                    recursionWm(1,pageSize,gameRecordMaxId);
-        //                }).start();
-        //            }
-        //
-        //            Long gameRecordGoldenFMaxId = gameRecordGoldenFService.findMaxId();
-        //            if (gameRecordGoldenFMaxId != null && gameRecordGoldenFMaxId.longValue() != 0L){
-        //                new Thread(()->{
-        //                    recursionPg(1,pageSize,gameRecordGoldenFMaxId);
-        //                }).start();
-        //            }
-        //
-        //        }
+//        for (String str:betweenDate){
+//            exportReportBusiness.comparison(str);
+//        }
+        log.info("异步初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
     }
+
 
     private void delete(String yesterday){
         try {
