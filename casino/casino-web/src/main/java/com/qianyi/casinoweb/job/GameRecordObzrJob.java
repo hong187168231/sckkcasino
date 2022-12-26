@@ -67,7 +67,7 @@ public class GameRecordObzrJob {
 
 
     //每隔7分钟执行一次
-//    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 5000)
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
         if (platformGame != null && platformGame.getGameStatus() == 2) {
@@ -102,10 +102,10 @@ public class GameRecordObzrJob {
             endTime = now;
         }
         boolean flag = true;
-//        String start = "2022-12-23 20:39:10";
-//        String end = "2022-12-23 21:05:10";
-        String start = startTime.format(DATETIME_FORMAT);
-        String end = endTime.format(DATETIME_FORMAT);
+        String start = "2022-12-26 19:25:53";
+        String end = "2022-12-26 19:55:53";
+//        String start = startTime.format(DATETIME_FORMAT);
+//        String end = endTime.format(DATETIME_FORMAT);
         int pageIndex = 1;
 
         long s = System.currentTimeMillis();
@@ -190,23 +190,27 @@ public class GameRecordObzrJob {
         //组装gameRecord
         GameRecord record = combineGameRecord(gameRecordObzr);
         //发送注单消息到MQ后台要统计数据
-        gameRecordAsyncOper.proxyGameRecordReport(platform, record);
+        if (isAdd == 1 || (isAdd == 0 && (BigDecimal.ZERO.compareTo(new BigDecimal(record.getValidbet())) != 0 || BigDecimal.ZERO.compareTo(new BigDecimal(record.getBet())) != 0 || BigDecimal.ZERO.compareTo(new BigDecimal(record.getWinLoss())) != 0))) {
+            gameRecordAsyncOper.proxyGameRecordReport(platform, record);
+        }
         String validbet = record.getValidbet();
         if (ObjectUtils.isEmpty(validbet) || new BigDecimal(validbet).compareTo(BigDecimal.ZERO) == 0) {
             return;
         }
-        //洗码
-        gameRecordAsyncOper.washCode(platform, record);
-        // 抽点
-        gameRecordAsyncOper.extractPoints(platform, record);
-        //扣减打码量
-        gameRecordAsyncOper.subCodeNum(platform, platformConfig, record);
-        //代理分润
-        gameRecordAsyncOper.shareProfit(platform, record);
-        //返利
-        gameRecordAsyncOper.rebate(platform, record);
-        //等级流水
-        gameRecordAsyncOper.levelWater(platform, record);
+        if (isAdd == 1) {
+            //洗码
+            gameRecordAsyncOper.washCode(platform, record);
+            // 抽点
+            gameRecordAsyncOper.extractPoints(platform, record);
+            //扣减打码量
+            gameRecordAsyncOper.subCodeNum(platform, platformConfig, record);
+            //代理分润
+            gameRecordAsyncOper.shareProfit(platform, record);
+            //返利
+            gameRecordAsyncOper.rebate(platform, record);
+            //等级流水
+            gameRecordAsyncOper.levelWater(platform, record);
+        }
     }
 
 
