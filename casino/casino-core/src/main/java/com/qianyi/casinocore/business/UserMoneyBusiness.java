@@ -453,6 +453,8 @@ public class UserMoneyBusiness {
             rate = rebateConfiguration.getOBDJRate();
         } else if (Constants.PLATFORM_OBTY.equals(platform)) {
             rate = rebateConfiguration.getOBTYRate();
+        }else if (Constants.PLATFORM_OBZR.equals(platform)) {
+            rate = rebateConfiguration.getOBZRRate();
         } else if (Constants.PLATFORM_AE.equals(platform)) {
             rate = rebateConfiguration.getAERate();
         } else if (Constants.PLATFORM_VNC.equals(platform)) {
