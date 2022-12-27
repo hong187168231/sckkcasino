@@ -693,6 +693,12 @@ public class ThirdGameBusiness {
             }, executor);
             completableFutures.add(oneKeyRecoverObty);
         }
+        if (!Constants.PLATFORM_OBZR.equals(platform)) {
+            CompletableFuture<Void> oneKeyRecoverObzr = CompletableFuture.runAsync(() -> {
+                oneKeyRecoverObzr(userId);
+            }, executor);
+            completableFutures.add(oneKeyRecoverObzr);
+        }
         if (!Constants.PLATFORM_AE.equals(platform)) {
             CompletableFuture<Void> oneKeyRecoverAe = CompletableFuture.runAsync(() -> {
                 oneKeyRecoverAe(userId);
