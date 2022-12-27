@@ -224,9 +224,14 @@ public class GameRecordObzrJob {
         GameRecordObzr gameRecord = gameRecordObzrService.findByBetOrderNo(gameRecordQueryRespDTO.getOrderNo());
         if (gameRecord == null) {
             gameRecord = new GameRecordObzr();
+            BeanUtils.copyProperties(gameRecordQueryRespDTO, gameRecord);
             gameRecord.setIsAdd(1);//新增
+        }else {
+            Long id = gameRecord.getId();
+            BeanUtils.copyProperties(gameRecordQueryRespDTO, gameRecord);
+            gameRecord.setId(id);
+            gameRecord.setIsAdd(0);//0.修改
         }
-        Long gameRecordId = gameRecord.getId();
         //有效投注
         BigDecimal oldTurnover = gameRecordQueryRespDTO.getValidBetAmount();
         //用户输赢
@@ -243,9 +248,7 @@ public class GameRecordObzrJob {
         if (!ObjectUtils.isEmpty(gameRecordQueryRespDTO.getSettleTime()) && gameRecordQueryRespDTO.getSettleTime() != 0) {
             gameRecordQueryRespDTO.setSettleStrTime(format.format(gameRecordQueryRespDTO.getSettleTime()));
         }
-        BeanUtils.copyProperties(gameRecordQueryRespDTO, gameRecord);
         gameRecord.setPayoutAmount(gameRecord.getPayAmount());
-        gameRecord.setId(gameRecordId);
         gameRecord.setUserId(account.getUserId());
         BigDecimal validbet = ObjectUtils.isEmpty(gameRecord.getValidBetAmount()) ? BigDecimal.ZERO : gameRecord.getValidBetAmount();
         //有效投注额为0不参与洗码,打码,分润,抽點
