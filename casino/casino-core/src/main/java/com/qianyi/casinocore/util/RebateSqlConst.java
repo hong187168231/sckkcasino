@@ -1952,7 +1952,7 @@ public class RebateSqlConst {
     sum(bet_amount) bet_amount,
     sum(valid_bet_amount) valid_bet_amount,
     sum(net_amount) win_loss
-    from game_record_obty grg
+    from game_record_obzr grg
     where user_id={2} and settle_str_time between {0} and {1}
     group by user_id
                 ) goldenf_t on u.id = goldenf_t.user_id
