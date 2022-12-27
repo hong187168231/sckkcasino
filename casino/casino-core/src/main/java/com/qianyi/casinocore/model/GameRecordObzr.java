@@ -164,8 +164,6 @@ public class GameRecordObzr extends BaseEntity {
     @ApiModelProperty(value = "游戏报表状态：0:失败，1：成功")
     private Integer gameRecordStatus = Constants.no;
 
-
-    @Transient
     @ApiModelProperty(value = "是否新增，0.修改,1.新增")
     private Integer isAdd = 0;
 
