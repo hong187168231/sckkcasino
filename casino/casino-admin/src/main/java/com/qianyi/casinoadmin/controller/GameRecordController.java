@@ -1273,7 +1273,7 @@ public class GameRecordController {
         @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
     })
     @NoAuthorization
-    public ResponseEntity<GameRecordDMCVo> findGameRecordDMCPage(Integer pageSize, Integer pageCode, String userName, String betOrder,
+    public ResponseEntity<GameRecordDMC> findGameRecordDMCPage(Integer pageSize, Integer pageCode, String userName, String betOrder,
         String account,Integer tag,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
@@ -1298,11 +1298,9 @@ public class GameRecordController {
         PageResultVO<GameRecordDMCVo> pageResultVO =new PageResultVO(gameRecordPage);
         List<GameRecordDMC> content = gameRecordPage.getContent();
         if(content != null && content.size() > 0){
-            List<GameRecordDMCVo> gameRecordDMCVos = new LinkedList<>();
+            List<GameRecordDMC> gameRecordDMCVos = new LinkedList<>();
             content.stream().forEach(gameRecord ->{
-                GameRecordDMCVo vo = new GameRecordDMCVo();
-                BeanUtils.copyProperties(gameRecord,vo);
-                gameRecordDMCVos.add(vo);
+                gameRecordDMCVos.add(gameRecord);
             });
             pageResultVO.setContent(gameRecordDMCVos);
         }
