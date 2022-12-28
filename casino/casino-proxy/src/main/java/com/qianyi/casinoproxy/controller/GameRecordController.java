@@ -858,6 +858,7 @@ public class GameRecordController {
                 content.stream().forEach(gameRecord -> {
                     GameRecordObzrVo vo = new GameRecordObzrVo();
                     BeanUtils.copyProperties(gameRecord, vo);
+                    vo.setUserName(gameRecord.getPlayerName());
                     userList.stream().forEach(u -> {
                         if (u.getId().equals(gameRecord.getUserId())) {
                             vo.setAccount(u.getAccount());
