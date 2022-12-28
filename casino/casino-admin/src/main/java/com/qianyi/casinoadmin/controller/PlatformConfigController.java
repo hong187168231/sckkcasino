@@ -3,6 +3,7 @@ package com.qianyi.casinoadmin.controller;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinoadmin.install.Initialization;
 import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.vo.*;
@@ -80,13 +81,17 @@ public class PlatformConfigController {
         return new ResponseEntity(ResponseCode.SUCCESS, userCommissionVo);
     }
     @ApiOperation("编辑玩家推广返佣配置")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "firstCommission", value = "一级代理返佣", required = true),
-            @ApiImplicitParam(name = "secondCommission", value = "二级代理返佣", required = true),
-            @ApiImplicitParam(name = "thirdCommission", value = "三级代理返佣", required = true)
-    })
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "firstCommission", value = "一级代理返佣", required = true),
+//            @ApiImplicitParam(name = "secondCommission", value = "二级代理返佣", required = true),
+//            @ApiImplicitParam(name = "thirdCommission", value = "三级代理返佣", required = true)
+//    })
     @PostMapping("/updateCommission")
-    public ResponseEntity<UserCommissionVo> update(BigDecimal firstCommission, BigDecimal secondCommission, BigDecimal thirdCommission){
+    public ResponseEntity<UserCommissionVo> update(@RequestBody UserCommission userCommission){
+        log.info("编辑玩家推广返佣配置输入参数 params:{}", JSONObject.toJSONString(userCommission));
+        BigDecimal firstCommission = userCommission.getFirstCommission();
+        BigDecimal secondCommission = userCommission.getSecondCommission();
+        BigDecimal thirdCommission = userCommission.getThirdCommission();
         if (LoginUtil.checkNull(firstCommission,secondCommission,thirdCommission)){
             return ResponseUtil.custom("参数错误");
         }
