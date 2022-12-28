@@ -16,4 +16,7 @@ public interface LevelWaterChangeRepository extends JpaRepository<LevelWaterChan
     @Query
     LevelWaterChange findByUserId(Long userId);
 
+    @Query
+    LevelWaterChange findByGameRecordId(Long userId);
+
 }

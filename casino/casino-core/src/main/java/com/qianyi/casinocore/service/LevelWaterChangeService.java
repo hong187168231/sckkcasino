@@ -22,6 +22,10 @@ public class LevelWaterChangeService {
     }
 
 
+    public LevelWaterChange findByGameRecordId(Long gameRecordId) {
+        return levelWaterChangeRepository.findByGameRecordId(gameRecordId);
+    }
+
     public LevelWaterChange findByUserId(Long userId) {
         return levelWaterChangeRepository.findByUserId(userId);
     }

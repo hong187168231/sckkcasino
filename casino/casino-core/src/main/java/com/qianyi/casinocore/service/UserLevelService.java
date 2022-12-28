@@ -106,8 +106,8 @@ public class UserLevelService {
     }
 
     public List<Map<String, Object>> findLastRiseUser(Date startTime, Date endTime) {
-        SimpleDateFormat format =  DateUtil.getSimpleDateFormat();
-        return userLevelRepository.findLastRiseUser(format.format(startTime),format.format(endTime));
+        SimpleDateFormat format = DateUtil.getSimpleDateFormat();
+        return userLevelRepository.findLastRiseUser(format.format(startTime), format.format(endTime));
     }
 
 
@@ -164,6 +164,11 @@ public class UserLevelService {
             } else {
                 levelWaterChange.setGameId(gameRecord.getGameCode());
             }
+            LevelWaterChange waterChange = levelWaterChangeService.findByGameRecordId(gameRecord.getId());
+            if (ObjectUtil.isNotNull(waterChange) && levelChangeCo.getPlatform().equals(waterChange.getGameId())) {
+                log.error("订单已处理 ===== >> levelChangeCo {} ,错误信息 {} ", JSON.toJSONString(levelChangeCo));
+                throw new RuntimeException("等级流水变动异常");
+            }
             levelWaterChange.setGameName(gameRecord.getGname());
             levelWaterChange.setGameRecordId(gameRecord.getId());
             levelWaterChange.setUserId(levelChangeCo.getUserId());
@@ -173,8 +178,8 @@ public class UserLevelService {
                 userMoneyService.addLevelWater(levelChangeCo.getUserId(), levelChangeCo.getBetWater());
             } else {
                 UserMoney userMoneyLock2 = userMoneyService.findUserByUserIdUseLock(levelChangeCo.getUserId());
-                userMoneyService.subRiseWater(levelChangeCo.getUserId(), levelChangeCo.getBetWater(),userMoneyLock2);
-                userMoneyService.subLevelWater(levelChangeCo.getUserId(), levelChangeCo.getBetWater(),userMoneyLock2);
+                userMoneyService.subRiseWater(levelChangeCo.getUserId(), levelChangeCo.getBetWater(), userMoneyLock2);
+                userMoneyService.subLevelWater(levelChangeCo.getUserId(), levelChangeCo.getBetWater(), userMoneyLock2);
             }
         } catch (Exception e) {
             log.error("等级流水变动异常 ===== >> levelChangeCo {} ,错误信息 {} ", JSON.toJSONString(levelChangeCo), e);
