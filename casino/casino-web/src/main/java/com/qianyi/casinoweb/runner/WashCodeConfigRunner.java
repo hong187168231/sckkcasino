@@ -89,7 +89,7 @@ public class WashCodeConfigRunner implements CommandLineRunner {
         codeConfig.setGameId(gameId);
         codeConfig.setGameName(gameName);
         codeConfig.setGameEnName(gameEnName);
-        if (Constants.PLATFORM_OBDJ.equals(platform) || Constants.PLATFORM_OBTY.equals(platform)) {
+        if (Constants.PLATFORM_OBDJ.equals(platform) || Constants.PLATFORM_OBTY.equals(platform) || Constants.PLATFORM_OBZR.equals(platform)) {
             platform = Constants.PLATFORM_OB;
         }
         codeConfig.setState(Constants.open);

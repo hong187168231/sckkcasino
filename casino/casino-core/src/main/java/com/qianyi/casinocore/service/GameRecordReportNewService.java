@@ -49,7 +49,7 @@ public class GameRecordReportNewService {
     private GameRecordObtyService gameRecordObtyService;
 
     @Autowired
-    private GameRecordObtyService gameRecordObzrService;
+    private GameRecordObzrService gameRecordObzrService;
 
     @Autowired
     private EntityManager entityManager;

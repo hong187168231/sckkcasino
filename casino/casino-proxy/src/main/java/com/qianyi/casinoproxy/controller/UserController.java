@@ -244,8 +244,8 @@ public class UserController {
                             userVo.setSecondProxyAccount(proxyUser.getUserName());
                         }
                     });
-                    GameRecord gameRecord = gameRecordService.findRecordRecordSum(u.getId(), null, null);
-                    userVo.setPerformance((gameRecord == null || gameRecord.getValidbet() == null) ? BigDecimal.ZERO:new BigDecimal(gameRecord.getValidbet()));
+                    UserGameRecordReport gameRecord = gameRecordService.findUserGameRecordReportSum(u.getId());
+                    userVo.setPerformance((gameRecord == null || gameRecord.getValidAmount() == null) ? BigDecimal.ZERO:gameRecord.getValidAmount());
                     userVoList.add(userVo);
                 });
                 pageResultVO.setContent(userVoList);

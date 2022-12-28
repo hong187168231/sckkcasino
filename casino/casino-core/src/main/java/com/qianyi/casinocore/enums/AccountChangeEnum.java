@@ -38,8 +38,8 @@ public enum AccountChangeEnum {
     DG_IN(29, "DGIN", "DG转入"),
     DG_OUT(30, "DGOUT", "DG转出"),
 
-    OBZR_IN(31, "OBZRIN","OB体真人转入"),
-    OBZR_OUT(32, "OBZROUT","OB真人转出"),
+    OBZR_IN(31, "OBZRIN","OBZR转入"),
+    OBZR_OUT(32, "OBZROUT","OBZR转出"),
 
     ;
 

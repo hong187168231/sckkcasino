@@ -7,6 +7,8 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.ExpirationTimeUtil;
+import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.livedg.api.DgApi;
 import com.qianyi.modulecommon.Constants;
@@ -22,6 +24,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/dgGame")
@@ -57,6 +61,8 @@ public class DGGameController {
 
     @Autowired
     private DgApi dgApi;
+    @Autowired
+    private RedisKeyUtil redisKeyUtil;
 
     @ApiOperation("获取token，前端自行开启游戏")
     @PostMapping("/openGame")
@@ -106,92 +112,104 @@ public class DGGameController {
                 }
             }
         }
+
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_DG,authId.toString());
+
         //回收其他游戏的余额
         thirdGameBusiness.oneKeyRecoverOtherGame(authId, Constants.PLATFORM_DG);
         UserMoney userMoney = userMoneyService.findByUserId(authId);
-        BigDecimal userCenterMoney = BigDecimal.ZERO;
-        if (userMoney != null && userMoney.getMoney() != null) {
-            userCenterMoney = userMoney.getMoney();
-        }
-        if (userCenterMoney.compareTo(BigDecimal.ZERO) == 1) {
-            //钱转入第三方后本地扣减记录账变  优先扣减本地余额，否则会出现三方加点成功，本地扣减失败的情况
-            //先扣本地款
-            userMoneyService.subMoney(authId, userCenterMoney,userMoney);
-            String orderNo = orderService.getOrderNo();
-            JSONObject deposit = null;
-            try {
-                //加点
-                deposit = dgApi.transterWallet( third.getDgAccount(), userCenterMoney,orderNo);
-                if (null != deposit && "0".equals(deposit.getString("codeId"))){
-                    //记录账变
-                    thirdGameBusiness.inSaveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, "自动转入DG", Constants.PLATFORM_DG, AccountChangeEnum.DG_IN);
-
-                }else if(null == deposit) {
-                    log.error("userId:{},DG游戏加点失败,result:{}", authId, deposit);
-                    //三方加扣点失败再把钱加回来
-                    userMoneyService.addMoney(authId, userCenterMoney);
-                    return ResponseUtil.custom("服务器异常,请重新操作");
-                }else {
-                    log.error("userId:{},DG游戏加点失败,result:{}", authId, deposit);
-                    //三方加扣点失败再把钱加回来
-                    userMoneyService.addMoney(authId, userCenterMoney);
-                    return ResponseUtil.custom("服务器异常,请重新操作");
-                }
-
-            } catch (Exception e) {
-                log.error("userId:{},account:{},money:{},DG游戏加点失败,远程请求异常", third.getUserId(), user.getAccount(), userCenterMoney);
-                //三方加扣点失败再把钱加回来
-                userMoneyService.addMoney(authId, userCenterMoney);
-                //异步记录错误订单并重试补偿
-                errorOrderService.syncSaveDgErrorOrder(third.getAeAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.DG_IN, Constants.PLATFORM_DG);
-                return dgApi.errorCode(deposit.getIntValue("codeId"), deposit.getString("random"));
-            }
-
-        }
-        log.info("DG登录请求参数 id，{} 用户名,{} 客户id{}", user.getAccount(), authId);
-        JSONObject dgApiResponseData = null;
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(authId.toString());
         try {
-            //有些异步请求提示会获取不到request
-            HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-            String language = httpServletRequest.getHeader(Constants.LANGUAGE);
-            String lang = "";
-            if (LocaleConfig.zh_CN.toString().equals(language)) {
-                lang = "cn";
-            } else if (LocaleConfig.km_KH.toString().equals(language)) {
-                lang = "en";
-            } else if (LocaleConfig.as_MY.toString().equals(language)) {
-                lang = "en";
-            } else if (LocaleConfig.th_TH.toString().equals(language)) {
-                lang = "th";
-            }else {
-                lang = "en";
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            BigDecimal userCenterMoney = BigDecimal.ZERO;
+            if (userMoney != null && userMoney.getMoney() != null) {
+                userCenterMoney = userMoney.getMoney();
             }
-//            dgApiResponseData = dgApi.loginDgGameFree(user.getAccount(), lang);//测试环境会员试玩登入
-            dgApiResponseData = dgApi.loginDgGame(user.getAccount(),  lang);//正式环境会员登入
-            if (null != dgApiResponseData && "0".equals(dgApiResponseData.getString("codeId"))) {
-                StringBuilder builder = new StringBuilder();
-//                1：PC浏览器  0：手机浏览器进入游戏
-                String urlStr = "";
-                if("1".equals(loginType)){
-                    urlStr = (String) dgApiResponseData.getJSONArray("list").get(0);
-                }else {
-                    urlStr = (String) dgApiResponseData.getJSONArray("list").get(1);
+            if (userCenterMoney.compareTo(BigDecimal.ZERO) == 1) {
+                //钱转入第三方后本地扣减记录账变  优先扣减本地余额，否则会出现三方加点成功，本地扣减失败的情况
+                //先扣本地款
+                userMoneyService.subMoney(authId, userCenterMoney,userMoney);
+                String orderNo = orderService.getOrderNo();
+                JSONObject deposit = null;
+                try {
+                    //加点
+                    deposit = dgApi.transterWallet( third.getDgAccount(), userCenterMoney,orderNo);
+                    if (null != deposit && "0".equals(deposit.getString("codeId"))){
+                        //记录账变
+                        thirdGameBusiness.inSaveAccountChange(authId, userCenterMoney, userMoney.getMoney(), userMoney.getMoney().subtract(userCenterMoney), 0, orderNo, "自动转入DG", Constants.PLATFORM_DG, AccountChangeEnum.DG_IN);
+
+                    }else if(null == deposit) {
+                        log.error("userId:{},DG游戏加点失败,result:{}", authId, deposit);
+                        //三方加扣点失败再把钱加回来
+                        userMoneyService.addMoney(authId, userCenterMoney);
+                        return ResponseUtil.custom("服务器异常,请重新操作");
+                    }else {
+                        log.error("userId:{},DG游戏加点失败,result:{}", authId, deposit);
+                        //三方加扣点失败再把钱加回来
+                        userMoneyService.addMoney(authId, userCenterMoney);
+                        return ResponseUtil.custom("服务器异常,请重新操作");
+                    }
+
+                } catch (Exception e) {
+                    log.error("userId:{},account:{},money:{},DG游戏加点失败,远程请求异常", third.getUserId(), user.getAccount(), userCenterMoney);
+                    //三方加扣点失败再把钱加回来
+                    userMoneyService.addMoney(authId, userCenterMoney);
+                    //异步记录错误订单并重试补偿
+                    errorOrderService.syncSaveDgErrorOrder(third.getAeAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.DG_IN, Constants.PLATFORM_DG);
+                    return dgApi.errorCode(deposit.getIntValue("codeId"), deposit.getString("random"));
                 }
-                builder.append(urlStr).append(dgApiResponseData.getString("token"));
-                builder.append("&language=").append(lang);
-                log.error("DG登录完整请求地址,url:{}", builder.toString());
-                //登录
-                return ResponseUtil.success(builder.toString());
-            }else {
-                return dgApi.errorCode(dgApiResponseData.getIntValue("codeId"), dgApiResponseData.getString("random"));
+
             }
-
+            log.info("DG登录请求参数 id，{} 用户名,{} 客户id{}", user.getAccount(), authId);
+            JSONObject dgApiResponseData = null;
+            try {
+                //有些异步请求提示会获取不到request
+                HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+                String language = httpServletRequest.getHeader(Constants.LANGUAGE);
+                String lang = "";
+                if (LocaleConfig.zh_CN.toString().equals(language)) {
+                    lang = "cn";
+                } else if (LocaleConfig.km_KH.toString().equals(language)) {
+                    lang = "en";
+                } else if (LocaleConfig.as_MY.toString().equals(language)) {
+                    lang = "en";
+                } else if (LocaleConfig.th_TH.toString().equals(language)) {
+                    lang = "th";
+                }else {
+                    lang = "en";
+                }
+                //            dgApiResponseData = dgApi.loginDgGameFree(user.getAccount(), lang);//测试环境会员试玩登入
+                dgApiResponseData = dgApi.loginDgGame(user.getAccount(),  lang);//正式环境会员登入
+                if (null != dgApiResponseData && "0".equals(dgApiResponseData.getString("codeId"))) {
+                    StringBuilder builder = new StringBuilder();
+                    //                1：PC浏览器  0：手机浏览器进入游戏
+                    String urlStr = "";
+                    if("1".equals(loginType)){
+                        urlStr = (String) dgApiResponseData.getJSONArray("list").get(0);
+                    }else {
+                        urlStr = (String) dgApiResponseData.getJSONArray("list").get(1);
+                    }
+                    builder.append(urlStr).append(dgApiResponseData.getString("token"));
+                    builder.append("&language=").append(lang);
+                    log.error("DG登录完整请求地址,url:{}", builder.toString());
+                    //登录
+                    return ResponseUtil.success(builder.toString());
+                }else {
+                    return dgApi.errorCode(dgApiResponseData.getIntValue("codeId"), dgApiResponseData.getString("random"));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("DG本地注册账号失败,userId:{},{}", authId, e.getMessage());
+                return ResponseUtil.custom("服务器异常,请重新操作");
+            }
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error("DG本地注册账号失败,userId:{},{}", authId, e.getMessage());
+            log.error("DG上分出现异常userId{} {}", authId, e.getMessage());
             return ResponseUtil.custom("服务器异常,请重新操作");
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
         }
-
     }
 
 
@@ -210,6 +228,7 @@ public class DGGameController {
             balance = responseEntity.getData();
         }
         balance = balance.setScale(2, BigDecimal.ROUND_HALF_UP);
+        ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_DG,authId.toString(),balance);
         return ResponseUtil.success(balance);
     }
 
@@ -242,6 +261,7 @@ public class DGGameController {
             balance = responseEntity.getData();
         }
         balance = balance.setScale(2, BigDecimal.ROUND_HALF_UP);
+        ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_DG,userId.toString(),balance);
         return ResponseUtil.success(balance);
     }
 
@@ -250,6 +270,8 @@ public class DGGameController {
     public ResponseEntity oneKeyRecover() {
         //获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_DG,userId.toString());
         return thirdGameBusiness.oneKeyRecoverDG(userId);
     }
 
@@ -262,6 +284,8 @@ public class DGGameController {
         if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_DG,userId.toString());
         return thirdGameBusiness.oneKeyRecoverDG(userId);
     }
 

@@ -100,7 +100,7 @@ public class ProxyGameRecordReportBusiness {
                     GameRecordObzr gameRecordById =
                             gameRecordObzrService.findGameRecordById(proxyGameRecordReportVo.getGameRecordId());
                     if (gameRecordById == null || gameRecordById.getGameRecordStatus() == Constants.yes){
-                        log.error("OB体育注单状态异常{}",proxyGameRecordReportVo.getGameRecordId());
+                        log.error("OB真人注单状态异常{}",proxyGameRecordReportVo.getGameRecordId());
                         return;
                     }
                 }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE_HORSEBOOK) || proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE_SV388) ||

@@ -18,6 +18,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -68,6 +69,10 @@ public class GameRecordDGService {
 
     public GameRecordDG findGameRecordById(Long gameRecordId) {
         return gameRecordDGRepository.findById(gameRecordId).orElse(null);
+    }
+
+    public int countByIdLessThanEqualAndUserId(Date createTime, Long userId) {
+        return gameRecordDGRepository.countByIdLessThanEqualAndUserId(createTime,userId);
     }
 
     public List<Map<String,Object>> queryGameRecords(Long id, Integer num){

@@ -1,6 +1,7 @@
 package com.qianyi.casinoadmin.install;
 
 import com.qianyi.casinoadmin.task.ThirdGameSumBalanceTask;
+import com.qianyi.casinocore.business.ExportReportBusiness;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.GameRecordGoldenF;
 import com.qianyi.casinocore.service.GameRecordGoldenFService;
@@ -23,10 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -50,6 +48,9 @@ public class AddData implements CommandLineRunner {
     @Autowired
     private ThirdGameSumBalanceTask thirdGameSumBalanceTask;
 
+    @Autowired
+    private ExportReportBusiness exportReportBusiness;
+
     private static final Integer pageSize = 1000;
 
     public static final Integer num = 50000;
@@ -58,8 +59,8 @@ public class AddData implements CommandLineRunner {
         log.info("初始化计算数据开始==============================================>");
         long startTime = System.currentTimeMillis();
 //        Calendar nowTime = Calendar.getInstance();
-//        //计算最近十天注单
-//        nowTime.add(Calendar.DATE, -40);
+////        //计算最近十天注单
+//        nowTime.add(Calendar.DATE, -200);
 //        Date startDate = nowTime.getTime();
 //        String startDay = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(startDate);
 //        String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(DateUtil.getYesterday());
@@ -72,45 +73,57 @@ public class AddData implements CommandLineRunner {
 //        betweenDate.add("2022-12-21");
 //        betweenDate.add("2022-12-22");
 //        betweenDate.add("2022-12-23");
+//        betweenDate.add("2022-12-24");
 //        for (String str:betweenDate){
 //            this.delete(str);
 //            userGameRecordReportService.comparison(str);
 //            proxyGameRecordReportService.comparison(str);
+//
+////            exportReportBusiness.comparison(str);
 //        }
-
+//        for (String str:betweenDate){
+//            exportReportBusiness.comparison(str);
+//        }
 //        thirdGameSumBalanceTask.create();
 
+        new Thread(()->{
+            this.asynchronization();
+        }).start();
         log.info("初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
-        //        new Thread(()->{
-        //            beginWM1();
-        //        }).start();
-        //        new Thread(()->{
-        //            beginWM2();
-        //        }).start();
-        //        new Thread(()->{
-        //            beginPG1();
-        //        }).start();
-        //        new Thread(()->{
-        //            beginPG2();
-        //        }).start();
-        //        List<ProxyGameRecordReport> all = proxyGameRecordReportService.findAll();
-        //        if (all == null || all.isEmpty()){
-        //            Long gameRecordMaxId = gameRecordService.findMaxId();
-        //            if (gameRecordMaxId != null && gameRecordMaxId.longValue() != 0L){
-        //                new Thread(()->{
-        //                    recursionWm(1,pageSize,gameRecordMaxId);
-        //                }).start();
-        //            }
-        //
-        //            Long gameRecordGoldenFMaxId = gameRecordGoldenFService.findMaxId();
-        //            if (gameRecordGoldenFMaxId != null && gameRecordGoldenFMaxId.longValue() != 0L){
-        //                new Thread(()->{
-        //                    recursionPg(1,pageSize,gameRecordGoldenFMaxId);
-        //                }).start();
-        //            }
-        //
-        //        }
     }
+
+    private void asynchronization(){
+        log.info("异步初始化计算数据开始==============================================>");
+        long startTime = System.currentTimeMillis();
+        Calendar nowTime = Calendar.getInstance();
+        //        //计算最近十天注单
+        nowTime.add(Calendar.DATE, -50);
+        Date startDate = nowTime.getTime();
+        String startDay = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(startDate);
+        String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(DateUtil.getYesterday());
+        List<String> betweenDate = DateUtil.getBetweenDate(startDay, yesterday);
+//        List<String> betweenDate = new ArrayList<>();
+//        betweenDate.add("2022-12-23");
+//        betweenDate.add("2022-12-24");
+//        for (String str:betweenDate){
+//            this.delete(str);
+//            userGameRecordReportService.comparison(str);
+//            proxyGameRecordReportService.comparison(str);
+//
+//            exportReportBusiness.comparison(str);
+//        }
+        Collections.reverse(betweenDate);
+        for (String str : betweenDate) {
+            exportReportBusiness.comparison(str);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        log.info("异步初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
+    }
+
 
     private void delete(String yesterday){
         try {

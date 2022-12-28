@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.util;
 
+import com.qianyi.casinocore.exception.BusinessException;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.PageVo;
@@ -149,5 +150,41 @@ public class CommonUtil {
             }
         }
         return mapDate;
+    }
+
+
+    // 获取 order by 语句
+    public static String getOrderByStatement(Integer tag, Integer sort) {
+        if (Objects.isNull(tag)) {
+            return "";
+        }
+        String str = " ORDER BY {0} ";
+        switch (tag) {
+            case 1:
+                str = MessageFormat.format(str, "num");
+                break;
+            case 2:
+                str = MessageFormat.format(str, "bet_amount");
+                break;
+            case 3:
+                str = MessageFormat.format(str, "validbet");
+                break;
+            case 4:
+                str = MessageFormat.format(str, "wash_amount");
+                break;
+            case 5:
+                str = MessageFormat.format(str, "win_loss");
+            case 6:
+                str = MessageFormat.format(str, "all_profit_amount");
+                break;
+            default:
+                throw new BusinessException("参数不合法");
+        }
+        if (Objects.isNull(sort) || sort == CommonConst.NUMBER_1) {
+            str = str + "ASC";
+        } else {
+            str = str + "DESC";
+        }
+        return str;
     }
 }

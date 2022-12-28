@@ -42,6 +42,20 @@ public class SqlSumConst {
     AND {1}
         """;
 
+
+    public static String obzrSumSql = """
+            SELECT
+            count(1) num,
+            ifnull(sum( bet_amount ),0) bet_amount,
+            ifnull(sum( valid_bet_amount ),0) validbet,
+            ifnull(sum( net_amount ),0) win_loss
+                FROM
+            game_record_obzr grg
+            WHERE
+            settle_str_time BETWEEN {0}
+            AND {1}
+                     """;
+
     public static String PGAndCQ9SumSql = """
     SELECT
     count(1) num,

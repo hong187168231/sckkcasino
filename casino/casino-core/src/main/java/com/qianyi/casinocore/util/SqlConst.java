@@ -314,8 +314,8 @@ public class SqlConst {
                     SUM(amount) AS todayAward
                 FROM
                     award_receive_record
-                WHERE
-                 award_type = 1
+                WHERE create_time BETWEEN {0} AND {1}  AND
+        award_type = 1
                 GROUP BY
                     user_id
             ) td ON u.id = td.user_id
@@ -325,14 +325,53 @@ public class SqlConst {
                     SUM(amount) AS riseAward
                 FROM
                     award_receive_record
-                WHERE          
-                 award_type = 2
+                WHERE  receive_time BETWEEN {0} AND {1} AND
+        award_type = 2
                 GROUP BY
                     user_id
             ) rs ON u.id = rs.user_id   
     where  1=1{5} {2}
             """;
 
+    public static String exportReportTotalSql = """
+    select
+    u.account ,
+    u.third_proxy ,
+    u.id,
+    main_t.third_proxy_name third_proxy_name,
+    ifnull(main_t.num,0) num,
+    ifnull(main_t.bet_amount,0) bet_amount ,
+    ifnull(main_t.validbet,0) validbet ,
+    ifnull(main_t.win_loss,0) win_loss ,
+    ifnull(main_t.wash_amount,0) wash_amount,
+    ifnull(main_t.service_charge,0) service_charge,
+    ifnull(main_t.all_profit_amount,0) all_profit_amount,
+    ifnull(main_t.avg_benefit,0) avg_benefit,
+    ifnull(main_t.total_amount,0) total_amount,
+    ifnull(main_t.all_water,0) all_water,
+    ifnull(main_t.today_award,0) todayAward,
+    ifnull(main_t.rise_award,0) riseAward
+    from user u left join (
+        select user_id ,
+        third_proxy_name third_proxy_name,
+        SUM(num) num,
+    sum(bet_amount) bet_amount,
+    sum(validbet) validbet,
+    sum(win_loss) win_loss,
+    sum(wash_amount) wash_amount,
+    sum(service_charge) service_charge,
+    sum(all_profit_amount) all_profit_amount,
+    sum(avg_benefit) avg_benefit,
+    sum(total_amount) total_amount,
+    sum(all_water) all_water,
+    sum(today_award) today_award,
+    sum(rise_award) rise_award
+    from export_report er
+    where order_times between {0} AND {1}
+    group by user_id
+            ) main_t on u.id = main_t.user_id
+    where  1=1{2} {3}
+            """;
     //    public static String exportTotalSql = """
     //    select
     //    u.account ,

@@ -652,7 +652,7 @@ public class UserService {
         } else {
             sql = MessageFormat.format(SqlConst.exportPgOrCq9Sql, startTime, endTime, sort, "'CQ9'", proxy);
         }
-        log.info(sql);
+//        log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
         if (null != resultList && resultList.size() > 0) {
@@ -1157,7 +1157,7 @@ public class UserService {
             sql = MessageFormat.format(RebateSqlConst.seleOneObty, startTime, endTime, userId.toString(), "'OBTY'",
                     proxy);
         } else if (platform.equals(Constants.PLATFORM_OBZR)) {
-            sql = MessageFormat.format(RebateSqlConst.seleOneObzr, startTime, endTime, userId.toString(), "'OBTY'",
+            sql = MessageFormat.format(RebateSqlConst.seleOneObzr, startTime, endTime, userId.toString(), "'OBZR'",
                     proxy);
         }else if (platform.equals(Constants.PLATFORM_PG)) {
             sql = MessageFormat.format(RebateSqlConst.seleOnePgOrCq9Sql, startTime, endTime, userId.toString(), "'PG'",

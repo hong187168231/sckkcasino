@@ -18,6 +18,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -64,6 +65,10 @@ public class GameRecordDMCService {
 
     public Map<String,Object> findSumByPlatformAndTime(String platform, String startTime, String endTime) {
         return gameRecordDMCRepository.findSumByPlatformAndTime(platform,startTime,endTime);
+    }
+
+    public int countByIdLessThanEqualAndUserId(Date createTime, Long userId) {
+        return gameRecordDMCRepository.countByIdLessThanEqualAndUserId(createTime,userId);
     }
 
     public GameRecordDMC findGameRecordById(Long gameRecordId) {

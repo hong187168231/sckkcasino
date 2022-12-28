@@ -266,8 +266,8 @@ public class ProxyCentreController {
             if (shareProfit.compareTo(BigDecimal.ONE) == -1) {
                 return ResponseUtil.custom("金额小于1,不能领取");
             }
-            userMoneyService.addMoney(userId, shareProfit);
             userMoneyService.subShareProfit(userId, shareProfit);
+            userMoneyService.addMoney(userId, shareProfit);
             AccountChangeVo vo = new AccountChangeVo();
             vo.setUserId(userId);
             vo.setChangeEnum(AccountChangeEnum.SHARE_PROFIT);

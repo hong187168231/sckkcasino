@@ -26,10 +26,14 @@ public class GameRecordObzrVo implements Serializable {
     private BigDecimal netAmount;
     @ApiModelProperty(value = "派彩金额")
     private BigDecimal payoutAmount;
+    @ApiModelProperty(value = "派彩金额")
+    private BigDecimal payAmount;
     @ApiModelProperty(value = "下注时间")
     private String betStrTime;
     @ApiModelProperty(value = "派彩时间")
     private String netAt;
+    @ApiModelProperty(value = "结算时间")
+    private String settleStrTime;
 
 
 

@@ -93,6 +93,13 @@ public class UserThirdController {
                     jsonObject.put("platform",Constants.PLATFORM_OBTY);
                     json.add(jsonObject);
                 }
+                if (!LoginUtil.checkNull(userThird.getObzrAccount())){
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("account",user.getAccount());
+                    jsonObject.put("thirdAccount",userThird.getObzrAccount());
+                    jsonObject.put("platform",Constants.PLATFORM_OBZR);
+                    json.add(jsonObject);
+                }
                 if (!LoginUtil.checkNull(userThird.getAeAccount())){
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("account",user.getAccount());
@@ -138,6 +145,12 @@ public class UserThirdController {
                 jsonObject.put("account",user.getAccount());
                 jsonObject.put("thirdAccount",userThird.getObtyAccount());
                 jsonObject.put("platform",Constants.PLATFORM_OBTY);
+                json.add(jsonObject);
+            }else if(platform.equals(Constants.PLATFORM_OBZR)){
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("account",user.getAccount());
+                jsonObject.put("thirdAccount",userThird.getObzrAccount());
+                jsonObject.put("platform",Constants.PLATFORM_OBZR);
                 json.add(jsonObject);
             }else if(platform.equals(Constants.PLATFORM_AE)){
                 JSONObject jsonObject = new JSONObject();
@@ -324,6 +337,20 @@ public class UserThirdController {
                 jsonObject.put("thirdAccount",userThird.getObtyAccount());
                 jsonObject.put("platform",Constants.PLATFORM_OBTY);
                 json.add(jsonObject);
+            }else if(platform.equals(Constants.PLATFORM_OBZR)){
+                userThird =  userThirdService.findByObzrAccount(userAccount);
+                if (LoginUtil.checkNull(userThird)){
+                    return ResponseUtil.success();
+                }
+                user = userService.findById(userThird.getUserId());
+                if (LoginUtil.checkNull(user)){
+                    return ResponseUtil.success();
+                }
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("account",user.getAccount());
+                jsonObject.put("thirdAccount",userThird.getObzrAccount());
+                jsonObject.put("platform",Constants.PLATFORM_OBZR);
+                json.add(jsonObject);
             }else if(platform.equals(Constants.PLATFORM_AE)){
                 userThird =  userThirdService.findByAEAccount(userAccount);
                 if (LoginUtil.checkNull(userThird)){
@@ -401,4 +428,3 @@ public class UserThirdController {
     }
 
 }
-

@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,16 +44,14 @@ public class GameRecordObzrJob {
     @Autowired
     private PublicObzrApi publicObzrApi;
     @Autowired
-    private GameRecordObtyService gameRecordObtyService;
+    private GameRecordObzrService gameRecordObzrService;
     @Autowired
     private GameRecordObzrTimeService gameRecordObzrTimeService;
     @Autowired
     private UserThirdService userThirdService;
     @Autowired
-    private GameRecordObtyDetailService gameRecordObtyDetailService;
-    @Autowired
     private UserService userService;
-    @Autowired
+    @Resource
     private PlatformConfigService platformConfigService;
     @Autowired
     private GameRecordAsyncOper gameRecordAsyncOper;
@@ -68,7 +67,7 @@ public class GameRecordObzrJob {
 
 
     //每隔7分钟执行一次
-//    @Scheduled(fixedDelay = 500000)
+    @Scheduled(cron = "0 0/1 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
         if (platformGame != null && platformGame.getGameStatus() == 2) {
@@ -88,14 +87,14 @@ public class GameRecordObzrJob {
 
     public void pullGameRecord(String lastTime) {
         // 每次只粒取30分钟的闻磨(根据年小时单量情况来定，如果是并单可以调整到30分钟一次，如果是正常拉单没有必要)
-        int mins = +5;
+        int mins = +30;
         int startTimePlusSeconds = -40;
         int endTimePlusSeconds = -40;
-        if(StrUtil.isBlank(lastTime)){
+        if (StrUtil.isBlank(lastTime)) {
             lastTime = DateUtil.dateToPatten(new Date());
         }
         LocalDateTime lastEndTime = LocalDateTime.parse(lastTime, DATETIME_FORMAT);
-        LocalDateTime startTime = lastEndTime.plusSeconds(startTimePlusSeconds);
+        LocalDateTime startTime = LocalDateTime.now().plusMinutes(-28);
         LocalDateTime endTime = startTime.plusMinutes(mins);
 
         LocalDateTime now = LocalDateTime.now().plusSeconds(endTimePlusSeconds);
@@ -103,8 +102,8 @@ public class GameRecordObzrJob {
             endTime = now;
         }
         boolean flag = true;
-//        String start = "2022-12-23 20:39:10";
-//        String end = "2022-12-23 21:05:10";
+//        String start = "2022-12-26 19:25:53";
+//        String end = "2022-12-26 19:55:53";
         String start = startTime.format(DATETIME_FORMAT);
         String end = endTime.format(DATETIME_FORMAT);
         int pageIndex = 1;
@@ -167,7 +166,7 @@ public class GameRecordObzrJob {
         //查询最小清0打码量
         PlatformConfig platformConfig = platformConfigService.findFirst();
         for (GameRecordQueryRespDTO gameRecordQueryRespDTO : gameRecordList) {
-            GameRecordObty gameRecord = null;
+            GameRecordObzr gameRecord = null;
             try {
                 gameRecord = save(gameRecordQueryRespDTO);
                 if (gameRecord == null) {
@@ -182,61 +181,58 @@ public class GameRecordObzrJob {
         }
     }
 
-    public void business(String platform, GameRecordObty gameRecordObty, PlatformConfig platformConfig) {
+    public void business(String platform, GameRecordObzr gameRecordObzr, PlatformConfig platformConfig) {
         //计算用户账号实时余额
-        changeUserBalance(gameRecordObty);
+        Integer isAdd = gameRecordObzr.getIsAdd();
+        if (isAdd == 1) {
+            gameRecordAsyncOper.changeUserBalance(gameRecordObzr.getUserId(), gameRecordObzr.getBetAmount(), gameRecordObzr.getNetAmount());
+        }
         //组装gameRecord
-        GameRecord record = combineGameRecord(gameRecordObty);
+        GameRecord record = combineGameRecord(gameRecordObzr);
         //发送注单消息到MQ后台要统计数据
-        gameRecordAsyncOper.proxyGameRecordReport(platform, record);
+        if (isAdd == 1 || (isAdd == 0 && (BigDecimal.ZERO.compareTo(new BigDecimal(record.getValidbet())) != 0 || BigDecimal.ZERO.compareTo(new BigDecimal(record.getBet())) != 0 || BigDecimal.ZERO.compareTo(new BigDecimal(record.getWinLoss())) != 0))) {
+            gameRecordAsyncOper.proxyGameRecordReport(platform, record);
+        }
         String validbet = record.getValidbet();
         if (ObjectUtils.isEmpty(validbet) || new BigDecimal(validbet).compareTo(BigDecimal.ZERO) == 0) {
             return;
         }
-        //洗码
-        gameRecordAsyncOper.washCode(platform, record);
-        // 抽点
-        gameRecordAsyncOper.extractPoints(platform, record);
-        //扣减打码量
-        gameRecordAsyncOper.subCodeNum(platform, platformConfig, record);
-        //代理分润
-        gameRecordAsyncOper.shareProfit(platform, record);
-        //返利
-        gameRecordAsyncOper.rebate(platform, record);
-        //等级流水
-        gameRecordAsyncOper.levelWater(platform, record);
-    }
-
-    /**
-     * 改变用户实时余额
-     */
-    private void changeUserBalance(GameRecordObty gameRecordObty) {
-        try {
-            BigDecimal betAmount = gameRecordObty.getOrderAmount();
-            BigDecimal winAmount = gameRecordObty.getProfitAmount();
-            if (betAmount == null || winAmount == null) {
-                return;
-            }
-            Long userId = gameRecordObty.getUserId();
-            //下注金额大于0，扣减
-            if (betAmount.compareTo(BigDecimal.ZERO) == 1) {
-                userMoneyBusiness.subBalance(userId, betAmount);
-            }
-            //派彩金额大于0，增加
-            if (winAmount.compareTo(BigDecimal.ZERO) == 1) {
-                userMoneyBusiness.addBalance(userId, winAmount);
-            }
-        } catch (Exception e) {
-            log.error("改变用户实时余额时报错，msg={}", e.getMessage());
+        if (isAdd == 1) {
+            //洗码
+            gameRecordAsyncOper.washCode(platform, record);
+            // 抽点
+            gameRecordAsyncOper.extractPoints(platform, record);
+            //扣减打码量
+            gameRecordAsyncOper.subCodeNum(platform, platformConfig, record);
+            //代理分润
+            gameRecordAsyncOper.shareProfit(platform, record);
+            //返利
+            gameRecordAsyncOper.rebate(platform, record);
+            //等级流水
+            gameRecordAsyncOper.levelWater(platform, record);
         }
     }
 
-    public GameRecordObty save(GameRecordQueryRespDTO gameRecordQueryRespDTO) {
-        UserThird account = userThirdService.findByObtyAccount(gameRecordQueryRespDTO.getPlayerName());
+
+    public GameRecordObzr save(GameRecordQueryRespDTO gameRecordQueryRespDTO) {
+        UserThird account = userThirdService.findByObzrAccount(gameRecordQueryRespDTO.getPlayerName());
         if (account == null || account.getUserId() == null) {
             log.error("同步游戏记录时，UserThird查询结果为null,account={}", gameRecordQueryRespDTO.getPlayerName());
             return null;
         }
+        gameRecordQueryRespDTO.setOrderNo(gameRecordQueryRespDTO.getId() + "");
+        GameRecordObzr gameRecord = gameRecordObzrService.findByBetOrderNo(gameRecordQueryRespDTO.getOrderNo());
+        if (gameRecord == null) {
+            gameRecord = new GameRecordObzr();
+            gameRecord.setIsAdd(1);//新增
+        }
+        Long gameRecordId = gameRecord.getId();
+        int isAdd = gameRecord.getIsAdd();
+        //有效投注
+        BigDecimal oldTurnover = gameRecordQueryRespDTO.getValidBetAmount();
+        //用户输赢
+        BigDecimal oldRealWinAmount = gameRecordQueryRespDTO.getNetAmount();
+
         gameRecordQueryRespDTO.setBetTime(gameRecordQueryRespDTO.getCreatedAt());
         SimpleDateFormat format = DateUtil.getSimpleDateFormat();
         //投注时间转yyyy-MM-dd
@@ -248,10 +244,12 @@ public class GameRecordObzrJob {
         if (!ObjectUtils.isEmpty(gameRecordQueryRespDTO.getSettleTime()) && gameRecordQueryRespDTO.getSettleTime() != 0) {
             gameRecordQueryRespDTO.setSettleStrTime(format.format(gameRecordQueryRespDTO.getSettleTime()));
         }
-        GameRecordObty gameRecord = new GameRecordObty();
         BeanUtils.copyProperties(gameRecordQueryRespDTO, gameRecord);
+        gameRecord.setPayoutAmount(gameRecord.getPayAmount());
+        gameRecord.setId(gameRecordId);
         gameRecord.setUserId(account.getUserId());
-        BigDecimal validbet = ObjectUtils.isEmpty(gameRecord.getOrderAmount()) ? BigDecimal.ZERO : gameRecord.getOrderAmount();
+        gameRecord.setIsAdd(isAdd);
+        BigDecimal validbet = ObjectUtils.isEmpty(gameRecord.getValidBetAmount()) ? BigDecimal.ZERO : gameRecord.getValidBetAmount();
         //有效投注额为0不参与洗码,打码,分润,抽點
         if (validbet.compareTo(BigDecimal.ZERO) == 0) {
             gameRecord.setWashCodeStatus(Constants.yes);
@@ -267,28 +265,31 @@ public class GameRecordObzrJob {
             gameRecord.setSecondProxy(user.getSecondProxy());
             gameRecord.setThirdProxy(user.getThirdProxy());
         }
-        GameRecordObty record = gameRecordObtyService.save(gameRecord);
+        GameRecordObzr record = gameRecordObzrService.save(gameRecord);
+        //旧输赢和有效投注差值
+        record.setOldTurnover(oldTurnover);
+        record.setOldRealWinAmount(oldRealWinAmount);
         return record;
     }
 
 
-    private GameRecord combineGameRecord(GameRecordObty item) {
+    private GameRecord combineGameRecord(GameRecordObzr item) {
         GameRecord gameRecord = new GameRecord();
         gameRecord.setBetId(item.getOrderNo());
-        gameRecord.setValidbet(item.getOrderAmount().toString());
+        gameRecord.setValidbet(item.getValidBetAmount().toString());
         gameRecord.setUserId(item.getUserId());
-        gameRecord.setGameCode(Constants.PLATFORM_OBTY);
+        gameRecord.setGameCode(Constants.PLATFORM_OBZR);
         gameRecord.setGname("OB真人");
-        gameRecord.setBetTime(item.getSettleStrTime());
+        gameRecord.setBetTime(item.getBetStrTime());
         gameRecord.setId(item.getId());
         gameRecord.setFirstProxy(item.getFirstProxy());
         gameRecord.setSecondProxy(item.getSecondProxy());
         gameRecord.setThirdProxy(item.getThirdProxy());
-        if (!ObjectUtils.isEmpty(item.getOrderAmount())) {
-            gameRecord.setBet(item.getOrderAmount().toString());
+        if (!ObjectUtils.isEmpty(item.getBetAmount())) {
+            gameRecord.setBet(item.getBetAmount().toString());
         }
-        if (item.getProfitAmount() != null) {
-            gameRecord.setWinLoss(item.getProfitAmount().toString());
+        if (item.getNetAmount() != null) {
+            gameRecord.setWinLoss(item.getNetAmount().toString());
         }
         return gameRecord;
     }

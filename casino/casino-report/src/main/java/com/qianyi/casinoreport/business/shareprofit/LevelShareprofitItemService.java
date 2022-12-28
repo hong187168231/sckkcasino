@@ -116,6 +116,7 @@ public class LevelShareprofitItemService {
     private void levelProcessProfitDetail(ShareProfitBO shareProfitBO, UserMoney userMoney) {
         ShareProfitChange shareProfitChange = new ShareProfitChange();
         shareProfitChange.setAmount(shareProfitBO.getProfitAmount());
+        log.info("组装分润userId{} 得到{}",shareProfitBO.getUserId(),shareProfitChange.getAmount());
         shareProfitChange.setUserId(shareProfitBO.getUserId());
         shareProfitChange.setOrderNo(shareProfitBO.getRecordBetId());
         shareProfitChange.setAmountBefore(userMoney.getShareProfit());

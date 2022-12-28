@@ -120,7 +120,7 @@ public class GameRecordDGJob {
             log.info("{},{}到当前时间的记录拉取完成", platform, startTime);
         } catch (Exception e) {
             e.printStackTrace();
-            log.error("{},{}到当前时间的记录拉取异常", platform, startTime);
+            log.error("{},{}到当前时间的记录拉取异常{}", platform, startTime,e);
         }
     }
 
@@ -196,7 +196,9 @@ public class GameRecordDGJob {
             BeanUtils.copyProperties(gameRecordDG, gameRecord);
             gameRecord.setIsAdd(1);//新增
         }else {
+            Long id = gameRecord.getId();
             BeanUtils.copyProperties(gameRecordDG, gameRecord);
+            gameRecord.setId(id);
             gameRecord.setIsAdd(0);//0.修改
         }
         UserThird account = userThirdService.findByDgAccount(gameRecord.getUserName());

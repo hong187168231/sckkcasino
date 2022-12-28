@@ -73,12 +73,17 @@ public class UserGameRecordReportService {
         return userGameRecordReportRepository.findTotalBetNumberByVnc(startTime,endTime);
     }
 
+
     public Integer findTotalBetNumberByDmc(String startTime,String endTime){
         return userGameRecordReportRepository.findTotalBetNumberByDmc(startTime,endTime);
     }
 
     public Integer findTotalBetNumberByDg(String startTime,String endTime){
         return userGameRecordReportRepository.findTotalBetNumberByDg(startTime,endTime);
+    }
+
+    public Integer findTotalBetNumberByObzr(String startTime,String endTime){
+        return userGameRecordReportRepository.findTotalBetNumberByObzr(startTime,endTime);
     }
 
     @Transactional
@@ -91,7 +96,8 @@ public class UserGameRecordReportService {
         Integer totalBetNumberByVnc = this.findTotalBetNumberByVnc(startTime, endTime);
         Integer totalBetNumberByDmc = this.findTotalBetNumberByDmc(startTime, endTime);
         Integer totalBetNumberByDg = this.findTotalBetNumberByDg(startTime, endTime);
-        Integer total = totalBetNumber + totalBetNumberByAe + totalBetNumberByVnc+totalBetNumberByDmc+totalBetNumberByDg;
+        Integer totalBetNumberByObzr = this.findTotalBetNumberByObzr(startTime, endTime);
+        Integer total = totalBetNumber + totalBetNumberByAe + totalBetNumberByVnc+totalBetNumberByDmc+totalBetNumberByDg+totalBetNumberByObzr;
         log.info("会员报表日期{} betNumber:{} total:{} totalBetNumber:{} totalBetNumberByAe:{} totalBetNumberByVnc:{} totalBetNumberByDmc:{} totalBetNumberByDg:{}", dayTime, betNumber,total, totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc,totalBetNumberByDmc,totalBetNumberByDg);
         if (betNumber.intValue() != total.intValue()) {
             log.error("会员报表日期{}不相等开始重新计算betNumber:{} total:{} totalBetNumber:{} totalBetNumberByAe:{} totalBetNumberByVnc:{} totalBetNumberByDmc:{} totalBetNumberByDg:{}", dayTime, betNumber,total, totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc,totalBetNumberByDmc,totalBetNumberByDg);

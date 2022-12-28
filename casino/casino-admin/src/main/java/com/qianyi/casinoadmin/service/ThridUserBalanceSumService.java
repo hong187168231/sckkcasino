@@ -295,4 +295,52 @@ public class ThridUserBalanceSumService {
         redisUtil.set(key, sum, Constants.THIRD_BALANCE_ALL);
         redisUtil.set(key + "TIME", DateUtil.dateToString(new Date(), DateUtil.patten), Constants.THIRD_BALANCE_ALL);
     }
+
+    public void setRedisDGMoneyTotal(List<UserThird> dgThird, String platform, long time) {
+        if (LoginUtil.checkNull(dgThird) || dgThird.size() == CommonConst.NUMBER_0) {
+            return;
+        }
+        ReentrantLock reentrantLock = new ReentrantLock();
+        Condition condition = reentrantLock.newCondition();
+        AtomicInteger atomicInteger = new AtomicInteger(dgThird.size());
+        Vector<BigDecimal> list = new Vector<>();
+        for (UserThird u : dgThird) {
+            threadPool.execute(() -> {
+                try {
+                    if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time, ExpirationTimeUtil.universality)) {
+                        log.info("平台{}查询{}余额走缓存",platform, u.getUserId().toString());
+                        list.add(ExpirationTimeUtil.getTripartiteBalance(platform, u.getUserId().toString()));
+                    } else {
+                        JSONObject jsonObject = userMoneyService.refreshDG(u.getUserId(), true);
+                        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"), jsonObject.get("msg"))) {
+                            list.add(BigDecimal.ZERO);
+                        }
+                        try {
+                            Integer code = (Integer)jsonObject.get("code");
+                            if (code == CommonConst.NUMBER_0) {
+                                if (LoginUtil.checkNull(jsonObject.get("data"))) {
+                                    list.add(BigDecimal.ZERO);
+                                }else {
+                                    list.add(new BigDecimal(jsonObject.get("data").toString()));
+                                }
+                            } else {
+                                list.add(BigDecimal.ZERO);
+                            }
+                        } catch (Exception ex) {
+                            list.add(BigDecimal.ZERO);
+                        }
+                    }
+                } finally {
+                    atomicInteger.decrementAndGet();
+                    BillThreadPool.toResume(reentrantLock, condition);
+                }
+            });
+        }
+        BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
+        BigDecimal sum = list.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        sum = new BigDecimal(sum.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+        String key = Constants.REDIS_THRID_SUMBALANCE + platform;
+        redisUtil.set(key, sum, Constants.THIRD_BALANCE_ALL);
+        redisUtil.set(key + "TIME", DateUtil.dateToString(new Date(), DateUtil.patten), Constants.THIRD_BALANCE_ALL);
+    }
 }

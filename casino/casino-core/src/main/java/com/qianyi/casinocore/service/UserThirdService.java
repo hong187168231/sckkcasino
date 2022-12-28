@@ -55,6 +55,11 @@ public class UserThirdService {
         return userThirdRepository.findByObtyAccount(account);
     }
 
+//    @Cacheable(key = "#root.methodName+'::'+#p0")
+    public UserThird findByObzrAccount(String account) {
+        return userThirdRepository.findByObzrAccount(account);
+    }
+
     @Cacheable(key = "#root.methodName+'::'+#p0")
     public UserThird findByAEAccount(String account) {
         return userThirdRepository.findByAeAccount(account);
@@ -71,6 +76,10 @@ public class UserThirdService {
 
     public List<UserThird> findAllGoldenfAccount(){
         return userThirdRepository.findAllGoldenfAccount();
+    }
+
+    public List<UserThird> findAllDgAccount(){
+        return userThirdRepository.findAllDgAccount();
     }
 
     public List<UserThird> findAllOBDJAccount() {
