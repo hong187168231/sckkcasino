@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 @Entity
 @Data
 @ApiModel("洗码明细表")
-@Table(name ="level_water_change",uniqueConstraints={@UniqueConstraint(columnNames={"platform","gameRecordId"})},
+@Table(name ="level_water_change",uniqueConstraints={@UniqueConstraint(columnNames={"gameId","gameRecordId"})},
 	indexes = {@Index(columnList = "userId,platform,createTime"),@Index(columnList = "platform"),@Index(columnList = "createTime")})
 public class LevelWaterChange extends BaseEntity {
 
