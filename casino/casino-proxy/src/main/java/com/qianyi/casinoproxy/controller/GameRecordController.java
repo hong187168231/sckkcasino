@@ -881,7 +881,7 @@ public class GameRecordController {
      * @return
      */
     @ApiOperation("统计OBZR游戏注单")
-    @GetMapping("/findOBTYGameRecordTotal")
+    @GetMapping("/findOBZRGameRecordTotal")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "user", value = "三方会员账号", required = false),
             @ApiImplicitParam(name = "orderNo", value = "订单号", required = false),
@@ -891,7 +891,7 @@ public class GameRecordController {
             @ApiImplicitParam(name = "endDate", value = "查询结束时间查询", required = false),
     })
     @NoAuthorization
-    public ResponseEntity<GameRecordObzrTotalVo> findOBTYGameRecordTotal(String user, String orderNo,Integer outcome,String account,Integer tag,
+    public ResponseEntity<GameRecordObzrTotalVo> findOBZRGameRecordTotal(String user, String orderNo,Integer outcome,String account,Integer tag,
                                                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
                                                                          @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")Date endDate){
         GameRecordObzr gameRecordObzr = new GameRecordObzr();
