@@ -106,7 +106,7 @@ public class GameRecordObzrService {
 
         List<Predicate> list = new ArrayList();
         if (!CommonUtil.checkNull(gameRecordObzr.getPlayerName())) {
-            list.add(cb.equal(root.get("userName").as(String.class), gameRecordObzr.getPlayerName()));
+            list.add(cb.equal(root.get("playerName").as(String.class), gameRecordObzr.getPlayerName()));
         }
         if (!CommonUtil.checkNull(gameRecordObzr.getOrderNo())) {
             list.add(cb.equal(root.get("orderNo").as(String.class), gameRecordObzr.getOrderNo()));
