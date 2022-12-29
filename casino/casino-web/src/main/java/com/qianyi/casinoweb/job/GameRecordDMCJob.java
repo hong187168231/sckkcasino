@@ -279,7 +279,7 @@ public class GameRecordDMCJob {
             gameRecordDMC.setIsAdd(1);//新增
         }
         BeanUtils.copyProperties(gameRecordDMC, gameRecord);
-        gameRecord.setUserId(account.getUserId());
+        gameRecord.setUserId(account.getUserId() + "");
         BigDecimal validbet = ObjectUtils.isEmpty(gameRecord.getRealMoney()) ? BigDecimal.ZERO : gameRecord.getRealMoney();
         //有效投注额为0不参与洗码,打码,分润,抽點
         if (validbet.compareTo(BigDecimal.ZERO) == 0) {
@@ -290,7 +290,7 @@ public class GameRecordDMCJob {
             gameRecord.setRebateStatus(Constants.yes);
         }
         //查询3级代理
-        User user = userService.findById(gameRecord.getUserId());
+        User user = userService.findById(Long.parseLong(gameRecord.getUserId()));
         if (user != null) {
             gameRecord.setFirstProxy(user.getFirstProxy());
             gameRecord.setSecondProxy(user.getSecondProxy());
@@ -306,7 +306,7 @@ public class GameRecordDMCJob {
         //计算用户账号实时余额
         Integer isAdd = gameRecordDMC.getIsAdd();
         if (isAdd == 1) {
-            gameRecordAsyncOper.changeUserBalance(gameRecordDMC.getUserId(), gameRecordDMC.getBetMoney(), gameRecordDMC.getWinMoney());
+            gameRecordAsyncOper.changeUserBalance(Long.parseLong(gameRecordDMC.getUserId()), gameRecordDMC.getBetMoney(), gameRecordDMC.getWinMoney());
         }
         //组装gameRecord
         GameRecord record = combineGameRecord(gameRecordDMC);
@@ -348,7 +348,7 @@ public class GameRecordDMCJob {
     public GameRecord combineGameRecord(GameRecordDMC item) {
         GameRecord gameRecord = new GameRecord();
         gameRecord.setBetId(item.getBetOrderNo());
-        gameRecord.setUserId(item.getUserId());
+        gameRecord.setUserId(Long.parseLong(item.getUserId()));
         gameRecord.setGameCode("DMC");
         gameRecord.setGname(Constants.PLATFORM_DMC);
         gameRecord.setBetTime(item.getBetTime());
