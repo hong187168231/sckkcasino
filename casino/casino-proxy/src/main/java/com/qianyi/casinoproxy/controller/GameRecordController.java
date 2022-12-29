@@ -1410,7 +1410,7 @@ public class GameRecordController {
             }
             userId = byAccount.getId();
         }
-        game.setUserId(userId);
+        game.setUserId(userId + "");
         Page<GameRecordDMC> gameRecordPage;
         if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
             String startTime = DateUtil.getSimpleDateFormat().format(startDate);
@@ -1468,7 +1468,7 @@ public class GameRecordController {
             }
             userId = byAccount.getId();
         }
-        game.setUserId(userId);
+        game.setUserId(userId + "");
         GameRecordDMC recordRecordSum;
         if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
             String startTime = DateUtil.getSimpleDateFormat().format(startDate);
