@@ -32,8 +32,8 @@ public class ThirdGameSumBalanceTask {
     /**
      *
      */
-//    @Scheduled(cron = TaskConst.THIRD_GAME_SUM)
-    @Scheduled(cron = TaskConst.BACK_ORDER)
+    @Scheduled(cron = TaskConst.THIRD_GAME_SUM)
+//    @Scheduled(cron = TaskConst.BACK_ORDER)
     public void create(){
         log.info("查询三方总余额统计开始start=============================================》");
         long startTime = System.currentTimeMillis();
