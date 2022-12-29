@@ -871,6 +871,7 @@ public class UserController {
         if (LoginUtil.checkNull(allOBZRAccount) || allOBZRAccount.size() == CommonConst.NUMBER_0) {
             return ResponseUtil.success(BigDecimal.ZERO);
         }
+        long timeLong = System.currentTimeMillis();
         ReentrantLock reentrantLock = new ReentrantLock();
         Condition condition = reentrantLock.newCondition();
         AtomicInteger atomicInteger = new AtomicInteger(allOBZRAccount.size());
@@ -878,14 +879,19 @@ public class UserController {
         for (UserThird u : allOBZRAccount) {
             threadPool.execute(() -> {
                 try {
-                    JSONObject jsonObject = userMoneyService.refreshOBZR(u.getUserId());
-                    if (LoginUtil.checkNull(jsonObject)
-                        || LoginUtil.checkNull(jsonObject.get("code"), jsonObject.get("msg"))) {
-                        list.add(BigDecimal.ZERO);
-                    } else {
-                        Integer code = (Integer)jsonObject.get("code");
-                        if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))) {
-                            list.add(new BigDecimal(jsonObject.get("data").toString()));
+                    if (ExpirationTimeUtil.check(Constants.PLATFORM_OBZR, u.getUserId().toString(), timeLong, ExpirationTimeUtil.universality)) {
+                        log.info("平台{}查询{}余额走缓存",Constants.PLATFORM_OBZR, u.getUserId().toString());
+                        list.add(ExpirationTimeUtil.getTripartiteBalance(Constants.PLATFORM_OBZR, u.getUserId().toString()));
+                    }else {
+                        JSONObject jsonObject = userMoneyService.refreshOBZR(u.getUserId());
+                        if (LoginUtil.checkNull(jsonObject)
+                            || LoginUtil.checkNull(jsonObject.get("code"), jsonObject.get("msg"))) {
+                            list.add(BigDecimal.ZERO);
+                        } else {
+                            Integer code = (Integer)jsonObject.get("code");
+                            if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))) {
+                                list.add(new BigDecimal(jsonObject.get("data").toString()));
+                            }
                         }
                     }
                 } finally {
