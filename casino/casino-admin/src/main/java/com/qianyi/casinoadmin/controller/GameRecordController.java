@@ -1292,7 +1292,7 @@ public class GameRecordController {
             }
             userId = byAccount.getId();
         }
-        game.setUserId(userId + "");
+        game.setUserId(userId);
         Page<GameRecordDMC> gameRecordPage;
         if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
             String startTime = DateUtil.getSimpleDateFormat().format(startDate);
@@ -1311,9 +1311,9 @@ public class GameRecordController {
             List<GameRecordDMC> gameRecordDMCVos = new LinkedList<>();
             content.stream().forEach(gameRecord ->{
                 if (!LoginUtil.checkNull(account)){
-                    User byAccount = userService.findById(Long.parseLong(gameRecord.getUserId()));
+                    User byAccount = userService.findById(gameRecord.getUserId());
                     if (!LoginUtil.checkNull(byAccount)){
-                        gameRecord.setUserId(byAccount.getAccount());
+                        gameRecord.setAccount(byAccount.getAccount());
                     }
 
                 }

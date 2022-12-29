@@ -17,8 +17,10 @@ import java.math.BigDecimal;
 @ApiModel("大马彩彩游戏子单记录")
 public class GameRecordDMC extends BaseEntity{
 
+    @ApiModelProperty(value = "我方账号ID")
+    private Long userId;
     @ApiModelProperty(value = "我方账号")
-    private String userId;
+    private String account;
     @ApiModelProperty(value = "玩家Id")
     private String customerId;
     @ApiModelProperty(value = "玩家账号")

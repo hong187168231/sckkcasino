@@ -134,8 +134,8 @@ public class GameRecordDMCService {
 //                if (gameRecord.getGid() != null) {
 //                    list.add(cb.equal(root.get("gid").as(Integer.class), gameRecord.getGid()));
 //                }
-                if (GameRecordDMC.getUserId() != null) {
-                    list.add(cb.equal(root.get("userId").as(Long.class), GameRecordDMC.getUserId()));
+                if (!CommonUtil.checkNull(GameRecordDMC.getUserId())) {
+                    list.add(cb.equal(root.get("userId").as(String.class), GameRecordDMC.getUserId()));
                 }
                 if (GameRecordDMC.getFirstProxy() != null) {
                     list.add(cb.equal(root.get("firstProxy").as(Long.class), GameRecordDMC.getFirstProxy()));

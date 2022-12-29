@@ -432,7 +432,7 @@ public class GameRecordReportTask {
                 vo.setSecondProxy(gameRecordDMC.getSecondProxy());
                 vo.setThirdProxy(gameRecordDMC.getThirdProxy());
                 vo.setOrderTimes(DatePattern.NORM_DATE_FORMAT.format(gameRecordDMC.getBetTime()));
-                vo.setUserId(Long.parseLong(gameRecordDMC.getUserId()));
+                vo.setUserId(gameRecordDMC.getUserId());
                 vo.setValidAmount(gameRecordDMC.getRealMoney());
                 vo.setWinLoss(BigDecimal.ZERO.subtract(gameRecordDMC.getRealMoney()));
                 if (gameRecordDMC.getWinMoney() != null) {
