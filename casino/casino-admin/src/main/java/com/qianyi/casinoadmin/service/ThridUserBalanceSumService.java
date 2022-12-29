@@ -366,7 +366,7 @@ public class ThridUserBalanceSumService {
                         log.info("平台{}查询{}余额走缓存", platform, u.getUserId().toString());
                         list.add(ExpirationTimeUtil.getTripartiteBalance(platform, u.getUserId().toString()));
                     } else {
-                        JSONObject jsonObject = userMoneyService.refreshOBZR(u.getUserId());
+                        JSONObject jsonObject = userMoneyService.refreshOBZR(u.getUserId(),false);
                         if (LoginUtil.checkNull(jsonObject)
                             || LoginUtil.checkNull(jsonObject.get("code"), jsonObject.get("msg"))) {
                             list.add(BigDecimal.ZERO);

@@ -883,7 +883,7 @@ public class UserController {
                         log.info("平台{}查询{}余额走缓存",Constants.PLATFORM_OBZR, u.getUserId().toString());
                         list.add(ExpirationTimeUtil.getTripartiteBalance(Constants.PLATFORM_OBZR, u.getUserId().toString()));
                     }else {
-                        JSONObject jsonObject = userMoneyService.refreshOBZR(u.getUserId());
+                        JSONObject jsonObject = userMoneyService.refreshOBZR(u.getUserId(),false);
                         if (LoginUtil.checkNull(jsonObject)
                             || LoginUtil.checkNull(jsonObject.get("code"), jsonObject.get("msg"))) {
                             list.add(BigDecimal.ZERO);
@@ -916,7 +916,7 @@ public class UserController {
         if (LoginUtil.checkNull(third) || ObjectUtils.isEmpty(third.getObzrAccount())) {
             return ResponseUtil.success(CommonConst.NUMBER_0);
         }
-        JSONObject jsonObject = userMoneyService.refreshOBZR(third.getUserId());
+        JSONObject jsonObject = userMoneyService.refreshOBZR(third.getUserId(),true);
         if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"), jsonObject.get("msg"))) {
             return ResponseUtil.custom("OB真人余额失败");
         }

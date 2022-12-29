@@ -939,14 +939,14 @@ public class UserMoneyService {
         }
     }
 
-    public JSONObject refreshOBZR(Long userId) {
+    public JSONObject refreshOBZR(Long userId,Boolean tag) {
         try {
             String param = "userId={0}";
             param = MessageFormat.format(param, userId.toString());
             PlatformConfig first = platformConfigService.findFirst();
             String WMurl = first == null ? "" : first.getWebConfiguration();
             WMurl = WMurl + OBZR_refreshUrl;
-            String s = HttpClient4Util.get(WMurl + param);
+            String s = HttpClient4Util.getWeb(WMurl + param,tag);
             log.info("{}查询OB真人web接口返回{}", userId, s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
