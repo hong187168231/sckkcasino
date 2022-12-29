@@ -732,12 +732,12 @@ public class ThirdGameBusiness {
             }, executor);
             completableFutures.add(oneKeyRecoverAe);
         }
-        if (!Constants.PLATFORM_DMC.equals(platform)) {
-            CompletableFuture<Void> oneKeyRecoverDmc = CompletableFuture.runAsync(() -> {
-                oneKeyRecoverDMC(userId);
-            }, executor);
-            completableFutures.add(oneKeyRecoverDmc);
-        }
+//        if (!Constants.PLATFORM_DMC.equals(platform)) {
+//            CompletableFuture<Void> oneKeyRecoverDmc = CompletableFuture.runAsync(() -> {
+//                oneKeyRecoverDMC(userId);
+//            }, executor);
+//            completableFutures.add(oneKeyRecoverDmc);
+//        }
         if (!Constants.PLATFORM_VNC.equals(platform)) {
             CompletableFuture<Void> oneKeyRecoverAe = CompletableFuture.runAsync(() -> {
                 oneKeyRecoverVNC(userId);
