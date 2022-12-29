@@ -1310,7 +1310,7 @@ public class GameRecordController {
         if(content != null && content.size() > 0){
             List<GameRecordDMC> gameRecordDMCVos = new LinkedList<>();
             content.stream().forEach(gameRecord ->{
-                if (!LoginUtil.checkNull(account)){
+                if (gameRecord.getUserId() != null){
                     User byAccount = userService.findById(gameRecord.getUserId());
                     if (!LoginUtil.checkNull(byAccount)){
                         gameRecord.setAccount(byAccount.getAccount());
