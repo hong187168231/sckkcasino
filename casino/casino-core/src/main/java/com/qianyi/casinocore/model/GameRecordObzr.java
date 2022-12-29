@@ -7,6 +7,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 @Entity
@@ -53,25 +54,25 @@ public class GameRecordObzr extends BaseEntity {
     private Long createdAt;
 
     @ApiModelProperty(value = "结算时间")
-    private Long netAt;
+    private Date netAt;
 
 
     @ApiModelProperty(value = "投注时间(13位时间戳)")
-    private Long betTime;
+    private Date betTime;
 
     @ApiModelProperty(value = "投注时间(yyyy-MM-dd)")
     private String betStrTime;
 
 
     @ApiModelProperty(value = "结算时间")
-    private Long settleTime;
+    private Date settleTime;
 
     @ApiModelProperty(value = "结算时间(yyyy-MM-dd)")
     private String settleStrTime;
 
 
     @ApiModelProperty(value = "注单重新派彩时间，此参数会是注单拉取的关键。默认等同netTime")
-    private Long recalcuAt;
+    private Date recalcuAt;
 
     @ApiModelProperty(value = "游戏编码")
     private Long gameTypeId;

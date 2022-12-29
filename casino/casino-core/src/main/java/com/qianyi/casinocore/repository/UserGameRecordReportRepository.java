@@ -67,7 +67,7 @@ public interface UserGameRecordReportRepository extends JpaRepository<UserGameRe
     @Query(value = "SELECT count( 1 ) num from game_record_dg g where  g.bet_time BETWEEN ?1 and ?2 ;",nativeQuery = true)
     Integer findTotalBetNumberByDg(String startTime,String endTime);
 
-    @Query(value = "SELECT count( 1 ) num from game_record_obzr g where  g.bet_time BETWEEN ?1 and ?2 ;",nativeQuery = true)
+    @Query(value = "SELECT count( 1 ) num from game_record_obzr g where  g.settle_time BETWEEN ?1 and ?2 ;",nativeQuery = true)
     Integer findTotalBetNumberByObzr(String startTime,String endTime);
 
 

@@ -87,14 +87,17 @@ public class GameRecordObzrJob {
 
     public void pullGameRecord(String lastTime) {
         // 每次只粒取30分钟的闻磨(根据年小时单量情况来定，如果是并单可以调整到30分钟一次，如果是正常拉单没有必要)
-        int mins = +30;
+        int mins = +5;
         int startTimePlusSeconds = -40;
         int endTimePlusSeconds = -40;
         if (StrUtil.isBlank(lastTime)) {
             lastTime = DateUtil.dateToPatten(new Date());
         }
+        // 获取最后更新时间
         LocalDateTime lastEndTime = LocalDateTime.parse(lastTime, DATETIME_FORMAT);
-        LocalDateTime startTime = LocalDateTime.now().plusMinutes(-28);
+        // 开始时间
+        LocalDateTime startTime = lastEndTime.plusSeconds(startTimePlusSeconds);
+        // 结束时间
         LocalDateTime endTime = startTime.plusMinutes(mins);
 
         LocalDateTime now = LocalDateTime.now().plusSeconds(endTimePlusSeconds);
@@ -249,6 +252,10 @@ public class GameRecordObzrJob {
         gameRecord.setId(gameRecordId);
         gameRecord.setUserId(account.getUserId());
         gameRecord.setIsAdd(isAdd);
+        gameRecord.setBetTime(new Date(gameRecordQueryRespDTO.getBetTime()));
+        gameRecord.setSettleTime(new Date(gameRecordQueryRespDTO.getSettleTime()));
+        gameRecord.setRecalcuAt(new Date(gameRecordQueryRespDTO.getRecalcuAt()));
+
         BigDecimal validbet = ObjectUtils.isEmpty(gameRecord.getValidBetAmount()) ? BigDecimal.ZERO : gameRecord.getValidBetAmount();
         //有效投注额为0不参与洗码,打码,分润,抽點
         if (validbet.compareTo(BigDecimal.ZERO) == 0) {
