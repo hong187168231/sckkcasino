@@ -1426,13 +1426,16 @@ public class GameRecordController {
         PageResultVO<GameRecordDMCVo> pageResultVO =new PageResultVO(gameRecordPage);
         List<GameRecordDMC> content = gameRecordPage.getContent();
         if(content != null && content.size() > 0){
-            List<GameRecordDMCVo> gameRecordDMCVos = new LinkedList<>();
             content.stream().forEach(gameRecord ->{
-                GameRecordDMCVo vo = new GameRecordDMCVo();
-                BeanUtils.copyProperties(gameRecord,vo);
-                gameRecordDMCVos.add(vo);
+                if (gameRecord.getUserId() != null){
+                    User byAccount = userService.findById(gameRecord.getUserId());
+                    if (!CasinoProxyUtil.checkNull(byAccount)){
+                        gameRecord.setAccount(byAccount.getAccount());
+                    }
+
+                }
             });
-            pageResultVO.setContent(gameRecordDMCVos);
+            pageResultVO.setContent(content);
         }
         return ResponseUtil.success(pageResultVO);
     }
@@ -1482,9 +1485,8 @@ public class GameRecordController {
         }else {
             recordRecordSum = gameRecordDMCService.findGameRecordDMCSum(game,null,null,null,null);
         }
-        GameRecordDMCVo gameRecordDMCVo = new GameRecordDMCVo();
-        BeanUtils.copyProperties(recordRecordSum,gameRecordDMCVo);
-        return ResponseUtil.success(gameRecordDMCVo);
+
+        return ResponseUtil.success(recordRecordSum);
     }
 
     @ApiOperation("分页查询DG注单")
