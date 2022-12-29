@@ -74,6 +74,10 @@ public class UserThirdService {
         return userThirdRepository.findAllAcount();
     }
 
+    public List<UserThird> findAll(){
+        return userThirdRepository.findAll();
+    }
+
     public List<UserThird> findAllGoldenfAccount(){
         return userThirdRepository.findAllGoldenfAccount();
     }

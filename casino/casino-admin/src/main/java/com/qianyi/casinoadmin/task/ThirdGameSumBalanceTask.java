@@ -32,13 +32,13 @@ public class ThirdGameSumBalanceTask {
     /**
      *
      */
-//    @Scheduled(cron = TaskConst.THIRD_GAME_SUM)
-    @Scheduled(cron = TaskConst.GAME_BALANCE_ORDER)
+    @Scheduled(cron = TaskConst.THIRD_GAME_SUM)
+//    @Scheduled(cron = TaskConst.BACK_ORDER)
     public void create(){
         log.info("查询三方总余额统计开始start=============================================》");
         long startTime = System.currentTimeMillis();
         //查询WM总余额
-        List<UserThird> allAcount = userThirdService.findAllAcount();
+        List<UserThird> allAcount = userThirdService.findAll();
         if (LoginUtil.checkNull(allAcount) || allAcount.size() == CommonConst.NUMBER_0) return ;
 
 
@@ -133,6 +133,7 @@ public class ThirdGameSumBalanceTask {
         } catch (InterruptedException e) {
             log.error("暂停【{}】", e.getMessage());
         }
+        log.info("查询DG总人数{}=============================================》",dgThird.size());
         long startTimeDg = System.currentTimeMillis();
         try {
             thridUserBalanceSumService.setRedisDGMoneyTotal(dgThird, Constants.PLATFORM_DG,startTime);
@@ -147,13 +148,14 @@ public class ThirdGameSumBalanceTask {
         } catch (InterruptedException e) {
             log.error("暂停【{}】", e.getMessage());
         }
-        long startTimeOb = System.currentTimeMillis();
+        log.info("查询OBZR总人数{}=============================================》",obzrThird.size());
+        long startTimeOBZR = System.currentTimeMillis();
         try {
-            thridUserBalanceSumService.setRedisOBMoneyTotal(obzrThird, Constants.PLATFORM_OBZR,startTime);
+            thridUserBalanceSumService.setRedisOBZRMoneyTotal(obzrThird, Constants.PLATFORM_OBZR,startTime);
         }catch (Exception e){
-            log.error("OB余额查询失败：【{}】", e.getMessage());
+            log.error("OBZR余额查询失败：【{}】", e.getMessage());
         }
-        log.info("查询OB总余额统计结束end耗时{}=============================================》",System.currentTimeMillis()-startTimeOb);
+        log.info("查询OBZR总余额统计结束end耗时{}=============================================》",System.currentTimeMillis()-startTimeOBZR);
         log.info("查询三方总余额统计结束end总耗时{}=============================================》",System.currentTimeMillis()-startTime);
     }
 
