@@ -947,7 +947,7 @@ public class UserMoneyService {
             String WMurl = first == null ? "" : first.getWebConfiguration();
             WMurl = WMurl + OBZR_refreshUrl;
             String s = HttpClient4Util.get(WMurl + param);
-            log.info("{}查询OB体育web接口返回{}", userId, s);
+            log.info("{}查询OB真人web接口返回{}", userId, s);
             JSONObject parse = JSONObject.parseObject(s);
             return parse;
         } catch (Exception e) {
