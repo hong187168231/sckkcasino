@@ -51,7 +51,7 @@ public class ThridUserBalanceSumService {
             threadPool.execute(() -> {
                 try {
                     if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time, ExpirationTimeUtil.sports)) {
-                        log.info("平台{}查询{}余额走缓存",platform, u.getUserId().toString());
+                        log.info("平台{}查询{}余额走缓存", platform, u.getUserId().toString());
                         list.add(ExpirationTimeUtil.getTripartiteBalance(platform, u.getUserId().toString()));
                     } else {
                         JSONObject jsonObject = userMoneyService.refreshSABA(u.getUserId());
@@ -101,7 +101,7 @@ public class ThridUserBalanceSumService {
             threadPool.execute(() -> {
                 try {
                     if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time, ExpirationTimeUtil.sports)) {
-                        log.info("平台{}查询{}余额走缓存",platform, u.getUserId().toString());
+                        log.info("平台{}查询{}余额走缓存", platform, u.getUserId().toString());
                         list.add(ExpirationTimeUtil.getTripartiteBalance(platform, u.getUserId().toString()));
                     } else {
                         JSONObject jsonObject = userMoneyService.refreshOBTY(u.getUserId());
@@ -140,8 +140,9 @@ public class ThridUserBalanceSumService {
         for (UserThird u : obdjThird) {
             threadPool.execute(() -> {
                 try {
-                    if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time, ExpirationTimeUtil.universality)) {
-                        log.info("平台{}查询{}余额走缓存",platform, u.getUserId().toString());
+                    if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time,
+                        ExpirationTimeUtil.universality)) {
+                        log.info("平台{}查询{}余额走缓存", platform, u.getUserId().toString());
                         list.add(ExpirationTimeUtil.getTripartiteBalance(platform, u.getUserId().toString()));
                     } else {
                         JSONObject jsonObject = userMoneyService.refreshOB(u.getUserId(), false);
@@ -181,8 +182,9 @@ public class ThridUserBalanceSumService {
         for (UserThird u : pgCq9Third) {
             threadPool.execute(() -> {
                 try {
-                    if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time, ExpirationTimeUtil.universality)) {
-                        log.info("平台{}查询{}余额走缓存",platform, u.getUserId().toString());
+                    if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time,
+                        ExpirationTimeUtil.universality)) {
+                        log.info("平台{}查询{}余额走缓存", platform, u.getUserId().toString());
                         list.add(ExpirationTimeUtil.getTripartiteBalance(platform, u.getUserId().toString()));
                     } else {
                         JSONObject jsonObject = userMoneyService.refreshPGAndCQ9UserId(u.getUserId().toString());
@@ -222,8 +224,9 @@ public class ThridUserBalanceSumService {
         for (UserThird u : wmThird) {
             threadPool.execute(() -> {
                 try {
-                    if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time, ExpirationTimeUtil.universality)) {
-                        log.info("平台{}查询{}余额走缓存",platform, u.getUserId().toString());
+                    if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time,
+                        ExpirationTimeUtil.universality)) {
+                        log.info("平台{}查询{}余额走缓存", platform, u.getUserId().toString());
                         list.add(ExpirationTimeUtil.getTripartiteBalance(platform, u.getUserId().toString()));
                     } else {
                         JSONObject jsonObject = userMoneyService.getWMonetUser(u);
@@ -234,7 +237,8 @@ public class ThridUserBalanceSumService {
                             Integer code = (Integer)jsonObject.get("code");
                             if (code == CommonConst.NUMBER_0 && !LoginUtil.checkNull(jsonObject.get("data"))) {
                                 list.add(new BigDecimal(jsonObject.get("data").toString()));
-                                ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_WM_BIG,u.getUserId().toString(),new BigDecimal(jsonObject.get("data").toString()));
+                                ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_WM_BIG,
+                                    u.getUserId().toString(), new BigDecimal(jsonObject.get("data").toString()));
                             }
                         }
                     }
@@ -307,12 +311,14 @@ public class ThridUserBalanceSumService {
         for (UserThird u : dgThird) {
             threadPool.execute(() -> {
                 try {
-                    if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time, ExpirationTimeUtil.universality)) {
-                        log.info("平台{}查询{}余额走缓存",platform, u.getUserId().toString());
+                    if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time,
+                        ExpirationTimeUtil.universality)) {
+                        log.info("平台{}查询{}余额走缓存", platform, u.getUserId().toString());
                         list.add(ExpirationTimeUtil.getTripartiteBalance(platform, u.getUserId().toString()));
                     } else {
                         JSONObject jsonObject = userMoneyService.refreshDG(u.getUserId(), true);
-                        if (LoginUtil.checkNull(jsonObject) || LoginUtil.checkNull(jsonObject.get("code"), jsonObject.get("msg"))) {
+                        if (LoginUtil.checkNull(jsonObject)
+                            || LoginUtil.checkNull(jsonObject.get("code"), jsonObject.get("msg"))) {
                             list.add(BigDecimal.ZERO);
                         }
                         try {
@@ -320,7 +326,7 @@ public class ThridUserBalanceSumService {
                             if (code == CommonConst.NUMBER_0) {
                                 if (LoginUtil.checkNull(jsonObject.get("data"))) {
                                     list.add(BigDecimal.ZERO);
-                                }else {
+                                } else {
                                     list.add(new BigDecimal(jsonObject.get("data").toString()));
                                 }
                             } else {
@@ -344,7 +350,7 @@ public class ThridUserBalanceSumService {
         redisUtil.set(key + "TIME", DateUtil.dateToString(new Date(), DateUtil.patten), Constants.THIRD_BALANCE_ALL);
     }
 
-    public void setRedisOBMoneyTotal(List<UserThird> obzrThird, String platform, long time) {
+    public void setRedisOBZRMoneyTotal(List<UserThird> obzrThird, String platform, long time) {
         if (LoginUtil.checkNull(obzrThird) || obzrThird.size() == CommonConst.NUMBER_0) {
             return;
         }
@@ -355,11 +361,12 @@ public class ThridUserBalanceSumService {
         for (UserThird u : obzrThird) {
             threadPool.execute(() -> {
                 try {
-                    if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time, ExpirationTimeUtil.universality)) {
-                        log.info("平台{}查询{}余额走缓存",platform, u.getUserId().toString());
+                    if (ExpirationTimeUtil.check(platform, u.getUserId().toString(), time,
+                        ExpirationTimeUtil.universality)) {
+                        log.info("平台{}查询{}余额走缓存", platform, u.getUserId().toString());
                         list.add(ExpirationTimeUtil.getTripartiteBalance(platform, u.getUserId().toString()));
                     } else {
-                        JSONObject jsonObject = userMoneyService.refreshOBZR(u.getUserId());
+                        JSONObject jsonObject = userMoneyService.refreshOBZR(u.getUserId(),false);
                         if (LoginUtil.checkNull(jsonObject)
                             || LoginUtil.checkNull(jsonObject.get("code"), jsonObject.get("msg"))) {
                             list.add(BigDecimal.ZERO);

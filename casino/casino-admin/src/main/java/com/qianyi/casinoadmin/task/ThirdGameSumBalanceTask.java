@@ -147,13 +147,13 @@ public class ThirdGameSumBalanceTask {
         } catch (InterruptedException e) {
             log.error("暂停【{}】", e.getMessage());
         }
-        long startTimeOb = System.currentTimeMillis();
+        long startTimeOBZR = System.currentTimeMillis();
         try {
-            thridUserBalanceSumService.setRedisOBMoneyTotal(obzrThird, Constants.PLATFORM_OBZR,startTime);
+            thridUserBalanceSumService.setRedisOBZRMoneyTotal(obzrThird, Constants.PLATFORM_OBZR,startTime);
         }catch (Exception e){
-            log.error("OB余额查询失败：【{}】", e.getMessage());
+            log.error("OBZR余额查询失败：【{}】", e.getMessage());
         }
-        log.info("查询OB总余额统计结束end耗时{}=============================================》",System.currentTimeMillis()-startTimeOb);
+        log.info("查询OBZR总余额统计结束end耗时{}=============================================》",System.currentTimeMillis()-startTimeOBZR);
         log.info("查询三方总余额统计结束end总耗时{}=============================================》",System.currentTimeMillis()-startTime);
     }
 

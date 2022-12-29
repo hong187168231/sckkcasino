@@ -86,9 +86,9 @@ public class AddData implements CommandLineRunner {
 //        }
 //        thirdGameSumBalanceTask.create();
 
-        new Thread(()->{
-            this.asynchronization();
-        }).start();
+//        new Thread(()->{
+//            this.asynchronization();
+//        }).start();
         log.info("初始化计算数据结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
     }
 
