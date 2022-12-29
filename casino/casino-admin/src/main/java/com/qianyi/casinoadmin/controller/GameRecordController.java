@@ -1283,7 +1283,16 @@ public class GameRecordController {
         GameRecordDMC game = new GameRecordDMC();
         game.setBetOrderNo(betOrder);
         game.setUserName(userName);
-        game.setUserName(account);
+
+        Long userId = null;
+        if (!LoginUtil.checkNull(account)){
+            User byAccount = userService.findByAccount(account);
+            if (LoginUtil.checkNull(byAccount)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        game.setUserId(userId + "");
         Page<GameRecordDMC> gameRecordPage;
         if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
             String startTime = DateUtil.getSimpleDateFormat().format(startDate);
@@ -1301,6 +1310,13 @@ public class GameRecordController {
         if(content != null && content.size() > 0){
             List<GameRecordDMC> gameRecordDMCVos = new LinkedList<>();
             content.stream().forEach(gameRecord ->{
+                if (!LoginUtil.checkNull(account)){
+                    User byAccount = userService.findById(Long.parseLong(gameRecord.getUserId()));
+                    if (!LoginUtil.checkNull(byAccount)){
+                        gameRecord.setUserId(byAccount.getAccount());
+                    }
+
+                }
                 gameRecordDMCVos.add(gameRecord);
             });
             pageResultVO.setContent(gameRecordDMCVos);
@@ -1341,9 +1357,9 @@ public class GameRecordController {
         }else {
             recordRecordSum = gameRecordDMCService.findGameRecordDMCSum(game,null,null,null,null);
         }
-        GameRecordDMCVo gameRecordDMCVo = new GameRecordDMCVo();
-        BeanUtils.copyProperties(recordRecordSum,gameRecordDMCVo);
-        return ResponseUtil.success(gameRecordDMCVo);
+
+
+        return ResponseUtil.success(recordRecordSum);
     }
 
     @ApiOperation("统计越南彩注单")

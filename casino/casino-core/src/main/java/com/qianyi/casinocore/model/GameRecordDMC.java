@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 public class GameRecordDMC extends BaseEntity{
 
     @ApiModelProperty(value = "我方账号")
-    private Long userId;
+    private String userId;
     @ApiModelProperty(value = "玩家Id")
     private String customerId;
     @ApiModelProperty(value = "玩家账号")
