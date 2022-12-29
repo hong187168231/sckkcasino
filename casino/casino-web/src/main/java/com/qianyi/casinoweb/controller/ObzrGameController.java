@@ -8,6 +8,7 @@ import com.qianyi.casinocore.model.User;
 import com.qianyi.casinocore.model.UserMoney;
 import com.qianyi.casinocore.model.UserThird;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.ExpirationTimeUtil;
 import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.util.DeviceUtil;
@@ -106,6 +107,10 @@ public class ObzrGameController {
         }
         String obAccount = third.getObzrAccount();
         User user = userService.findById(authId);
+
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBZR,authId.toString());
+
         //回收其他游戏的余额
         thirdGameBusiness.oneKeyRecoverOtherGame(authId, Constants.PLATFORM_OBZR);
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(authId.toString());

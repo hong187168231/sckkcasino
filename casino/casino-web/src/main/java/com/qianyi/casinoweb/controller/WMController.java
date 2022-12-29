@@ -390,8 +390,6 @@ public class WMController {
         }
         // 获取登陆用户
         Long userId = CasinoWebUtil.getAuthId();
-        //重置缓存时间
-        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_WM_BIG,userId.toString());
         return thirdGameBusiness.oneKeyRecoverWm(userId);
     }
 
@@ -409,8 +407,6 @@ public class WMController {
         if (!ipWhiteCheck) {
             return ResponseUtil.custom("ip禁止访问");
         }
-        //重置缓存时间
-        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_WM_BIG,userId.toString());
         return thirdGameBusiness.oneKeyRecoverWm(userId);
     }
 

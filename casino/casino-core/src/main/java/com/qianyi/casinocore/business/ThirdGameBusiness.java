@@ -135,6 +135,16 @@ public class ThirdGameBusiness {
                 log.info("userId:{},balance={},{}金额小于1，不可回收", userId, balance, vendorCode);
                 return ResponseUtil.custom(vendorCode + "余额小于1,不可回收");
             }
+
+            String platformCode = Constants.PLATFORM_SABASPORT;
+            // 适配PG/CQ9
+            if (ObjectUtils.isEmpty(vendorCode)) {
+                platformCode = Constants.PLATFORM_PG_CQ9;
+            }
+            //重置缓存时间
+            ExpirationTimeUtil.resetExpirationTime(platformCode,userId.toString());
+
+
             String orderNo = orderService.getOrderNo();
             String goldenfAccount = third.getGoldenfAccount();
             // 调用提值接口扣减余额 存在精度问题，只回收整数部分
@@ -252,6 +262,10 @@ public class ThirdGameBusiness {
                 log.info("userId:{},account={},balance={},WM金额小于1，不可回收", userId, user.getAccount(), balance);
                 return ResponseUtil.custom("WM余额小于1,不可回收");
             }
+
+            //重置缓存时间
+            ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_WM_BIG,userId.toString());
+
             // 调用加扣点接口扣减wm余额 存在精度问题，只回收整数部分
             BigDecimal recoverMoney = balance.negate().setScale(0, BigDecimal.ROUND_DOWN);
             String orderNo = orderService.getOrderNo();
@@ -330,6 +344,10 @@ public class ThirdGameBusiness {
                 log.info("userId:{},account={},balance={},OB电竞金额小于1，不可回收", userId, user.getAccount(), balance);
                 return ResponseUtil.custom("OB电竞余额小于1,不可回收");
             }
+
+            //重置缓存时间
+            ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBDJ,userId.toString());
+
             // 调用加扣点接口扣减OB电竞余额 存在精度问题，只回收整数部分
             balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
             String orderNo = orderService.getObdjOrderNo();
@@ -407,6 +425,10 @@ public class ThirdGameBusiness {
                 log.info("userId:{},account={},balance={},OB体育金额小于1，不可回收", userId, user.getAccount(), balance);
                 return ResponseUtil.custom("OB体育余额小于1,不可回收");
             }
+
+            //重置缓存
+            ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBTY,userId.toString());
+
             // 调用加扣点接口扣减OB电竞余额 存在精度问题，只回收整数部分
             balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
             String orderNo = orderService.getObtyOrderNo();
@@ -480,6 +502,10 @@ public class ThirdGameBusiness {
                 log.info("userId:{},account={},balance={},OB真人金额小于1，不可回收", userId, user.getAccount(), balance);
                 return ResponseUtil.custom("OB真人余额小于1,不可回收");
             }
+
+            //重置缓存时间
+            ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBZR,userId.toString());
+
             // 调用加扣点接口扣减OB电竞余额 存在精度问题，只回收整数部分
             balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
             String orderNo = orderService.getObtyOrderNo();
@@ -649,6 +675,7 @@ public class ThirdGameBusiness {
         }
         JSONObject jsonObject = JSONObject.parseObject(balanceResult.getData());
         BigDecimal balance = new BigDecimal(jsonObject.getString("balance"));
+        ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_OBZR,userId.toString(),balance);
         return ResponseUtil.success(balance);
     }
 
@@ -754,6 +781,10 @@ public class ThirdGameBusiness {
             log.info("userId:{},account={},balance={},DG金额小于1，不可回收", userId, user.getAccount(), balance);
             return ResponseUtil.custom("DG余额小于1,不可回收");
         }
+
+        //重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_DG,userId.toString());
+
         String orderNo = orderService.getDGOrderNo();
         //调用加扣点接口扣减DG电竞余额  存在精度问题，只回收整数部分
         balance = balance.setScale(0, BigDecimal.ROUND_DOWN);

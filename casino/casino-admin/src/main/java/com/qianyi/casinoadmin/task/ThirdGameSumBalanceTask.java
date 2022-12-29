@@ -32,7 +32,8 @@ public class ThirdGameSumBalanceTask {
     /**
      *
      */
-    @Scheduled(cron = TaskConst.THIRD_GAME_SUM)
+//    @Scheduled(cron = TaskConst.THIRD_GAME_SUM)
+    @Scheduled(cron = TaskConst.GAME_BALANCE_ORDER)
     public void create(){
         log.info("查询三方总余额统计开始start=============================================》");
         long startTime = System.currentTimeMillis();
@@ -47,6 +48,7 @@ public class ThirdGameSumBalanceTask {
         List<UserThird> obtyThird = allAcount.stream().filter(o -> Objects.nonNull(o.getObtyAccount())).collect(Collectors.toList());
         List<UserThird> sabaThird = allAcount.stream().filter(o -> Objects.nonNull(o.getGoldenfAccount())).collect(Collectors.toList());
         List<UserThird> dgThird = allAcount.stream().filter(o -> Objects.nonNull(o.getDgAccount())).collect(Collectors.toList());
+        List<UserThird> obzrThird = allAcount.stream().filter(o -> Objects.nonNull(o.getObzrAccount())).collect(Collectors.toList());
         //异步方法，查询三方总余额，缓存到redis
         long startTimeAE = System.currentTimeMillis();
         try {
@@ -138,6 +140,20 @@ public class ThirdGameSumBalanceTask {
             log.error("DG余额查询失败：【{}】", e.getMessage());
         }
         log.info("查询DG总余额统计结束end耗时{}=============================================》",System.currentTimeMillis()-startTimeDg);
+
+
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            log.error("暂停【{}】", e.getMessage());
+        }
+        long startTimeOb = System.currentTimeMillis();
+        try {
+            thridUserBalanceSumService.setRedisOBMoneyTotal(obzrThird, Constants.PLATFORM_OBZR,startTime);
+        }catch (Exception e){
+            log.error("OB余额查询失败：【{}】", e.getMessage());
+        }
+        log.info("查询OB总余额统计结束end耗时{}=============================================》",System.currentTimeMillis()-startTimeOb);
         log.info("查询三方总余额统计结束end总耗时{}=============================================》",System.currentTimeMillis()-startTime);
     }
 
