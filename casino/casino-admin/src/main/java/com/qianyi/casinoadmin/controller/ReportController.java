@@ -325,6 +325,11 @@ public class ReportController {
         Integer tag, HttpServletRequest request, HttpServletResponse response) {
         log.info("导出会员报表数据开始==============================================>");
         long startLong = System.currentTimeMillis();
+
+        if ((com.qianyi.modulecommon.util.DateUtil.isEffectiveDate(new Date(),startTime,endTime)) && com.mysql.cj.util.StringUtils.isNullOrEmpty(platform)){
+            exportReportBusiness.comparison(com.qianyi.modulecommon.util.DateUtil.today(com.qianyi.modulecommon.util.DateUtil.patten1));
+        }
+
         String orderTimeStart = "'" + DateUtil.formatDate(startTime) + "'";
         String orderTimeEnd = "'" + DateUtil.formatDate(endTime) + "'";
         if (LoginUtil.checkNull(time)) {
