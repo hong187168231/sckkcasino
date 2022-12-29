@@ -32,7 +32,7 @@ public enum AccountChangeEnum {
     VNC_OUT(26, "VNCOUT","VNC转出"),
 
     TODAY_AWARD(27, "TODAYAWARD", "每日奖励"),
-    UPGRADE_AWARD(28, "UPGRADEAWARD", "升级奖励"),
+    UPGRADE_AWARD(28, "UPGRADEAWARD", "晋级奖励"),
     DMC_IN(23, "DMCIN", "DMC转入"),
     DMC_OUT(24, "DMCOUT", "DMC转出"),
     DG_IN(29, "DGIN", "DG转入"),
