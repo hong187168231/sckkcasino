@@ -353,7 +353,7 @@ public class GameRecordReportNewService {
                         gameRecordReport.getBetAmount(), gameRecordReport.getValidAmount(), gameRecordReport.getWinLossAmount(), gameRecordReport.getAmount(),
                         gameRecordReport.getBettingNumber(), gameRecordReport.getFirstProxy(), gameRecordReport.getSecondProxy(), gameRecordReport.getThirdProxy(), gameRecordReport.getPlatform(), gameRecordReport.getSurplusAmount(), gameRecordReport.getUserAmount());
             }
-            first.setOBTYMaxId(max);
+            first.setOBZRMaxId(max);
             log.info("保存OBZR注单下标{}", first.getOBZRMaxId());
             gameRecordEndIndexService.save(first);
         } catch (Exception ex) {
