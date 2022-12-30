@@ -18,7 +18,7 @@ public class DataConst {
         platforms.add(Constants.PLATFORM_SABASPORT);
         platforms.add(Constants.PLATFORM_AE);
         platforms.add(Constants.PLATFORM_VNC);
-//        platforms.add(Constants.PLATFORM_DMC);
+        platforms.add(Constants.PLATFORM_DMC);
         platforms.add(Constants.PLATFORM_DG);
     }
 
