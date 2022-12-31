@@ -936,7 +936,7 @@ public class ThirdGameBusiness {
         BigDecimal balance = BigDecimal.ZERO;
         try {
             List<String> idList = Lists.newArrayList(user.getId() + "");
-            balance = lottoApi.fetchWalletBalance(idList, token);
+            balance = lottoApi.fetchWalletBalance(idList, token, user.getId());
             if (balance == null) {
                 log.error("userId:{},account={},获取用户DMC余额为null", userId, user.getAccount());
                 return ResponseUtil.custom("服务器异常,请重新操作");
@@ -1155,10 +1155,10 @@ public class ThirdGameBusiness {
         return ResponseUtil.success(balance);
     }
 
-    public BigDecimal getDMCBalanceByAccount(String dmcAccount) {
+    public BigDecimal getDMCBalanceByAccount(String dmcAccount, long userId) {
         String token = lottoApi.fetchToken();
         List<String> userIdList = Lists.newArrayList(dmcAccount + "");
-        BigDecimal balance = lottoApi.fetchWalletBalance(userIdList, token);
+        BigDecimal balance = lottoApi.fetchWalletBalance(userIdList, token, userId);
         return balance;
     }
 

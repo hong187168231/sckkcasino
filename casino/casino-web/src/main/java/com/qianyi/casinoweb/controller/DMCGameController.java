@@ -138,7 +138,7 @@ public class DMCGameController {
         if (third == null || ObjectUtils.isEmpty(third.getDmcAccount())) {
             return ResponseUtil.success(BigDecimal.ZERO);
         }
-        BigDecimal balance = thirdGameBusiness.getDMCBalanceByAccount(third.getDmcAccount());
+        BigDecimal balance = thirdGameBusiness.getDMCBalanceByAccount(third.getDmcAccount(), third.getUserId());
         balance = balance == null ? BigDecimal.ZERO : balance;
         balance = balance.setScale(2, BigDecimal.ROUND_HALF_UP);
         return ResponseUtil.success(balance);
@@ -167,7 +167,7 @@ public class DMCGameController {
         }
         List<String> idList = new LinkedList<>();
         idList.add(userId + "");
-        BigDecimal balance= thirdGameBusiness.getDMCBalanceByAccount(dmcAccount);
+        BigDecimal balance= thirdGameBusiness.getDMCBalanceByAccount(dmcAccount, userId);
         return ResponseUtil.success(balance);
     }
 
