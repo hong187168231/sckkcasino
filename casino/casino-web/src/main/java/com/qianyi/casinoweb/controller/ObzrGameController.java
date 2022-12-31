@@ -85,7 +85,7 @@ public class ObzrGameController {
             User user = userService.findById(authId);
             //未注册自动注册到第三方
             if (third == null || ObjectUtils.isEmpty(third.getObzrAccount())) {
-                String obzrAccount = obApi.getMerchantCode()+"_"+user.getAccount();
+                String obzrAccount = obApi.getMerchantCode().toLowerCase()+"_"+user.getAccount();
                 boolean register = obApi.create(obzrAccount, obzrAccount);
                 if (!register) {
                     log.error("OB真人注册账号失败");
