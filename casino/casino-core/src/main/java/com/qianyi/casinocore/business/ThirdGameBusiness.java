@@ -923,7 +923,7 @@ public class ThirdGameBusiness {
             return ResponseUtil.parameterNotNull();
         }
         UserThird third = userThirdService.findByUserId(userId);
-        if (third == null || ObjectUtils.isEmpty(third.getAccount())) {
+        if (third == null || ObjectUtils.isEmpty(third.getDmcAccount())) {
             return ResponseUtil.custom("DMC余额为0");
         }
         User user = userService.findById(userId);
