@@ -115,7 +115,8 @@ public class LotteryDmcApi {
         if (CollUtil.isNotEmpty(customer_id_list)) {
             for (String customer_id : customer_id_list) {
                 Map<String, Object> customer = new HashMap<>();
-                customer.put("customer_id", customer_id);
+                customer.put("customer_id", 174);
+                customer.put("customer_name ", customer_id);
                 list.add(customer);
             }
             params.put("customer_id_list", list);
