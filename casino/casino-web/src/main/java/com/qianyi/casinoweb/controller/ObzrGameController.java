@@ -230,4 +230,8 @@ public class ObzrGameController {
         }
         return thirdGameBusiness.oneKeyRecoverObzr(userId);
     }
+
+    public static void main(String[] args) {
+        System.out.println("65Q25".toLowerCase());
+    }
 }
