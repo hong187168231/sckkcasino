@@ -67,29 +67,25 @@ public class GameRecordObzrJob {
 
 
     //每隔7分钟执行一次
-    @Scheduled(fixedDelay = 500)
+    @Scheduled(cron = "0 0/3 * * * ?")
     public void pullGameRecord() {
-        log.info("开始处理OB真人游戏记录数据");
-        //查询最小清0打码量
-        PlatformConfig platformConfig = platformConfigService.findFirst();
-
-        GameRecordQueryRespDTO   gameRecordQueryRespDTO  = JSONObject.parseObject("{\"adddec1\":1.0,\"adddec2\":0.0,\"adddec3\":0.0,\"addstr1\":\"庄:♠A♠4;闲:♣K♥3♠K;\",\"addstr2\":\"庄:5;闲:3;\",\"agentCode\":\"65Q25\",\"agentId\":6293,\"agentName\":\"kkcasinoob\",\"beforeAmount\":447.7143,\"betAmount\":2.8571,\"betFlag\":0,\"betPointId\":3001,\"betPointName\":\"庄\",\"betStatus\":1,\"bootNo\":\"B0C1222C31026P-GP299\",\"createdAt\":1672497944000,\"currency\":\"USD\",\"dealerName\":\"Arvi1\",\"deviceId\":\"1672495466033646582\",\"deviceType\":1,\"gameMode\":1,\"gameTypeId\":2002,\"gameTypeName\":\"极速百家乐\",\"id\":817181046262333441,\"judgeResult\":\"3:15;49:10:51\",\"loginIp\":\"103.139.16.132\",\"netAmount\":2.7143,\"netAt\":1672497967000,\"nickName\":\"PLAYER97113741312\",\"payAmount\":5.5714,\"platformId\":3,\"platformName\":\"亚太厅\",\"playerId\":31751502,\"playerName\":\"65q25_ceshigezi\",\"recalcuAt\":0,\"recordType\":1,\"roundNo\":\"GC1222C3192B\",\"signature\":\"-\",\"startid\":817181144558178304,\"tableCode\":\"C12\",\"tableName\":\"极速C12\",\"updatedAt\":1672497967000,\"validBetAmount\":2.7143}",GameRecordQueryRespDTO.class);
-        GameRecordObzr gameRecord = null;
-        try {
-            gameRecord = save(gameRecordQueryRespDTO);
-            if (gameRecord == null) {
-                return;
-            }
-            //业务处理
-            business(Constants.PLATFORM_OBZR, gameRecord, platformConfig);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("保存OB真人游戏记录时报错,message={}", e.getMessage());
+        PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
+        if (platformGame != null && platformGame.getGameStatus() == 2) {
+            log.info("后台已关闭OB平台,无需拉单,platformGame={}", platformGame);
+            return;
         }
+        AdGame adGame = adGamesService.findByGamePlatformNameAndGameCode(Constants.PLATFORM_OB, Constants.PLATFORM_OBZR);
+        if (adGame != null && adGame.getGamesStatus() == 2) {
+            log.info("后台已关闭OB真人,无需拉单,adGame={}", adGame);
+            return;
+        }
+        log.info("定时器开始拉取OB真人注单记录");
+        String endTime = gameRecordObzrTimeService.findLastEndTime();
+        pullGameRecord(endTime);
+        log.info("定时器拉取完成OB真人注单记录");
     }
 
     public void pullGameRecord(String lastTime) {
-        lastTime  = "2022-12-31 22:18:20";
         // 每次只粒取30分钟的闻磨(根据年小时单量情况来定，如果是并单可以调整到30分钟一次，如果是正常拉单没有必要)
         int mins = +5;
         int startTimePlusSeconds = -40;
