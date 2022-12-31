@@ -1232,7 +1232,8 @@ public class UserController {
                 if (LoginUtil.checkNull(jsonObject.get("data"))) {
                     return ResponseUtil.success(CommonConst.NUMBER_0);
                 }
-                return ResponseUtil.success(jsonObject.get("data"));
+                BigDecimal balance = new BigDecimal(jsonObject.get("data").toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
+                return ResponseUtil.success(balance);
             } else {
                 return ResponseUtil.custom(jsonObject.get("msg").toString());
             }
