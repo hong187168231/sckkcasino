@@ -79,7 +79,7 @@ public class PublicObzrApi {
     public boolean create(String userName, String nickname) {
         ReqCreatePlayerDTO dto = new ReqCreatePlayerDTO();
         dto.setLoginName(userName);
-        dto.setLoginPassword("kk" + userName);
+        dto.setLoginPassword("kk" + userName.toLowerCase());
         dto.setLang(1);
         dto.setTimestamp(System.currentTimeMillis());
         String result = submit("/create", dto);
