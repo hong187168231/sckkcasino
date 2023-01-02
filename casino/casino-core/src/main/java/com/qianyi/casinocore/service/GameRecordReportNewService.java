@@ -64,6 +64,9 @@ public class GameRecordReportNewService {
     public GameRecordAeService gameRecordAeService;
 
     @Autowired
+    public GameRecordDMCService gameRecordDMCService;
+
+    @Autowired
     private RptBetInfoDetailService rptBetInfoDetailService;
 
     @Autowired
@@ -645,7 +648,7 @@ public class GameRecordReportNewService {
             return;
         }
         log.info("得到DMC注单下标{}", first.getDMCMaxId());
-        List<Map<String, Object>> reportResult = rptBetInfoDetailService.queryGameRecords(first.getDMCMaxId(), 13, Constants.PLATFORM_DMC);
+        List<Map<String, Object>> reportResult = gameRecordDMCService.queryGameRecords(first.getDMCMaxId(), 13, Constants.PLATFORM_DMC);
         try {
             if (reportResult == null || reportResult.size() == CommonConst.NUMBER_0) {
                 return;
