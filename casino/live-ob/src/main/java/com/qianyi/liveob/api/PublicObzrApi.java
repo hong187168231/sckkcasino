@@ -96,6 +96,26 @@ public class PublicObzrApi {
     }
 
 
+    public boolean resetLoginPwd(String userName) {
+        ReqResetUserPwdDTO dto = new ReqResetUserPwdDTO();
+        dto.setLoginName(userName);
+        dto.setNewPassword("kk" + userName.replace("65Q25", "65q25"));
+        dto.setTimestamp(System.currentTimeMillis());
+        String result = submit("/resetLoginPwd", dto);
+        System.out.println(result);
+        log.info("OB体育创建玩家账号结果{}", result);
+        ResponseEntity entity = entity(result);
+        if (entity == null) {
+            log.error("OB电竞修改玩家密码出错,远程请求异常===>>{}", userName);
+        }
+        if (SUCCESS_CODE.equals(entity.getCode())) {
+            return true;
+        }
+        log.error("OB进入修改玩家密码出错{}", JSONObject.toJSONString(entity));
+        return false;
+    }
+
+
     /**
      * 踢出用户
      *
@@ -274,7 +294,6 @@ public class PublicObzrApi {
         entity.setMessage(jsonObject.getString("msg"));
         return entity;
     }
-
 
 
     @Data

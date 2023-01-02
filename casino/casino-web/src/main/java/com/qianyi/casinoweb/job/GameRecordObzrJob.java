@@ -70,15 +70,15 @@ public class GameRecordObzrJob {
     @Scheduled(cron = "0 0/3 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
-        if (platformGame != null && platformGame.getGameStatus() == 2) {
-            log.info("后台已关闭OB平台,无需拉单,platformGame={}", platformGame);
-            return;
-        }
-        AdGame adGame = adGamesService.findByGamePlatformNameAndGameCode(Constants.PLATFORM_OB, Constants.PLATFORM_OBZR);
-        if (adGame != null && adGame.getGamesStatus() == 2) {
-            log.info("后台已关闭OB真人,无需拉单,adGame={}", adGame);
-            return;
-        }
+//        if (platformGame != null && platformGame.getGameStatus() == 2) {
+//            log.info("后台已关闭OB平台,无需拉单,platformGame={}", platformGame);
+//            return;
+//        }
+//        AdGame adGame = adGamesService.findByGamePlatformNameAndGameCode(Constants.PLATFORM_OB, Constants.PLATFORM_OBZR);
+//        if (adGame != null && adGame.getGamesStatus() == 2) {
+//            log.info("后台已关闭OB真人,无需拉单,adGame={}", adGame);
+//            return;
+//        }
         log.info("定时器开始拉取OB真人注单记录");
         String endTime = gameRecordObzrTimeService.findLastEndTime();
         pullGameRecord(endTime);
