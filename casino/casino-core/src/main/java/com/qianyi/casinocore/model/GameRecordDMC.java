@@ -37,6 +37,8 @@ public class GameRecordDMC extends BaseEntity{
     private String parentBetOrderNo;
     @ApiModelProperty("下注时间")
     private String betTime;
+    @ApiModelProperty("结算时间")
+    private String settleTime;
     @ApiModelProperty("下注类型")
     private String betType;
     @ApiModelProperty("下注大小")
