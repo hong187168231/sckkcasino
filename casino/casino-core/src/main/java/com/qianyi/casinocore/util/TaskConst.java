@@ -26,7 +26,7 @@ public final class TaskConst {
     /**
      * 11:00执行
      */
-    public final static String THIRD_GAME_SUM = "0 0 12 * * ?";
+    public final static String THIRD_GAME_SUM = "0 55 11 * * ?";
     /**
      * 12:00执行
      */

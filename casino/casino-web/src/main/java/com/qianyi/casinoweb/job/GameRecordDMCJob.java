@@ -64,7 +64,7 @@ public class GameRecordDMCJob {
     public static final long ORDER_RXPIRE_TIME = 7 * 24l;
 
     //每隔2分钟执行一次
-//    @Scheduled(cron = "50 0/2 * * * ?")
+    @Scheduled(cron = "50 0/2 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_DMC);
         //平台关闭，但是拉单还是要继续进行
@@ -259,6 +259,7 @@ public class GameRecordDMCJob {
         gameRecordDMC.setBetOrderNo(ticketSlaves.getChild_ticket_no());
         gameRecordDMC.setParentBetOrderNo(gameRecordDMCVo.getTicket_no());
         gameRecordDMC.setBetTime(ticketSlaves.getCreated_at());
+        gameRecordDMC.setSettleTime(ticketSlaves.getUpdated_at());
         gameRecordDMC.setBetType(gameRecordDMCVo.getBet_type() + "");
         gameRecordDMC.setBackWaterMoney(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getBig_bet_amount()) ? "0" : ticketSlaves.getBig_bet_amount()));
         gameRecordDMC.setBigBetAmount(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getBig_bet_amount()) ? "0" : ticketSlaves.getBig_bet_amount()));

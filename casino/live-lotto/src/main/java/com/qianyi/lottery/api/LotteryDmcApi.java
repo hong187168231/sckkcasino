@@ -108,14 +108,15 @@ public class LotteryDmcApi {
      * @param customer_id_list
      * @return
      */
-    public BigDecimal fetchWalletBalance(List<String> customer_id_list, String token) {
+    public BigDecimal fetchWalletBalance(List<String> customer_id_list, String token, long userId) {
         Map<String, Object> params = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
         params.put("merchant_id", merchantId);
         if (CollUtil.isNotEmpty(customer_id_list)) {
             for (String customer_id : customer_id_list) {
                 Map<String, Object> customer = new HashMap<>();
-                customer.put("customer_id", customer_id);
+                customer.put("customer_id", userId);
+                customer.put("customer_name ", customer_id);
                 list.add(customer);
             }
             params.put("customer_id_list", list);

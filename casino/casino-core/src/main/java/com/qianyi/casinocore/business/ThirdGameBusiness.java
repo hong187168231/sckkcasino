@@ -732,12 +732,12 @@ public class ThirdGameBusiness {
             }, executor);
             completableFutures.add(oneKeyRecoverAe);
         }
-//        if (!Constants.PLATFORM_DMC.equals(platform)) {
-//            CompletableFuture<Void> oneKeyRecoverDmc = CompletableFuture.runAsync(() -> {
-//                oneKeyRecoverDMC(userId);
-//            }, executor);
-//            completableFutures.add(oneKeyRecoverDmc);
-//        }
+        if (!Constants.PLATFORM_DMC.equals(platform)) {
+            CompletableFuture<Void> oneKeyRecoverDmc = CompletableFuture.runAsync(() -> {
+                oneKeyRecoverDMC(userId);
+            }, executor);
+            completableFutures.add(oneKeyRecoverDmc);
+        }
         if (!Constants.PLATFORM_VNC.equals(platform)) {
             CompletableFuture<Void> oneKeyRecoverAe = CompletableFuture.runAsync(() -> {
                 oneKeyRecoverVNC(userId);
@@ -923,7 +923,7 @@ public class ThirdGameBusiness {
             return ResponseUtil.parameterNotNull();
         }
         UserThird third = userThirdService.findByUserId(userId);
-        if (third == null || ObjectUtils.isEmpty(third.getAccount())) {
+        if (third == null || ObjectUtils.isEmpty(third.getDmcAccount())) {
             return ResponseUtil.custom("DMC余额为0");
         }
         User user = userService.findById(userId);
@@ -936,7 +936,7 @@ public class ThirdGameBusiness {
         BigDecimal balance = BigDecimal.ZERO;
         try {
             List<String> idList = Lists.newArrayList(user.getId() + "");
-            balance = lottoApi.fetchWalletBalance(idList, token);
+            balance = lottoApi.fetchWalletBalance(idList, token, user.getId());
             if (balance == null) {
                 log.error("userId:{},account={},获取用户DMC余额为null", userId, user.getAccount());
                 return ResponseUtil.custom("服务器异常,请重新操作");
@@ -1155,10 +1155,10 @@ public class ThirdGameBusiness {
         return ResponseUtil.success(balance);
     }
 
-    public BigDecimal getDMCBalanceByAccount(String dmcAccount) {
+    public BigDecimal getDMCBalanceByAccount(String dmcAccount, long userId) {
         String token = lottoApi.fetchToken();
         List<String> userIdList = Lists.newArrayList(dmcAccount + "");
-        BigDecimal balance = lottoApi.fetchWalletBalance(userIdList, token);
+        BigDecimal balance = lottoApi.fetchWalletBalance(userIdList, token, userId);
         return balance;
     }
 
