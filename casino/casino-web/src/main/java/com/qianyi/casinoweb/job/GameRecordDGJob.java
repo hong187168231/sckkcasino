@@ -112,9 +112,9 @@ public class GameRecordDGJob {
 
     public void pullGameRecord(String startTime, String platform) {
         try {
-            if (ObjectUtils.isEmpty(startTime)) {
-                return;
-            }
+//            if (ObjectUtils.isEmpty(startTime)) {
+//                return;
+//            }
             log.info("开始拉取{},{}到当前时间的游戏记录", platform, startTime);
             pullGameRecordByTime(startTime, platform);
             log.info("{},{}到当前时间的记录拉取完成", platform, startTime);
