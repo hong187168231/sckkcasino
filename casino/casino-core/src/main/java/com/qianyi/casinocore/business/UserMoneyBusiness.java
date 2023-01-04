@@ -65,6 +65,9 @@ public class UserMoneyBusiness {
     @Autowired
     private UserLevelBusiness userLevelBusiness;
 
+    @Autowired
+    private ThirdGameBusiness thirdGameBusiness;
+
     //默认最小清零打码量
     private static final BigDecimal DEFAULT_CLEAR = new BigDecimal("10");
 
@@ -144,16 +147,25 @@ public class UserMoneyBusiness {
         if (platformConfig != null && platformConfig.getClearCodeNum() != null) {
             minCodeNumVal = platformConfig.getClearCodeNum();
         }
-        //余额小于等于最小清零打码量时 直接清0
-        if (user.getBalance().compareTo(minCodeNumVal) < 1) {
-            //打码量和实时余额都清0
-            userMoneyService.subCodeNum(userId, user.getCodeNum(), user);
-            userMoneyService.subBalance(userId, user.getBalance(), user);
-            CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, null, null, user.getCodeNum(), BigDecimal.ZERO);
-            codeNumChange.setType(1);
-            codeNumChange.setClearCodeNum(minCodeNumVal);
-            codeNumChangeService.save(codeNumChange);
-            log.info("触发最小清零打码量，打码量清0,最小清0点={},UserId={}", minCodeNumVal, userId);
+        //余额小于等于最小清零打码量时 直接清0，切在三方没钱时候，清零
+        if (user.getBalance().compareTo(minCodeNumVal) < 1 ) {
+            //回收其他三方的余额
+            try {
+                thirdGameBusiness.oneKeyRecoverOtherGame(user.getUserId(), "");
+            }catch (Exception e){
+                log.info("回收其他三方余额失败。。" + e.getMessage());
+            }
+            UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
+            if(userMoney.getMoney().compareTo(minCodeNumVal) < 1){//余额清零点处理
+                //打码量和实时余额都清0
+                userMoneyService.subCodeNum(userId, user.getCodeNum(), user);
+                userMoneyService.subBalance(userId, user.getBalance(), user);
+                CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, null, null, user.getCodeNum(), BigDecimal.ZERO);
+                codeNumChange.setType(1);
+                codeNumChange.setClearCodeNum(minCodeNumVal);
+                codeNumChangeService.save(codeNumChange);
+                log.info("触发最小清零打码量，打码量清0,最小清0点={},UserId={}", minCodeNumVal, userId);
+            }
         }
     }
 

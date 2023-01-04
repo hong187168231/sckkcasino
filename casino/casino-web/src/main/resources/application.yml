@@ -12,7 +12,7 @@ spring:
     #    url: jdbc:mysql://localhost:3306/casino?useUnicode=true&characterEncoding=utf-8
     #    username: root
     #    password: root
-    url: jdbc:mysql://167.179.15.36:6503/casino?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://167.179.15.36:6503/casino-damacai-test?useUnicode=true&characterEncoding=utf-8
     username: root
     password: Mysql_123
     driver-class-name: com.mysql.cj.jdbc.Driver
