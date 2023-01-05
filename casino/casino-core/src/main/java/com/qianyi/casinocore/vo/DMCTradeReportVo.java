@@ -19,7 +19,10 @@ public class DMCTradeReportVo {
     private Integer bet_type;   //下注方式 - 0 (Box), 1 (iBox), 2 (Reverse), 3 (Straight)
     private BigDecimal total_amount; //下注金额
     private BigDecimal net_amount; //有效下注金额
-    private BigDecimal rebate_amount; //盈利金额
+    private BigDecimal rebate_amount; //返水金额
+    private BigDecimal winning_amount; //盈利金额
+    private String lottery_number ; //期号
+    private String currency_code ; //货币Code
     private Integer rebate_percentage; //返水百分点
     private Date betting_date;  //下注日期
     private Date draw_date;  //开彩日期

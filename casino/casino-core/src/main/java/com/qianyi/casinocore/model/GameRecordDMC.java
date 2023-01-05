@@ -102,6 +102,13 @@ public class GameRecordDMC extends BaseEntity{
     @ApiModelProperty(value = "游戏报表状态：0:失败，1：成功")
     private Integer gameRecordStatus = Constants.no;
 
+    @ApiModelProperty(value = "期号")
+    private String lotteryNumber ; //期号
+
+    @ApiModelProperty(value = "货币Code")
+    private String currencyCode ; //货币Code
+
+
     @ApiModelProperty("总代ID")
     private Long firstProxy;
 
@@ -122,6 +129,7 @@ public class GameRecordDMC extends BaseEntity{
     @Transient
     @ApiModelProperty(value = "旧有效下注")
     private BigDecimal oldTurnover;
+
 
     public GameRecordDMC(){
 

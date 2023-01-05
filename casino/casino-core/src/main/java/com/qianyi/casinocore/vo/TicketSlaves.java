@@ -13,7 +13,6 @@ public class TicketSlaves {
     private Integer merchant_id;    //商户ID
     private Integer game_play_id;   //下注游戏代号 1 (Magnum)，2 (Damacai)，3 (Toto)
     private String child_ticket_no;    //子单号
-    private Integer lottery_number;     //子单下注号码
     private String big_bet_amount;      //大 - 下注金额
     private String small_bet_amount;    //小 - 下注金额
     private String three_a_bet_amount;      //3A - 下注金额
@@ -31,7 +30,8 @@ public class TicketSlaves {
     private String status;  //状况 - in-process (进行中)，finished (完成)，deleted (删除)
     private String progress_status;    //注单进展- IN_PROGRESS (进行中)，ACCEPTED (已接受)，PARTIALLY_ACCEPTED (部分接受)，REJECTED (拒绝)，DELETED (删除
     private Date betting_date;  //下注日期
-
+    private String lottery_number ; //期号
+    private String currency_code ; //货币Code
     private String created_at;  //注单创建时间
     private String updated_at;  //注单修改时间
     private String deleted_at;  //注单删除时间

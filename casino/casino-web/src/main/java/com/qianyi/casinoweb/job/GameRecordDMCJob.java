@@ -223,7 +223,7 @@ public class GameRecordDMCJob {
         recordDMC.setBetType(gameRecordDMCVo.getBet_type());
         recordDMC.setTotalAmount(gameRecordDMCVo.getTotal_amount());
         recordDMC.setNetAmount(gameRecordDMCVo.getNet_amount());
-        recordDMC.setRebateAmount(gameRecordDMCVo.getRebate_amount());
+        recordDMC.setRebateAmount(gameRecordDMCVo.getWinning_amount());
         recordDMC.setRebatePercentage(gameRecordDMCVo.getRebate_percentage());
         recordDMC.setBettingDate(gameRecordDMCVo.getBetting_date());
         recordDMC.setDrawDate(gameRecordDMCVo.getDraw_date());
@@ -267,6 +267,8 @@ public class GameRecordDMCJob {
         gameRecordDMC.setSlaveAmount(ObjectUtil.isNull(ticketSlaves.getBet_amount()) ? BigDecimal.ZERO : ticketSlaves.getBet_amount());
         gameRecordDMC.setWinMoney(ObjectUtil.isNull(ticketSlaves.getWinning_amount()) ? BigDecimal.ZERO : ticketSlaves.getWinning_amount());
         gameRecordDMC.setPrizeType(ticketSlaves.getPrize_type());
+        gameRecordDMC.setLotteryNumber(ticketSlaves.getLottery_number());
+        gameRecordDMC.setCurrencyCode(ticketSlaves.getCurrency_code());
         gameRecordDMC.setBetMoney(ticketSlaves.getBet_amount());
         gameRecordDMC.setRealMoney(ticketSlaves.getBet_net_amount());
         UserThird account = userThirdService.findByDmcAccount(gameRecordDMC.getUserName());

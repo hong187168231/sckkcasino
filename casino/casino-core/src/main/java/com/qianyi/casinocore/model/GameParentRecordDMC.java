@@ -21,6 +21,7 @@ public class GameParentRecordDMC extends BaseEntity{
     private BigDecimal totalAmount; //下注金额
     private BigDecimal netAmount; //有效下注金额
     private BigDecimal rebateAmount; //盈利金额
+
     private Integer rebatePercentage; //返水百分点
     private Date bettingDate;  //下注日期
     private Date drawDate;  //开彩日期
