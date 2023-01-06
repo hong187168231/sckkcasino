@@ -157,7 +157,7 @@ public class ProxyGameRecordReportBusiness {
                         log.error("DG彩票注单状态异常{}",proxyGameRecordReportVo.getGameRecordId());
                         return;
                     }
-                    if (proxyGameRecordReportVo.getIsAdd() != Constants.yes){
+                    if (proxyGameRecordReportVo.getIsAdd() != null && proxyGameRecordReportVo.getIsAdd() == 0){
                         log.error("DG彩票注单状态异常{}",proxyGameRecordReportVo.getGameRecordId());
                         return;
                     }
