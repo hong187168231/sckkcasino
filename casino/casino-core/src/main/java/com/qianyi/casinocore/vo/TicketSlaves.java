@@ -11,7 +11,7 @@ public class TicketSlaves {
 
     private Integer ticket_id;  //三方子单序号
     private Integer merchant_id;    //商户ID
-    private Integer game_play_id;   //下注游戏代号 1 (Magnum)，2 (Damacai)，3 (Toto)
+    private String game_play_id;   //下注游戏代号 1 (Magnum)，2 (Damacai)，3 (Toto)
     private String child_ticket_no;    //子单号
     private String big_bet_amount;      //大 - 下注金额
     private String small_bet_amount;    //小 - 下注金额

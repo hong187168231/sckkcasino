@@ -271,6 +271,7 @@ public class GameRecordDMCJob {
         gameRecordDMC.setLotteryNumber(ticketSlaves.getLottery_number());
         gameRecordDMC.setCurrencyCode(gameRecordDMCVo.getCurrency_code());
         gameRecordDMC.setBetMoney(ticketSlaves.getBet_amount());
+        gameRecordDMC.setGameName(ticketSlaves.getGame_play_id());
         gameRecordDMC.setRealMoney(ticketSlaves.getBet_net_amount());
         UserThird account = userThirdService.findByDmcAccount(gameRecordDMC.getUserName());
         if (account == null || account.getUserId() == null) {
