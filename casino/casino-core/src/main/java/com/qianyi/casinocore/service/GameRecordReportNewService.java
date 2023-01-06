@@ -653,7 +653,7 @@ public class GameRecordReportNewService {
             if (reportResult == null || reportResult.size() == CommonConst.NUMBER_0) {
                 return;
             }
-            if (reportResult.get(0).get("num") == null || Integer.parseInt(reportResult.get(0).get("num").toString()) == CommonConst.NUMBER_0) {
+            if (reportResult.get(0).get("num") == null || Integer.parseInt(reportResult.get(0).get("num") + "") == CommonConst.NUMBER_0) {
                 return;
             }
             Long max = 0L;
