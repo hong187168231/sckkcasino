@@ -75,8 +75,7 @@ public class GameRecordDMC extends BaseEntity{
     private String slaveStatus;
     @ApiModelProperty("子单净金额")
     private String slaveNetAmount;
-    @ApiModelProperty("中奖金额")
-    private String winningAmount;
+
     @ApiModelProperty(" 中奖类别 (P1:首奖, P2: 次奖, P3: 三奖, Special: 特别奖, Consolation: 安慰奖)")
     private String prizeType;
 
