@@ -25,7 +25,7 @@ public class DMCTradeReportVo {
     private String currency_code ; //货币Code
     private Integer rebate_percentage; //返水百分点
     private Date betting_date;  //下注日期
-    private Date draw_date;  //开彩日期
+    private String draw_date;  //开彩日期
     private String draw_number; //开彩期号
     private String ticket_status;   //注单状况- SETTLED (已结算)，UNSETTLED (未结算)
     private String progress_status; //注单进展- IN_PROGRESS (进行中)，ACCEPTED (已接受)，PARTIALLY_ACCEPTED (部分接受)，REJECTED (拒绝)，DELETED (删除)

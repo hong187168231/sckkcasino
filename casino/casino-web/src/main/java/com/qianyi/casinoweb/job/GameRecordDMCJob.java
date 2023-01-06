@@ -258,7 +258,8 @@ public class GameRecordDMCJob {
         gameRecordDMC.setBetOrderNo(ticketSlaves.getChild_ticket_no());
         gameRecordDMC.setParentBetOrderNo(gameRecordDMCVo.getTicket_no());
         gameRecordDMC.setBetTime(ticketSlaves.getCreated_at());
-        gameRecordDMC.setSettleTime(DateUtil.dateToPatten(gameRecordDMCVo.getDraw_date()));
+        gameRecordDMC.setSettleTime(gameRecordDMCVo.getDraw_date());
+        gameRecordDMC.setDrawDate(gameRecordDMCVo.getDraw_date());
         gameRecordDMC.setBetType(gameRecordDMCVo.getBet_type() + "");
         gameRecordDMC.setBackWaterMoney(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getBig_bet_amount()) ? "0" : ticketSlaves.getBig_bet_amount()));
         gameRecordDMC.setBigBetAmount(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getBig_bet_amount()) ? "0" : ticketSlaves.getBig_bet_amount()));

@@ -43,6 +43,7 @@ public class GameRecordDMC extends BaseEntity{
     private String betType;
     @ApiModelProperty("下注大小")
     private String betSize;
+    private String drawDate;  //开彩日期
 
     @ApiModelProperty("实付金额")
     private BigDecimal realMoney;
