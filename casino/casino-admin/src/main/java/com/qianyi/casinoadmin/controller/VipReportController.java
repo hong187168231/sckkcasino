@@ -46,7 +46,7 @@ public class VipReportController {
             @ApiImplicitParam(name = "account", value = "账号", required = false),
             @ApiImplicitParam(name = "startTime", value = "起始时间查询", required = true),
             @ApiImplicitParam(name = "endTime", value = "结束时间查询", required = true),
-            @ApiImplicitParam(name = "levelArray", value = "等级数组", required = true)})
+            @ApiImplicitParam(name = "levelArray", value = "等级数组,逗号分隔", required = true)})
     public ResponseEntity<PersonReportVo> queryPersonReport(Integer pageSize, Integer pageCode, String account,
                                                             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startTime,
                                                             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endTime, String levelArray) {
@@ -83,14 +83,13 @@ public class VipReportController {
 
     @ApiOperation("查询Vip报表总计")
     @GetMapping("/queryTotal")
-    @ApiImplicitParams({@ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
-            @ApiImplicitParam(name = "userName", value = "账号", required = false),
-            @ApiImplicitParam(name = "time", value = "1 北京时间 2 美东时间", required = false),
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "account", value = "账号", required = false),
             @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
-            @ApiImplicitParam(name = "levelArray", value = "等级数组", required = true)
+            @ApiImplicitParam(name = "levelArray", value = "等级数组,逗号分隔", required = true)
     })
-    public ResponseEntity<RebateReportTotalVo> queryTotal(String userName, String platform, Integer time,
+    public ResponseEntity<VipReportTotalVo> queryTotal(String account,
                                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
                                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate, String levelArray) {
         if (LoginUtil.checkNull(startDate, endDate)) {
@@ -102,8 +101,8 @@ public class VipReportController {
         String endTime = DateUtil.formatDateTime(endDate);
         Long userId;
         VipReportTotalVo itemObject = null;
-        if (StringUtils.hasLength(userName)) {
-            User user = userService.findByAccount(userName);
+        if (StringUtils.hasLength(account)) {
+            User user = userService.findByAccount(account);
             if (user != null) {
                 userId = user.getId();
                 Map<String, Object> maps =
