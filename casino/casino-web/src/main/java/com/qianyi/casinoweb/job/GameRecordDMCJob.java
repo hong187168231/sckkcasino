@@ -9,6 +9,7 @@ import com.qianyi.casinocore.vo.DMCTradeReportVo;
 import com.qianyi.casinocore.vo.TicketSlaves;
 import com.qianyi.lottery.api.LotteryDmcApi;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.util.DateUtil;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -259,7 +260,7 @@ public class GameRecordDMCJob {
         gameRecordDMC.setBetOrderNo(ticketSlaves.getChild_ticket_no());
         gameRecordDMC.setParentBetOrderNo(gameRecordDMCVo.getTicket_no());
         gameRecordDMC.setBetTime(ticketSlaves.getCreated_at());
-        gameRecordDMC.setSettleTime(ticketSlaves.getUpdated_at());
+        gameRecordDMC.setSettleTime(DateUtil.dateToPatten(gameRecordDMCVo.getDraw_date()));
         gameRecordDMC.setBetType(gameRecordDMCVo.getBet_type() + "");
         gameRecordDMC.setBackWaterMoney(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getBig_bet_amount()) ? "0" : ticketSlaves.getBig_bet_amount()));
         gameRecordDMC.setBigBetAmount(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getBig_bet_amount()) ? "0" : ticketSlaves.getBig_bet_amount()));
