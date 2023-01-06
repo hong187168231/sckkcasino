@@ -3,6 +3,7 @@ package com.qianyi.casinoweb.job;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.ImmutableMap;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.vo.DMCTradeReportVo;
@@ -27,10 +28,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -271,7 +269,7 @@ public class GameRecordDMCJob {
         gameRecordDMC.setLotteryNumber(ticketSlaves.getLottery_number());
         gameRecordDMC.setCurrencyCode(gameRecordDMCVo.getCurrency_code());
         gameRecordDMC.setBetMoney(ticketSlaves.getBet_amount());
-        gameRecordDMC.setGameName(ticketSlaves.getGame_play_id());
+        gameRecordDMC.setGameName(GAME_NAME.get(ticketSlaves.getGame_play_id()));
         gameRecordDMC.setRealMoney(ticketSlaves.getBet_net_amount());
         UserThird account = userThirdService.findByDmcAccount(gameRecordDMC.getUserName());
         if (account == null || account.getUserId() == null) {
@@ -306,6 +304,11 @@ public class GameRecordDMCJob {
         return gameRecord;
     }
 
+    public static final Map<String, String> GAME_NAME = ImmutableMap.<String, String>builder()
+            .put("1","Magnum")
+            .put("2","Damacai")
+            .put("3","Toto")
+            .build();
 
     public void business(String platform, GameRecordDMC gameRecordDMC, PlatformConfig platformConfig) {
         //计算用户账号实时余额
