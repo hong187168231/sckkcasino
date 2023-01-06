@@ -31,7 +31,7 @@ public class GameRecordTaskNew {
     private GameRecordService gameRecordService;
 
 //    @Scheduled(cron = TaskConst.GAMERECORD_TASK_NEW)
-    @Scheduled(cron = TaskConst.ONLINE_USER_TASK)
+    @Scheduled(cron = TaskConst.BACK_ORDER)
     public void create(){
         log.info("每小时报表统计开始start=============================================》");
         gameRecordReportService.saveGameRecordReportWM();
