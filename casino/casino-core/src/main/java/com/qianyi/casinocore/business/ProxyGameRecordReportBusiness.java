@@ -157,6 +157,10 @@ public class ProxyGameRecordReportBusiness {
                         log.error("DG彩票注单状态异常{}",proxyGameRecordReportVo.getGameRecordId());
                         return;
                     }
+                    if (proxyGameRecordReportVo.getIsAdd() != Constants.yes){
+                        log.error("DG彩票注单状态异常{}",proxyGameRecordReportVo.getGameRecordId());
+                        return;
+                    }
                     proxyGameRecordReportVo.setBetAmount(gameRecordById.getBetPoints());
                     proxyGameRecordReportVo.setValidAmount(gameRecordById.getAvailableBet());
                     if (Objects.isNull(gameRecordById.getWinMoney())){
