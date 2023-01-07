@@ -30,7 +30,8 @@ public class TicketSlaves {
     private String status;  //状况 - in-process (进行中)，finished (完成)，deleted (删除)
     private String progress_status;    //注单进展- IN_PROGRESS (进行中)，ACCEPTED (已接受)，PARTIALLY_ACCEPTED (部分接受)，REJECTED (拒绝)，DELETED (删除
     private Date betting_date;  //下注日期
-    private String lottery_number ; //期号
+    private String lottery_number ; //子单下注号码
+    private String draw_number ; //期号
     private String currency_code ; //货币Code
     private String created_at;  //注单创建时间
     private String updated_at;  //注单修改时间

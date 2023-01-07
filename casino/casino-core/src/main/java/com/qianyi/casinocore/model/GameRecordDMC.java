@@ -102,8 +102,11 @@ public class GameRecordDMC extends BaseEntity{
     @ApiModelProperty(value = "游戏报表状态：0:失败，1：成功")
     private Integer gameRecordStatus = Constants.no;
 
-    @ApiModelProperty(value = "期号")
+    @ApiModelProperty(value = "子单下注号码")
     private String lotteryNumber ; //期号
+
+    @ApiModelProperty(value = "期号")
+    private String drawNumber ; //期号
 
     @ApiModelProperty(value = "货币Code")
     private String currencyCode ; //货币Code

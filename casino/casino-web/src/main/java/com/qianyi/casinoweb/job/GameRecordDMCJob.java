@@ -257,6 +257,7 @@ public class GameRecordDMCJob {
         gameRecordDMC.setWinMoney(ObjectUtil.isNull(ticketSlaves.getWinning_amount()) ? BigDecimal.ZERO : ticketSlaves.getWinning_amount());
         gameRecordDMC.setPrizeType(ticketSlaves.getPrize_type());
         gameRecordDMC.setLotteryNumber(ticketSlaves.getLottery_number());
+        gameRecordDMC.setDrawNumber(ticketSlaves.getDraw_number());
         gameRecordDMC.setCurrencyCode(gameRecordDMCVo.getCurrency_code());
         gameRecordDMC.setBetMoney(ticketSlaves.getBet_amount());
         gameRecordDMC.setGameName(GAME_NAME.get(ticketSlaves.getGame_play_id()));
