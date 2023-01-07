@@ -57,7 +57,7 @@ public class WashCodeConfigController {
                 }
             }
             List<WashCodeConfig> washCodeConfigs = washCodeConfigService.saveAll(washCodeConfigList);
-            Map<String, List<WashCodeConfig>> collect = washCodeConfigList.stream().collect(Collectors.groupingBy(WashCodeConfig::getPlatform));
+            Map<String, List<WashCodeConfig>> collect = washCodeConfigs.stream().collect(Collectors.groupingBy(WashCodeConfig::getPlatform));
 
             return ResponseUtil.success(collect);
         }
