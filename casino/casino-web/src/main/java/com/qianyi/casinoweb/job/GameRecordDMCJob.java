@@ -63,7 +63,7 @@ public class GameRecordDMCJob {
     public static final long ORDER_RXPIRE_TIME = 7 * 24l;
 
     //每隔2分钟执行一次
-    @Scheduled(cron = "50 0/2 * * * ?")
+//    @Scheduled(cron = "50 0/2 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_DMC);
         //平台关闭，但是拉单还是要继续进行
