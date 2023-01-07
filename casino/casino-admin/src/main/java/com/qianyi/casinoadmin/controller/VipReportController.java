@@ -89,6 +89,8 @@ public class VipReportController {
             @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
             @ApiImplicitParam(name = "levelArray", value = "等级数组,逗号分隔", required = true)
     })
+    @NoAuthentication
+    @NoAuthorization
     public ResponseEntity<VipReportTotalVo> queryTotal(String account,
                                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
                                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate, String levelArray) {

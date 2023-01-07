@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.service;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -268,73 +269,75 @@ public class UserLevelService {
     public Map<String, Object> findVipTotalMap(String startTime, String endTime, String levelArray, Long userId) {
         startTime = "'"  + startTime +  "'";
         endTime = "'" +  endTime  + "'";
-        String sql = "";
+        String userIdsql = "";
         List<String> list = VIP_TOTAL_REPORT_VO_FIELD_LIST;
-        StringBuffer stringBuffer = new StringBuffer();
-
-        stringBuffer.append("    select\n" +
-                "    ifnull(main_t.num,0) num,\n" +
-                "    ifnull(main_t.bet_amount,0) bet_amount ,\n" +
-                "    ifnull(main_t.validbet,0) totalValidBet ,\n" +
-                "    ifnull(main_t.win_loss,0) totalWinLoss, \n" +
-                "    ifnull(td.todayAward,0) totalTodayAward, \n" +
-                "    ifnull(rs.riseAward,0) totalRiseWinLoss \n" +
-                "\tSELECT * from  (\n" +
-                "\t\t\tSELECT \n" +
-                "    account ,\n" +
-                "    id\n" +
-                "\t\tFROM\n" +
-                "\t\t\t`user` \n" +
-                "\t\tWHERE 1 = 1  ");
+        StringBuffer userIdSb = new StringBuffer();
+        userIdSb.append(" SELECT id from `user` WHERE 1=1 ");
         if (StrUtil.isNotBlank(levelArray)) {
-            stringBuffer.append(" and   `level` IN ("+ levelArray +") ");
+            userIdSb.append(" and   `level` IN ("+ levelArray +") ");
         }
-        if (ObjectUtil.isNull(userId)) {
-            stringBuffer.append(" and   `id` = "+userId+" ");
+        if (ObjectUtil.isNotNull(userId)) {
+            userIdSb.append(" and   `id` = "+userId+" ");
         }
-        stringBuffer.append(" ) u ");
-        stringBuffer.append("  left join (\n" +
-                "        select user_id ,\n" +
-                "        SUM(betting_number) num,\n" +
-                "    sum(bet_amount) bet_amount,\n" +
-                "    sum(valid_amount) validbet ,\n" +
-                "    sum(win_loss) win_loss\n" +
-                "    from proxy_game_record_report gr\n" +
-                "    where  1=1   ");
-        if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
-            stringBuffer.append("   and order_times  BETWEEN" +  startTime  + " AND "+   endTime  + "");
-        }
-        stringBuffer.append("  group by user_id  ) main_t on u.id = main_t.user_id ");
-        stringBuffer.append("       LEFT JOIN (\n" +
-                "                SELECT\n" +
-                "                    user_id,\n" +
-                "                    SUM(amount) AS todayAmount\n" +
-                "                FROM\n" +
-                "                    award_receive_record\n" +
-                "                WHERE\n" +
-                "                    user_id ={2}\n" +
-                "                AND award_type = 1  ");
-        if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
-            stringBuffer.append("  AND create_time  BETWEEN" +  startTime  + " AND "+   endTime  + "");
-        }
-        stringBuffer.append(" GROUP BY   user_id  ) td ON u.id = td.user_id ");
-        stringBuffer.append("   LEFT JOIN (\n" +
-                "                SELECT\n" +
-                "                    user_id,\n" +
-                "                    SUM(amount) AS riseAmount\n" +
-                "                FROM\n" +
-                "                    award_receive_record\n" +
-                "                WHERE\n" +
-                "                    user_id ={2}\n" +
-                "                AND award_type = 2 ");
+        userIdsql = userIdSb.toString();
 
+        String reportSql = "";
+        StringBuffer reportSb = new StringBuffer();
+        reportSb.append("SELECT\n" +
+                "\t  a.validBet,\ta.winLoss,b.todayAward,\tc.riseAward \n" +
+                "FROM\n" +
+                "\t(\n" +
+                "\t\tSELECT\n" +
+                "\t\t\tuser_id,\n" +
+                "\t\t\tSUM(betting_number) num,\n" +
+                "\t\t\tsum(valid_amount) validBet,\n" +
+                "\t\t\tsum(win_loss) winLoss\n" +
+                "\t\tFROM\n" +
+                "\t\t\tproxy_game_record_report gr\n" +
+                "\t\tWHERE\n" +
+                "\t\t\t1 = 1 ");
         if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
-            stringBuffer.append("   AND receive_time BETWEEN" +  startTime  + " AND "+   endTime  + "");
+            reportSb.append("   AND order_times BETWEEN"+   startTime   +" AND " +  endTime  + "");
         }
-        stringBuffer.append(" GROUP BY  user_id ) rs ON u.id = rs.user_id");
-        sql = stringBuffer.toString();
-        log.info(sql);
-        Query countQuery = entityManager.createNativeQuery(sql);
+        if (StrUtil.isNotBlank(userIdsql)) {
+            reportSb.append("   AND user_id IN ("+ userIdsql +") ");
+        }
+        reportSb.append(" \t) a, ");
+        reportSb.append("\t(\n" +
+                "\t\tSELECT\n" +
+                "\t\t\tSUM(amount) AS todayAward\n" +
+                "\t\tFROM\n" +
+                "\t\t\taward_receive_record\n" +
+                "\t\tWHERE\n" +
+                "\t\t\taward_type = 1 ");
+        if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
+            reportSb.append("   AND create_time BETWEEN"+   startTime   +" AND " +  endTime  + "");
+        }
+        if (StrUtil.isNotBlank(userIdsql)) {
+            reportSb.append("   AND user_id IN ("+ userIdsql +") ");
+        }
+        reportSb.append(" \t) b, ");
+        reportSb.append("\t(\n" +
+                "\t\tSELECT\n" +
+                "\t\t\tSUM(amount) AS riseAward\n" +
+                "\t\tFROM\n" +
+                "\t\t\taward_receive_record\n" +
+                "\t\tWHERE\n" +
+                "\t\t\taward_type = 2 ");
+        if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
+            reportSb.append("   AND receive_time BETWEEN"+   startTime   +" AND " +  endTime  + "");
+        }
+        if (StrUtil.isNotBlank(userIdsql)) {
+            reportSb.append("   AND user_id IN ("+ userIdsql +") ");
+        }
+        reportSb.append(" \t\t) c ");
+        reportSql=reportSb.toString();
+        log.info(reportSql);
+        Query countQuery = entityManager.createNativeQuery(reportSql);
+        List<Object> resultList = countQuery.getResultList();
+        if(CollUtil.isEmpty(resultList)){
+            return  new HashMap<>();
+        }
         Object result = countQuery.getSingleResult();
         Map<String, Object> map = new HashMap<>();
         Object[] obj = (Object[]) result;
@@ -345,6 +348,92 @@ public class UserLevelService {
         }
         return map;
     }
+
+//    public Map<String, Object> findVipTotalMapNotAccount(String startTime, String endTime, String levelArray, Long userId) {
+//        startTime = "'"  + startTime +  "'";
+//        endTime = "'" +  endTime  + "'";
+//        String sql = "";
+//        List<String> list = VIP_TOTAL_REPORT_VO_FIELD_LIST;
+//        StringBuffer stringBuffer = new StringBuffer();
+//
+//        stringBuffer.append("    select\n" +
+//                "    ifnull(main_t.num,0) num,\n" +
+//                "    ifnull(main_t.bet_amount,0) bet_amount ,\n" +
+//                "    ifnull(main_t.validbet,0) totalValidBet ,\n" +
+//                "    ifnull(main_t.win_loss,0) totalWinLoss, \n" +
+//                "    ifnull(td.todayAward,0) totalTodayAward, \n" +
+//                "    ifnull(rs.riseAward,0) totalRiseWinLoss   \n" +
+//                "\t from  (\n" +
+//                "\t\t\tSELECT \n" +
+//                "    account ,\n" +
+//                "    id\n" +
+//                "\t\tFROM\n" +
+//                "\t\t\t`user` \n" +
+//                "\t\tWHERE 1 = 1  ");
+//        if (StrUtil.isNotBlank(levelArray)) {
+//            stringBuffer.append(" and   `level` IN ("+ levelArray +") ");
+//        }
+//        if (ObjectUtil.isNotNull(userId)) {
+//            stringBuffer.append(" and   `id` = "+userId+" ");
+//        }
+//        stringBuffer.append(" ) u ");
+//        stringBuffer.append("  left join (\n" +
+//                "        select user_id ,\n" +
+//                "        SUM(betting_number) num,\n" +
+//                "    sum(bet_amount) bet_amount,\n" +
+//                "    sum(valid_amount) validbet ,\n" +
+//                "    sum(win_loss) win_loss\n" +
+//                "    from proxy_game_record_report gr\n" +
+//                "    where  1=1   ");
+//        if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
+//            stringBuffer.append("   and order_times  BETWEEN" +  startTime  + " AND "+   endTime  + "");
+//        }
+//        stringBuffer.append("  group by user_id  ) main_t on u.id = main_t.user_id ");
+//        stringBuffer.append("       LEFT JOIN (\n" +
+//                "                SELECT\n" +
+//                "                    user_id,\n" +
+//                "                    SUM(amount) AS todayAward\n" +
+//                "                FROM\n" +
+//                "                    award_receive_record\n" +
+//                "                WHERE\n" +
+//                "                 award_type = 1  ");
+//        if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
+//            stringBuffer.append("  AND create_time  BETWEEN" +  startTime  + " AND "+   endTime  + "");
+//        }
+//        stringBuffer.append(" GROUP BY   user_id  ) td ON u.id = td.user_id ");
+//        stringBuffer.append("   LEFT JOIN (\n" +
+//                "                SELECT\n" +
+//                "                    user_id,\n" +
+//                "                    SUM(amount) AS riseAward\n" +
+//                "                FROM\n" +
+//                "                    award_receive_record\n" +
+//                "                WHERE\n" +
+//                "                 award_type = 2 ");
+//
+//        if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
+//            stringBuffer.append("   AND receive_time BETWEEN" +  startTime  + " AND "+   endTime  + "");
+//        }
+//        stringBuffer.append(" GROUP BY  user_id ) rs ON u.id = rs.user_id");
+//        sql = stringBuffer.toString();
+//        log.info(sql);
+//        Query countQuery = entityManager.createNativeQuery(sql);
+//        List<Object> resultList = countQuery.getResultList();
+//        if(CollUtil.isEmpty(resultList)){
+//            return  new HashMap<>();
+//        }
+//        Object result = countQuery.getSingleResult();
+//        Map<String, Object> map = new HashMap<>();
+//        Object[] obj = (Object[]) result;
+//        for (int i = 0; i < list.size(); i++) {
+//            String field = list.get(i);
+//            Object value = obj[i];
+//            map.put(field, value);
+//        }
+//        return map;
+//    }
+
+
+
 
     private static final List<String> VIP_REPORT_VO_FIELD_LIST = Arrays.asList("account", "id", "level","createTime","userId","num",
             "betAmount", "validBet", "winLoss", "todayAward", "riseAward");
