@@ -125,7 +125,7 @@ public class UserWashCodeConfigController {
                         }
                     } else {
                         userWashCodeConfigService.saveAll(userWashCodeConfigs);
-                        return ResponseUtil.success();
+                        return ResponseUtil.success(userWashCodeConfigs);
                     }
                     List<UserWashCodeConfig> washCodeConfigs = codeConfigs.stream()
                         .filter(userWashCodeConfig -> !LoginUtil.checkNull(userWashCodeConfig.getPlatform()))
@@ -139,7 +139,7 @@ public class UserWashCodeConfigController {
                         });
                     });
                     userWashCodeConfigService.saveAll(washCodeConfigs);
-                    return ResponseUtil.success();
+                    return ResponseUtil.success(userWashCodeConfigs);
                 } else {
                     return ResponseUtil.custom("请重试一次");
                 }
