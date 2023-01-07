@@ -250,7 +250,6 @@ public class GameRecordDMCJob {
         gameRecordDMC.setDrawDate(gameRecordDMCVo.getDraw_date());
         gameRecordDMC.setBetType(gameRecordDMCVo.getBet_type() + "");
         gameRecordDMC.setBackWaterMoney(new BigDecimal(ticketSlaves.getRebate_amount()));
-        gameRecordDMC.setBackWaterMoney(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getBig_bet_amount()) ? "0" : ticketSlaves.getBig_bet_amount()));
         gameRecordDMC.setBigBetAmount(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getBig_bet_amount()) ? "0" : ticketSlaves.getBig_bet_amount()));
         gameRecordDMC.setSmallBetAmount(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getSmall_bet_amount()) ? "0" : ticketSlaves.getSmall_bet_amount()));
         gameRecordDMC.setSlaveAmount(ObjectUtil.isNull(ticketSlaves.getBet_amount()) ? BigDecimal.ZERO : ticketSlaves.getBet_amount());
