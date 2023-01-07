@@ -197,14 +197,14 @@ public class UserLevelService {
         endTime = "'" +  endTime  + "'";
         StringBuffer stringBuffer = new StringBuffer();
 
-        stringBuffer.append(" SELECT   u.*, k.*   "  +
+        stringBuffer.append(" SELECT   u.*, k.* ,IFNULL(td.todayAward,0.000) todayAward , IFNULL(rs.riseAward,0.000)  asriseAward  "  +
                 "           FROM   "  +
                 "            (   "  +
                 "             SELECT   "  +
                 "              account,   "  +
                 "              id,   "  +
                 "              `level`,   "  +
-                "              create_time   "  +
+                "              create_time as createTime   "  +
                 "             FROM   "  +
                 "              `user`   "  +
                 "             WHERE 1=1    ");
@@ -212,23 +212,23 @@ public class UserLevelService {
             stringBuffer.append(" and   `level` IN ("+ levelArray +") ");
         }
         stringBuffer.append(" ) u ");
-        stringBuffer.append(" LEFT JOIN ( "  +
+        stringBuffer.append(" INNER JOIN ( "  +
                 " SELECT "  +
-                " user_id, "  +
+                " user_id as userId, "  +
                 " SUM(betting_number) num, "  +
-                " sum(bet_amount) bet_amount, "  +
+                " sum(bet_amount) betAmount, "  +
                 " sum(valid_amount) validBet, "  +
                 " sum(win_loss) winLoss "  +
                 " FROM "  +
                 " proxy_game_record_report gr "  +
                 " GROUP BY "  +
                 " user_id "  +
-                ") k ON k.user_id = u.id ");
+                ") k ON k.userId = u.id ");
 
         stringBuffer.append("   LEFT JOIN ( " +
                 "                SELECT "  +
                 "        user_id, "  +
-                "                SUM(amount) AS todayAmount "  +
+                "                SUM(amount) AS todayAward "  +
                 "        FROM "  +
                 "                award_receive_record "  +
                 "        WHERE "  +
@@ -241,7 +241,7 @@ public class UserLevelService {
         stringBuffer.append("LEFT JOIN ( "  +
                 " SELECT "  +
                 " user_id, "  +
-                " SUM(amount) AS riseAmount "  +
+                " SUM(amount) AS riseAward "  +
                 " FROM "  +
                 " award_receive_record "  +
                 " WHERE "  +
@@ -251,7 +251,7 @@ public class UserLevelService {
             stringBuffer.append("   AND receive_time BETWEEN" +  startTime  + " AND "+   endTime  + "");
         }
         stringBuffer.append("  GROUP BY user_id ) rs ON u.id = td.user_id ");
-        stringBuffer.append("  ORDER BY   u.create_time DESC   LIMIT 10 ");
+        stringBuffer.append("  ORDER BY   u.createTime DESC   LIMIT 10 ");
         String sql = stringBuffer.toString();
         log.info(sql);
         List<String> list = VIP_REPORT_VO_FIELD_LIST;
@@ -346,8 +346,8 @@ public class UserLevelService {
         return map;
     }
 
-    private static final List<String> VIP_REPORT_VO_FIELD_LIST = Arrays.asList("account", "id", "level",
-            "validBet", "winLoss", "todayAward", "riseAward");
+    private static final List<String> VIP_REPORT_VO_FIELD_LIST = Arrays.asList("account", "id", "level","createTime","userId","num",
+            "betAmount", "validBet", "winLoss", "todayAward", "riseAward");
 
     private static final List<String> VIP_TOTAL_REPORT_VO_FIELD_LIST = Arrays.asList(
             "totalValidBet", "totalWinLoss", "totalTodayAward", "totalRiseAward");
