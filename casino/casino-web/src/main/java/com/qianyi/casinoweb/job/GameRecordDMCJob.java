@@ -182,34 +182,22 @@ public class GameRecordDMCJob {
             //封装数据
             GameParentRecordDMC gameParentRecordDMC = getGameParentRecordDMC(gameRecordDMCVo);
             //判断注单是否已经入库
-            String redisKey = "DMC:" + gameParentRecordDMC.getTicketNo();
-            int existNum = existBetRecord(gameParentRecordDMC, redisKey);
-//            if(existNum == 0){//无变化
-//                continue;
-//            }
-            boolean resultFlag = false;
-            GameRecordDMC gameRecord;
-            try {
-                List<TicketSlaves> ticketSlavesList = JSON.parseArray(gameRecordDMCVo.getTicket_slaves(), TicketSlaves.class);
-                for (TicketSlaves ticketSlaves : ticketSlavesList) {
+            GameRecordDMC gameRecord = null;
+            List<TicketSlaves> ticketSlavesList = JSON.parseArray(gameRecordDMCVo.getTicket_slaves(), TicketSlaves.class);
+            for (TicketSlaves ticketSlaves : ticketSlavesList) {
+                try {
                     gameRecord = save(gameRecordDMCVo, ticketSlaves);
-                    if (gameRecord == null) {
-                        continue;
-                    }
-                    //业务处理
-                    business(Constants.PLATFORM_DMC, gameRecord, platformConfig);
+                }catch (Exception e){
+                    log.error("保存{}游戏记录时报错,message={}", platform, e.getMessage());
                 }
-                resultFlag = true;
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.error("保存{}游戏记录时报错,message={}", platform, e.getMessage());
-            }finally {
-                if(resultFlag){
-                    ValueOperations<String, String> opsForValue = redisTemplate.opsForValue();
-                    opsForValue.set(redisKey, gameParentRecordDMC.getMd5(), ORDER_RXPIRE_TIME, TimeUnit.HOURS);
-                    log.info("set gameParentRecordDMC bill no to redisKey：【{}】", redisKey);
+
+                if (gameRecord == null) {
+                    continue;
                 }
+                //业务处理
+                business(Constants.PLATFORM_DMC, gameRecord, platformConfig);
             }
+
         }
     }
 
@@ -258,9 +246,10 @@ public class GameRecordDMCJob {
         gameRecordDMC.setBetOrderNo(ticketSlaves.getChild_ticket_no());
         gameRecordDMC.setParentBetOrderNo(gameRecordDMCVo.getTicket_no());
         gameRecordDMC.setBetTime(ticketSlaves.getCreated_at());
-        gameRecordDMC.setSettleTime(gameRecordDMCVo.getUpdated_at());
+        gameRecordDMC.setSettleTime(ticketSlaves.getUpdated_at());
         gameRecordDMC.setDrawDate(gameRecordDMCVo.getDraw_date());
         gameRecordDMC.setBetType(gameRecordDMCVo.getBet_type() + "");
+        gameRecordDMC.setBackWaterMoney(new BigDecimal(ticketSlaves.getRebate_amount()));
         gameRecordDMC.setBackWaterMoney(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getBig_bet_amount()) ? "0" : ticketSlaves.getBig_bet_amount()));
         gameRecordDMC.setBigBetAmount(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getBig_bet_amount()) ? "0" : ticketSlaves.getBig_bet_amount()));
         gameRecordDMC.setSmallBetAmount(new BigDecimal(ObjectUtil.isNull(ticketSlaves.getSmall_bet_amount()) ? "0" : ticketSlaves.getSmall_bet_amount()));
