@@ -193,69 +193,88 @@ public class UserLevelService {
 
     }
 
-    public List<VipReportVo> findVipMap(String startTime, String endTime, String levelArray, Long userId) {
-        startTime = "'"  + startTime +  "'";
-        endTime = "'" +  endTime  + "'";
+    public Integer findVipMapCount(String levelArray, Long userId) {
         StringBuffer stringBuffer = new StringBuffer();
 
-        stringBuffer.append(" SELECT   u.*, k.* ,IFNULL(td.todayAward,0.000) todayAward , IFNULL(rs.riseAward,0.000)  asriseAward  "  +
-                "           FROM   "  +
-                "            (   "  +
-                "             SELECT   "  +
-                "              account,   "  +
-                "              id,   "  +
-                "              `level`,   "  +
-                "              create_time as createTime   "  +
-                "             FROM   "  +
-                "              `user`   "  +
-                "             WHERE 1=1    ");
+        stringBuffer.append(" SELECT count(1) FROM `user` WHERE 1 = 1 ");
         if (StrUtil.isNotBlank(levelArray)) {
-            stringBuffer.append(" and   `level` IN ("+ levelArray +") ");
+            stringBuffer.append(" and   `level` IN (" + levelArray + ") ");
         }
         if (ObjectUtil.isNotNull(userId)) {
-            stringBuffer.append(" and   `id` = "+userId+" ");
+            stringBuffer.append(" and   `id` = " + userId + " ");
+        }
+        String sql = stringBuffer.toString();
+        log.info(sql);
+        Query countQuery = entityManager.createNativeQuery(sql);
+        Object countResult = countQuery.getSingleResult();
+        String str = countResult.toString();
+        return Integer.parseInt(str);
+    }
+
+
+    public List<VipReportVo> findVipMap(String startTime, String endTime, String levelArray, Long userId, Integer pageCode, Integer pageSize) {
+        startTime = "'" + startTime + "'";
+        endTime = "'" + endTime + "'";
+        StringBuffer stringBuffer = new StringBuffer();
+
+        stringBuffer.append(" SELECT   u.*, k.* ,IFNULL(td.todayAward,0.000) todayAward , IFNULL(rs.riseAward,0.000)  asriseAward  " +
+                "           FROM   " +
+                "            (   " +
+                "             SELECT   " +
+                "              account,   " +
+                "              id,   " +
+                "              `level`,   " +
+                "              create_time as createTime   " +
+                "             FROM   " +
+                "              `user`   " +
+                "             WHERE 1=1    ");
+        if (StrUtil.isNotBlank(levelArray)) {
+            stringBuffer.append(" and   `level` IN (" + levelArray + ") ");
+        }
+        if (ObjectUtil.isNotNull(userId)) {
+            stringBuffer.append(" and   `id` = " + userId + " ");
         }
         stringBuffer.append(" ) u ");
-        stringBuffer.append(" INNER JOIN ( "  +
-                " SELECT "  +
-                " user_id as userId, "  +
-                " SUM(betting_number) num, "  +
-                " sum(bet_amount) betAmount, "  +
-                " sum(valid_amount) validBet, "  +
-                " sum(win_loss) winLoss "  +
-                " FROM "  +
-                " proxy_game_record_report gr "  +
-                " GROUP BY "  +
-                " user_id "  +
+        stringBuffer.append(" INNER JOIN ( " +
+                " SELECT " +
+                " user_id as userId, " +
+                " SUM(betting_number) num, " +
+                " sum(bet_amount) betAmount, " +
+                " sum(valid_amount) validBet, " +
+                " sum(win_loss) winLoss " +
+                " FROM " +
+                " proxy_game_record_report gr " +
+                " GROUP BY " +
+                " user_id " +
                 ") k ON k.userId = u.id ");
 
         stringBuffer.append("   LEFT JOIN ( " +
-                "                SELECT "  +
-                "        user_id, "  +
-                "                SUM(amount) AS todayAward "  +
-                "        FROM "  +
-                "                award_receive_record "  +
-                "        WHERE "  +
-                "        1 = 1 "  +
+                "                SELECT " +
+                "        user_id, " +
+                "                SUM(amount) AS todayAward " +
+                "        FROM " +
+                "                award_receive_record " +
+                "        WHERE " +
+                "        1 = 1 " +
                 "        AND award_type = 1 ");
         if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
-            stringBuffer.append("   AND create_time BETWEEN"+   startTime   +" AND " +  endTime  + "");
+            stringBuffer.append("   AND create_time BETWEEN" + startTime + " AND " + endTime + "");
         }
         stringBuffer.append("GROUP BY  user_id ) td ON u.id = td.user_id ");
-        stringBuffer.append("LEFT JOIN ( "  +
-                " SELECT "  +
-                " user_id, "  +
-                " SUM(amount) AS riseAward "  +
-                " FROM "  +
-                " award_receive_record "  +
-                " WHERE "  +
-                " 1 = 1 "  +
+        stringBuffer.append("LEFT JOIN ( " +
+                " SELECT " +
+                " user_id, " +
+                " SUM(amount) AS riseAward " +
+                " FROM " +
+                " award_receive_record " +
+                " WHERE " +
+                " 1 = 1 " +
                 " AND award_type = 2");
         if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
-            stringBuffer.append("   AND receive_time BETWEEN" +  startTime  + " AND "+   endTime  + "");
+            stringBuffer.append("   AND receive_time BETWEEN" + startTime + " AND " + endTime + "");
         }
         stringBuffer.append("  GROUP BY user_id ) rs ON u.id = td.user_id ");
-        stringBuffer.append("  ORDER BY   u.createTime DESC   LIMIT 10 ");
+        stringBuffer.append("  ORDER BY   u.createTime DESC   LIMIT " + pageCode + "," + pageSize + " ");
         String sql = stringBuffer.toString();
         log.info(sql);
         List<String> list = VIP_REPORT_VO_FIELD_LIST;
@@ -270,17 +289,17 @@ public class UserLevelService {
     }
 
     public Map<String, Object> findVipTotalMap(String startTime, String endTime, String levelArray, Long userId) {
-        startTime = "'"  + startTime +  "'";
-        endTime = "'" +  endTime  + "'";
+        startTime = "'" + startTime + "'";
+        endTime = "'" + endTime + "'";
         String userIdsql = "";
         List<String> list = VIP_TOTAL_REPORT_VO_FIELD_LIST;
         StringBuffer userIdSb = new StringBuffer();
         userIdSb.append(" SELECT id from `user` WHERE 1=1 ");
         if (StrUtil.isNotBlank(levelArray)) {
-            userIdSb.append(" and   `level` IN ("+ levelArray +") ");
+            userIdSb.append(" and   `level` IN (" + levelArray + ") ");
         }
         if (ObjectUtil.isNotNull(userId)) {
-            userIdSb.append(" and   `id` = "+userId+" ");
+            userIdSb.append(" and   `id` = " + userId + " ");
         }
         userIdsql = userIdSb.toString();
 
@@ -300,10 +319,10 @@ public class UserLevelService {
                 "\t\tWHERE\n" +
                 "\t\t\t1 = 1 ");
         if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
-            reportSb.append("   AND order_times BETWEEN"+   startTime   +" AND " +  endTime  + "");
+            reportSb.append("   AND order_times BETWEEN" + startTime + " AND " + endTime + "");
         }
         if (StrUtil.isNotBlank(userIdsql)) {
-            reportSb.append("   AND user_id IN ("+ userIdsql +") ");
+            reportSb.append("   AND user_id IN (" + userIdsql + ") ");
         }
         reportSb.append(" \t) a, ");
         reportSb.append("\t(\n" +
@@ -314,10 +333,10 @@ public class UserLevelService {
                 "\t\tWHERE\n" +
                 "\t\t\taward_type = 1 ");
         if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
-            reportSb.append("   AND create_time BETWEEN"+   startTime   +" AND " +  endTime  + "");
+            reportSb.append("   AND create_time BETWEEN" + startTime + " AND " + endTime + "");
         }
         if (StrUtil.isNotBlank(userIdsql)) {
-            reportSb.append("   AND user_id IN ("+ userIdsql +") ");
+            reportSb.append("   AND user_id IN (" + userIdsql + ") ");
         }
         reportSb.append(" \t) b, ");
         reportSb.append("\t(\n" +
@@ -328,18 +347,18 @@ public class UserLevelService {
                 "\t\tWHERE\n" +
                 "\t\t\taward_type = 2 ");
         if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
-            reportSb.append("   AND receive_time BETWEEN"+   startTime   +" AND " +  endTime  + "");
+            reportSb.append("   AND receive_time BETWEEN" + startTime + " AND " + endTime + "");
         }
         if (StrUtil.isNotBlank(userIdsql)) {
-            reportSb.append("   AND user_id IN ("+ userIdsql +") ");
+            reportSb.append("   AND user_id IN (" + userIdsql + ") ");
         }
         reportSb.append(" \t\t) c ");
-        reportSql=reportSb.toString();
+        reportSql = reportSb.toString();
         log.info(reportSql);
         Query countQuery = entityManager.createNativeQuery(reportSql);
         List<Object> resultList = countQuery.getResultList();
-        if(CollUtil.isEmpty(resultList)){
-            return  new HashMap<>();
+        if (CollUtil.isEmpty(resultList)) {
+            return new HashMap<>();
         }
         Object result = countQuery.getSingleResult();
         Map<String, Object> map = new HashMap<>();
@@ -436,9 +455,7 @@ public class UserLevelService {
 //    }
 
 
-
-
-    private static final List<String> VIP_REPORT_VO_FIELD_LIST = Arrays.asList("account", "id", "level","createTime","userId","num",
+    private static final List<String> VIP_REPORT_VO_FIELD_LIST = Arrays.asList("account", "id", "level", "createTime", "userId", "num",
             "betAmount", "validBet", "winLoss", "todayAward", "riseAward");
 
     private static final List<String> VIP_TOTAL_REPORT_VO_FIELD_LIST = Arrays.asList(
@@ -453,7 +470,7 @@ public class UserLevelService {
             for (Object result : resultList) {
                 Map<String, Object> map = new HashMap<>();
                 Object[] obj = (Object[]) result;
-                for (int i = 0; i < listString.size(); i++ ) {
+                for (int i = 0; i < listString.size(); i++) {
                     String field = listString.get(i);
                     Object value = obj[i];
                     map.put(field, value);

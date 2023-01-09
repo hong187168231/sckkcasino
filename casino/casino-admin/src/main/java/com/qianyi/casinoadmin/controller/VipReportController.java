@@ -58,13 +58,15 @@ public class VipReportController {
         if (StringUtils.hasLength(account)) {
             User user = userService.findByAccount(account);
             if (user != null) {
-                List<VipReportVo> reportResult = userLevelService.findVipMap(startTimeStr, endTimeStr, levelArray, user.getId());
+                int page = (pageCode - 1) * pageSize;
+                List<VipReportVo> reportResult = userLevelService.findVipMap(startTimeStr, endTimeStr, levelArray, user.getId(),page,pageSize);
                 PageResultVO<VipReportVo> mapPageResultVO = combinePage(reportResult, 1, pageCode, pageSize);
                 return ResponseUtil.success(mapPageResultVO);
             }
         } else {
-            List<VipReportVo> reportResult = userLevelService.findVipMap(startTimeStr, endTimeStr, levelArray, null);
-            PageResultVO<VipReportVo> mapPageResultVO = combinePage(reportResult, 1, pageCode, pageSize);
+            int totalElement = userLevelService.findVipMapCount(levelArray, null);
+            List<VipReportVo> reportResult = userLevelService.findVipMap(startTimeStr, endTimeStr, levelArray, null,pageCode,pageSize);
+            PageResultVO<VipReportVo> mapPageResultVO = combinePage(reportResult, totalElement, pageCode, pageSize);
             return ResponseUtil.success(mapPageResultVO);
         }
         return ResponseUtil.success();
