@@ -212,6 +212,9 @@ public class UserLevelService {
         if (StrUtil.isNotBlank(levelArray)) {
             stringBuffer.append(" and   `level` IN ("+ levelArray +") ");
         }
+        if (ObjectUtil.isNotNull(userId)) {
+            stringBuffer.append(" and   `id` = "+userId+" ");
+        }
         stringBuffer.append(" ) u ");
         stringBuffer.append(" INNER JOIN ( "  +
                 " SELECT "  +

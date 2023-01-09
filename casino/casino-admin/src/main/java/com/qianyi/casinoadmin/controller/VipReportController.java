@@ -53,8 +53,6 @@ public class VipReportController {
         if (LoginUtil.checkNull(startTime, endTime, pageSize, pageCode)) {
             return ResponseUtil.custom("参数不合法");
         }
-        String orderTimeStart = "'" + DateUtil.formatDate(startTime) + "'";
-        String orderTimeEnd = "'" + DateUtil.formatDate(endTime) + "'";
         String startTimeStr = DateUtil.formatDateTime(startTime);
         String endTimeStr = DateUtil.formatDateTime(endTime);
         if (StringUtils.hasLength(account)) {
@@ -97,8 +95,6 @@ public class VipReportController {
         if (LoginUtil.checkNull(startDate, endDate)) {
             return ResponseUtil.custom("参数不合法");
         }
-        String orderTimeStart = "'" + DateUtil.formatDate(startDate) + "'";
-        String orderTimeEnd = "'" + DateUtil.formatDate(endDate) + "'";
         String startTime = DateUtil.formatDateTime(startDate);
         String endTime = DateUtil.formatDateTime(endDate);
         Long userId;
