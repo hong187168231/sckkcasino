@@ -353,7 +353,7 @@ public class GameRecordDMCJob {
         gameRecord.setUserId(item.getUserId());
         gameRecord.setGameCode("DMC");
         gameRecord.setGname(Constants.PLATFORM_DMC);
-        gameRecord.setBetTime(item.getBetTime());
+        gameRecord.setBetTime(item.getSettleTime());
         gameRecord.setId(item.getId());
         gameRecord.setFirstProxy(item.getFirstProxy());
         gameRecord.setSecondProxy(item.getSecondProxy());
