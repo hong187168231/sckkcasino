@@ -30,6 +30,7 @@ public class RedissonConfig {
         Config config = new Config();
         SingleServerConfig singleServerConfig = config.useSingleServer();
         singleServerConfig.setAddress("redis://" + redissonProperties.getHost() + ":" + redissonProperties.getPort());
+        singleServerConfig.setConnectTimeout(30000).setSubscriptionsPerConnection(5000);
         String password = redissonProperties.getPassword();
         if (StringUtil.isNotBlank(password)) {
             singleServerConfig.setPassword(password);
