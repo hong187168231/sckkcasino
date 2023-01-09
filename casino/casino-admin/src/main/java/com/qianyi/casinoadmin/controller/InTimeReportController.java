@@ -5,6 +5,7 @@ import com.qianyi.casinocore.model.GameRecordReportNew;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
+import com.qianyi.casinocore.util.UserPasswordUtil;
 import com.qianyi.casinocore.vo.GameRecordReportTotalVo;
 import com.qianyi.casinocore.vo.GameRecordReportVo;
 import com.qianyi.casinocore.vo.PageResultVO;
@@ -113,6 +114,7 @@ public class InTimeReportController {
                     BigDecimal.ZERO);
                 vo.setTotalWinLossAmount(vo.getWinLossAmount().add(vo.getAmount()).add(vo.getUserAmount()).add(vo.getSurplusAmount()));
                 vo.setAccountId(gameRecordReport1.getId());
+                vo.setTag(UserPasswordUtil.getRandomPwd());
                 proxyUsers.stream().forEach(proxyUser -> {
                     if (gameRecordReport1.getFirstProxy().equals(proxyUser.getId())){
                         vo.setAccount(proxyUser.getUserName());
