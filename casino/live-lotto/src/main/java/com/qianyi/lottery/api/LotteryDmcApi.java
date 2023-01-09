@@ -195,6 +195,8 @@ public class LotteryDmcApi {
         Date endDate = DateUtils.addHours(DateUtil.getDatePatten(endTime), -1);
         startTime = DateUtil.dateToPattenP2(date);
         endTime = DateUtil.dateToPattenP2(endDate);
+        startTime = "08/01/2023";
+        endTime = "08/01/2023";
         Map<String, Object> params = new HashMap<>();
         String date_range = startTime+"-"+endTime;
         params.put("merchant_id", merchantId);
