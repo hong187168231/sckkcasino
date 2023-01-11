@@ -41,4 +41,7 @@ public class GameRecordReportVo implements Serializable {
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "代理返利金额")
     private BigDecimal surplusAmount;
+
+    @ApiModelProperty(value = "唯一标识")
+    private String tag;
 }

@@ -56,7 +56,7 @@ public class PublicObzrApi {
     public ResponseEntity forwardGame(String userName, Integer deviceType) {
         ReqLoginGameDTO dto = new ReqLoginGameDTO();
         dto.setLoginName(userName);
-        dto.setLoginPassword("kk" + userName);
+        dto.setLoginPassword("kk" + userName.toLowerCase());
         dto.setLang(1);
         dto.setDeviceType(deviceType);
         dto.setBackurl("http://baidu.com/");
@@ -79,7 +79,7 @@ public class PublicObzrApi {
     public boolean create(String userName, String nickname) {
         ReqCreatePlayerDTO dto = new ReqCreatePlayerDTO();
         dto.setLoginName(userName);
-        dto.setLoginPassword("kk" + userName);
+        dto.setLoginPassword("kk" + userName.toLowerCase());
         dto.setLang(1);
         dto.setTimestamp(System.currentTimeMillis());
         String result = submit("/create", dto);
@@ -96,6 +96,26 @@ public class PublicObzrApi {
     }
 
 
+    public boolean resetLoginPwd(String userName) {
+        ReqResetUserPwdDTO dto = new ReqResetUserPwdDTO();
+        dto.setLoginName(userName.toLowerCase());
+        dto.setNewPassword("kk" + userName.replace("65Q25", "65q25"));
+        dto.setTimestamp(System.currentTimeMillis());
+        String result = submit("/resetLoginPwd", dto);
+        System.out.println(result);
+        log.info("OB体育创建玩家账号结果{}", result);
+        ResponseEntity entity = entity(result);
+        if (entity == null) {
+            log.error("OB电竞修改玩家密码出错,远程请求异常===>>{}", userName);
+        }
+        if (SUCCESS_CODE.equals(entity.getCode())) {
+            return true;
+        }
+        log.error("OB进入修改玩家密码出错{}", JSONObject.toJSONString(entity));
+        return false;
+    }
+
+
     /**
      * 踢出用户
      *
@@ -104,7 +124,7 @@ public class PublicObzrApi {
      */
     public boolean foreLeaveTable(String userName) {
         Map<String, Object> dto = new HashMap<>();
-        dto.put("loginName", userName);
+        dto.put("loginName", userName.toLowerCase());
         dto.put("timestamp", System.currentTimeMillis());
         String result = submit("/foreLeaveTable", dto);
         ResponseEntity entity = entity(result);
@@ -164,7 +184,7 @@ public class PublicObzrApi {
      */
     public ResponseEntity checkBalance(String userName) {
         ReqGetBalanceDTO dto = new ReqGetBalanceDTO();
-        dto.setLoginName(userName);
+        dto.setLoginName(userName.toLowerCase());
         dto.setTimestamp(System.currentTimeMillis());
         String result = submit("/balance", dto);
         System.out.println(result);
@@ -175,7 +195,7 @@ public class PublicObzrApi {
 
     public ResponseEntity deposit(String userName, BigDecimal amount, String transferId) {
         ReqTransferDTO dto = new ReqTransferDTO();
-        dto.setLoginName(userName);
+        dto.setLoginName(userName.toLowerCase());
         dto.setAmount(amount);
         dto.setTransferNo(transferId);
         dto.setTimestamp(System.currentTimeMillis());
@@ -187,7 +207,7 @@ public class PublicObzrApi {
 
     public ResponseEntity withdraw(String userName, BigDecimal amount, String transferId) {
         ReqTransferDTO dto = new ReqTransferDTO();
-        dto.setLoginName(userName);
+        dto.setLoginName(userName.toLowerCase());
         dto.setAmount(amount);
         dto.setTransferNo(transferId);
         dto.setTimestamp(System.currentTimeMillis());
@@ -198,7 +218,7 @@ public class PublicObzrApi {
 
     public ResponseEntity transfer(String userName, String transferId) {
         ReqGetTransferDTO dto = new ReqGetTransferDTO();
-        dto.setLoginName(userName);
+        dto.setLoginName(userName.toLowerCase());
         dto.setTransferNo(transferId);
         dto.setTimestamp(System.currentTimeMillis());
         String result = submit("/transfer", dto);
@@ -276,7 +296,6 @@ public class PublicObzrApi {
     }
 
 
-
     @Data
     public static class ResponseEntity {
 
@@ -286,4 +305,6 @@ public class PublicObzrApi {
 
         private String data;
     }
+
+
 }

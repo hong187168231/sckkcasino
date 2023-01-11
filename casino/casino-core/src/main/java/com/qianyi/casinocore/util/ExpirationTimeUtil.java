@@ -19,11 +19,11 @@ public class ExpirationTimeUtil {
     /**
      * 普通游戏三天未操作取缓存
      */
-    public final static long universality = oneDay * 3;
+    public final static long universality = oneDay * 2;
     /**
      * 体育游戏十四天未操作取缓存
      */
-    public final static long sports = oneDay * 14;
+    public final static long sports = oneDay * 7;
 
     public static ExpirationTimeUtil expirationTimeUtil;
 

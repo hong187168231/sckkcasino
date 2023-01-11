@@ -14,8 +14,10 @@ import com.qianyi.liveob.dto.GameRecordQueryRespDTO;
 import com.qianyi.liveob.dto.PageRespDTO;
 import com.qianyi.liveob.dto.PullMerchantDto;
 import com.qianyi.liveob.dto.ResultDTO;
+import com.qianyi.lottery.util.StringUtils;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.DateUtil;
+import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -61,29 +63,90 @@ public class GameRecordObzrJob {
     private AdGamesService adGamesService;
     @Autowired
     private PlatformGameService platformGameService;
+    @Autowired
+    private RedisUtil redisUtil;
 
 
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern(DateUtil.patten);
 
 
     //每隔7分钟执行一次
-    @Scheduled(cron = "0 0/1 * * * ?")
+    @Scheduled(cron = "0 0/3 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
-        if (platformGame != null && platformGame.getGameStatus() == 2) {
-            log.info("后台已关闭OB平台,无需拉单,platformGame={}", platformGame);
-            return;
-        }
-        AdGame adGame = adGamesService.findByGamePlatformNameAndGameCode(Constants.PLATFORM_OB, Constants.PLATFORM_OBZR);
-        if (adGame != null && adGame.getGamesStatus() == 2) {
-            log.info("后台已关闭OB真人,无需拉单,adGame={}", adGame);
-            return;
-        }
+//        if (platformGame != null && platformGame.getGameStatus() == 2) {
+//            log.info("后台已关闭OB平台,无需拉单,platformGame={}", platformGame);
+//            return;
+//        }
+//        AdGame adGame = adGamesService.findByGamePlatformNameAndGameCode(Constants.PLATFORM_OB, Constants.PLATFORM_OBZR);
+//        if (adGame != null && adGame.getGamesStatus() == 2) {
+//            log.info("后台已关闭OB真人,无需拉单,adGame={}", adGame);
+//            return;
+//        }
         log.info("定时器开始拉取OB真人注单记录");
         String endTime = gameRecordObzrTimeService.findLastEndTime();
         pullGameRecord(endTime);
         log.info("定时器拉取完成OB真人注单记录");
     }
+
+
+    @Scheduled(fixedDelay = 500)
+    public void repairGameRecordJob() throws InterruptedException {
+        log.info("定时器开始拉取OB真人注单记录");
+        String startTime = (String) redisUtil.get("OBZR:repair:startTime");
+        String endTime = (String) redisUtil.get("OBZR:repair:endTime");
+        if(StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)){
+           repairGameRecord(startTime, endTime);
+        }
+        Thread.sleep(10000*2);
+        String startTime2 = (String) redisUtil.get("OBZR:repair:startTime2");
+        String endTime2 = (String) redisUtil.get("OBZR:repair:endTime2");
+        if(StringUtils.isNotBlank(startTime2) && StringUtils.isNotBlank(endTime2)){
+            repairGameRecord(startTime2, endTime2);
+        }
+        log.info("定时器补取OB真人注单记录");
+    }
+
+
+    public void repairGameRecord(String startTime, String endTime) {
+        int pageIndex = 1;
+        long s = System.currentTimeMillis();
+        ResultDTO resultDTO = publicObzrApi.betHistoryRecord(startTime, endTime, pageIndex);
+        if (ObjectUtil.isNull(resultDTO)) {
+            return;
+        }
+        long e = System.currentTimeMillis();
+        if (resultDTO.getCode().equals("200")) {
+            PageRespDTO data = resultDTO.getData();
+            if (data.getTotalRecord() > 0) {
+                List<GameRecordQueryRespDTO> list = data.getRecord();
+                //保存数据
+                saveAll(list);
+                log.info("商户第{}页/{}页，已入库，条数：{}，拉单时间：{}", pageIndex, data.getTotalPage(), list.size(), e - s);
+            } else {
+                log.info("商户没有获取到数据,但需要更新时间戳");
+            }
+            if (data.getTotalPage() > 1) {
+                for (int i = 2; i < data.getTotalPage(); i++) {
+                    long s1 = System.currentTimeMillis();
+                    ResultDTO resultDTO2 = publicObzrApi.betHistoryRecord(startTime, endTime, i);
+                    long e1 = System.currentTimeMillis();
+                    if (resultDTO2.getCode().equals("200")) {
+                        data = resultDTO2.getData();
+                        if (data.getTotalRecord() > 0) {
+                            List<GameRecordQueryRespDTO> list = data.getRecord();
+                            //保存数据
+                            saveAll(list);
+                            log.info("商户第{}页/{}页，已入库，条数：{}，拉单时间：{}", i, data.getTotalPage(), list.size(), e1 - s1);
+                        } else {
+                            log.info("商户没有获取到数据，但需要更新时间戳");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     public void pullGameRecord(String lastTime) {
         // 每次只粒取30分钟的闻磨(根据年小时单量情况来定，如果是并单可以调整到30分钟一次，如果是正常拉单没有必要)
