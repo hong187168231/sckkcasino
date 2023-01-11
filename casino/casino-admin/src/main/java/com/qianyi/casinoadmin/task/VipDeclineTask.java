@@ -33,8 +33,8 @@ public class VipDeclineTask {
         try {
             Date startTime = DateUtil.getStartTime();
             Date endTime = DateUtil.getEndTime();
-            startTime = cn.hutool.core.date.DateUtil.offsetDay(startTime, -15);
-            endTime = cn.hutool.core.date.DateUtil.offsetDay(endTime, -15);
+            startTime = cn.hutool.core.date.DateUtil.offsetDay(startTime, -10);
+            endTime = cn.hutool.core.date.DateUtil.offsetDay(endTime, -10);
             List<Map<String, Object>> idList = userLevelService.findLastRiseUser(startTime, endTime);
             for (Map<String, Object> map : idList) {
                 Long userId = Long.parseLong(map.get("userId").toString());
