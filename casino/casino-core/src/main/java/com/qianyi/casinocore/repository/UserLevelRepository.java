@@ -31,15 +31,13 @@ public interface UserLevelRepository extends JpaRepository<UserLevelRecord, Long
             "FROM  " +
             "  (  " +
             "    SELECT  " +
-            "      MAX(id) AS id,  " +
+            "      id AS id,  " +
             "      user_id AS userId,  " +
             "      update_time AS updateTime  " +
             "    FROM  " +
             "      user_level_record  " +
-            "    WHERE  " +
-            "      `level` > 1  " +
-            "    GROUP BY  " +
-            "      user_id  " +
+            "    WHERE  id  in " +
+            "       ( SELECT MAX(id) AS id FROM user_level_record WHERE `level` > 1 GROUP BY user_id ) " +
             "  ) k  " +
             "WHERE  " +
             " 1=1 and   updateTime BETWEEN ?1  " +
