@@ -41,7 +41,7 @@ public interface UserLevelRepository extends JpaRepository<UserLevelRecord, Long
             "  ) k  " +
             "WHERE  " +
             " 1=1 and   updateTime BETWEEN ?1  " +
-            "AND ?2  AND updateTime <= now() - INTERVAL 360 HOUR  " +
+            "AND ?2  AND updateTime <= now() - INTERVAL 240 HOUR  " +
             "AND userId NOT IN (  " +
             "  SELECT  " +
             "    user_id AS userId  " +
