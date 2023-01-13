@@ -37,7 +37,7 @@
             resultType="com.qianyi.casinocore.vo.LevelAwardVo">
         SELECT
             a.amount todayAward,
-            b.amount triseAward,
+            b.amount riseAward,
             c.bet_amount betAmount
         FROM
             (

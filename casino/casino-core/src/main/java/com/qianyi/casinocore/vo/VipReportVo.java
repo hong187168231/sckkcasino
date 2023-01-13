@@ -21,10 +21,6 @@ public class VipReportVo {
     @ApiModelProperty(value = "代理账号Id")
     private Long proxyUserId;
 
-
-    @ApiModelProperty(value = "账号")
-    private String account;
-
     @ApiModelProperty(value = "等级")
     private String level;
 
