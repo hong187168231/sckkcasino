@@ -43,7 +43,4 @@ public class VipReportVo {
     @ApiModelProperty(value = "晋级奖励")
     private BigDecimal riseAward;
 
-    @ApiModelProperty(value = "下级人数")
-    private Integer proxyUsersNum;
-
 }

@@ -59,8 +59,8 @@ public class VipReportService {
             ProxyUser proxyUser = proxyUserService.findByUserName(vipReportDTO.getProxyUserName());
             Integer proxyRole = proxyUser.getProxyRole();
             LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(proxyUser.getId(), proxyRole, vipReportDTO.getStartTime(), vipReportDTO.getEndTime());
-            List<VipReportVo> list = new ArrayList<>();
-            VipReportVo vo = new VipReportVo();
+            List<VipProxyReportVo> list = new ArrayList<>();
+            VipProxyReportVo vo = new VipProxyReportVo();
             vo.setProxyUsersNum(proxyUser.getProxyUsersNum());
             vo.setProxyUserId(proxyUser.getId());
             vo.setUserName(proxyUser.getUserName());
