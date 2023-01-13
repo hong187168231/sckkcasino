@@ -45,8 +45,10 @@ public class VipReportService {
             list.getResult().forEach(item -> {
                 LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(item.getProxyUserId(), 1,vipReportDTO.getStartTime(),vipReportDTO.getEndTime());
                 item.setProxyUserId(item.getProxyUserId());
-                item.setTodayAward(levelAwardVo.getTodayAward());
-                item.setRiseAward(levelAwardVo.getRiseAward());
+                if(ObjectUtil.isNotNull(levelAwardVo)){
+                    item.setTodayAward(levelAwardVo.getTodayAward());
+                    item.setRiseAward(levelAwardVo.getRiseAward());
+                }
             });
             PageResult.getPageResult(pageBounds, list);
         }
