@@ -16,4 +16,13 @@ public class VipReportOtherProxyDTO {
     @ApiModelProperty(value = "当前代理账号")
     private String proxyUserName;
 
+    @ApiModelProperty(hidden = true,value = "总代id")
+    private Long firstProxyId;
+
+    @ApiModelProperty(hidden = true,value = "区代id")
+    private Long secondProxy;
+
+
+
+
 }

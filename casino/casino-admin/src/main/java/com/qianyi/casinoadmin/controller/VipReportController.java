@@ -37,7 +37,7 @@ public class VipReportController {
     @GetMapping("/queryVipZdProxy")
     @NoAuthentication
     @NoAuthorization
-    public ResponseEntity<VipReportVo> queryVipZdProxy(VipReportProxyDTO vipReportDTO) {
+    public ResponseEntity<VipProxyReportVo> queryVipZdProxy(VipReportProxyDTO vipReportDTO) {
         PageBounds pageBounds = new PageBounds();
         pageBounds.setPageNo(vipReportDTO.getPageCode());
         pageBounds.setPageSize(vipReportDTO.getPageSize());
@@ -49,7 +49,7 @@ public class VipReportController {
     @GetMapping("/queryVipOtherProxy")
     @NoAuthentication
     @NoAuthorization
-    public ResponseEntity<VipReportVo> queryVipOtherProxy(VipReportOtherProxyDTO vipReportDTO) {
+    public ResponseEntity<VipProxyReportVo> queryVipOtherProxy(VipReportOtherProxyDTO vipReportDTO) {
         return ResponseUtil.success(vipReportService.findVipByProxy2(vipReportDTO));
     }
 

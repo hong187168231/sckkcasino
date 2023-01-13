@@ -4,7 +4,7 @@
 
 
     <select id="proxyZdList" parameterType="com.qianyi.casinoadmin.model.dto.VipReportProxyDTO"
-            resultType="com.qianyi.casinocore.vo.VipReportVo">
+            resultType="com.qianyi.casinocore.vo.VipProxyReportVo">
             SELECT
                 id proxyUserId,
                 user_name userName,
@@ -18,17 +18,17 @@
 
 
     <select id="proxyJdList" parameterType="com.qianyi.casinoadmin.model.dto.VipReportOtherProxyDTO"
-            resultType="com.qianyi.casinocore.vo.VipReportVo">
+            resultType="com.qianyi.casinocore.vo.VipProxyReportVo">
         SELECT * from proxy_user WHERE proxy_role = 2
-                                   and first_proxy = #{firstProxy}
+                                   and first_proxy = #{firstProxyId}
     </select>
 
 
 
     <select id="proxyQdList" parameterType="com.qianyi.casinoadmin.model.dto.VipReportOtherProxyDTO"
-            resultType="com.qianyi.casinocore.vo.VipReportVo">
+            resultType="com.qianyi.casinocore.vo.VipProxyReportVo">
         SELECT * from proxy_user WHERE proxy_role = 3
-                                   and second_proxy = #{secondProxy}
+                                   and second_proxy = #{secondProxyId}
 
     </select>
 

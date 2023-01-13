@@ -1,8 +1,5 @@
 package com.qianyi.casinocore.vo;
 
-import cn.hutool.core.util.StrUtil;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModel;
@@ -13,7 +10,7 @@ import java.math.BigDecimal;
 
 @Data
 @ApiModel
-public class VipReportVo {
+public class VipProxyReportVo {
 
     @ApiModelProperty(value = "代理账号")
     private String userName;
@@ -24,8 +21,6 @@ public class VipReportVo {
     @ApiModelProperty(hidden = true,value = "代理账号Id")
     private Long id;
 
-    @ApiModelProperty(value = "等级")
-    private String level;
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "有效投注")
