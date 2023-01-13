@@ -1,31 +1,26 @@
 package com.qianyi.casinoadmin.controller;
 
-import cn.hutool.core.date.DateUtil;
-import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinoadmin.model.dto.VipReportDTO;
+import com.qianyi.casinoadmin.model.dto.VipReportOtherProxyDTO;
+import com.qianyi.casinoadmin.model.dto.VipReportProxyDTO;
+import com.qianyi.casinoadmin.model.dto.VipReportTotalDTO;
+import com.qianyi.casinoadmin.service.VipReportService;
+import com.qianyi.casinoadmin.util.PageBounds;
 import com.qianyi.casinocore.model.User;
-import com.qianyi.casinocore.service.UserLevelService;
 import com.qianyi.casinocore.service.UserService;
-import com.qianyi.casinocore.util.DTOUtil;
 import com.qianyi.casinocore.vo.*;
 import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 @Api(tags = "vip报表")
 @Slf4j
@@ -35,84 +30,59 @@ public class VipReportController {
     @Autowired
     private UserService userService;
     @Autowired
-    private UserLevelService userLevelService;
+    private VipReportService vipReportService;
+
+
+    @ApiOperation("查询Vip代理报表")
+    @GetMapping("/queryVipZdProxy")
+    @NoAuthentication
+    @NoAuthorization
+    public ResponseEntity<VipReportVo> queryVipZdProxy(VipReportProxyDTO vipReportDTO) {
+        PageBounds pageBounds = new PageBounds();
+        pageBounds.setPageNo(vipReportDTO.getPageCode());
+        pageBounds.setPageSize(vipReportDTO.getPageSize());
+        return ResponseUtil.success(vipReportService.findVipByProxy(vipReportDTO, pageBounds));
+    }
+
+
+    @ApiOperation("查询Vip非总代理报表")
+    @GetMapping("/queryVipOtherProxy")
+    @NoAuthentication
+    @NoAuthorization
+    public ResponseEntity<VipReportVo> queryVipOtherProxy(VipReportOtherProxyDTO vipReportDTO) {
+        return ResponseUtil.success(vipReportService.findVipByProxy2(vipReportDTO));
+    }
+
 
     @ApiOperation("查询Vip报表")
     @GetMapping("/queryPersonReport")
     @NoAuthentication
     @NoAuthorization
-    @ApiImplicitParams({@ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
-            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "account", value = "账号", required = false),
-            @ApiImplicitParam(name = "startTime", value = "起始时间查询", required = true),
-            @ApiImplicitParam(name = "endTime", value = "结束时间查询", required = true),
-            @ApiImplicitParam(name = "levelArray", value = "等级数组,逗号分隔", required = true)})
-    public ResponseEntity<PersonReportVo> queryPersonReport(Integer pageSize, Integer pageCode, String account,
-                                                            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startTime,
-                                                            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endTime, String levelArray) {
-        if (LoginUtil.checkNull(startTime, endTime, pageSize, pageCode)) {
-            return ResponseUtil.custom("参数不合法");
-        }
-        String startTimeStr = DateUtil.formatDateTime(startTime);
-        String endTimeStr = DateUtil.formatDateTime(endTime);
-        if (StringUtils.hasLength(account)) {
-            User user = userService.findByAccount(account);
-            if (user != null) {
-                int page = (pageCode - 1) * pageSize;
-                List<VipReportVo> reportResult = userLevelService.findVipMap(startTimeStr, endTimeStr, levelArray, user.getId(),page,pageSize);
-                PageResultVO<VipReportVo> mapPageResultVO = combinePage(reportResult, 1, pageCode, pageSize);
-                return ResponseUtil.success(mapPageResultVO);
-            }
-        } else {
-            int totalElement = userLevelService.findVipMapCount(levelArray, null);
-            List<VipReportVo> reportResult = userLevelService.findVipMap(startTimeStr, endTimeStr, levelArray, null,pageCode,pageSize);
-            PageResultVO<VipReportVo> mapPageResultVO = combinePage(reportResult, totalElement, pageCode, pageSize);
-            return ResponseUtil.success(mapPageResultVO);
-        }
-        return ResponseUtil.success();
-    }
-
-
-    private PageResultVO<VipReportVo> combinePage(List<VipReportVo> reportResult, int totalElement, int page,
-                                                  int num) {
-        PageResultVO<VipReportVo> pageResult =
-                new PageResultVO<>(page, num, Long.parseLong(totalElement + ""), reportResult);
-        return pageResult;
+    public ResponseEntity<VipReportVo> queryPersonReport(VipReportDTO vipReportDTO) {
+        return ResponseUtil.success(vipReportService.findVipReport(vipReportDTO));
     }
 
 
     @ApiOperation("查询Vip报表总计")
     @GetMapping("/queryTotal")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "account", value = "账号", required = false),
-            @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = false),
-            @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = false),
-            @ApiImplicitParam(name = "levelArray", value = "等级数组,逗号分隔", required = true)
-    })
     @NoAuthentication
     @NoAuthorization
-    public ResponseEntity<VipReportTotalVo> queryTotal(String account,
-                                                          @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                          @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate, String levelArray) {
-        if (LoginUtil.checkNull(startDate, endDate)) {
-            return ResponseUtil.custom("参数不合法");
-        }
-        String startTime = DateUtil.formatDateTime(startDate);
-        String endTime = DateUtil.formatDateTime(endDate);
+    public ResponseEntity<VipReportTotalVo> queryTotal(VipReportTotalDTO vipReportTotalDTO) {
+//        if (LoginUtil.checkNull(vipReportTotalDTO.getStartDate(), vipReportTotalDTO.getEndDate())) {
+//            return ResponseUtil.custom("参数不合法");
+//        }
         Long userId;
-        VipReportTotalVo itemObject = null;
-        if (StringUtils.hasLength(account)) {
-            User user = userService.findByAccount(account);
+        LevelReportTotalVo itemObject = null;
+        if (StringUtils.hasLength(vipReportTotalDTO.getAccount())) {
+            User user = userService.findByAccount(vipReportTotalDTO.getAccount());
             if (user != null) {
                 userId = user.getId();
-                Map<String, Object> maps =
-                        userLevelService.findVipTotalMap(startTime, endTime, levelArray, userId);
-                itemObject = DTOUtil.toDTO(maps.get(0), VipReportTotalVo.class);
+                vipReportTotalDTO.setUserId(userId);
+                itemObject = vipReportService.findVipReportTotal(vipReportTotalDTO);
+
             }
-        } else {
-            Map<String, Object> result =
-                    userLevelService.findVipTotalMap(startTime, endTime, levelArray, null);
-            itemObject = DTOUtil.toDTO(result, VipReportTotalVo.class);
+        }else {
+            itemObject = vipReportService.findVipReportTotal(vipReportTotalDTO);
         }
         return ResponseUtil.success(itemObject);
     }

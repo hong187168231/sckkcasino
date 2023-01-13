@@ -64,6 +64,23 @@ project:
     enable: true
 
 
+mybatis:
+  type-aliases-package: com.qianyi.casinocore.mode
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+pagehelper:
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+  rowBoundsWithCount: true
+  returnPageInfo: check
+  pageSizeZero: true
+
 logging:
   level:
     org.hibernate.type.descriptor.sql.BasicBinder: trace
+    com.qianyi.casinoadmin.repository: debug
+
+
+

@@ -15,6 +15,13 @@ import java.math.BigDecimal;
 @ApiModel
 public class VipReportVo {
 
+    @ApiModelProperty(value = "代理账号")
+    private String userName;
+
+    @ApiModelProperty(value = "代理账号Id")
+    private Long proxyUserId;
+
+
     @ApiModelProperty(value = "账号")
     private String account;
 
@@ -36,5 +43,8 @@ public class VipReportVo {
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "晋级奖励")
     private BigDecimal riseAward;
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    @ApiModelProperty(value = "下级人数")
+    private Integer proxyUsersNum;
 
 }
