@@ -58,8 +58,8 @@ public class VipReportService {
 
     public List<VipReportVo> findVipByProxy2(VipReportOtherProxyDTO vipReportDTO) {
         Integer proxyRole = null;
-        if (ObjectUtil.isNotNull(vipReportDTO.getProxyUserId())) {
-            ProxyUser proxyUser = proxyUserService.findById(vipReportDTO.getProxyUserId());
+        if (StrUtil.isNotBlank(vipReportDTO.getProxyUserName())) {
+            ProxyUser proxyUser = proxyUserService.findByUserName(vipReportDTO.getProxyUserName());
             proxyRole = proxyUser.getProxyRole();
         }
         if (proxyRole == 1) {
