@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -50,6 +51,21 @@ public class VipReportService {
                     item.setRiseAward(levelAwardVo.getRiseAward());
                 }
             });
+            return PageResult.getPageResult(pageBounds, list);
+        }
+        if (StrUtil.isNotBlank(vipReportDTO.getProxyUserName())) {
+            ProxyUser proxyUser = proxyUserService.findByUserName(vipReportDTO.getProxyUserName());
+            Integer proxyRole = proxyUser.getProxyRole();
+            LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(proxyUser.getId(), proxyRole, vipReportDTO.getStartTime(), vipReportDTO.getEndTime());
+            List<VipReportVo> list = new ArrayList<>();
+            VipReportVo vo = new VipReportVo();
+            vo.setProxyUserId(proxyUser.getId());
+            vo.setUserName(proxyUser.getUserName());
+            if (ObjectUtil.isNotNull(levelAwardVo)) {
+                vo.setTodayAward(levelAwardVo.getTodayAward());
+                vo.setRiseAward(levelAwardVo.getRiseAward());
+            }
+            list.add(vo);
             return PageResult.getPageResult(pageBounds, list);
         }
         return PageResult.getPageResult(pageBounds, new LinkedList());

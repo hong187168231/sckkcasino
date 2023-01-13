@@ -13,7 +13,7 @@ public class VipReportOtherProxyDTO {
     private String startTime;
     @ApiModelProperty(value = "结束时间查询")
     private String endTime;
-    @ApiModelProperty(value = "代理账号")
+    @ApiModelProperty(value = "当前代理账号")
     private String proxyUserName;
 
 }

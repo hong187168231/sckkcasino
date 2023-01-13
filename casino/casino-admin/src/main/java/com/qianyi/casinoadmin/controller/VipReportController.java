@@ -45,7 +45,7 @@ public class VipReportController {
     }
 
 
-    @ApiOperation("查询Vip非总代理报表")
+    @ApiOperation("查询下级代理报表")
     @GetMapping("/queryVipOtherProxy")
     @NoAuthentication
     @NoAuthorization
