@@ -187,4 +187,13 @@ public class CommonUtil {
         }
         return str;
     }
+
+    public static String formatting(String formatting) {
+        if (formatting == null){
+            return "";
+        }
+        formatting = formatting.replaceAll(" ", "");
+        formatting = formatting.toLowerCase();
+        return formatting;
+    }
 }

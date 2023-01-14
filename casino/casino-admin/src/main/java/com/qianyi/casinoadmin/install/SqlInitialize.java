@@ -1,7 +1,10 @@
 package com.qianyi.casinoadmin.install;
 
+import cn.hutool.core.collection.CollUtil;
+import com.qianyi.casinocore.model.Bankcards;
 import com.qianyi.casinocore.model.GameRecordEndIndex;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +36,9 @@ public class SqlInitialize  implements CommandLineRunner {
     @Autowired
     private RptBetInfoDetailService rptBetInfoDetailService;
 
+    @Autowired
+    private BankcardsService bankcardsService;
+
     public final static String start = " 12:00:00";
 
     public final static String end = " 11:59:59";
@@ -54,7 +60,15 @@ public class SqlInitialize  implements CommandLineRunner {
 
         rptBetInfoDetailService.updateRptBetInfoDetailGamePlay();
 
-//        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
+        List<Bankcards> byRealNameLowercase = bankcardsService.findByRealNameLowercase();
+        if (CollUtil.isNotEmpty(byRealNameLowercase)){
+            byRealNameLowercase.forEach(bankcards -> {
+                bankcards.setRealNameLowercase(CommonUtil.formatting(bankcards.getRealName()));
+                bankcardsService.boundCard(bankcards);
+            });
+        }
+
+        //        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
 //        first.setOBZRMaxId(0L);
 //        gameRecordEndIndexService.save(first);
 //        gameRecordReportNewService.deleteByPlatform(Constants.PLATFORM_OBZR);

@@ -22,7 +22,12 @@ public interface BankcardsRepository extends JpaRepository<Bankcards,Long> , Jpa
 
     List<Bankcards> findByRealName(String realName);
 
+    List<Bankcards> findByRealNameLowercase(String realNameLowercase);
+
     List<Bankcards> findByBankAccount(String bankAccount);
 
     List<Bankcards> findByBankId(String bankId);
+
+    @Query(value = "select * from bankcards b where b.real_name_lowercase is null",nativeQuery = true)
+    List<Bankcards> findByRealNameLowercase();
 }
