@@ -76,7 +76,16 @@ public class UserLevelService {
         Integer upgradeBet = LevelUtil.getUpgradeBet(platformConfig, user.getLevel());
         Integer keepBet = LevelUtil.getKeepBet(platformConfig, user.getLevel());
         UserMoney userMoney = userMoneyService.findByUserId(user.getId());
-        BigDecimal riseWater = userMoney.getRiseWater();
+        BigDecimal riseWater = null;
+        if (Objects.nonNull(userMoney)){
+            riseWater = userMoney.getRiseWater()==null?BigDecimal.ZERO:userMoney.getRiseWater();
+        }else {
+            log.error("找不到用户钱包:{}",user.getId());
+            riseWater = BigDecimal.ZERO;
+        }
+        if (user.getLevel() >= 10) {
+            riseWater = new BigDecimal(upgradeBet);
+        }
         if (user.getLevel() >= 10) {
             riseWater = new BigDecimal(upgradeBet);
         }
