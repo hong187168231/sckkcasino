@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qianyi.casinoadmin.repository.ProxyVipMapper">
+
+
+    <select id="proxyZdList" parameterType="com.qianyi.casinoadmin.model.dto.VipReportProxyDTO"
+            resultType="com.qianyi.casinocore.vo.VipProxyReportVo">
+            SELECT
+                id proxyUserId,
+                user_name userName,
+                proxy_users_num
+            FROM
+                proxy_user
+            WHERE
+                proxy_role = 1
+              AND proxy_users_num > 0
+    </select>
+
+
+    <select id="proxyJdList" parameterType="com.qianyi.casinoadmin.model.dto.VipReportOtherProxyDTO"
+            resultType="com.qianyi.casinocore.vo.VipProxyReportVo">
+        SELECT * from proxy_user WHERE proxy_role = 2
+                                   and first_proxy = #{firstProxyId}
+    </select>
+
+
+
+    <select id="proxyQdList" parameterType="com.qianyi.casinoadmin.model.dto.VipReportOtherProxyDTO"
+            resultType="com.qianyi.casinocore.vo.VipProxyReportVo">
+        SELECT * from proxy_user WHERE proxy_role = 3
+                                   and second_proxy = #{secondProxyId}
+
+    </select>
+
+
+    <select id="userLevelInfo"
+            resultType="com.qianyi.casinocore.vo.LevelAwardVo">
+        SELECT
+            a.amount todayAward,
+            b.amount riseAward,
+            c.bet_amount betAmount
+        FROM
+            (
+                SELECT
+                    SUM(ar.amount) amount
+                FROM
+                    award_receive_record ar
+                        INNER JOIN `user` u ON ar.user_id = u.id
+                WHERE
+                    1 = 1
+                  AND ar.award_type = 1
+                <if test="proxyLevel == 1">
+                    AND u.first_proxy =#{proxyId}
+                </if>
+                <if test="proxyLevel == 2">
+                    AND u.second_proxy =#{proxyId}
+                </if>
+                <if test="proxyLevel == 3">
+                    AND u.third_proxy =#{proxyId}
+                </if>
+                <if test="startTime != null and startTime!=''">
+                    AND ar.create_time BETWEEN #{startTime} AND #{endTime}
+                </if>
+            ) a,
+            (
+                SELECT
+                    SUM(ar.amount) amount
+                FROM
+                    award_receive_record ar
+                        INNER JOIN `user` u ON ar.user_id = u.id
+                WHERE
+                    1 = 1
+                  AND ar.award_type = 2
+                <if test="proxyLevel == 1">
+                    AND u.first_proxy =#{proxyId}
+                </if>
+                <if test="proxyLevel == 2">
+                    AND u.second_proxy =#{proxyId}
+                </if>
+                <if test="proxyLevel == 3">
+                    AND u.third_proxy =#{proxyId}
+                </if>
+                <if test="startTime != null and startTime!=''">
+                    AND ar.receive_time BETWEEN #{startTime} AND #{endTime}
+                </if>
+            ) b,
+            (
+                SELECT
+                    sum(bet_amount) bet_amount
+                FROM
+                    proxy_game_record_report gr
+                WHERE
+                    1 = 1
+                <if test="proxyLevel == 1">
+                    AND gr.first_proxy =#{proxyId}
+                </if>
+                <if test="proxyLevel == 2">
+                    AND gr.second_proxy =#{proxyId}
+                </if>
+                <if test="proxyLevel == 3">
+                    AND gr.third_proxy =#{proxyId}
+                </if>
+                <if test="startTime != null and startTime!=''">
+                    AND gr.order_times BETWEEN #{startTime} AND #{endTime}
+                </if>
+            ) c
+
+    </select>
+
+
+    <select id="userLevelList" parameterType="com.qianyi.casinoadmin.model.dto.VipReportDTO"
+            resultType="com.qianyi.casinocore.vo.VipReportVo">
+        SELECT
+            u.*, k.*, IFNULL(td.todayAward, 0.000) todayAward,
+            IFNULL(rs.riseAward, 0.000) asriseAward
+        FROM
+            (
+                SELECT
+                    account,
+                    id,
+                    `level`,
+                    create_time AS createTime
+                FROM
+                    `user`
+                WHERE
+                    1 = 1
+                <if test="levelArray != null and levelArray!=''">
+                    AND `level` IN (#{levelArray})
+                </if>
+                <if test="userId != null">
+                    AND `id` = #{userId}
+                </if>
+            ) u
+                LEFT JOIN (
+                SELECT
+                    user_id AS userId,
+                    SUM(betting_number) num,
+                    sum(bet_amount) betAmount,
+                    sum(valid_amount) validBet,
+                    sum(win_loss) winLoss
+                FROM
+                    proxy_game_record_report gr
+                <if test="startTime != null and startTime!=''">
+                    where order_times BETWEEN #{startTime} AND #{endTime}
+                </if>
+                GROUP BY
+                    user_id
+            ) k ON k.userId = u.id
+                LEFT JOIN (
+                SELECT
+                    user_id,
+                    SUM(amount) AS todayAward
+                FROM
+                    award_receive_record
+                WHERE
+                    1 = 1
+                  AND award_type = 1
+                <if test="startTime != null and startTime!=''">
+                    AND create_time BETWEEN #{startTime} AND #{endTime}
+                </if>
+                GROUP BY
+                    user_id
+            ) td ON u.id = td.user_id
+                LEFT JOIN (
+                SELECT
+                    user_id,
+                    SUM(amount) AS riseAward
+                FROM
+                    award_receive_record
+                WHERE
+                    1 = 1
+                  AND award_type = 2
+                <if test="startTime != null and startTime!=''">
+                    AND receive_time BETWEEN #{startTime} AND #{endTime}
+                </if>
+                GROUP BY
+                    user_id
+            ) rs ON u.id = rs.user_id
+        ORDER BY
+            u.createTime DESC
+    </select>
+
+
+    <select id="levelTotal" parameterType="com.qianyi.casinoadmin.model.dto.VipReportTotalDTO"
+            resultType="com.qianyi.casinocore.vo.LevelReportTotalVo">
+        SELECT
+            a.validBet,
+            a.winLoss,
+            b.todayAward,
+            c.riseAward
+        FROM
+            (
+                SELECT
+                    user_id,
+                    SUM(betting_number) num,
+                    sum(valid_amount) validBet,
+                    sum(win_loss) winLoss
+                FROM
+                    proxy_game_record_report gr
+                WHERE
+                    1 = 1
+                <if test="startTime != null and startTime!=''">
+                    and order_times BETWEEN #{startTime} AND #{endTime}
+                </if>
+                <if test="startTime != null and startTime!=''">
+                    and order_times BETWEEN #{startTime} AND #{endTime}
+                </if>
+                <if test="pf != null and pf!=''">
+                    and  AND user_id IN (
+                    <if test="level != null and level!=''">
+                        AND `level` IN (#{levelArray})
+                    </if>
+                    <if test="level != null and level!=''">
+                        AND `id`  = #{userId}
+                    </if>
+                    )
+                </if>
+        ) a,
+            (
+                SELECT
+                    SUM(amount) AS todayAward
+                FROM
+                    award_receive_record
+                WHERE
+                    award_type = 1
+                <if test="startTime != null and startTime!=''">
+                    and create_time BETWEEN #{startTime} AND #{endTime}
+                </if>
+                <if test="pf != null and pf!=''">
+                    and  AND user_id IN (
+                    <if test="level != null and level!=''">
+                        AND `level` IN (#{levelArray})
+                    </if>
+                    <if test="level != null and level!=''">
+                        AND `id`  = #{userId}
+                    </if>
+                    )
+                </if>
+            ) b,
+            (
+                SELECT
+                    SUM(amount) AS riseAward
+                FROM
+                    award_receive_record
+                WHERE
+                    award_type = 2
+                <if test="startTime != null and startTime!=''">
+                    AND receive_time BETWEEN #{startTime} AND #{endTime}
+                </if>
+                <if test="pf != null and pf!=''">
+                    and  AND user_id IN (
+                    <if test="level != null and level!=''">
+                        AND `level` IN (#{levelArray})
+                    </if>
+                    <if test="level != null and level!=''">
+                        AND `id`  = #{userId}
+                    </if>
+                    )
+                </if>
+            ) c
+    </select>
+
+
+</mapper>

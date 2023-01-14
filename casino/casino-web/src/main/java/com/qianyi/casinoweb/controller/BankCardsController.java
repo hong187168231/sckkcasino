@@ -8,6 +8,7 @@ import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.BankcardsService;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -288,7 +289,8 @@ public class BankCardsController {
         if (!bankcardRealNameSwitch) {
             return true;
         }
-        List<Bankcards> checkRealNameList = bankcardsService.findByRealName(realName);
+        String realNameLowercase = CommonUtil.formatting(realName);
+        List<Bankcards> checkRealNameList = bankcardsService.findByRealNameLowercase(realNameLowercase);
         if (CollectionUtils.isEmpty(checkRealNameList)) {
             return true;
         }

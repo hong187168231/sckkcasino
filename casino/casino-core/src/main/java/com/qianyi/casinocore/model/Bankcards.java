@@ -42,6 +42,9 @@ public class Bankcards extends BaseEntity{
      */
     @ApiModelProperty(value = "开户名")
     private String realName;
+
+    @ApiModelProperty(value = "开户名去除小写去除空格保存(做验证)")
+    private String realNameLowercase;
     /**
      * 默认卡，主卡
      */

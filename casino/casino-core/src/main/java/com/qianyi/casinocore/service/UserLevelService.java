@@ -81,7 +81,13 @@ public class UserLevelService {
         Integer upgradeBet = LevelUtil.getUpgradeBet(platformConfig, user.getLevel());
         Integer keepBet = LevelUtil.getKeepBet(platformConfig, user.getLevel());
         UserMoney userMoney = userMoneyService.findByUserId(user.getId());
-        BigDecimal riseWater = userMoney.getRiseWater();
+        BigDecimal riseWater = null;
+        if (Objects.nonNull(userMoney)){
+            riseWater = userMoney.getRiseWater()==null?BigDecimal.ZERO:userMoney.getRiseWater();
+        }else {
+            log.error("找不到用户钱包:{}",user.getId());
+            riseWater = BigDecimal.ZERO;
+        }
         if (user.getLevel() >= 10) {
             riseWater = new BigDecimal(upgradeBet);
         }
@@ -243,11 +249,11 @@ public class UserLevelService {
                 " sum(valid_amount) validBet, " +
                 " sum(win_loss) winLoss " +
                 " FROM " +
-                " proxy_game_record_report gr " +
-                " GROUP BY " +
-                " user_id " +
-                ") k ON k.userId = u.id ");
-
+                " proxy_game_record_report gr ");
+        if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
+            stringBuffer.append("   where order_times BETWEEN" + startTime + " AND " + endTime + "");
+        }
+        stringBuffer.append("GROUP BY  user_id ) k ON k.userId = u.id ");
         stringBuffer.append("   LEFT JOIN ( " +
                 "                SELECT " +
                 "        user_id, " +

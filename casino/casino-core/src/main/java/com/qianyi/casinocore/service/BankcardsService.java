@@ -34,6 +34,9 @@ public class BankcardsService {
             put = @CachePut(key="#result.id")
     )
     public Bankcards boundCard(Bankcards bankcards){
+        if (bankcards.getRealNameLowercase() == null){
+            bankcards.setRealNameLowercase(com.qianyi.casinocore.util.CommonUtil.formatting(bankcards.getRealName()));
+        }
         return bankcardsRepository.save(bankcards);
     }
 
@@ -67,6 +70,10 @@ public class BankcardsService {
         Specification<Bankcards> condition = this.getCondition(bankcards);
         List<Bankcards> bankcardsList = bankcardsRepository.findAll(condition);
         return bankcardsList;
+    }
+
+    public List<Bankcards> findByRealNameLowercase(){
+        return bankcardsRepository.findByRealNameLowercase();
     }
 
     private Specification<Bankcards> getCondition(Bankcards bankcards) {
@@ -147,6 +154,10 @@ public class BankcardsService {
 
     public List<Bankcards> findByRealName(String realName) {
         return bankcardsRepository.findByRealName(realName);
+    }
+
+    public List<Bankcards> findByRealNameLowercase(String realNameLowercase) {
+        return bankcardsRepository.findByRealNameLowercase(realNameLowercase);
     }
 
     public List<Bankcards> findByBankAccount(String bankAccount) {
