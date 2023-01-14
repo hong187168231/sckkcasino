@@ -90,7 +90,7 @@ public class GameRecordObzrJob {
     }
 
 
-    @Scheduled(fixedDelay = 500)
+    @Scheduled(fixedDelay = 5000)
     public void repairGameRecordJob() throws InterruptedException {
         log.info("定时器开始拉取OB真人注单记录");
         String startTime = (String) redisUtil.get("OBZR:repair:startTime");

@@ -73,12 +73,12 @@ public class BankCardsController {
     @PostMapping("/bound")
     @ApiOperation("用户增加银行卡")
     @ApiImplicitParams({@ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
-        @ApiImplicitParam(name = "bankAccount", value = "银行账号", required = true),
-        @ApiImplicitParam(name = "address", value = "开户地址", required = true),
-        @ApiImplicitParam(name = "realName", value = "持卡人姓名")})
+            @ApiImplicitParam(name = "bankAccount", value = "银行账号", required = true),
+            @ApiImplicitParam(name = "address", value = "开户地址", required = true),
+            @ApiImplicitParam(name = "realName", value = "持卡人姓名")})
     @Transactional
     public ResponseEntity<Bankcards> bound(String bankId, String bankAccount, String address, String realName,
-        HttpServletRequest request) {
+                                           HttpServletRequest request) {
         String checkParamFroBound = Bankcards.checkParamFroBound(bankId, bankAccount, address);
         if (StringUtils.hasLength(checkParamFroBound)) {
             return ResponseUtil.custom(checkParamFroBound);
@@ -95,6 +95,12 @@ public class BankCardsController {
                 return ResponseUtil.custom("最多只能添加1张银行卡");
             }
             List<Bankcards> bankcardsList = bankcardsService.findByBankAccount(bankAccount);
+            for (Bankcards bankcards : bankcardsList) {
+                String beforeRealName = bankcards.getRealName().replace(" ","");
+                if (realName.toLowerCase().equals(beforeRealName.toLowerCase())) {
+                    return ResponseUtil.custom("同一个持卡人只能绑定一个账号");
+                }
+            }
             if (!CollectionUtils.isEmpty(bankcardsList)) {
                 return ResponseUtil.custom("该卡号银行卡已被绑定");
             }
@@ -129,7 +135,7 @@ public class BankCardsController {
 
     /**
      * 根据ID删除银行卡
-     * 
+     *
      * @param id 银行卡id
      * @return
      */
@@ -174,7 +180,7 @@ public class BankCardsController {
 
     /**
      * 根据ID设置默认银行卡
-     * 
+     *
      * @param id 银行卡id
      * @return
      */
@@ -244,7 +250,7 @@ public class BankCardsController {
     }
 
     private Bankcards boundCard(Bankcards firstBankcard, String bankId, String bankAccount, String address,
-        String realName, User user) {
+                                String realName, User user) {
         Date now = new Date();
         Bankcards bankcards = new Bankcards();
         bankcards.setUserId(user.getId());
@@ -277,7 +283,7 @@ public class BankCardsController {
 
     /**
      * 银行卡绑定 同名只能绑定一个账号 默认开
-     * 
+     *
      * @param realName
      * @param userId
      * @return
