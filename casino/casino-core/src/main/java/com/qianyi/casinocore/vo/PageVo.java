@@ -14,17 +14,19 @@ public class PageVo {
     }
     public PageVo(Integer pageNo, Integer pageSize){
         if (pageSize == null || pageNo == null) {
-            this.pageNo=1;
-            this.pageSize=10;
+            pageNo=1;
+            pageSize=10;
         }
 
         if (pageNo < 1 || pageSize < 1) {
-            this.pageNo=1;
-            this.pageSize=10;
+            pageNo=1;
+            pageSize=10;
         }
 
         if(pageSize > 100){
-            this.pageSize = 100;
+            pageSize = 100;
         }
+        this.pageNo = pageNo;
+        this.pageSize = pageSize;
     }
 }
