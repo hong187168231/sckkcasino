@@ -86,9 +86,6 @@ public class UserLevelService {
         if (user.getLevel() >= 10) {
             riseWater = new BigDecimal(upgradeBet);
         }
-        if (user.getLevel() >= 10) {
-            riseWater = new BigDecimal(upgradeBet);
-        }
         userVo.setPromote(riseWater + "/" + new BigDecimal(upgradeBet));
         BigDecimal levelWater = userVo.getLevelWater() == null ? BigDecimal.ZERO : userVo.getLevelWater();
         if (levelWater.subtract(new BigDecimal(keepBet)).intValue() > 0) {
