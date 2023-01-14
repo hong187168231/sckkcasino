@@ -1,9 +1,6 @@
 package com.qianyi.casinoadmin.controller;
 
-import com.qianyi.casinoadmin.model.dto.VipReportDTO;
-import com.qianyi.casinoadmin.model.dto.VipReportOtherProxyDTO;
-import com.qianyi.casinoadmin.model.dto.VipReportProxyDTO;
-import com.qianyi.casinoadmin.model.dto.VipReportTotalDTO;
+import com.qianyi.casinoadmin.model.dto.*;
 import com.qianyi.casinoadmin.service.VipReportService;
 import com.qianyi.casinoadmin.util.PageBounds;
 import com.qianyi.casinocore.model.User;
@@ -81,11 +78,23 @@ public class VipReportController {
                 itemObject = vipReportService.findVipReportTotal(vipReportTotalDTO);
 
             }
-        }else {
+        } else {
             itemObject = vipReportService.findVipReportTotal(vipReportTotalDTO);
         }
         return ResponseUtil.success(itemObject);
     }
 
+
+    @ApiOperation("查询Vip代理报表总计")
+    @GetMapping("/queryProxyTotal")
+    @NoAuthentication
+    @NoAuthorization
+    public ResponseEntity<LevelReportTotalVo> queryProxyTotal(VipProxyReportTotalDTO vipReportTotalDTO) {
+//        if (LoginUtil.checkNull(vipReportTotalDTO.getStartDate(), vipReportTotalDTO.getEndDate())) {
+//            return ResponseUtil.custom("参数不合法");
+//        }
+        LevelReportTotalVo levelReportTotalVo = vipReportService.findProxyVipReportTotal(vipReportTotalDTO);
+        return ResponseUtil.success(levelReportTotalVo);
+    }
 
 }

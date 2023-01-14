@@ -3,10 +3,7 @@ package com.qianyi.casinoadmin.service;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.Page;
-import com.qianyi.casinoadmin.model.dto.VipReportDTO;
-import com.qianyi.casinoadmin.model.dto.VipReportOtherProxyDTO;
-import com.qianyi.casinoadmin.model.dto.VipReportProxyDTO;
-import com.qianyi.casinoadmin.model.dto.VipReportTotalDTO;
+import com.qianyi.casinoadmin.model.dto.*;
 import com.qianyi.casinoadmin.repository.ProxyVipMapper;
 import com.qianyi.casinoadmin.util.PageBounds;
 import com.qianyi.casinoadmin.util.PageResult;
@@ -25,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -141,6 +139,24 @@ public class VipReportService {
         LevelReportTotalVo levelTotalVo = proxyVipMapper.levelTotal(vipReportTotalDTO);
         return levelTotalVo;
     }
+
+
+    public LevelReportTotalVo findProxyVipReportTotal(VipProxyReportTotalDTO vipReportTotalDTO) {
+//        if (StrUtil.isNotBlank(vipReportTotalDTO.getLevelArray())) {
+//            vipReportTotalDTO.setPf("1");
+//        }
+//        if (ObjectUtil.isNotNull(vipReportTotalDTO.getUserId())) {
+//            vipReportTotalDTO.setPf("1");
+//        }
+//        LevelReportTotalVo levelTotalVo = proxyVipMapper.levelTotal(vipReportTotalDTO);
+        LevelReportTotalVo levelReportTotalVo = new LevelReportTotalVo();
+        levelReportTotalVo.setValidBet(BigDecimal.ONE);
+        levelReportTotalVo.setWinLoss(new BigDecimal(2));
+        levelReportTotalVo.setTodayAward(new BigDecimal(3));
+        levelReportTotalVo.setRiseAward(new BigDecimal(4));
+        return levelReportTotalVo;
+    }
+
 
 
 }
