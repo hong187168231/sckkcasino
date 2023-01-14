@@ -261,4 +261,80 @@
     </select>
 
 
+
+    <select id="levelProxyTotal"
+            resultType="com.qianyi.casinocore.vo.LevelAwardVo">
+        SELECT
+        a.amount todayAward,
+        b.amount riseAward,
+        c.bet_amount betAmount
+        FROM
+        (
+        SELECT
+        SUM(ar.amount) amount
+        FROM
+        award_receive_record ar
+        INNER JOIN `user` u ON ar.user_id = u.id
+        WHERE
+        1 = 1
+        AND ar.award_type = 1
+        <if test="proxyLevel == 1">
+            AND u.first_proxy =#{proxyId}
+        </if>
+        <if test="proxyLevel == 2">
+            AND u.second_proxy =#{proxyId}
+        </if>
+        <if test="proxyLevel == 3">
+            AND u.third_proxy =#{proxyId}
+        </if>
+        <if test="startTime != null and startTime!=''">
+            AND ar.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
+        ) a,
+        (
+        SELECT
+        SUM(ar.amount) amount
+        FROM
+        award_receive_record ar
+        INNER JOIN `user` u ON ar.user_id = u.id
+        WHERE
+        1 = 1
+        AND ar.award_type = 2
+        <if test="proxyLevel == 1">
+            AND u.first_proxy =#{proxyId}
+        </if>
+        <if test="proxyLevel == 2">
+            AND u.second_proxy =#{proxyId}
+        </if>
+        <if test="proxyLevel == 3">
+            AND u.third_proxy =#{proxyId}
+        </if>
+        <if test="startTime != null and startTime!=''">
+            AND ar.receive_time BETWEEN #{startTime} AND #{endTime}
+        </if>
+        ) b,
+        (
+        SELECT
+        sum(bet_amount) bet_amount
+        FROM
+        proxy_game_record_report gr
+        WHERE
+        1 = 1
+        <if test="proxyLevel == 1">
+            AND gr.first_proxy =#{proxyId}
+        </if>
+        <if test="proxyLevel == 2">
+            AND gr.second_proxy =#{proxyId}
+        </if>
+        <if test="proxyLevel == 3">
+            AND gr.third_proxy =#{proxyId}
+        </if>
+        <if test="startTime != null and startTime!=''">
+            AND gr.order_times BETWEEN #{startTime} AND #{endTime}
+        </if>
+        ) c
+
+    </select>
+
+
 </mapper>

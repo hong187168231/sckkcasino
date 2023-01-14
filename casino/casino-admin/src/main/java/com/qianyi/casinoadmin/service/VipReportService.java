@@ -142,21 +142,17 @@ public class VipReportService {
 
 
     public LevelReportTotalVo findProxyVipReportTotal(VipProxyReportTotalDTO vipReportTotalDTO) {
-//        if (StrUtil.isNotBlank(vipReportTotalDTO.getLevelArray())) {
-//            vipReportTotalDTO.setPf("1");
-//        }
-//        if (ObjectUtil.isNotNull(vipReportTotalDTO.getUserId())) {
-//            vipReportTotalDTO.setPf("1");
-//        }
-//        LevelReportTotalVo levelTotalVo = proxyVipMapper.levelTotal(vipReportTotalDTO);
-        LevelReportTotalVo levelReportTotalVo = new LevelReportTotalVo();
-        levelReportTotalVo.setValidBet(BigDecimal.ONE);
-        levelReportTotalVo.setWinLoss(new BigDecimal(2));
-        levelReportTotalVo.setTodayAward(new BigDecimal(3));
-        levelReportTotalVo.setRiseAward(new BigDecimal(4));
+        LevelReportTotalVo levelReportTotalVo;
+        if (StrUtil.isNotBlank(vipReportTotalDTO.getAccount())) {
+            ProxyUser proxyUser = proxyUserService.findByUserName(vipReportTotalDTO.getAccount());
+            Integer proxyRole = proxyUser.getProxyRole();
+            vipReportTotalDTO.setProxyLevel(proxyRole);
+            levelReportTotalVo = proxyVipMapper.levelProxyTotal(vipReportTotalDTO);
+        } else {
+            levelReportTotalVo = proxyVipMapper.levelProxyTotal(vipReportTotalDTO);
+        }
         return levelReportTotalVo;
     }
-
 
 
 }
