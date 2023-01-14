@@ -8,6 +8,7 @@ import com.qianyi.casinocore.service.BankInfoService;
 import com.qianyi.casinocore.service.BankcardsService;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.UserService;
+import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
@@ -95,12 +96,6 @@ public class BankCardsController {
                 return ResponseUtil.custom("最多只能添加1张银行卡");
             }
             List<Bankcards> bankcardsList = bankcardsService.findByBankAccount(bankAccount);
-            for (Bankcards bankcards : bankcardsList) {
-                String beforeRealName = bankcards.getRealName().replace(" ","");
-                if (realName.toLowerCase().equals(beforeRealName.toLowerCase())) {
-                    return ResponseUtil.custom("同一个持卡人只能绑定一个账号");
-                }
-            }
             if (!CollectionUtils.isEmpty(bankcardsList)) {
                 return ResponseUtil.custom("该卡号银行卡已被绑定");
             }
@@ -294,7 +289,8 @@ public class BankCardsController {
         if (!bankcardRealNameSwitch) {
             return true;
         }
-        List<Bankcards> checkRealNameList = bankcardsService.findByRealName(realName);
+        String realNameLowercase = CommonUtil.formatting(realName);
+        List<Bankcards> checkRealNameList = bankcardsService.findByRealNameLowercase(realNameLowercase);
         if (CollectionUtils.isEmpty(checkRealNameList)) {
             return true;
         }
