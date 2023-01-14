@@ -64,7 +64,7 @@ public class GameRecordDMCJob {
     public static final long ORDER_RXPIRE_TIME = 7 * 24l;
 
     //每隔2分钟执行一次
-    @Scheduled(cron = "50 0/2 * * * ?")
+    @Scheduled(cron = "50 0/1 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_DMC);
         //平台关闭，但是拉单还是要继续进行
@@ -181,15 +181,27 @@ public class GameRecordDMCJob {
                 continue;
             }
             //封装数据
-            GameParentRecordDMC gameParentRecordDMC = getGameParentRecordDMC(gameRecordDMCVo);
             //判断注单是否已经入库
             GameRecordDMC gameRecord = null;
             List<TicketSlaves> ticketSlavesList = JSON.parseArray(gameRecordDMCVo.getTicket_slaves(), TicketSlaves.class);
             for (TicketSlaves ticketSlaves : ticketSlavesList) {
+                boolean flag = false;
                 try {
+                    int num = existBetRecord(ticketSlaves);
+                    if(num != -1){
+                        continue;
+                    }
                     gameRecord = save(gameRecordDMCVo, ticketSlaves);
+                    flag = true;
                 }catch (Exception e){
                     log.error("保存{}游戏记录时报错,message={}", platform, e.getMessage());
+                }finally {
+                    if(flag){
+                        ValueOperations<String, String> opsForValue = redisTemplate.opsForValue();
+                        opsForValue.set("DMC:" + ticketSlaves.getChild_ticket_no(), ticketSlaves.getMd5(), ORDER_RXPIRE_TIME, TimeUnit.HOURS);
+                        log.info("set gameParentRecordDMC bill no to redisKey：【{}】", "DMC:" + ticketSlaves.getChild_ticket_no());
+
+                    }
                 }
 
                 if (gameRecord == null) {
@@ -226,13 +238,13 @@ public class GameRecordDMCJob {
         return recordDMC;
     }
 
-    private int existBetRecord(GameParentRecordDMC recordDMC, String redisKey){
+    private int existBetRecord(TicketSlaves ticketSlaves){
         ValueOperations<String, String> opsForValue = redisTemplate.opsForValue();
-        String rowMd5 = opsForValue.get(redisKey);
+        String rowMd5 = opsForValue.get("DMC:" + ticketSlaves.getChild_ticket_no());
         if(StringUtils.isBlank(rowMd5)){
             return -1; //不存在
         }
-        if(!rowMd5.equalsIgnoreCase(recordDMC.getMd5())){//有变化
+        if(!rowMd5.equalsIgnoreCase(ticketSlaves.getMd5())){//有变化
             return -2; //有变化
         }
         return 0; //无变化

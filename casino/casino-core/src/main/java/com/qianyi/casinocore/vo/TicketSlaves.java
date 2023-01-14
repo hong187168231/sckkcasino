@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.vo;
 
+import com.qianyi.casinocore.util.Md5Util;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -38,5 +39,17 @@ public class TicketSlaves {
     private String deleted_at;  //注单删除时间
     private BigDecimal odds;    //中奖赔率
 
+
+    public String getMd5(){
+        StringBuffer sb = new StringBuffer();
+        sb.append(this.ticket_id).append(this.merchant_id).append(this.child_ticket_no)
+                .append(this.big_bet_amount).append(this.small_bet_amount).append(this.three_a_bet_amount)
+                .append(this.bet_amount).append(this.bet_net_amount).append(this.rebate_amount)
+                .append(this.status).append(this.progress_status).append(this.betting_date)
+                .append(this.lottery_number).append(this.draw_number).append(this.created_at)
+                .append(this.updated_at).append(this.odds);
+
+        return Md5Util.md5(sb.toString());
+    }
 
 }
