@@ -20,7 +20,7 @@ public class VipReportOtherProxyDTO {
     private Long firstProxyId;
 
     @ApiModelProperty(hidden = true,value = "区代id")
-    private Long secondProxy;
+    private Long secondProxyId;
 
 
 

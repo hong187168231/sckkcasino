@@ -15,14 +15,9 @@ import java.math.BigDecimal;
 @ApiModel
 public class VipReportVo {
 
-    @ApiModelProperty(value = "代理账号")
-    private String userName;
+    @ApiModelProperty(value = "会员账号")
+    private String account;
 
-    @ApiModelProperty(value = "代理账号Id")
-    private Long proxyUserId;
-
-    @ApiModelProperty(hidden = true,value = "代理账号Id")
-    private Long id;
 
     @ApiModelProperty(value = "等级")
     private String level;

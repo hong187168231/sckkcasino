@@ -101,7 +101,7 @@ public class VipReportService {
             return list;
         }
         if (proxyRole == 2) {
-            vipReportDTO.setSecondProxy(proxyUser.getId());
+            vipReportDTO.setSecondProxyId(proxyUser.getId());
             List<VipProxyReportVo> list = proxyVipMapper.proxyQdList(vipReportDTO);
             for (VipProxyReportVo vipReportVo : list) {
                 LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(vipReportVo.getProxyUserId(),
