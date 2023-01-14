@@ -4,6 +4,7 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinocore.util.CommonUtil;
 import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinocore.vo.BankcardsVo;
 import com.qianyi.modulecommon.Constants;
@@ -12,7 +13,6 @@ import com.qianyi.modulecommon.annotation.NoAuthentication;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
-import com.qianyi.modulecommon.util.CommonUtil;
 import com.qianyi.modulecommon.util.UploadAndDownloadUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -344,7 +344,9 @@ public class BankCardsController {
         if (!bankcardRealNameSwitch) {
             return true;
         }
-        List<Bankcards> checkRealNameList = bankcardsService.findByRealName(realName);
+        String realNameLowercase = CommonUtil.formatting(realName);
+
+        List<Bankcards> checkRealNameList = bankcardsService.findByRealNameLowercase(realNameLowercase);
         if (CollectionUtils.isEmpty(checkRealNameList)) {
             return true;
         }

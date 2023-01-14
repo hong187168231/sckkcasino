@@ -84,7 +84,7 @@ public class UserRunningWaterController {
                 return ResponseUtil.custom("查询失败");
             }
         }
-        Sort sort=Sort.by("id").descending();
+        Sort sort=Sort.by("staticsTimes").descending();
         String startTime = startDate == null?null:DateUtil.dateToPatten1(startDate);
         String endTime = endDate == null?null:DateUtil.dateToPatten1(endDate);
         if (LoginUtil.checkNull(runningWater)){

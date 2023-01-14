@@ -26,5 +26,7 @@ public class PageVo {
         if(pageSize > 100){
             pageSize = 100;
         }
+        this.pageNo = pageNo;
+        this.pageSize = pageSize;
     }
 }
