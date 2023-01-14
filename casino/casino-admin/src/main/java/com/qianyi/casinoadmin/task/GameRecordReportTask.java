@@ -423,8 +423,9 @@ public class GameRecordReportTask {
 
     private List<ProxyGameRecordReportVo> assemblyGameRecordDmc(List<ProxyGameRecordReportVo> proxyGameRecordReportVos,
                                                                 List<GameRecordDMC> gameRecordDMCs) {
-        try {
+
             for (GameRecordDMC gameRecordDMC : gameRecordDMCs) {
+                try {
                 ProxyGameRecordReportVo vo = new ProxyGameRecordReportVo();
                 vo.setGameRecordId(gameRecordDMC.getId());
                 vo.setOrderId(gameRecordDMC.getBetOrderNo());
@@ -441,10 +442,11 @@ public class GameRecordReportTask {
                 vo.setBetAmount(gameRecordDMC.getBetMoney());
                 vo.setPlatform(Constants.PLATFORM_DMC);
                 proxyGameRecordReportVos.add(vo);
+                } catch (Exception ex) {
+                    log.error("组装DMC注单异常,数据为：{}", gameRecordDMC, ex.getMessage());
+                }
             }
-        } catch (Exception ex) {
-            log.error("组装DMC注单异常{}", ex);
-        }
+
 
         return proxyGameRecordReportVos;
     }
