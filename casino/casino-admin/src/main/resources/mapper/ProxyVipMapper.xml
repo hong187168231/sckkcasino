@@ -102,8 +102,8 @@
                 <if test="proxyLevel == 3">
                     AND gr.third_proxy =#{proxyId}
                 </if>
-                <if test="startTime != null and startTime!=''">
-                    AND gr.order_times BETWEEN #{startTime} AND #{endTime}
+                <if test="startDate != null and startDate!=''">
+                    AND gr.order_times BETWEEN #{startDate} AND #{endDate}
                 </if>
             ) c
 
@@ -142,8 +142,8 @@
                     sum(win_loss) winLoss
                 FROM
                     proxy_game_record_report gr
-                <if test="startTime != null and startTime!=''">
-                    where order_times BETWEEN #{startTime} AND #{endTime}
+                <if test="startDate != null and startDate!=''">
+                    where order_times BETWEEN #{startDate} AND #{endDate}
                 </if>
                 GROUP BY
                     user_id
@@ -201,11 +201,8 @@
                     proxy_game_record_report gr
                 WHERE
                     1 = 1
-                <if test="startTime != null and startTime!=''">
-                    and order_times BETWEEN #{startTime} AND #{endTime}
-                </if>
-                <if test="startTime != null and startTime!=''">
-                    and order_times BETWEEN #{startTime} AND #{endTime}
+                <if test="startDate != null and startDate!=''">
+                    and order_times BETWEEN #{startDate} AND #{endDate}
                 </if>
                 <if test="pf != null and pf!=''">
                     and  AND user_id IN (
@@ -331,8 +328,8 @@
         <if test="proxyLevel == 3">
             AND gr.third_proxy =#{proxyUserId}
         </if>
-        <if test="startTime != null and startTime!=''">
-            AND gr.order_times BETWEEN #{startTime} AND #{endTime}
+        <if test="startDate != null and startDate!=''">
+            AND gr.order_times BETWEEN #{startDate} AND #{endDate}
         </if>
         ) c
 

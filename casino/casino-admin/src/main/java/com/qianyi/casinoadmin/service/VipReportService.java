@@ -42,13 +42,18 @@ public class VipReportService {
     private UserService userService;
 
     public PageResult findVipByProxy(VipReportProxyDTO vipReportDTO, PageBounds pageBounds) {
+        if(StrUtil.isNotBlank(vipReportDTO.getStartTime())){
+            String startTime = vipReportDTO.getStartTime().substring(0,10);
+            String endTime = vipReportDTO.getEndTime().substring(0,10);
+            vipReportDTO.setStartDate(startTime);
+            vipReportDTO.setEndDate(endTime);
+        }
+
         if (StrUtil.isBlank(vipReportDTO.getProxyUserName()) && ObjectUtil.isNull(vipReportDTO.getProxyUserId())) {
             Page<VipProxyReportVo> list = proxyVipMapper.proxyZdList(vipReportDTO, pageBounds.toRowBounds());
             list.getResult().forEach(item -> {
-                String startTime = vipReportDTO.getStartTime().substring(0,10);
-                String endTime = vipReportDTO.getEndTime().substring(0,10);
                 LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(item.getProxyUserId(),
-                        1, startTime, endTime);
+                        1, vipReportDTO.getStartTime(), vipReportDTO.getEndTime(), vipReportDTO.getStartDate(), vipReportDTO.getEndDate());
                 item.setProxyUserId(item.getProxyUserId());
                 if (ObjectUtil.isNotNull(levelAwardVo)) {
                     item.setTodayAward(levelAwardVo.getTodayAward());
@@ -64,7 +69,8 @@ public class VipReportService {
         if (StrUtil.isNotBlank(vipReportDTO.getProxyUserName())) {
             ProxyUser proxyUser = proxyUserService.findByUserName(vipReportDTO.getProxyUserName());
             Integer proxyRole = proxyUser.getProxyRole();
-            LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(proxyUser.getId(), proxyRole, vipReportDTO.getStartTime(), vipReportDTO.getEndTime());
+            LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(proxyUser.getId(), proxyRole,
+                    vipReportDTO.getStartTime(), vipReportDTO.getEndTime(), vipReportDTO.getStartDate(), vipReportDTO.getEndDate());
             List<VipProxyReportVo> list = new ArrayList<>();
             VipProxyReportVo vo = new VipProxyReportVo();
             vo.setProxyUsersNum(proxyUser.getProxyUsersNum());
@@ -94,12 +100,18 @@ public class VipReportService {
             }
             proxyRole = proxyUser.getProxyRole();
         }
+        if(StrUtil.isNotBlank(vipReportDTO.getStartTime())){
+            String startTime = vipReportDTO.getStartTime().substring(0,10);
+            String endTime = vipReportDTO.getEndTime().substring(0,10);
+            vipReportDTO.setStartDate(startTime);
+            vipReportDTO.setEndDate(endTime);
+        }
         if (proxyRole == 1) {
             vipReportDTO.setFirstProxyId(proxyUser.getId());
             List<VipProxyReportVo> list = proxyVipMapper.proxyJdList(vipReportDTO);
             for (VipProxyReportVo vipReportVo : list) {
                 LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(vipReportVo.getProxyUserId(),
-                        2, vipReportDTO.getStartTime(), vipReportDTO.getEndTime());
+                        2, vipReportDTO.getStartTime(), vipReportDTO.getEndTime(), vipReportDTO.getStartDate(), vipReportDTO.getEndDate());
                 vipReportVo.setProxyUserId(vipReportVo.getId());
                 if (ObjectUtil.isNotNull(levelAwardVo)) {
                     vipReportVo.setTodayAward(levelAwardVo.getTodayAward());
@@ -117,7 +129,7 @@ public class VipReportService {
             List<VipProxyReportVo> list = proxyVipMapper.proxyQdList(vipReportDTO);
             for (VipProxyReportVo vipReportVo : list) {
                 LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(vipReportVo.getProxyUserId(),
-                        3, vipReportDTO.getStartTime(), vipReportDTO.getEndTime());
+                        3, vipReportDTO.getStartTime(), vipReportDTO.getEndTime(), vipReportDTO.getStartDate(), vipReportDTO.getEndDate());
                 vipReportVo.setProxyUserId(vipReportVo.getId());
                 if (ObjectUtil.isNotNull(levelAwardVo)) {
                     vipReportVo.setTodayAward(levelAwardVo.getTodayAward());
@@ -159,6 +171,12 @@ public class VipReportService {
 
 
     public LevelReportTotalVo findProxyVipReportTotal(VipProxyReportTotalDTO vipReportTotalDTO) {
+        if(StrUtil.isNotBlank(vipReportTotalDTO.getStartTime())){
+            String startTime = vipReportTotalDTO.getStartTime().substring(0,10);
+            String endTime = vipReportTotalDTO.getEndTime().substring(0,10);
+            vipReportTotalDTO.setStartDate(startTime);
+            vipReportTotalDTO.setEndDate(endTime);
+        }
         LevelReportTotalVo levelReportTotalVo;
         if (StrUtil.isNotBlank(vipReportTotalDTO.getAccount())) {
             ProxyUser proxyUser = proxyUserService.findByUserName(vipReportTotalDTO.getAccount());

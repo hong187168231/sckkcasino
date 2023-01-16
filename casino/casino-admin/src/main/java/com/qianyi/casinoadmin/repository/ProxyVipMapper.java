@@ -21,7 +21,7 @@ public interface ProxyVipMapper {
 
     List<VipProxyReportVo> proxyQdList(VipReportOtherProxyDTO dto);
 
-    LevelAwardVo userLevelInfo(Long proxyId, Integer proxyLevel,String startTime,String endTime);
+    LevelAwardVo userLevelInfo(Long proxyId, Integer proxyLevel,String startTime,String endTime,String startDate,String endDate);
 
     Page<VipReportVo> userLevelList(VipReportDTO dto, RowBounds rowBounds);
 

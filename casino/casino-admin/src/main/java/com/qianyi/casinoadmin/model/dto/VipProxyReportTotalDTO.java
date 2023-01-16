@@ -20,6 +20,15 @@ public class VipProxyReportTotalDTO {
     @ApiModelProperty(value = "结束时间查询")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String endTime;
+
+    @ApiModelProperty(value = "起始时间查询")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String startDate;
+    @ApiModelProperty(value = "结束时间查询")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String endDate;
+
+
     @ApiModelProperty(hidden = true,value = "代理账号Id")
     private Long proxyUserId;
     @ApiModelProperty(hidden = true,value = "代理权限标识")
