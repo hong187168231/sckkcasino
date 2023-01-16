@@ -29,5 +29,9 @@ public class LevelReportTotalVo {
     @ApiModelProperty(value = "晋级奖励")
     private BigDecimal riseAward;
 
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    @ApiModelProperty(value = "红利")
+    private BigDecimal awardAmount;
+
 
 }

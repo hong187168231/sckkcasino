@@ -53,8 +53,10 @@ public class VipReportService {
                 if (ObjectUtil.isNotNull(levelAwardVo)) {
                     item.setTodayAward(levelAwardVo.getTodayAward());
                     item.setRiseAward(levelAwardVo.getRiseAward());
+                    item.setAwardAmount(item.getTodayAward().add(item.getRiseAward()));
                     item.setValidBet(levelAwardVo.getBetAmount());
                     item.setWinLoss(levelAwardVo.getWinLoss());
+
                 }
             });
             return PageResult.getPageResult(pageBounds, list);
@@ -71,6 +73,7 @@ public class VipReportService {
             if (ObjectUtil.isNotNull(levelAwardVo)) {
                 vo.setTodayAward(levelAwardVo.getTodayAward());
                 vo.setRiseAward(levelAwardVo.getRiseAward());
+                vo.setAwardAmount(vo.getTodayAward().add(vo.getRiseAward()));
                 vo.setValidBet(levelAwardVo.getBetAmount());
                 vo.setWinLoss(levelAwardVo.getWinLoss());
             }
@@ -101,6 +104,7 @@ public class VipReportService {
                 if (ObjectUtil.isNotNull(levelAwardVo)) {
                     vipReportVo.setTodayAward(levelAwardVo.getTodayAward());
                     vipReportVo.setRiseAward(levelAwardVo.getRiseAward());
+                    vipReportVo.setAwardAmount(vipReportVo.getTodayAward().add(vipReportVo.getRiseAward()));
                     vipReportVo.setValidBet(levelAwardVo.getBetAmount());
                     vipReportVo.setWinLoss(levelAwardVo.getWinLoss());
                 }
@@ -118,6 +122,7 @@ public class VipReportService {
                 if (ObjectUtil.isNotNull(levelAwardVo)) {
                     vipReportVo.setTodayAward(levelAwardVo.getTodayAward());
                     vipReportVo.setRiseAward(levelAwardVo.getRiseAward());
+                    vipReportVo.setAwardAmount(vipReportVo.getTodayAward().add(vipReportVo.getRiseAward()));
                     vipReportVo.setValidBet(levelAwardVo.getBetAmount());
                     vipReportVo.setWinLoss(levelAwardVo.getWinLoss());
                 }
@@ -163,6 +168,7 @@ public class VipReportService {
         } else {
             levelReportTotalVo = proxyVipMapper.levelProxyTotal(vipReportTotalDTO);
         }
+        levelReportTotalVo.setAwardAmount(levelReportTotalVo.getTodayAward().add(levelReportTotalVo.getRiseAward()));
         return levelReportTotalVo;
     }
 
