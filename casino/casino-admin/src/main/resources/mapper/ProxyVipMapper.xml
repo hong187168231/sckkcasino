@@ -114,7 +114,7 @@
             resultType="com.qianyi.casinocore.vo.VipReportVo">
         SELECT
             u.*, k.*, IFNULL(td.todayAward, 0.000) todayAward,
-            IFNULL(rs.riseAward, 0.000) asriseAward
+            IFNULL(rs.riseAward, 0.000)  riseAward
         FROM
             (
                 SELECT
