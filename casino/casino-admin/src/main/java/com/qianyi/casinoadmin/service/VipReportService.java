@@ -155,6 +155,9 @@ public class VipReportService {
         }
         if (StringUtils.hasLength(vipReportDTO.getAccount())) {
             User user = userService.findByAccount(vipReportDTO.getAccount());
+            if(ObjectUtil.isNull(user)){
+                return PageResult.getPageResult(pageBounds, new LinkedList());
+            }
             vipReportDTO.setUserId(user.getId());
         }
         if (StrUtil.isNotBlank(vipReportDTO.getLevelArray())) {
