@@ -178,8 +178,8 @@ public class VipReportService {
             vipReportTotalDTO.setEndDate(endTime);
         }
         LevelReportTotalVo levelReportTotalVo;
-        if (StrUtil.isNotBlank(vipReportTotalDTO.getAccount())) {
-            ProxyUser proxyUser = proxyUserService.findByUserName(vipReportTotalDTO.getAccount());
+        if (StrUtil.isNotBlank(vipReportTotalDTO.getProxyUserName())) {
+            ProxyUser proxyUser = proxyUserService.findByUserName(vipReportTotalDTO.getProxyUserName());
             Integer proxyRole = proxyUser.getProxyRole();
             vipReportTotalDTO.setProxyLevel(proxyRole);
             vipReportTotalDTO.setProxyUserId(proxyUser.getId());

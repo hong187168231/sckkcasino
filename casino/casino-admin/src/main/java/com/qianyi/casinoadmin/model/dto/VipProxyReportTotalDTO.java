@@ -13,7 +13,7 @@ import javax.persistence.Transient;
 public class VipProxyReportTotalDTO {
 
     @ApiModelProperty(value = "账号")
-    private String account;
+    private String proxyUserName;
     @ApiModelProperty(value = "起始时间查询")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String startTime;
