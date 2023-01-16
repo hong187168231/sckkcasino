@@ -190,6 +190,7 @@ public class VipReportService {
             vipReportTotalDTO.setEndDate(endTime);
         }
         LevelReportTotalVo levelTotalVo = proxyVipMapper.levelTotal(vipReportTotalDTO);
+        levelTotalVo.setAwardAmount(levelTotalVo.getTodayAward().add(levelTotalVo.getRiseAward()));
         return levelTotalVo;
     }
 
