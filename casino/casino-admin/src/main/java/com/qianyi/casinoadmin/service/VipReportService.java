@@ -182,6 +182,7 @@ public class VipReportService {
             ProxyUser proxyUser = proxyUserService.findByUserName(vipReportTotalDTO.getAccount());
             Integer proxyRole = proxyUser.getProxyRole();
             vipReportTotalDTO.setProxyLevel(proxyRole);
+            vipReportTotalDTO.setProxyUserId(proxyUser.getId());
             levelReportTotalVo = proxyVipMapper.levelProxyTotal(vipReportTotalDTO);
         } else {
             vipReportTotalDTO.setQueryZd("1");
