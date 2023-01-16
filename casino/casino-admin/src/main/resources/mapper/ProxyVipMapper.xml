@@ -281,6 +281,7 @@
         SELECT
         ifnull(a.amount,0) todayAward,
         ifnull(b.amount,0) riseAward,
+        c.winLoss winLoss,
         c.validbet validBet
         FROM
         (
@@ -335,6 +336,7 @@
         ) b,
         (
         SELECT
+        sum(win_loss) winLoss,
         sum(valid_amount) validbet
         FROM
         proxy_game_record_report gr
