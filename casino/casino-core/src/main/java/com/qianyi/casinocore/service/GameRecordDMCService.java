@@ -200,12 +200,12 @@ public class GameRecordDMCService {
         }
         if (!ObjectUtils.isEmpty(startBetTime) && !ObjectUtils.isEmpty(endBetTime)) {
             list.add(
-                    cb.between(root.get("betTime").as(String.class), startBetTime, endBetTime)
+                    cb.between(root.get("settleTime").as(String.class), startBetTime, endBetTime)
             );
         }
         if (!ObjectUtils.isEmpty(startSetTime) && !ObjectUtils.isEmpty(endSetTime)) {
             list.add(
-                    cb.between(root.get("betTime").as(String.class), startSetTime, endSetTime)
+                    cb.between(root.get("settleTime").as(String.class), startSetTime, endSetTime)
             );
         }
         query
