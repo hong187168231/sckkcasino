@@ -110,7 +110,7 @@ public class VipReportService {
             vipReportDTO.setFirstProxyId(proxyUser.getId());
             List<VipProxyReportVo> list = proxyVipMapper.proxyJdList(vipReportDTO);
             for (VipProxyReportVo vipReportVo : list) {
-                LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(vipReportVo.getProxyUserId(),
+                LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(vipReportVo.getId(),
                         2, vipReportDTO.getStartTime(), vipReportDTO.getEndTime(), vipReportDTO.getStartDate(), vipReportDTO.getEndDate());
                 vipReportVo.setProxyUserId(vipReportVo.getId());
                 if (ObjectUtil.isNotNull(levelAwardVo)) {
@@ -128,7 +128,7 @@ public class VipReportService {
             vipReportDTO.setSecondProxyId(proxyUser.getId());
             List<VipProxyReportVo> list = proxyVipMapper.proxyQdList(vipReportDTO);
             for (VipProxyReportVo vipReportVo : list) {
-                LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(vipReportVo.getProxyUserId(),
+                LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(vipReportVo.getId(),
                         3, vipReportDTO.getStartTime(), vipReportDTO.getEndTime(), vipReportDTO.getStartDate(), vipReportDTO.getEndDate());
                 vipReportVo.setProxyUserId(vipReportVo.getId());
                 if (ObjectUtil.isNotNull(levelAwardVo)) {
