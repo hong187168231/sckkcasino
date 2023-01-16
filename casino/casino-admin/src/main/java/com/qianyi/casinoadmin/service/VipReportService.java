@@ -16,6 +16,7 @@ import com.qianyi.casinocore.vo.LevelAwardVo;
 import com.qianyi.casinocore.vo.LevelReportTotalVo;
 import com.qianyi.casinocore.vo.VipProxyReportVo;
 import com.qianyi.casinocore.vo.VipReportVo;
+import com.qianyi.modulecommon.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,9 +24,8 @@ import org.springframework.util.StringUtils;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -40,15 +40,26 @@ public class VipReportService {
     private UserService userService;
 
     public PageResult findVipByProxy(VipReportProxyDTO vipReportDTO, PageBounds pageBounds) {
+        if(StrUtil.isNotBlank(vipReportDTO.getStartTime())){
+            String startTime = vipReportDTO.getStartTime().substring(0,10);
+            String endTime = vipReportDTO.getEndTime().substring(0,10);
+            vipReportDTO.setStartDate(startTime);
+            vipReportDTO.setEndDate(endTime);
+        }
+
         if (StrUtil.isBlank(vipReportDTO.getProxyUserName()) && ObjectUtil.isNull(vipReportDTO.getProxyUserId())) {
             Page<VipProxyReportVo> list = proxyVipMapper.proxyZdList(vipReportDTO, pageBounds.toRowBounds());
             list.getResult().forEach(item -> {
                 LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(item.getProxyUserId(),
-                        1, vipReportDTO.getStartTime(), vipReportDTO.getEndTime());
+                        1, vipReportDTO.getStartTime(), vipReportDTO.getEndTime(), vipReportDTO.getStartDate(), vipReportDTO.getEndDate());
                 item.setProxyUserId(item.getProxyUserId());
                 if (ObjectUtil.isNotNull(levelAwardVo)) {
                     item.setTodayAward(levelAwardVo.getTodayAward());
                     item.setRiseAward(levelAwardVo.getRiseAward());
+                    item.setAwardAmount(item.getTodayAward().add(item.getRiseAward()));
+                    item.setValidBet(levelAwardVo.getBetAmount());
+                    item.setWinLoss(levelAwardVo.getWinLoss());
+
                 }
             });
             return PageResult.getPageResult(pageBounds, list);
@@ -56,7 +67,8 @@ public class VipReportService {
         if (StrUtil.isNotBlank(vipReportDTO.getProxyUserName())) {
             ProxyUser proxyUser = proxyUserService.findByUserName(vipReportDTO.getProxyUserName());
             Integer proxyRole = proxyUser.getProxyRole();
-            LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(proxyUser.getId(), proxyRole, vipReportDTO.getStartTime(), vipReportDTO.getEndTime());
+            LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(proxyUser.getId(), proxyRole,
+                    vipReportDTO.getStartTime(), vipReportDTO.getEndTime(), vipReportDTO.getStartDate(), vipReportDTO.getEndDate());
             List<VipProxyReportVo> list = new ArrayList<>();
             VipProxyReportVo vo = new VipProxyReportVo();
             vo.setProxyUsersNum(proxyUser.getProxyUsersNum());
@@ -65,7 +77,9 @@ public class VipReportService {
             if (ObjectUtil.isNotNull(levelAwardVo)) {
                 vo.setTodayAward(levelAwardVo.getTodayAward());
                 vo.setRiseAward(levelAwardVo.getRiseAward());
+                vo.setAwardAmount(vo.getTodayAward().add(vo.getRiseAward()));
                 vo.setValidBet(levelAwardVo.getBetAmount());
+                vo.setWinLoss(levelAwardVo.getWinLoss());
             }
             list.add(vo);
             return PageResult.getPageResult(pageBounds, list);
@@ -84,17 +98,25 @@ public class VipReportService {
             }
             proxyRole = proxyUser.getProxyRole();
         }
+        if(StrUtil.isNotBlank(vipReportDTO.getStartTime())){
+            String startTime = vipReportDTO.getStartTime().substring(0,10);
+            String endTime = vipReportDTO.getEndTime().substring(0,10);
+            vipReportDTO.setStartDate(startTime);
+            vipReportDTO.setEndDate(endTime);
+        }
         if (proxyRole == 1) {
             vipReportDTO.setFirstProxyId(proxyUser.getId());
             List<VipProxyReportVo> list = proxyVipMapper.proxyJdList(vipReportDTO);
             for (VipProxyReportVo vipReportVo : list) {
-                LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(vipReportVo.getProxyUserId(),
-                        2, vipReportDTO.getStartTime(), vipReportDTO.getEndTime());
+                LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(vipReportVo.getId(),
+                        2, vipReportDTO.getStartTime(), vipReportDTO.getEndTime(), vipReportDTO.getStartDate(), vipReportDTO.getEndDate());
                 vipReportVo.setProxyUserId(vipReportVo.getId());
                 if (ObjectUtil.isNotNull(levelAwardVo)) {
                     vipReportVo.setTodayAward(levelAwardVo.getTodayAward());
                     vipReportVo.setRiseAward(levelAwardVo.getRiseAward());
+                    vipReportVo.setAwardAmount(vipReportVo.getTodayAward().add(vipReportVo.getRiseAward()));
                     vipReportVo.setValidBet(levelAwardVo.getBetAmount());
+                    vipReportVo.setWinLoss(levelAwardVo.getWinLoss());
                 }
 
             }
@@ -104,13 +126,15 @@ public class VipReportService {
             vipReportDTO.setSecondProxyId(proxyUser.getId());
             List<VipProxyReportVo> list = proxyVipMapper.proxyQdList(vipReportDTO);
             for (VipProxyReportVo vipReportVo : list) {
-                LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(vipReportVo.getProxyUserId(),
-                        3, vipReportDTO.getStartTime(), vipReportDTO.getEndTime());
+                LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(vipReportVo.getId(),
+                        3, vipReportDTO.getStartTime(), vipReportDTO.getEndTime(), vipReportDTO.getStartDate(), vipReportDTO.getEndDate());
                 vipReportVo.setProxyUserId(vipReportVo.getId());
                 if (ObjectUtil.isNotNull(levelAwardVo)) {
                     vipReportVo.setTodayAward(levelAwardVo.getTodayAward());
                     vipReportVo.setRiseAward(levelAwardVo.getRiseAward());
+                    vipReportVo.setAwardAmount(vipReportVo.getTodayAward().add(vipReportVo.getRiseAward()));
                     vipReportVo.setValidBet(levelAwardVo.getBetAmount());
+                    vipReportVo.setWinLoss(levelAwardVo.getWinLoss());
                 }
             }
             return list;
@@ -123,9 +147,20 @@ public class VipReportService {
         PageBounds pageBounds = new PageBounds();
         pageBounds.setPageNo(vipReportDTO.getPageCode());
         pageBounds.setPageSize(vipReportDTO.getPageSize());
+        if(StrUtil.isNotBlank(vipReportDTO.getStartTime())){
+            String startTime = vipReportDTO.getStartTime().substring(0,10);
+            String endTime = vipReportDTO.getEndTime().substring(0,10);
+            vipReportDTO.setStartDate(startTime);
+            vipReportDTO.setEndDate(endTime);
+        }
         if (StringUtils.hasLength(vipReportDTO.getAccount())) {
             User user = userService.findByAccount(vipReportDTO.getAccount());
             vipReportDTO.setUserId(user.getId());
+        }
+        if (StrUtil.isNotBlank(vipReportDTO.getLevelArray())) {
+            List<String> result = Arrays.asList( vipReportDTO.getLevelArray().split(","));
+            List<Integer> LevelArrays = result.stream().map(Integer::parseInt).collect(Collectors.toList());
+            vipReportDTO.setLevelArrays(LevelArrays);
         }
         Page<VipReportVo> userList = proxyVipMapper.userLevelList(vipReportDTO, pageBounds.toRowBounds());
         return PageResult.getPageResult(pageBounds, userList);
@@ -133,27 +168,52 @@ public class VipReportService {
 
 
     public LevelReportTotalVo findVipReportTotal(VipReportTotalDTO vipReportTotalDTO) {
+        if(StrUtil.isNotBlank(vipReportTotalDTO.getStartTime())){
+            String startTime = vipReportTotalDTO.getStartTime().substring(0,10);
+            String endTime = vipReportTotalDTO.getEndTime().substring(0,10);
+            vipReportTotalDTO.setStartDate(startTime);
+            vipReportTotalDTO.setEndDate(endTime);
+        }
         if (StrUtil.isNotBlank(vipReportTotalDTO.getLevelArray())) {
             vipReportTotalDTO.setPf("1");
+            List<String> result = Arrays.asList( vipReportTotalDTO.getLevelArray().split(","));
+            List<Integer> LevelArrays = result.stream().map(Integer::parseInt).collect(Collectors.toList());
+            vipReportTotalDTO.setLevelArrays(LevelArrays);
         }
         if (ObjectUtil.isNotNull(vipReportTotalDTO.getUserId())) {
             vipReportTotalDTO.setPf("1");
         }
+        if(StrUtil.isNotBlank(vipReportTotalDTO.getStartTime())){
+            String startTime = vipReportTotalDTO.getStartTime().substring(0,10);
+            String endTime = vipReportTotalDTO.getEndTime().substring(0,10);
+            vipReportTotalDTO.setStartDate(startTime);
+            vipReportTotalDTO.setEndDate(endTime);
+        }
         LevelReportTotalVo levelTotalVo = proxyVipMapper.levelTotal(vipReportTotalDTO);
+        levelTotalVo.setAwardAmount(levelTotalVo.getTodayAward().add(levelTotalVo.getRiseAward()));
         return levelTotalVo;
     }
 
 
     public LevelReportTotalVo findProxyVipReportTotal(VipProxyReportTotalDTO vipReportTotalDTO) {
+        if(StrUtil.isNotBlank(vipReportTotalDTO.getStartTime())){
+            String startTime = vipReportTotalDTO.getStartTime().substring(0,10);
+            String endTime = vipReportTotalDTO.getEndTime().substring(0,10);
+            vipReportTotalDTO.setStartDate(startTime);
+            vipReportTotalDTO.setEndDate(endTime);
+        }
         LevelReportTotalVo levelReportTotalVo;
-        if (StrUtil.isNotBlank(vipReportTotalDTO.getAccount())) {
-            ProxyUser proxyUser = proxyUserService.findByUserName(vipReportTotalDTO.getAccount());
+        if (StrUtil.isNotBlank(vipReportTotalDTO.getProxyUserName())) {
+            ProxyUser proxyUser = proxyUserService.findByUserName(vipReportTotalDTO.getProxyUserName());
             Integer proxyRole = proxyUser.getProxyRole();
             vipReportTotalDTO.setProxyLevel(proxyRole);
+            vipReportTotalDTO.setProxyUserId(proxyUser.getId());
             levelReportTotalVo = proxyVipMapper.levelProxyTotal(vipReportTotalDTO);
         } else {
+            vipReportTotalDTO.setQueryZd("1");
             levelReportTotalVo = proxyVipMapper.levelProxyTotal(vipReportTotalDTO);
         }
+        levelReportTotalVo.setAwardAmount(levelReportTotalVo.getTodayAward().add(levelReportTotalVo.getRiseAward()));
         return levelReportTotalVo;
     }
 

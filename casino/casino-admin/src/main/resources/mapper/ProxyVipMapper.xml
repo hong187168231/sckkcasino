@@ -36,8 +36,9 @@
     <select id="userLevelInfo"
             resultType="com.qianyi.casinocore.vo.LevelAwardVo">
         SELECT
-            a.amount todayAward,
-            b.amount riseAward,
+            ifnull(a.amount,0) todayAward,
+        ifnull(b.amount,0) riseAward,
+            c.winLoss winLoss,
             c.bet_amount betAmount
         FROM
             (
@@ -86,7 +87,8 @@
             ) b,
             (
                 SELECT
-                    sum(valid_amount) bet_amount
+                    sum(valid_amount) bet_amount,
+                    sum(win_loss) winLoss
                 FROM
                     proxy_game_record_report gr
                 WHERE
@@ -100,8 +102,8 @@
                 <if test="proxyLevel == 3">
                     AND gr.third_proxy =#{proxyId}
                 </if>
-                <if test="startTime != null and startTime!=''">
-                    AND gr.order_times BETWEEN #{startTime} AND #{endTime}
+                <if test="startDate != null and startDate!=''">
+                    AND gr.order_times BETWEEN #{startDate} AND #{endDate}
                 </if>
             ) c
 
@@ -125,7 +127,10 @@
                 WHERE
                     1 = 1
                 <if test="levelArray != null and levelArray!=''">
-                    AND `level` IN (#{levelArray})
+                    AND `level` IN
+                    <foreach collection="levelArrays" index="index" item="item" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
                 </if>
                 <if test="userId != null">
                     AND `id` = #{userId}
@@ -140,8 +145,8 @@
                     sum(win_loss) winLoss
                 FROM
                     proxy_game_record_report gr
-                <if test="startTime != null and startTime!=''">
-                    where order_times BETWEEN #{startTime} AND #{endTime}
+                <if test="startDate != null and startDate!=''">
+                    where order_times BETWEEN #{startDate} AND #{endDate}
                 </if>
                 GROUP BY
                     user_id
@@ -186,8 +191,8 @@
         SELECT
             a.validBet,
             a.winLoss,
-            b.todayAward,
-            c.riseAward
+        ifnull(b.todayAward,0) todayAward,
+        ifnull(c.riseAward,0) riseAward
         FROM
             (
                 SELECT
@@ -199,18 +204,19 @@
                     proxy_game_record_report gr
                 WHERE
                     1 = 1
-                <if test="startTime != null and startTime!=''">
-                    and order_times BETWEEN #{startTime} AND #{endTime}
-                </if>
-                <if test="startTime != null and startTime!=''">
-                    and order_times BETWEEN #{startTime} AND #{endTime}
+                <if test="startDate != null and startDate!=''">
+                    and order_times BETWEEN #{startDate} AND #{endDate}
                 </if>
                 <if test="pf != null and pf!=''">
-                    and  AND user_id IN (
-                    <if test="level != null and level!=''">
-                        AND `level` IN (#{levelArray})
+                      AND user_id IN (
+                    SELECT  id from `user`  WHERE 1=1
+                    <if test="levelArray != null and levelArray!=''">
+                        AND `level` IN
+                        <foreach collection="levelArrays" index="index" item="item" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
                     </if>
-                    <if test="level != null and level!=''">
+                    <if test="userId != null">
                         AND `id`  = #{userId}
                     </if>
                     )
@@ -227,11 +233,15 @@
                     and create_time BETWEEN #{startTime} AND #{endTime}
                 </if>
                 <if test="pf != null and pf!=''">
-                    and  AND user_id IN (
-                    <if test="level != null and level!=''">
-                        AND `level` IN (#{levelArray})
+                      AND user_id IN (
+                       SELECT  id from `user`  WHERE 1=1
+                    <if test="levelArray != null and levelArray!=''">
+                        AND `level` IN
+                        <foreach collection="levelArrays" index="index" item="item" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
                     </if>
-                    <if test="level != null and level!=''">
+                    <if test="userId != null">
                         AND `id`  = #{userId}
                     </if>
                     )
@@ -248,11 +258,15 @@
                     AND receive_time BETWEEN #{startTime} AND #{endTime}
                 </if>
                 <if test="pf != null and pf!=''">
-                    and  AND user_id IN (
-                    <if test="level != null and level!=''">
-                        AND `level` IN (#{levelArray})
+                      AND user_id IN (
+                    SELECT  id from `user`  WHERE 1=1
+                    <if test="levelArray != null and levelArray!=''">
+                        AND `level` IN
+                        <foreach collection="levelArrays" index="index" item="item" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
                     </if>
-                    <if test="level != null and level!=''">
+                    <if test="userId != null">
                         AND `id`  = #{userId}
                     </if>
                     )
@@ -265,8 +279,8 @@
     <select id="levelProxyTotal"
             resultType="com.qianyi.casinocore.vo.LevelReportTotalVo">
         SELECT
-        a.amount todayAward,
-        b.amount riseAward,
+        ifnull(a.amount,0) todayAward,
+        ifnull(b.amount,0) riseAward,
         c.validbet validBet
         FROM
         (
@@ -278,6 +292,9 @@
         WHERE
         1 = 1
         AND ar.award_type = 1
+        <if test="queryZd != null and queryZd!=''">
+            AND u.first_proxy in (SELECT id from proxy_user WHERE proxy_role = 1)
+        </if>
         <if test="proxyLevel == 1">
             AND u.first_proxy =#{proxyUserId}
         </if>
@@ -300,6 +317,9 @@
         WHERE
         1 = 1
         AND ar.award_type = 2
+        <if test="queryZd != null and queryZd!=''">
+            AND u.first_proxy in (SELECT id from proxy_user WHERE proxy_role = 1)
+        </if>
         <if test="proxyLevel == 1">
             AND u.first_proxy =#{proxyUserId}
         </if>
@@ -320,6 +340,9 @@
         proxy_game_record_report gr
         WHERE
         1 = 1
+        <if test="queryZd != null and queryZd!=''">
+            AND gr.first_proxy in (SELECT id from proxy_user WHERE proxy_role = 1)
+        </if>
         <if test="proxyLevel == 1">
             AND gr.first_proxy =#{proxyUserId}
         </if>
@@ -329,8 +352,8 @@
         <if test="proxyLevel == 3">
             AND gr.third_proxy =#{proxyUserId}
         </if>
-        <if test="startTime != null and startTime!=''">
-            AND gr.order_times BETWEEN #{startTime} AND #{endTime}
+        <if test="startDate != null and startDate!=''">
+            AND gr.order_times BETWEEN #{startDate} AND #{endDate}
         </if>
         ) c
 

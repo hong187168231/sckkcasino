@@ -26,5 +26,7 @@ public class LevelAwardVo {
 
     private BigDecimal betAmount;
 
+    private BigDecimal winLoss;
+
 
 }
