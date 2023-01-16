@@ -65,6 +65,7 @@ public class VipReportService {
             if (ObjectUtil.isNotNull(levelAwardVo)) {
                 vo.setTodayAward(levelAwardVo.getTodayAward());
                 vo.setRiseAward(levelAwardVo.getRiseAward());
+                vo.setValidBet(levelAwardVo.getBetAmount());
             }
             list.add(vo);
             return PageResult.getPageResult(pageBounds, list);
@@ -93,6 +94,7 @@ public class VipReportService {
                 if (ObjectUtil.isNotNull(levelAwardVo)) {
                     vipReportVo.setTodayAward(levelAwardVo.getTodayAward());
                     vipReportVo.setRiseAward(levelAwardVo.getRiseAward());
+                    vipReportVo.setValidBet(levelAwardVo.getBetAmount());
                 }
 
             }
@@ -108,6 +110,7 @@ public class VipReportService {
                 if (ObjectUtil.isNotNull(levelAwardVo)) {
                     vipReportVo.setTodayAward(levelAwardVo.getTodayAward());
                     vipReportVo.setRiseAward(levelAwardVo.getRiseAward());
+                    vipReportVo.setValidBet(levelAwardVo.getBetAmount());
                 }
             }
             return list;

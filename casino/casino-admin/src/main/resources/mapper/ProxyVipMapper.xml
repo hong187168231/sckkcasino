@@ -86,7 +86,7 @@
             ) b,
             (
                 SELECT
-                    sum(bet_amount) bet_amount
+                    sum(valid_amount) bet_amount
                 FROM
                     proxy_game_record_report gr
                 WHERE
@@ -263,11 +263,11 @@
 
 
     <select id="levelProxyTotal"
-            resultType="com.qianyi.casinocore.vo.LevelAwardVo">
+            resultType="com.qianyi.casinocore.vo.LevelReportTotalVo">
         SELECT
         a.amount todayAward,
         b.amount riseAward,
-        c.bet_amount betAmount
+        c.validbet validBet
         FROM
         (
         SELECT
@@ -279,13 +279,13 @@
         1 = 1
         AND ar.award_type = 1
         <if test="proxyLevel == 1">
-            AND u.first_proxy =#{proxyId}
+            AND u.first_proxy =#{proxyUserId}
         </if>
         <if test="proxyLevel == 2">
-            AND u.second_proxy =#{proxyId}
+            AND u.second_proxy =#{proxyUserId}
         </if>
         <if test="proxyLevel == 3">
-            AND u.third_proxy =#{proxyId}
+            AND u.third_proxy =#{proxyUserId}
         </if>
         <if test="startTime != null and startTime!=''">
             AND ar.create_time BETWEEN #{startTime} AND #{endTime}
@@ -301,13 +301,13 @@
         1 = 1
         AND ar.award_type = 2
         <if test="proxyLevel == 1">
-            AND u.first_proxy =#{proxyId}
+            AND u.first_proxy =#{proxyUserId}
         </if>
         <if test="proxyLevel == 2">
-            AND u.second_proxy =#{proxyId}
+            AND u.second_proxy =#{proxyUserId}
         </if>
         <if test="proxyLevel == 3">
-            AND u.third_proxy =#{proxyId}
+            AND u.third_proxy =#{proxyUserId}
         </if>
         <if test="startTime != null and startTime!=''">
             AND ar.receive_time BETWEEN #{startTime} AND #{endTime}
@@ -315,19 +315,19 @@
         ) b,
         (
         SELECT
-        sum(bet_amount) bet_amount
+        sum(valid_amount) validbet
         FROM
         proxy_game_record_report gr
         WHERE
         1 = 1
         <if test="proxyLevel == 1">
-            AND gr.first_proxy =#{proxyId}
+            AND gr.first_proxy =#{proxyUserId}
         </if>
         <if test="proxyLevel == 2">
-            AND gr.second_proxy =#{proxyId}
+            AND gr.second_proxy =#{proxyUserId}
         </if>
         <if test="proxyLevel == 3">
-            AND gr.third_proxy =#{proxyId}
+            AND gr.third_proxy =#{proxyUserId}
         </if>
         <if test="startTime != null and startTime!=''">
             AND gr.order_times BETWEEN #{startTime} AND #{endTime}

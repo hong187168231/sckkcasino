@@ -30,5 +30,4 @@ public class LevelReportTotalVo {
     private BigDecimal riseAward;
 
 
-
 }
