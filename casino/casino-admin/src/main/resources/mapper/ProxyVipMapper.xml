@@ -277,6 +277,9 @@
         WHERE
         1 = 1
         AND ar.award_type = 1
+        <if test="queryZd != null and queryZd!=''">
+            AND u.first_proxy in (SELECT id from proxy_user WHERE proxy_role = 1)
+        </if>
         <if test="proxyLevel == 1">
             AND u.first_proxy =#{proxyUserId}
         </if>
@@ -299,6 +302,9 @@
         WHERE
         1 = 1
         AND ar.award_type = 2
+        <if test="queryZd != null and queryZd!=''">
+            AND u.first_proxy in (SELECT id from proxy_user WHERE proxy_role = 1)
+        </if>
         <if test="proxyLevel == 1">
             AND u.first_proxy =#{proxyUserId}
         </if>
@@ -319,6 +325,9 @@
         proxy_game_record_report gr
         WHERE
         1 = 1
+        <if test="queryZd != null and queryZd!=''">
+            AND gr.first_proxy in (SELECT id from proxy_user WHERE proxy_role = 1)
+        </if>
         <if test="proxyLevel == 1">
             AND gr.first_proxy =#{proxyUserId}
         </if>

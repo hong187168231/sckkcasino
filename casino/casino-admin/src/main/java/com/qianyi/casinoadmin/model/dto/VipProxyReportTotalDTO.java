@@ -34,4 +34,7 @@ public class VipProxyReportTotalDTO {
     @ApiModelProperty(hidden = true,value = "代理权限标识")
     private Integer proxyLevel;
 
+
+    private  String queryZd;
+
 }

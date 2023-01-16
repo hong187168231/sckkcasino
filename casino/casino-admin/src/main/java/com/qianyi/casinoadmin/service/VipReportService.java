@@ -184,6 +184,7 @@ public class VipReportService {
             vipReportTotalDTO.setProxyLevel(proxyRole);
             levelReportTotalVo = proxyVipMapper.levelProxyTotal(vipReportTotalDTO);
         } else {
+            vipReportTotalDTO.setQueryZd("1");
             levelReportTotalVo = proxyVipMapper.levelProxyTotal(vipReportTotalDTO);
         }
         levelReportTotalVo.setAwardAmount(levelReportTotalVo.getTodayAward().add(levelReportTotalVo.getRiseAward()));
