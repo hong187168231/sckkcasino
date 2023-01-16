@@ -36,8 +36,8 @@
     <select id="userLevelInfo"
             resultType="com.qianyi.casinocore.vo.LevelAwardVo">
         SELECT
-            a.amount todayAward,
-            b.amount riseAward,
+            ifnull(a.amount,0) todayAward,
+        ifnull(b.amount,0) riseAward,
             c.winLoss winLoss,
             c.bet_amount betAmount
         FROM
@@ -188,8 +188,8 @@
         SELECT
             a.validBet,
             a.winLoss,
-            b.todayAward,
-            c.riseAward
+        ifnull(b.amount,0) todayAward,
+        ifnull(c.amount,0) riseAward,
         FROM
             (
                 SELECT
@@ -267,8 +267,8 @@
     <select id="levelProxyTotal"
             resultType="com.qianyi.casinocore.vo.LevelReportTotalVo">
         SELECT
-        a.amount todayAward,
-        b.amount riseAward,
+        ifnull(a.amount,0) todayAward,
+        ifnull(b.amount,0) riseAward,
         c.validbet validBet
         FROM
         (

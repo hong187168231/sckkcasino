@@ -32,11 +32,11 @@ public class VipProxyReportVo {
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "每日奖励")
-    private BigDecimal todayAward;
+    private BigDecimal todayAward = BigDecimal.ZERO;
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "晋级奖励")
-    private BigDecimal riseAward;
+    private BigDecimal riseAward = BigDecimal.ZERO;
 
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "红利")
