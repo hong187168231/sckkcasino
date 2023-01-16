@@ -139,12 +139,13 @@ public class UserWashCodeConfigController {
                         });
                     });
                     userWashCodeConfigService.saveAll(washCodeConfigs);
-                    return ResponseUtil.success(userWashCodeConfigs);
+                    List<UserWashCodeConfig> byUserIdAndPlatform = userWashCodeConfigService.findByUserId(userId);
+                    return ResponseUtil.success(byUserIdAndPlatform);
                 } else {
                     return ResponseUtil.custom("请重试一次");
                 }
             } catch (Exception ex) {
-                log.error("用户洗码修改请求异常{}", ex.getMessage());
+                log.error("用户洗码修改请求异常{}" + ex.getMessage());
                 return ResponseUtil.custom("请重试一次");
             } finally {
                 if (lock) {
