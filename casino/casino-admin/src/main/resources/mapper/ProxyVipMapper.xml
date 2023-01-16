@@ -38,6 +38,7 @@
         SELECT
             a.amount todayAward,
             b.amount riseAward,
+            c.winLoss winLoss,
             c.bet_amount betAmount
         FROM
             (
@@ -86,7 +87,8 @@
             ) b,
             (
                 SELECT
-                    sum(valid_amount) bet_amount
+                    sum(valid_amount) bet_amount,
+                    sum(win_loss) winLoss
                 FROM
                     proxy_game_record_report gr
                 WHERE

@@ -16,6 +16,7 @@ import com.qianyi.casinocore.vo.LevelAwardVo;
 import com.qianyi.casinocore.vo.LevelReportTotalVo;
 import com.qianyi.casinocore.vo.VipProxyReportVo;
 import com.qianyi.casinocore.vo.VipReportVo;
+import com.qianyi.modulecommon.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import org.springframework.util.StringUtils;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,12 +45,16 @@ public class VipReportService {
         if (StrUtil.isBlank(vipReportDTO.getProxyUserName()) && ObjectUtil.isNull(vipReportDTO.getProxyUserId())) {
             Page<VipProxyReportVo> list = proxyVipMapper.proxyZdList(vipReportDTO, pageBounds.toRowBounds());
             list.getResult().forEach(item -> {
+                String startTime = vipReportDTO.getStartTime().substring(0,10);
+                String endTime = vipReportDTO.getEndTime().substring(0,10);
                 LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(item.getProxyUserId(),
-                        1, vipReportDTO.getStartTime(), vipReportDTO.getEndTime());
+                        1, startTime, endTime);
                 item.setProxyUserId(item.getProxyUserId());
                 if (ObjectUtil.isNotNull(levelAwardVo)) {
                     item.setTodayAward(levelAwardVo.getTodayAward());
                     item.setRiseAward(levelAwardVo.getRiseAward());
+                    item.setValidBet(levelAwardVo.getBetAmount());
+                    item.setWinLoss(levelAwardVo.getWinLoss());
                 }
             });
             return PageResult.getPageResult(pageBounds, list);
@@ -66,6 +72,7 @@ public class VipReportService {
                 vo.setTodayAward(levelAwardVo.getTodayAward());
                 vo.setRiseAward(levelAwardVo.getRiseAward());
                 vo.setValidBet(levelAwardVo.getBetAmount());
+                vo.setWinLoss(levelAwardVo.getWinLoss());
             }
             list.add(vo);
             return PageResult.getPageResult(pageBounds, list);
@@ -95,6 +102,7 @@ public class VipReportService {
                     vipReportVo.setTodayAward(levelAwardVo.getTodayAward());
                     vipReportVo.setRiseAward(levelAwardVo.getRiseAward());
                     vipReportVo.setValidBet(levelAwardVo.getBetAmount());
+                    vipReportVo.setWinLoss(levelAwardVo.getWinLoss());
                 }
 
             }
@@ -111,6 +119,7 @@ public class VipReportService {
                     vipReportVo.setTodayAward(levelAwardVo.getTodayAward());
                     vipReportVo.setRiseAward(levelAwardVo.getRiseAward());
                     vipReportVo.setValidBet(levelAwardVo.getBetAmount());
+                    vipReportVo.setWinLoss(levelAwardVo.getWinLoss());
                 }
             }
             return list;
