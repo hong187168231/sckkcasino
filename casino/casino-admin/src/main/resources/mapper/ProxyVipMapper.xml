@@ -188,8 +188,8 @@
         SELECT
             a.validBet,
             a.winLoss,
-        ifnull(b.amount,0) todayAward,
-        ifnull(c.amount,0) riseAward,
+        ifnull(b.todayAward,0) todayAward,
+        ifnull(c.riseAward,0) riseAward
         FROM
             (
                 SELECT

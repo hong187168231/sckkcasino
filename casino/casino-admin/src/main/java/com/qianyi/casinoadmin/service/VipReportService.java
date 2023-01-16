@@ -149,6 +149,12 @@ public class VipReportService {
         PageBounds pageBounds = new PageBounds();
         pageBounds.setPageNo(vipReportDTO.getPageCode());
         pageBounds.setPageSize(vipReportDTO.getPageSize());
+        if(StrUtil.isNotBlank(vipReportDTO.getStartTime())){
+            String startTime = vipReportDTO.getStartTime().substring(0,10);
+            String endTime = vipReportDTO.getEndTime().substring(0,10);
+            vipReportDTO.setStartDate(startTime);
+            vipReportDTO.setEndDate(endTime);
+        }
         if (StringUtils.hasLength(vipReportDTO.getAccount())) {
             User user = userService.findByAccount(vipReportDTO.getAccount());
             vipReportDTO.setUserId(user.getId());
@@ -159,11 +165,23 @@ public class VipReportService {
 
 
     public LevelReportTotalVo findVipReportTotal(VipReportTotalDTO vipReportTotalDTO) {
+        if(StrUtil.isNotBlank(vipReportTotalDTO.getStartTime())){
+            String startTime = vipReportTotalDTO.getStartTime().substring(0,10);
+            String endTime = vipReportTotalDTO.getEndTime().substring(0,10);
+            vipReportTotalDTO.setStartDate(startTime);
+            vipReportTotalDTO.setEndDate(endTime);
+        }
         if (StrUtil.isNotBlank(vipReportTotalDTO.getLevelArray())) {
             vipReportTotalDTO.setPf("1");
         }
         if (ObjectUtil.isNotNull(vipReportTotalDTO.getUserId())) {
             vipReportTotalDTO.setPf("1");
+        }
+        if(StrUtil.isNotBlank(vipReportTotalDTO.getStartTime())){
+            String startTime = vipReportTotalDTO.getStartTime().substring(0,10);
+            String endTime = vipReportTotalDTO.getEndTime().substring(0,10);
+            vipReportTotalDTO.setStartDate(startTime);
+            vipReportTotalDTO.setEndDate(endTime);
         }
         LevelReportTotalVo levelTotalVo = proxyVipMapper.levelTotal(vipReportTotalDTO);
         return levelTotalVo;

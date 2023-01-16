@@ -29,4 +29,12 @@ public class VipReportTotalDTO {
     @Transient
     @ApiModelProperty(hidden = true)
     private String pf;
+    @ApiModelProperty(value = "起始时间查询")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String startDate;
+
+
+    @ApiModelProperty(value = "结束时间查询")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String endDate;
 }

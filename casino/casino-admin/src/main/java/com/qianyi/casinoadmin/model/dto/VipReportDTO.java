@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Transient;
 
@@ -28,6 +29,16 @@ public class VipReportDTO {
     private String startTime;
     @ApiModelProperty(value = "结束时间查询")
     private String endTime;
+
+    @ApiModelProperty(value = "起始时间查询")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String startDate;
+
+
+    @ApiModelProperty(value = "结束时间查询")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String endDate;
+
     @ApiModelProperty(value = "等级数组,逗号分隔")
     private String levelArray;
     @ApiModelProperty(hidden = true)
