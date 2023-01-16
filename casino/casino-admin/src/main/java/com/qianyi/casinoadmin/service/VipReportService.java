@@ -24,10 +24,8 @@ import org.springframework.util.StringUtils;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -159,6 +157,11 @@ public class VipReportService {
             User user = userService.findByAccount(vipReportDTO.getAccount());
             vipReportDTO.setUserId(user.getId());
         }
+        if (StrUtil.isNotBlank(vipReportDTO.getLevelArray())) {
+            List<String> result = Arrays.asList( vipReportDTO.getLevelArray().split(","));
+            List<Integer> LevelArrays = result.stream().map(Integer::parseInt).collect(Collectors.toList());
+            vipReportDTO.setLevelArrays(LevelArrays);
+        }
         Page<VipReportVo> userList = proxyVipMapper.userLevelList(vipReportDTO, pageBounds.toRowBounds());
         return PageResult.getPageResult(pageBounds, userList);
     }
@@ -173,6 +176,9 @@ public class VipReportService {
         }
         if (StrUtil.isNotBlank(vipReportTotalDTO.getLevelArray())) {
             vipReportTotalDTO.setPf("1");
+            List<String> result = Arrays.asList( vipReportTotalDTO.getLevelArray().split(","));
+            List<Integer> LevelArrays = result.stream().map(Integer::parseInt).collect(Collectors.toList());
+            vipReportTotalDTO.setLevelArrays(LevelArrays);
         }
         if (ObjectUtil.isNotNull(vipReportTotalDTO.getUserId())) {
             vipReportTotalDTO.setPf("1");

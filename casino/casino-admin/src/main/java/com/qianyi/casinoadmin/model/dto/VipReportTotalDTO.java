@@ -6,6 +6,7 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Transient;
+import java.util.List;
 
 
 @Data
@@ -37,4 +38,6 @@ public class VipReportTotalDTO {
     @ApiModelProperty(value = "结束时间查询")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String endDate;
+
+   private List<Integer> levelArrays;
 }

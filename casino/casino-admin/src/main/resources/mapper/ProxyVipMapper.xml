@@ -127,7 +127,10 @@
                 WHERE
                     1 = 1
                 <if test="levelArray != null and levelArray!=''">
-                    AND `level` IN (#{levelArray})
+                    AND `level` IN
+                    <foreach collection="levelArrays" index="index" item="item" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
                 </if>
                 <if test="userId != null">
                     AND `id` = #{userId}
@@ -205,11 +208,15 @@
                     and order_times BETWEEN #{startDate} AND #{endDate}
                 </if>
                 <if test="pf != null and pf!=''">
-                    and  AND user_id IN (
-                    <if test="level != null and level!=''">
-                        AND `level` IN (#{levelArray})
+                      AND user_id IN (
+                    SELECT  id from `user`  WHERE 1=1
+                    <if test="levelArray != null and levelArray!=''">
+                        AND `level` IN
+                        <foreach collection="levelArrays" index="index" item="item" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
                     </if>
-                    <if test="level != null and level!=''">
+                    <if test="userId != null">
                         AND `id`  = #{userId}
                     </if>
                     )
@@ -226,11 +233,15 @@
                     and create_time BETWEEN #{startTime} AND #{endTime}
                 </if>
                 <if test="pf != null and pf!=''">
-                    and  AND user_id IN (
-                    <if test="level != null and level!=''">
-                        AND `level` IN (#{levelArray})
+                      AND user_id IN (
+                       SELECT  id from `user`  WHERE 1=1
+                    <if test="levelArray != null and levelArray!=''">
+                        AND `level` IN
+                        <foreach collection="levelArrays" index="index" item="item" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
                     </if>
-                    <if test="level != null and level!=''">
+                    <if test="userId != null">
                         AND `id`  = #{userId}
                     </if>
                     )
@@ -247,11 +258,15 @@
                     AND receive_time BETWEEN #{startTime} AND #{endTime}
                 </if>
                 <if test="pf != null and pf!=''">
-                    and  AND user_id IN (
-                    <if test="level != null and level!=''">
-                        AND `level` IN (#{levelArray})
+                      AND user_id IN (
+                    SELECT  id from `user`  WHERE 1=1
+                    <if test="levelArray != null and levelArray!=''">
+                        AND `level` IN
+                        <foreach collection="levelArrays" index="index" item="item" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
                     </if>
-                    <if test="level != null and level!=''">
+                    <if test="userId != null">
                         AND `id`  = #{userId}
                     </if>
                     )

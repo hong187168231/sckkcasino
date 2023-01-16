@@ -8,6 +8,7 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Transient;
+import java.util.List;
 
 /**
  * 系统权限dto
@@ -43,6 +44,8 @@ public class VipReportDTO {
     private String levelArray;
     @ApiModelProperty(hidden = true)
     private Long userId;
+
+    private List<Integer> levelArrays;
 
 
 }
