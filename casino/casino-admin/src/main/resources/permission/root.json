@@ -1306,6 +1306,22 @@
         ]
       },
       {
+        "descritpion": "VIP等级查询",
+        "englishName": "VIP Report",
+        "menuLevel": 2,
+        "name": "VIP等级查询",
+        "url": "/vipReport/queryPersonReport",
+        "children": [
+          {
+            "descritpion": "VIP报表总计",
+            "englishName": "Total VIP",
+            "menuLevel": 3,
+            "name": "VIP报表总计",
+            "url": "/vipReport/queryTotal"
+          }
+        ]
+      },
+      {
         "descritpion": "会员返利报表",
         "englishName": "Member rebate statement",
         "menuLevel": 2,

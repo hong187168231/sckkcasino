@@ -530,8 +530,7 @@ public class ReportController {
         }
         BillThreadPool.toWaiting(reentrantLock, condition, atomicInteger);
         Integer num = list.stream().mapToInt(ReportTotalSumVo::getNum).sum();
-        BigDecimal betAmount =
-            list.stream().map(ReportTotalSumVo::getBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal betAmount = list.stream().map(ReportTotalSumVo::getBetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal validbet = list.stream().map(ReportTotalSumVo::getValidbet).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal winLoss = list.stream().map(ReportTotalSumVo::getWinLoss).reduce(BigDecimal.ZERO, BigDecimal::add);
         PersonReportTotalVo mapSum = proxyGameRecordReportService.findMapSum(startTime, endTime);
@@ -541,8 +540,9 @@ public class ReportController {
         mapSum.setWinLoss(winLoss);
         BigDecimal avgBenefit = winLoss.add(mapSum.getWashAmount()).add(mapSum.getAllWater());
         mapSum.setAvgBenefit(avgBenefit.negate());
-        mapSum.setTotalAmount(
-            mapSum.getAvgBenefit().subtract(mapSum.getAllProfitAmount()).add(mapSum.getServiceCharge()));
+        BigDecimal amount2 = mapSum.getAvgBenefit().subtract(mapSum.getAllProfitAmount()).add(mapSum.getServiceCharge());
+        BigDecimal totalAmount = amount2.subtract(mapSum.getTodayAward()).subtract(mapSum.getRiseAward());
+        mapSum.setTotalAmount(totalAmount);
         return mapSum;
     }
 
