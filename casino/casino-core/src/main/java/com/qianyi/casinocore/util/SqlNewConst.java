@@ -303,7 +303,7 @@ public class SqlNewConst {
         FROM
     game_record_dmc grv
     WHERE
-    bet_time BETWEEN {0}
+    settle_time BETWEEN {0}
     AND {1}
     GROUP BY
     user_id
