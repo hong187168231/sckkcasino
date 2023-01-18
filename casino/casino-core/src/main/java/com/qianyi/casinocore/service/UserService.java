@@ -1068,6 +1068,7 @@ public class UserService {
             sql = MessageFormat.format(RebateSqlConst.pgOrCq9Sql, startTime, endTime, sort, page.toString(),
                     pageSize.toString(), "'CQ9'", proxy);
         }
+        log.info("sql：【{}】", sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
         if (null != resultList && resultList.size() > 0) {
