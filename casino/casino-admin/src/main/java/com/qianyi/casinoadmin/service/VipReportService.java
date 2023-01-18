@@ -66,6 +66,9 @@ public class VipReportService {
         }
         if (StrUtil.isNotBlank(vipReportDTO.getProxyUserName())) {
             ProxyUser proxyUser = proxyUserService.findByUserName(vipReportDTO.getProxyUserName());
+            if(ObjectUtil.isNull(proxyUser)){
+                return PageResult.getPageResult(pageBounds, new LinkedList());
+            }
             Integer proxyRole = proxyUser.getProxyRole();
             LevelAwardVo levelAwardVo = proxyVipMapper.userLevelInfo(proxyUser.getId(), proxyRole,
                     vipReportDTO.getStartTime(), vipReportDTO.getEndTime(), vipReportDTO.getStartDate(), vipReportDTO.getEndDate());
@@ -82,7 +85,7 @@ public class VipReportService {
                 vo.setWinLoss(levelAwardVo.getWinLoss());
             }
             list.add(vo);
-            return PageResult.getPageResult(pageBounds, list);
+            return PageResult.getPageResult(list.size(), pageBounds, list);
         }
         return PageResult.getPageResult(pageBounds, new LinkedList());
     }
@@ -155,6 +158,9 @@ public class VipReportService {
         }
         if (StringUtils.hasLength(vipReportDTO.getAccount())) {
             User user = userService.findByAccount(vipReportDTO.getAccount());
+            if(ObjectUtil.isNull(user)){
+                return PageResult.getPageResult(pageBounds, new LinkedList());
+            }
             vipReportDTO.setUserId(user.getId());
         }
         if (StrUtil.isNotBlank(vipReportDTO.getLevelArray())) {
@@ -205,6 +211,9 @@ public class VipReportService {
         LevelReportTotalVo levelReportTotalVo;
         if (StrUtil.isNotBlank(vipReportTotalDTO.getProxyUserName())) {
             ProxyUser proxyUser = proxyUserService.findByUserName(vipReportTotalDTO.getProxyUserName());
+            if(ObjectUtil.isNull(proxyUser)){
+                return new LevelReportTotalVo();
+            }
             Integer proxyRole = proxyUser.getProxyRole();
             vipReportTotalDTO.setProxyLevel(proxyRole);
             vipReportTotalDTO.setProxyUserId(proxyUser.getId());
