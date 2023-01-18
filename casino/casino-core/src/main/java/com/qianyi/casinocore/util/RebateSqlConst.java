@@ -1575,7 +1575,7 @@ public class RebateSqlConst {
         FROM
     game_record_dmc grv
     WHERE user_id={2} and
-    bet_time BETWEEN {0}
+    settle_time_time BETWEEN {0}
     AND {1}
     group by user_id
                 ) goldenf_t on u.id = goldenf_t.user_id
