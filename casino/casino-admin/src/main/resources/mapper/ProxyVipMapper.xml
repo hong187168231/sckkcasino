@@ -294,7 +294,8 @@
         1 = 1
         AND ar.award_type = 1
         <if test="queryZd != null and queryZd!=''">
-            AND u.first_proxy in (SELECT id from proxy_user WHERE proxy_role = 1)
+            AND  ( u.first_proxy IN ( SELECT id FROM proxy_user GROUP BY user_id )
+            or u.first_proxy is null)
         </if>
         <if test="proxyLevel == 1">
             AND u.first_proxy =#{proxyUserId}
@@ -319,7 +320,8 @@
         1 = 1
         AND ar.award_type = 2
         <if test="queryZd != null and queryZd!=''">
-            AND u.first_proxy in (SELECT id from proxy_user WHERE proxy_role = 1)
+            AND  ( u.first_proxy IN ( SELECT id FROM proxy_user GROUP BY user_id )
+            or u.first_proxy is null)
         </if>
         <if test="proxyLevel == 1">
             AND u.first_proxy =#{proxyUserId}
@@ -343,7 +345,8 @@
         WHERE
         1 = 1
         <if test="queryZd != null and queryZd!=''">
-            AND gr.first_proxy in (SELECT id from proxy_user WHERE proxy_role = 1)
+            AND  ( gr.first_proxy IN ( SELECT id FROM proxy_user GROUP BY user_id )
+            or u.first_proxy is null)
         </if>
         <if test="proxyLevel == 1">
             AND gr.first_proxy =#{proxyUserId}

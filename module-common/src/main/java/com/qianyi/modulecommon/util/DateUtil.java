@@ -1,6 +1,7 @@
 package com.qianyi.modulecommon.util;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -9,6 +10,7 @@ import java.util.*;
 /**
  * 日期工具类
  */
+@Slf4j
 public class DateUtil {
 
     public static String patten = "yyyy-MM-dd HH:mm:ss";
@@ -76,6 +78,21 @@ public class DateUtil {
     public static Date getDatePatten(String str) throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat(patten); //定义将日期格式要换成的格式
         return formatter.parse(str);
+    }
+
+    public static Date str2date(String str) {
+        return str2date(str, patten);
+    }
+
+    public static Date str2date(String str, String pattern) {
+        SimpleDateFormat format = new SimpleDateFormat(pattern);
+        Date date = null;
+        try {
+            date = format.parse(str);
+        } catch (ParseException e) {
+            log.error("str2date occur error.", e);
+        }
+        return date;
     }
 
     public static Date getYesterday(){

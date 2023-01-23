@@ -1,29 +1,32 @@
 package com.qianyi.casinoadmin.service;
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.Page;
 import com.qianyi.casinoadmin.model.dto.*;
 import com.qianyi.casinoadmin.repository.ProxyVipMapper;
+import com.qianyi.casinoadmin.util.LoginUtil;
 import com.qianyi.casinoadmin.util.PageBounds;
 import com.qianyi.casinoadmin.util.PageResult;
 import com.qianyi.casinocore.model.ProxyUser;
 import com.qianyi.casinocore.model.User;
+import com.qianyi.casinocore.repository.UserLevelRepository;
 import com.qianyi.casinocore.service.ProxyUserService;
 import com.qianyi.casinocore.service.UserService;
 import com.qianyi.casinocore.vo.LevelAwardVo;
 import com.qianyi.casinocore.vo.LevelReportTotalVo;
 import com.qianyi.casinocore.vo.VipProxyReportVo;
 import com.qianyi.casinocore.vo.VipReportVo;
+import com.qianyi.modulecommon.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import javax.transaction.Transactional;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,7 +48,15 @@ public class VipReportService {
             vipReportDTO.setStartDate(startTime);
             vipReportDTO.setEndDate(endTime);
         }
-
+        // 向后偏移12小时
+        if (StrUtil.isNotBlank(vipReportDTO.getStartTime())) {
+            DateTime startTime = cn.hutool.core.date.DateUtil.offsetHour(DateUtil.str2date(vipReportDTO.getStartTime()), 12);
+            vipReportDTO.setStartTime(cn.hutool.core.date.DateUtil.formatDateTime(startTime));
+        }
+        if (StrUtil.isNotBlank(vipReportDTO.getEndTime())) {
+            DateTime endTime = cn.hutool.core.date.DateUtil.offsetHour(DateUtil.str2date(vipReportDTO.getEndTime()), 12);
+            vipReportDTO.setEndTime(cn.hutool.core.date.DateUtil.formatDateTime(endTime));
+        }
         if (StrUtil.isBlank(vipReportDTO.getProxyUserName()) && ObjectUtil.isNull(vipReportDTO.getProxyUserId())) {
             Page<VipProxyReportVo> list = proxyVipMapper.proxyZdList(vipReportDTO, pageBounds.toRowBounds());
             list.getResult().forEach(item -> {
@@ -106,6 +117,15 @@ public class VipReportService {
             vipReportDTO.setStartDate(startTime);
             vipReportDTO.setEndDate(endTime);
         }
+        // 向后偏移12小时
+        if (StrUtil.isNotBlank(vipReportDTO.getStartTime())) {
+            DateTime startTime = cn.hutool.core.date.DateUtil.offsetHour(DateUtil.str2date(vipReportDTO.getStartTime()), 12);
+            vipReportDTO.setStartTime(cn.hutool.core.date.DateUtil.formatDateTime(startTime));
+        }
+        if (StrUtil.isNotBlank(vipReportDTO.getEndTime())) {
+            DateTime endTime = cn.hutool.core.date.DateUtil.offsetHour(DateUtil.str2date(vipReportDTO.getEndTime()), 12);
+            vipReportDTO.setEndTime(cn.hutool.core.date.DateUtil.formatDateTime(endTime));
+        }
         if (proxyRole == 1) {
             vipReportDTO.setFirstProxyId(proxyUser.getId());
             List<VipProxyReportVo> list = proxyVipMapper.proxyJdList(vipReportDTO);
@@ -146,15 +166,24 @@ public class VipReportService {
 
 
     public PageResult findVipReport(VipReportDTO vipReportDTO) {
-        PageBounds pageBounds = new PageBounds();
-        pageBounds.setPageNo(vipReportDTO.getPageCode());
-        pageBounds.setPageSize(vipReportDTO.getPageSize());
         if (StrUtil.isNotBlank(vipReportDTO.getStartTime())) {
             String startTime = vipReportDTO.getStartTime().substring(0, 10);
             String endTime = vipReportDTO.getEndTime().substring(0, 10);
             vipReportDTO.setStartDate(startTime);
             vipReportDTO.setEndDate(endTime);
         }
+        // 向后偏移12小时
+        if (StrUtil.isNotBlank(vipReportDTO.getStartTime())) {
+            DateTime startTime = cn.hutool.core.date.DateUtil.offsetHour(DateUtil.str2date(vipReportDTO.getStartTime()), 12);
+            vipReportDTO.setStartTime(cn.hutool.core.date.DateUtil.formatDateTime(startTime));
+        }
+        if (StrUtil.isNotBlank(vipReportDTO.getEndTime())) {
+            DateTime endTime = cn.hutool.core.date.DateUtil.offsetHour(DateUtil.str2date(vipReportDTO.getEndTime()), 12);
+            vipReportDTO.setEndTime(cn.hutool.core.date.DateUtil.formatDateTime(endTime));
+        }
+        PageBounds pageBounds = new PageBounds();
+        pageBounds.setPageNo(vipReportDTO.getPageCode());
+        pageBounds.setPageSize(vipReportDTO.getPageSize());
         if (StringUtils.hasLength(vipReportDTO.getAccount())) {
             User user = userService.findByAccount(vipReportDTO.getAccount());
             if (ObjectUtil.isNull(user)) {
@@ -178,6 +207,15 @@ public class VipReportService {
             String endTime = vipReportTotalDTO.getEndTime().substring(0, 10);
             vipReportTotalDTO.setStartDate(startTime);
             vipReportTotalDTO.setEndDate(endTime);
+        }
+        // 向后偏移12小时
+        if (StrUtil.isNotBlank(vipReportTotalDTO.getStartTime())) {
+            DateTime startTime = cn.hutool.core.date.DateUtil.offsetHour(DateUtil.str2date(vipReportTotalDTO.getStartTime()), 12);
+            vipReportTotalDTO.setStartTime(cn.hutool.core.date.DateUtil.formatDateTime(startTime));
+        }
+        if (StrUtil.isNotBlank(vipReportTotalDTO.getEndTime())) {
+            DateTime endTime = cn.hutool.core.date.DateUtil.offsetHour(DateUtil.str2date(vipReportTotalDTO.getEndTime()), 12);
+            vipReportTotalDTO.setEndTime(cn.hutool.core.date.DateUtil.formatDateTime(endTime));
         }
         if (StrUtil.isNotBlank(vipReportTotalDTO.getLevelArray())) {
             vipReportTotalDTO.setPf("1");
@@ -206,6 +244,15 @@ public class VipReportService {
             String endTime = vipReportTotalDTO.getEndTime().substring(0, 10);
             vipReportTotalDTO.setStartDate(startTime);
             vipReportTotalDTO.setEndDate(endTime);
+        }
+        // 向后偏移12小时
+        if (StrUtil.isNotBlank(vipReportTotalDTO.getStartTime())) {
+            DateTime startTime = cn.hutool.core.date.DateUtil.offsetHour(DateUtil.str2date(vipReportTotalDTO.getStartTime()), 12);
+            vipReportTotalDTO.setStartTime(cn.hutool.core.date.DateUtil.formatDateTime(startTime));
+        }
+        if (StrUtil.isNotBlank(vipReportTotalDTO.getEndTime())) {
+            DateTime endTime = cn.hutool.core.date.DateUtil.offsetHour(DateUtil.str2date(vipReportTotalDTO.getEndTime()), 12);
+            vipReportTotalDTO.setEndTime(cn.hutool.core.date.DateUtil.formatDateTime(endTime));
         }
         LevelReportTotalVo levelReportTotalVo;
         if (StrUtil.isNotBlank(vipReportTotalDTO.getProxyUserName())) {
