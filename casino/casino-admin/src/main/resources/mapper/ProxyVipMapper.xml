@@ -345,8 +345,8 @@
         WHERE
         1 = 1
         <if test="queryZd != null and queryZd!=''">
-            AND  ( gr.first_proxy IN ( SELECT id FROM proxy_user GROUP BY user_id )
-            or gr.first_proxy is null)
+            AND ( u.first_proxy IN ( SELECT first_proxy FROM proxy_game_record_report GROUP BY user_id )
+            or first_proxy is null)
         </if>
         <if test="proxyLevel == 1">
             AND gr.first_proxy =#{proxyUserId}
