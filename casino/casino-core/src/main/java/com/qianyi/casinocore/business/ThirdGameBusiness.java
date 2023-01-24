@@ -845,11 +845,11 @@ public class ThirdGameBusiness {
         }else{
             if(ObjectUtil.isNotNull(apiResponseData.get("codeId") )){
                 if(apiResponseData.get("codeId") instanceof  Integer){
-                    return dgApi.errorCode(apiResponseData.getIntValue("codeId"), apiResponseData.getString("random"));
+                    return dgApi.errorCode(apiResponseData.getInteger("codeId"), apiResponseData.getString("random"));
                 }
             }
+            return dgApi.errorCode(1, apiResponseData.getString("random"));
         }
-        return dgApi.errorCode(1, apiResponseData.getString("random"));
     }
 
     public ResponseEntity oneKeyRecoverVNC(Long userId) {
