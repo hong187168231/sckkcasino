@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -72,6 +73,7 @@ public class GameRecordObzrJob {
 
     //每隔7分钟执行一次
     @Scheduled(cron = "30 0/2 * * * ?")
+    @Async("asyncExecutor")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
 //        if (platformGame != null && platformGame.getGameStatus() == 2) {
