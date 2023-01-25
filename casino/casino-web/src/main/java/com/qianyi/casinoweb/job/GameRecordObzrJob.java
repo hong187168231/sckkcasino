@@ -71,7 +71,7 @@ public class GameRecordObzrJob {
 
 
     //每隔7分钟执行一次
-    @Scheduled(cron = "20 0/3 * * * ?")
+    @Scheduled(cron = "30 0/2 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
 //        if (platformGame != null && platformGame.getGameStatus() == 2) {
