@@ -177,6 +177,7 @@ public class GameRecordObzrJob {
         long s = System.currentTimeMillis();
         ResultDTO resultDTO = publicObzrApi.betHistoryRecord(start, end, pageIndex);
         if (ObjectUtil.isNull(resultDTO)) {
+            gameRecordObzrTimeService.save(DATETIME_FORMAT.format(endTime));
             return;
         }
         long e = System.currentTimeMillis();
