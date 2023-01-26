@@ -73,7 +73,6 @@ public class GameRecordObzrJob {
 
     //每隔7分钟执行一次
     @Scheduled(initialDelay = 10000, fixedDelay = 1000*60*3)
-    @Async("executor1")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
 //        if (platformGame != null && platformGame.getGameStatus() == 2) {
