@@ -40,6 +40,17 @@ public class ExecutorConfig implements AsyncConfigurer {
         return executor;
     }
 
+    @Bean
+    public Executor executor1() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setThreadNamePrefix("dg-schedule1-");
+        executor.setMaxPoolSize(20);
+        executor.setCorePoolSize(15);
+        executor.setQueueCapacity(10);
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        return executor;
+    }
+
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
         return AsyncConfigurer.super.getAsyncUncaughtExceptionHandler();

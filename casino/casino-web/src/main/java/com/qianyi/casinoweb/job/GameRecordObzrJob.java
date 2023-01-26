@@ -72,8 +72,8 @@ public class GameRecordObzrJob {
 
 
     //每隔7分钟执行一次
-    @Scheduled(cron = "30 0/2 * * * ?")
-    @Async("asyncExecutor")
+    @Scheduled(fixedDelay = 1000*60*3)
+    @Async("executor1")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
 //        if (platformGame != null && platformGame.getGameStatus() == 2) {
@@ -92,22 +92,22 @@ public class GameRecordObzrJob {
     }
 
 
-//    @Scheduled(fixedDelay = 5000)
-//    public void repairGameRecordJob() throws InterruptedException {
-//        log.info("定时器开始拉取OB真人注单记录");
-//        String startTime = (String) redisUtil.get("OBZR:repair:startTime");
-//        String endTime = (String) redisUtil.get("OBZR:repair:endTime");
-//        if(StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)){
-//           repairGameRecord(startTime, endTime);
-//        }
-//        Thread.sleep(10000*2);
-//        String startTime2 = (String) redisUtil.get("OBZR:repair:startTime2");
-//        String endTime2 = (String) redisUtil.get("OBZR:repair:endTime2");
-//        if(StringUtils.isNotBlank(startTime2) && StringUtils.isNotBlank(endTime2)){
-//            repairGameRecord(startTime2, endTime2);
-//        }
-//        log.info("定时器补取OB真人注单记录");
-//    }
+    @Scheduled(fixedDelay = 5000)
+    public void repairGameRecordJob() throws InterruptedException {
+        log.info("定时器开始拉取OB真人注单记录");
+        String startTime = (String) redisUtil.get("OBZR:repair:startTime");
+        String endTime = (String) redisUtil.get("OBZR:repair:endTime");
+        if(StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)){
+           repairGameRecord(startTime, endTime);
+        }
+        Thread.sleep(10000*2);
+        String startTime2 = (String) redisUtil.get("OBZR:repair:startTime2");
+        String endTime2 = (String) redisUtil.get("OBZR:repair:endTime2");
+        if(StringUtils.isNotBlank(startTime2) && StringUtils.isNotBlank(endTime2)){
+            repairGameRecord(startTime2, endTime2);
+        }
+        log.info("定时器补取OB真人注单记录");
+    }
 
 
     public void repairGameRecord(String startTime, String endTime) {
