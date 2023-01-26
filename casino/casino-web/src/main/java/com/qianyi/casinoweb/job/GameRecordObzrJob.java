@@ -72,7 +72,7 @@ public class GameRecordObzrJob {
 
 
     //每隔7分钟执行一次
-    @Scheduled(fixedDelay = 1000*60*3)
+    @Scheduled(initialDelay = 10000, fixedDelay = 1000*60*3)
     @Async("executor1")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
@@ -85,6 +85,7 @@ public class GameRecordObzrJob {
 //            log.info("后台已关闭OB真人,无需拉单,adGame={}", adGame);
 //            return;
 //        }
+        log.error("定时器开始拉取OB真人注单记录1");
         log.info("定时器开始拉取OB真人注单记录");
         String endTime = gameRecordObzrTimeService.findLastEndTime();
         pullGameRecord(endTime);
