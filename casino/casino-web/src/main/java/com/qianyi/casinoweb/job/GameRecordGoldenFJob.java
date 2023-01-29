@@ -63,7 +63,7 @@ public class GameRecordGoldenFJob {
 
 
     // 每隔2分钟执行一次
-    @Scheduled(initialDelay = 3000, fixedDelay = 1000 * 60 * 3 )
+    @Scheduled(initialDelay = 3000, fixedRate = 1000 * 60 * 3 )
     public void pullGoldenF_PG() {
         PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
         if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
