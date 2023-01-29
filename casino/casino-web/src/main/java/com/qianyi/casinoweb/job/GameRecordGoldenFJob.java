@@ -62,9 +62,8 @@ public class GameRecordGoldenFJob {
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
-
     // 每隔2分钟执行一次
-    @Scheduled(initialDelay = 3000, fixedDelay = 1000 * 60 * 2)
+    @Scheduled(initialDelay = 3000, fixedDelay = 1000 * 60 * 3 )
     public void pullGoldenF_PG() {
         PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
         if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
@@ -139,7 +138,7 @@ public class GameRecordGoldenFJob {
     public List<GoldenFTimeVO> getTimes(String vendor) {
         List<GoldenFTimeVO> timeVOS = new ArrayList<>();
         GameRecordGoldenfEndTime gameRecordGoldenfEndTime =
-            gameRecordGoldenfEndTimeService.findFirstByVendorCodeOrderByEndTimeDesc(vendor);
+                gameRecordGoldenfEndTimeService.findFirstByVendorCodeOrderByEndTimeDesc(vendor);
         Long startTime = getGoldenStartTime(gameRecordGoldenfEndTime);
         Long endTime = System.currentTimeMillis() - (60 * 1000);
         log.info("{},{}", startTime, endTime);
@@ -153,6 +152,9 @@ public class GameRecordGoldenFJob {
             startTime = startTime - 60 * 1000;// 每次拉取重叠一分钟
             GoldenFTimeVO goldenFTimeVO = new GoldenFTimeVO();
             Long tempEndTime = startTime + (5 * 60 * 1000);
+            if(vendor.equals(Constants.PLATFORM_PG)){
+                tempEndTime = startTime + (15 * 60 * 1000);
+            }
             goldenFTimeVO.setStartTime(startTime);
             goldenFTimeVO.setEndTime(tempEndTime > endTime ? endTime : tempEndTime);
             timeVOS.add(goldenFTimeVO);
@@ -174,7 +176,7 @@ public class GameRecordGoldenFJob {
         while (true) {
             // 获取数据
             PublicGoldenFApi.ResponseEntity responseEntity =
-                publicGoldenFApi.getPlayerGameRecord(startTime, endTime, vendorCode, page, pageSize);
+                    publicGoldenFApi.getPlayerGameRecord(startTime, endTime, vendorCode, page, pageSize);
 
             if (responseEntity == null || checkRequestFail(responseEntity)) {
                 processFaildRequest(startTime, endTime, vendorCode, responseEntity);
@@ -207,9 +209,9 @@ public class GameRecordGoldenFJob {
     }
 
     private void processFaildRequest(Long startTime, Long endTime, String vendorCode,
-        PublicGoldenFApi.ResponseEntity responseEntity) {
+                                     PublicGoldenFApi.ResponseEntity responseEntity) {
         log.error("注单拉取失败startTime{},endTime{},vendorCode{},responseEntity{}", startTime, endTime, vendorCode,
-            responseEntity);
+                responseEntity);
     }
 
     private boolean checkRequestFail(PublicGoldenFApi.ResponseEntity responseEntity) {
@@ -254,7 +256,7 @@ public class GameRecordGoldenFJob {
     private void saveToDB(GameRecordGoldenF item, PlatformConfig platformConfig) {
         try {
             GameRecordGoldenF gameRecordGoldenF =
-                gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
+                    gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
             if (gameRecordGoldenF != null) {
                 return;
             }
@@ -302,7 +304,7 @@ public class GameRecordGoldenFJob {
     }
 
     private void processBusiness(GameRecordGoldenF gameRecordGoldenF, GameRecord gameRecord,
-        PlatformConfig platformConfig) {
+                                 PlatformConfig platformConfig) {
         if (gameRecordGoldenF.getBetAmount().compareTo(BigDecimal.ZERO) == 0)
             return;
         if (!gameRecordGoldenF.getTransType().equals(GoldenFConstant.GOLDENF_STAKE))
