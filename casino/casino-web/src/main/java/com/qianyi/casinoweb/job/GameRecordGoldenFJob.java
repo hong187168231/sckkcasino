@@ -61,21 +61,36 @@ public class GameRecordGoldenFJob {
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+
+
     // 每隔2分钟执行一次
-    @Scheduled(cron = "0 0/2 * * * ?")
-    public void pullGoldenF() {
+    @Scheduled(initialDelay = 3000, fixedDelay = 9000 * 60 * 2)
+    public void pullGoldenF_PG() {
         PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
         if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
             log.info("后台已关闭PG,无需拉单,platformGame={}", pgPlatformGame);
         } else {
             pullGameRecord(Constants.PLATFORM_PG);
         }
+    }
+
+
+    // 每隔2分钟执行一次
+    @Scheduled(initialDelay = 5000, fixedDelay = 1000 * 60 * 2)
+    public void pullGoldenF_CQ9() {
         PlatformGame cq9PlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_CQ9);
         if (cq9PlatformGame != null && cq9PlatformGame.getGameStatus() == 2) {
             log.info("后台已关闭CQ9,无需拉单,platformGame={}", cq9PlatformGame);
         } else {
             pullGameRecord(Constants.PLATFORM_CQ9);
         }
+
+    }
+
+
+    // 每隔2分钟执行一次
+    @Scheduled(initialDelay = 7000, fixedDelay = 1000 * 60 * 2)
+    public void pullGoldenF_SABASPORT() {
         PlatformGame sabaPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_SABASPORT);
         if (sabaPlatformGame != null && sabaPlatformGame.getGameStatus() == 2) {
             log.info("后台已关闭沙巴体育,无需拉单,platformGame={}", sabaPlatformGame);
