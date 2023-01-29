@@ -123,19 +123,19 @@ public class PublicObzrApi {
      * @return
      */
     public boolean foreLeaveTable(String userName) {
-        Map<String, Object> dto = new HashMap<>();
-        dto.put("loginName", userName.toLowerCase());
-        dto.put("timestamp", System.currentTimeMillis());
-        String result = submit("/foreLeaveTable", dto);
-        ResponseEntity entity = entity(result);
-        if (entity == null) {
-            log.error("OB电真人调用离桌接口,远程请求异常");
-        }
-        if (SUCCESS_CODE.equals(entity.getCode())) {
-            return true;
-        }
-        log.error("OB电真人调用离桌接口出错{}", entity.getData());
-        return false;
+//        Map<String, Object> dto = new HashMap<>();
+//        dto.put("loginName", userName.toLowerCase());
+//        dto.put("timestamp", System.currentTimeMillis());
+//        String result = submit("/foreLeaveTable", dto);
+//        ResponseEntity entity = entity(result);
+//        if (entity == null) {
+//            log.error("OB电真人调用离桌接口,远程请求异常");
+//        }
+//        if (SUCCESS_CODE.equals(entity.getCode())) {
+//            return true;
+//        }
+//        log.error("OB电真人调用离桌接口出错{}", entity.getData());
+        return true;
     }
 
 
