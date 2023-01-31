@@ -63,7 +63,7 @@ public class GameRecordGoldenFJob {
 
 
     // 每隔2分钟执行一次
-    @Scheduled(initialDelay = 3000, fixedRate = 1000 * 60 * 3 )
+    @Scheduled(initialDelay = 3000, fixedDelay = 1000 * 60 * 3 )
     public void pullGoldenF_PG() {
         PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
         if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
@@ -152,8 +152,8 @@ public class GameRecordGoldenFJob {
             startTime = startTime - 60 * 1000;// 每次拉取重叠一分钟
             GoldenFTimeVO goldenFTimeVO = new GoldenFTimeVO();
             Long tempEndTime = startTime + (5 * 60 * 1000);
-            if(vendor.equals(Constants.PLATFORM_PG)){
-                tempEndTime = startTime + (15 * 60 * 1000);
+            if(vendor.equals(Constants.PLATFORM_PG) && i==num ){
+                tempEndTime = startTime + (9 * 60 * 1000);
             }
             goldenFTimeVO.setStartTime(startTime);
             goldenFTimeVO.setEndTime(tempEndTime > endTime ? endTime : tempEndTime);
@@ -171,15 +171,15 @@ public class GameRecordGoldenFJob {
 
         int page = 1;
 
-        int pageSize = 1000;
+        int pageSize = 2000;
         Boolean successRequestFlag = true;
         while (true) {
             // 获取数据
             PublicGoldenFApi.ResponseEntity responseEntity =
                     publicGoldenFApi.getPlayerGameRecord(startTime, endTime, vendorCode, page, pageSize);
-
             if (responseEntity == null || checkRequestFail(responseEntity)) {
                 processFaildRequest(startTime, endTime, vendorCode, responseEntity);
+                log.error("PG拉单异常");
                 if (failCount >= 2) {
                     successRequestFlag = false;
                     break;
@@ -189,10 +189,7 @@ public class GameRecordGoldenFJob {
             }
             if (saveData(responseEntity)) {
                 break;
-            } else {
-
             }
-
             page++;
         }
         if (pull && successRequestFlag) {
@@ -357,5 +354,7 @@ public class GameRecordGoldenFJob {
         }
         return gameRecord;
     }
+
+
 
 }
