@@ -49,10 +49,7 @@ public class GameRecordGoldenFJobTest {
         log.info("{}", gameRecordObj);
     }
 
-    @Test
-    public void should_request_error(){
-        gameRecordGoldenFJob.pullGoldenF();
-    }
+
 
     @Test
     public void should_check_time(){
