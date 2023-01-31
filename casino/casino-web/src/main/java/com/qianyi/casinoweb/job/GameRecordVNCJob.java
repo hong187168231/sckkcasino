@@ -176,13 +176,6 @@ public class GameRecordVNCJob {
         return sdf.format(before);
     }
 
-    @SneakyThrows
-    public static void main(String[] args) {
-        SimpleDateFormat df = DateUtil.getSimpleDateFormat();
-        Date parse = df.parse("2022-09-01 12:00:00");
-        String format = sdf.format(parse);
-        System.out.println(format);
-    }
 
     public void saveAll(String platform, List<GameRecordVNCVo> gameRecordVNCList) {
         if (CollectionUtils.isEmpty(gameRecordVNCList)) {

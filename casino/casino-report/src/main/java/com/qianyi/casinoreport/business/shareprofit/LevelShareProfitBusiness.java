@@ -123,7 +123,7 @@ public class LevelShareProfitBusiness {
                 gameRecord.setCreateTime(gameRecordDMC.getCreateTime());
                 gameRecord.setBetId(gameRecordDMC.getBetOrderNo());
                 gameRecord.setUserId(gameRecordDMC.getUserId());
-                gameRecord.setValidbet(gameRecordDMC.getOldTurnover().toPlainString());
+                gameRecord.setValidbet(gameRecordDMC.getRealMoney().toPlainString());
                 record = gameRecord;
             } else if (shareProfitMqVo.getPlatform().equals(Constants.PLATFORM_DG)) {
                 GameRecordDG gameRecordDG = gameRecordDGService.findGameRecordById(shareProfitMqVo.getGameRecordId());

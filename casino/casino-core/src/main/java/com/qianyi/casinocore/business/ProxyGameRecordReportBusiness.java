@@ -152,7 +152,7 @@ public class ProxyGameRecordReportBusiness {
                 }else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_DG)){
                     log.info("消费到DG注单userId:{}id:{}",proxyGameRecordReportVo.getUserId(),proxyGameRecordReportVo.getGameRecordId());
                     GameRecordDG gameRecordById =
-                            gameRecordDGService.findGameRecordById(proxyGameRecordReportVo.getGameRecordId());
+                        gameRecordDGService.findGameRecordById(proxyGameRecordReportVo.getGameRecordId());
                     if (gameRecordById == null || gameRecordById.getGameRecordStatus() == Constants.yes){
                         log.error("DG彩票注单状态异常{}",proxyGameRecordReportVo.getGameRecordId());
                         return;

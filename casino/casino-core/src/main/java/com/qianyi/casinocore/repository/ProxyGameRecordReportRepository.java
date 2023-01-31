@@ -128,7 +128,7 @@ public interface ProxyGameRecordReportRepository extends JpaRepository<ProxyGame
 
     @Query(value = "SELECT ifnull( grd.first_proxy, 0 ) first_proxy,ifnull( grd.second_proxy, 0 ) second_proxy,ifnull( grd.third_proxy, 0 ) third_proxy,"
         + "user_id user_id,count(1) num,ifnull( sum( bet_money ), 0 ) bet_amount,ifnull( sum( real_money ), 0 ) validbet,"
-        + "ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss FROM game_record_dmc grd WHERE bet_time BETWEEN ?1 AND ?2 group by user_id ;",nativeQuery = true)
+        + "ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss FROM game_record_dmc grd WHERE settle_time BETWEEN ?1 AND ?2 group by user_id ;",nativeQuery = true)
     List<Map<String, Object>> findDmc(String startTime,String endTime);
 
     @Query(value = "SELECT ifnull( grd.first_proxy, 0 ) first_proxy,ifnull( grd.second_proxy, 0 ) second_proxy,ifnull( grd.third_proxy, 0 ) third_proxy,"

@@ -410,23 +410,28 @@ public class SupplementBusiness {
                     log.error("查询DMC交易记录时远程请求异常");
                     continue;
                 }
-                TransactionDetailDmc transactionDetailDmc = new TransactionDetailDmc();
-                BeanUtils.copyProperties(jsonObject, transactionDetailDmc);
                 log.error("查询DMC交易记录时远程请求异常");
                 log.info("订单号:{}查询无记录", orderNo);
                 //转入DMC时，DMC查询无记录说明DMC加点失败，要把本地的钱加回来，
+                boolean flag = checkDMCOrder(jsonObject);
                 if (errorOrder.getType() == AccountChangeEnum.DMC_IN.getType()) {
                     //更新错误订单表状态
-                    Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + errorOrder.getMoney().stripTrailingZeros().toPlainString() + ",转入DMC时加点失败,加回本地额度");
-                    if (count > 0) {
-                        //加回额度
-                        addMoney(errorOrder.getUserId(), errorOrder.getMoney());
-                        //记录账变
-                        saveAccountChange(errorOrder, errorOrder.getMoney());
+                    //转入wm,本地先扣减，确认三方加点成功无需加回本地余额
+                    if(!flag){
+                        Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:" + errorOrder.getMoney().stripTrailingZeros().toPlainString() + ",转入DMC时加点失败,加回本地额度");
+                        if (count > 0) {
+                            //加回额度
+                            addMoney(errorOrder.getUserId(), errorOrder.getMoney());
+                            //记录账变
+                            saveAccountChange(errorOrder, errorOrder.getMoney());
+                        }
                     }
+
                 } else if (errorOrder.getType() == AccountChangeEnum.DMC_OUT.getType()) {
-                    //转出DMC时，是先扣减DMC的钱再加回本地，DMC查询无记录说明没有扣点成功，本地也不用把钱加回来,更新状态就行
-                    updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转出DMC时扣点失败,额度未丢失");
+                    if(flag){
+                        //转出DMC时，是先扣减DMC的钱再加回本地，DMC查询无记录说明没有扣点成功，本地也不用把钱加回来,更新状态就行
+                        updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转出DMC时扣点失败,额度未丢失");
+                    }
                 }
                 break;
             } catch (Exception e) {
@@ -434,6 +439,20 @@ public class SupplementBusiness {
                 log.error("查询DMC交易记录时异常,msg={}", e.getMessage());
             }
         }
+    }
+
+    private boolean checkDMCOrder(JSONObject jsonObject) {
+        if(jsonObject.containsKey("responseDto")){
+            JSONObject responseDto = jsonObject.getJSONObject("responseDto");
+            if(responseDto.containsKey("body")){
+                JSONArray body = responseDto.getJSONArray("body");
+                if(body != null && body.size() > 0){
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public void tryDgSupplement(ErrorOrder errorOrder, String dgAccount) {

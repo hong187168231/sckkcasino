@@ -1345,6 +1345,16 @@ public class GameRecordController {
         game.setUserName(userName);
         game.setBetOrderNo(betOrder);
         GameRecordDMC recordRecordSum;
+
+        Long userId = null;
+        if (!LoginUtil.checkNull(account)){
+            User byAccount = userService.findByAccount(account);
+            if (LoginUtil.checkNull(byAccount)){
+                return ResponseUtil.custom("用户不存在");
+            }
+            userId = byAccount.getId();
+        }
+        game.setUserId(userId);
         if (!ObjectUtils.isEmpty(startDate) && !ObjectUtils.isEmpty(endDate)) {
             String startTime = DateUtil.getSimpleDateFormat().format(startDate);
             String endTime = DateUtil.getSimpleDateFormat().format(endDate);

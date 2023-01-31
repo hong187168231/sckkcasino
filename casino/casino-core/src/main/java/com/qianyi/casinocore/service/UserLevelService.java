@@ -1,12 +1,15 @@
 package com.qianyi.casinocore.service;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.mysql.cj.util.StringUtils;
 import com.qianyi.casinocore.co.user.LevelChangeCo;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.repository.UserLevelRepository;
-import com.qianyi.casinocore.util.LevelUtil;
-import com.qianyi.casinocore.vo.UserVo;
+import com.qianyi.casinocore.util.*;
+import com.qianyi.casinocore.vo.*;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.DateUtil;
 import io.swagger.annotations.ApiModelProperty;
@@ -20,9 +23,11 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -194,12 +199,292 @@ public class UserLevelService {
 
     }
 
-    public void updateTodayKeepStatusById(UserLevelRecord userLevelRecord) {
-        userLevelRepository.updateTodayKeepStatusById(userLevelRecord.getTodayKeepStatus(), new Date(), userLevelRecord.getId());
+    public Integer findVipMapCount(String levelArray, Long userId) {
+        StringBuffer stringBuffer = new StringBuffer();
+
+        stringBuffer.append(" SELECT count(1) FROM `user` WHERE 1 = 1 ");
+        if (StrUtil.isNotBlank(levelArray)) {
+            stringBuffer.append(" and   `level` IN (" + levelArray + ") ");
+        }
+        if (ObjectUtil.isNotNull(userId)) {
+            stringBuffer.append(" and   `id` = " + userId + " ");
+        }
+        String sql = stringBuffer.toString();
+        log.info(sql);
+        Query countQuery = entityManager.createNativeQuery(sql);
+        Object countResult = countQuery.getSingleResult();
+        String str = countResult.toString();
+        return Integer.parseInt(str);
     }
 
-    public void modifyUserLevel(UserLevelRecord userLevelRecord) {
-        userLevelRepository.save(userLevelRecord);
+
+    public List<VipReportVo> findVipMap(String startTime, String endTime, String levelArray, Long userId, Integer pageCode, Integer pageSize) {
+        startTime = "'" + startTime + "'";
+        endTime = "'" + endTime + "'";
+        StringBuffer stringBuffer = new StringBuffer();
+
+        stringBuffer.append(" SELECT   u.*, k.* ,IFNULL(td.todayAward,0.000) todayAward , IFNULL(rs.riseAward,0.000)  asriseAward  " +
+                "           FROM   " +
+                "            (   " +
+                "             SELECT   " +
+                "              account,   " +
+                "              id,   " +
+                "              `level`,   " +
+                "              create_time as createTime   " +
+                "             FROM   " +
+                "              `user`   " +
+                "             WHERE 1=1    ");
+        if (StrUtil.isNotBlank(levelArray)) {
+            stringBuffer.append(" and   `level` IN (" + levelArray + ") ");
+        }
+        if (ObjectUtil.isNotNull(userId)) {
+            stringBuffer.append(" and   `id` = " + userId + " ");
+        }
+        stringBuffer.append(" ) u ");
+        stringBuffer.append(" INNER JOIN ( " +
+                " SELECT " +
+                " user_id as userId, " +
+                " SUM(betting_number) num, " +
+                " sum(bet_amount) betAmount, " +
+                " sum(valid_amount) validBet, " +
+                " sum(win_loss) winLoss " +
+                " FROM " +
+                " proxy_game_record_report gr ");
+        if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
+            stringBuffer.append("   where order_times BETWEEN" + startTime + " AND " + endTime + "");
+        }
+        stringBuffer.append("GROUP BY  user_id ) k ON k.userId = u.id ");
+        stringBuffer.append("   LEFT JOIN ( " +
+                "                SELECT " +
+                "        user_id, " +
+                "                SUM(amount) AS todayAward " +
+                "        FROM " +
+                "                award_receive_record " +
+                "        WHERE " +
+                "        1 = 1 " +
+                "        AND award_type = 1 ");
+        if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
+            stringBuffer.append("   AND create_time BETWEEN" + startTime + " AND " + endTime + "");
+        }
+        stringBuffer.append("GROUP BY  user_id ) td ON u.id = td.user_id ");
+        stringBuffer.append("LEFT JOIN ( " +
+                " SELECT " +
+                " user_id, " +
+                " SUM(amount) AS riseAward " +
+                " FROM " +
+                " award_receive_record " +
+                " WHERE " +
+                " 1 = 1 " +
+                " AND award_type = 2");
+        if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
+            stringBuffer.append("   AND receive_time BETWEEN" + startTime + " AND " + endTime + "");
+        }
+        stringBuffer.append("  GROUP BY user_id ) rs ON u.id = td.user_id ");
+        stringBuffer.append("  ORDER BY   u.createTime DESC   LIMIT " + pageCode + "," + pageSize + " ");
+        String sql = stringBuffer.toString();
+        log.info(sql);
+        List<String> list = VIP_REPORT_VO_FIELD_LIST;
+        Query countQuery = entityManager.createNativeQuery(sql);
+        List<Object> resultList = countQuery.getResultList();
+        if (null != resultList && resultList.size() > 0) {
+            List<Map<String, Object>> mapList = parsePersonReportMapList(resultList, list);
+            return DTOUtil.map2DTO(mapList, VipReportVo.class);
+        } else {
+            return null;
+        }
+    }
+
+    public Map<String, Object> findVipTotalMap(String startTime, String endTime, String levelArray, Long userId) {
+        startTime = "'" + startTime + "'";
+        endTime = "'" + endTime + "'";
+        String userIdsql = "";
+        List<String> list = VIP_TOTAL_REPORT_VO_FIELD_LIST;
+        StringBuffer userIdSb = new StringBuffer();
+        userIdSb.append(" SELECT id from `user` WHERE 1=1 ");
+        if (StrUtil.isNotBlank(levelArray)) {
+            userIdSb.append(" and   `level` IN (" + levelArray + ") ");
+        }
+        if (ObjectUtil.isNotNull(userId)) {
+            userIdSb.append(" and   `id` = " + userId + " ");
+        }
+        userIdsql = userIdSb.toString();
+
+        String reportSql = "";
+        StringBuffer reportSb = new StringBuffer();
+        reportSb.append("SELECT\n" +
+                "\t  a.validBet,\ta.winLoss,b.todayAward,\tc.riseAward \n" +
+                "FROM\n" +
+                "\t(\n" +
+                "\t\tSELECT\n" +
+                "\t\t\tuser_id,\n" +
+                "\t\t\tSUM(betting_number) num,\n" +
+                "\t\t\tsum(valid_amount) validBet,\n" +
+                "\t\t\tsum(win_loss) winLoss\n" +
+                "\t\tFROM\n" +
+                "\t\t\tproxy_game_record_report gr\n" +
+                "\t\tWHERE\n" +
+                "\t\t\t1 = 1 ");
+        if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
+            reportSb.append("   AND order_times BETWEEN" + startTime + " AND " + endTime + "");
+        }
+        if (StrUtil.isNotBlank(userIdsql)) {
+            reportSb.append("   AND user_id IN (" + userIdsql + ") ");
+        }
+        reportSb.append(" \t) a, ");
+        reportSb.append("\t(\n" +
+                "\t\tSELECT\n" +
+                "\t\t\tSUM(amount) AS todayAward\n" +
+                "\t\tFROM\n" +
+                "\t\t\taward_receive_record\n" +
+                "\t\tWHERE\n" +
+                "\t\t\taward_type = 1 ");
+        if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
+            reportSb.append("   AND create_time BETWEEN" + startTime + " AND " + endTime + "");
+        }
+        if (StrUtil.isNotBlank(userIdsql)) {
+            reportSb.append("   AND user_id IN (" + userIdsql + ") ");
+        }
+        reportSb.append(" \t) b, ");
+        reportSb.append("\t(\n" +
+                "\t\tSELECT\n" +
+                "\t\t\tSUM(amount) AS riseAward\n" +
+                "\t\tFROM\n" +
+                "\t\t\taward_receive_record\n" +
+                "\t\tWHERE\n" +
+                "\t\t\taward_type = 2 ");
+        if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
+            reportSb.append("   AND receive_time BETWEEN" + startTime + " AND " + endTime + "");
+        }
+        if (StrUtil.isNotBlank(userIdsql)) {
+            reportSb.append("   AND user_id IN (" + userIdsql + ") ");
+        }
+        reportSb.append(" \t\t) c ");
+        reportSql = reportSb.toString();
+        log.info(reportSql);
+        Query countQuery = entityManager.createNativeQuery(reportSql);
+        List<Object> resultList = countQuery.getResultList();
+        if (CollUtil.isEmpty(resultList)) {
+            return new HashMap<>();
+        }
+        Object result = countQuery.getSingleResult();
+        Map<String, Object> map = new HashMap<>();
+        Object[] obj = (Object[]) result;
+        for (int i = 0; i < list.size(); i++) {
+            String field = list.get(i);
+            Object value = obj[i];
+            map.put(field, value);
+        }
+        return map;
+    }
+
+//    public Map<String, Object> findVipTotalMapNotAccount(String startTime, String endTime, String levelArray, Long userId) {
+//        startTime = "'"  + startTime +  "'";
+//        endTime = "'" +  endTime  + "'";
+//        String sql = "";
+//        List<String> list = VIP_TOTAL_REPORT_VO_FIELD_LIST;
+//        StringBuffer stringBuffer = new StringBuffer();
+//
+//        stringBuffer.append("    select\n" +
+//                "    ifnull(main_t.num,0) num,\n" +
+//                "    ifnull(main_t.bet_amount,0) bet_amount ,\n" +
+//                "    ifnull(main_t.validbet,0) totalValidBet ,\n" +
+//                "    ifnull(main_t.win_loss,0) totalWinLoss, \n" +
+//                "    ifnull(td.todayAward,0) totalTodayAward, \n" +
+//                "    ifnull(rs.riseAward,0) totalRiseWinLoss   \n" +
+//                "\t from  (\n" +
+//                "\t\t\tSELECT \n" +
+//                "    account ,\n" +
+//                "    id\n" +
+//                "\t\tFROM\n" +
+//                "\t\t\t`user` \n" +
+//                "\t\tWHERE 1 = 1  ");
+//        if (StrUtil.isNotBlank(levelArray)) {
+//            stringBuffer.append(" and   `level` IN ("+ levelArray +") ");
+//        }
+//        if (ObjectUtil.isNotNull(userId)) {
+//            stringBuffer.append(" and   `id` = "+userId+" ");
+//        }
+//        stringBuffer.append(" ) u ");
+//        stringBuffer.append("  left join (\n" +
+//                "        select user_id ,\n" +
+//                "        SUM(betting_number) num,\n" +
+//                "    sum(bet_amount) bet_amount,\n" +
+//                "    sum(valid_amount) validbet ,\n" +
+//                "    sum(win_loss) win_loss\n" +
+//                "    from proxy_game_record_report gr\n" +
+//                "    where  1=1   ");
+//        if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
+//            stringBuffer.append("   and order_times  BETWEEN" +  startTime  + " AND "+   endTime  + "");
+//        }
+//        stringBuffer.append("  group by user_id  ) main_t on u.id = main_t.user_id ");
+//        stringBuffer.append("       LEFT JOIN (\n" +
+//                "                SELECT\n" +
+//                "                    user_id,\n" +
+//                "                    SUM(amount) AS todayAward\n" +
+//                "                FROM\n" +
+//                "                    award_receive_record\n" +
+//                "                WHERE\n" +
+//                "                 award_type = 1  ");
+//        if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
+//            stringBuffer.append("  AND create_time  BETWEEN" +  startTime  + " AND "+   endTime  + "");
+//        }
+//        stringBuffer.append(" GROUP BY   user_id  ) td ON u.id = td.user_id ");
+//        stringBuffer.append("   LEFT JOIN (\n" +
+//                "                SELECT\n" +
+//                "                    user_id,\n" +
+//                "                    SUM(amount) AS riseAward\n" +
+//                "                FROM\n" +
+//                "                    award_receive_record\n" +
+//                "                WHERE\n" +
+//                "                 award_type = 2 ");
+//
+//        if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
+//            stringBuffer.append("   AND receive_time BETWEEN" +  startTime  + " AND "+   endTime  + "");
+//        }
+//        stringBuffer.append(" GROUP BY  user_id ) rs ON u.id = rs.user_id");
+//        sql = stringBuffer.toString();
+//        log.info(sql);
+//        Query countQuery = entityManager.createNativeQuery(sql);
+//        List<Object> resultList = countQuery.getResultList();
+//        if(CollUtil.isEmpty(resultList)){
+//            return  new HashMap<>();
+//        }
+//        Object result = countQuery.getSingleResult();
+//        Map<String, Object> map = new HashMap<>();
+//        Object[] obj = (Object[]) result;
+//        for (int i = 0; i < list.size(); i++) {
+//            String field = list.get(i);
+//            Object value = obj[i];
+//            map.put(field, value);
+//        }
+//        return map;
+//    }
+
+
+    private static final List<String> VIP_REPORT_VO_FIELD_LIST = Arrays.asList("account", "id", "level", "createTime", "userId", "num",
+            "betAmount", "validBet", "winLoss", "todayAward", "riseAward");
+
+    private static final List<String> VIP_TOTAL_REPORT_VO_FIELD_LIST = Arrays.asList(
+            "totalValidBet", "totalWinLoss", "totalTodayAward", "totalRiseAward");
+
+
+    private List<Map<String, Object>> parsePersonReportMapList(List<Object> resultList, List<String> listString) {
+        List<Map<String, Object>> list = null;
+        if (resultList != null && resultList.size() > CommonConst.NUMBER_0) {
+            list = new LinkedList<>();
+
+            for (Object result : resultList) {
+                Map<String, Object> map = new HashMap<>();
+                Object[] obj = (Object[]) result;
+                for (int i = 0; i < listString.size(); i++) {
+                    String field = listString.get(i);
+                    Object value = obj[i];
+                    map.put(field, value);
+                }
+                list.add(map);
+            }
+        }
+        return list;
     }
 
 }

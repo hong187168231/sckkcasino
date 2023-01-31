@@ -107,7 +107,7 @@ public class UserWashCodeConfigController {
                 }
             }else{
                 userWashCodeConfigService.saveAll(userWashCodeConfigs);
-                return ResponseUtil.success();
+                return ResponseUtil.success(userWashCodeConfigs);
             }
 
             List<UserWashCodeConfig> washCodeConfigs = codeConfigs.stream().filter(userWashCodeConfig -> !CasinoProxyUtil.checkNull(userWashCodeConfig.getPlatform())).collect(Collectors.toList());
@@ -121,7 +121,7 @@ public class UserWashCodeConfigController {
                 });
             });
             userWashCodeConfigService.saveAll(washCodeConfigs);
-            return ResponseUtil.success();
+            return ResponseUtil.success(userWashCodeConfigs);
         }
         return ResponseUtil.custom("保存游戏配置失败");
     }

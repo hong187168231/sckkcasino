@@ -37,10 +37,18 @@ public class GameRecordDMC extends BaseEntity{
     private String parentBetOrderNo;
     @ApiModelProperty("下注时间")
     private String betTime;
+    @ApiModelProperty("结算时间")
+    private String settleTime;
     @ApiModelProperty("下注类型")
     private String betType;
     @ApiModelProperty("下注大小")
     private String betSize;
+
+    @ApiModelProperty("开彩日期")
+    private String drawDate;  //开彩日期
+
+    @ApiModelProperty("下注模式")
+    private String gameType;  //开彩日期
 
     @ApiModelProperty("实付金额")
     private BigDecimal realMoney;
@@ -73,8 +81,7 @@ public class GameRecordDMC extends BaseEntity{
     private String slaveStatus;
     @ApiModelProperty("子单净金额")
     private String slaveNetAmount;
-    @ApiModelProperty("中奖金额")
-    private String winningAmount;
+
     @ApiModelProperty(" 中奖类别 (P1:首奖, P2: 次奖, P3: 三奖, Special: 特别奖, Consolation: 安慰奖)")
     private String prizeType;
 
@@ -100,6 +107,16 @@ public class GameRecordDMC extends BaseEntity{
     @ApiModelProperty(value = "游戏报表状态：0:失败，1：成功")
     private Integer gameRecordStatus = Constants.no;
 
+    @ApiModelProperty(value = "子单下注号码")
+    private String lotteryNumber ; //期号
+
+    @ApiModelProperty(value = "期号")
+    private String drawNumber ; //期号
+
+    @ApiModelProperty(value = "货币Code")
+    private String currencyCode ; //货币Code
+
+
     @ApiModelProperty("总代ID")
     private Long firstProxy;
 
@@ -120,6 +137,7 @@ public class GameRecordDMC extends BaseEntity{
     @Transient
     @ApiModelProperty(value = "旧有效下注")
     private BigDecimal oldTurnover;
+
 
     public GameRecordDMC(){
 

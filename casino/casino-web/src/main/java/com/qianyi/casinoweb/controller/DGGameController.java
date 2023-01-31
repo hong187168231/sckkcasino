@@ -156,7 +156,7 @@ public class DGGameController {
                     //三方加扣点失败再把钱加回来
                     userMoneyService.addMoney(authId, userCenterMoney);
                     //异步记录错误订单并重试补偿
-                    errorOrderService.syncSaveDgErrorOrder(third.getAeAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.DG_IN, Constants.PLATFORM_DG);
+                    errorOrderService.syncSaveDgErrorOrder(third.getDgAccount(), user.getId(), user.getAccount(), orderNo, userCenterMoney, AccountChangeEnum.DG_IN, Constants.PLATFORM_DG);
                     return dgApi.errorCode(deposit.getIntValue("codeId"), deposit.getString("random"));
                 }
 

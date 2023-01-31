@@ -98,7 +98,7 @@ public class GameRecordObzrJob {
         String startTime = (String) redisUtil.get("OBZR:repair:startTime");
         String endTime = (String) redisUtil.get("OBZR:repair:endTime");
         if(StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)){
-           repairGameRecord(startTime, endTime);
+            repairGameRecord(startTime, endTime);
         }
         Thread.sleep(10000*2);
         String startTime2 = (String) redisUtil.get("OBZR:repair:startTime2");

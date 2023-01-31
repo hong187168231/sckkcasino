@@ -61,7 +61,7 @@ public interface UserGameRecordReportRepository extends JpaRepository<UserGameRe
     @Query(value = "SELECT count( 1 ) num from rpt_bet_info_detail g where  g.settle_time BETWEEN ?1 and ?2 ;",nativeQuery = true)
     Integer findTotalBetNumberByVnc(String startTime,String endTime);
 
-    @Query(value = "SELECT count( 1 ) num from game_record_dmc g where  g.bet_time BETWEEN ?1 and ?2 ;",nativeQuery = true)
+    @Query(value = "SELECT count( 1 ) num from game_record_dmc g where  g.settle_time BETWEEN ?1 and ?2 ;",nativeQuery = true)
     Integer findTotalBetNumberByDmc(String startTime,String endTime);
 
     @Query(value = "SELECT count( 1 ) num from game_record_dg g where  g.bet_time BETWEEN ?1 and ?2 ;",nativeQuery = true)
@@ -129,7 +129,7 @@ public interface UserGameRecordReportRepository extends JpaRepository<UserGameRe
     List<Map<String, Object>> findVnc(String startTime,String endTime);
 
     @Query(value = "SELECT user_id user_id,count(1) num,ifnull( sum( bet_money ), 0 ) bet_amount,ifnull( sum( real_money ), 0 ) validbet,"
-            + "ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss FROM game_record_dmc grv WHERE bet_time BETWEEN ?1 AND ?2 "
+            + "ifnull( sum( win_money ), 0 )- ifnull( sum( real_money ), 0 ) win_loss FROM game_record_dmc grv WHERE settle_time BETWEEN ?1 AND ?2 "
             + "group by user_id ;",nativeQuery = true)
     List<Map<String, Object>> findDmc(String startTime,String endTime);
 

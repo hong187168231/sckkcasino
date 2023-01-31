@@ -1,5 +1,8 @@
 package com.qianyi.casinocore.vo;
 
+import cn.hutool.core.util.StrUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModel;

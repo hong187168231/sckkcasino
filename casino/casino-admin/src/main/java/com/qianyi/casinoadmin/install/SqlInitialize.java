@@ -68,7 +68,7 @@ public class SqlInitialize  implements CommandLineRunner {
             });
         }
 
-//        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
+        //        GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
 //        first.setOBZRMaxId(0L);
 //        gameRecordEndIndexService.save(first);
 //        gameRecordReportNewService.deleteByPlatform(Constants.PLATFORM_OBZR);

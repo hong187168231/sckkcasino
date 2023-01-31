@@ -1,6 +1,9 @@
 package com.qianyi.casinocore.vo;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
