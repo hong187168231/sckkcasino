@@ -407,6 +407,8 @@ public class DateUtil {
         return cal.getTime();
     }
 
+
+
     public static List<String> findDates(String dateType, Date dBegin, Date dEnd,int time) throws Exception {
         List<String> listDate = new ArrayList<>();
         listDate.add(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dBegin));
