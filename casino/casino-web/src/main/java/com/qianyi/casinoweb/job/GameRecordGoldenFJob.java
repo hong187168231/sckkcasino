@@ -61,35 +61,21 @@ public class GameRecordGoldenFJob {
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-
     // 每隔2分钟执行一次
-    @Scheduled(initialDelay = 3000, fixedDelay = 1000 * 60 * 3 )
-    public void pullGoldenF_PG() {
+    @Scheduled(cron = "0 0/2 * * * ?")
+    public void pullGoldenF() {
         PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
         if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
             log.info("后台已关闭PG,无需拉单,platformGame={}", pgPlatformGame);
         } else {
             pullGameRecord(Constants.PLATFORM_PG);
         }
-    }
-
-
-    // 每隔2分钟执行一次
-    @Scheduled(initialDelay = 5000, fixedDelay = 1000 * 60 * 2)
-    public void pullGoldenF_CQ9() {
         PlatformGame cq9PlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_CQ9);
         if (cq9PlatformGame != null && cq9PlatformGame.getGameStatus() == 2) {
             log.info("后台已关闭CQ9,无需拉单,platformGame={}", cq9PlatformGame);
         } else {
             pullGameRecord(Constants.PLATFORM_CQ9);
         }
-
-    }
-
-
-    // 每隔2分钟执行一次
-    @Scheduled(initialDelay = 7000, fixedDelay = 1000 * 60 * 2)
-    public void pullGoldenF_SABASPORT() {
         PlatformGame sabaPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_SABASPORT);
         if (sabaPlatformGame != null && sabaPlatformGame.getGameStatus() == 2) {
             log.info("后台已关闭沙巴体育,无需拉单,platformGame={}", sabaPlatformGame);
@@ -138,7 +124,7 @@ public class GameRecordGoldenFJob {
     public List<GoldenFTimeVO> getTimes(String vendor) {
         List<GoldenFTimeVO> timeVOS = new ArrayList<>();
         GameRecordGoldenfEndTime gameRecordGoldenfEndTime =
-                gameRecordGoldenfEndTimeService.findFirstByVendorCodeOrderByEndTimeDesc(vendor);
+            gameRecordGoldenfEndTimeService.findFirstByVendorCodeOrderByEndTimeDesc(vendor);
         Long startTime = getGoldenStartTime(gameRecordGoldenfEndTime);
         Long endTime = System.currentTimeMillis() - (60 * 1000);
         log.info("{},{}", startTime, endTime);
@@ -152,9 +138,6 @@ public class GameRecordGoldenFJob {
             startTime = startTime - 60 * 1000;// 每次拉取重叠一分钟
             GoldenFTimeVO goldenFTimeVO = new GoldenFTimeVO();
             Long tempEndTime = startTime + (5 * 60 * 1000);
-            if(vendor.equals(Constants.PLATFORM_PG) && i==num ){
-                tempEndTime = startTime + (9 * 60 * 1000);
-            }
             goldenFTimeVO.setStartTime(startTime);
             goldenFTimeVO.setEndTime(tempEndTime > endTime ? endTime : tempEndTime);
             timeVOS.add(goldenFTimeVO);
@@ -171,15 +154,15 @@ public class GameRecordGoldenFJob {
 
         int page = 1;
 
-        int pageSize = 2000;
+        int pageSize = 1000;
         Boolean successRequestFlag = true;
         while (true) {
             // 获取数据
             PublicGoldenFApi.ResponseEntity responseEntity =
-                    publicGoldenFApi.getPlayerGameRecord(startTime, endTime, vendorCode, page, pageSize);
+                publicGoldenFApi.getPlayerGameRecord(startTime, endTime, vendorCode, page, pageSize);
+
             if (responseEntity == null || checkRequestFail(responseEntity)) {
                 processFaildRequest(startTime, endTime, vendorCode, responseEntity);
-                log.error("PG拉单异常");
                 if (failCount >= 2) {
                     successRequestFlag = false;
                     break;
@@ -189,7 +172,10 @@ public class GameRecordGoldenFJob {
             }
             if (saveData(responseEntity)) {
                 break;
+            } else {
+
             }
+
             page++;
         }
         if (pull && successRequestFlag) {
@@ -206,9 +192,9 @@ public class GameRecordGoldenFJob {
     }
 
     private void processFaildRequest(Long startTime, Long endTime, String vendorCode,
-                                     PublicGoldenFApi.ResponseEntity responseEntity) {
+        PublicGoldenFApi.ResponseEntity responseEntity) {
         log.error("注单拉取失败startTime{},endTime{},vendorCode{},responseEntity{}", startTime, endTime, vendorCode,
-                responseEntity);
+            responseEntity);
     }
 
     private boolean checkRequestFail(PublicGoldenFApi.ResponseEntity responseEntity) {
@@ -253,7 +239,7 @@ public class GameRecordGoldenFJob {
     private void saveToDB(GameRecordGoldenF item, PlatformConfig platformConfig) {
         try {
             GameRecordGoldenF gameRecordGoldenF =
-                    gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
+                gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
             if (gameRecordGoldenF != null) {
                 return;
             }
@@ -301,7 +287,7 @@ public class GameRecordGoldenFJob {
     }
 
     private void processBusiness(GameRecordGoldenF gameRecordGoldenF, GameRecord gameRecord,
-                                 PlatformConfig platformConfig) {
+        PlatformConfig platformConfig) {
         if (gameRecordGoldenF.getBetAmount().compareTo(BigDecimal.ZERO) == 0)
             return;
         if (!gameRecordGoldenF.getTransType().equals(GoldenFConstant.GOLDENF_STAKE))
@@ -354,7 +340,5 @@ public class GameRecordGoldenFJob {
         }
         return gameRecord;
     }
-
-
 
 }
