@@ -64,12 +64,6 @@ public class GameRecordGoldenFJob {
     // 每隔2分钟执行一次
     @Scheduled(cron = "0 0/2 * * * ?")
     public void pullGoldenF() {
-        PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
-        if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
-            log.info("后台已关闭PG,无需拉单,platformGame={}", pgPlatformGame);
-        } else {
-            pullGameRecord(Constants.PLATFORM_PG);
-        }
         PlatformGame cq9PlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_CQ9);
         if (cq9PlatformGame != null && cq9PlatformGame.getGameStatus() == 2) {
             log.info("后台已关闭CQ9,无需拉单,platformGame={}", cq9PlatformGame);
@@ -83,6 +77,18 @@ public class GameRecordGoldenFJob {
             pullGameRecord(Constants.PLATFORM_SABASPORT);
         }
     }
+
+
+    @Scheduled(initialDelay = 10000, fixedDelay = 1000 * 60 * 2)
+    public void pullGoldenF_PG() {
+        PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
+        if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
+            log.info("后台已关闭PG,无需拉单,platformGame={}", pgPlatformGame);
+        } else {
+            pullGameRecord(Constants.PLATFORM_PG);
+        }
+    }
+
 
     private void pullGameRecord(String vendorCode) {
         try {
@@ -144,17 +150,19 @@ public class GameRecordGoldenFJob {
             startTime = tempEndTime;
         }
         log.info("{}", timeVOS);
+        if(vendor.equals("PG")){
+            log.error("PG拉单当前时间==【{}】 当前条数==> [{}]",startTime,num);
+        }
         return timeVOS;
     }
 
     private void excutePull(boolean pull, String vendorCode, Long startTime, Long endTime) {
-
         log.info("startime is {}  endtime is {}", startTime, endTime);
         Integer failCount = 0;
 
         int page = 1;
 
-        int pageSize = 1000;
+        int pageSize = 5000;
         Boolean successRequestFlag = true;
         while (true) {
             // 获取数据
