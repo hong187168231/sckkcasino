@@ -838,6 +838,9 @@ public class ThirdGameBusiness {
         } catch (Exception e) {
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
+        if(null==apiResponseData){
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
         if (null != apiResponseData && "0".equals(apiResponseData.getString("codeId"))){
             JSONObject member = apiResponseData.getJSONObject("member");
             BigDecimal amount = member.getBigDecimal("balance");
