@@ -1396,7 +1396,7 @@ public class SqlNewConst {
     ifnull( sum( real_win_amount ), 0 )-ifnull( sum( real_bet_amount ), 0 ) win_loss
     from game_record_ae grg
     where  tx_status = 1
-    and bet_time between {0} and {1}) main_t,
+    and tx_time between {0} and {1}) main_t,
         (select
     sum(amount) wash_amount
     from wash_code_change wcc

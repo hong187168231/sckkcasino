@@ -100,6 +100,11 @@ public class ReportController {
         }
         String startTimeStr = DateUtil.formatDateTime(startTime);
         String endTimeStr = DateUtil.formatDateTime(endTime);
+
+        if (!LoginUtil.checkNull(platform) && platform.equals(Constants.PLATFORM_AE)) {
+            endTimeStr = endTimeStr.substring(0,11) + "00:00:00";
+        }
+
         if (StringUtils.hasLength(userName)) {
             User user = userService.findByAccount(userName);
             if (user != null) {
@@ -309,6 +314,11 @@ public class ReportController {
 
         String startTimeStr = DateUtil.formatDateTime(startTime);
         String endTimeStr = DateUtil.formatDateTime(endTime);
+
+        if (!LoginUtil.checkNull(platform) && platform.equals(Constants.PLATFORM_AE)) {
+            endTimeStr = endTimeStr.substring(0,11) + "00:00:00";
+        }
+
         List<PersonReportVo> list = new ArrayList<>();
         if (StringUtils.hasLength(userName)) {
             User user = userService.findByAccount(userName);
@@ -439,6 +449,10 @@ public class ReportController {
 
         String startTime = DateUtil.formatDateTime(startDate);
         String endTime = DateUtil.formatDateTime(endDate);
+
+        if (!LoginUtil.checkNull(platform) && platform.equals(Constants.PLATFORM_AE)) {
+            endTime = endTime.substring(0,11) + "00:00:00";
+        }
 
         Long userId = null;
         PersonReportTotalVo itemObject = null;
