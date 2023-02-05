@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinoweb.vo.GameRecordObdjDetailVo;
 import com.qianyi.casinoweb.vo.GameRecordObdjVo;
 import com.qianyi.liveob.api.PublicObdjApi;
@@ -12,6 +13,7 @@ import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.DateUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,6 +63,8 @@ public class GameRecordObdjJob {
     private AdGamesService adGamesService;
     @Autowired
     private PlatformGameService platformGameService;
+    @Autowired
+    private RedisKeyUtil redisKeyUtil;
 
     //每隔6分钟执行一次
     @Scheduled(cron = "0 0/6 * * * ?")
@@ -233,14 +238,17 @@ public class GameRecordObdjJob {
      * 改变用户实时余额
      */
     private void changeUserBalance(GameRecordObdj gameRecordObdj) {
+        BigDecimal betAmount = gameRecordObdj.getBetAmount();
+        BigDecimal winAmount = gameRecordObdj.getWinAmount();
+        if (betAmount == null || winAmount == null) {
+            return;
+        }
+        BigDecimal winLossAmount = winAmount.subtract(betAmount);
+        Long userId = gameRecordObdj.getUserId();
+
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
         try {
-            BigDecimal betAmount = gameRecordObdj.getBetAmount();
-            BigDecimal winAmount = gameRecordObdj.getWinAmount();
-            if (betAmount == null || winAmount == null) {
-                return;
-            }
-            BigDecimal winLossAmount = winAmount.subtract(betAmount);
-            Long userId = gameRecordObdj.getUserId();
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             //下注金额大于0，扣减
             if (betAmount.compareTo(BigDecimal.ZERO) == 1) {
                 userMoneyBusiness.subBalance(userId, betAmount);
@@ -249,8 +257,11 @@ public class GameRecordObdjJob {
             if (winLossAmount.compareTo(BigDecimal.ZERO) == 1) {
                 userMoneyBusiness.addBalance(userId, winLossAmount);
             }
-        }catch (Exception e){
+        }catch (Exception e) {
             log.error("改变用户实时余额时报错，msg={}",e.getMessage());
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
         }
     }
 

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinoweb.vo.GameRecordObtyDataVo;
 import com.qianyi.casinoweb.vo.GameRecordObtyVo;
 import com.qianyi.liveob.api.PublicObtyApi;
@@ -11,6 +12,7 @@ import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.DateUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -23,6 +25,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 查询用户投注记录接口,查询最近一周的数据,每次最大100条
@@ -53,6 +56,8 @@ public class GameRecordObtyJob {
     private AdGamesService adGamesService;
     @Autowired
     private PlatformGameService platformGameService;
+    @Autowired
+    private RedisKeyUtil redisKeyUtil;
 
     //每隔7分钟执行一次
     @Scheduled(cron = "0 0/7 * * * ?")
@@ -198,13 +203,16 @@ public class GameRecordObtyJob {
      * 改变用户实时余额
      */
     private void changeUserBalance(GameRecordObty gameRecordObty) {
+
+        BigDecimal betAmount = gameRecordObty.getOrderAmount();
+        BigDecimal winAmount = gameRecordObty.getProfitAmount();
+        if (betAmount == null || winAmount == null) {
+            return;
+        }
+        Long userId = gameRecordObty.getUserId();
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
         try {
-            BigDecimal betAmount = gameRecordObty.getOrderAmount();
-            BigDecimal winAmount = gameRecordObty.getProfitAmount();
-            if (betAmount == null || winAmount == null) {
-                return;
-            }
-            Long userId = gameRecordObty.getUserId();
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             //下注金额大于0，扣减
             if (betAmount.compareTo(BigDecimal.ZERO) == 1) {
                 userMoneyBusiness.subBalance(userId, betAmount);
@@ -213,8 +221,11 @@ public class GameRecordObtyJob {
             if (winAmount.compareTo(BigDecimal.ZERO) == 1) {
                 userMoneyBusiness.addBalance(userId, winAmount);
             }
-        }catch (Exception e){
+        }catch (Exception e) {
             log.error("改变用户实时余额时报错，msg={}",e.getMessage());
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
         }
     }
 
