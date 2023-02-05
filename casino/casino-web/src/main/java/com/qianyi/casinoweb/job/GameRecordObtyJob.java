@@ -8,8 +8,10 @@ import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinoweb.vo.GameRecordObtyDataVo;
 import com.qianyi.casinoweb.vo.GameRecordObtyVo;
 import com.qianyi.liveob.api.PublicObtyApi;
+import com.qianyi.lottery.util.StringUtils;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.DateUtil;
+import com.qianyi.modulespringcacheredis.util.RedisUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -59,6 +61,9 @@ public class GameRecordObtyJob {
     @Autowired
     private RedisKeyUtil redisKeyUtil;
 
+    @Autowired
+    private RedisUtil redisUtil;
+
     //每隔7分钟执行一次
     @Scheduled(cron = "0 0/7 * * * ?")
     public void pullGameRecord() {
@@ -80,6 +85,19 @@ public class GameRecordObtyJob {
         pullGameRecord(startTimeAndEndTime);
         log.info("定时器拉取完成OB体育注单记录");
     }
+
+    @Scheduled(fixedDelay = 1000*50*4)
+    public void repairGameRecordJob() throws InterruptedException {
+        log.info("定时器开始拉取OB体育注单记录");
+        String startTime = (String) redisUtil.get("OBTY:repair:startTime");
+        String endTime = (String) redisUtil.get("OBTY:repair:endTime");
+        if(StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)){
+            pullGameRecordByTime(Long.parseLong(startTime), Long.parseLong(endTime), 1);
+        }
+        log.info("定时器补取OB体育注单记录");
+    }
+
+
 
     public void pullGameRecord(StartTimeAndEndTime startTimeAndEndTime) {
         if (startTimeAndEndTime == null) {

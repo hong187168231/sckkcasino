@@ -1,7 +1,6 @@
 package com.qianyi.casinoweb.job;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.constant.GoldenFConstant;
 import com.qianyi.casinocore.model.*;
@@ -11,7 +10,6 @@ import com.qianyi.casinoweb.util.DateUtil;
 import com.qianyi.casinoweb.vo.GameRecordObj;
 import com.qianyi.casinoweb.vo.GoldenFTimeVO;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
-import com.qianyi.lottery.util.HttpClient4Util;
 import com.qianyi.modulecommon.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -376,58 +374,5 @@ public class GameRecordGoldenFJob {
         }
         return gameRecord;
     }
-
-
-        public static void main(String[] args) {
-            String url = "https://kk.api.gfapi.vip/gf" + "/v3/Bet/Record/Get";
-            Map<String, Object> params = new HashMap<>();
-            params.put("secret_key", "16e4ef534cec559430e07e05eb71c719");
-            params.put("operator_token", "7970f61d512b7b681aa149fad927eee8");
-            params.put("vendor_code", "PG");
-            params.put("start_time", "1675532914000");
-            params.put("end_time", "1675533814000");
-            params.put("page", 1);
-            params.put("page_size", 5000);
-            log.info("获取所有投注记录参数{}：", JSONObject.toJSONString(params));
-            String result = HttpClient4Util.doPost(url, params);
-            log.info("获取所有投注记录结果{}：", result);
-            PublicGoldenFApi.ResponseEntity entity = entity(result);
-            GameRecordObj gameRecordObj = JSON.parseObject(entity.getData(), GameRecordObj.class);
-            List<GameRecordGoldenF> recordGoldenFS = gameRecordObj.getBetlogs();
-            for (GameRecordGoldenF recordGoldenF : recordGoldenFS) {
-                if(recordGoldenF.getBetId().equals("1621719485352296448")){
-                    System.out.println(11);
-
-                }            }
-            System.out.println(entity);
-        }
-
-        private static PublicGoldenFApi.ResponseEntity entity(String result) {
-            if (ObjectUtils.isEmpty(result)) {
-                return null;
-            }
-            PublicGoldenFApi.ResponseEntity entity = new PublicGoldenFApi.ResponseEntity();
-            JSONObject jsonObject = null;
-            try {
-                jsonObject = JSONObject.parseObject(result);
-            } catch (Exception e) {
-                entity.setErrorCode("500");
-                entity.setErrorMessage("远程请求GoldenF异常,请重新操作");
-                return entity;
-            }
-            if (ObjectUtils.isEmpty(jsonObject)) {
-                return null;
-            }
-            JSONObject error = jsonObject.getJSONObject("error");
-            if (error != null) {
-                String code = error.getString("code");
-                String message = error.getString("message");
-                entity.setErrorCode(code);
-                entity.setErrorMessage(message);
-            }
-            String data = jsonObject.getString("data");
-            entity.setData(data);
-            return entity;
-        }
 
 }
