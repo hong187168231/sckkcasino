@@ -1,6 +1,7 @@
 package com.qianyi.casinoweb.job;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.constant.GoldenFConstant;
 import com.qianyi.casinocore.model.*;
@@ -11,9 +12,11 @@ import com.qianyi.casinoweb.vo.GameRecordObj;
 import com.qianyi.casinoweb.vo.GoldenFTimeVO;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
 import com.qianyi.modulecommon.Constants;
+import com.qianyi.modulecommon.util.HttpClient4Util;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
@@ -78,7 +81,6 @@ public class GameRecordGoldenFJob {
         }
     }
 
-
     @Scheduled(initialDelay = 10000, fixedDelay = 1000 * 60 * 2)
     public void pullGoldenF_PG() {
         PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
@@ -88,7 +90,6 @@ public class GameRecordGoldenFJob {
             pullGameRecord(Constants.PLATFORM_PG);
         }
     }
-
 
     private void pullGameRecord(String vendorCode) {
         try {
@@ -150,10 +151,25 @@ public class GameRecordGoldenFJob {
             startTime = tempEndTime;
         }
         log.info("{}", timeVOS);
-        if(vendor.equals("PG")){
-            log.error("PG拉单当前时间==【{}】 当前条数==> [{}]",startTime,num);
+        if (vendor.equals("PG")) {
+            if (num > 1) {
+                log.error("PG拉单当前时间==【{}】 当前条数==> [{}]", startTime, num);
+                asyncPullPg(timeVOS);
+            }
         }
         return timeVOS;
+    }
+
+    /**
+     * PG异步拉单
+     */
+    @Async("asyncExecutor")
+    public void asyncPullPg(List<GoldenFTimeVO> timeVOS) {
+        for (GoldenFTimeVO item : timeVOS) {
+            log.error("{},PG开始补单{}到{}的注单数据", Constants.PLATFORM_PG, item.getStartTime(), item.getEndTime());
+            excutePull(false, Constants.PLATFORM_PG, item.getStartTime(), item.getEndTime());
+            log.error("{},{}PG到{}数据补单完成", Constants.PLATFORM_PG, item.getStartTime(), item.getEndTime());
+        }
     }
 
     private void excutePull(boolean pull, String vendorCode, Long startTime, Long endTime) {
@@ -348,5 +364,55 @@ public class GameRecordGoldenFJob {
         }
         return gameRecord;
     }
+
+//    public static void main(String[] args) {
+//        String url = "https://kk.api.gfapi.vip/gf" + "/v3/Bet/Record/Get";
+//        Map<String, Object> params = new HashMap<>();
+//        params.put("secret_key", "16e4ef534cec559430e07e05eb71c719");
+//        params.put("operator_token", "7970f61d512b7b681aa149fad927eee8");
+//        params.put("vendor_code", "PG");
+//        params.put("start_time", "1675533634000");
+//        params.put("end_time", "1675533934000");
+//        params.put("page", 1);
+//        params.put("page_size", 5000);
+//        log.info("获取所有投注记录参数{}：", JSONObject.toJSONString(params));
+//        String result = HttpClient4Util.doPost(url, params);
+//        log.info("获取所有投注记录结果{}：", result);
+//        PublicGoldenFApi.ResponseEntity entity = entity(result);
+//        GameRecordObj gameRecordObj = JSON.parseObject(entity.getData(), GameRecordObj.class);
+//        List<GameRecordGoldenF> recordGoldenFS = gameRecordObj.getBetlogs();
+//        System.out.println(entity);
+//    }
+//
+//    private static PublicGoldenFApi.ResponseEntity entity(String result) {
+//        if (ObjectUtils.isEmpty(result)) {
+//            return null;
+//        }
+//        PublicGoldenFApi.ResponseEntity entity = new PublicGoldenFApi.ResponseEntity();
+//        JSONObject jsonObject = null;
+//        try {
+//            jsonObject = JSONObject.parseObject(result);
+//        } catch (Exception e) {
+//            entity.setErrorCode("500");
+//            entity.setErrorMessage("远程请求GoldenF异常,请重新操作");
+//            return entity;
+//        }
+//        if (ObjectUtils.isEmpty(jsonObject)) {
+//            return null;
+//        }
+//        JSONObject error = jsonObject.getJSONObject("error");
+//        if (error != null) {
+//            String code = error.getString("code");
+//            String message = error.getString("message");
+//            entity.setErrorCode(code);
+//            entity.setErrorMessage(message);
+//        }
+//        String data = jsonObject.getString("data");
+//        entity.setData(data);
+//        return entity;
+//    }
+
+
+
 
 }
