@@ -171,11 +171,11 @@ public class GameRecordGoldenFJob {
     /**
      * PG异步拉单
      */
-//    @Async("asyncExecutor")
+    @Async("asyncExecutor")
     public void asyncPullPg(List<GoldenFTimeVO> timeVOS) {
         for (GoldenFTimeVO item : timeVOS) {
             log.error("{},PG1开始补单{}到{}的注单数据", Constants.PLATFORM_PG, item.getStartTime(), item.getEndTime());
-            excutePull(false, Constants.PLATFORM_PG, item.getStartTime(), item.getEndTime());
+            excutePull(true, Constants.PLATFORM_PG, item.getStartTime(), item.getEndTime());
             log.error("{},{}PG1到{}数据补单完成", Constants.PLATFORM_PG, item.getStartTime(), item.getEndTime());
         }
     }
