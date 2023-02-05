@@ -226,7 +226,7 @@ public class ChargeOrderController {
             }
         }
         ChargeOrder order = chargeOrderService.findById(id);
-        if (order == null) {
+        if (order == null && order.getStatus() != Constants.chargeOrder_wait) {
             return ResponseUtil.custom("订单不存在或已被处理");
         }
         ResponseEntity responseEntity = null;
