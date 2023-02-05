@@ -965,28 +965,38 @@ public class ThirdGameBusiness {
         if (jsonObject == null) {
             log.error("DMC加扣点失败,远程请求异常,userId:{},account={},money={}", userId, user.getAccount(), recoverMoney);
             //异步记录错误订单并重试补偿
-//            errorOrderService.syncSaveDMCErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, recoverMoney, AccountChangeEnum.RECOVERY, Constants.PLATFORM_WM_BIG);
+            //            errorOrderService.syncSaveDMCErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, recoverMoney, AccountChangeEnum.RECOVERY, Constants.PLATFORM_WM_BIG);
             return ResponseUtil.custom("回收失败,请联系客服");
         }
         if (!lottoApi.getResultCode(jsonObject)) {
             log.error("DMC加扣点失败，userId:{},account={},money={},result={}", userId, user.getAccount(), recoverMoney, jsonObject);
             return ResponseUtil.custom("回收失败,请联系客服");
         }
-
         //订单号是三方返回，所以
         orderNo = orderNo + "_" + lottoApi.getTransterId(jsonObject);
         balance = recoverMoney.abs();
-        //把额度加回本地
-        UserMoney userMoney = userMoneyService.findByUserId(userId);
-        if (ObjectUtil.isEmpty(userMoney)) {
-            userMoney = new UserMoney();
-            userMoney.setUserId(userId);
-            userMoneyService.save(userMoney);
+
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            //把额度加回本地
+            UserMoney userMoney = userMoneyService.findByUserId(userId);
+            if (ObjectUtil.isEmpty(userMoney)) {
+                userMoney = new UserMoney();
+                userMoney.setUserId(userId);
+                userMoneyService.save(userMoney);
+            }
+            userMoneyService.addMoney(userId, balance);
+            saveAccountChange(Constants.PLATFORM_DMC, userId, balance, userMoney.getMoney(), balance.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.DMC_OUT, "自动转出DMC", user);
+            log.info("大马彩余额回收成功，userId={},account={}", userId, user.getAccount());
+            return ResponseUtil.success();
+        } catch (Exception e) {
+            log.error("DMC下分出现异常userId{} {}", userId, e.getMessage());
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
         }
-        userMoneyService.addMoney(userId, balance);
-        saveAccountChange(Constants.PLATFORM_DMC, userId, balance, userMoney.getMoney(), balance.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.DMC_OUT, "自动转出DMC", user);
-        log.info("大马彩余额回收成功，userId={},account={}", userId, user.getAccount());
-        return ResponseUtil.success();
     }
 
     /**
