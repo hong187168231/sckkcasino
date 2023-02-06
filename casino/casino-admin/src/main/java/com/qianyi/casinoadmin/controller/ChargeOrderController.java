@@ -233,6 +233,10 @@ public class ChargeOrderController {
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(order.getUserId().toString());
         try {
             userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            ChargeOrder chargeOrder = chargeOrderService.findById(id);
+            if (chargeOrder.getStatus() != Constants.chargeOrder_wait) {
+                return ResponseUtil.custom("订单不存在或已被处理");
+            }
             responseEntity = chargeOrderBusiness.checkOrderSuccess(id, status, remark, lastModifier);
         } catch (Exception e) {
             log.error("充值审核出现异常id{}userId{} {}",order.getId(),order.getUserId(),e.getMessage());
