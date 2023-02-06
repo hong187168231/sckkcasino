@@ -257,7 +257,7 @@ public class UserMoneyBusiness {
         log.info("洗码完成,平台={},注单ID={}", platform, gameRecord.getBetId());
     }
 
-    @Transactional
+
     public void changeLevelWater(String platform, GameRecord gameRecord) {
         log.info("DG开始处理等级流水业务逻辑id:{}userId:{} gameRecord{}", gameRecord.getId(), gameRecord.getUserId(),
             gameRecord.toString());
