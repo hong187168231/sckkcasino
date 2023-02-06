@@ -117,12 +117,12 @@ public class UserMoneyBusiness {
                     userMoneyService.clearBalanceAndCodeNum(userId);
                 } else {
                     userMoneyService.subCodeNum(userId, validbet, userMoney);
-                    CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, record, validbet.negate(),
-                        userMoney.getCodeNum(), codeNumAfter);
-                    codeNumChange.setType(0);
-                    codeNumChange.setPlatform(platform);
-                    codeNumChangeService.save(codeNumChange);
                 }
+                CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, record, validbet.negate(),
+                    userMoney.getCodeNum(), codeNumAfter);
+                codeNumChange.setType(0);
+                codeNumChange.setPlatform(platform);
+                codeNumChangeService.save(codeNumChange);
             }
         }
 
