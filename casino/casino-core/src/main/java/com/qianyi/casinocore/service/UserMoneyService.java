@@ -482,6 +482,13 @@ public class UserMoneyService {
         userMoneyRepository.subBalance(userId, balance);
     }
 
+    @CacheEvict(key = "#userId")
+    @Transactional
+    public void clearBalanceAndCodeNum(Long userId) {
+        redisUtil.delete(RedisUtil.USERMONEY_KEY + userId);
+        userMoneyRepository.clearBalanceAndCodeNum(userId);
+    }
+
     /**
      * 增加等级流水
      *

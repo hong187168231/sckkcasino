@@ -68,7 +68,7 @@ public class UserMoneyBusiness {
     @Autowired
     private ThirdGameBusiness thirdGameBusiness;
 
-    //默认最小清零打码量
+    // 默认最小清零打码量
     private static final BigDecimal DEFAULT_CLEAR = new BigDecimal("10");
 
     /***
@@ -79,7 +79,7 @@ public class UserMoneyBusiness {
      */
     @Transactional
     public void subCodeNum(String platform, PlatformConfig platformConfig, GameRecord record) {
-        //已经处理过的不需要再次处理
+        // 已经处理过的不需要再次处理
         if (record.getCodeNumStatus() != null && record.getCodeNumStatus() == Constants.yes) {
             return;
         }
@@ -92,31 +92,52 @@ public class UserMoneyBusiness {
             return;
         }
         BigDecimal codeNum = userMoney.getCodeNum();
-        //剩余打码量大于0
+        // 剩余打码量大于0
         if (codeNum.compareTo(BigDecimal.ZERO) == 1) {
-            //有效投注额大于等于等于剩余打码量，最多只扣减剩余的
-            validbet = validbet.compareTo(codeNum) > -1 ? codeNum : validbet;
-            userMoneyService.subCodeNum(userId, validbet, userMoney);
-            BigDecimal codeNumAfter = userMoney.getCodeNum().subtract(validbet);
-            CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, record, validbet.negate(), userMoney.getCodeNum(), codeNumAfter);
-            codeNumChange.setType(0);
-            codeNumChange.setPlatform(platform);
-            codeNumChangeService.save(codeNumChange);
-            userMoney.setCodeNum(codeNumAfter);
-            //检查最小清零打码量
-            checkClearCodeNum(platformConfig, userId, userMoney);
+            BigDecimal minCodeNumVal = DEFAULT_CLEAR;
+            if (platformConfig != null && platformConfig.getClearCodeNum() != null) {
+                minCodeNumVal = platformConfig.getClearCodeNum();
+            }
+            // 余额小于等于最小清零打码量时 直接清0
+            if (userMoney.getBalance().compareTo(minCodeNumVal) < 1) {
+                // 打码量和实时余额都清0
+                userMoneyService.clearBalanceAndCodeNum(userId);
+                CodeNumChange codeNumChange =
+                    CodeNumChange.setCodeNumChange(userId, null, null, userMoney.getCodeNum(), BigDecimal.ZERO);
+                codeNumChange.setType(1);
+                codeNumChange.setClearCodeNum(minCodeNumVal);
+                codeNumChangeService.save(codeNumChange);
+                log.info("触发最小清零打码量，打码量清0,最小清0点={},UserId={}", minCodeNumVal, userId);
+            } else {
+                // 有效投注额大于等于等于剩余打码量，最多只扣减剩余的
+                validbet = validbet.compareTo(codeNum) > -1 ? codeNum : validbet;
+                BigDecimal codeNumAfter = userMoney.getCodeNum().subtract(validbet);
+                // 打码已经归0，实时余额直接归0
+                if (codeNumAfter.compareTo(BigDecimal.ZERO) == 0) {
+                    userMoneyService.clearBalanceAndCodeNum(userId);
+                } else {
+                    userMoneyService.subCodeNum(userId, validbet, userMoney);
+                    CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, record, validbet.negate(),
+                        userMoney.getCodeNum(), codeNumAfter);
+                    codeNumChange.setType(0);
+                    codeNumChange.setPlatform(platform);
+                    codeNumChangeService.save(codeNumChange);
+                }
+            }
         }
+
         if (Constants.PLATFORM_WM.equals(platform)) {
             gameRecordService.updateCodeNumStatus(record.getId(), Constants.yes);
-        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform) || Constants.PLATFORM_SABASPORT.equals(platform)) {
+        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)
+            || Constants.PLATFORM_SABASPORT.equals(platform)) {
             gameRecordGoldenFService.updateCodeNumStatus(record.getId(), Constants.yes);
         } else if (Constants.PLATFORM_OBDJ.equals(platform)) {
             gameRecordObdjService.updateCodeNumStatus(record.getId(), Constants.yes);
         } else if (Constants.PLATFORM_OBTY.equals(platform)) {
             gameRecordObtyService.updateCodeNumStatus(record.getId(), Constants.yes);
-        }  else if (Constants.PLATFORM_OBZR.equals(platform)) {
+        } else if (Constants.PLATFORM_OBZR.equals(platform)) {
             gameRecordObzrService.updateCodeNumStatus(record.getId(), Constants.yes);
-        }else if (Constants.PLATFORM_AE.equals(platform)) {
+        } else if (Constants.PLATFORM_AE.equals(platform)) {
             gameRecordAeService.updateCodeNumStatus(record.getId(), Constants.yes);
         } else if (Constants.PLATFORM_VNC.equals(platform)) {
             gameRecordVNCService.updateCodeNumStatus(record.getId(), Constants.yes);
@@ -128,7 +149,6 @@ public class UserMoneyBusiness {
         log.info("打码结束,平台={},注单ID={}", platform, record.getBetId());
     }
 
-
     /**
      * 最小清0打码量检查
      *
@@ -137,59 +157,51 @@ public class UserMoneyBusiness {
      * @param user
      * @return
      */
-    public void checkClearCodeNum(PlatformConfig platformConfig, Long userId, UserMoney user) {
-        //打码已经归0，实时余额直接归0
-        if (user.getCodeNum().compareTo(BigDecimal.ZERO) == 0) {
-            userMoneyService.subBalance(userId, user.getBalance(), user);
-            return;
-        }
-        BigDecimal minCodeNumVal = DEFAULT_CLEAR;
-        if (platformConfig != null && platformConfig.getClearCodeNum() != null) {
-            minCodeNumVal = platformConfig.getClearCodeNum();
-        }
-        //余额小于等于最小清零打码量时 直接清0，切在三方没钱时候，清零
-        if (user.getBalance().compareTo(minCodeNumVal) < 1 ) {
-            //回收其他三方的余额
-            try {
-                thirdGameBusiness.oneKeyRecoverOtherGame(user.getUserId(), "");
-            }catch (Exception e){
-                log.info("回收其他三方余额失败。。" + e.getMessage());
-            }
-            UserMoney userMoney = userMoneyService.findUserByUserIdUseLock(userId);
-            if(userMoney.getMoney().compareTo(minCodeNumVal) < 1){//余额清零点处理
-                //打码量和实时余额都清0
-                userMoneyService.subCodeNum(userId, user.getCodeNum(), user);
-                userMoneyService.subBalance(userId, user.getBalance(), user);
-                CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userId, null, null, user.getCodeNum(), BigDecimal.ZERO);
-                codeNumChange.setType(1);
-                codeNumChange.setClearCodeNum(minCodeNumVal);
-                codeNumChangeService.save(codeNumChange);
-                log.info("触发最小清零打码量，打码量清0,最小清0点={},UserId={}", minCodeNumVal, userId);
-            }
-        }
-    }
+//    public void checkClearCodeNum(PlatformConfig platformConfig, Long userId, UserMoney user) {
+//        // 打码已经归0，实时余额直接归0
+//        if (user.getCodeNum().compareTo(BigDecimal.ZERO) == 0) {
+//            userMoneyService.subBalance(userId, user.getBalance(), user);
+//            return;
+//        }
+//        BigDecimal minCodeNumVal = DEFAULT_CLEAR;
+//        if (platformConfig != null && platformConfig.getClearCodeNum() != null) {
+//            minCodeNumVal = platformConfig.getClearCodeNum();
+//        }
+//        // 余额小于等于最小清零打码量时 直接清0
+//        if (user.getBalance().compareTo(minCodeNumVal) < 1) {
+//            // 打码量和实时余额都清0
+//            userMoneyService.clearBalanceAndCodeNum(userId);
+//            CodeNumChange codeNumChange =
+//                CodeNumChange.setCodeNumChange(userId, null, null, user.getCodeNum(), BigDecimal.ZERO);
+//            codeNumChange.setType(1);
+//            codeNumChange.setClearCodeNum(minCodeNumVal);
+//            codeNumChangeService.save(codeNumChange);
+//            log.info("触发最小清零打码量，打码量清0,最小清0点={},UserId={}", minCodeNumVal, userId);
+//        }
+//    }
 
     @Transactional
     public void washCode(String platform, GameRecord gameRecord) {
-        //已经处理过的不需要再次处理
+        // 已经处理过的不需要再次处理
         if (gameRecord.getWashCodeStatus() != null && gameRecord.getWashCodeStatus() == Constants.yes) {
             return;
         }
         BigDecimal validbet = new BigDecimal(gameRecord.getValidbet());
         Long userId = gameRecord.getUserId();
         String washGameId = null;
-        //WM的洗码是按里面游戏配置的，其他是按大类配置
+        // WM的洗码是按里面游戏配置的，其他是按大类配置
         if (Constants.PLATFORM_WM.equals(platform)) {
             washGameId = gameRecord.getGid().toString();
         } else {
             washGameId = platform;
         }
         log.info("开始洗码,平台={},注单ID={},注单明细={}", platform, gameRecord.getBetId(), gameRecord.toString());
-        WashCodeConfig config = userWashCodeConfigService.getWashCodeConfigByUserIdAndGameId(platform, userId, washGameId);
+        WashCodeConfig config =
+            userWashCodeConfigService.getWashCodeConfigByUserIdAndGameId(platform, userId, washGameId);
         if (config != null && config.getRate() != null && config.getRate().compareTo(BigDecimal.ZERO) == 1) {
             log.info("游戏洗码配置={}", config.toString());
-            //数据库存的10是代表百分之10
-            BigDecimal rate = config.getRate().divide(new BigDecimal(100));//转换百分比
+            // 数据库存的10是代表百分之10
+            BigDecimal rate = config.getRate().divide(new BigDecimal(100));// 转换百分比
             BigDecimal washCodeVal = validbet.multiply(rate);
             WashCodeChange washCodeChange = new WashCodeChange();
             washCodeChange.setUserId(userId);
@@ -205,12 +217,13 @@ public class UserMoneyBusiness {
             washCodeChange.setValidbet(validbet);
             washCodeChange.setGameRecordId(gameRecord.getId());
             washCodeChangeService.save(washCodeChange);
-//            userMoneyService.findUserByUserIdUseLock(userId);
+            // userMoneyService.findUserByUserIdUseLock(userId);
             userMoneyService.addWashCode(userId, washCodeVal);
         }
         if (Constants.PLATFORM_WM.equals(platform)) {
             gameRecordService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
-        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform) || Constants.PLATFORM_SABASPORT.equals(platform)) {
+        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)
+            || Constants.PLATFORM_SABASPORT.equals(platform)) {
             gameRecordGoldenFService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
         } else if (Constants.PLATFORM_OBDJ.equals(platform)) {
             gameRecordObdjService.updateWashCodeStatus(gameRecord.getId(), Constants.yes);
@@ -230,18 +243,19 @@ public class UserMoneyBusiness {
         log.info("洗码完成,平台={},注单ID={}", platform, gameRecord.getBetId());
     }
 
-
     @Transactional
     public void changeLevelWater(String platform, GameRecord gameRecord) {
-        log.info("DG开始处理等级流水业务逻辑id:{}userId:{} gameRecord{}",gameRecord.getId(),gameRecord.getUserId(),gameRecord.toString());
-        //已经处理过的不需要再次处理
+        log.info("DG开始处理等级流水业务逻辑id:{}userId:{} gameRecord{}", gameRecord.getId(), gameRecord.getUserId(),
+            gameRecord.toString());
+        // 已经处理过的不需要再次处理
         if (gameRecord.getLevelWaterStatus() != null && gameRecord.getLevelWaterStatus() == Constants.yes) {
             return;
         }
         userLevelBusiness.processUserLevel(gameRecord.getUserId(), platform, gameRecord);
         if (Constants.PLATFORM_WM.equals(platform)) {
             gameRecordService.updateLevelWaterStatus(gameRecord.getId(), Constants.yes);
-        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform) || Constants.PLATFORM_SABASPORT.equals(platform)) {
+        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)
+            || Constants.PLATFORM_SABASPORT.equals(platform)) {
             gameRecordGoldenFService.updateLevelWaterStatus(gameRecord.getId(), Constants.yes);
         } else if (Constants.PLATFORM_OBDJ.equals(platform)) {
             gameRecordObdjService.updateLevelWaterStatus(gameRecord.getId(), Constants.yes);
@@ -268,7 +282,7 @@ public class UserMoneyBusiness {
      */
     @Transactional
     public void shareProfit(String platform, GameRecord record) {
-        //已经处理过的不需要再次处理
+        // 已经处理过的不需要再次处理
         if (record.getShareProfitStatus() != null && record.getShareProfitStatus() > 0) {
             return;
         }
@@ -281,7 +295,8 @@ public class UserMoneyBusiness {
         shareProfitMqVo.setValidbet(validbet);
         shareProfitMqVo.setGameRecordId(record.getId());
         shareProfitMqVo.setBetTime(record.getBetTime());
-        rabbitTemplate.convertAndSend(RabbitMqConstants.SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.SHAREPROFIT_DIRECT, shareProfitMqVo, new CorrelationData(UUID.randomUUID().toString()));
+        rabbitTemplate.convertAndSend(RabbitMqConstants.SHAREPROFIT_DIRECTQUEUE_DIRECTEXCHANGE,
+            RabbitMqConstants.SHAREPROFIT_DIRECT, shareProfitMqVo, new CorrelationData(UUID.randomUUID().toString()));
         log.info("分润消息发送成功,平台={},注单ID={},消息明细={}", platform, record.getBetId(), shareProfitMqVo);
     }
 
@@ -297,12 +312,12 @@ public class UserMoneyBusiness {
         if (userMoney.getBalance().compareTo(BigDecimal.ZERO) == 0) {
             return;
         }
-        //打码量清0或者balance已经归0后不再累加
+        // 打码量清0或者balance已经归0后不再累加
         if (userMoney.getCodeNum().compareTo(BigDecimal.ZERO) == 0) {
             userMoneyService.subBalance(userId, userMoney.getBalance(), userMoney);
             return;
         }
-        //打码量和balance清0后不再累加
+        // 打码量和balance清0后不再累加
         if (balance != null && balance.compareTo(BigDecimal.ZERO) == 1) {
             userMoneyService.addBalance(userId, balance);
         }
@@ -320,13 +335,13 @@ public class UserMoneyBusiness {
         if (userMoney.getBalance().compareTo(BigDecimal.ZERO) == 0) {
             return;
         }
-        //打码量等于0时，balance也要清0
+        // 打码量等于0时，balance也要清0
         if (userMoney.getCodeNum().compareTo(BigDecimal.ZERO) == 0) {
             userMoneyService.subBalance(userId, userMoney.getBalance(), userMoney);
             return;
         }
         if (balance != null && balance.compareTo(BigDecimal.ZERO) == 1) {
-            //剩余的小于扣减的
+            // 剩余的小于扣减的
             if (userMoney.getBalance().compareTo(balance) == -1) {
                 balance = userMoney.getBalance();
             }
@@ -359,7 +374,7 @@ public class UserMoneyBusiness {
     public void subBalanceAdmin(Long userId, BigDecimal balance) {
         if (balance != null && balance.compareTo(BigDecimal.ZERO) == 1) {
             UserMoney userMoney = userMoneyService.findUserByUserIdUse(userId);
-            //剩余的小于扣减的
+            // 剩余的小于扣减的
             if (userMoney.getBalance().compareTo(balance) == -1) {
                 balance = userMoney.getBalance();
             }
@@ -371,12 +386,12 @@ public class UserMoneyBusiness {
 
     @Transactional
     public void rebate(String platform, GameRecord record) {
-        //已经处理过的不需要再次处理
+        // 已经处理过的不需要再次处理
         if (record.getRebateStatus() != null && record.getRebateStatus() == Constants.yes) {
             return;
         }
         log.info("开始返利，record={}", record.toString());
-        //先查询平台的返利比例
+        // 先查询平台的返利比例
         RebateConfiguration rebateConfiguration = rebateConfigurationService.findByUserIdAndType(0L, 0);
         BigDecimal platformRate = getRate(platform, rebateConfiguration);
         if (platformRate == null) {
@@ -386,26 +401,28 @@ public class UserMoneyBusiness {
             log.info("平台返利为0，record={}", record.toString());
             return;
         }
-        platformRate = platformRate.divide(new BigDecimal(100));//转换百分比
+        platformRate = platformRate.divide(new BigDecimal(100));// 转换百分比
         BigDecimal validbet = new BigDecimal(record.getValidbet());
         BigDecimal totalAmount = validbet.multiply(platformRate);
-        //查询用户的分成比例
-        RebateConfiguration userRebateConfiguration = rebateConfigurationService.findByUserIdAndType(record.getUserId(), 1);
+        // 查询用户的分成比例
+        RebateConfiguration userRebateConfiguration =
+            rebateConfigurationService.findByUserIdAndType(record.getUserId(), 1);
         BigDecimal userDivideRate = getRate(platform, userRebateConfiguration);
         if (userDivideRate == null) {
-            //查询用户归属代理的分成比例
-            RebateConfiguration proxyRebateConfiguration = rebateConfigurationService.findByUserIdAndType(record.getThirdProxy(), 2);
+            // 查询用户归属代理的分成比例
+            RebateConfiguration proxyRebateConfiguration =
+                rebateConfigurationService.findByUserIdAndType(record.getThirdProxy(), 2);
             userDivideRate = getRate(platform, proxyRebateConfiguration);
         }
         if (userDivideRate == null) {
             userDivideRate = BigDecimal.ZERO;
         }
-        userDivideRate = userDivideRate.divide(new BigDecimal(100));//转换百分比
-        //用户分成比例
+        userDivideRate = userDivideRate.divide(new BigDecimal(100));// 转换百分比
+        // 用户分成比例
         BigDecimal userAmount = totalAmount.multiply(userDivideRate);
-        //剩余的
+        // 剩余的
         BigDecimal surplusAmount = totalAmount.subtract(userAmount);
-        //保存明细数据
+        // 保存明细数据
         RebateDetail rebateDetail = new RebateDetail();
         rebateDetail.setUserId(record.getUserId());
         rebateDetail.setGameRecordId(record.getId());
@@ -417,14 +434,15 @@ public class UserMoneyBusiness {
         rebateDetail.setUserAmount(userAmount);
         rebateDetail.setSurplusAmount(surplusAmount);
         rebateDetailService.save(rebateDetail);
-        //把分到的钱加到userMoney表的洗码额上面
+        // 把分到的钱加到userMoney表的洗码额上面
         if (userAmount.compareTo(BigDecimal.ZERO) == 1) {
             userMoneyService.addWashCode(record.getUserId(), userAmount);
         }
-        //更新返利状态
+        // 更新返利状态
         if (Constants.PLATFORM_WM.equals(platform)) {
             gameRecordService.updateRebateStatus(record.getId(), Constants.yes);
-        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform) || Constants.PLATFORM_SABASPORT.equals(platform)) {
+        } else if (Constants.PLATFORM_PG.equals(platform) || Constants.PLATFORM_CQ9.equals(platform)
+            || Constants.PLATFORM_SABASPORT.equals(platform)) {
             gameRecordGoldenFService.updateRebateStatus(record.getId(), Constants.yes);
         } else if (Constants.PLATFORM_OBDJ.equals(platform)) {
             gameRecordObdjService.updateRebateStatus(record.getId(), Constants.yes);
@@ -442,7 +460,7 @@ public class UserMoneyBusiness {
             gameRecordDGService.updateRebateStatus(record.getId(), Constants.yes);
         }
         if (rebateDetail.getTotalAmount().compareTo(BigDecimal.ZERO) > 0) {
-            //后台异步增减平台总余额
+            // 后台异步增减平台总余额
             platformConfigService.reception(CommonConst.NUMBER_0, rebateDetail.getTotalAmount());
         }
         log.info("返利完成，record={}", record.toString());
@@ -465,7 +483,7 @@ public class UserMoneyBusiness {
             rate = rebateConfiguration.getOBDJRate();
         } else if (Constants.PLATFORM_OBTY.equals(platform)) {
             rate = rebateConfiguration.getOBTYRate();
-        }else if (Constants.PLATFORM_OBZR.equals(platform)) {
+        } else if (Constants.PLATFORM_OBZR.equals(platform)) {
             rate = rebateConfiguration.getOBZRRate();
         } else if (Constants.PLATFORM_AE.equals(platform)) {
             rate = rebateConfiguration.getAERate();
@@ -480,7 +498,8 @@ public class UserMoneyBusiness {
     }
 
     public void proxyGameRecordReport(String platform, GameRecord record) {
-        log.info("开始推送后台proxyGameRecordReport MQ消息,平台={},注单ID={},注单BetId={},注单明细={}",platform,record.getId(),record.getBetId(),record.toString());
+        log.info("开始推送后台proxyGameRecordReport MQ消息,平台={},注单ID={},注单BetId={},注单明细={}", platform, record.getId(),
+            record.getBetId(), record.toString());
         ProxyGameRecordReportVo vo = new ProxyGameRecordReportVo();
         vo.setPlatform(platform);
         vo.setOrderId(record.getBetId());
@@ -500,19 +519,21 @@ public class UserMoneyBusiness {
         if (!ObjectUtils.isEmpty(record.getBet())) {
             vo.setBetAmount(new BigDecimal(record.getBet()));
         }
-        rabbitTemplate.convertAndSend(RabbitMqConstants.PROXYG_AMERECORD_REPORT_DIRECTQUEUE_DIRECTEXCHANGE, RabbitMqConstants.PROXYG_AMERECORD_REPORT_DIRECT, vo, new CorrelationData(UUID.randomUUID().toString()));
-        log.info("proxyGameRecordReport MQ消息发送成功,平台={},注单ID={},注单BetId={},消息明细={}", platform,record.getId(),record.getBetId(), vo);
+        rabbitTemplate.convertAndSend(RabbitMqConstants.PROXYG_AMERECORD_REPORT_DIRECTQUEUE_DIRECTEXCHANGE,
+            RabbitMqConstants.PROXYG_AMERECORD_REPORT_DIRECT, vo, new CorrelationData(UUID.randomUUID().toString()));
+        log.info("proxyGameRecordReport MQ消息发送成功,平台={},注单ID={},注单BetId={},消息明细={}", platform, record.getId(),
+            record.getBetId(), vo);
     }
 
     public void changeUserBalance(Long userId, BigDecimal betAmount, BigDecimal winAmount) {
         if (betAmount == null || winAmount == null) {
             return;
         }
-        //下注金额大于0，扣减
+        // 下注金额大于0，扣减
         if (betAmount.compareTo(BigDecimal.ZERO) == 1) {
             subBalance(userId, betAmount);
         }
-        //派彩金额大于0，增加
+        // 派彩金额大于0，增加
         if (winAmount.compareTo(BigDecimal.ZERO) == 1) {
             addBalance(userId, winAmount);
         }

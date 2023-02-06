@@ -71,6 +71,10 @@ public interface UserMoneyRepository extends JpaRepository<UserMoney,Long>, JpaS
     void subBalance(Long userId, BigDecimal balance);
 
     @Modifying(clearAutomatically = true)
+    @Query("update UserMoney u set u.balance=0,u.codeNum=0  where u.userId=?1")
+    void clearBalanceAndCodeNum(Long userId);
+
+    @Modifying(clearAutomatically = true)
     @Query("update UserMoney u set u.money=u.money+?2,u.codeNum=u.codeNum+?3,u.balance=u.balance+?4,u.isFirst=?5 where u.userId=?1")
     void addBalanceAndCodeNumAndMoney(Long userId, BigDecimal money,BigDecimal codeNum,BigDecimal balance,Integer isFirst);
 
