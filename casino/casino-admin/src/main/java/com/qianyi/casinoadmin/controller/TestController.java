@@ -2,6 +2,7 @@ package com.qianyi.casinoadmin.controller;
 
 import java.util.List;
 
+import com.qianyi.casinocore.business.UserWashCodeBusiness;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +38,9 @@ public class TestController {
     @Autowired
     private UserMoneyService userMoneyService;
 
+    @Autowired
+    private UserWashCodeBusiness userWashCodeBusiness;
+
     @ApiOperation("回收WM余额")
     @GetMapping("/recoveryBalance")
     @NoAuthorization
@@ -68,5 +72,12 @@ public class TestController {
         }
         log.info("回收WM余额结束耗时{}==============================================>", System.currentTimeMillis() - startTime);
         return ResponseUtil.success();
+    }
+
+    @ApiOperation("测试洗码")
+    @GetMapping("/getWashCodeConfig")
+    @NoAuthorization
+    public ResponseEntity getWashCodeConfig() {
+        return ResponseUtil.success(userWashCodeBusiness.getWashCodeConfig("OBTY",202L));
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.util.ObjectUtils;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -67,6 +68,9 @@ public class UserMoneyBusiness {
 
     @Autowired
     private ThirdGameBusiness thirdGameBusiness;
+
+    @Autowired
+    private UserWashCodeBusiness userWashCodeBusiness;
 
     // 默认最小清零打码量
     private static final BigDecimal DEFAULT_CLEAR = new BigDecimal("10");
@@ -181,6 +185,16 @@ public class UserMoneyBusiness {
 //        }
 //    }
 
+    public WashCodeConfig getWashCodeConfigByUserIdAndGameId(String platform,Long userId,String gameId) {
+        List<WashCodeConfig> washCodeConfig = userWashCodeBusiness.getWashCodeConfig(platform,userId);
+        for (WashCodeConfig config : washCodeConfig) {
+            if(!ObjectUtils.isEmpty(config.getGameId())&&config.getGameId().equals(gameId)){
+                return config;
+            }
+        }
+        return null;
+    }
+
     @Transactional
     public void washCode(String platform, GameRecord gameRecord) {
         // 已经处理过的不需要再次处理
@@ -197,8 +211,7 @@ public class UserMoneyBusiness {
             washGameId = platform;
         }
         log.info("开始洗码,平台={},注单ID={},注单明细={}", platform, gameRecord.getBetId(), gameRecord.toString());
-        WashCodeConfig config =
-            userWashCodeConfigService.getWashCodeConfigByUserIdAndGameId(platform, userId, washGameId);
+        WashCodeConfig config = getWashCodeConfigByUserIdAndGameId(platform, userId, washGameId);
         if (config != null && config.getRate() != null && config.getRate().compareTo(BigDecimal.ZERO) == 1) {
             log.info("游戏洗码配置={}", config.toString());
             // 数据库存的10是代表百分之10

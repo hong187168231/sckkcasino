@@ -1,5 +1,6 @@
 package com.qianyi.casinocore.service;
 
+import com.qianyi.casinocore.business.UserWashCodeBusiness;
 import com.qianyi.casinocore.model.UserWashCodeConfig;
 import com.qianyi.casinocore.model.WashCodeConfig;
 import com.qianyi.casinocore.repository.UserWashCodeConfigRepository;
@@ -7,6 +8,9 @@ import com.qianyi.casinocore.repository.WashCodeConfigRepository;
 import com.qianyi.modulecommon.Constants;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -14,6 +18,7 @@ import org.springframework.util.ObjectUtils;
 import java.util.*;
 
 @Service
+@CacheConfig(cacheNames = {"userWashCodeConfig"})
 public class UserWashCodeConfigService {
 
     @Autowired
@@ -21,7 +26,13 @@ public class UserWashCodeConfigService {
     @Autowired
     private WashCodeConfigService washCodeConfigService;
 
-    public List<UserWashCodeConfig> saveAll(List<UserWashCodeConfig> list){
+
+//    public List<UserWashCodeConfig> saveAll(List<UserWashCodeConfig> list){
+//        return userWashCodeConfigRepository.saveAll(list);
+//    }
+
+    @CacheEvict(key = "#userId+'::'+#platform")
+    public List<UserWashCodeConfig> saveAll(Long userId,String platform,List<UserWashCodeConfig> list){
         return userWashCodeConfigRepository.saveAll(list);
     }
 
@@ -54,6 +65,11 @@ public class UserWashCodeConfigService {
         return configs;
     }
 
+    @Cacheable(key = "#userId+'::'+#platform")
+    public List<UserWashCodeConfig> findByUserIdAndPlatform(Long userId,String platform){
+        return userWashCodeConfigRepository.findByUserIdAndPlatform(userId, platform);
+    }
+
     public List<WashCodeConfig> getWashCodeConfig(Long userId) {
         List<WashCodeConfig> washCodeList = new ArrayList<>();
         List<String> platformList = new ArrayList<>();
@@ -83,15 +99,5 @@ public class UserWashCodeConfigService {
             washCodeList.addAll(configList);
         }
         return washCodeList;
-    }
-
-    public WashCodeConfig getWashCodeConfigByUserIdAndGameId(String platform,Long userId,String gameId) {
-        List<WashCodeConfig> washCodeConfig = getWashCodeConfig(platform,userId);
-        for (WashCodeConfig config : washCodeConfig) {
-            if(!ObjectUtils.isEmpty(config.getGameId())&&config.getGameId().equals(gameId)){
-                return config;
-            }
-        }
-        return null;
     }
 }
