@@ -67,7 +67,11 @@ public class UserWashCodeConfigController {
                     }
                 }
                 if(!userWashCodeConfigs.isEmpty()){
-                    userWashCodeConfigService.saveAll(userWashCodeConfigs);
+//                    userWashCodeConfigService.saveAll(userWashCodeConfigs);
+                    Map<String, List<UserWashCodeConfig>> groupBy = userWashCodeConfigs.stream().collect(Collectors.groupingBy(UserWashCodeConfig::getPlatform));
+                    groupBy.forEach((k,v)->{
+                        userWashCodeConfigService.saveAll(userId,k,v);
+                    });
                     byUserIdAndPlatform = userWashCodeConfigService.findByUserId(userId);
                 }
             }
@@ -106,7 +110,11 @@ public class UserWashCodeConfigController {
                     codeConfigs.add(userWashCodeConfig);
                 }
             }else{
-                userWashCodeConfigService.saveAll(userWashCodeConfigs);
+//                userWashCodeConfigService.saveAll(userWashCodeConfigs);
+                Map<String, List<UserWashCodeConfig>> groupBy = userWashCodeConfigs.stream().collect(Collectors.groupingBy(UserWashCodeConfig::getPlatform));
+                groupBy.forEach((k,v)->{
+                    userWashCodeConfigService.saveAll(userId,k,v);
+                });
                 return ResponseUtil.success(userWashCodeConfigs);
             }
 
@@ -120,7 +128,11 @@ public class UserWashCodeConfigController {
                     }
                 });
             });
-            userWashCodeConfigService.saveAll(washCodeConfigs);
+//            userWashCodeConfigService.saveAll(washCodeConfigs);
+            Map<String, List<UserWashCodeConfig>> groupBy = washCodeConfigs.stream().collect(Collectors.groupingBy(UserWashCodeConfig::getPlatform));
+            groupBy.forEach((k,v)->{
+                userWashCodeConfigService.saveAll(userId,k,v);
+            });
             return ResponseUtil.success(userWashCodeConfigs);
         }
         return ResponseUtil.custom("保存游戏配置失败");
