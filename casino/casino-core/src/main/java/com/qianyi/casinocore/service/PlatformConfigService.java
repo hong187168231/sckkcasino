@@ -1,22 +1,15 @@
 package com.qianyi.casinocore.service;
 
-import cn.hutool.core.util.StrUtil;
 import com.qianyi.casinocore.exception.BusinessException;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.repository.PlatformConfigRepository;
 import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.modulecommon.reponse.ResponseEntity;
-import com.qianyi.modulecommon.reponse.ResponseUtil;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -31,7 +24,7 @@ public class PlatformConfigService {
         return platformConfigRepository.findAll();
     }
 
-//    @Cacheable(cacheNames = "platformConfig")
+    @Cacheable(cacheNames = "platformConfig")
     public PlatformConfig findFirst() {
         List<PlatformConfig> configList = platformConfigRepository.findAll();
         if (!CollectionUtils.isEmpty(configList)) {
