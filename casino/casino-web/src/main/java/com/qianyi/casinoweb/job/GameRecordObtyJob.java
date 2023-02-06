@@ -65,7 +65,7 @@ public class GameRecordObtyJob {
     private RedisUtil redisUtil;
 
     //每隔7分钟执行一次
-    @Scheduled(cron = "0 0/7 * * * ?")
+    @Scheduled(initialDelay = 10000, fixedDelay = 1000 * 60 * 5)
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
         if (platformGame != null && platformGame.getGameStatus() == 2) {
@@ -86,13 +86,13 @@ public class GameRecordObtyJob {
         log.info("定时器拉取完成OB体育注单记录");
     }
 
-    @Scheduled(fixedDelay = 1000*50*4)
+    @Scheduled(initialDelay = 10000, fixedDelay = 1000 * 60 * 1)
     public void repairGameRecordJob() throws InterruptedException {
         log.info("定时器开始拉取OB体育注单记录");
         String startTime = (String) redisUtil.get("OBTY:repair:startTime");
         String endTime = (String) redisUtil.get("OBTY:repair:endTime");
         if(StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)){
-            pullGameRecordByTime(Long.parseLong(startTime), Long.parseLong(endTime), 1);
+            pullGameRecordByTime(Long.parseLong(startTime), Long.parseLong(endTime), 1,false);
         }
         log.info("定时器补取OB体育注单记录");
     }
@@ -106,11 +106,11 @@ public class GameRecordObtyJob {
         Long startTime = startTimeAndEndTime.getStartTime();
         Long endTime = startTimeAndEndTime.getEndTime();
         log.info("开始拉取{}到{}的OB体育游戏记录", startTime, endTime);
-        pullGameRecordByTime(startTime, endTime, 1);
+        pullGameRecordByTime(startTime, endTime, 1,true);
         log.info("{}到{}的OB体育游戏记录拉取完成", startTime, endTime);
     }
 
-    public void pullGameRecordByTime(Long startTime, Long endTime, Integer pageNum) {
+    public void pullGameRecordByTime(Long startTime, Long endTime, Integer pageNum,boolean timeFlag) {
         //每次最多拉100条
         Integer pageSize = 100;
         PublicObtyApi.ResponseEntity betResult = obtyApi.queryBetList(null, startTime, endTime, 1, pageNum, pageSize);
@@ -138,10 +138,12 @@ public class GameRecordObtyJob {
         saveAll(gameReocrdData.getList());
         //当前时间范围数据没拉取完继续拉取
         if (pageNum < totalNum) {
-            pullGameRecordByTime(startTime, endTime, currentPageNum + 1);
+            pullGameRecordByTime(startTime, endTime, currentPageNum + 1,timeFlag);
         }
-        //保存时间区间
-        saveGameRecordObEndTime(startTime, endTime, Constants.yes);
+        if(timeFlag){
+            //保存时间区间
+            saveGameRecordObEndTime(startTime, endTime, Constants.yes);
+        }
     }
 
     /**
