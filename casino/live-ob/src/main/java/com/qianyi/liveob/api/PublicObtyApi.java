@@ -193,7 +193,7 @@ public class PublicObtyApi {
         if (!ObjectUtils.isEmpty(settleStatus)) {
             treeMap.put("settleStatus", settleStatus);
         }
-        if (!ObjectUtils.isEmpty(userName)) {
+        if (!ObjectUtils.isEmpty(pageSize)) {
             treeMap.put("pageSize", pageSize);
         }
         Long timestamp = System.currentTimeMillis();
