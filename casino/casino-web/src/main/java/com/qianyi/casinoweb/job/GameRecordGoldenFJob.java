@@ -1,5 +1,6 @@
 package com.qianyi.casinoweb.job;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.constant.GoldenFConstant;
@@ -96,7 +97,7 @@ public class GameRecordGoldenFJob {
             // 从数据库获取最近的拉单时间和平台
             List<GoldenFTimeVO> timeVOS = getTimes(vendorCode);
             if (vendorCode.equals("PG")) {
-                if (timeVOS.size() > 1) {
+                if (CollectionUtil.isNotEmpty(timeVOS) && timeVOS.size() > 1) {
                     log.error("PG拉单当前时间==【{}】 当前条数==> [{}]", timeVOS.get(0).getStartTime(), timeVOS.size());
                     asyncPullPg(timeVOS);
                 }else {
