@@ -122,77 +122,76 @@ public class ThirdGameBusiness {
         if (third == null || ObjectUtils.isEmpty(third.getGoldenfAccount())) {
             return ResponseUtil.custom(vendorCode + "余额为0");
         }
+
+        ResponseEntity<BigDecimal> responseEntity = getBalanceGoldenF(third.getGoldenfAccount(), userId, vendorCode);
+        if (responseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return responseEntity;
+        }
+        BigDecimal balance = responseEntity.getData();
+        if (balance.compareTo(BigDecimal.ONE) == -1) {
+            log.info("userId:{},balance={},{}金额小于1，不可回收", userId, balance, vendorCode);
+            return ResponseUtil.custom(vendorCode + "余额小于1,不可回收");
+        }
+
+        String platformCode = Constants.PLATFORM_SABASPORT;
+        // 适配PG/CQ9
+        if (ObjectUtils.isEmpty(vendorCode)) {
+            platformCode = Constants.PLATFORM_PG_CQ9;
+        }
+        // 重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(platformCode, userId.toString());
+
+        String orderNo = orderService.getOrderNo();
+        String goldenfAccount = third.getGoldenfAccount();
+        // 调用提值接口扣减余额 存在精度问题，只回收整数部分
+        BigDecimal recoverMoney = balance.setScale(0, BigDecimal.ROUND_DOWN);
+        String walletCode = WalletCodeEnum.getWalletCodeByVendorCode(vendorCode);
+        PublicGoldenFApi.ResponseEntity transferOut =
+            goldenFApi.transferOut(goldenfAccount, recoverMoney.doubleValue(), orderNo, walletCode);
+        AccountChangeEnum changeEnum = AccountChangeEnum.PG_CQ9_OUT;
+        String platform = Constants.PLATFORM_PG_CQ9;
+        String remark = "自动转出PG/CQ9";
+        if (Constants.PLATFORM_SABASPORT.equals(vendorCode)) {
+            changeEnum = AccountChangeEnum.SABASPORT_OUT;
+            platform = Constants.PLATFORM_SABASPORT;
+            remark = "自动转出SABASPORT";
+        }
+        if (transferOut == null) {
+            User user = userService.findById(userId);
+            errorOrderService.syncGoldenFSaveErrorOrder(goldenfAccount, user.getId(), user.getAccount(), orderNo,
+                recoverMoney, changeEnum, platform, walletCode);
+            log.error("userId:{},money={},一键回收当前登录用户{}余额失败", userId, recoverMoney, vendorCode);
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        if (!ObjectUtils.isEmpty(transferOut.getErrorCode())) {
+            log.error("{}余额回收失败,userId:{},money={},errorCode={},errorMsg={}", vendorCode, userId, recoverMoney,
+                transferOut.getErrorCode(), transferOut.getErrorMessage());
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+        // 三方强烈建议提值/充值后使用 5.9 获取单个玩家的转账记录 进一步确认交易是否成功，避免造成金额损失
+        long time = System.currentTimeMillis();
+        PublicGoldenFApi.ResponseEntity playerTransactionRecord =
+            goldenFApi.getPlayerTransactionRecord(goldenfAccount, time, time, walletCode, orderNo, null);
+        if (playerTransactionRecord == null) {
+            User user = userService.findById(userId);
+            errorOrderService.syncGoldenFSaveErrorOrder(goldenfAccount, user.getId(), user.getAccount(), orderNo,
+                recoverMoney, changeEnum, platform, walletCode);
+            log.error("userId:{},money={},{}一键回收余额查询转账记录失败,远程请求异常", userId, recoverMoney, vendorCode);
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        if (!ObjectUtils.isEmpty(playerTransactionRecord.getErrorCode())) {
+            log.error("{}一键回收余额查询转账记录失败,userId:{},errorCode={},errorMsg={}", vendorCode, userId,
+                playerTransactionRecord.getErrorCode(), playerTransactionRecord.getErrorMessage());
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+        JSONObject jsonData = JSONObject.parseObject(playerTransactionRecord.getData());
+        JSONArray translogs = jsonData.getJSONArray("translogs");
+        if (translogs.size() == 0) {
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
         try {
             userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            ResponseEntity<BigDecimal> responseEntity =
-                getBalanceGoldenF(third.getGoldenfAccount(), userId, vendorCode);
-            if (responseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
-                return responseEntity;
-            }
-            BigDecimal balance = responseEntity.getData();
-            if (balance.compareTo(BigDecimal.ONE) == -1) {
-                log.info("userId:{},balance={},{}金额小于1，不可回收", userId, balance, vendorCode);
-                return ResponseUtil.custom(vendorCode + "余额小于1,不可回收");
-            }
-
-            String platformCode = Constants.PLATFORM_SABASPORT;
-            // 适配PG/CQ9
-            if (ObjectUtils.isEmpty(vendorCode)) {
-                platformCode = Constants.PLATFORM_PG_CQ9;
-            }
-            //重置缓存时间
-            ExpirationTimeUtil.resetExpirationTime(platformCode,userId.toString());
-
-
-            String orderNo = orderService.getOrderNo();
-            String goldenfAccount = third.getGoldenfAccount();
-            // 调用提值接口扣减余额 存在精度问题，只回收整数部分
-            BigDecimal recoverMoney = balance.setScale(0, BigDecimal.ROUND_DOWN);
-            String walletCode = WalletCodeEnum.getWalletCodeByVendorCode(vendorCode);
-            PublicGoldenFApi.ResponseEntity transferOut =
-                goldenFApi.transferOut(goldenfAccount, recoverMoney.doubleValue(), orderNo, walletCode);
-            AccountChangeEnum changeEnum = AccountChangeEnum.PG_CQ9_OUT;
-            String platform = Constants.PLATFORM_PG_CQ9;
-            String remark = "自动转出PG/CQ9";
-            if (Constants.PLATFORM_SABASPORT.equals(vendorCode)) {
-                changeEnum = AccountChangeEnum.SABASPORT_OUT;
-                platform = Constants.PLATFORM_SABASPORT;
-                remark = "自动转出SABASPORT";
-            }
-            if (transferOut == null) {
-                User user = userService.findById(userId);
-                errorOrderService.syncGoldenFSaveErrorOrder(goldenfAccount, user.getId(), user.getAccount(), orderNo,
-                    recoverMoney, changeEnum, platform, walletCode);
-                log.error("userId:{},money={},一键回收当前登录用户{}余额失败", userId, recoverMoney, vendorCode);
-                return ResponseUtil.custom("服务器异常,请重新操作");
-            }
-            if (!ObjectUtils.isEmpty(transferOut.getErrorCode())) {
-                log.error("{}余额回收失败,userId:{},money={},errorCode={},errorMsg={}", vendorCode, userId, recoverMoney,
-                    transferOut.getErrorCode(), transferOut.getErrorMessage());
-                return ResponseUtil.custom("回收失败,请联系客服");
-            }
-            // 三方强烈建议提值/充值后使用 5.9 获取单个玩家的转账记录 进一步确认交易是否成功，避免造成金额损失
-            long time = System.currentTimeMillis();
-            PublicGoldenFApi.ResponseEntity playerTransactionRecord =
-                goldenFApi.getPlayerTransactionRecord(goldenfAccount, time, time, walletCode, orderNo, null);
-            if (playerTransactionRecord == null) {
-                User user = userService.findById(userId);
-                errorOrderService.syncGoldenFSaveErrorOrder(goldenfAccount, user.getId(), user.getAccount(), orderNo,
-                    recoverMoney, changeEnum, platform, walletCode);
-                log.error("userId:{},money={},{}一键回收余额查询转账记录失败,远程请求异常", userId, recoverMoney, vendorCode);
-                return ResponseUtil.custom("服务器异常,请重新操作");
-            }
-            if (!ObjectUtils.isEmpty(playerTransactionRecord.getErrorCode())) {
-                log.error("{}一键回收余额查询转账记录失败,userId:{},errorCode={},errorMsg={}", vendorCode, userId,
-                    playerTransactionRecord.getErrorCode(), playerTransactionRecord.getErrorMessage());
-                return ResponseUtil.custom("回收失败,请联系客服");
-            }
-            JSONObject jsonData = JSONObject.parseObject(playerTransactionRecord.getData());
-            JSONArray translogs = jsonData.getJSONArray("translogs");
-            if (translogs.size() == 0) {
-                return ResponseUtil.custom("回收失败,请联系客服");
-            }
             // 把额度加回本地
             UserMoney userMoney = userMoneyService.findByUserId(userId);
             if (userMoney == null) {
@@ -242,47 +241,47 @@ public class ThirdGameBusiness {
             log.error("userId:{},account={},WM退出游戏失败", userId, user.getAccount());
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
+        // 查询用户在wm的余额
+        BigDecimal balance = BigDecimal.ZERO;
+        try {
+            balance = wmApi.getBalance(account, lang);
+            if (balance == null) {
+                log.error("userId:{},account={},获取用户WM余额为null", userId, user.getAccount());
+                return ResponseUtil.custom("服务器异常,请重新操作");
+            }
+        } catch (Exception e) {
+            log.error("userId:{},account={},获取用户WM余额失败{}", userId, user.getAccount(), e.getMessage());
+            e.printStackTrace();
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        if (balance.compareTo(BigDecimal.ONE) == -1) {
+            log.info("userId:{},account={},balance={},WM金额小于1，不可回收", userId, user.getAccount(), balance);
+            return ResponseUtil.custom("WM余额小于1,不可回收");
+        }
+
+        // 重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_WM_BIG, userId.toString());
+
+        // 调用加扣点接口扣减wm余额 存在精度问题，只回收整数部分
+        BigDecimal recoverMoney = balance.negate().setScale(0, BigDecimal.ROUND_DOWN);
+        String orderNo = orderService.getOrderNo();
+        PublicWMApi.ResponseEntity entity = wmApi.changeBalance(account, recoverMoney, orderNo, lang);
+        if (entity == null) {
+            log.error("WM加扣点失败,远程请求异常,userId:{},account={},money={}", userId, user.getAccount(), recoverMoney);
+            // 异步记录错误订单并重试补偿
+            errorOrderService.syncSaveErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo,
+                recoverMoney, AccountChangeEnum.RECOVERY, Constants.PLATFORM_WM_BIG);
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+        if (entity.getErrorCode() != 0) {
+            log.error("WM加扣点失败，userId:{},account={},money={},errorCode={},errorMsg={}", userId, user.getAccount(),
+                recoverMoney, entity.getErrorCode(), entity.getErrorMessage());
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+        balance = recoverMoney.abs();
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
         try {
             userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            // 查询用户在wm的余额
-            BigDecimal balance = BigDecimal.ZERO;
-            try {
-                balance = wmApi.getBalance(account, lang);
-                if (balance == null) {
-                    log.error("userId:{},account={},获取用户WM余额为null", userId, user.getAccount());
-                    return ResponseUtil.custom("服务器异常,请重新操作");
-                }
-            } catch (Exception e) {
-                log.error("userId:{},account={},获取用户WM余额失败{}", userId, user.getAccount(), e.getMessage());
-                e.printStackTrace();
-                return ResponseUtil.custom("服务器异常,请重新操作");
-            }
-            if (balance.compareTo(BigDecimal.ONE) == -1) {
-                log.info("userId:{},account={},balance={},WM金额小于1，不可回收", userId, user.getAccount(), balance);
-                return ResponseUtil.custom("WM余额小于1,不可回收");
-            }
-
-            //重置缓存时间
-            ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_WM_BIG,userId.toString());
-
-            // 调用加扣点接口扣减wm余额 存在精度问题，只回收整数部分
-            BigDecimal recoverMoney = balance.negate().setScale(0, BigDecimal.ROUND_DOWN);
-            String orderNo = orderService.getOrderNo();
-            PublicWMApi.ResponseEntity entity = wmApi.changeBalance(account, recoverMoney, orderNo, lang);
-            if (entity == null) {
-                log.error("WM加扣点失败,远程请求异常,userId:{},account={},money={}", userId, user.getAccount(), recoverMoney);
-                // 异步记录错误订单并重试补偿
-                errorOrderService.syncSaveErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo,
-                    recoverMoney, AccountChangeEnum.RECOVERY, Constants.PLATFORM_WM_BIG);
-                return ResponseUtil.custom("回收失败,请联系客服");
-            }
-            if (entity.getErrorCode() != 0) {
-                log.error("WM加扣点失败，userId:{},account={},money={},errorCode={},errorMsg={}", userId, user.getAccount(),
-                    recoverMoney, entity.getErrorCode(), entity.getErrorMessage());
-                return ResponseUtil.custom("回收失败,请联系客服");
-            }
-            balance = recoverMoney.abs();
             // 把额度加回本地
             UserMoney userMoney = userMoneyService.findByUserId(userId);
             if (userMoney == null) {
@@ -321,49 +320,48 @@ public class ThirdGameBusiness {
         User user = userService.findById(userId);
         String account = third.getObdjAccount();
 
+        PublicObdjApi.ResponseEntity obApiBalance = obdjApi.getBalance(account);
+        if (obApiBalance == null) {
+            log.error("userId:{},account={},获取用户OB电竞余额失败,远程请求异常", userId, user.getAccount());
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        if (PublicObdjApi.STATUS_FALSE.equals(obApiBalance.getStatus())) {
+            log.error("userId:{},account={},获取用户OB电竞余额失败，msg={}", userId, user.getAccount(), obApiBalance.getData());
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        if (ObjectUtils.isEmpty(obApiBalance.getData())) {
+            log.error("userId:{},account={},获取用户OB电竞余额为null,msg={}", userId, user.getAccount(), obApiBalance.getData());
+            return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        BigDecimal balance = new BigDecimal(obApiBalance.getData());
+        if (balance.compareTo(BigDecimal.ONE) == -1) {
+            log.info("userId:{},account={},balance={},OB电竞金额小于1，不可回收", userId, user.getAccount(), balance);
+            return ResponseUtil.custom("OB电竞余额小于1,不可回收");
+        }
+
+        // 重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBDJ, userId.toString());
+
+        // 调用加扣点接口扣减OB电竞余额 存在精度问题，只回收整数部分
+        balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
+        String orderNo = orderService.getObdjOrderNo();
+        PublicObdjApi.ResponseEntity transfer = obdjApi.transfer(account, 2, balance, orderNo);
+        if (transfer == null) {
+            log.error("OB电竞扣点失败,远程请求异常,userId:{},account={},money={}", userId, user.getAccount(), balance);
+            // 异步记录错误订单
+            errorOrderService.syncSaveErrorOrder(third.getObdjAccount(), user.getId(), user.getAccount(), orderNo,
+                balance, AccountChangeEnum.OBDJ_OUT, Constants.PLATFORM_OBDJ);
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+        if (PublicObdjApi.STATUS_FALSE.equals(transfer.getStatus())) {
+            log.error("OB电竞扣点失败,userId:{},account={},money={},msg={}", userId, user.getAccount(), balance,
+                transfer.getData());
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
         try {
             userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            PublicObdjApi.ResponseEntity obApiBalance = obdjApi.getBalance(account);
-            if (obApiBalance == null) {
-                log.error("userId:{},account={},获取用户OB电竞余额失败,远程请求异常", userId, user.getAccount());
-                return ResponseUtil.custom("服务器异常,请重新操作");
-            }
-            if (PublicObdjApi.STATUS_FALSE.equals(obApiBalance.getStatus())) {
-                log.error("userId:{},account={},获取用户OB电竞余额失败，msg={}", userId, user.getAccount(),
-                    obApiBalance.getData());
-                return ResponseUtil.custom("服务器异常,请重新操作");
-            }
-            if (ObjectUtils.isEmpty(obApiBalance.getData())) {
-                log.error("userId:{},account={},获取用户OB电竞余额为null,msg={}", userId, user.getAccount(),
-                    obApiBalance.getData());
-                return ResponseUtil.custom("服务器异常,请重新操作");
-            }
-            BigDecimal balance = new BigDecimal(obApiBalance.getData());
-            if (balance.compareTo(BigDecimal.ONE) == -1) {
-                log.info("userId:{},account={},balance={},OB电竞金额小于1，不可回收", userId, user.getAccount(), balance);
-                return ResponseUtil.custom("OB电竞余额小于1,不可回收");
-            }
-
-            //重置缓存时间
-            ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBDJ,userId.toString());
-
-            // 调用加扣点接口扣减OB电竞余额 存在精度问题，只回收整数部分
-            balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
-            String orderNo = orderService.getObdjOrderNo();
-            PublicObdjApi.ResponseEntity transfer = obdjApi.transfer(account, 2, balance, orderNo);
-            if (transfer == null) {
-                log.error("OB电竞扣点失败,远程请求异常,userId:{},account={},money={}", userId, user.getAccount(), balance);
-                // 异步记录错误订单
-                errorOrderService.syncSaveErrorOrder(third.getObdjAccount(), user.getId(), user.getAccount(), orderNo,
-                    balance, AccountChangeEnum.OBDJ_OUT, Constants.PLATFORM_OBDJ);
-                return ResponseUtil.custom("回收失败,请联系客服");
-            }
-            if (PublicObdjApi.STATUS_FALSE.equals(transfer.getStatus())) {
-                log.error("OB电竞扣点失败,userId:{},account={},money={},msg={}", userId, user.getAccount(), balance,
-                    transfer.getData());
-                return ResponseUtil.custom("回收失败,请联系客服");
-            }
             // 把额度加回本地
             UserMoney userMoney = userMoneyService.findByUserId(userId);
             if (userMoney == null) {
@@ -413,38 +411,39 @@ public class ThirdGameBusiness {
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
 
+        ResponseEntity<BigDecimal> balanceObty = getBalanceObty(account, userId);
+        if (balanceObty.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return balanceObty;
+        }
+        BigDecimal balance = balanceObty.getData();
+        if (balance.compareTo(BigDecimal.ONE) == -1) {
+            log.info("userId:{},account={},balance={},OB体育金额小于1，不可回收", userId, user.getAccount(), balance);
+            return ResponseUtil.custom("OB体育余额小于1,不可回收");
+        }
+
+        // 重置缓存
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBTY, userId.toString());
+
+        // 调用加扣点接口扣减OB电竞余额 存在精度问题，只回收整数部分
+        balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
+        String orderNo = orderService.getObtyOrderNo();
+        PublicObtyApi.ResponseEntity transfer = obtyApi.transfer(account, 2, balance, orderNo);
+        if (transfer == null) {
+            log.error("OB体育扣点失败,远程请求异常,userId:{},account={},money={}", userId, user.getAccount(), balance);
+            // 异步记录错误订单
+            errorOrderService.syncSaveErrorOrder(third.getObtyAccount(), user.getId(), user.getAccount(), orderNo,
+                balance, AccountChangeEnum.OBTY_OUT, Constants.PLATFORM_OBTY);
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+        if (!transfer.getStatus()) {
+            log.error("OB体育扣点失败,userId:{},account={},money={},msg={}", userId, user.getAccount(), balance,
+                transfer.toString());
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
         try {
             userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            ResponseEntity<BigDecimal> balanceObty = getBalanceObty(account, userId);
-            if (balanceObty.getCode() != ResponseCode.SUCCESS.getCode()) {
-                return balanceObty;
-            }
-            BigDecimal balance = balanceObty.getData();
-            if (balance.compareTo(BigDecimal.ONE) == -1) {
-                log.info("userId:{},account={},balance={},OB体育金额小于1，不可回收", userId, user.getAccount(), balance);
-                return ResponseUtil.custom("OB体育余额小于1,不可回收");
-            }
-
-            //重置缓存
-            ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBTY,userId.toString());
-
-            // 调用加扣点接口扣减OB电竞余额 存在精度问题，只回收整数部分
-            balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
-            String orderNo = orderService.getObtyOrderNo();
-            PublicObtyApi.ResponseEntity transfer = obtyApi.transfer(account, 2, balance, orderNo);
-            if (transfer == null) {
-                log.error("OB体育扣点失败,远程请求异常,userId:{},account={},money={}", userId, user.getAccount(), balance);
-                // 异步记录错误订单
-                errorOrderService.syncSaveErrorOrder(third.getObtyAccount(), user.getId(), user.getAccount(), orderNo,
-                    balance, AccountChangeEnum.OBTY_OUT, Constants.PLATFORM_OBTY);
-                return ResponseUtil.custom("回收失败,请联系客服");
-            }
-            if (!transfer.getStatus()) {
-                log.error("OB体育扣点失败,userId:{},account={},money={},msg={}", userId, user.getAccount(), balance,
-                    transfer.toString());
-                return ResponseUtil.custom("回收失败,请联系客服");
-            }
             // 把额度加回本地
             UserMoney userMoney = userMoneyService.findByUserId(userId);
             if (userMoney == null) {
@@ -467,7 +466,6 @@ public class ThirdGameBusiness {
         }
     }
 
-
     public ResponseEntity oneKeyRecoverObzr(Long userId) {
         ResponseEntity obtyEnable = checkPlatformAndGameStatus(Constants.PLATFORM_OB, Constants.PLATFORM_OBZR);
         if (obtyEnable.getCode() != ResponseCode.SUCCESS.getCode()) {
@@ -488,40 +486,39 @@ public class ThirdGameBusiness {
         boolean flag = obzrApi.foreLeaveTable(account);
         if (!flag) {
             log.error("userId:{},account={},OB真人退出失败,远程请求异常", userId, user.getAccount());
-//            return ResponseUtil.custom("服务器异常,请重新操作");
+            // return ResponseUtil.custom("服务器异常,请重新操作");
+        }
+        ResponseEntity<BigDecimal> balanceObzr = getBalanceObzr(account, userId);
+        if (balanceObzr.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return balanceObzr;
+        }
+        BigDecimal balance = balanceObzr.getData();
+        if (balance.compareTo(BigDecimal.ONE) == -1) {
+            log.info("userId:{},account={},balance={},OB真人金额小于1，不可回收", userId, user.getAccount(), balance);
+            return ResponseUtil.custom("OB真人余额小于1,不可回收");
+        }
+        // 重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBZR, userId.toString());
+
+        // 调用加扣点接口扣减OB电竞余额 存在精度问题，只回收整数部分
+        balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
+        String orderNo = orderService.getObtyOrderNo();
+        PublicObzrApi.ResponseEntity withdraw = obzrApi.withdraw(account, balance, orderNo);
+        if (withdraw == null) {
+            log.error("OB真人扣点失败,远程请求异常,userId:{},account={},money={}", userId, user.getAccount(), balance);
+            // 异步记录错误订单
+            errorOrderService.syncSaveErrorOrder(third.getObtyAccount(), user.getId(), user.getAccount(), orderNo,
+                balance, AccountChangeEnum.OBZR_OUT, Constants.PLATFORM_OBZR);
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+        if (!withdraw.getCode().equals("200")) {
+            log.error("OB真人扣点失败,userId:{},account={},money={},msg={}", userId, user.getAccount(), balance,
+                withdraw.toString());
+            return ResponseUtil.custom("回收失败,请联系客服");
         }
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
         try {
             userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            ResponseEntity<BigDecimal> balanceObzr = getBalanceObzr(account, userId);
-            if (balanceObzr.getCode() != ResponseCode.SUCCESS.getCode()) {
-                return balanceObzr;
-            }
-            BigDecimal balance = balanceObzr.getData();
-            if (balance.compareTo(BigDecimal.ONE) == -1) {
-                log.info("userId:{},account={},balance={},OB真人金额小于1，不可回收", userId, user.getAccount(), balance);
-                return ResponseUtil.custom("OB真人余额小于1,不可回收");
-            }
-
-            //重置缓存时间
-            ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_OBZR,userId.toString());
-
-            // 调用加扣点接口扣减OB电竞余额 存在精度问题，只回收整数部分
-            balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
-            String orderNo = orderService.getObtyOrderNo();
-            PublicObzrApi.ResponseEntity withdraw = obzrApi.withdraw(account,  balance, orderNo);
-            if (withdraw == null) {
-                log.error("OB真人扣点失败,远程请求异常,userId:{},account={},money={}", userId, user.getAccount(), balance);
-                // 异步记录错误订单
-                errorOrderService.syncSaveErrorOrder(third.getObtyAccount(), user.getId(), user.getAccount(), orderNo,
-                        balance, AccountChangeEnum.OBZR_OUT, Constants.PLATFORM_OBZR);
-                return ResponseUtil.custom("回收失败,请联系客服");
-            }
-            if (!withdraw.getCode().equals("200")) {
-                log.error("OB真人扣点失败,userId:{},account={},money={},msg={}", userId, user.getAccount(), balance,
-                        withdraw.toString());
-                return ResponseUtil.custom("回收失败,请联系客服");
-            }
             // 把额度加回本地
             UserMoney userMoney = userMoneyService.findByUserId(userId);
             if (userMoney == null) {
@@ -532,7 +529,7 @@ public class ThirdGameBusiness {
             userMoneyService.addMoney(userId, balance);
             log.info("OB真人余额,userMoney加回成功，userId={},balance={}", userId, balance);
             saveAccountChange(Constants.PLATFORM_OBZR, userId, balance, userMoney.getMoney(),
-                    balance.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.OBZR_OUT, "自动转出OB真人", user);
+                balance.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.OBZR_OUT, "自动转出OB真人", user);
             log.info("OB真人余额回收成功，userId={},account={},money={}", userId, user.getAccount(), balance);
             return ResponseUtil.success();
         } catch (Exception e) {
@@ -543,7 +540,6 @@ public class ThirdGameBusiness {
             RedisKeyUtil.unlock(userMoneyLock);
         }
     }
-
 
     public ResponseEntity<BigDecimal> getBalanceGoldenF(String account, Long userId, String vendorCode) {
         String walletCode = WalletCodeEnum.getWalletCodeByVendorCode(vendorCode);
@@ -560,11 +556,11 @@ public class ThirdGameBusiness {
         JSONObject jsonData = JSONObject.parseObject(playerBalance.getData());
         BigDecimal balance = new BigDecimal(jsonData.getDouble("balance"));
         balance = new BigDecimal(balance.toString()).setScale(2, BigDecimal.ROUND_HALF_UP);
-        log.info("查询GF余额walletCode{}",walletCode);
-        if (!ObjectUtils.isEmpty(walletCode)){
-            ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_SABASPORT,userId.toString(),balance);
-        }else {
-            ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_PG_CQ9,userId.toString(),balance);
+        log.info("查询GF余额walletCode{}", walletCode);
+        if (!ObjectUtils.isEmpty(walletCode)) {
+            ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_SABASPORT, userId.toString(), balance);
+        } else {
+            ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_PG_CQ9, userId.toString(), balance);
         }
         return ResponseUtil.success(balance);
     }
@@ -586,35 +582,34 @@ public class ThirdGameBusiness {
         }
         User user = userService.findById(userId);
 
+        ResponseEntity<BigDecimal> aeBalanceResponse = getAeBalanceByAccount(account);
+        if (aeBalanceResponse.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return aeBalanceResponse;
+        }
+        BigDecimal balance = aeBalanceResponse.getData();
+        if (balance.compareTo(BigDecimal.ONE) == -1) {
+            log.info("userId:{},account={},balance={},AE金额小于1，不可回收", userId, user.getAccount(), balance);
+            return ResponseUtil.custom("AE余额小于1,不可回收");
+        }
+        // 调用加扣点接口扣减OB电竞余额 存在精度问题，只回收整数部分
+        balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
+        String orderNo = orderService.getObdjOrderNo();
+        JSONObject jsonObject = aeApi.withdraw(account, orderNo, 0, balance.toString());
+        if (jsonObject == null) {
+            log.error("AE扣点失败,远程请求异常,userId:{},account={},result={}", userId, user.getAccount(), jsonObject);
+            // 异步记录错误订单
+            errorOrderService.syncSaveErrorOrder(third.getAeAccount(), user.getId(), user.getAccount(), orderNo,
+                balance, AccountChangeEnum.AE_OUT, Constants.PLATFORM_AE);
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+        String status = jsonObject.getString("status");
+        if (!PublicAeApi.SUCCESS_CODE.equals(status)) {
+            log.error("AE扣点失败,userId:{},account={},money={},msg={}", userId, user.getAccount(), balance, jsonObject);
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
         try {
             userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            ResponseEntity<BigDecimal> aeBalanceResponse = getAeBalanceByAccount(account);
-            if (aeBalanceResponse.getCode() != ResponseCode.SUCCESS.getCode()) {
-                return aeBalanceResponse;
-            }
-            BigDecimal balance = aeBalanceResponse.getData();
-            if (balance.compareTo(BigDecimal.ONE) == -1) {
-                log.info("userId:{},account={},balance={},AE金额小于1，不可回收", userId, user.getAccount(), balance);
-                return ResponseUtil.custom("AE余额小于1,不可回收");
-            }
-            // 调用加扣点接口扣减OB电竞余额 存在精度问题，只回收整数部分
-            balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
-            String orderNo = orderService.getObdjOrderNo();
-            JSONObject jsonObject = aeApi.withdraw(account, orderNo, 0, balance.toString());
-            if (jsonObject == null) {
-                log.error("AE扣点失败,远程请求异常,userId:{},account={},result={}", userId, user.getAccount(), jsonObject);
-                // 异步记录错误订单
-                errorOrderService.syncSaveErrorOrder(third.getAeAccount(), user.getId(), user.getAccount(), orderNo,
-                    balance, AccountChangeEnum.AE_OUT, Constants.PLATFORM_AE);
-                return ResponseUtil.custom("回收失败,请联系客服");
-            }
-            String status = jsonObject.getString("status");
-            if (!PublicAeApi.SUCCESS_CODE.equals(status)) {
-                log.error("AE扣点失败,userId:{},account={},money={},msg={}", userId, user.getAccount(), balance,
-                    jsonObject);
-                return ResponseUtil.custom("回收失败,请联系客服");
-            }
             // 把额度加回本地
             UserMoney userMoney = userMoneyService.findByUserId(userId);
             userMoneyService.addMoney(userId, balance);
@@ -643,7 +638,7 @@ public class ThirdGameBusiness {
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
         BigDecimal balance = new BigDecimal(balanceResult.getData());
-        ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_OBDJ,userId.toString(),balance);
+        ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_OBDJ, userId.toString(), balance);
         return ResponseUtil.success(balance);
     }
 
@@ -659,7 +654,7 @@ public class ThirdGameBusiness {
         }
         JSONObject jsonObject = JSONObject.parseObject(balanceResult.getData());
         BigDecimal balance = new BigDecimal(jsonObject.getString("balance"));
-        ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_OBTY,userId.toString(),balance);
+        ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_OBTY, userId.toString(), balance);
         return ResponseUtil.success(balance);
     }
 
@@ -675,7 +670,7 @@ public class ThirdGameBusiness {
         }
         JSONObject jsonObject = JSONObject.parseObject(balanceResult.getData());
         BigDecimal balance = new BigDecimal(jsonObject.getString("balance"));
-        ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_OBZR,userId.toString(),balance);
+        ExpirationTimeUtil.resetTripartiteBalance(Constants.PLATFORM_OBZR, userId.toString(), balance);
         return ResponseUtil.success(balance);
     }
 
@@ -752,10 +747,11 @@ public class ThirdGameBusiness {
         }
         // 等待所有子线程计算完成
         CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[completableFutures.size()])).join();
-        log.info("进入游戏统一回收余额结束耗时{}==============================================>",System.currentTimeMillis()-startTime);
+        log.info("进入游戏统一回收余额结束耗时{}==============================================>",
+            System.currentTimeMillis() - startTime);
         return ResponseUtil.success();
     }
-    
+
     public ResponseEntity oneKeyRecoverDG(Long userId) {
         ResponseEntity aeEnable = checkPlatformStatus(Constants.PLATFORM_DG);
         if (aeEnable.getCode() != ResponseCode.SUCCESS.getCode()) {
@@ -782,23 +778,24 @@ public class ThirdGameBusiness {
             return ResponseUtil.custom("DG余额小于1,不可回收");
         }
 
-        //重置缓存时间
-        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_DG,userId.toString());
+        // 重置缓存时间
+        ExpirationTimeUtil.resetExpirationTime(Constants.PLATFORM_DG, userId.toString());
 
         String orderNo = orderService.getDGOrderNo();
-        //调用加扣点接口扣减DG电竞余额  存在精度问题，只回收整数部分
+        // 调用加扣点接口扣减DG电竞余额 存在精度问题，只回收整数部分
         balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
         JSONObject apiResponseData = null;
         try {
-            apiResponseData = dgApi.transterWallet(account, balance.negate(),orderNo);//正数存款负数取款
+            apiResponseData = dgApi.transterWallet(account, balance.negate(), orderNo);// 正数存款负数取款
         } catch (Exception e) {
-            //异步记录错误订单
-            errorOrderService.syncSaveDgErrorOrder(third.getDgAccount(), user.getId(), user.getAccount(), orderNo, balance, AccountChangeEnum.DG_OUT, Constants.PLATFORM_DG);
+            // 异步记录错误订单
+            errorOrderService.syncSaveDgErrorOrder(third.getDgAccount(), user.getId(), user.getAccount(), orderNo,
+                balance, AccountChangeEnum.DG_OUT, Constants.PLATFORM_DG);
             return ResponseUtil.custom("回收失败,请联系客服");
         }
 
         log.info("DG下分返回结果：【{}】, 用户id：【{}】", apiResponseData, userId);
-        if (null != apiResponseData && "0".equals(apiResponseData.getString("codeId"))){
+        if (null != apiResponseData && "0".equals(apiResponseData.getString("codeId"))) {
             RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
             try {
                 userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
@@ -818,7 +815,7 @@ public class ThirdGameBusiness {
                 // 释放锁
                 RedisKeyUtil.unlock(userMoneyLock);
             }
-        }else{
+        } else {
             log.error("DG扣点失败,远程请求异常,userId:{},account={},result={}", userId, user.getAccount(), apiResponseData);
             return dgApi.errorCode(apiResponseData.getIntValue("codeId"), apiResponseData.getString("random"));
         }
@@ -838,16 +835,16 @@ public class ThirdGameBusiness {
         } catch (Exception e) {
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
-        if(null==apiResponseData){
+        if (null == apiResponseData) {
             return ResponseUtil.custom("服务器异常,请重新操作");
         }
-        if (null != apiResponseData && "0".equals(apiResponseData.getString("codeId"))){
+        if (null != apiResponseData && "0".equals(apiResponseData.getString("codeId"))) {
             JSONObject member = apiResponseData.getJSONObject("member");
             BigDecimal amount = member.getBigDecimal("balance");
             return ResponseUtil.success(amount);
-        }else{
-            if(ObjectUtil.isNotNull(apiResponseData.get("codeId") )){
-                if(apiResponseData.get("codeId") instanceof  Integer){
+        } else {
+            if (ObjectUtil.isNotNull(apiResponseData.get("codeId"))) {
+                if (apiResponseData.get("codeId") instanceof Integer) {
                     return dgApi.errorCode(apiResponseData.getInteger("codeId"), apiResponseData.getString("random"));
                 }
             }
@@ -872,35 +869,35 @@ public class ThirdGameBusiness {
         }
         User user = userService.findById(userId);
 
+        ResponseEntity<BigDecimal> aeBalanceResponse = getVncBalanceByAccount(account);
+        if (aeBalanceResponse.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return aeBalanceResponse;
+        }
+        BigDecimal balance = aeBalanceResponse.getData();
+        if (balance.compareTo(BigDecimal.ONE) == -1) {
+            log.info("userId:{},account={},balance={},越南彩金额小于1，不可回收", userId, user.getAccount(), balance);
+            return ResponseUtil.custom("VNC余额小于1,不可回收");
+        }
+        // 调用加扣点接口扣减VNC电竞余额 存在精度问题，只回收整数部分
+        balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
+        String orderNo = orderService.getVNCOrderNo();
+        PublicLotteryApi.ResponseEntity responseEntity = lotteryApi.changeBalance(account, 2, balance, orderNo);
+        if (responseEntity == null || StringUtils.isBlank(responseEntity.getData())) {
+            log.error("越南彩扣点失败,远程请求异常,userId:{},account={},result={}", userId, user.getAccount(), responseEntity);
+            // 异步记录错误订单
+            errorOrderService.syncSaveVNCErrorOrder(third.getVncAccount(), user.getId(), user.getAccount(), orderNo,
+                balance, AccountChangeEnum.VNC_OUT, Constants.PLATFORM_VNC);
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
+        String status = responseEntity.getErrorCode();
+        if (!"0".equals(status)) {
+            log.error("VNC扣点失败,userId:{},account={},money={},msg={}", userId, user.getAccount(), balance,
+                responseEntity);
+            return ResponseUtil.custom("回收失败,请联系客服");
+        }
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
         try {
             userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            ResponseEntity<BigDecimal> aeBalanceResponse = getVncBalanceByAccount(account);
-            if (aeBalanceResponse.getCode() != ResponseCode.SUCCESS.getCode()) {
-                return aeBalanceResponse;
-            }
-            BigDecimal balance = aeBalanceResponse.getData();
-            if (balance.compareTo(BigDecimal.ONE) == -1) {
-                log.info("userId:{},account={},balance={},越南彩金额小于1，不可回收", userId, user.getAccount(), balance);
-                return ResponseUtil.custom("VNC余额小于1,不可回收");
-            }
-            // 调用加扣点接口扣减VNC电竞余额 存在精度问题，只回收整数部分
-            balance = balance.setScale(0, BigDecimal.ROUND_DOWN);
-            String orderNo = orderService.getVNCOrderNo();
-            PublicLotteryApi.ResponseEntity responseEntity = lotteryApi.changeBalance(account, 2, balance, orderNo);
-            if (responseEntity == null || StringUtils.isBlank(responseEntity.getData())) {
-                log.error("越南彩扣点失败,远程请求异常,userId:{},account={},result={}", userId, user.getAccount(), responseEntity);
-                // 异步记录错误订单
-                errorOrderService.syncSaveVNCErrorOrder(third.getVncAccount(), user.getId(), user.getAccount(), orderNo,
-                    balance, AccountChangeEnum.VNC_OUT, Constants.PLATFORM_VNC);
-                return ResponseUtil.custom("回收失败,请联系客服");
-            }
-            String status = responseEntity.getErrorCode();
-            if (!"0".equals(status)) {
-                log.error("VNC扣点失败,userId:{},account={},money={},msg={}", userId, user.getAccount(), balance,
-                    responseEntity);
-                return ResponseUtil.custom("回收失败,请联系客服");
-            }
             // 把额度加回本地
             UserMoney userMoney = userMoneyService.findByUserId(userId);
             BigDecimal money = userMoney.getMoney();
@@ -936,10 +933,10 @@ public class ThirdGameBusiness {
         User user = userService.findById(userId);
 
         String account = third.getDmcAccount();
-        //大马彩没有退出游戏功能
+        // 大马彩没有退出游戏功能
         String token = lottoApi.fetchToken();
 
-        //查询用户在wm的余额
+        // 查询用户在wm的余额
         BigDecimal balance = BigDecimal.ZERO;
         try {
             List<String> idList = Lists.newArrayList(user.getId() + "");
@@ -957,29 +954,31 @@ public class ThirdGameBusiness {
             log.info("userId:{},account={},balance={},DMC金额小于1，不可回收", userId, user.getAccount(), balance);
             return ResponseUtil.custom("DMC余额小于1,不可回收");
         }
-        //调用加扣点接口扣减DMC余额  存在精度问题，只回收整数部分
+        // 调用加扣点接口扣减DMC余额 存在精度问题，只回收整数部分
         BigDecimal recoverMoney = balance.setScale(0, BigDecimal.ROUND_DOWN);
-        //订单号三方返回
+        // 订单号三方返回
         String orderNo = orderService.getOrderNo();
-        JSONObject jsonObject = lottoApi.transterWallet(user.getId() + "", account, recoverMoney, 2, token,orderNo);
+        JSONObject jsonObject = lottoApi.transterWallet(user.getId() + "", account, recoverMoney, 2, token, orderNo);
         if (jsonObject == null) {
             log.error("DMC加扣点失败,远程请求异常,userId:{},account={},money={}", userId, user.getAccount(), recoverMoney);
-            //异步记录错误订单并重试补偿
-            //            errorOrderService.syncSaveDMCErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo, recoverMoney, AccountChangeEnum.RECOVERY, Constants.PLATFORM_WM_BIG);
+            // 异步记录错误订单并重试补偿
+            // errorOrderService.syncSaveDMCErrorOrder(third.getAccount(), user.getId(), user.getAccount(), orderNo,
+            // recoverMoney, AccountChangeEnum.RECOVERY, Constants.PLATFORM_WM_BIG);
             return ResponseUtil.custom("回收失败,请联系客服");
         }
         if (!lottoApi.getResultCode(jsonObject)) {
-            log.error("DMC加扣点失败，userId:{},account={},money={},result={}", userId, user.getAccount(), recoverMoney, jsonObject);
+            log.error("DMC加扣点失败，userId:{},account={},money={},result={}", userId, user.getAccount(), recoverMoney,
+                jsonObject);
             return ResponseUtil.custom("回收失败,请联系客服");
         }
-        //订单号是三方返回，所以
+        // 订单号是三方返回，所以
         orderNo = orderNo + "_" + lottoApi.getTransterId(jsonObject);
         balance = recoverMoney.abs();
 
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
         try {
             userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            //把额度加回本地
+            // 把额度加回本地
             UserMoney userMoney = userMoneyService.findByUserId(userId);
             if (ObjectUtil.isEmpty(userMoney)) {
                 userMoney = new UserMoney();
@@ -987,7 +986,8 @@ public class ThirdGameBusiness {
                 userMoneyService.save(userMoney);
             }
             userMoneyService.addMoney(userId, balance);
-            saveAccountChange(Constants.PLATFORM_DMC, userId, balance, userMoney.getMoney(), balance.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.DMC_OUT, "自动转出DMC", user);
+            saveAccountChange(Constants.PLATFORM_DMC, userId, balance, userMoney.getMoney(),
+                balance.add(userMoney.getMoney()), 1, orderNo, AccountChangeEnum.DMC_OUT, "自动转出DMC", user);
             log.info("大马彩余额回收成功，userId={},account={}", userId, user.getAccount());
             return ResponseUtil.success();
         } catch (Exception e) {
@@ -1110,19 +1110,19 @@ public class ThirdGameBusiness {
     }
 
     public Boolean ipWhiteCheck() {
-//        if (ObjectUtils.isEmpty(ipWhite)) {
-//            return false;
-//        }
-//        HttpServletRequest request =
-//            ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-//        String ip = IpUtil.getIp(request);
-//        String[] ipWhiteArray = ipWhite.split(",");
-//        for (String ipw : ipWhiteArray) {
-//            if (!ObjectUtils.isEmpty(ipw) && ipw.trim().equals(ip)) {
-//                return true;
-//            }
-//        }
-//        return false;
+        // if (ObjectUtils.isEmpty(ipWhite)) {
+        // return false;
+        // }
+        // HttpServletRequest request =
+        // ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+        // String ip = IpUtil.getIp(request);
+        // String[] ipWhiteArray = ipWhite.split(",");
+        // for (String ipw : ipWhiteArray) {
+        // if (!ObjectUtils.isEmpty(ipw) && ipw.trim().equals(ip)) {
+        // return true;
+        // }
+        // }
+        // return false;
         return true;
     }
 
