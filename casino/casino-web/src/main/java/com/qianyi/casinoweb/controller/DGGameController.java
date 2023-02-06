@@ -118,10 +118,11 @@ public class DGGameController {
 
         //回收其他游戏的余额
         thirdGameBusiness.oneKeyRecoverOtherGame(authId, Constants.PLATFORM_DG);
-        UserMoney userMoney = userMoneyService.findByUserId(authId);
+
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(authId.toString());
         try {
             userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            UserMoney userMoney = userMoneyService.findByUserId(authId);
             BigDecimal userCenterMoney = BigDecimal.ZERO;
             if (userMoney != null && userMoney.getMoney() != null) {
                 userCenterMoney = userMoney.getMoney();
