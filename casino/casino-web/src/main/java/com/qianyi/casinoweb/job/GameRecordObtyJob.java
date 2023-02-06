@@ -26,6 +26,7 @@ import org.springframework.util.ObjectUtils;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -65,7 +66,7 @@ public class GameRecordObtyJob {
     private RedisUtil redisUtil;
 
     //每隔7分钟执行一次
-    @Scheduled(initialDelay = 10000, fixedDelay = 1000 * 60 * 5)
+    @Scheduled(initialDelay = 10000, fixedDelay = 1000 * 60 * 7)
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_OB);
         if (platformGame != null && platformGame.getGameStatus() == 2) {
@@ -86,15 +87,18 @@ public class GameRecordObtyJob {
         log.info("定时器拉取完成OB体育注单记录");
     }
 
-    @Scheduled(initialDelay = 10000, fixedDelay = 1000 * 60 * 1)
+    @Scheduled(initialDelay = 5000, fixedDelay = 1000 * 60 * 2)
     public void repairGameRecordJob() throws InterruptedException {
-        log.info("定时器开始拉取OB体育注单记录");
+        log.info("定时器补取OB体育注单记录定时任务开始");
         String startTime = (String) redisUtil.get("OBTY:repair:startTime");
         String endTime = (String) redisUtil.get("OBTY:repair:endTime");
         if(StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)){
-            pullGameRecordByTime(Long.parseLong(startTime), Long.parseLong(endTime), 1,false);
+           pullGameRecordByTime(Long.parseLong(startTime), Long.parseLong(endTime), 1,false);
+            log.warn("定时器补取OB体育注单记录完成 开始时间===>>{} , 结束时间 ====>>{} ",
+                DateUtil.dateToPatten(new Date(Long.parseLong(startTime))),
+                DateUtil.dateToPatten(new Date(Long.parseLong(endTime))));
         }
-        log.info("定时器补取OB体育注单记录");
+        log.info("定时器补取OB体育注单记录定时任务结束");
     }
 
 
@@ -339,4 +343,6 @@ public class GameRecordObtyJob {
         private Long startTime;
         private Long endTime;
     }
+
+
 }
