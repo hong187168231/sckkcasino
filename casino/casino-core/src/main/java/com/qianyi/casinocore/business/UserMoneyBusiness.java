@@ -99,6 +99,7 @@ public class UserMoneyBusiness {
                 minCodeNumVal = platformConfig.getClearCodeNum();
             }
             // 余额小于等于最小清零打码量时 直接清0
+            log.info("实时余额userId:{}Balance:{}minCodeNumVal:{}validbet:{}codeNum:{}",userId,userMoney.getBalance(),minCodeNumVal,validbet,codeNum);
             if (userMoney.getBalance().compareTo(minCodeNumVal) < 1) {
                 // 打码量和实时余额都清0
                 userMoneyService.clearBalanceAndCodeNum(userId);
