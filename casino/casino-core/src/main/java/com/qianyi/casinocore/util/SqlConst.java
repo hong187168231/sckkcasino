@@ -372,6 +372,32 @@ public class SqlConst {
             ) main_t on u.id = main_t.user_id
     where  1=1{2} {3}
             """;
+
+    public static String exportReportFiltrationSql = """
+    SELECT
+        account,
+        user_id as id,
+    third_proxy_name third_proxy_name,
+    SUM( num ) num,
+    sum( bet_amount ) bet_amount,
+    sum( validbet ) validbet,
+    sum( win_loss ) win_loss,
+    sum( wash_amount ) wash_amount,
+    sum( service_charge ) service_charge,
+    sum( all_profit_amount ) all_profit_amount,
+    sum( avg_benefit ) avg_benefit,
+    sum( total_amount ) total_amount,
+    sum( all_water ) all_water,
+    sum( today_award ) today_award,
+    sum( rise_award ) rise_award
+    FROM
+    export_report er
+    WHERE
+    order_times BETWEEN {0} AND {1}
+    GROUP BY
+    user_id {2}
+            """;
+
     //    public static String exportTotalSql = """
     //    select
     //    u.account ,

@@ -331,7 +331,8 @@ public class ReportController {
             String statement = CommonUtil.getOrderByStatement(tag, sort);
             if (com.mysql.cj.util.StringUtils.isNullOrEmpty(platform)) {
                 try {
-                    list = exportReportService.findMapExport(orderTimeStart, orderTimeEnd, statement, "");
+//                    list = exportReportService.findMapExport(orderTimeStart, orderTimeEnd, statement, "");
+                    list = exportReportService.findMapExport(orderTimeStart, orderTimeEnd, statement, "",CommonConst.NUMBER_1);
                 } catch (Exception e) {
                     e.printStackTrace();
                     log.error("查询会员报表失败");

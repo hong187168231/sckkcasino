@@ -43,9 +43,15 @@ public class ExportReportService {
     }
 
     @SuppressWarnings("unchecked")
-    public List<PersonReportVo> findMapExport(String orderTimeStart, String orderTimeEnd,String sort,String proxy) throws Exception {
+    public List<PersonReportVo> findMapExport(String orderTimeStart, String orderTimeEnd,String sort,String proxy,Integer isFiltration) throws Exception {
+
         String sql = MessageFormat.format(SqlConst.exportReportTotalSql, orderTimeStart, orderTimeEnd, sort,proxy);// 走报表
+
         List<String> list = PERSON_REPORT_VO_FIELD_LIST;
+        if (isFiltration == 1){
+            list = PERSON_REPORT_VO_FIELD_FILTRATION_LIST;
+            sql = MessageFormat.format(SqlConst.exportReportFiltrationSql, orderTimeStart, orderTimeEnd, sort);// 过滤0
+        }
         log.info(sql);
         Query countQuery = entityManager.createNativeQuery(sql);
         List<Object> resultList = countQuery.getResultList();
@@ -78,6 +84,11 @@ public class ExportReportService {
 
     private static final List<String> PERSON_REPORT_VO_FIELD_LIST = Arrays
         .asList("account", "third_proxy", "id","third_proxy_name","num",
+            "bet_amount", "validbet", "win_loss", "wash_amount", "service_charge", "all_profit_amount", "avg_benefit",
+            "total_amount", "all_water", "todayAward", "riseAward");
+
+    private static final List<String> PERSON_REPORT_VO_FIELD_FILTRATION_LIST = Arrays
+        .asList("account","id","third_proxy_name","num",
             "bet_amount", "validbet", "win_loss", "wash_amount", "service_charge", "all_profit_amount", "avg_benefit",
             "total_amount", "all_water", "todayAward", "riseAward");
 }
