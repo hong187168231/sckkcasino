@@ -14,7 +14,7 @@ public class ExpirationTimeUtil {
     /**
      * 一天时间的毫秒值
      */
-    private final static long oneDay = 24 * 60 * 60 * 1000;
+    public final static long oneDay = 24 * 60 * 60 * 1000;
 
     /**
      * 普通游戏三天未操作取缓存
