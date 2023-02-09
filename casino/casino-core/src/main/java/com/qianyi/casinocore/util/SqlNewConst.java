@@ -434,7 +434,7 @@ public class SqlNewConst {
 							FROM
 								award_receive_record
 							WHERE
-							 1=1  and user_id = {2}
+							 user_id = {2}
 					 AND create_time BETWEEN {0} AND {1}
 					 and  award_type = 1
 			           	) t5

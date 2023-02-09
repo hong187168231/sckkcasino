@@ -1424,9 +1424,9 @@ public class SqlConst {
                     award_receive_record
                 WHERE
                     user_id ={2}
-                AND award_type = 1
                 AND create_time BETWEEN {0}
                 AND {1}
+                AND award_type = 1
                 GROUP BY
                     user_id
             ) td ON u.id = td.user_id
@@ -2293,9 +2293,9 @@ public class SqlConst {
                 FROM
                     award_receive_record
                 WHERE
-                 award_type = 1
-                AND create_time BETWEEN {0}
-                AND {1}
+                create_time BETWEEN {0}
+                AND {1} AND
+                award_type = 1
                 GROUP BY
                     user_id
             ) td ON u.id = td.user_id
