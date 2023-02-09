@@ -112,7 +112,7 @@ public class InTimeReportController {
                     BigDecimal.ZERO);
                 vo.setSurplusAmount(gameRecordReport1.getNewSurplusAmount() != null? gameRecordReport1.getNewSurplusAmount().setScale(2, RoundingMode.HALF_UP):
                     BigDecimal.ZERO);
-                vo.setTotalWinLossAmount(vo.getWinLossAmount().add(vo.getAmount()).add(vo.getUserAmount()).add(vo.getSurplusAmount()));
+                vo.setTotalWinLossAmount(vo.getWinLossAmount().add(vo.getAmount()).add(vo.getUserAmount()).add(vo.getSurplusAmount()).add(vo.getTodayAward()).add(vo.getRiseAward()));
                 vo.setAccountId(gameRecordReport1.getId());
                 vo.setTag(UserPasswordUtil.getRandomPwd());
                 proxyUsers.stream().forEach(proxyUser -> {
@@ -181,9 +181,10 @@ public class InTimeReportController {
         gameRecordReportTotalVo.setAmount(recordRecordSum.getAmount()!= null? recordRecordSum.getAmount() : BigDecimal.ZERO);
         gameRecordReportTotalVo.setSurplusAmount(recordRecordSum.getSurplusAmount()!=null?recordRecordSum.getSurplusAmount():BigDecimal.ZERO);
         gameRecordReportTotalVo.setUserAmount(recordRecordSum.getUserAmount()!=null?recordRecordSum.getUserAmount():BigDecimal.ZERO);
-        gameRecordReportTotalVo.setTotalWinLossAmount(gameRecordReportTotalVo.getWinLossAmount().add(gameRecordReportTotalVo.getAmount()).add(gameRecordReportTotalVo.getUserAmount()).add(gameRecordReportTotalVo.getSurplusAmount()));
         gameRecordReportTotalVo.setTodayAward(recordRecordSum.getTodayAward());
         gameRecordReportTotalVo.setRiseAward(recordRecordSum.getRiseAward());
+        gameRecordReportTotalVo.setTotalWinLossAmount(gameRecordReportTotalVo.getWinLossAmount().add(gameRecordReportTotalVo.getAmount()).
+            add(gameRecordReportTotalVo.getUserAmount()).add(gameRecordReportTotalVo.getSurplusAmount()).add(gameRecordReportTotalVo.getTodayAward()).add(gameRecordReportTotalVo.getRiseAward()));
         return ResponseUtil.success(gameRecordReportTotalVo);
 
     }

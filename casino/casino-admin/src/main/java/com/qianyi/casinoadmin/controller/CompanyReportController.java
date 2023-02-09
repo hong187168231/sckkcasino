@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,14 +58,18 @@ public class CompanyReportController {
         GameRecordReportNew gameRecordReport = new GameRecordReportNew();
         gameRecordReport.setPlatform(platform);
         GameRecordReportNew recordRecordSum = gameRecordReportNewService.findRecordRecordSum(gameRecordReport, startTime, endTime);
+        GameRecordReportVo gameRecordReportVo = new GameRecordReportVo();
         if (!LoginUtil.checkNull(recordRecordSum)){
-            recordRecordSum.setAmount(recordRecordSum.getNewAmount() != null? recordRecordSum.getNewAmount().setScale(2, RoundingMode.HALF_UP):
+            BeanUtils.copyProperties(recordRecordSum,gameRecordReportVo);
+            gameRecordReportVo.setAmount(recordRecordSum.getNewAmount() != null? recordRecordSum.getNewAmount().setScale(2, RoundingMode.HALF_UP):
                 BigDecimal.ZERO);
-            recordRecordSum.setUserAmount(recordRecordSum.getNewUserAmount() != null? recordRecordSum.getNewUserAmount().setScale(2, RoundingMode.HALF_UP):
+            gameRecordReportVo.setUserAmount(recordRecordSum.getNewUserAmount() != null? recordRecordSum.getNewUserAmount().setScale(2, RoundingMode.HALF_UP):
                 BigDecimal.ZERO);
-            recordRecordSum.setSurplusAmount(recordRecordSum.getNewSurplusAmount() != null? recordRecordSum.getNewSurplusAmount().setScale(2, RoundingMode.HALF_UP):
+            gameRecordReportVo.setSurplusAmount(recordRecordSum.getNewSurplusAmount() != null? recordRecordSum.getNewSurplusAmount().setScale(2, RoundingMode.HALF_UP):
                 BigDecimal.ZERO);
+            gameRecordReportVo.setTotalWinLossAmount(gameRecordReportVo.getWinLossAmount().add(gameRecordReportVo.getAmount())
+                .add(gameRecordReportVo.getTodayAward()).add(gameRecordReportVo.getRiseAward()));
         }
-        return ResponseUtil.success(recordRecordSum);
+        return ResponseUtil.success(gameRecordReportVo);
     }
 }
