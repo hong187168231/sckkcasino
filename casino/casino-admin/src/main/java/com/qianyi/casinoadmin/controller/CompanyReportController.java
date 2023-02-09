@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 
 @Api(tags = "公司报表")
 @Slf4j
@@ -67,6 +68,9 @@ public class CompanyReportController {
                 BigDecimal.ZERO);
             gameRecordReportVo.setSurplusAmount(recordRecordSum.getNewSurplusAmount() != null? recordRecordSum.getNewSurplusAmount().setScale(2, RoundingMode.HALF_UP):
                 BigDecimal.ZERO);
+            if (Objects.isNull(gameRecordReportVo.getWinLossAmount())){
+                gameRecordReportVo.setWinLossAmount(BigDecimal.ZERO);
+            }
             gameRecordReportVo.setTotalWinLossAmount(gameRecordReportVo.getWinLossAmount().add(gameRecordReportVo.getAmount())
                 .add(gameRecordReportVo.getTodayAward()).add(gameRecordReportVo.getRiseAward()));
         }

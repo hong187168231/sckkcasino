@@ -391,20 +391,21 @@ public class ReportController {
                 list = getMap(reportResult);
             }
 
-            if (Objects.nonNull(list)) {
-                PersonReportVo item = null;
-                if (com.mysql.cj.util.StringUtils.isNullOrEmpty(platform)) {
-                    PersonReportTotalVo personReportTotalVo = this.sumGameRecord(startTimeStr, endTimeStr);
-                    item = new PersonReportVo();
-                    BeanUtils.copyProperties(personReportTotalVo, item);
-                } else {
-                    Map<String, Object> result =
-                        userService.findMapSumAdmin(platform, startTimeStr, endTimeStr, orderTimeStart, orderTimeEnd);
-                    item = DTOUtil.toDTO(result, PersonReportVo.class);
-                }
-                item.setAccount("总计");
-                list.add(item);
+            if (Objects.isNull(list)){
+                list = new ArrayList<>();
             }
+            PersonReportVo item = null;
+            if (com.mysql.cj.util.StringUtils.isNullOrEmpty(platform)) {
+                PersonReportTotalVo personReportTotalVo = this.sumGameRecord(startTimeStr, endTimeStr);
+                item = new PersonReportVo();
+                BeanUtils.copyProperties(personReportTotalVo, item);
+            } else {
+                Map<String, Object> result =
+                    userService.findMapSumAdmin(platform, startTimeStr, endTimeStr, orderTimeStart, orderTimeEnd);
+                item = DTOUtil.toDTO(result, PersonReportVo.class);
+            }
+            item.setAccount("总计");
+            list.add(item);
         }
         // try {
         // Thread.sleep(1000*120);
