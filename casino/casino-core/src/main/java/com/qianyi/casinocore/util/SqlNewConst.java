@@ -435,8 +435,8 @@ public class SqlNewConst {
 								award_receive_record
 							WHERE
 							 1=1  and user_id = {2}
-										and  award_type = 1				
 					 AND create_time BETWEEN {0} AND {1}
+					 and  award_type = 1
 			           	) t5
 			           	,(
 			           	 select
@@ -444,9 +444,10 @@ public class SqlNewConst {
 						FROM
 							award_receive_record
 						WHERE
-						 1=1  and user_id = {2}
-									and  award_type = 2					
-				       AND receive_time BETWEEN {0} AND {1}
+						 receive_time BETWEEN {0} AND {1}
+						 and user_id = {2}
+						 and  award_type = 2
+				         AND receive_status = 1
 			           	) t6
 			    """;
 
@@ -1157,7 +1158,7 @@ public class SqlNewConst {
 	(SELECT IFNULL(SUM(amount),0) as todayAward FROM
 	 award_receive_record WHERE award_type = 1 and create_time between {0} and {1} ) td,
 	(SELECT IFNULL(SUM(amount),0) as riseAward FROM
-	 award_receive_record WHERE award_type = 2 and  receive_time between {0} and {1}) rs
+	 award_receive_record WHERE receive_time between {0} and {1} and  award_type = 2 and receive_status = 1) rs
     ;
         """;
 

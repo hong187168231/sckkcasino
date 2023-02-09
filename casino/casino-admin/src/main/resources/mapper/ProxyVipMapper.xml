@@ -71,7 +71,7 @@
         INNER JOIN `user` u ON ar.user_id = u.id
         WHERE
         1 = 1
-        AND ar.award_type = 2
+        AND ar.award_type = 2  and ar.receive_status = 1
         <if test="proxyLevel == 1">
             AND u.first_proxy =#{proxyId}
         </if>
@@ -174,7 +174,7 @@
         award_receive_record
         WHERE
         1 = 1
-        AND award_type = 2
+        AND award_type = 2 and receive_status = 1
         <if test="startTime != null and startTime!=''">
             AND receive_time BETWEEN #{startTime} AND #{endTime}
         </if>
@@ -253,7 +253,7 @@
         FROM
         award_receive_record
         WHERE
-        award_type = 2
+        award_type = 2 and receive_status = 1
         <if test="startTime != null and startTime!=''">
             AND receive_time BETWEEN #{startTime} AND #{endTime}
         </if>
@@ -318,7 +318,7 @@
         INNER JOIN `user` u ON ar.user_id = u.id
         WHERE
         1 = 1
-        AND ar.award_type = 2
+        AND ar.award_type = 2 and ar.receive_status = 1
         <if test="queryZd != null and queryZd!=''">
             AND  ( u.first_proxy IN ( SELECT id FROM proxy_user GROUP BY user_id )
             or u.first_proxy is null)

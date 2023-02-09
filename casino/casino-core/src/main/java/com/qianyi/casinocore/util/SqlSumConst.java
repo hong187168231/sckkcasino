@@ -158,9 +158,9 @@ public class SqlSumConst {
     FROM extract_points_change
     where create_time between {0} and {1}) ec,
     	(SELECT IFNULL(SUM(amount),0) as todayAward FROM
-			 award_receive_record WHERE award_type = 1 and create_time between {0} and {1} ) td,
+			 award_receive_record WHERE create_time between {0} and {1} and award_type = 1   ) td,
 			(SELECT IFNULL(SUM(amount),0) as riseAward FROM
-			 award_receive_record WHERE award_type = 2 and  receive_time between {0} and {1}) rs
+			 award_receive_record WHERE receive_time between {0} and {1} AND award_type = 2 and receive_status = 1) rs
     ;
         """;
 

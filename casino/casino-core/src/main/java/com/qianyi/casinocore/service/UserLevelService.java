@@ -275,7 +275,7 @@ public class UserLevelService {
                 " award_receive_record " +
                 " WHERE " +
                 " 1 = 1 " +
-                " AND award_type = 2");
+                " AND award_type = 2 and receive_status = 1");
         if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
             stringBuffer.append("   AND receive_time BETWEEN" + startTime + " AND " + endTime + "");
         }
@@ -351,7 +351,7 @@ public class UserLevelService {
                 "\t\tFROM\n" +
                 "\t\t\taward_receive_record\n" +
                 "\t\tWHERE\n" +
-                "\t\t\taward_type = 2 ");
+                "\t\t\taward_type = 2 and receive_status = 1 ");
         if (StrUtil.isNotBlank(startTime) && StrUtil.isNotBlank(endTime)) {
             reportSb.append("   AND receive_time BETWEEN" + startTime + " AND " + endTime + "");
         }

@@ -52,7 +52,7 @@ public class SqlVipConst {
             " WHERE " +
             "  1 = 1 " +
             " AND award_type = 2 " +
-            " AND receive_time BETWEEN {0}  AND {1} "+
+            " AND receive_time BETWEEN {0}  AND {1} and receive_status = 1"+
             " GROUP BY " +
             "  user_id " +
             ") rs ON u.id = td.user_id " +
