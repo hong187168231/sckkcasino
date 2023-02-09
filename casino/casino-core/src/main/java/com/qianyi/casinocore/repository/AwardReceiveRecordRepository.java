@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface AwardReceiveRecordRepository extends JpaRepository<AwardReceiveRecord, Long>, JpaSpecificationExecutor<AwardReceiveRecord> {
 
@@ -48,7 +50,22 @@ public interface AwardReceiveRecordRepository extends JpaRepository<AwardReceive
             " and  arr.user_id = ?1 ", nativeQuery = true)
     int  countNotReceiveRiseAwardAll(Long userId);
 
+    @Query(value = "select a.user_id from award_receive_record a where a.third_proxy is null GROUP BY a.user_id", nativeQuery = true)
+    Set<Long> findUserIds();
 
+    @Modifying
+    @Query(value = "update award_receive_record a set a.first_proxy= ?2,a.second_proxy= ?3,a.third_proxy= ?4 where a.user_id = ?1 ",nativeQuery = true)
+    void updateProxyAffiliation(Long userId,Long firstProxy,Long secondProxy,Long thirdProxy);
 
+    @Modifying
+    @Query(value = "update award_receive_record a set a.receive_time = a.create_time where a.receive_time is null ",nativeQuery = true)
+    void updateReceiveTime();
 
+    @Query(value = "SELECT IFNULL( SUM( amount ), 0 ) AS amount,IFNULL(first_proxy, 0 ) first_proxy,IFNULL(second_proxy, 0 ) second_proxy,"
+        + "IFNULL( third_proxy, 0) third_proxy FROM award_receive_record  WHERE create_time BETWEEN ?1 AND ?2 AND award_type = 1 GROUP BY third_proxy ",nativeQuery = true)
+    List<Map<String, Object>> getMapSumTodayAward(String startTime, String endTime);
+
+    @Query(value = "SELECT IFNULL( SUM( amount ), 0 ) AS amount,IFNULL(first_proxy, 0 ) first_proxy,IFNULL(second_proxy, 0 ) second_proxy,"
+        + "IFNULL(third_proxy, 0 ) third_proxy FROM award_receive_record  WHERE receive_time BETWEEN ?1 AND ?2 AND award_type = 2 AND receive_status = 1 GROUP BY third_proxy; ",nativeQuery = true)
+    List<Map<String, Object>> getMapSumRiseAward(String startTime, String endTime);
 }

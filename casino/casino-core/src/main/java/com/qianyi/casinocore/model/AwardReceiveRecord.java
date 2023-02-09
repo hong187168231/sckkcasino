@@ -13,7 +13,7 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table(indexes = {@Index(columnList = "createTime"),@Index(columnList = "receiveTime")})
+@Table(indexes = {@Index(columnList = "createTime"),@Index(columnList = "receiveTime"),@Index(columnList = "userId"),@Index(columnList = "thirdProxy")})
 public class AwardReceiveRecord extends BaseEntity {
 
     @ApiModelProperty("会员id")
@@ -34,6 +34,13 @@ public class AwardReceiveRecord extends BaseEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date receiveTime;
 
+    @ApiModelProperty("总代ID")
+    private Long firstProxy;
 
+    @ApiModelProperty("区域代理ID")
+    private Long secondProxy;
+
+    @ApiModelProperty("基层代理ID")
+    private Long thirdProxy;
 
 }

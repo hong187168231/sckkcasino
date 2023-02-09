@@ -24,6 +24,7 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 用户钱包操作
@@ -229,7 +230,7 @@ public class UserLevelBusiness {
             awardReceiveRecord.setAwardType(1);
             awardReceiveRecord.setLevel(user.getLevel());
             awardReceiveRecord.setAmount(new BigDecimal(result.get("todayAward")));
-            awardReceiveRecordService.save(awardReceiveRecord);
+            awardReceiveRecordService.save(awardReceiveRecord,user);
             // 增加用户余额
             userMoneyService.addMoney(userId, awardReceiveRecord.getAmount());
             userMoneyService.addBalance(userId, awardReceiveRecord.getAmount());
@@ -257,7 +258,7 @@ public class UserLevelBusiness {
             asyncService.executeAsync(vo);
             awardReceiveRecord.setReceiveTime(new Date());
             awardReceiveRecord.setReceiveStatus(1);
-            awardReceiveRecordService.save(awardReceiveRecord);
+            awardReceiveRecordService.save(awardReceiveRecord,user);
         }
         return true;
     }
@@ -348,7 +349,7 @@ public class UserLevelBusiness {
                         awardReceiveRecord.setAwardType(2);
                         awardReceiveRecord.setLevel(level);
                         awardReceiveRecord.setAmount(new BigDecimal(getRiseAward(level)));
-                        awardReceiveRecordService.save(awardReceiveRecord);
+                        awardReceiveRecordService.save(awardReceiveRecord,user);
                     }
                 }
             }

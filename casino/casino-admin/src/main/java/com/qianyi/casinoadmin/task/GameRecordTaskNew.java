@@ -57,10 +57,12 @@ public class GameRecordTaskNew {
             nowTime.add(Calendar.DATE, -1);
             String yesterday = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
             this.statisticsWashCode(yesterday+staticsTimesEnd,yesterday+start,today+end);
+            gameRecordReportService.statisticsAward(yesterday+staticsTimesEnd,yesterday+start,today+end);
             if (hour >= CommonConst.NUMBER_12) {
                 nowTime.add(Calendar.DATE, 2);
                 String tomorrow = DateUtil.getSimpleDateFormat1().format(nowTime.getTime());
                 this.statisticsWashCode(today+staticsTimesEnd,today+start,tomorrow+end);
+                gameRecordReportService.statisticsAward(today+staticsTimesEnd,today+start,tomorrow+end);
             }
         }catch (Exception ex){
             log.error("每日小时报表统计,统计洗码失败=============================================》",ex);
@@ -79,5 +81,9 @@ public class GameRecordTaskNew {
         gameRecordReportService.statisticsWashCode(Constants.PLATFORM_VNC,Constants.PLATFORM_VNC,staticsTimes,startTime,endTime);
         gameRecordReportService.statisticsWashCode(Constants.PLATFORM_DMC,Constants.PLATFORM_DMC,staticsTimes,startTime,endTime);
         gameRecordReportService.statisticsWashCode(Constants.PLATFORM_DG,Constants.PLATFORM_DG,staticsTimes,startTime,endTime);
+    }
+
+    private void statisticsAward(String staticsTimes,String startTime,String endTime){
+
     }
 }

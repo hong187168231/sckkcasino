@@ -82,6 +82,14 @@ public class GameRecordReportNew extends BaseEntity{
     @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal newSurplusAmount;
 
+    @ApiModelProperty(value = "每日奖励")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    private BigDecimal todayAward;
+
+    @ApiModelProperty(value = "晋级奖励")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    private BigDecimal riseAward;
+
     public GameRecordReportNew(){
 
     }
@@ -97,7 +105,8 @@ public class GameRecordReportNew extends BaseEntity{
         this.surplusAmount = surplusAmount;
     }
     public GameRecordReportNew(Long firstProxy,Long bettingNumber,BigDecimal amount,BigDecimal betAmount,BigDecimal validAmount,
-        BigDecimal winLossAmount,BigDecimal userAmount,BigDecimal surplusAmount,BigDecimal newAmount,BigDecimal newUserAmount,BigDecimal newSurplusAmount){
+        BigDecimal winLossAmount,BigDecimal userAmount,BigDecimal surplusAmount,BigDecimal newAmount,BigDecimal newUserAmount,BigDecimal newSurplusAmount
+        ,BigDecimal todayAward,BigDecimal riseAward){
         this.firstProxy = firstProxy;
         this.bettingNumber = bettingNumber==null?0:bettingNumber .intValue();
         this.amount = amount;
@@ -109,6 +118,8 @@ public class GameRecordReportNew extends BaseEntity{
         this.newAmount = newAmount;
         this.newUserAmount = newUserAmount;
         this.newSurplusAmount = newSurplusAmount;
+        this.todayAward = todayAward;
+        this.riseAward = riseAward;
     }
     public GameRecordReportNew(Long bettingNumber,BigDecimal amount,BigDecimal betAmount,BigDecimal validAmount,BigDecimal winLossAmount,BigDecimal userAmount,BigDecimal surplusAmount){
         this.bettingNumber = bettingNumber==null?0:bettingNumber .intValue();
@@ -120,7 +131,8 @@ public class GameRecordReportNew extends BaseEntity{
         this.surplusAmount = surplusAmount;
     }
     public GameRecordReportNew(Long bettingNumber,BigDecimal amount,BigDecimal betAmount,BigDecimal validAmount,BigDecimal winLossAmount,
-        BigDecimal userAmount,BigDecimal surplusAmount,BigDecimal newAmount,BigDecimal newUserAmount,BigDecimal newSurplusAmount){
+        BigDecimal userAmount,BigDecimal surplusAmount,BigDecimal newAmount,BigDecimal newUserAmount,BigDecimal newSurplusAmount,
+        BigDecimal todayAward,BigDecimal riseAward){
         this.bettingNumber = bettingNumber==null?0:bettingNumber .intValue();
         this.amount = amount;
         this.betAmount = betAmount;
@@ -131,6 +143,8 @@ public class GameRecordReportNew extends BaseEntity{
         this.newAmount = newAmount;
         this.newUserAmount = newUserAmount;
         this.newSurplusAmount = newSurplusAmount;
+        this.todayAward = todayAward;
+        this.riseAward = riseAward;
     }
     public GameRecordReportNew(BigDecimal newAmount){
         this.newAmount = newAmount==null?BigDecimal.ZERO:newAmount;

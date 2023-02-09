@@ -5,6 +5,7 @@ import com.qianyi.modulecommon.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -41,6 +42,14 @@ public class GameRecordReportVo implements Serializable {
     @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
     @ApiModelProperty(value = "代理返利金额")
     private BigDecimal surplusAmount;
+
+    @ApiModelProperty(value = "每日奖励")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    private BigDecimal todayAward;
+
+    @ApiModelProperty(value = "晋级奖励")
+    @JsonSerialize(using = Decimal2Serializer.class, nullsUsing = Decimal2Serializer.class)
+    private BigDecimal riseAward;
 
     @ApiModelProperty(value = "唯一标识")
     private String tag;
