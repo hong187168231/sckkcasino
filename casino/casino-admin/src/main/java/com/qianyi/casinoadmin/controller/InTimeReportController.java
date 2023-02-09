@@ -182,6 +182,8 @@ public class InTimeReportController {
         gameRecordReportTotalVo.setSurplusAmount(recordRecordSum.getSurplusAmount()!=null?recordRecordSum.getSurplusAmount():BigDecimal.ZERO);
         gameRecordReportTotalVo.setUserAmount(recordRecordSum.getUserAmount()!=null?recordRecordSum.getUserAmount():BigDecimal.ZERO);
         gameRecordReportTotalVo.setTotalWinLossAmount(gameRecordReportTotalVo.getWinLossAmount().add(gameRecordReportTotalVo.getAmount()).add(gameRecordReportTotalVo.getUserAmount()).add(gameRecordReportTotalVo.getSurplusAmount()));
+        gameRecordReportTotalVo.setTodayAward(recordRecordSum.getTodayAward());
+        gameRecordReportTotalVo.setRiseAward(recordRecordSum.getRiseAward());
         return ResponseUtil.success(gameRecordReportTotalVo);
 
     }
