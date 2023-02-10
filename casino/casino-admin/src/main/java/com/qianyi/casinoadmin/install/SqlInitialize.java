@@ -75,23 +75,23 @@ public class SqlInitialize implements CommandLineRunner {
         // gameRecordReportNewService.saveGameRecordReportOBZR();
         //
         // // 计算最近十天注单
-        Calendar nowTime = Calendar.getInstance();
-        nowTime.add(Calendar.DATE, -100);
-        Date startDate = nowTime.getTime();
-        String startDay = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(startDate);
-        String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(new Date());
-
-        List<String> betweenDate = DateUtil.getBetweenDate(startDay, yesterday);
-        for (String str : betweenDate) {
-            Date date = DateUtil.getDate(str);
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(date);
-            cal.add(Calendar.DATE, 1);
-            String tomorrow = DateUtil.getSimpleDateFormat1().format(cal.getTime());
-            // gameRecordReportNewService.statisticsWashCode(Constants.PLATFORM_OBZR, Constants.PLATFORM_OBZR, str +
-            // staticsTimesEnd,
-            // str + start, tomorrow+end);
-            gameRecordReportNewService.statisticsAward(str + staticsTimesEnd, str + start, tomorrow + end);
-        }
+//        Calendar nowTime = Calendar.getInstance();
+//        nowTime.add(Calendar.DATE, -100);
+//        Date startDate = nowTime.getTime();
+//        String startDay = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(startDate);
+//        String yesterday = DateUtil.getSimpleDateFormat(DateUtil.patten1).format(new Date());
+//
+//        List<String> betweenDate = DateUtil.getBetweenDate(startDay, yesterday);
+//        for (String str : betweenDate) {
+//            Date date = DateUtil.getDate(str);
+//            Calendar cal = Calendar.getInstance();
+//            cal.setTime(date);
+//            cal.add(Calendar.DATE, 1);
+//            String tomorrow = DateUtil.getSimpleDateFormat1().format(cal.getTime());
+//            // gameRecordReportNewService.statisticsWashCode(Constants.PLATFORM_OBZR, Constants.PLATFORM_OBZR, str +
+//            // staticsTimesEnd,
+//            // str + start, tomorrow+end);
+//            gameRecordReportNewService.statisticsAward(str + staticsTimesEnd, str + start, tomorrow + end);
+//        }
     }
 }
