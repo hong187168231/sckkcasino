@@ -91,31 +91,46 @@ public class GameRecordGoldenFJob {
         }
     }
 
-
     private void pullGameRecord(String vendorCode) {
         try {
             // 从数据库获取最近的拉单时间和平台
             List<GoldenFTimeVO> timeVOS = getTimes(vendorCode);
-            if (vendorCode.equals("PG")) {
-                if (CollectionUtil.isNotEmpty(timeVOS) && timeVOS.size() > 1) {
-                    log.error("PG拉单当前时间==【{}】 当前条数==> [{}]", timeVOS.get(0).getStartTime(), timeVOS.size());
-                    asyncPullPg(timeVOS);
-                }else {
-                    timeVOS.forEach(item -> {
-                        log.info("{},开始拉取{}到{}的注单数据", vendorCode, item.getStartTime(), item.getEndTime());
-                        excutePull(true, vendorCode, item.getStartTime(), item.getEndTime());
-                        log.info("{},{}到{}数据拉取完成", vendorCode, item.getStartTime(), item.getEndTime());
-                    });
-                }
-            }else {
-                timeVOS.forEach(item -> {
-                    log.info("{},开始拉取{}到{}的注单数据", vendorCode, item.getStartTime(), item.getEndTime());
-                    excutePull(true, vendorCode, item.getStartTime(), item.getEndTime());
-                    log.info("{},{}到{}数据拉取完成", vendorCode, item.getStartTime(), item.getEndTime());
-                });
-            }
+            timeVOS.forEach(item -> {
+                log.info("{},开始拉取{}到{}的注单数据", vendorCode, item.getStartTime(), item.getEndTime());
+                excutePull(true, vendorCode, item.getStartTime(), item.getEndTime(),1);
+                log.info("{},{}到{}数据拉取完成", vendorCode, item.getStartTime(), item.getEndTime());
+            });
         } catch (Exception e) {
             log.error("拉取注单时报错,vendorCode={},msg={}", vendorCode, e.getMessage());
+        }
+    }
+
+    @Scheduled(initialDelay = 3000, fixedDelay = 1000 * 60 * 1)
+    public void pullGoldenF_PGBD() {
+        PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
+        if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
+            log.info("后台已关闭PG,无需拉单,platformGame={}", pgPlatformGame);
+        } else {
+            pullGameRecordPGBD(Constants.PLATFORM_PG);
+        }
+    }
+
+
+    private void pullGameRecordPGBD(String vendorCode) {
+        try {
+            // 从数据库获取最近的拉单时间和平台
+            List<GoldenFTimeVO> timeVOS = getTimes(vendorCode);
+            if (CollectionUtil.isNotEmpty(timeVOS) && timeVOS.size() > 1) {
+                log.error("PG补单当前时间==【{}】 当前条数==> [{}]", timeVOS.get(0).getStartTime(), timeVOS.size());
+                for (GoldenFTimeVO item : timeVOS) {
+                    log.error("{},PG1开始补单{}到{}的注单数据", Constants.PLATFORM_PG, item.getStartTime(), item.getEndTime());
+                    excutePull(true, Constants.PLATFORM_PG, item.getStartTime(), item.getEndTime(),2);
+                    log.error("{},{}PG1到{}数据补单完成", Constants.PLATFORM_PG, item.getStartTime(), item.getEndTime());
+                }
+                log.warn("PG数据补单完成补单结果条数 ===>> {}", timeVOS.size());
+            }
+        } catch (Exception e) {
+            log.error("PG补取注单时报错,vendorCode={},msg={}", vendorCode, e.getMessage());
         }
     }
 
@@ -128,7 +143,7 @@ public class GameRecordGoldenFJob {
     public void supplementPullGameRecord(String vendorCode, List<GoldenFTimeVO> timeVOS) {
         timeVOS.forEach(item -> {
             log.info("{},开始补单{}到{}的注单数据", vendorCode, item.getStartTime(), item.getEndTime());
-            excutePull(false, vendorCode, item.getStartTime(), item.getEndTime());
+            excutePull(false, vendorCode, item.getStartTime(), item.getEndTime(),3);
             log.info("{},{}到{}数据补单完成", vendorCode, item.getStartTime(), item.getEndTime());
         });
     }
@@ -169,21 +184,10 @@ public class GameRecordGoldenFJob {
     }
 
 
-    /**
-     * PG拉单
-     */
-    public void asyncPullPg(List<GoldenFTimeVO> timeVOS) {
-        for (GoldenFTimeVO item : timeVOS) {
-            log.error("{},PG1开始补单{}到{}的注单数据", Constants.PLATFORM_PG, item.getStartTime(), item.getEndTime());
-            excutePull(true, Constants.PLATFORM_PG, item.getStartTime(), item.getEndTime());
-            log.error("{},{}PG1到{}数据补单完成", Constants.PLATFORM_PG, item.getStartTime(), item.getEndTime());
-        }
-        log.warn("PG数据补单完成补单结果条数 ===>> {}", timeVOS.size());
-    }
 
 
 
-    private void excutePull(boolean pull, String vendorCode, Long startTime, Long endTime) {
+    private void excutePull(boolean pull, String vendorCode, Long startTime, Long endTime, Integer pullType) {
         log.info("startime is {}  endtime is {}", startTime, endTime);
         Integer failCount = 0;
 
@@ -214,15 +218,16 @@ public class GameRecordGoldenFJob {
             page++;
         }
         if (pull && successRequestFlag) {
-            processSuccessRequest(startTime, endTime, vendorCode);
+            processSuccessRequest(startTime, endTime, vendorCode,pullType);
         }
     }
 
-    private void processSuccessRequest(Long startTime, Long endTime, String vendorCode) {
+    private void processSuccessRequest(Long startTime, Long endTime, String vendorCode, Integer pullType) {
         GameRecordGoldenfEndTime gameRecordGoldenfEndTime = new GameRecordGoldenfEndTime();
         gameRecordGoldenfEndTime.setStartTime(startTime / 1000);
         gameRecordGoldenfEndTime.setEndTime(endTime / 1000);
         gameRecordGoldenfEndTime.setVendorCode(vendorCode);
+        gameRecordGoldenfEndTime.setPullType(pullType);
         gameRecordGoldenfEndTimeService.save(gameRecordGoldenfEndTime);
     }
 

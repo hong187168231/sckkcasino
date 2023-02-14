@@ -21,5 +21,8 @@ public class GameRecordGoldenfEndTime extends BaseEntity{
     @ApiModelProperty(value = "平台编码")
     private String vendorCode;
 
+    @ApiModelProperty(value = "拉单类型")
+    private Integer pullType;
+
 
 }
