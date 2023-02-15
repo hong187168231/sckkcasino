@@ -73,10 +73,10 @@ public class VipDeclineTask {
         System.out.println();
     }
 
-    @Scheduled(fixedDelay = 1000 * 10 * 6)
+    @Scheduled(fixedDelay = 1000 * 10 * 3  )
     public void beginOne() {
-        String vipTask = (String)redisUtil.get("vipTast");
-        if(ObjectUtil.isNull(vipTask) && vipTask.equals(1)){
+        Integer vipTask = (Integer)redisUtil.get("vipTast");
+        if(ObjectUtil.isNotNull(vipTask) && vipTask.equals(1)){
             log.info(" Vip 升级开始 start=============================================》");
             try {
                 Date startTime = DateUtil.getStartTime();
