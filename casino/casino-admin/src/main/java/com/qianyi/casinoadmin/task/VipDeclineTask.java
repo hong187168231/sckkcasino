@@ -85,7 +85,7 @@ public class VipDeclineTask {
                 List<Map<String, Object>> idList = userLevelService.findLastRiseUserNotLimit(startTime, endTime);
                 for (Map<String, Object> map : idList) {
                     Long userId = Long.parseLong(map.get("userId").toString());
-                    userLevelBusiness.processUserKeepLevel(userId);
+                    userLevelBusiness.processUserKeepLevel2(userId);
                     int row = queryToday(userId);
                     if (row < 1) {
                         UserLevelDecline userLevelDecline = new UserLevelDecline();

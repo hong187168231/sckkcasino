@@ -423,6 +423,44 @@ public class UserLevelBusiness {
         }
     }
 
+
+    public void processUserKeepLevel2(Long userId) {
+        UserMoney userMoney = userMoneyService.findByUserId(userId);
+        User user = userService.findById(userId);
+        BigDecimal levelWater = userMoney.getLevelWater();
+        Map<String, Integer> result = LevelUtil.getLevelInfoByLevel(platformConfig(), user.getLevel());
+        if (CollUtil.isEmpty(result)) {
+            return;
+        }
+        Map<String, Integer> preResult = LevelUtil.getLevelInfoByLevel(platformConfig(), user.getLevel() - 1);
+        if (CollUtil.isEmpty(preResult)) {
+            return;
+        }
+        Integer keepBet = result.get("keepBet");
+        BigDecimal sdayAmount = levelWaterChangeRepository.find10DayBetWater(userId);
+        if (ObjectUtil.isNull(sdayAmount)){
+            sdayAmount = BigDecimal.ZERO;
+            if (sdayAmount.intValue() < keepBet) {
+                Integer preUpgradeBet = preResult.get("upgradeBet");
+                Integer beforeLevel = user.getLevel();
+                UserLevelRecord userLevelRecord = new UserLevelRecord();
+                userLevelRecord.setUserId(user.getId());
+                userLevelRecord.setBeforeLevel(beforeLevel);
+                userLevelRecord.setChangeType(2);
+                userLevelRecord.setCreateBy("system");
+                userLevelRecord.setLevel(beforeLevel - 1);
+                userLevelRecord.setSchedule(levelWater + "/" + keepBet + ".00");
+                userLevelRecord.setDropTime(new Date());
+                userLevelRecord.setTodayKeepStatus(0);
+                userLevelService.save(userLevelRecord);
+                userMoneyService.modifyLevelWater(userId, BigDecimal.ZERO);
+                userMoneyService.modifyRiseWater(userId, new BigDecimal(preUpgradeBet));
+                userService.updateLevel(userId, beforeLevel - 1);
+            }
+        }
+    }
+
+
     public PlatformConfig platformConfig() {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         return platformConfig;
