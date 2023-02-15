@@ -57,6 +57,38 @@ public interface UserLevelRepository extends JpaRepository<UserLevelRecord, Long
     List<Map<String, Object>> findLastRiseUser(String startTime, String endTime);
 
 
+    @Query(value = " SELECT  " +
+        "  id,  " +
+        "  userId  " +
+        "FROM  " +
+        "  (  " +
+        "    SELECT  " +
+        "      id AS id,  " +
+        "      user_id AS userId,  " +
+        "      update_time AS updateTime  " +
+        "    FROM  " +
+        "      user_level_record  " +
+        "    WHERE  id  in " +
+        "       ( SELECT MAX(id) AS id FROM user_level_record WHERE `level` > 1 GROUP BY user_id ) " +
+        "  ) k  " +
+        "WHERE  " +
+        " 1=1 and   updateTime BETWEEN ?1  " +
+        "AND ?2  AND updateTime <= now() - INTERVAL 240 HOUR  " +
+        "AND userId NOT IN (  " +
+        "  SELECT  " +
+        "    user_id AS userId  " +
+        "  FROM  " +
+        "    user_level_decline  " +
+        "  WHERE  " +
+        "    today_decline_status = 1  " +
+        "  AND user_id = k.userId  " +
+        "  AND to_days(create_time) = to_days(now()) " +
+        "  order by updateTime desc  " +
+        ")  " +
+        " ", nativeQuery = true)
+    List<Map<String, Object>> findLastRiseUserNotLimit(String startTime, String endTime);
+
+
     @Modifying
     @Query("update UserLevelRecord s set s.todayKeepStatus =:todayKeepStatus,s.updateTime =:updateTime where s.id=:id")
     void updateTodayKeepStatusById(Integer todayKeepStatus, Date updateTime, Long id);

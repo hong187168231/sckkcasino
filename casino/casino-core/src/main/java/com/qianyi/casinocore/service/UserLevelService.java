@@ -121,6 +121,11 @@ public class UserLevelService {
         return userLevelRepository.findLastRiseUser(format.format(startTime), format.format(endTime));
     }
 
+    public List<Map<String, Object>> findLastRiseUserNotLimit(Date startTime, Date endTime) {
+        SimpleDateFormat format = DateUtil.getSimpleDateFormat();
+        return userLevelRepository.findLastRiseUserNotLimit(format.format(startTime), format.format(endTime));
+    }
+
 
     public Page<UserLevelRecord> findLevelChangePage(Pageable pageable, UserLevelRecord userLevel) {
         Specification<UserLevelRecord> condition = this.getCondition(userLevel);
