@@ -7,6 +7,7 @@ import com.qianyi.casinocore.co.user.LevelChangeCo;
 import com.qianyi.casinocore.enums.AccountChangeEnum;
 import com.qianyi.casinocore.exception.BusinessException;
 import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.repository.LevelWaterChangeRepository;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.LevelUtil;
 import com.qianyi.casinocore.vo.AccountChangeVo;
@@ -50,6 +51,8 @@ public class UserLevelBusiness {
     @Autowired
     private CodeNumChangeService codeNumChangeService;
 
+    @Autowired
+    private LevelWaterChangeRepository levelWaterChangeRepository;
 
     /**
      * 用户等级页信息处理
@@ -93,7 +96,8 @@ public class UserLevelBusiness {
         }
         String text = platformConfig.getVipConfigInfo();
         if (StringUtils.isNotBlank(text)) {
-            LevelConfigView levelConfigView = JSON.parseObject(platformConfig.getVipConfigInfo(), LevelConfigView.class);
+            LevelConfigView levelConfigView =
+                JSON.parseObject(platformConfig.getVipConfigInfo(), LevelConfigView.class);
             userLevelVo.setLevelConfig(levelConfigView);
         }
         // 用户 奖励领取是否能领取,及领取金额
@@ -103,7 +107,7 @@ public class UserLevelBusiness {
         }
         userLevelVo.setTodayAward(new BigDecimal(levelConfig.get("todayAward")));
         AwardReceiveRecord todayAward = awardReceiveRecordService.selectAwardReceiveByTime(user.getId());
-        if(ObjectUtil.isNotNull(todayAward)){
+        if (ObjectUtil.isNotNull(todayAward)) {
             userLevelVo.setTodayAward(todayAward.getAmount());
         }
         riseAwardIsReceive(user, userLevelVo);
@@ -137,7 +141,8 @@ public class UserLevelBusiness {
                 if (riseNum > 0) {
                     return true;
                 } else {
-                    if (levelConfigDto.getLevel1().getUpgradeAward().equals(0) && user.getLevel().equals(1) && awardType.equals(2)) {
+                    if (levelConfigDto.getLevel1().getUpgradeAward().equals(0) && user.getLevel()
+                        .equals(1) && awardType.equals(2)) {
                         return false;
                     }
                 }
@@ -145,7 +150,6 @@ public class UserLevelBusiness {
         }
         return false;
     }
-
 
     private void riseAwardIsReceive(User user, UserLevelVo userLevelVo) {
         PlatformConfig platformConfig = platformConfig();
@@ -190,7 +194,6 @@ public class UserLevelBusiness {
         }
     }
 
-
     public boolean userHasAward(User user) {
         boolean todayFlag = getUserLevelAndSchedule(user, 1);
         boolean riseFlag = getUserLevelAndSchedule(user, 2);
@@ -200,7 +203,6 @@ public class UserLevelBusiness {
         }
         return false;
     }
-
 
     /**
      * 领取奖励
@@ -230,7 +232,7 @@ public class UserLevelBusiness {
             awardReceiveRecord.setAwardType(1);
             awardReceiveRecord.setLevel(user.getLevel());
             awardReceiveRecord.setAmount(new BigDecimal(result.get("todayAward")));
-            awardReceiveRecordService.save(awardReceiveRecord,user);
+            awardReceiveRecordService.save(awardReceiveRecord, user);
             // 增加用户余额
             userMoneyService.addMoney(userId, awardReceiveRecord.getAmount());
             userMoneyService.addBalance(userId, awardReceiveRecord.getAmount());
@@ -258,11 +260,10 @@ public class UserLevelBusiness {
             asyncService.executeAsync(vo);
             awardReceiveRecord.setReceiveTime(new Date());
             awardReceiveRecord.setReceiveStatus(1);
-            awardReceiveRecordService.save(awardReceiveRecord,user);
+            awardReceiveRecordService.save(awardReceiveRecord, user);
         }
         return true;
     }
-
 
     private void processCodeNum(UserMoney userMoney, BigDecimal awardAmount, Integer awardType) {
         Map<String, Float> result = LevelUtil.getLevelInfoCodeNum(platformConfig());
@@ -278,7 +279,8 @@ public class UserLevelBusiness {
         BigDecimal codeNum = awardAmount.multiply(new BigDecimal(rate));
         userMoneyService.addCodeNum(userMoney.getUserId(), codeNum);
         BigDecimal codeNumAfter = codeNumBefore.add(codeNum);
-        CodeNumChange codeNumChange = CodeNumChange.setCodeNumChange(userMoney.getUserId(), null, codeNum, codeNumBefore, codeNumAfter);
+        CodeNumChange codeNumChange =
+            CodeNumChange.setCodeNumChange(userMoney.getUserId(), null, codeNum, codeNumBefore, codeNumAfter);
         if (awardType.equals(1)) {
             codeNumChange.setType(6);
         } else {
@@ -287,7 +289,6 @@ public class UserLevelBusiness {
         codeNumChange.setPlatform("award");
         codeNumChangeService.save(codeNumChange);
     }
-
 
     /**
      * 处理升级
@@ -313,9 +314,9 @@ public class UserLevelBusiness {
 
         User user = userService.findById(userId);
         Integer beforeLevel = user.getLevel();
-        Integer upLevel = (Integer) result.get("upLevel");
-        Integer upgradeBet = (Integer) result.get("upgradeBet");
-        Integer upgradeAward = (Integer) result.get("upgradeAward");
+        Integer upLevel = (Integer)result.get("upLevel");
+        Integer upgradeBet = (Integer)result.get("upgradeBet");
+        Integer upgradeAward = (Integer)result.get("upgradeAward");
         // 下一次 升级等级
         Map<String, Integer> upResult = LevelUtil.getLevelInfoByLevel(platformConfig(), upLevel + 1);
         if (upLevel > beforeLevel) {
@@ -349,7 +350,7 @@ public class UserLevelBusiness {
                         awardReceiveRecord.setAwardType(2);
                         awardReceiveRecord.setLevel(level);
                         awardReceiveRecord.setAmount(new BigDecimal(getRiseAward(level)));
-                        awardReceiveRecordService.save(awardReceiveRecord,user);
+                        awardReceiveRecordService.save(awardReceiveRecord, user);
                     }
                 }
             }
@@ -366,7 +367,6 @@ public class UserLevelBusiness {
         Integer riseAward = result.get("riseAward");
         return riseAward;
     }
-
 
     public void processUserKeepLevel(Long userId) {
         UserMoney userMoney = userMoneyService.findByUserId(userId);
@@ -400,14 +400,33 @@ public class UserLevelBusiness {
             userMoneyService.modifyRiseWater(userId, new BigDecimal(preUpgradeBet));
             userService.updateLevel(userId, beforeLevel - 1);
         }
+        BigDecimal sdayAmount = levelWaterChangeRepository.find10DayBetWater(userId);
+        if (ObjectUtil.isNull(sdayAmount)){
+            sdayAmount = BigDecimal.ZERO;
+            if (sdayAmount.intValue() < keepBet) {
+                Integer preUpgradeBet = preResult.get("upgradeBet");
+                Integer beforeLevel = user.getLevel();
+                UserLevelRecord userLevelRecord = new UserLevelRecord();
+                userLevelRecord.setUserId(user.getId());
+                userLevelRecord.setBeforeLevel(beforeLevel);
+                userLevelRecord.setChangeType(2);
+                userLevelRecord.setCreateBy("system");
+                userLevelRecord.setLevel(beforeLevel - 1);
+                userLevelRecord.setSchedule(levelWater + "/" + keepBet + ".00");
+                userLevelRecord.setDropTime(new Date());
+                userLevelRecord.setTodayKeepStatus(0);
+                userLevelService.save(userLevelRecord);
+                userMoneyService.modifyLevelWater(userId, BigDecimal.ZERO);
+                userMoneyService.modifyRiseWater(userId, new BigDecimal(preUpgradeBet));
+                userService.updateLevel(userId, beforeLevel - 1);
+            }
+        }
     }
-
 
     public PlatformConfig platformConfig() {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         return platformConfig;
     }
-
 
     public static void main(String[] args) {
         Integer upLevel = 10;
@@ -419,6 +438,5 @@ public class UserLevelBusiness {
             }
         }
     }
-
 
 }
