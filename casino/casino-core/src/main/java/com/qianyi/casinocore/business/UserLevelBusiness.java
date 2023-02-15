@@ -403,23 +403,23 @@ public class UserLevelBusiness {
         BigDecimal sdayAmount = levelWaterChangeRepository.find10DayBetWater(userId);
         if (ObjectUtil.isNull(sdayAmount)){
             sdayAmount = BigDecimal.ZERO;
-            if (sdayAmount.intValue() < keepBet) {
-                Integer preUpgradeBet = preResult.get("upgradeBet");
-                Integer beforeLevel = user.getLevel();
-                UserLevelRecord userLevelRecord = new UserLevelRecord();
-                userLevelRecord.setUserId(user.getId());
-                userLevelRecord.setBeforeLevel(beforeLevel);
-                userLevelRecord.setChangeType(2);
-                userLevelRecord.setCreateBy("system");
-                userLevelRecord.setLevel(beforeLevel - 1);
-                userLevelRecord.setSchedule(levelWater + "/" + keepBet + ".00");
-                userLevelRecord.setDropTime(new Date());
-                userLevelRecord.setTodayKeepStatus(0);
-                userLevelService.save(userLevelRecord);
-                userMoneyService.modifyLevelWater(userId, BigDecimal.ZERO);
-                userMoneyService.modifyRiseWater(userId, new BigDecimal(preUpgradeBet));
-                userService.updateLevel(userId, beforeLevel - 1);
-            }
+        }
+        if (sdayAmount.intValue() < keepBet.intValue()) {
+            Integer preUpgradeBet = preResult.get("upgradeBet");
+            Integer beforeLevel = user.getLevel();
+            UserLevelRecord userLevelRecord = new UserLevelRecord();
+            userLevelRecord.setUserId(user.getId());
+            userLevelRecord.setBeforeLevel(beforeLevel);
+            userLevelRecord.setChangeType(2);
+            userLevelRecord.setCreateBy("system");
+            userLevelRecord.setLevel(beforeLevel - 1);
+            userLevelRecord.setSchedule(levelWater + "/" + keepBet + ".00");
+            userLevelRecord.setDropTime(new Date());
+            userLevelRecord.setTodayKeepStatus(0);
+            userLevelService.save(userLevelRecord);
+            userMoneyService.modifyLevelWater(userId, BigDecimal.ZERO);
+            userMoneyService.modifyRiseWater(userId, new BigDecimal(preUpgradeBet));
+            userService.updateLevel(userId, beforeLevel - 1);
         }
     }
 
@@ -437,7 +437,7 @@ public class UserLevelBusiness {
             return;
         }
         Integer keepBet = result.get("keepBet");
-        BigDecimal sdayAmount = levelWaterChangeRepository.find10DayBetWater(userId);
+        BigDecimal sdayAmount =  new BigDecimal("1642.87");
         if (ObjectUtil.isNull(sdayAmount)){
             sdayAmount = BigDecimal.ZERO;
             if (sdayAmount.intValue() < keepBet) {
@@ -466,15 +466,6 @@ public class UserLevelBusiness {
         return platformConfig;
     }
 
-    public static void main(String[] args) {
-        Integer upLevel = 10;
-        Integer beforeLevel = 1;
-        Integer diss = upLevel - beforeLevel;
-        if (diss > 1) {
-            for (int i = 1; i <= diss; i++) {
-                System.out.println(upLevel - i + 1);
-            }
-        }
-    }
+
 
 }
