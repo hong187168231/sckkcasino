@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 查询用户投注记录接口,查询最近一周的数据,每次最大100条
@@ -236,8 +237,11 @@ public class GameRecordAeJob {
             gameRecordAsyncOper.extractPoints(platform, record);
             //扣减打码量
             gameRecordAsyncOper.subCodeNum(platform, platformConfig, record);
-            //代理分润
-            gameRecordAsyncOper.shareProfit(platform, record);
+            User user = userService.findById(record.getUserId());
+            if (Objects.nonNull(user) && Objects.nonNull(user.getThirdPid()) && user.getThirdPid() != 0L){//没有上级不分润
+                //代理分润
+                gameRecordAsyncOper.shareProfit(platform, record);
+            }
             //返利
             gameRecordAsyncOper.rebate(platform, record);
             //等级流水

@@ -22,10 +22,7 @@ import org.springframework.util.ObjectUtils;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -224,7 +221,10 @@ public class GameRecordVNCJob {
             //扣减打码量
             gameRecordAsyncOper.subCodeNum(platform, platformConfig, record);
             //代理分润
-            gameRecordAsyncOper.shareProfit(platform, record);
+            User user = userService.findById(record.getUserId());
+            if (Objects.nonNull(user) && Objects.nonNull(user.getThirdPid()) && user.getThirdPid() != 0L){//没有上级不分润
+                gameRecordAsyncOper.shareProfit(platform, record);
+            }
             //返利
             gameRecordAsyncOper.rebate(platform, record);
             //等级流水
