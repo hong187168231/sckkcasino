@@ -1,5 +1,6 @@
 package com.qianyi.casinoadmin.task;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.qianyi.casinocore.business.UserLevelBusiness;
 import com.qianyi.casinocore.model.UserLevelDecline;
 import com.qianyi.casinocore.repository.UserLevelDeclineRepository;
@@ -75,7 +76,7 @@ public class VipDeclineTask {
     @Scheduled(fixedDelay = 1000 * 10 * 6)
     public void beginOne() {
         String vipTask = (String)redisUtil.get("vipTast");
-        if(StringUtils.isBlank(vipTask) && vipTask.equals("open")){
+        if(ObjectUtil.isNull(vipTask) && vipTask.equals(1)){
             log.info(" Vip 升级开始 start=============================================》");
             try {
                 Date startTime = DateUtil.getStartTime();
