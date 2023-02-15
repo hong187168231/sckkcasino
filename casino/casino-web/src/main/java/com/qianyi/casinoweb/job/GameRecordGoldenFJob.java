@@ -268,7 +268,7 @@ public class GameRecordGoldenFJob {
             if (item.getCreatedAt() != null) {
                 item.setCreateAtStr(DateUtil.timeStamp2Date(item.getCreatedAt(), ""));
             }
-            saveToDB(item, platformConfig);
+            saveToDB(item, platformConfig,user);
         });
     }
 
@@ -276,7 +276,7 @@ public class GameRecordGoldenFJob {
         return simpleDateFormat.format(seconds);
     }
 
-    private void saveToDB(GameRecordGoldenF item, PlatformConfig platformConfig) {
+    private void saveToDB(GameRecordGoldenF item, PlatformConfig platformConfig,User user) {
         try {
             GameRecordGoldenF gameRecordGoldenF =
                 gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
@@ -289,7 +289,7 @@ public class GameRecordGoldenFJob {
             GameRecord gameRecord = combineGameRecord(item);
             // 发送注单消息到MQ后台要统计数据
             gameRecordAsyncOper.proxyGameRecordReport(item.getVendorCode(), gameRecord);
-            processBusiness(item, gameRecord, platformConfig);
+            processBusiness(item, gameRecord, platformConfig,user);
         } catch (Exception e) {
             log.error("注单数据保存失败,msg={}", e.getMessage());
         }
@@ -327,7 +327,7 @@ public class GameRecordGoldenFJob {
     }
 
     private void processBusiness(GameRecordGoldenF gameRecordGoldenF, GameRecord gameRecord,
-        PlatformConfig platformConfig) {
+        PlatformConfig platformConfig,User user) {
         if (gameRecordGoldenF.getBetAmount().compareTo(BigDecimal.ZERO) == 0)
             return;
         if (!gameRecordGoldenF.getTransType().equals(GoldenFConstant.GOLDENF_STAKE))
@@ -338,8 +338,10 @@ public class GameRecordGoldenFJob {
         gameRecordAsyncOper.extractPoints(gameRecordGoldenF.getVendorCode(), gameRecord);
         // 扣减打码量
         gameRecordAsyncOper.subCodeNum(gameRecordGoldenF.getVendorCode(), platformConfig, gameRecord);
-        // 代理分润
-        gameRecordAsyncOper.shareProfit(gameRecordGoldenF.getVendorCode(), gameRecord);
+        //代理分润
+        if (Objects.nonNull(user) && Objects.nonNull(user.getThirdPid()) && user.getThirdPid() != 0L){//没有上级不分润
+            gameRecordAsyncOper.shareProfit(gameRecordGoldenF.getVendorCode(), gameRecord);
+        }
         // 返利
         gameRecordAsyncOper.rebate(gameRecordGoldenF.getVendorCode(), gameRecord);
         if (gameRecordGoldenF.getTransType() != null && gameRecordGoldenF.getTransType().equals("Stake")) {

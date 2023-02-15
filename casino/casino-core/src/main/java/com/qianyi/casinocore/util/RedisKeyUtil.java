@@ -17,6 +17,9 @@ public class RedisKeyUtil {
     //系统默认锁时间
     public static final int LOCK_TIME = 120;
 
+    //游戏报表默认锁时间
+    public static final int GAME_RECORD_LOCK_TIME = 30;
+
     public static final String PROXY_CREDIT_LOCK = "PROXY-CREDIT-LOCK::LOCK-";
 
     public static final String PROXY_WASH_CODE_REBATE_LOCK = "PROXY-WASH-CODE-REBATE-LOCK::LOCK-";
@@ -30,6 +33,8 @@ public class RedisKeyUtil {
     public static final String TRIPARTITE_BALANCE = "TRIPARTITE-BALANCE::{0}::USERID-{1}";
 
     public static final String LAST_LOGIN_INT = "LAST-LOGIN-INT::{0}::USERID-{1}";
+
+    public static final String GAME_RECORD_REPORT_BUSINESS ="GAME-RECORD-REPORT-BUSINESS-LOCK::{0}::LOCK-{1}";
     /**
      * 全局代理信誉分锁
      *
@@ -109,5 +114,16 @@ public class RedisKeyUtil {
      */
     public RAtomicLong getLastLoginInt(String platform,String userId) {
         return redissonClient.getAtomicLong(MessageFormat.format(RedisKeyUtil.LAST_LOGIN_INT, platform,userId));
+    }
+
+    /**
+     * 游戏报表锁
+     *
+     * @param gameId 游戏注单id
+     * @param platform 平台编码
+     * @return 全局会员钱包锁
+     */
+    public RLock getGameRecordLock(String platform,String gameId) {
+        return redissonClient.getFairLock(MessageFormat.format(RedisKeyUtil.GAME_RECORD_REPORT_BUSINESS, platform,gameId));
     }
 }

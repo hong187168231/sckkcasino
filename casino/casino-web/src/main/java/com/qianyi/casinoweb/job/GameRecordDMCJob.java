@@ -350,8 +350,11 @@ public class GameRecordDMCJob {
             gameRecordAsyncOper.extractPoints(platform, record);
             //扣减打码量
             gameRecordAsyncOper.subCodeNum(platform, platformConfig, record);
+            User user = userService.findById(record.getUserId());
             //代理分润
-            gameRecordAsyncOper.shareProfit(platform, record);
+            if (Objects.nonNull(user) && Objects.nonNull(user.getThirdPid()) && user.getThirdPid() != 0L){//没有上级不分润
+                gameRecordAsyncOper.shareProfit(platform, record);
+            }
             //返利
             gameRecordAsyncOper.rebate(platform, record);
             //等级流水

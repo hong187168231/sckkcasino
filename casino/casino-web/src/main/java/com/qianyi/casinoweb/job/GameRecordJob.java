@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -205,7 +206,8 @@ public class GameRecordJob {
                     gameRecord.setRebateStatus(Constants.yes);
                 }
                 //有数据会重复注单id唯一约束会报错，所以一条一条保存，避免影响后面的
-                GameRecord record = save(gameRecord);
+                User user = userService.findById(gameRecord.getUserId());
+                GameRecord record = save(gameRecord,user);
                 //计算用户账号实时余额
                 changeUserBalance(account.getUserId(),gameRecord.getResult());
                 //发送注单消息到MQ后台要统计数据
@@ -220,7 +222,9 @@ public class GameRecordJob {
                 //扣减打码量
                 gameRecordAsyncOper.subCodeNum(Constants.PLATFORM_WM,platformConfig, record);
                 //代理分润
-                gameRecordAsyncOper.shareProfit(Constants.PLATFORM_WM,record);
+                if (Objects.nonNull(user) && Objects.nonNull(user.getThirdPid()) && user.getThirdPid() != 0L){//没有上级不分润
+                    gameRecordAsyncOper.shareProfit(Constants.PLATFORM_WM,record);
+                }
                 //返利
                 gameRecordAsyncOper.rebate(Constants.PLATFORM_WM,record);
                 //等级流水
@@ -264,8 +268,7 @@ public class GameRecordJob {
         }
     }
 
-    public GameRecord save(GameRecord gameRecord) throws Exception{
-        User user = userService.findById(gameRecord.getUserId());
+    public GameRecord save(GameRecord gameRecord,User user) throws Exception{
         if (user != null) {
             gameRecord.setFirstProxy(user.getFirstProxy());
             gameRecord.setSecondProxy(user.getSecondProxy());
