@@ -51,6 +51,6 @@ public class SharePointConsumer {
         }finally {
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         }
-        log.info("接受到分润消息游戏id:{},消费者处理完当前消息：{}",shareProfitMqVo.getGameRecordId(),shareProfitMqVo);
+        log.info("处理完分润消息游戏id:{},消费者处理完当前消息：{}",shareProfitMqVo.getGameRecordId(),shareProfitMqVo);
     }
 }
