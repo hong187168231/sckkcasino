@@ -399,9 +399,10 @@ public class UserLevelBusiness {
             userMoneyService.modifyLevelWater(userId, BigDecimal.ZERO);
             userMoneyService.modifyRiseWater(userId, new BigDecimal(preUpgradeBet));
             userService.updateLevel(userId, beforeLevel - 1);
+            return;
         }
         BigDecimal sdayAmount = levelWaterChangeRepository.find10DayBetWater(userId);
-        if (ObjectUtil.isNull(sdayAmount)){
+        if (ObjectUtil.isNull(sdayAmount)) {
             sdayAmount = BigDecimal.ZERO;
         }
         if (sdayAmount.intValue() < keepBet.intValue()) {
@@ -422,7 +423,6 @@ public class UserLevelBusiness {
             userService.updateLevel(userId, beforeLevel - 1);
         }
     }
-
 
     public void processUserKeepLevel2(Long userId) {
         UserMoney userMoney = userMoneyService.findByUserId(userId);
@@ -438,7 +438,7 @@ public class UserLevelBusiness {
         }
         Integer keepBet = result.get("keepBet");
         BigDecimal sdayAmount = levelWaterChangeRepository.find10DayBetWater(userId);
-        if (ObjectUtil.isNull(sdayAmount)){
+        if (ObjectUtil.isNull(sdayAmount)) {
             sdayAmount = BigDecimal.ZERO;
         }
         if (sdayAmount.intValue() < keepBet.intValue()) {
@@ -460,12 +460,9 @@ public class UserLevelBusiness {
         }
     }
 
-
     public PlatformConfig platformConfig() {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         return platformConfig;
     }
-
-
 
 }
