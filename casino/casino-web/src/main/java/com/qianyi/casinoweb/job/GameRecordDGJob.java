@@ -1,5 +1,6 @@
 package com.qianyi.casinoweb.job;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.qianyi.casinocore.model.*;
@@ -220,6 +221,9 @@ public class GameRecordDGJob {
             gameRecord.setFirstProxy(user.getFirstProxy());
             gameRecord.setSecondProxy(user.getSecondProxy());
             gameRecord.setThirdProxy(user.getThirdProxy());
+        }
+        if(ObjectUtil.isNull(gameRecord.getWinOrLoss())){
+            gameRecord.setWinOrLoss(BigDecimal.ZERO);
         }
         BigDecimal amount = gameRecord.getWinOrLoss().subtract(gameRecord.getBetPoints());
         //实付金额 派彩金额减去有效下注金额
