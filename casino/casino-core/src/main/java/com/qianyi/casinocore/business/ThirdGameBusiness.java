@@ -747,8 +747,8 @@ public class ThirdGameBusiness {
         }
         // 等待所有子线程计算完成
         CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[completableFutures.size()])).join();
-        log.info("进入游戏统一回收余额结束耗时{}==============================================>",
-            System.currentTimeMillis() - startTime);
+        log.info("进入游戏统一回收余额结束耗时{} userId:{}==============================================>",
+            System.currentTimeMillis() - startTime,userId);
         return ResponseUtil.success();
     }
 

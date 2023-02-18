@@ -70,36 +70,24 @@ public class ChargeOrderBusiness {
      * @param remark 充值订单备注
      */
     @Transactional
-    public ResponseEntity checkOrderSuccess(Long id, Integer status, String remark, String lastModifier) {
-        String value = id.toString();
-        String key = MessageFormat.format(RedisLockUtil.CHARGEORDER_ORDER, value);
-        Boolean lock = false;
+    public ResponseEntity checkOrderSuccess(ChargeOrder order, Integer status, String remark, String lastModifier) {
         try {
-            lock = redisLockUtil.getLock(key, value);
-            if (lock) {
-                ChargeOrder order = chargeOrderService.findById(id);
-                if (order == null || order.getStatus() != Constants.chargeOrder_wait) {
-                    return ResponseUtil.custom("订单不存在或已被处理");
-                }
-                order.setRemark(remark);
-                order.setLastModifier(lastModifier);
-                if (status == Constants.chargeOrder_fail) {// 拒绝订单直接保存
-                    order.setStatus(status);
-                    order = chargeOrderService.saveOrder(order);
-                    return ResponseUtil.success(order);
-                }
-                return this.saveOrder(order, status, AccountChangeEnum.TOPUP_CODE, Constants.CODENUMCHANGE_CHARGE,true);
-            } else {
-                return ResponseUtil.custom("订单已被处理");
+//            ChargeOrder order = chargeOrderService.findById(id);
+//            if (order == null || order.getStatus() != Constants.chargeOrder_wait) {
+//                return ResponseUtil.custom("订单不存在或已被处理");
+//            }
+            order.setRemark(remark);
+            order.setLastModifier(lastModifier);
+            if (status == Constants.chargeOrder_fail) {// 拒绝订单直接保存
+                order.setStatus(status);
+                order = chargeOrderService.saveOrder(order);
+                return ResponseUtil.success(order);
             }
+            return this.saveOrder(order, status, AccountChangeEnum.TOPUP_CODE, Constants.CODENUMCHANGE_CHARGE,true);
         } catch (Exception ex) {
             log.error("审核充值出现异常{}", ex);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return ResponseUtil.custom("系统异常请联系管理员");
-        } finally {
-            if (lock) {
-                redisLockUtil.releaseLock(key, value);
-            }
         }
     }
 
@@ -168,7 +156,9 @@ public class ChargeOrderBusiness {
         // 用户账变记录
         this.saveAccountChang(changeEnum, userId, chargeOrder, totalMoney);
         // 发送充值消息
-        this.sendMessage(userId, isFirst, chargeOrder);
+        Integer newIsFirst = isFirst;
+        ChargeOrder newChargeOrder = chargeOrder;
+        new Thread(()->this.sendMessage(userId, newIsFirst, newChargeOrder)).start();
         return ResponseUtil.success(chargeOrder);
     }
 

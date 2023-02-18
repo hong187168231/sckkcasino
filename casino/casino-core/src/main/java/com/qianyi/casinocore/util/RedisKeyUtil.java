@@ -35,6 +35,8 @@ public class RedisKeyUtil {
     public static final String LAST_LOGIN_INT = "LAST-LOGIN-INT::{0}::USERID-{1}";
 
     public static final String GAME_RECORD_REPORT_BUSINESS ="GAME-RECORD-REPORT-BUSINESS-LOCK::{0}::LOCK-{1}";
+
+    public static final String CHARGE_ORDER_LOCK = "CHARGE-ORDER-LOCK::LOCK-";
     /**
      * 全局代理信誉分锁
      *
@@ -125,5 +127,15 @@ public class RedisKeyUtil {
      */
     public RLock getGameRecordLock(String platform,String gameId) {
         return redissonClient.getFairLock(MessageFormat.format(RedisKeyUtil.GAME_RECORD_REPORT_BUSINESS, platform,gameId));
+    }
+
+    /**
+     * 审核充值订单锁
+     *
+     * @param chargeOrderId 充值订单id
+     * @return 全局会员钱包锁
+     */
+    public RLock getChargeOrderLock(String chargeOrderId) {
+        return redissonClient.getFairLock(RedisKeyUtil.CHARGE_ORDER_LOCK+chargeOrderId);
     }
 }
