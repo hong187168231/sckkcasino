@@ -138,14 +138,14 @@ public class ProxyGameRecordReportService {
         Integer total =
             totalBetNumber + totalBetNumberByAe + totalBetNumberByVnc + totalBetNumberByDmc + totalBetNumberByDg + totalBetNumberByObzr;
         log.info(
-            "代理报表日期{} betNumber:{} total:{} totalBetNumber:{}  totalBetNumberByAe:{} totalBetNumberByVnc:{} totalBetNumberByDmc:{} totalBetNumberByDg:{}",
+            "代理报表日期{} betNumber:{} total:{} totalBetNumber:{}  totalBetNumberByAe:{} totalBetNumberByVnc:{} totalBetNumberByDmc:{} totalBetNumberByDg:{} totalBetNumberByObzr:{}",
             dayTime, betNumber, total, totalBetNumber, totalBetNumberByAe, totalBetNumberByVnc, totalBetNumberByDmc,
-            totalBetNumberByDg);
+            totalBetNumberByDg,totalBetNumberByObzr);
         if (betNumber.intValue() != total.intValue()) {
             log.error(
-                "代理报表日期{}不相等开始重新计算betNumber:{}  total:{} totalBetNumber:{} totalBetNumberByAe:{} totalBetNumberByVnc:{} totalBetNumberByDmc:{} totalBetNumberByDg:{}",
+                "代理报表日期{}不相等开始重新计算betNumber:{}  total:{} totalBetNumber:{} totalBetNumberByAe:{} totalBetNumberByVnc:{} totalBetNumberByDmc:{} totalBetNumberByDg:{} totalBetNumberByObzr:{}",
                 dayTime, betNumber, total, totalBetNumber, totalBetNumberByAe, totalBetNumberByVnc, totalBetNumberByDmc,
-                totalBetNumberByDg);
+                totalBetNumberByDg,totalBetNumberByObzr);
             proxyGameRecordReportRepository.deleteByOrderTimes(dayTime);
             try {
                 List<Map<String, Object>> totalMap = proxyGameRecordReportRepository.findTotal(startTime, endTime);

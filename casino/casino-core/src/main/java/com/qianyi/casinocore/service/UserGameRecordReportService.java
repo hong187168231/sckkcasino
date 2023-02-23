@@ -98,9 +98,9 @@ public class UserGameRecordReportService {
         Integer totalBetNumberByDg = this.findTotalBetNumberByDg(startTime, endTime);
         Integer totalBetNumberByObzr = this.findTotalBetNumberByObzr(startTime, endTime);
         Integer total = totalBetNumber + totalBetNumberByAe + totalBetNumberByVnc+totalBetNumberByDmc+totalBetNumberByDg+totalBetNumberByObzr;
-        log.info("会员报表日期{} betNumber:{} total:{} totalBetNumber:{} totalBetNumberByAe:{} totalBetNumberByVnc:{} totalBetNumberByDmc:{} totalBetNumberByDg:{}", dayTime, betNumber,total, totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc,totalBetNumberByDmc,totalBetNumberByDg);
+        log.info("会员报表日期{} betNumber:{} total:{} totalBetNumber:{} totalBetNumberByAe:{} totalBetNumberByVnc:{} totalBetNumberByDmc:{} totalBetNumberByDg:{} totalBetNumberByObzr:{}", dayTime, betNumber,total, totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc,totalBetNumberByDmc,totalBetNumberByDg,totalBetNumberByObzr);
         if (betNumber.intValue() != total.intValue()) {
-            log.error("会员报表日期{}不相等开始重新计算betNumber:{} total:{} totalBetNumber:{} totalBetNumberByAe:{} totalBetNumberByVnc:{} totalBetNumberByDmc:{} totalBetNumberByDg:{}", dayTime, betNumber,total, totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc,totalBetNumberByDmc,totalBetNumberByDg);
+            log.error("会员报表日期{}不相等开始重新计算betNumber:{} total:{} totalBetNumber:{} totalBetNumberByAe:{} totalBetNumberByVnc:{} totalBetNumberByDmc:{} totalBetNumberByDg:{} totalBetNumberByObzr:{}", dayTime, betNumber,total, totalBetNumber,totalBetNumberByAe,totalBetNumberByVnc,totalBetNumberByDmc,totalBetNumberByDg);
             userGameRecordReportRepository.deleteByOrderTimes(dayTime);
 
             List<Map<String, Object>> wm = userGameRecordReportRepository.findWm(startTime, endTime);
