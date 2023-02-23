@@ -67,7 +67,7 @@ public interface UserGameRecordReportRepository extends JpaRepository<UserGameRe
     @Query(value = "SELECT count( 1 ) num from game_record_dg g where  g.bet_time BETWEEN ?1 and ?2 ;",nativeQuery = true)
     Integer findTotalBetNumberByDg(String startTime,String endTime);
 
-    @Query(value = "SELECT count( 1 ) num from game_record_obzr g where  g.settle_time BETWEEN ?1 and ?2 ;",nativeQuery = true)
+    @Query(value = "SELECT count( 1 ) num from game_record_obzr g where  g.bet_time BETWEEN ?1 and ?2 ;",nativeQuery = true)
     Integer findTotalBetNumberByObzr(String startTime,String endTime);
 
 
@@ -112,7 +112,7 @@ public interface UserGameRecordReportRepository extends JpaRepository<UserGameRe
     List<Map<String, Object>> findObdj(String startTime,String endTime);
 
     @Query(value = "select user_id user_id,count(1) num,sum(bet_amount) bet_amount,sum(valid_bet_amount) validbet,sum(payout_amount) win_loss from game_record_obzr grg "
-            + "where settle_str_time >= ?1 and settle_str_time <= ?2 group by user_id ;",nativeQuery = true)
+            + "where bet_time >= ?1 and bet_time <= ?2 group by user_id ;",nativeQuery = true)
     List<Map<String, Object>> findObzr(String startTime,String endTime);
 
     @Query(value = "select user_id user_id,count(1) num,sum(bet_amount) bet_amount,sum(turnover) validbet,sum(real_win_amount-real_bet_amount) win_loss from game_record_ae g "

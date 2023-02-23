@@ -145,7 +145,7 @@ public class SqlNewConst {
     FROM
     game_record_obzr grg
     WHERE
-    settle_str_time BETWEEN {0}
+    bet_time BETWEEN {0}
     AND {1}
     GROUP BY
     user_id
@@ -1087,7 +1087,7 @@ public class SqlNewConst {
     ifnull( sum( valid_bet_amount ), 0 ) validbet,
     ifnull( sum( net_amount ), 0 ) win_loss
     from game_record_obzr grg
-    where user_id = {2} AND settle_str_time between {0} and {1}
+    where user_id = {2} AND bet_time between {0} and {1}
 	) t1,
         (
     SELECT
@@ -1288,7 +1288,7 @@ public class SqlNewConst {
     sum(valid_bet_amount) validbet,
     sum(net_amount) win_loss
     from game_record_obzr grg
-    where settle_str_time between {0} and {1}) main_t,
+    where bet_time between {0} and {1}) main_t,
         (select
     sum(amount) wash_amount
     from wash_code_change wcc

@@ -52,7 +52,7 @@ public class SqlSumConst {
                 FROM
             game_record_obzr grg
             WHERE
-            settle_str_time BETWEEN {0}
+            bet_time BETWEEN {0}
             AND {1}
                      """;
 

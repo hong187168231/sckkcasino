@@ -108,6 +108,7 @@ public class ProxyGameRecordReportBusiness {
                     log.error("OB真人注单状态异常{}", proxyGameRecordReportVo.getGameRecordId());
                     return;
                 }
+                proxyGameRecordReportVo.setOrderTimes(gameRecordById.getBetStrTime());
             } else if (proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE_HORSEBOOK)
                 || proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE_SV388)
                 || proxyGameRecordReportVo.getPlatform().equals(Constants.PLATFORM_AE_E1SPORT)
