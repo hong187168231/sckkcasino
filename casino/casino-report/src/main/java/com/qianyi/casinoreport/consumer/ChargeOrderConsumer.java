@@ -36,8 +36,11 @@ public class ChargeOrderConsumer {
     @RabbitHandler
     public void process(RechargeRecordVo rechargeRecordVo, Channel channel, Message message) throws IOException {
         log.info("充值订单ID:{},消费者接受到的消息是：{}",rechargeRecordVo.getChargeOrderId(),rechargeRecordVo);
-        levelrechargeRecordBussiness.procerssShareProfit(rechargeRecordVo);
-        channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        try {
+            levelrechargeRecordBussiness.procerssShareProfit(rechargeRecordVo);
+        }finally {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        }
         log.info("充值订单ID:{},消费者处理完当前消息：{}",rechargeRecordVo.getChargeOrderId(),rechargeRecordVo);
     }
 }

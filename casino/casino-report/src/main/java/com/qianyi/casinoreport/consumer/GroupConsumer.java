@@ -37,8 +37,11 @@ public class GroupConsumer {
     @RabbitHandler
     public void process(User user, Channel channel, Message message) throws IOException {
         log.info("消费者接受到的消息是：{}",user);
-        levelUserGroupNumBusiness.processUser(user);
-        channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        try {
+            levelUserGroupNumBusiness.processUser(user);
+        }finally {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        }
         log.info("消费者处理完当前消息：{}",user);
     }
 }

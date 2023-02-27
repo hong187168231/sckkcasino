@@ -24,8 +24,11 @@ public class ProxyReportConsumer {
     @RabbitHandler
     public void process(ProxyGameRecordReportVo proxyGameRecordReportVo, Channel channel, Message message) throws IOException {
         log.info("统计代理报表:userId:{}id:{} OrderId:{},消费者接受到的消息是：{}",proxyGameRecordReportVo.getUserId(),proxyGameRecordReportVo.getGameRecordId(),proxyGameRecordReportVo.getOrderId(),proxyGameRecordReportVo);
-        proxyGameRecordReportBusiness.saveOrUpdate(proxyGameRecordReportVo);
-        channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        try {
+            proxyGameRecordReportBusiness.saveOrUpdate(proxyGameRecordReportVo);
+        }finally {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        }
         log.info("统计代理报表:userId:{}id:{} OrderId:{},消费者处理完当前消息：{}",proxyGameRecordReportVo.getUserId(),proxyGameRecordReportVo.getGameRecordId(),proxyGameRecordReportVo.getOrderId(),proxyGameRecordReportVo);
     }
 }
