@@ -68,12 +68,12 @@ public class SqlInitialize implements CommandLineRunner {
             });
         }
 
-        // GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
-        // first.setOBZRMaxId(0L);
-        // gameRecordEndIndexService.save(first);
-        // gameRecordReportNewService.deleteByPlatform(Constants.PLATFORM_OBZR);
-        // gameRecordReportNewService.saveGameRecordReportOBZR();
-        //
+         GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
+         first.setDGMaxId(0L);
+         gameRecordEndIndexService.save(first);
+         gameRecordReportNewService.deleteDataByPlatform(Constants.PLATFORM_DG);
+         gameRecordReportNewService.saveGameRecordReportDG();
+
         // // 计算最近十天注单
 //        Calendar nowTime = Calendar.getInstance();
 //        nowTime.add(Calendar.DATE, -100);

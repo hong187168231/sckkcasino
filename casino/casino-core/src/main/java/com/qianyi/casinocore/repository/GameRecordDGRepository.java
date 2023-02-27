@@ -51,6 +51,6 @@ public interface GameRecordDGRepository extends JpaRepository<GameRecordDG, Long
             + "         ifnull(SUM(w.amount),0) amount from game_record_dg g left join  \n"
             + "        wash_code_change w  on  w.game_record_id = g.id and w.platform = 'DG'\n"
             + "        LEFT JOIN  rebate_detail d on d.game_record_id=g.id  and d.platform = 'DG'\n"
-            + "         where g.id > ?1 and g.is_revocation = 1  \n" + "   GROUP BY g.third_proxy,LEFT(g.bet_time,?2) ",nativeQuery = true)
+            + "         where g.id > ?1 GROUP BY g.third_proxy,LEFT(g.bet_time,?2) ",nativeQuery = true)
     List<Map<String,Object>> queryGameRecords(Long id,Integer num);
 }

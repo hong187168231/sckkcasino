@@ -1009,6 +1009,11 @@ public class GameRecordReportNewService {
         gameRecordReport01Repository.deleteByPlatform(platform);
     }
 
+    @Transactional
+    public void deleteDataByPlatform(String platform) {
+        gameRecordReport01Repository.deleteDataByPlatform(platform);
+    }
+
     public GameRecordReportNew findGameRecordReportNewSum(GameRecordReportNew game, String startBetTime,
         String endBetTime) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();

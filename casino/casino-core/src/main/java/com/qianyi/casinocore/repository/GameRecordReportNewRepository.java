@@ -23,6 +23,10 @@ public interface GameRecordReportNewRepository  extends JpaRepository<GameRecord
     void deleteByPlatform(String platform);
 
     @Modifying
+    @Query(value = "DELETE from game_record_report_new where platform = ?1 and bettingNumber > 0 ;",nativeQuery = true)
+    void deleteDataByPlatform(String platform);
+
+    @Modifying
     @Query(value = "INSERT INTO game_record_report_new (game_record_report_id,statics_times,bet_amount,valid_amount,"
         + "win_loss_amount,amount,betting_number,first_proxy,second_proxy,third_proxy,platform,surplus_amount,user_amount,new_amount,new_surplus_amount,new_user_amount,today_award,rise_award) " +
         "VALUES (?1,?2,0,0,0,0,0,?3,?4,?5,?6,0,0,?7,0,0,0,0) ON DUPLICATE KEY UPDATE new_amount = ?7 ;",nativeQuery = true)
