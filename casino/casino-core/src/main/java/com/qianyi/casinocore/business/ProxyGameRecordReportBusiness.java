@@ -180,6 +180,7 @@ public class ProxyGameRecordReportBusiness {
                 }
                 proxyGameRecordReportVo
                     .setWinLoss(gameRecordById.getWinMoney().subtract(gameRecordById.getRealMoney()));
+                proxyGameRecordReportVo.setOrderTimes(gameRecordById.getBetTime());
             } else {
                 GameRecordGoldenF gameRecordById =
                     gameRecordGoldenFService.findGameRecordById(proxyGameRecordReportVo.getGameRecordId());
