@@ -32,8 +32,11 @@ public class OneGroupConsumer {
 
     public void process(ProxyUserBO proxyUserBO, Channel channel, Message message) throws IOException {
         log.info("ONE-start 代理线新增成员消息队列：{}",proxyUserBO);
-        levelUserGroupTransactionService.processItem(proxyUserBO);
-        channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        try {
+            levelUserGroupTransactionService.processItem(proxyUserBO);
+        }finally {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        }
         log.info("ONE-end 代理线新增成员消息队列：{}",proxyUserBO);
     }
 }

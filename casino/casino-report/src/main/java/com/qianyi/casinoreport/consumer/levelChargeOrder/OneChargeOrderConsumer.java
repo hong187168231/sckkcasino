@@ -35,8 +35,11 @@ public class OneChargeOrderConsumer {
 
     public void process(RechargeProxyBO rechargeProxyBO, Channel channel, Message message) throws IOException {
         log.info("ONE-start 充值订单ID:{},代理线充值消息队列：{}",rechargeProxyBO.getChargeOrderId(),rechargeProxyBO);
-        rechargeRecordBussiness.processItem(rechargeProxyBO);
-        channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        try {
+            rechargeRecordBussiness.processItem(rechargeProxyBO);
+        }finally {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        }
         log.info("ONE-end 充值订单ID:{},代理线充值消息队列：{}",rechargeProxyBO.getChargeOrderId(),rechargeProxyBO);
     }
 }
