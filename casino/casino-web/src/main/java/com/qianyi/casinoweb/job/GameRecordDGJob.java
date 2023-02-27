@@ -171,10 +171,9 @@ public class GameRecordDGJob {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         List<Long> idList = new ArrayList<>();
         for (DGTradeReportVo gameRecordDGVo : gameRecordDGVoList) {
-
-            GameRecordDG gameRecord = save(gameRecordDGVo);
-            log.info("DG保存注单完毕id:{}userId:{}isRevocation:{}",gameRecord.getId(),gameRecord.getUserId(),gameRecord.getIsRevocation());
-            if (1==gameRecord.getIsRevocation()){//是否结算：1：已结算 2:撤销
+            if (1==gameRecordDGVo.getIsRevocation()){//是否结算：1：已结算 2:撤销
+                GameRecordDG gameRecord = save(gameRecordDGVo);
+                log.info("DG保存注单完毕id:{}userId:{}isRevocation:{}",gameRecord.getId(),gameRecord.getUserId(),gameRecord.getIsRevocation());
                 business(Constants.PLATFORM_DG, gameRecord, platformConfig);
             }
             idList.add(gameRecordDGVo.getId());
