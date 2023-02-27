@@ -372,11 +372,14 @@ public class BankCardsController {
         if (LoginUtil.checkNull(bankAccount)) {
             return "银行账号不能为空";
         }
-        if (bankAccount.length() > 20 || bankAccount.length() < 8) {
-            return "长度只能在8~20位";
-        }
-        if (!bankAccount.matches(Constants.regex)) {
-            return "银行账号只能输入数字";
+//        if (bankAccount.length() > 20 || bankAccount.length() < 8) {
+//            return "长度只能在8~20位";
+//        }
+//        if (!bankAccount.matches(Constants.regex)) {
+//            return "银行账号只能输入数字";
+//        }
+        if (!bankAccount.matches(RegexEnum.NEW_BANK_ACCOUNT.getRegex())) {
+            return "银行账号长度只能在8~40位的数字或者字母";
         }
         return null;
     }

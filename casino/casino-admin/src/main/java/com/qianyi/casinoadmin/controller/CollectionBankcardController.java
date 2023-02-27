@@ -107,7 +107,7 @@ public class CollectionBankcardController {
         }
         bankNo = bankNo.trim();
         if (!bankNo.matches(RegexEnum.NEW_BANK_ACCOUNT.getRegex())) {
-            return ResponseUtil.custom("长度只能在8~40位的数字或者字母");
+            return ResponseUtil.custom("银行账号长度只能在8~40位的数字或者字母");
         }
         if (!accountName.matches(RegexEnum.NAME.getRegex())){
             return ResponseUtil.custom("持卡人姓名格式错误");
@@ -161,7 +161,7 @@ public class CollectionBankcardController {
                 return ResponseUtil.custom("银行卡已存在");
             }
             if (!bankNo.matches(RegexEnum.NEW_BANK_ACCOUNT.getRegex())) {
-                return ResponseUtil.custom("长度只能在8~40位的数字或者字母");
+                return ResponseUtil.custom("银行账号长度只能在8~40位的数字或者字母");
             }
             collectionBankcard.setBankNo(bankNo);
         }

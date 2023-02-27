@@ -83,8 +83,11 @@ public class Bankcards extends BaseEntity{
         if (!StringUtils.hasLength(bankAccount)) {
             return "银行账号不能为空";
         }
-        if (!bankAccount.matches(RegexEnum.BANK_ACCOUNT.getRegex())) {
-            return "银行账号" + RegexEnum.BANK_ACCOUNT.getDesc();
+//        if (!bankAccount.matches(RegexEnum.BANK_ACCOUNT.getRegex())) {
+//            return "银行账号" + RegexEnum.BANK_ACCOUNT.getDesc();
+//        }
+        if (!bankAccount.matches(RegexEnum.NEW_BANK_ACCOUNT.getRegex())) {
+            return "银行账号长度只能在8~40位的数字或者字母";
         }
         return null;
     }
