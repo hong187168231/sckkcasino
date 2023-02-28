@@ -47,10 +47,14 @@ public interface GameRecordDGRepository extends JpaRepository<GameRecordDG, Long
 
     @Query(value = "select MAX(g.id) maxId,ifnull(SUM(d.user_amount), 0 ) as user_amount,ifnull(SUM(d.surplus_amount), 0 ) as surplus_amount,LEFT(g.bet_time,?2) set_time,ifnull(g.first_proxy,0) first_proxy,\n"
             + "        ifnull(g.second_proxy,0) second_proxy,ifnull(g.third_proxy,0) third_proxy,\n"
-            + "        COUNT(1) num,SUM(g.bet_points) bet,SUM(g.available_bet) validbet,ifnull(sum(g.win_money),0)-ifnull(sum(g.real_money),0) win_loss,\n"
+            + "        COUNT(1) num,ifnull(SUM(g.bet_points),0) bet,ifnull(SUM(g.available_bet),0) validbet,ifnull(sum(g.win_money),0)-ifnull(sum(g.real_money),0) win_loss,\n"
             + "         ifnull(SUM(w.amount),0) amount from game_record_dg g left join  \n"
             + "        wash_code_change w  on  w.game_record_id = g.id and w.platform = 'DG'\n"
             + "        LEFT JOIN  rebate_detail d on d.game_record_id=g.id  and d.platform = 'DG'\n"
             + "         where g.id > ?1 GROUP BY g.third_proxy,LEFT(g.bet_time,?2) ",nativeQuery = true)
     List<Map<String,Object>> queryGameRecords(Long id,Integer num);
+
+    @Modifying
+    @Query(value = "update game_record_dg g set g.available_bet = 0 where g.available_bet is null ",nativeQuery = true)
+    void updateGameRecordDGAvailableBet();
 }

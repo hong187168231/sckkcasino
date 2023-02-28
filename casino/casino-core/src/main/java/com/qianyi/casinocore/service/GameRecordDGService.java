@@ -16,11 +16,9 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class GameRecordDGService {
@@ -37,6 +35,9 @@ public class GameRecordDGService {
     }
 
     public GameRecordDG save(GameRecordDG gameRecord) {
+        if (Objects.isNull(gameRecord.getAvailableBet())){
+            gameRecord.setAvailableBet(BigDecimal.ZERO);
+        }
         return gameRecordDGRepository.save(gameRecord);
     }
 
@@ -220,5 +221,10 @@ public class GameRecordDGService {
                 .where(list.toArray(new Predicate[list.size()]));
         GameRecordDG singleResult = entityManager.createQuery(query).getSingleResult();
         return singleResult;
+    }
+
+    @Transactional
+    public void updateGameRecordDGAvailableBet(){
+        gameRecordDGRepository.updateGameRecordDGAvailableBet();
     }
 }

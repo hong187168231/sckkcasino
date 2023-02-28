@@ -5,10 +5,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 import java.math.BigDecimal;
 
 @Data
@@ -38,20 +35,27 @@ public class GameRecordDG extends BaseEntity{
     private String calTime;//	Date		可以为空
 
     @ApiModelProperty(value = "派彩金额")
-    private BigDecimal winOrLoss;//	Double	 (输赢应扣除下注金额)	可以为空
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    private BigDecimal winOrLoss = BigDecimal.ZERO;//	Double	 (输赢应扣除下注金额)	可以为空
     @ApiModelProperty(value = "好路追注派彩金额")
-    private BigDecimal winOrLossz;//	Double		winOrLoss为总派彩金额
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    private BigDecimal winOrLossz = BigDecimal.ZERO;//	Double		winOrLoss为总派彩金额
     @ApiModelProperty(value = "下注金额")
-    private BigDecimal betPoints;//	Double
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    private BigDecimal betPoints = BigDecimal.ZERO;//	Double
     @ApiModelProperty(value = "好路追注金额")
-    private BigDecimal betPointsz;//	Double		betPoints为总金额
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    private BigDecimal betPointsz = BigDecimal.ZERO;//	Double		betPoints为总金额
 
     @ApiModelProperty("实付金额")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal realMoney = BigDecimal.ZERO;//派彩金额减去有效下注金额
     @ApiModelProperty("中奖金额")
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
     private BigDecimal winMoney = BigDecimal.ZERO;;//派彩金额减去下注金额
     @ApiModelProperty(value = "有效下注金额")
-    private BigDecimal availableBet;//	Double		可以为空
+    @Column(columnDefinition = "Decimal(19,6) default '0.00'")
+    private BigDecimal availableBet = BigDecimal.ZERO;//	Double		可以为空
     @ApiModelProperty(value = "会员登入账号")
     private String userName;//	String
     @ApiModelProperty(value = "游戏结果")

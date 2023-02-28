@@ -37,6 +37,9 @@ public class SqlInitialize implements CommandLineRunner {
     private RptBetInfoDetailService rptBetInfoDetailService;
 
     @Autowired
+    private GameRecordDGService gameRecordDGService;
+
+    @Autowired
     private BankcardsService bankcardsService;
 
     public final static String start = " 12:00:00";
@@ -60,6 +63,8 @@ public class SqlInitialize implements CommandLineRunner {
 
         rptBetInfoDetailService.updateRptBetInfoDetailGamePlay();
 
+        gameRecordDGService.updateGameRecordDGAvailableBet();
+
         List<Bankcards> byRealNameLowercase = bankcardsService.findByRealNameLowercase();
         if (CollUtil.isNotEmpty(byRealNameLowercase)) {
             byRealNameLowercase.forEach(bankcards -> {
@@ -68,11 +73,11 @@ public class SqlInitialize implements CommandLineRunner {
             });
         }
 
-//         GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
-//         first.setDGMaxId(0L);
-//         gameRecordEndIndexService.save(first);
-//         gameRecordReportNewService.deleteDataByPlatform(Constants.PLATFORM_DG);
-//         gameRecordReportNewService.saveGameRecordReportDG();
+         GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
+         first.setDGMaxId(0L);
+         gameRecordEndIndexService.save(first);
+         gameRecordReportNewService.deleteDataByPlatform(Constants.PLATFORM_DG);
+         gameRecordReportNewService.saveGameRecordReportDG();
 
         // // 计算最近十天注单
 //        Calendar nowTime = Calendar.getInstance();
