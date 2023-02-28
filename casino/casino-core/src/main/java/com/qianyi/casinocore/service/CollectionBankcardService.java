@@ -74,10 +74,10 @@ public class CollectionBankcardService {
         return null;
     }
 
-    @CacheEvict(allEntries = true)
-    public void saveAll(List<CollectionBankcard> collectionBankcardList) {
-        collectionBankCardRepository.saveAll(collectionBankcardList);
-    }
+//    @CacheEvict(allEntries = true)
+//    public void saveAll(List<CollectionBankcard> collectionBankcardList) {
+//        collectionBankCardRepository.saveAll(collectionBankcardList);
+//    }
 
     @CacheEvict(allEntries = true)
     @Transactional

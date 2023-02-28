@@ -340,7 +340,10 @@ public class CollectionBankcardController {
         }
 
         collectionBankcardService.delete(collectionBankcard);
-        collectionBankcardService.saveAll(collectionBankcards);
+//        collectionBankcardService.saveAll(collectionBankcards);
+        collectionBankcards.forEach(collectionBankcard1 -> {
+            collectionBankcardService.updateCollectionBankcardBysortId(collectionBankcard1.getId(),collectionBankcard1.getSortId());
+        });
         return ResponseUtil.success();
     }
 
