@@ -80,7 +80,7 @@ public class CollectionBankcardService {
 //        collectionBankCardRepository.saveAll(collectionBankcardList);
 //    }
 
-//    @CacheEvict(allEntries = true)
+    @CacheEvict(allEntries = true)
     @Transactional
     public void updateSortIdById(Long id,Integer sortId){
         collectionBankCardRepository.updateSortIdById(id,sortId);
