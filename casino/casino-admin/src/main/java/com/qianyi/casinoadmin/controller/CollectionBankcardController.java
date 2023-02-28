@@ -1,5 +1,7 @@
 package com.qianyi.casinoadmin.controller;
 
+import cn.hutool.core.collection.CollUtil;
+import com.qianyi.casinoadmin.vo.CollectionCardVo;
 import com.qianyi.casinocore.model.SysUser;
 import com.qianyi.casinocore.service.SysUserService;
 import com.qianyi.casinocore.util.CommonConst;
@@ -29,58 +31,53 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * 用户谷歌验证登录
  */
-@Api(tags = "资金中心")
-@RestController
-@RequestMapping("collection")
-public class CollectionBankcardController {
+@Api(tags = "资金中心") @RestController @RequestMapping("collection") public class CollectionBankcardController {
 
-    @Autowired
-    private CollectionBankcardService collectionBankcardService;
-    
-    @Autowired
-    private BankInfoService bankInfoService;
+    @Autowired private CollectionBankcardService collectionBankcardService;
 
-    @Autowired
-    private SysUserService sysUserService;
+    @Autowired private BankInfoService bankInfoService;
 
-    @GetMapping("bankList")
-    @ApiOperation("收款银行卡列表")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
-            @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
-            @ApiImplicitParam(name = "disable", value = "0:未禁用 1：禁用", required = false),
-            @ApiImplicitParam(name = "bankId", value = "银行类型", required = false),
-    })
-    public ResponseEntity<CollectionBankcardVo> bankList(Integer pageSize, Integer pageCode,Integer disable,String bankId) {
+    @Autowired private SysUserService sysUserService;
+
+    @GetMapping("bankList") @ApiOperation("收款银行卡列表")
+    @ApiImplicitParams({@ApiImplicitParam(name = "pageSize", value = "每页大小(默认10条)", required = false),
+        @ApiImplicitParam(name = "pageCode", value = "当前页(默认第一页)", required = false),
+        @ApiImplicitParam(name = "disable", value = "0:未禁用 1：禁用", required = false),
+        @ApiImplicitParam(name = "bankId", value = "银行类型", required = false),})
+    public ResponseEntity<CollectionBankcardVo> bankList(Integer pageSize, Integer pageCode, Integer disable,
+        String bankId) {
         Sort sort = Sort.by("sortId").ascending();
         Pageable pageable = LoginUtil.setPageable(pageCode, pageSize, sort);
         CollectionBankcard collectionBankcard = new CollectionBankcard();
         collectionBankcard.setDisable(disable);
         collectionBankcard.setBankId(bankId);
-        Page<CollectionBankcard> collectionBandPage = collectionBankcardService.getCollectionBandPage(collectionBankcard, pageable);
-        PageResultVO<CollectionBankcardVo> pageResultVO =new PageResultVO(collectionBandPage);
+        Page<CollectionBankcard> collectionBandPage =
+            collectionBankcardService.getCollectionBandPage(collectionBankcard, pageable);
+        PageResultVO<CollectionBankcardVo> pageResultVO = new PageResultVO(collectionBandPage);
         List<CollectionBankcard> content = collectionBandPage.getContent();
-        if(content != null && content.size() > 0){
+        if (content != null && content.size() > 0) {
             List<CollectionBankcardVo> collectionBankcardList = new LinkedList<>();
             List<String> collect = content.stream().map(CollectionBankcard::getBankId).collect(Collectors.toList());
             List<BankInfo> bankInfos = bankInfoService.findAll(collect);
             List<String> updateBys = content.stream().map(CollectionBankcard::getUpdateBy).collect(Collectors.toList());
             List<SysUser> sysUsers = sysUserService.findAll(updateBys);
-            if(bankInfos != null){
-                content.stream().forEach(collectionBank ->{
+            if (bankInfos != null) {
+                content.stream().forEach(collectionBank -> {
                     CollectionBankcardVo collectionBankcardVo = new CollectionBankcardVo(collectionBank);
-                    bankInfos.stream().forEach(bank->{
-                        if (bank.getId().toString().equals(collectionBank.getBankId())){
+                    bankInfos.stream().forEach(bank -> {
+                        if (bank.getId().toString().equals(collectionBank.getBankId())) {
                             collectionBankcardVo.setBankName(bank.getBankName());
                         }
                     });
-                     sysUsers.stream().forEach(sysUser->{
-                        if (sysUser.getId().toString().equals(collectionBank.getUpdateBy() == null?"":collectionBank.getUpdateBy())){
+                    sysUsers.stream().forEach(sysUser -> {
+                        if (sysUser.getId().toString()
+                            .equals(collectionBank.getUpdateBy() == null ? "" : collectionBank.getUpdateBy())) {
                             collectionBankcardVo.setUpdateBy(sysUser.getUserName());
                         }
                     });
@@ -92,48 +89,48 @@ public class CollectionBankcardController {
         return ResponseUtil.success(pageResultVO);
     }
 
-    @ApiOperation("新增收款银行卡")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "bankNo", value = "银行账号", required = true),
-            @ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
-            @ApiImplicitParam(name = "accountName", value = "开户名", required = true),
-            @ApiImplicitParam(name = "sortFlag", value = "是否置顶 1：置顶，0：不置顶", required = true),
-    })
-    @PostMapping("saveBankInfo")
-    public ResponseEntity saveBankInfo(String bankNo, String bankId, String accountName, Integer sortFlag){
+    @ApiOperation("新增收款银行卡") @ApiImplicitParams({@ApiImplicitParam(name = "bankNo", value = "银行账号", required = true),
+        @ApiImplicitParam(name = "bankId", value = "银行卡id", required = true),
+        @ApiImplicitParam(name = "accountName", value = "开户名", required = true),
+        @ApiImplicitParam(name = "sortFlag", value = "是否置顶 1：置顶，0：不置顶", required = true),}) @PostMapping("saveBankInfo")
+    public ResponseEntity saveBankInfo(String bankNo, String bankId, String accountName, Integer sortFlag) {
         List<CollectionBankcard> byBankNo = collectionBankcardService.findByBankNo(bankNo);
-        if (LoginUtil.checkNull(bankNo,bankId,accountName)) {
+        if (LoginUtil.checkNull(bankNo, bankId, accountName)) {
             return ResponseUtil.custom("银行账号不能为空");
         }
         bankNo = bankNo.trim();
         if (!bankNo.matches(RegexEnum.NEW_BANK_ACCOUNT.getRegex())) {
             return ResponseUtil.custom("银行账号长度只能在8~40位的数字或者字母");
         }
-        if (!accountName.matches(RegexEnum.NAME.getRegex())){
+        if (!accountName.matches(RegexEnum.NAME.getRegex())) {
             return ResponseUtil.custom("持卡人姓名格式错误");
         }
-        if (!LoginUtil.checkNull(byBankNo) && byBankNo.size() > CommonConst.NUMBER_0){
+        if (!LoginUtil.checkNull(byBankNo) && byBankNo.size() > CommonConst.NUMBER_0) {
             return ResponseUtil.custom("银行卡已存在");
         }
-        Sort so = Sort.by("sortId").ascending();
-        List<CollectionBankcard> collectionBankcardList = collectionBankcardService.findAllSort(so);
+        //        Sort so = Sort.by("sortId").ascending();
+        List<Map<String, Object>> mapList = collectionBankcardService.find();
+        List<CollectionCardVo> collectionBankcardList = getCollectionBankcards(mapList);
 
         CollectionBankcard bankcard = new CollectionBankcard();
         bankcard.setBankNo(bankNo);
         bankcard.setBankId(bankId);
         bankcard.setAccountName(accountName);
         bankcard.setDisable(CommonConst.NUMBER_1);//新增默认禁用
-        if(collectionBankcardList == null || collectionBankcardList.isEmpty()){
+        if (CollUtil.isEmpty(collectionBankcardList)) {
             bankcard.setSortId(CommonConst.NUMBER_1);
             collectionBankcardService.save(bankcard);
             return ResponseUtil.success(bankcard);
         }
         bankcard.setSortId(collectionBankcardList.size() + 1);
         bankcard = collectionBankcardService.save(bankcard);
-        collectionBankcardList.add(bankcard);
-        if(sortFlag == CommonConst.NUMBER_1){//置顶操作
-            if(collectionBankcardList.get(CommonConst.NUMBER_0).getSortId() == null
-                    || collectionBankcardList.get(CommonConst.NUMBER_0).getSortId() != CommonConst.NUMBER_1){
+        CollectionCardVo collectionCardVo = new CollectionCardVo();
+        collectionCardVo.setId(bankcard.getId());
+        collectionCardVo.setSortId(bankcard.getSortId());
+        collectionBankcardList.add(collectionCardVo);
+        if (sortFlag == CommonConst.NUMBER_1) {//置顶操作
+            if (collectionBankcardList.get(CommonConst.NUMBER_0).getSortId() == null
+                || collectionBankcardList.get(CommonConst.NUMBER_0).getSortId() != CommonConst.NUMBER_1) {
                 setCollectionBankcardSoet(collectionBankcardList);
             }
             saveBankInfoNumber3(collectionBankcardList, bankcard.getId());
@@ -141,23 +138,34 @@ public class CollectionBankcardController {
         return ResponseUtil.success(bankcard);
     }
 
-    @ApiOperation("修改收款银行卡")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "id", required = true),
-            @ApiImplicitParam(name = "bankNo", value = "银行账号", required = false),
-            @ApiImplicitParam(name = "bankId", value = "银行卡id", required = false),
-            @ApiImplicitParam(name = "accountName", value = "开户名", required = false)
-    })
-    @PostMapping("updateBankInfo")
-    public ResponseEntity updateBankInfo(Long id, String bankNo, String bankId, String accountName){
+    private List<CollectionCardVo> getCollectionBankcards(List<Map<String, Object>> maps) {
+        List<CollectionCardVo> list = new LinkedList<>();
+        if (CollUtil.isNotEmpty(maps)) {
+            maps.forEach(map -> {
+                CollectionCardVo vo = new CollectionCardVo();
+                String id = map.get("id").toString();
+                vo.setId(Long.parseLong(id));
+                String sort_id = map.get("sort_id").toString();
+                vo.setSortId(Integer.parseInt(sort_id));
+                list.add(vo);
+            });
+        }
+        return list;
+    }
+
+    @ApiOperation("修改收款银行卡") @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "id", required = true),
+        @ApiImplicitParam(name = "bankNo", value = "银行账号", required = false),
+        @ApiImplicitParam(name = "bankId", value = "银行卡id", required = false),
+        @ApiImplicitParam(name = "accountName", value = "开户名", required = false)}) @PostMapping("updateBankInfo")
+    public ResponseEntity updateBankInfo(Long id, String bankNo, String bankId, String accountName) {
         CollectionBankcard collectionBankcard = collectionBankcardService.findById(id);
-        if(collectionBankcard == null){
+        if (collectionBankcard == null) {
             return ResponseUtil.custom("银行卡不存在");
         }
-        if(!LoginUtil.checkNull(bankNo)){
+        if (!LoginUtil.checkNull(bankNo)) {
             List<CollectionBankcard> byBankNo = collectionBankcardService.findByBankNo(bankNo);
-            if (!LoginUtil.checkNull(byBankNo) && byBankNo.size() > CommonConst.NUMBER_0
-                    && !byBankNo.get(CommonConst.NUMBER_0).getBankNo().equals(collectionBankcard.getBankNo())){
+            if (!LoginUtil.checkNull(byBankNo) && byBankNo.size() > CommonConst.NUMBER_0 && !byBankNo
+                .get(CommonConst.NUMBER_0).getBankNo().equals(collectionBankcard.getBankNo())) {
                 return ResponseUtil.custom("银行卡已存在");
             }
             if (!bankNo.matches(RegexEnum.NEW_BANK_ACCOUNT.getRegex())) {
@@ -165,11 +173,11 @@ public class CollectionBankcardController {
             }
             collectionBankcard.setBankNo(bankNo);
         }
-        if(!LoginUtil.checkNull(bankId)){
+        if (!LoginUtil.checkNull(bankId)) {
             collectionBankcard.setBankId(bankId);
         }
-        if(!LoginUtil.checkNull(accountName)){
-            if (!accountName.matches(RegexEnum.NAME.getRegex())){
+        if (!LoginUtil.checkNull(accountName)) {
+            if (!accountName.matches(RegexEnum.NAME.getRegex())) {
                 return ResponseUtil.custom("持卡人请输入中文或字母");
             }
             collectionBankcard.setAccountName(accountName);
@@ -179,33 +187,31 @@ public class CollectionBankcardController {
         return ResponseUtil.success(collectionBankcard);
     }
 
-    @NoAuthentication
-    @GetMapping("sortBankInfo")
-    @ApiOperation("收款银行卡排序")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "id", required = true),
-            @ApiImplicitParam(name = "sort", value = "排序 1：上移，2：下移动，3置顶", required = true)
-    })
-    public ResponseEntity sortBankInfo(Long id, Integer sort){
-        Sort so = Sort.by("sortId").ascending();
-        List<CollectionBankcard> collectionBankcardList = collectionBankcardService.findAllSort(so);
+    @NoAuthentication @GetMapping("sortBankInfo") @ApiOperation("收款银行卡排序")
+    @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "id", required = true),
+        @ApiImplicitParam(name = "sort", value = "排序 1：上移，2：下移动，3置顶", required = true)})
+    public ResponseEntity sortBankInfo(Long id, Integer sort) {
+        //        Sort so = Sort.by("sortId").ascending();
+        //        List<CollectionBankcard> collectionBankcardList = collectionBankcardService.findAllSort(so);
+        List<Map<String, Object>> mapList = collectionBankcardService.find();
+        List<CollectionCardVo> collectionBankcardList = getCollectionBankcards(mapList);
 
         //判断第一次操作排序字段为空时情况
-        if(collectionBankcardList.get(CommonConst.NUMBER_0).getSortId() == null
-                || collectionBankcardList.get(CommonConst.NUMBER_0).getSortId() != CommonConst.NUMBER_1){
+        if (collectionBankcardList.get(CommonConst.NUMBER_0).getSortId() == null
+            || collectionBankcardList.get(CommonConst.NUMBER_0).getSortId() != CommonConst.NUMBER_1) {
             setCollectionBankcardSoet(collectionBankcardList);
         }
 
         //置顶操作
-        if(sort == CommonConst.NUMBER_3){
+        if (sort == CommonConst.NUMBER_3) {
             saveBankInfoNumber3(collectionBankcardList, id);
         }
         //上移
-        if(sort == CommonConst.NUMBER_1){
+        if (sort == CommonConst.NUMBER_1) {
             saveBankInfoNumber1(collectionBankcardList, id);
         }
         //下移
-        if(sort == CommonConst.NUMBER_2){
+        if (sort == CommonConst.NUMBER_2) {
             saveBankInfoNumber2(collectionBankcardList, id);
         }
         return ResponseUtil.success();
@@ -216,14 +222,24 @@ public class CollectionBankcardController {
      *
      * @param collectionBankcardList
      */
-    private void setCollectionBankcardSoet(List<CollectionBankcard> collectionBankcardList) {
+    //    private void setCollectionBankcardSoet(List<CollectionBankcard> collectionBankcardList) {
+    //        int sort = 1;
+    //        for (CollectionBankcard collectionBankcard : collectionBankcardList) {
+    //            collectionBankcard.setSortId(sort);
+    //            sort++;
+    //        }
+    //        collectionBankcardList.forEach(collectionBankcard -> {
+    //            collectionBankcardService.updateSortIdById(collectionBankcard.getId(),collectionBankcard.getSortId());
+    //        });
+    //    }
+    private void setCollectionBankcardSoet(List<CollectionCardVo> collectionBankcardList) {
         int sort = 1;
-        for (CollectionBankcard collectionBankcard : collectionBankcardList) {
+        for (CollectionCardVo collectionBankcard : collectionBankcardList) {
             collectionBankcard.setSortId(sort);
             sort++;
         }
         collectionBankcardList.forEach(collectionBankcard -> {
-            collectionBankcardService.updateSortIdById(collectionBankcard.getId(),collectionBankcard.getSortId());
+            collectionBankcardService.updateSortIdById(collectionBankcard.getId(), collectionBankcard.getSortId());
         });
     }
 
@@ -233,20 +249,21 @@ public class CollectionBankcardController {
      * @param collectionBankcardList
      * @param id
      */
-    private void saveBankInfoNumber2(List<CollectionBankcard> collectionBankcardList, Long id) {
+    private void saveBankInfoNumber2(List<CollectionCardVo> collectionBankcardList, Long id) {
         for (int i = 0; i < collectionBankcardList.size(); i++) {
-            if(collectionBankcardList.get(i).getId() == id){
-                if((i + 1) < collectionBankcardList.size()){
+            if (collectionBankcardList.get(i).getId() == id) {
+                if ((i + 1) < collectionBankcardList.size()) {
                     int sortUp = collectionBankcardList.get(i).getSortId() + 1;
                     int sortdow = collectionBankcardList.get(i + 1).getSortId() - 1;
-                    List<CollectionBankcard> collectionBankcards = new ArrayList<>();
+                    List<CollectionCardVo> collectionBankcards = new ArrayList<>();
                     collectionBankcardList.get(i).setSortId(sortUp);
                     collectionBankcardList.get(i + 1).setSortId(sortdow);
                     collectionBankcards.add(collectionBankcardList.get(i));
                     collectionBankcards.add(collectionBankcardList.get(i + 1));
-//                    collectionBankcardService.saveAll(collectionBankcards);
+                    //                    collectionBankcardService.saveAll(collectionBankcards);
                     collectionBankcards.forEach(collectionBankcard -> {
-                        collectionBankcardService.updateSortIdById(collectionBankcard.getId(),collectionBankcard.getSortId());
+                        collectionBankcardService
+                            .updateSortIdById(collectionBankcard.getId(), collectionBankcard.getSortId());
                     });
                 }
             }
@@ -259,20 +276,21 @@ public class CollectionBankcardController {
      * @param collectionBankcardList
      * @param id
      */
-    private void saveBankInfoNumber1(List<CollectionBankcard> collectionBankcardList, Long id) {
+    private void saveBankInfoNumber1(List<CollectionCardVo> collectionBankcardList, Long id) {
         for (int i = 0; i < collectionBankcardList.size(); i++) {
-            if(collectionBankcardList.get(i).getId() == id){
-                if(collectionBankcardList.get(i).getSortId() != CommonConst.NUMBER_1){
+            if (collectionBankcardList.get(i).getId() == id) {
+                if (collectionBankcardList.get(i).getSortId() != CommonConst.NUMBER_1) {
                     int sortUp = collectionBankcardList.get(i).getSortId() - 1;
                     int sortdow = collectionBankcardList.get(i - 1).getSortId() + 1;
-                    List<CollectionBankcard> collectionBankcards = new ArrayList<>();
+                    List<CollectionCardVo> collectionBankcards = new ArrayList<>();
                     collectionBankcardList.get(i).setSortId(sortUp);
                     collectionBankcardList.get(i - 1).setSortId(sortdow);
                     collectionBankcards.add(collectionBankcardList.get(i));
                     collectionBankcards.add(collectionBankcardList.get(i - 1));
-//                    collectionBankcardService.saveAll(collectionBankcards);
+                    //                    collectionBankcardService.saveAll(collectionBankcards);
                     collectionBankcards.forEach(collectionBankcard -> {
-                        collectionBankcardService.updateSortIdById(collectionBankcard.getId(),collectionBankcard.getSortId());
+                        collectionBankcardService
+                            .updateSortIdById(collectionBankcard.getId(), collectionBankcard.getSortId());
                     });
                 }
             }
@@ -285,89 +303,104 @@ public class CollectionBankcardController {
      * @param collectionBankcardList
      * @param id
      */
-    private void saveBankInfoNumber3(List<CollectionBankcard> collectionBankcardList, Long id) {
+    //    private void saveBankInfoNumber3(List<CollectionBankcard> collectionBankcardList, Long id) {
+    //        int sort = 2;
+    //        for (CollectionBankcard collectionBankcard : collectionBankcardList) {
+    //            if(collectionBankcard.getId() == id){
+    //                collectionBankcard.setSortId(CommonConst.NUMBER_1);
+    //            }else{
+    //                collectionBankcard.setSortId(sort);
+    //                sort ++;
+    //            }
+    //        }
+    //        List<CollectionBankcard> list = new ArrayList<>();
+    //        list.addAll(collectionBankcardList);
+    //        collectionBankcardList.clear();
+    //        list.forEach(collectionBankcard -> {
+    //            collectionBankcardService.updateSortIdById(collectionBankcard.getId(),collectionBankcard.getSortId());
+    //        });
+    //        list.clear();
+    //
+    //    }
+    private void saveBankInfoNumber3(List<CollectionCardVo> collectionBankcardList, Long id) {
         int sort = 2;
-        for (CollectionBankcard collectionBankcard : collectionBankcardList) {
-            if(collectionBankcard.getId() == id){
+        for (CollectionCardVo collectionBankcard : collectionBankcardList) {
+            if (collectionBankcard.getId() == id) {
                 collectionBankcard.setSortId(CommonConst.NUMBER_1);
-            }else{
+            } else {
                 collectionBankcard.setSortId(sort);
-                sort ++;
+                sort++;
             }
         }
-//        collectionBankcardService.saveAll(collectionBankcardList);
         collectionBankcardList.forEach(collectionBankcard -> {
-            collectionBankcardService.updateSortIdById(collectionBankcard.getId(),collectionBankcard.getSortId());
+            collectionBankcardService.updateSortIdById(collectionBankcard.getId(), collectionBankcard.getSortId());
         });
+        collectionBankcardList.clear();
+
     }
 
-    @GetMapping("deleteBankInfo")
-    @ApiOperation("删除收款银行卡")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "id", required = true)
-    })
-    @Transactional
-    public ResponseEntity deleteBankInfo(Long id){
+    @GetMapping("deleteBankInfo") @ApiOperation("删除收款银行卡")
+    @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "id", required = true)}) @Transactional
+    public ResponseEntity deleteBankInfo(Long id) {
         CollectionBankcard collectionBankcard = collectionBankcardService.findById(id);
-        if(LoginUtil.checkNull(collectionBankcard)){
+        if (LoginUtil.checkNull(collectionBankcard)) {
             return ResponseUtil.custom("银行卡不存在");
         }
-        if (collectionBankcard.getDisable() == CommonConst.NUMBER_0){
+        if (collectionBankcard.getDisable() == CommonConst.NUMBER_0) {
             return ResponseUtil.custom("开启状态不能删除");
         }
-        Sort so = Sort.by("sortId").ascending();
-        List<CollectionBankcard> collectionBankcardList = collectionBankcardService.findAllSort(so);
-        if(collectionBankcardList.get(CommonConst.NUMBER_0).getSortId() == null
-                || collectionBankcardList.get(CommonConst.NUMBER_0).getSortId() != CommonConst.NUMBER_1){
+        //        Sort so = Sort.by("sortId").ascending();
+        //        List<CollectionBankcard> collectionBankcardList = collectionBankcardService.findAllSort(so);
+        List<Map<String, Object>> mapList = collectionBankcardService.find();
+        List<CollectionCardVo> collectionBankcardList = getCollectionBankcards(mapList);
+
+        if (collectionBankcardList.get(CommonConst.NUMBER_0).getSortId() == null
+            || collectionBankcardList.get(CommonConst.NUMBER_0).getSortId() != CommonConst.NUMBER_1) {
             setCollectionBankcardSoet(collectionBankcardList);
         }
-        List<CollectionBankcard> collectionBankcards = new ArrayList<>();
+        List<CollectionCardVo> collectionBankcards = new ArrayList<>();
         int sort = CommonConst.NUMBER_0;
-        for (CollectionBankcard bankcard : collectionBankcardList) {
-            if(id == bankcard.getId()){
+        for (CollectionCardVo bankcard : collectionBankcardList) {
+            if (id == bankcard.getId()) {
                 sort = bankcard.getSortId();
             }
         }
-        if(sort == CommonConst.NUMBER_0){
+        if (sort == CommonConst.NUMBER_0) {
             return ResponseUtil.success();
         }
         for (int i = 0; i < collectionBankcardList.size(); i++) {
             Integer sortId = collectionBankcardList.get(i).getSortId();
-            if(sort < sortId){
+            if (sort < sortId) {
                 collectionBankcardList.get(i).setSortId(collectionBankcardList.get(i).getSortId() - 1);
                 collectionBankcards.add(collectionBankcardList.get(i));
             }
         }
 
         collectionBankcardService.delete(collectionBankcard);
-//        collectionBankcardService.saveAll(collectionBankcards);
+        //        collectionBankcardService.saveAll(collectionBankcards);
         collectionBankcards.forEach(collectionBankcard1 -> {
-            collectionBankcardService.updateSortIdById(collectionBankcard1.getId(),collectionBankcard1.getSortId());
+            collectionBankcardService.updateSortIdById(collectionBankcard1.getId(), collectionBankcard1.getSortId());
         });
         return ResponseUtil.success();
     }
 
-    @ApiOperation("修改银行卡状态")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "id", required = true)
-    })
-    @PostMapping("updateDisable")
-    public ResponseEntity updateDisable(Long id){
+    @ApiOperation("修改银行卡状态") @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "id", required = true)})
+    @PostMapping("updateDisable") public ResponseEntity updateDisable(Long id) {
         CollectionBankcard collectionBankcard = collectionBankcardService.findById(id);
-        if(LoginUtil.checkNull(collectionBankcard)){
+        if (LoginUtil.checkNull(collectionBankcard)) {
             return ResponseUtil.custom("银行卡不存在");
         }
         return this.checkNumber(collectionBankcard);
     }
 
-    public synchronized ResponseEntity checkNumber( CollectionBankcard collectionBankcard){
-        if(collectionBankcard.getDisable() == Constants.BANK_OPEN){
+    public synchronized ResponseEntity checkNumber(CollectionBankcard collectionBankcard) {
+        if (collectionBankcard.getDisable() == Constants.BANK_OPEN) {
             collectionBankcard.setDisable(Constants.BANK_CLOSE);
-        }else{
+        } else {
             CollectionBankcard collection = new CollectionBankcard();
             collection.setDisable(Constants.BANK_OPEN);
             List<CollectionBankcard> all = collectionBankcardService.findAll(collection);
-            if (all.size() >= CommonConst.NUMBER_20){
+            if (all.size() >= CommonConst.NUMBER_20) {
                 return ResponseUtil.custom("收款卡最多上架20张");
             }
             collectionBankcard.setDisable(Constants.BANK_OPEN);

@@ -18,6 +18,7 @@ import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -79,7 +80,7 @@ public class CollectionBankcardService {
 //        collectionBankCardRepository.saveAll(collectionBankcardList);
 //    }
 
-    @CacheEvict(allEntries = true)
+//    @CacheEvict(allEntries = true)
     @Transactional
     public void updateSortIdById(Long id,Integer sortId){
         collectionBankCardRepository.updateSortIdById(id,sortId);
@@ -92,6 +93,10 @@ public class CollectionBankcardService {
 
     public List<CollectionBankcard> findAllSort(Sort sort) {
         return collectionBankCardRepository.findAll(sort);
+    }
+
+    public List<Map<String,Object>> find(){
+        return collectionBankCardRepository.find();
     }
 
     @Cacheable(key="'disable::' + #p0")
