@@ -129,7 +129,7 @@ public class CollectionBankcardController {
             return ResponseUtil.success(bankcard);
         }
         bankcard.setSortId(collectionBankcardList.size() + 1);
-        collectionBankcardService.save(bankcard);
+        bankcard = collectionBankcardService.save(bankcard);
         collectionBankcardList.add(bankcard);
         if(sortFlag == CommonConst.NUMBER_1){//置顶操作
             if(collectionBankcardList.get(CommonConst.NUMBER_0).getSortId() == null
@@ -222,7 +222,9 @@ public class CollectionBankcardController {
             collectionBankcard.setSortId(sort);
             sort++;
         }
-        collectionBankcardService.saveAll(collectionBankcardList);
+        collectionBankcardList.forEach(collectionBankcard -> {
+            collectionBankcardService.updateCollectionBankcardBysortId(collectionBankcard.getId(),collectionBankcard.getSortId());
+        });
     }
 
     /**
@@ -242,7 +244,10 @@ public class CollectionBankcardController {
                     collectionBankcardList.get(i + 1).setSortId(sortdow);
                     collectionBankcards.add(collectionBankcardList.get(i));
                     collectionBankcards.add(collectionBankcardList.get(i + 1));
-                    collectionBankcardService.saveAll(collectionBankcards);
+//                    collectionBankcardService.saveAll(collectionBankcards);
+                    collectionBankcards.forEach(collectionBankcard -> {
+                        collectionBankcardService.updateCollectionBankcardBysortId(collectionBankcard.getId(),collectionBankcard.getSortId());
+                    });
                 }
             }
         }
@@ -265,7 +270,10 @@ public class CollectionBankcardController {
                     collectionBankcardList.get(i - 1).setSortId(sortdow);
                     collectionBankcards.add(collectionBankcardList.get(i));
                     collectionBankcards.add(collectionBankcardList.get(i - 1));
-                    collectionBankcardService.saveAll(collectionBankcards);
+//                    collectionBankcardService.saveAll(collectionBankcards);
+                    collectionBankcards.forEach(collectionBankcard -> {
+                        collectionBankcardService.updateCollectionBankcardBysortId(collectionBankcard.getId(),collectionBankcard.getSortId());
+                    });
                 }
             }
         }
@@ -287,7 +295,10 @@ public class CollectionBankcardController {
                 sort ++;
             }
         }
-        collectionBankcardService.saveAll(collectionBankcardList);
+//        collectionBankcardService.saveAll(collectionBankcardList);
+        collectionBankcardList.forEach(collectionBankcard -> {
+            collectionBankcardService.updateCollectionBankcardBysortId(collectionBankcard.getId(),collectionBankcard.getSortId());
+        });
     }
 
     @GetMapping("deleteBankInfo")

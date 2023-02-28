@@ -15,6 +15,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.*;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -76,6 +77,12 @@ public class CollectionBankcardService {
     @CacheEvict(allEntries = true)
     public void saveAll(List<CollectionBankcard> collectionBankcardList) {
         collectionBankCardRepository.saveAll(collectionBankcardList);
+    }
+
+    @CacheEvict(allEntries = true)
+    @Transactional
+    public void updateCollectionBankcardBysortId(Long id,Integer sortId){
+        collectionBankCardRepository.updateCollectionBankcardBysortId(id,sortId);
     }
 
     public List<CollectionBankcard> findAll() {
