@@ -16,5 +16,5 @@ public interface CollectionBankCardRepository extends JpaRepository<CollectionBa
 
     @Modifying
     @Query(value = "update collection_bankcard t set t.sort_id = ?2 where t.id = ?1 ",nativeQuery = true)
-    void updateCollectionBankcardBysortId(Long id,Integer sortId);
+    void updateSortIdById(Long id,Integer sortId);
 }

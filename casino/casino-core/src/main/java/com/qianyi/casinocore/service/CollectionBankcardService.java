@@ -81,8 +81,8 @@ public class CollectionBankcardService {
 
     @CacheEvict(allEntries = true)
     @Transactional
-    public void updateCollectionBankcardBysortId(Long id,Integer sortId){
-        collectionBankCardRepository.updateCollectionBankcardBysortId(id,sortId);
+    public void updateSortIdById(Long id,Integer sortId){
+        collectionBankCardRepository.updateSortIdById(id,sortId);
     }
 
     public List<CollectionBankcard> findAll() {
