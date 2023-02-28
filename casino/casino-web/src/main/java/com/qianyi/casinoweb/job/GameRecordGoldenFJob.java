@@ -95,6 +95,12 @@ public class GameRecordGoldenFJob {
         try {
             // 从数据库获取最近的拉单时间和平台
             List<GoldenFTimeVO> timeVOS = getTimes(vendorCode);
+            if(vendorCode.equals(Constants.PLATFORM_PG)){
+                if(timeVOS.size() ==1){
+                    excutePull(true, vendorCode, timeVOS.get(0).getStartTime(),  timeVOS.get(0).getEndTime(),1);
+                }
+                return;
+            }
             timeVOS.forEach(item -> {
                 log.info("{},开始拉取{}到{}的注单数据", vendorCode, item.getStartTime(), item.getEndTime());
                 excutePull(true, vendorCode, item.getStartTime(), item.getEndTime(),1);
@@ -105,7 +111,7 @@ public class GameRecordGoldenFJob {
         }
     }
 
-    @Scheduled(initialDelay = 3000, fixedDelay = 1000 * 60 * 1)
+    @Scheduled(initialDelay = 3000, fixedDelay = 1000 * 60 * 5)
     public void pullGoldenF_PGBD() {
         PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
         if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
