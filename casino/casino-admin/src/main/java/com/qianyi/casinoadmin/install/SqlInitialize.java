@@ -55,29 +55,29 @@ public class SqlInitialize implements CommandLineRunner {
         // gameRecordEndIndexService.save(first);
         // gameRecordReportNewService.deleteByPlatform(Constants.PLATFORM_SABASPORT);
         // gameRecordReportNewService.saveGameRecordReportSABASPORT();
-        withdrawOrderService.updateWithdrawOrderWithdrawTime();
-
-        chargeOrderService.updateChargeOrderSucceedTime();
-
-        withdrawOrderService.updateWithdrawWithdrawTime();
+//        withdrawOrderService.updateWithdrawOrderWithdrawTime();
+//
+//        chargeOrderService.updateChargeOrderSucceedTime();
+//
+//        withdrawOrderService.updateWithdrawWithdrawTime();
 
         rptBetInfoDetailService.updateRptBetInfoDetailGamePlay();
 
         gameRecordDGService.updateGameRecordDGAvailableBet();
 
-        List<Bankcards> byRealNameLowercase = bankcardsService.findByRealNameLowercase();
-        if (CollUtil.isNotEmpty(byRealNameLowercase)) {
-            byRealNameLowercase.forEach(bankcards -> {
-                bankcards.setRealNameLowercase(CommonUtil.formatting(bankcards.getRealName()));
-                bankcardsService.boundCard(bankcards);
-            });
-        }
+//        List<Bankcards> byRealNameLowercase = bankcardsService.findByRealNameLowercase();
+//        if (CollUtil.isNotEmpty(byRealNameLowercase)) {
+//            byRealNameLowercase.forEach(bankcards -> {
+//                bankcards.setRealNameLowercase(CommonUtil.formatting(bankcards.getRealName()));
+//                bankcardsService.boundCard(bankcards);
+//            });
+//        }
 
-         GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
-         first.setDGMaxId(0L);
-         gameRecordEndIndexService.save(first);
-         gameRecordReportNewService.deleteDataByPlatform(Constants.PLATFORM_DG);
-         gameRecordReportNewService.saveGameRecordReportDG();
+//         GameRecordEndIndex first = gameRecordEndIndexService.findUGameRecordEndIndexUseLock();
+//         first.setDGMaxId(0L);
+//         gameRecordEndIndexService.save(first);
+//         gameRecordReportNewService.deleteDataByPlatform(Constants.PLATFORM_DG);
+//         gameRecordReportNewService.saveGameRecordReportDG();
 
         // // 计算最近十天注单
 //        Calendar nowTime = Calendar.getInstance();
