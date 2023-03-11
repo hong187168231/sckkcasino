@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface LevelWaterChangeRepository extends JpaRepository<LevelWaterChange,Long>, JpaSpecificationExecutor<LevelWaterChange> {
 
@@ -19,6 +20,6 @@ public interface LevelWaterChangeRepository extends JpaRepository<LevelWaterChan
     LevelWaterChange findByUserId(Long userId);
 
     @Query
-    LevelWaterChange findByGameRecordId(Long userId);
+    List<LevelWaterChange> findByGameRecordId(Long userId);
 
 }

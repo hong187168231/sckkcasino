@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class LevelWaterChangeService {
@@ -22,7 +23,7 @@ public class LevelWaterChangeService {
     }
 
 
-    public LevelWaterChange findByGameRecordId(Long gameRecordId) {
+    public List<LevelWaterChange> findByGameRecordId(Long gameRecordId) {
         return levelWaterChangeRepository.findByGameRecordId(gameRecordId);
     }
 
