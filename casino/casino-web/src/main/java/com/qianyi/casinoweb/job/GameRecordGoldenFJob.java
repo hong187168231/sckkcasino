@@ -96,9 +96,9 @@ public class GameRecordGoldenFJob {
             // 从数据库获取最近的拉单时间和平台
             List<GoldenFTimeVO> timeVOS = getTimes(vendorCode);
             if(vendorCode.equals(Constants.PLATFORM_PG)){
-                if(timeVOS.size() ==1){
+//                if(timeVOS.size() ==1){
                     excutePull(true, vendorCode, timeVOS.get(0).getStartTime(),  timeVOS.get(0).getEndTime(),1);
-                }
+//                }
                 return;
             }
             timeVOS.forEach(item -> {
