@@ -51,7 +51,7 @@ public class GameRecordDGJob {
     private PlatformGameService platformGameService;
 
     //每隔5分钟30秒执行一次
-    @Scheduled(cron = "30 0/5 * * * ?")
+    @Scheduled(cron = "30 0/1 * * * ?")
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_DG);
         //平台关闭，但是拉单还是要继续进行
@@ -171,10 +171,15 @@ public class GameRecordDGJob {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         List<Long> idList = new ArrayList<>();
         for (DGTradeReportVo gameRecordDGVo : gameRecordDGVoList) {
-            if (1==gameRecordDGVo.getIsRevocation()){//是否结算：1：已结算 2:撤销
-                GameRecordDG gameRecord = save(gameRecordDGVo);
-                log.info("DG保存注单完毕id:{}userId:{}isRevocation:{}",gameRecord.getId(),gameRecord.getUserId(),gameRecord.getIsRevocation());
-                business(Constants.PLATFORM_DG, gameRecord, platformConfig);
+            if(!"TBUSER".equals(gameRecordDGVo.getUserName())&&!"LULUUSER".equals(gameRecordDGVo.getUserName())
+                    &&!"YUTEST1".equals(gameRecordDGVo.getUserName())&&!"ANAN01".equals(gameRecordDGVo.getUserName())
+                &&!"ANAN03".equals(gameRecordDGVo.getUserName())&&!"TBUSER1".equals(gameRecordDGVo.getUserName())
+                    &&!"YUTEST2".equals(gameRecordDGVo.getUserName())) {
+                if (1 == gameRecordDGVo.getIsRevocation()) {//是否结算：1：已结算 2:撤销
+                    GameRecordDG gameRecord = save(gameRecordDGVo);
+                    log.info("DG保存注单完毕id:{}userId:{}isRevocation:{}", gameRecord.getId(), gameRecord.getUserId(), gameRecord.getIsRevocation());
+                    business(Constants.PLATFORM_DG, gameRecord, platformConfig);
+                }
             }
             idList.add(gameRecordDGVo.getId());
         }
