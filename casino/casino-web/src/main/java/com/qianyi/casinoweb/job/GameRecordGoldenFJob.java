@@ -8,11 +8,13 @@ import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.RedisKeyUtil;
 import com.qianyi.casinoweb.util.DateUtil;
+import com.qianyi.casinoweb.util.SplitListUtils;
 import com.qianyi.casinoweb.vo.GameRecordObj;
 import com.qianyi.casinoweb.vo.GoldenFTimeVO;
 import com.qianyi.livegoldenf.api.PublicGoldenFApi;
 import com.qianyi.modulecommon.Constants;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.formula.functions.T;
 import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -23,6 +25,9 @@ import org.springframework.util.ObjectUtils;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -80,7 +85,6 @@ public class GameRecordGoldenFJob {
         }
     }
 
-
     @Scheduled(initialDelay = 10000, fixedDelay = 1000 * 60 * 2)
     public void pullGoldenF_PG() {
         PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
@@ -95,15 +99,15 @@ public class GameRecordGoldenFJob {
         try {
             // 从数据库获取最近的拉单时间和平台
             List<GoldenFTimeVO> timeVOS = getTimes(vendorCode);
-            if(vendorCode.equals(Constants.PLATFORM_PG)){
-                if(timeVOS.size() ==1){
-                    excutePull(true, vendorCode, timeVOS.get(0).getStartTime(),  timeVOS.get(0).getEndTime(),1);
+            if (vendorCode.equals(Constants.PLATFORM_PG)) {
+                if (timeVOS.size() == 1) {
+                    excutePull(true, vendorCode, timeVOS.get(0).getStartTime(), timeVOS.get(0).getEndTime(), 1);
                 }
                 return;
             }
             timeVOS.forEach(item -> {
                 log.info("{},开始拉取{}到{}的注单数据", vendorCode, item.getStartTime(), item.getEndTime());
-                excutePull(true, vendorCode, item.getStartTime(), item.getEndTime(),1);
+                excutePull(true, vendorCode, item.getStartTime(), item.getEndTime(), 1);
                 log.info("{},{}到{}数据拉取完成", vendorCode, item.getStartTime(), item.getEndTime());
             });
         } catch (Exception e) {
@@ -121,7 +125,6 @@ public class GameRecordGoldenFJob {
         }
     }
 
-
     private void pullGameRecordPGBD(String vendorCode) {
         try {
             // 从数据库获取最近的拉单时间和平台
@@ -129,9 +132,11 @@ public class GameRecordGoldenFJob {
             if (CollectionUtil.isNotEmpty(timeVOS) && timeVOS.size() > 1) {
                 log.error("PG补单当前时间==【{}】 当前条数==> [{}]", timeVOS.get(0).getStartTime(), timeVOS.size());
                 for (GoldenFTimeVO item : timeVOS) {
-                    log.error("{},PG1开始补单{}到{}的注单数据", Constants.PLATFORM_PG, item.getStartTime(), item.getEndTime());
-                    excutePull(true, Constants.PLATFORM_PG, item.getStartTime(), item.getEndTime(),2);
-                    log.error("{},{}PG1到{}数据补单完成", Constants.PLATFORM_PG, item.getStartTime(), item.getEndTime());
+                    log.error("{},PG1开始补单{}到{}的注单数据", Constants.PLATFORM_PG, item.getStartTime(),
+                        item.getEndTime());
+                    excutePull(true, Constants.PLATFORM_PG, item.getStartTime(), item.getEndTime(), 2);
+                    log.error("{},{}PG1到{}数据补单完成", Constants.PLATFORM_PG, item.getStartTime(),
+                        item.getEndTime());
                 }
                 log.warn("PG数据补单完成补单结果条数 ===>> {}", timeVOS.size());
             }
@@ -149,7 +154,7 @@ public class GameRecordGoldenFJob {
     public void supplementPullGameRecord(String vendorCode, List<GoldenFTimeVO> timeVOS) {
         timeVOS.forEach(item -> {
             log.info("{},开始补单{}到{}的注单数据", vendorCode, item.getStartTime(), item.getEndTime());
-            excutePull(false, vendorCode, item.getStartTime(), item.getEndTime(),3);
+            excutePull(false, vendorCode, item.getStartTime(), item.getEndTime(), 3);
             log.info("{},{}到{}数据补单完成", vendorCode, item.getStartTime(), item.getEndTime());
         });
     }
@@ -189,10 +194,6 @@ public class GameRecordGoldenFJob {
         return timeVOS;
     }
 
-
-
-
-
     private void excutePull(boolean pull, String vendorCode, Long startTime, Long endTime, Integer pullType) {
         log.info("startime is {}  endtime is {}", startTime, endTime);
         Integer failCount = 0;
@@ -224,7 +225,7 @@ public class GameRecordGoldenFJob {
             page++;
         }
         if (pull && successRequestFlag) {
-            processSuccessRequest(startTime, endTime, vendorCode,pullType);
+            processSuccessRequest(startTime, endTime, vendorCode, pullType);
         }
     }
 
@@ -252,8 +253,8 @@ public class GameRecordGoldenFJob {
             log.info("reponseEntity is {}", responseEntity);
             GameRecordObj gameRecordObj = JSON.parseObject(responseEntity.getData(), GameRecordObj.class);
             List<GameRecordGoldenF> recordGoldenFS = gameRecordObj.getBetlogs();
-            processRecords(recordGoldenFS);
-            return gameRecordObj.getPage() >= gameRecordObj.getPageCount();
+            processRecords2(recordGoldenFS);
+            return true;
         } catch (Exception ex) {
             log.error("处理结果集异常", ex);
             return false;
@@ -274,15 +275,70 @@ public class GameRecordGoldenFJob {
             if (item.getCreatedAt() != null) {
                 item.setCreateAtStr(DateUtil.timeStamp2Date(item.getCreatedAt(), ""));
             }
-            saveToDB(item, platformConfig,user);
+            saveToDB(item, platformConfig, user);
         });
+    }
+
+    private void processRecords2(List<GameRecordGoldenF> recordGoldenFS) {
+        PlatformConfig platformConfig = platformConfigService.findFirst();
+        // 初始化线程池, 参数一定要一定要一定要调好！！！！
+        ThreadPoolExecutor threadPool =
+            new ThreadPoolExecutor(20, 50, 4, TimeUnit.SECONDS, new ArrayBlockingQueue<>(10),
+                new ThreadPoolExecutor.AbortPolicy());
+        // 大集合拆分成N个小集合, 这里集合的size可以稍微小一些（这里我用100刚刚好）, 以保证多线程异步执行, 过大容易回到单线程
+        List<List<GameRecordGoldenF>> splitNList = SplitListUtils.split(recordGoldenFS, 20);
+        // 记录单个任务的执行次数
+        CountDownLatch countDownLatch = new CountDownLatch(recordGoldenFS.size());
+
+        // 对拆分的集合进行批量处理, 先拆分的集合, 再多线程执行
+        for (List<GameRecordGoldenF> singleList : splitNList) {
+            // 线程池执行
+            threadPool.execute(new Thread(() -> {
+                for (GameRecordGoldenF item : singleList) {
+                    UserThird userThird = userThirdService.findByGoldenfAccount(item.getPlayerName());
+                    if (userThird == null) {
+                        return;
+                    }
+                    User user = userService.findById(userThird.getUserId());
+                    item.setUserId(userThird.getUserId());
+                    item.setFirstProxy(user.getFirstProxy());
+                    item.setSecondProxy(user.getSecondProxy());
+                    item.setThirdProxy(user.getThirdProxy());
+                    if (item.getCreatedAt() != null) {
+                        item.setCreateAtStr(DateUtil.timeStamp2Date(item.getCreatedAt(), ""));
+                    }
+
+                    GameRecordGoldenF gameRecordGoldenF =
+                        gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
+                    if (gameRecordGoldenF != null) {
+                        return;
+                    }
+                    gameRecordGoldenFService.save(item);
+                    // 改变用户实时余额
+                    changeUserBalance(item);
+                    GameRecord gameRecord = combineGameRecord(item);
+                    // 发送注单消息到MQ后台要统计数据
+                    gameRecordAsyncOper.proxyGameRecordReport(item.getVendorCode(), gameRecord);
+                    processBusiness(item, gameRecord, platformConfig, user);
+
+                }
+            }));
+            // 任务个数 - 1, 直至为0时唤醒await()
+            countDownLatch.countDown();
+        }
+        try {
+            // 让当前线程处于阻塞状态，直到锁存器计数为零
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            log.error("pg拉单线程执行异常");
+        }
     }
 
     private String convertStdTime(Long seconds) {
         return simpleDateFormat.format(seconds);
     }
 
-    private void saveToDB(GameRecordGoldenF item, PlatformConfig platformConfig,User user) {
+    private void saveToDB(GameRecordGoldenF item, PlatformConfig platformConfig, User user) {
         try {
             GameRecordGoldenF gameRecordGoldenF =
                 gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
@@ -295,11 +351,10 @@ public class GameRecordGoldenFJob {
             GameRecord gameRecord = combineGameRecord(item);
             // 发送注单消息到MQ后台要统计数据
             gameRecordAsyncOper.proxyGameRecordReport(item.getVendorCode(), gameRecord);
-            processBusiness(item, gameRecord, platformConfig,user);
+            processBusiness(item, gameRecord, platformConfig, user);
         } catch (Exception e) {
             log.error("注单数据保存失败,msg={}", e.getMessage());
         }
-
     }
 
     /**
@@ -333,7 +388,7 @@ public class GameRecordGoldenFJob {
     }
 
     private void processBusiness(GameRecordGoldenF gameRecordGoldenF, GameRecord gameRecord,
-        PlatformConfig platformConfig,User user) {
+        PlatformConfig platformConfig, User user) {
         if (gameRecordGoldenF.getBetAmount().compareTo(BigDecimal.ZERO) == 0)
             return;
         if (!gameRecordGoldenF.getTransType().equals(GoldenFConstant.GOLDENF_STAKE))
@@ -345,7 +400,7 @@ public class GameRecordGoldenFJob {
         // 扣减打码量
         gameRecordAsyncOper.subCodeNum(gameRecordGoldenF.getVendorCode(), platformConfig, gameRecord);
         //代理分润
-        if (Objects.nonNull(user) && Objects.nonNull(user.getThirdPid()) && user.getThirdPid() != 0L){//没有上级不分润
+        if (Objects.nonNull(user) && Objects.nonNull(user.getThirdPid()) && user.getThirdPid() != 0L) {//没有上级不分润
             gameRecordAsyncOper.shareProfit(gameRecordGoldenF.getVendorCode(), gameRecord);
         }
         // 返利
@@ -388,5 +443,35 @@ public class GameRecordGoldenFJob {
         }
         return gameRecord;
     }
+
+//    public void threadMethod() {
+//        List<GoldenFTimeVO> updateList = new ArrayList<>();
+//        // 初始化线程池, 参数一定要一定要一定要调好！！！！
+//        ThreadPoolExecutor threadPool =
+//            new ThreadPoolExecutor(20, 50, 4, TimeUnit.SECONDS, new ArrayBlockingQueue<>(10),
+//                new ThreadPoolExecutor.AbortPolicy());
+//        // 记录单个任务的执行次数
+//        CountDownLatch countDownLatch = new CountDownLatch(updateList.size());
+//        // 线程池执行
+//        threadPool.execute(new Thread(() -> {
+//            for (GoldenFTimeVO singleList : updateList) {
+//
+//            }
+//        }));
+//        // 任务个数 - 1, 直至为0时唤醒await()
+//        countDownLatch.countDown();
+//
+//        try {
+//            // 让当前线程处于阻塞状态，直到锁存器计数为零
+//            countDownLatch.await();
+//        } catch (InterruptedException e) {
+//            log.error("pg拉单线程执行异常");
+//        }
+//        // 通过mybatis的批量插入的方式来进行数据的插入, 这一步还是要做判空
+//        if (GeneralUtil.listNotNull(updateList)) {
+//            batchUpdateEntity(updateList);
+//            LogUtil.info("xxxxxxxxxxxxxxx");
+//        }
+//    }
 
 }
