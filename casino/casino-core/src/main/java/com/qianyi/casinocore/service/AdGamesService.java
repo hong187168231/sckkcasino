@@ -31,7 +31,7 @@ public class AdGamesService {
         return adGameRepository.findByGameCode(gameCode);
     }
 
-//    @Cacheable(key = "#root.methodName+'::'+#p0+'::'+#p1")
+    @Cacheable(key = "#root.methodName+'::'+#p0+'::'+#p1")
     public AdGame findByGamePlatformNameAndGameCode(String gamePlatformName,String gameCode) {
         return adGameRepository.findByGamePlatformNameAndGameCode(gamePlatformName,gameCode);
     }
