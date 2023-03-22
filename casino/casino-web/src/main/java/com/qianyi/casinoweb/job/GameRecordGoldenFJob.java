@@ -111,15 +111,15 @@ public class GameRecordGoldenFJob {
         }
     }
 
-//    @Scheduled(initialDelay = 3000, fixedDelay = 1000 * 60 * 1)
-//    public void pullGoldenF_PGBD() {
-//        PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
-//        if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
-//            log.info("后台已关闭PG,无需拉单,platformGame={}", pgPlatformGame);
-//        } else {
-//            pullGameRecordPGBD(Constants.PLATFORM_PG);
-//        }
-//    }
+    @Scheduled(initialDelay = 3000, fixedDelay = 1000 * 60 * 1)
+    public void pullGoldenF_PGBD() {
+        PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
+        if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
+            log.info("后台已关闭PG,无需拉单,platformGame={}", pgPlatformGame);
+        } else {
+            pullGameRecordPGBD(Constants.PLATFORM_PG);
+        }
+    }
 
 
     private void pullGameRecordPGBD(String vendorCode) {
@@ -291,7 +291,7 @@ public class GameRecordGoldenFJob {
             }
             gameRecordGoldenFService.save(item);
             // 改变用户实时余额
-            changeUserBalance(item);
+            gameRecordAsyncOper.changeUserBalancePg(item);
             GameRecord gameRecord = combineGameRecord(item);
             // 发送注单消息到MQ后台要统计数据
             gameRecordAsyncOper.proxyGameRecordReport(item.getVendorCode(), gameRecord);

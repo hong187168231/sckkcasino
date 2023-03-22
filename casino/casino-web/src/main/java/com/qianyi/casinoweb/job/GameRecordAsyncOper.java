@@ -182,9 +182,7 @@ public class GameRecordAsyncOper {
     @Async("asyncExecutor")
     public void changeUserBalancePg(GameRecordGoldenF gameRecordGoldenF) {
         Long userId = gameRecordGoldenF.getUserId();
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyNotFairLock(userId.toString());
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             BigDecimal betAmount = gameRecordGoldenF.getBetAmount();
             BigDecimal winAmount = gameRecordGoldenF.getWinAmount();
             if (betAmount == null || winAmount == null) {
@@ -201,9 +199,6 @@ public class GameRecordAsyncOper {
             }
         } catch (Exception e) {
             log.error("改变用户实时余额时报错，msg={}", e.getMessage());
-        } finally {
-            // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
         }
     }
 
