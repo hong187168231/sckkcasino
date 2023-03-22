@@ -18,7 +18,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class ThreadPoolConfig
 {
     // 核心线程池大小
-    private int corePoolSize = 300;
+    private int corePoolSize = 200;
 
 
     /**
