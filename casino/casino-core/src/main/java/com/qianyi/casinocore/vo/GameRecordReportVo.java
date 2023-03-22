@@ -15,7 +15,12 @@ public class GameRecordReportVo implements Serializable {
     @ApiModelProperty(value = "代理账号")
     private String account;
     private Long accountId;
+    @ApiModelProperty("是否有下级代理 ")
     private Boolean hasChildren;
+
+    @ApiModelProperty("父级Id")
+    private Long topLevelFirstProxy;
+
     @ApiModelProperty("投注笔数")
     private Integer bettingNumber;
     @ApiModelProperty(value = "洗码金额")
