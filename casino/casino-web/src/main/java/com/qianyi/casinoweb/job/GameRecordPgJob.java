@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.constant.GoldenFConstant;
+import com.qianyi.casinocore.exception.BusinessException;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.RedisKeyUtil;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
@@ -25,10 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @Component
 @Slf4j
@@ -66,9 +65,8 @@ public class GameRecordPgJob {
     @Autowired
     private RedisKeyUtil redisKeyUtil;
 
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-
+    private ExecutorService executorService =
+        Executors.newFixedThreadPool(32, new CustomizableThreadFactory("process-records-"));
 
     @Scheduled(initialDelay = 7000, fixedDelay = 1000 * 60 * 2)
     public void pullGoldenF_PGBD() {
@@ -99,7 +97,6 @@ public class GameRecordPgJob {
             log.error("PG补取注单时报错,vendorCode={},msg={}", vendorCode, e.getMessage());
         }
     }
-
 
     private Long getGoldenStartTime(GameRecordGoldenfEndTime gameRecordGoldenfEndTime) {
         Long startTime = 0l;
@@ -195,7 +192,7 @@ public class GameRecordPgJob {
             log.info("reponseEntity is {}", responseEntity);
             GameRecordObj gameRecordObj = JSON.parseObject(responseEntity.getData(), GameRecordObj.class);
             List<GameRecordGoldenF> recordGoldenFS = gameRecordObj.getBetlogs();
-            processRecords2(recordGoldenFS);
+            processRecords3(recordGoldenFS);
             return true;
         } catch (Exception ex) {
             log.error("处理结果集异常", ex);
@@ -203,59 +200,67 @@ public class GameRecordPgJob {
         }
     }
 
-
-    private void processRecords2(List<GameRecordGoldenF> recordGoldenFS) {
+    private void processRecords3(List<GameRecordGoldenF> recordGoldenFS) {
         PlatformConfig platformConfig = platformConfigService.findFirst();
-        // 初始化线程池, 参数一定要一定要一定要调好！！！！
-        ThreadPoolExecutor threadPool =
-            new ThreadPoolExecutor(10, 70, 10, TimeUnit.MINUTES, new ArrayBlockingQueue<>(20),
-                new ThreadPoolExecutor.AbortPolicy());
         // 大集合拆分成N个小集合, 这里集合的size可以稍微小一些（这里我用100刚刚好）, 以保证多线程异步执行, 过大容易回到单线程
         List<List<GameRecordGoldenF>> splitNList = SplitListUtils.split(recordGoldenFS, 10);
         // 记录单个任务的执行次数
-        CountDownLatch countDownLatch = new CountDownLatch(recordGoldenFS.size());
+        log.error("拆分前面的list" + JSON.toJSONString(splitNList));
+        CountDownLatch countDownLatch = new CountDownLatch(splitNList.size());
         long start = System.currentTimeMillis();
         // 对拆分的集合进行批量处理, 先拆分的集合, 再多线程执行
         for (List<GameRecordGoldenF> singleList : splitNList) {
             // 线程池执行
-            threadPool.execute(new Thread(() -> {
-                for (GameRecordGoldenF item : singleList) {
-                    System.out.println(1111);
-                    UserThird userThird = userThirdService.findByGoldenfAccount("a736f02e48464da49744");
-                    if (userThird == null) {
-                        return;
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        log.info("singleList长度={}", singleList.size());
+                        for (GameRecordGoldenF item : singleList) {
+                            //log.error("拆分后面的list" + JSON.toJSONString(singleList));
+                            UserThird userThird = userThirdService.findByGoldenfAccount(item.getPlayerName());
+                            if (userThird == null) {
+                                log.warn("userThird is null");
+                                continue;
+                            }
+                            User user = userService.findById(userThird.getUserId());
+                            item.setUserId(userThird.getUserId());
+                            item.setFirstProxy(user.getFirstProxy());
+                            item.setSecondProxy(user.getSecondProxy());
+                            item.setThirdProxy(user.getThirdProxy());
+                            if (item.getCreatedAt() != null) {
+                                item.setCreateAtStr(DateUtil.timeStamp2Date(item.getCreatedAt(), ""));
+                            }
+                            GameRecordGoldenF gameRecordGoldenF =
+                                gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
+                            if (gameRecordGoldenF != null) {
+                                log.warn("gameRecordGoldenF is not null");
+                                continue;
+                            }
+                            gameRecordGoldenFService.save(item);
+                            log.info("item保存成功,id={}", item.getId());
+                            // 改变用户实时余额
+                            changeUserBalance(item);
+                            GameRecord gameRecord = combineGameRecord(item);
+                            // 发送注单消息到MQ后台要统计数据
+                            gameRecordAsyncOper.proxyGameRecordReport(item.getVendorCode(), gameRecord);
+                            processBusiness(item, gameRecord, platformConfig, user);
+                        }
+                    } catch (Exception e) {
+                        log.error("singleList error", e);
+                    } finally {
+                        countDownLatch.countDown();
                     }
-                    User user = userService.findById(userThird.getUserId());
-                    item.setUserId(userThird.getUserId());
-                    item.setFirstProxy(user.getFirstProxy());
-                    item.setSecondProxy(user.getSecondProxy());
-                    item.setThirdProxy(user.getThirdProxy());
-                    if (item.getCreatedAt() != null) {
-                        item.setCreateAtStr(DateUtil.timeStamp2Date(item.getCreatedAt(), ""));
-                    }
-
-                    GameRecordGoldenF gameRecordGoldenF =
-                        gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
-                    if (gameRecordGoldenF != null) {
-                        return;
-                    }
-                    gameRecordGoldenFService.save(item);
-                    // 改变用户实时余额
-                    changeUserBalance(item);
-                    GameRecord gameRecord = combineGameRecord(item);
-                    // 发送注单消息到MQ后台要统计数据
-                    gameRecordAsyncOper.proxyGameRecordReport(item.getVendorCode(), gameRecord);
-                    processBusiness(item, gameRecord, platformConfig, user);
-                    System.out.println("end");
                 }
-            }));
-            // 任务个数 - 1, 直至为0时唤醒await()
-            countDownLatch.countDown();
+            });
+        }
+        try {
+            countDownLatch.await();
+        } catch (Exception e) {
+            throw new RuntimeException("countDownLatch阻塞等待出错", e);
         }
         log.info("/payTypeList{}毫秒", (System.currentTimeMillis() - start));
     }
-
-
 
     /**
      * 改变用户实时余额
