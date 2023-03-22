@@ -255,7 +255,7 @@ public class GameRecordPgJob {
             });
         }
         try {
-            countDownLatch.await();
+            countDownLatch.await(2,TimeUnit.MINUTES);
         } catch (Exception e) {
             throw new RuntimeException("countDownLatch阻塞等待出错", e);
         }
