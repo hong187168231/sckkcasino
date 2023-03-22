@@ -67,6 +67,10 @@ public class RedisKeyUtil {
         return redissonClient.getFairLock(RedisKeyUtil.USER_MONEY_LOCK + userId);
     }
 
+    public RLock getUserMoneyNotFairLock(String userId) {
+        return redissonClient.getLock(RedisKeyUtil.USER_MONEY_LOCK + userId);
+    }
+
     /**
      * 全局会员银行卡锁
      *
