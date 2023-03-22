@@ -59,11 +59,12 @@ public class InTimeReportController {
         @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
         @ApiImplicitParam(name = "agentMark", value = "代理标识", required = false),
         @ApiImplicitParam(name = "agentId", value = "总代id", required = false),
+        @ApiImplicitParam(name = "currentAgentId", value = "当前登录代理id", required = true),
         @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
         @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
         @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
-    public ResponseEntity<GameRecordReportVo> find(Integer pageSize, Integer pageCode, String userName,Boolean agentMark,Integer agentId, String platform, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+    public ResponseEntity<GameRecordReportVo> find(Integer pageSize, Integer pageCode, String userName,Boolean agentMark,Integer agentId, Long currentAgentId, String platform, @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (CasinoProxyUtil.checkNull(startDate,endDate,agentMark)){
             return ResponseUtil.custom("参数不合法");
@@ -86,6 +87,7 @@ public class InTimeReportController {
         gameRecordReport.setPlatform(platform);
         Long proxyId = null;
         Integer proxyRole = null;
+        Integer currentRole = null;
         Boolean mark = true;
         Long firstProxy = 0l;
         if (!CasinoProxyUtil.checkNull(userName)){
@@ -100,7 +102,10 @@ public class InTimeReportController {
                 mark=false;
             }
         }
-        Page<GameRecordReportNew> gameRecordReportPage = gameRecordReportNewService.findGameRecordReportPage(pageable, gameRecordReport, startTime, endTime,proxyId,proxyRole,agentMark,agentId);
+        ProxyUser  proxyUserId = proxyUserService.findById(currentAgentId);
+        currentRole=proxyUserId.getProxyRole();
+
+        Page<GameRecordReportNew> gameRecordReportPage = gameRecordReportNewService.findGameRecordReportPageProxy(pageable, gameRecordReport, startTime, endTime,proxyId,proxyRole,agentMark,agentId , currentRole,currentAgentId);
         PageResultVO<GameRecordReportVo> pageResultVO = new PageResultVO(gameRecordReportPage);
         List<GameRecordReportNew> gameRecordReports = gameRecordReportPage.getContent();
         if(!CasinoProxyUtil.checkNull(gameRecordReports) && gameRecordReports.size() > 0){
