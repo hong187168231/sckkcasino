@@ -63,23 +63,6 @@ public class GameRecordGoldenFJob {
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    // 每隔2分钟执行一次
-    @Scheduled(cron = "0 0/2 * * * ?")
-    public void pullGoldenF() {
-        PlatformGame cq9PlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_CQ9);
-        if (cq9PlatformGame != null && cq9PlatformGame.getGameStatus() == 2) {
-            log.info("后台已关闭CQ9,无需拉单,platformGame={}", cq9PlatformGame);
-        } else {
-            pullGameRecord(Constants.PLATFORM_CQ9);
-        }
-        PlatformGame sabaPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_SABASPORT);
-        if (sabaPlatformGame != null && sabaPlatformGame.getGameStatus() == 2) {
-            log.info("后台已关闭沙巴体育,无需拉单,platformGame={}", sabaPlatformGame);
-        } else {
-            pullGameRecord(Constants.PLATFORM_SABASPORT);
-        }
-    }
-
 
     @Scheduled(initialDelay = 10000, fixedDelay = 1000 * 60 * 2)
     public void pullGoldenF_PG() {
