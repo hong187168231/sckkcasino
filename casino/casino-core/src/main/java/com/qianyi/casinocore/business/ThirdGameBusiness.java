@@ -683,72 +683,72 @@ public class ThirdGameBusiness {
      */
     public ResponseEntity oneKeyRecoverOtherGame(Long userId, String platform) {
         log.info("进入游戏统一回收余额开始==============================================>");
-        long startTime = System.currentTimeMillis();
-        List<CompletableFuture> completableFutures = new ArrayList<>();
-        if (!Constants.PLATFORM_WM_BIG.equals(platform)) {
-            CompletableFuture<Void> oneKeyRecoverWm = CompletableFuture.runAsync(() -> {
-                oneKeyRecoverWm(userId);
-            }, executor);
-            completableFutures.add(oneKeyRecoverWm);
-        }
-        if (!Constants.PLATFORM_PG_CQ9.equals(platform)) {
-            CompletableFuture<Void> oneKeyRecoverGoldenF = CompletableFuture.runAsync(() -> {
-                oneKeyRecoverGoldenF(userId, Constants.PLATFORM_PG_CQ9);
-            }, executor);
-            completableFutures.add(oneKeyRecoverGoldenF);
-        }
-        if (!Constants.PLATFORM_SABASPORT.equals(platform)) {
-            CompletableFuture<Void> oneKeyRecoverGoldenF = CompletableFuture.runAsync(() -> {
-                oneKeyRecoverGoldenF(userId, Constants.PLATFORM_SABASPORT);
-            }, executor);
-            completableFutures.add(oneKeyRecoverGoldenF);
-        }
-        if (!Constants.PLATFORM_OBDJ.equals(platform)) {
-            CompletableFuture<Void> oneKeyRecoverObdj = CompletableFuture.runAsync(() -> {
-                oneKeyRecoverObdj(userId);
-            }, executor);
-            completableFutures.add(oneKeyRecoverObdj);
-        }
-        if (!Constants.PLATFORM_OBTY.equals(platform)) {
-            CompletableFuture<Void> oneKeyRecoverObty = CompletableFuture.runAsync(() -> {
-                oneKeyRecoverObty(userId);
-            }, executor);
-            completableFutures.add(oneKeyRecoverObty);
-        }
-        if (!Constants.PLATFORM_OBZR.equals(platform)) {
-            CompletableFuture<Void> oneKeyRecoverObzr = CompletableFuture.runAsync(() -> {
-                oneKeyRecoverObzr(userId);
-            }, executor);
-            completableFutures.add(oneKeyRecoverObzr);
-        }
-        if (!Constants.PLATFORM_AE.equals(platform)) {
-            CompletableFuture<Void> oneKeyRecoverAe = CompletableFuture.runAsync(() -> {
-                oneKeyRecoverAe(userId);
-            }, executor);
-            completableFutures.add(oneKeyRecoverAe);
-        }
-        if (!Constants.PLATFORM_DMC.equals(platform)) {
-            CompletableFuture<Void> oneKeyRecoverDmc = CompletableFuture.runAsync(() -> {
-                oneKeyRecoverDMC(userId);
-            }, executor);
-            completableFutures.add(oneKeyRecoverDmc);
-        }
-        if (!Constants.PLATFORM_VNC.equals(platform)) {
-            CompletableFuture<Void> oneKeyRecoverAe = CompletableFuture.runAsync(() -> {
-                oneKeyRecoverVNC(userId);
-            }, executor);
-            completableFutures.add(oneKeyRecoverAe);
-        }
-        if (!Constants.PLATFORM_DG.equals(platform)) {
-            CompletableFuture<Void> oneKeyRecoverAe = CompletableFuture.runAsync(() -> {
-                oneKeyRecoverDG(userId);
-            }, executor);
-            completableFutures.add(oneKeyRecoverAe);
-        }
-        // 等待所有子线程计算完成
-        CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[completableFutures.size()])).join();
-        log.info("进入游戏统一回收余额结束耗时{} userId:{}==============================================>",
-            System.currentTimeMillis() - startTime,userId);
+//        long startTime = System.currentTimeMillis();
+//        List<CompletableFuture> completableFutures = new ArrayList<>();
+//        if (!Constants.PLATFORM_WM_BIG.equals(platform)) {
+//            CompletableFuture<Void> oneKeyRecoverWm = CompletableFuture.runAsync(() -> {
+//                oneKeyRecoverWm(userId);
+//            }, executor);
+//            completableFutures.add(oneKeyRecoverWm);
+//        }
+//        if (!Constants.PLATFORM_PG_CQ9.equals(platform)) {
+//            CompletableFuture<Void> oneKeyRecoverGoldenF = CompletableFuture.runAsync(() -> {
+//                oneKeyRecoverGoldenF(userId, Constants.PLATFORM_PG_CQ9);
+//            }, executor);
+//            completableFutures.add(oneKeyRecoverGoldenF);
+//        }
+//        if (!Constants.PLATFORM_SABASPORT.equals(platform)) {
+//            CompletableFuture<Void> oneKeyRecoverGoldenF = CompletableFuture.runAsync(() -> {
+//                oneKeyRecoverGoldenF(userId, Constants.PLATFORM_SABASPORT);
+//            }, executor);
+//            completableFutures.add(oneKeyRecoverGoldenF);
+//        }
+//        if (!Constants.PLATFORM_OBDJ.equals(platform)) {
+//            CompletableFuture<Void> oneKeyRecoverObdj = CompletableFuture.runAsync(() -> {
+//                oneKeyRecoverObdj(userId);
+//            }, executor);
+//            completableFutures.add(oneKeyRecoverObdj);
+//        }
+//        if (!Constants.PLATFORM_OBTY.equals(platform)) {
+//            CompletableFuture<Void> oneKeyRecoverObty = CompletableFuture.runAsync(() -> {
+//                oneKeyRecoverObty(userId);
+//            }, executor);
+//            completableFutures.add(oneKeyRecoverObty);
+//        }
+//        if (!Constants.PLATFORM_OBZR.equals(platform)) {
+//            CompletableFuture<Void> oneKeyRecoverObzr = CompletableFuture.runAsync(() -> {
+//                oneKeyRecoverObzr(userId);
+//            }, executor);
+//            completableFutures.add(oneKeyRecoverObzr);
+//        }
+//        if (!Constants.PLATFORM_AE.equals(platform)) {
+//            CompletableFuture<Void> oneKeyRecoverAe = CompletableFuture.runAsync(() -> {
+//                oneKeyRecoverAe(userId);
+//            }, executor);
+//            completableFutures.add(oneKeyRecoverAe);
+//        }
+//        if (!Constants.PLATFORM_DMC.equals(platform)) {
+//            CompletableFuture<Void> oneKeyRecoverDmc = CompletableFuture.runAsync(() -> {
+//                oneKeyRecoverDMC(userId);
+//            }, executor);
+//            completableFutures.add(oneKeyRecoverDmc);
+//        }
+//        if (!Constants.PLATFORM_VNC.equals(platform)) {
+//            CompletableFuture<Void> oneKeyRecoverAe = CompletableFuture.runAsync(() -> {
+//                oneKeyRecoverVNC(userId);
+//            }, executor);
+//            completableFutures.add(oneKeyRecoverAe);
+//        }
+//        if (!Constants.PLATFORM_DG.equals(platform)) {
+//            CompletableFuture<Void> oneKeyRecoverAe = CompletableFuture.runAsync(() -> {
+//                oneKeyRecoverDG(userId);
+//            }, executor);
+//            completableFutures.add(oneKeyRecoverAe);
+//        }
+//        // 等待所有子线程计算完成
+//        CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[completableFutures.size()])).join();
+//        log.info("进入游戏统一回收余额结束耗时{} userId:{}==============================================>",
+//            System.currentTimeMillis() - startTime,userId);
         return ResponseUtil.success();
     }
 
