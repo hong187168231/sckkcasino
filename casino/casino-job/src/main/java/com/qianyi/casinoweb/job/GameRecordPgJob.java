@@ -78,6 +78,30 @@ public class GameRecordPgJob {
         }
     }
 
+    @Scheduled(initialDelay = 10000, fixedDelay = 1000 * 60 * 2)
+    public void pullGoldenF_PG() {
+        PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
+        if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
+            log.info("后台已关闭PG,无需拉单,platformGame={}", pgPlatformGame);
+        } else {
+            pullGameRecord(Constants.PLATFORM_PG);
+        }
+    }
+
+    private void pullGameRecord(String vendorCode) {
+        try {
+            // 从数据库获取最近的拉单时间和平台
+            List<GoldenFTimeVO> timeVOS = getTimes(vendorCode);
+            if (vendorCode.equals(Constants.PLATFORM_PG)) {
+                if (timeVOS.size() == 1) {
+                    excutePull(true, vendorCode, timeVOS.get(0).getStartTime(), timeVOS.get(0).getEndTime(), 1);
+                }
+            }
+        } catch (Exception e) {
+            log.error("拉取注单时报错,vendorCode={},msg={}", vendorCode, e.getMessage());
+        }
+    }
+
     private void pullGameRecordPGBD(String vendorCode) {
         try {
             // 从数据库获取最近的拉单时间和平台
@@ -203,7 +227,7 @@ public class GameRecordPgJob {
     private void processRecords3(List<GameRecordGoldenF> recordGoldenFS) {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         // 大集合拆分成N个小集合, 这里集合的size可以稍微小一些（这里我用100刚刚好）, 以保证多线程异步执行, 过大容易回到单线程
-        List<List<GameRecordGoldenF>> splitNList = SplitListUtils.split(recordGoldenFS, 10);
+        List<List<GameRecordGoldenF>> splitNList = SplitListUtils.split(recordGoldenFS, 100);
         // 记录单个任务的执行次数
         log.error("拆分前面的list" + JSON.toJSONString(splitNList));
         CountDownLatch countDownLatch = new CountDownLatch(splitNList.size());
@@ -240,7 +264,7 @@ public class GameRecordPgJob {
                             gameRecordGoldenFService.save(item);
                             log.info("item保存成功,id={}", item.getId());
                             // 改变用户实时余额
-                            gameRecordAsyncOper.changeUserBalancePg(item);
+                            changeUserBalance(item);
                             GameRecord gameRecord = combineGameRecord(item);
                             // 发送注单消息到MQ后台要统计数据
                             gameRecordAsyncOper.proxyGameRecordReport(item.getVendorCode(), gameRecord);
@@ -255,7 +279,7 @@ public class GameRecordPgJob {
             });
         }
         try {
-            countDownLatch.await(2,TimeUnit.MINUTES);
+            countDownLatch.await(2, TimeUnit.MINUTES);
         } catch (Exception e) {
             throw new RuntimeException("countDownLatch阻塞等待出错", e);
         }
@@ -267,9 +291,7 @@ public class GameRecordPgJob {
      */
     private void changeUserBalance(GameRecordGoldenF gameRecordGoldenF) {
         Long userId = gameRecordGoldenF.getUserId();
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyNotFairLock(userId.toString());
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             BigDecimal betAmount = gameRecordGoldenF.getBetAmount();
             BigDecimal winAmount = gameRecordGoldenF.getWinAmount();
             if (betAmount == null || winAmount == null) {
@@ -286,67 +308,64 @@ public class GameRecordPgJob {
             }
         } catch (Exception e) {
             log.error("改变用户实时余额时报错，msg={}", e.getMessage());
-        } finally {
-            // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
         }
     }
 
-        private void processBusiness(GameRecordGoldenF gameRecordGoldenF, GameRecord gameRecord,
-            PlatformConfig platformConfig, User user) {
-            if (gameRecordGoldenF.getBetAmount().compareTo(BigDecimal.ZERO) == 0)
-                return;
-            if (!gameRecordGoldenF.getTransType().equals(GoldenFConstant.GOLDENF_STAKE))
-                return;
-            // 洗码
-            gameRecordAsyncOper.washCode(gameRecordGoldenF.getVendorCode(), gameRecord);
-            // 抽点
-            gameRecordAsyncOper.extractPoints(gameRecordGoldenF.getVendorCode(), gameRecord);
-            // 扣减打码量
-            gameRecordAsyncOper.subCodeNum(gameRecordGoldenF.getVendorCode(), platformConfig, gameRecord);
-            //代理分润
-            if (Objects.nonNull(user) && Objects.nonNull(user.getThirdPid()) && user.getThirdPid() != 0L) {//没有上级不分润
-                gameRecordAsyncOper.shareProfit(gameRecordGoldenF.getVendorCode(), gameRecord);
-            }
-            // 返利
-            gameRecordAsyncOper.rebate(gameRecordGoldenF.getVendorCode(), gameRecord);
-            if (gameRecordGoldenF.getTransType() != null && gameRecordGoldenF.getTransType().equals("Stake")) {
-                // 等级流水
-                gameRecordAsyncOper.levelWater(gameRecordGoldenF.getVendorCode(), gameRecord);
-            }
+    private void processBusiness(GameRecordGoldenF gameRecordGoldenF, GameRecord gameRecord,
+        PlatformConfig platformConfig, User user) {
+        if (gameRecordGoldenF.getBetAmount().compareTo(BigDecimal.ZERO) == 0)
+            return;
+        if (!gameRecordGoldenF.getTransType().equals(GoldenFConstant.GOLDENF_STAKE))
+            return;
+        // 洗码
+        gameRecordAsyncOper.washCode(gameRecordGoldenF.getVendorCode(), gameRecord);
+        // 抽点
+        gameRecordAsyncOper.extractPoints(gameRecordGoldenF.getVendorCode(), gameRecord);
+        // 扣减打码量
+        gameRecordAsyncOper.subCodeNum(gameRecordGoldenF.getVendorCode(), platformConfig, gameRecord);
+        //代理分润
+        if (Objects.nonNull(user) && Objects.nonNull(user.getThirdPid()) && user.getThirdPid() != 0L) {//没有上级不分润
+            gameRecordAsyncOper.shareProfit(gameRecordGoldenF.getVendorCode(), gameRecord);
         }
+        // 返利
+        gameRecordAsyncOper.rebate(gameRecordGoldenF.getVendorCode(), gameRecord);
+        if (gameRecordGoldenF.getTransType() != null && gameRecordGoldenF.getTransType().equals("Stake")) {
+            // 等级流水
+            gameRecordAsyncOper.levelWater(gameRecordGoldenF.getVendorCode(), gameRecord);
+        }
+    }
 
-        private GameRecord combineGameRecord(GameRecordGoldenF item) {
-            // 沙巴体育的gameCode和列表提供的不一致,沙巴只有一款游戏，写死适配下
-            String gameCode = item.getGameCode();
-            String gameName = null;
-            if (Constants.PLATFORM_SABASPORT.equals(item.getVendorCode())) {
-                gameName = "SABA体育";
-            } else {
-                AdGame adGame = adGamesService.findByGamePlatformNameAndGameCode(item.getVendorCode(), item.getGameCode());
-                if (adGame != null) {
-                    gameName = adGame.getGameName();
-                }
+    private GameRecord combineGameRecord(GameRecordGoldenF item) {
+        // 沙巴体育的gameCode和列表提供的不一致,沙巴只有一款游戏，写死适配下
+        String gameCode = item.getGameCode();
+        String gameName = null;
+        if (Constants.PLATFORM_SABASPORT.equals(item.getVendorCode())) {
+            gameName = "SABA体育";
+        } else {
+            AdGame adGame = adGamesService.findByGamePlatformNameAndGameCode(item.getVendorCode(), item.getGameCode());
+            if (adGame != null) {
+                gameName = adGame.getGameName();
             }
-            GameRecord gameRecord = new GameRecord();
-            gameRecord.setBetId(item.getBetId());
-            gameRecord.setValidbet(item.getBetAmount().toString());
-            gameRecord.setUserId(item.getUserId());
-            gameRecord.setGameCode(gameCode);
-            gameRecord.setGname(gameName);
-            gameRecord.setBetTime(item.getCreateAtStr());
-            gameRecord.setId(item.getId());
-            gameRecord.setFirstProxy(item.getFirstProxy());
-            gameRecord.setSecondProxy(item.getSecondProxy());
-            gameRecord.setThirdProxy(item.getThirdProxy());
-            if (!ObjectUtils.isEmpty(item.getBetAmount())) {
-                gameRecord.setBet(item.getBetAmount().toString());
-            }
-            if (item.getWinAmount() != null && item.getBetAmount() != null) {
-                BigDecimal winLoss = item.getWinAmount().subtract(item.getBetAmount());
-                gameRecord.setWinLoss(winLoss.toString());
-            }
-            return gameRecord;
         }
+        GameRecord gameRecord = new GameRecord();
+        gameRecord.setBetId(item.getBetId());
+        gameRecord.setValidbet(item.getBetAmount().toString());
+        gameRecord.setUserId(item.getUserId());
+        gameRecord.setGameCode(gameCode);
+        gameRecord.setGname(gameName);
+        gameRecord.setBetTime(item.getCreateAtStr());
+        gameRecord.setId(item.getId());
+        gameRecord.setFirstProxy(item.getFirstProxy());
+        gameRecord.setSecondProxy(item.getSecondProxy());
+        gameRecord.setThirdProxy(item.getThirdProxy());
+        if (!ObjectUtils.isEmpty(item.getBetAmount())) {
+            gameRecord.setBet(item.getBetAmount().toString());
+        }
+        if (item.getWinAmount() != null && item.getBetAmount() != null) {
+            BigDecimal winLoss = item.getWinAmount().subtract(item.getBetAmount());
+            gameRecord.setWinLoss(winLoss.toString());
+        }
+        return gameRecord;
+    }
 
 }
