@@ -95,12 +95,12 @@ public class GameRecordGoldenFJob {
         try {
             // 从数据库获取最近的拉单时间和平台
             List<GoldenFTimeVO> timeVOS = getTimes(vendorCode);
-            if(vendorCode.equals(Constants.PLATFORM_PG)){
-                if(timeVOS.size() ==1){
-                    excutePull(true, vendorCode, timeVOS.get(0).getStartTime(),  timeVOS.get(0).getEndTime(),1);
-                }
-                return;
-            }
+//            if(vendorCode.equals(Constants.PLATFORM_PG)){
+//                if(timeVOS.size() ==1){
+//                    excutePull(true, vendorCode, timeVOS.get(0).getStartTime(),  timeVOS.get(0).getEndTime(),1);
+//                }
+//                return;
+//            }
             timeVOS.forEach(item -> {
                 log.info("{},开始拉取{}到{}的注单数据", vendorCode, item.getStartTime(), item.getEndTime());
                 excutePull(true, vendorCode, item.getStartTime(), item.getEndTime(),1);
@@ -291,7 +291,7 @@ public class GameRecordGoldenFJob {
             }
             gameRecordGoldenFService.save(item);
             // 改变用户实时余额
-            gameRecordAsyncOper.changeUserBalancePg(item);
+            changeUserBalance(item);
             GameRecord gameRecord = combineGameRecord(item);
             // 发送注单消息到MQ后台要统计数据
             gameRecordAsyncOper.proxyGameRecordReport(item.getVendorCode(), gameRecord);
@@ -307,9 +307,7 @@ public class GameRecordGoldenFJob {
      */
     private void changeUserBalance(GameRecordGoldenF gameRecordGoldenF) {
         Long userId = gameRecordGoldenF.getUserId();
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyNotFairLock(userId.toString());
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             BigDecimal betAmount = gameRecordGoldenF.getBetAmount();
             BigDecimal winAmount = gameRecordGoldenF.getWinAmount();
             if (betAmount == null || winAmount == null) {
@@ -326,9 +324,6 @@ public class GameRecordGoldenFJob {
             }
         } catch (Exception e) {
             log.error("改变用户实时余额时报错，msg={}", e.getMessage());
-        } finally {
-            // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
         }
     }
 
