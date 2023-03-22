@@ -4,6 +4,7 @@ import com.qianyi.casinocore.business.ExtractPointsConfigBusiness;
 import com.qianyi.casinocore.business.TelegramBotBusiness;
 import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.model.GameRecord;
+import com.qianyi.casinocore.model.GameRecordGoldenF;
 import com.qianyi.casinocore.model.PlatformConfig;
 import com.qianyi.casinocore.util.RedisKeyUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -172,6 +173,34 @@ public class GameRecordAsyncOper {
             userMoneyBusiness.changeUserBalance(userId, betAmount,winAmount);
         } catch (Exception e) {
             log.error("更新用户balance出现异常userId{} {}",userId,e.getMessage());
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
+        }
+    }
+
+    @Async("asyncExecutor")
+    public void changeUserBalancePg(GameRecordGoldenF gameRecordGoldenF) {
+        Long userId = gameRecordGoldenF.getUserId();
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyNotFairLock(userId.toString());
+        try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            BigDecimal betAmount = gameRecordGoldenF.getBetAmount();
+            BigDecimal winAmount = gameRecordGoldenF.getWinAmount();
+            if (betAmount == null || winAmount == null) {
+                return;
+            }
+            BigDecimal winLossAmount = winAmount.subtract(betAmount);
+            // 下注金额大于0，扣减
+            if (betAmount.compareTo(BigDecimal.ZERO) == 1) {
+                userMoneyBusiness.subBalance(userId, betAmount);
+            }
+            // 派彩金额大于0，增加
+            if (winLossAmount.compareTo(BigDecimal.ZERO) == 1) {
+                userMoneyBusiness.addBalance(userId, winLossAmount);
+            }
+        } catch (Exception e) {
+            log.error("改变用户实时余额时报错，msg={}", e.getMessage());
         } finally {
             // 释放锁
             RedisKeyUtil.unlock(userMoneyLock);

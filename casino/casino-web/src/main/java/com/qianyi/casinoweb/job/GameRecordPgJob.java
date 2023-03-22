@@ -240,7 +240,7 @@ public class GameRecordPgJob {
                             gameRecordGoldenFService.save(item);
                             log.info("item保存成功,id={}", item.getId());
                             // 改变用户实时余额
-                            changeUserBalance(item);
+                            gameRecordAsyncOper.changeUserBalancePg(item);
                             GameRecord gameRecord = combineGameRecord(item);
                             // 发送注单消息到MQ后台要统计数据
                             gameRecordAsyncOper.proxyGameRecordReport(item.getVendorCode(), gameRecord);
@@ -262,35 +262,35 @@ public class GameRecordPgJob {
         log.info("/payTypeList{}毫秒", (System.currentTimeMillis() - start));
     }
 
-    /**
-     * 改变用户实时余额
-     */
-    private void changeUserBalance(GameRecordGoldenF gameRecordGoldenF) {
-        Long userId = gameRecordGoldenF.getUserId();
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyNotFairLock(userId.toString());
-        try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            BigDecimal betAmount = gameRecordGoldenF.getBetAmount();
-            BigDecimal winAmount = gameRecordGoldenF.getWinAmount();
-            if (betAmount == null || winAmount == null) {
-                return;
-            }
-            BigDecimal winLossAmount = winAmount.subtract(betAmount);
-            // 下注金额大于0，扣减
-            if (betAmount.compareTo(BigDecimal.ZERO) == 1) {
-                userMoneyBusiness.subBalance(userId, betAmount);
-            }
-            // 派彩金额大于0，增加
-            if (winLossAmount.compareTo(BigDecimal.ZERO) == 1) {
-                userMoneyBusiness.addBalance(userId, winLossAmount);
-            }
-        } catch (Exception e) {
-            log.error("改变用户实时余额时报错，msg={}", e.getMessage());
-        } finally {
-            // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
-        }
-    }
+//    /**
+//     * 改变用户实时余额
+//     */
+//    private void changeUserBalance(GameRecordGoldenF gameRecordGoldenF) {
+//        Long userId = gameRecordGoldenF.getUserId();
+//        RLock userMoneyLock = redisKeyUtil.getUserMoneyNotFairLock(userId.toString());
+//        try {
+//            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+//            BigDecimal betAmount = gameRecordGoldenF.getBetAmount();
+//            BigDecimal winAmount = gameRecordGoldenF.getWinAmount();
+//            if (betAmount == null || winAmount == null) {
+//                return;
+//            }
+//            BigDecimal winLossAmount = winAmount.subtract(betAmount);
+//            // 下注金额大于0，扣减
+//            if (betAmount.compareTo(BigDecimal.ZERO) == 1) {
+//                userMoneyBusiness.subBalance(userId, betAmount);
+//            }
+//            // 派彩金额大于0，增加
+//            if (winLossAmount.compareTo(BigDecimal.ZERO) == 1) {
+//                userMoneyBusiness.addBalance(userId, winLossAmount);
+//            }
+//        } catch (Exception e) {
+//            log.error("改变用户实时余额时报错，msg={}", e.getMessage());
+//        } finally {
+//            // 释放锁
+//            RedisKeyUtil.unlock(userMoneyLock);
+//        }
+//    }
 
     private void processBusiness(GameRecordGoldenF gameRecordGoldenF, GameRecord gameRecord,
         PlatformConfig platformConfig, User user) {
