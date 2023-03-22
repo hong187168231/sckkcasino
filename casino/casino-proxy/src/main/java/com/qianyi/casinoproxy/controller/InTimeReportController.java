@@ -145,13 +145,14 @@ public class InTimeReportController {
     @GetMapping("/findSum")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "userName", value = "代理账号", required = false),
+        @ApiImplicitParam(name = "currentAgentId", value = "当前登录代理id", required = true),
         //            @ApiImplicitParam(name = "gid", value = "游戏类别编号 百家乐:101 龙虎:102 轮盘:103 骰宝:104 牛牛:105 番摊:107 色碟:108 鱼虾蟹:110 炸金花:111 安达巴哈:128", required = false),
         @ApiImplicitParam(name = "platform", value = "游戏类别编号 WM、PG、CQ9 ", required = false),
         @ApiImplicitParam(name = "startDate", value = "起始时间查询", required = true),
         @ApiImplicitParam(name = "endDate", value = "结束时间查询", required = true),
     })
     @NoAuthentication
-    public ResponseEntity findSum( String userName,String platform,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+    public ResponseEntity findSum( String userName,Long currentAgentId,String platform,@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
         @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
         if (CasinoProxyUtil.checkNull(startDate) ||  CasinoProxyUtil.checkNull(endDate)){
             return ResponseUtil.custom("参数不合法");
@@ -177,7 +178,10 @@ public class InTimeReportController {
             proxyId = byUserName.getId();
             proxyRole = byUserName.getProxyRole();
         }
-        GameRecordReportNew recordRecordSum = gameRecordReportNewService.findRecordRecordSum(gameRecordReport, startTime, endTime, proxyId, proxyRole);
+        ProxyUser  proxyUserId = proxyUserService.findById(currentAgentId);
+        Integer  currentRole=proxyUserId.getProxyRole();
+
+        GameRecordReportNew recordRecordSum = gameRecordReportNewService.findRecordRecordSumProxy(gameRecordReport, startTime, endTime, proxyId, proxyRole,currentRole,currentAgentId);
         if (!CasinoProxyUtil.checkNull(recordRecordSum)){
             recordRecordSum.setAmount(recordRecordSum.getNewAmount() != null? recordRecordSum.getNewAmount().setScale(2, RoundingMode.HALF_UP):
                 BigDecimal.ZERO);

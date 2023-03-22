@@ -1279,4 +1279,55 @@ public class GameRecordReportNewService {
         // 返回查询的分页结果，createQuery.getResultList()为分页查询的结果对象，counts.size()为设置分页参数之前查询的总数
         return new PageImpl<GameRecordReportNew>(createQuery.getResultList(), page, counts.size());
     }
+
+
+
+    public GameRecordReportNew findRecordRecordSumProxy(GameRecordReportNew gameRecordReport, String startSetTime,
+                                                   String endSetTime, Long proxyId, Integer proxyRole,Integer currentRole,Long currentAgentId) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<GameRecordReportNew> query = builder.createQuery(GameRecordReportNew.class);
+        Root<GameRecordReportNew> root = query.from(GameRecordReportNew.class);
+
+        query.multiselect(builder.sum(root.get("bettingNumber").as(Integer.class)).alias("bettingNumber"),
+                builder.sum(root.get("amount").as(BigDecimal.class)).alias("amount"),
+                builder.sum(root.get("betAmount").as(BigDecimal.class)).alias("betAmount"),
+                builder.sum(root.get("validAmount").as(BigDecimal.class)).alias("validAmount"),
+                builder.sum(root.get("winLossAmount").as(BigDecimal.class)).alias("winLossAmount"),
+                builder.sum(root.get("userAmount").as(BigDecimal.class)).alias("userAmount"),
+                builder.sum(root.get("surplusAmount").as(BigDecimal.class)).alias("surplusAmount"),
+                builder.sum(root.get("newAmount").as(BigDecimal.class)).alias("newAmount"),
+                builder.sum(root.get("newUserAmount").as(BigDecimal.class)).alias("newUserAmount"),
+                builder.sum(root.get("newSurplusAmount").as(BigDecimal.class)).alias("newSurplusAmount"),
+                builder.sum(root.get("todayAward").as(BigDecimal.class)).alias("todayAward"),
+                builder.sum(root.get("riseAward").as(BigDecimal.class)).alias("riseAward"));
+
+        List<Predicate> predicates = new ArrayList();
+        if (proxyRole != null && proxyRole == CommonConst.NUMBER_1) {
+            predicates.add(builder.equal(root.get("firstProxy").as(Long.class), proxyId));
+        } else if (proxyRole != null && proxyRole == CommonConst.NUMBER_2) {
+            predicates.add(builder.equal(root.get("secondProxy").as(Long.class), proxyId));
+        } else if (proxyRole != null && proxyRole == CommonConst.NUMBER_3) {
+            predicates.add(builder.equal(root.get("thirdProxy").as(Long.class), proxyId));
+        }
+
+        //总代
+        if (currentRole.equals( CommonConst.NUMBER_1)){
+            predicates.add(builder.equal(root.get("firstProxy").as(Long.class), currentAgentId));
+        }
+        //区域代
+        else  if (currentRole.equals( CommonConst.NUMBER_2)){
+            predicates.add(builder.equal(root.get("secondProxy").as(Long.class), currentAgentId));
+        }
+
+        if (!com.qianyi.modulecommon.util.CommonUtil.checkNull(gameRecordReport.getPlatform())) {
+            predicates.add(builder.equal(root.get("platform").as(String.class), gameRecordReport.getPlatform()));
+        }
+        if (!ObjectUtils.isEmpty(startSetTime) && !ObjectUtils.isEmpty(endSetTime)) {
+            predicates.add(builder.between(root.get("staticsTimes").as(String.class), startSetTime, endSetTime));
+        }
+        predicates.add(builder.notEqual(root.get("firstProxy").as(Long.class), 0L));
+        query.where(predicates.toArray(new Predicate[predicates.size()]));
+        GameRecordReportNew singleResult = entityManager.createQuery(query).getSingleResult();
+        return singleResult;
+    }
 }
