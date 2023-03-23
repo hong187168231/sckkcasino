@@ -15,14 +15,15 @@ import com.qianyi.modulecommon.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -64,8 +65,9 @@ public class GameRecordGoldenFJob {
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
-    @Scheduled(initialDelay = 10000, fixedDelay = 1000 * 60 * 2)
+    @Scheduled(cron = "0 0/2 * * * ?")
     public void pullGoldenF_PG() {
+        log.info("pgjob拉单");
         PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
         if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
             log.info("后台已关闭PG,无需拉单,platformGame={}", pgPlatformGame);
@@ -94,8 +96,9 @@ public class GameRecordGoldenFJob {
         }
     }
 
-    @Scheduled(initialDelay = 3000, fixedDelay = 1000 * 60 * 1)
+    @Scheduled(cron = "0 0/3 * * * ?")
     public void pullGoldenF_PGBD() {
+        log.info("pgjob补单");
         PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
         if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
             log.info("后台已关闭PG,无需拉单,platformGame={}", pgPlatformGame);
@@ -246,7 +249,7 @@ public class GameRecordGoldenFJob {
     private void processRecords(List<GameRecordGoldenF> recordGoldenFS) {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         recordGoldenFS.forEach(item -> {
-            UserThird userThird = userThirdService.findByGoldenfAccount(item.getPlayerName());
+            UserThird userThird = userThirdService.findByGoldenfAccount("item.getPlayerName()");
             if (userThird == null)
                 return;
             User user = userService.findById(userThird.getUserId());
@@ -277,7 +280,7 @@ public class GameRecordGoldenFJob {
             gameRecordAsyncOper.changeUserBalancePg(item);
             GameRecord gameRecord = combineGameRecord(item);
             // 发送注单消息到MQ后台要统计数据
-            gameRecordAsyncOper.proxyGameRecordReport(item.getVendorCode(), gameRecord);
+//            gameRecordAsyncOper.proxyGameRecordReport(item.getVendorCode(), gameRecord);
             processBusiness(item, gameRecord, platformConfig,user);
         } catch (Exception e) {
             log.error("注单数据保存失败,msg={}", e.getMessage());

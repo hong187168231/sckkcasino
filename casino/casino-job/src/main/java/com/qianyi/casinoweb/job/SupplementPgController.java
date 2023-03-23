@@ -1,7 +1,7 @@
-package com.qianyi.casinoreport.job;
+package com.qianyi.casinoweb.job;
 
 import com.alibaba.fastjson.JSON;
-import com.qianyi.casinoreport.vo.GoldenFTimeVO;
+import com.qianyi.casinoweb.vo.GoldenFTimeVO;
 import com.qianyi.lottery.util.StringUtils;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulespringcacheredis.util.RedisUtil;
@@ -27,20 +27,6 @@ public class SupplementPgController {
     @Autowired
     private RedisUtil redisUtil;
 
-//    @Scheduled(initialDelay = 7000, fixedDelay = 1000 * 60 * 5)
-//    public void pullGoldenF_PGBD11() throws ParseException {
-//        log.info("定时器开始拉取PG真人注单记录");
-//        String startTime = "2023-03-22 14:40:00";
-//        String endTime = "2023-03-22 15:00:00";
-//        String secretkey = "puff520miyao";
-//        if (StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)) {
-//            if (StringUtils.isNotBlank(secretkey) && secretkey.equals("puff520miyao")) {
-//                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//                goldenFSupplement(Constants.PLATFORM_PG, df.parse(startTime).getTime(), df.parse(endTime).getTime());
-//            }
-//        }
-//    }
-
     @Scheduled(initialDelay = 7000, fixedDelay = 1000 * 60 * 2)
     public void pullGoldenF_PGBD() throws ParseException {
         log.info("定时器开始拉取PG真人注单记录");
@@ -50,7 +36,7 @@ public class SupplementPgController {
         if (StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)) {
             if (StringUtils.isNotBlank(secretkey) && secretkey.equals("puff520miyao")) {
                 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                goldenFSupplement(Constants.PLATFORM_PG, df.parse(startTime).getTime(), df.parse(endTime).getTime());
+                goldenFSupplement(Constants.PLATFORM_PG,  df.parse(startTime).getTime(), df.parse(endTime).getTime());
             }
         }
     }
@@ -64,7 +50,7 @@ public class SupplementPgController {
         if (StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)) {
             if (StringUtils.isNotBlank(secretkey) && secretkey.equals("puff520miyao")) {
                 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                goldenFSupplement2(Constants.PLATFORM_PG, df.parse(startTime).getTime(), df.parse(endTime).getTime());
+                goldenFSupplement2(Constants.PLATFORM_PG,  df.parse(startTime).getTime(), df.parse(endTime).getTime());
             }
         }
     }
@@ -106,6 +92,7 @@ public class SupplementPgController {
         log.info("{}补单完成,timeList={}", vendorCode, JSON.toJSONString(timeVOS));
         redisUtil.set("PG:repair:secretkey", "puff520miyao");
     }
+
 
     public void goldenFSupplement2(String vendorCode, Long startTime, Long endTime) {
         redisUtil.set("PG2:repair:secretkey", "1");

@@ -1,4 +1,4 @@
-package com.qianyi.casinoreport.job;
+package com.qianyi.casinoweb.job;
 
 import com.qianyi.casinocore.business.ExtractPointsConfigBusiness;
 import com.qianyi.casinocore.business.TelegramBotBusiness;
@@ -6,10 +6,8 @@ import com.qianyi.casinocore.business.UserMoneyBusiness;
 import com.qianyi.casinocore.model.GameRecord;
 import com.qianyi.casinocore.model.GameRecordGoldenF;
 import com.qianyi.casinocore.model.PlatformConfig;
-import com.qianyi.casinocore.util.RedisKeyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -19,7 +17,7 @@ import java.math.BigDecimal;
  */
 @Service
 @Slf4j
-public class GameRecordAsyncOper {
+public class GameRecordPgAsyncOper {
 
     @Autowired
     private UserMoneyBusiness userMoneyBusiness;

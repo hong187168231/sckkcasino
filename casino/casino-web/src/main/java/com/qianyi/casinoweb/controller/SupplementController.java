@@ -10,10 +10,7 @@ import com.qianyi.casinocore.service.GameRecordService;
 import com.qianyi.casinocore.service.PlatformConfigService;
 import com.qianyi.casinocore.service.UserThirdService;
 import com.qianyi.casinocore.util.CommonConst;
-import com.qianyi.casinoweb.job.GameRecordAeJob;
-import com.qianyi.casinoweb.job.GameRecordAsyncOper;
-import com.qianyi.casinoweb.job.GameRecordGoldenFJob;
-import com.qianyi.casinoweb.job.GameRecordJob;
+import com.qianyi.casinoweb.job.*;
 import com.qianyi.casinoweb.util.CasinoWebUtil;
 import com.qianyi.casinoweb.vo.GameRecordAeVo;
 import com.qianyi.casinoweb.vo.GoldenFTimeVO;
@@ -64,6 +61,8 @@ public class SupplementController {
     private GameRecordAeJob gameRecordAeJob;
     @Autowired
     private ThirdGameBusiness thirdGameBusiness;
+    @Autowired
+    private GameRecordPgBusiness gameRecordPgBusiness;
 
     @GetMapping("/supplementByPlatform")
     @ApiOperation("后台根据平台手动补单")
@@ -379,7 +378,11 @@ public class SupplementController {
             startTime = tempEndTime;
         }
         log.info("{}", timeVOS);
-        gameRecordGoldenFJob.supplementPullGameRecord(vendorCode, timeVOS);
+        if(vendorCode.equals(Constants.PLATFORM_PG)){
+            gameRecordPgBusiness.supplementPullGameRecord(vendorCode, timeVOS);
+        }else {
+            gameRecordGoldenFJob.supplementPullGameRecord(vendorCode, timeVOS);
+        }
         log.info("{}补单完成,timeList={}", vendorCode, JSON.toJSONString(timeVOS));
         return ResponseUtil.success(timeVOS);
     }
