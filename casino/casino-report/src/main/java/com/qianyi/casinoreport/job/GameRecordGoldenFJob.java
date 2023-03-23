@@ -278,10 +278,10 @@ public class GameRecordGoldenFJob {
     }
 
 
-//    @Async("asyncExecutor")
+    @Async("asyncExecutor")
     public void processBusiness(GameRecordGoldenF gameRecordGoldenF, GameRecord gameRecord,
         PlatformConfig platformConfig, User user) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(gameRecord.getUserId().toString());
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(gameRecordGoldenF.getTraceId());
         try {
             userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             // 改变用户实时余额
