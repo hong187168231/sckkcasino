@@ -207,16 +207,16 @@ public class WithdrawAuditController {
         }
         Long operator = LoginUtil.getLoginUserId();
         ResponseEntity responseEntity = null;
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(order.getUserId().toString());
+       // RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(order.getUserId().toString());
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+          //  userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             responseEntity = withdrawBusiness.auditWithdraw(id, operator, status, remark);
         } catch (Exception e) {
             log.error("风控审核出现异常id{}userId{} {}", order.getId(), order.getUserId(), e.getMessage());
             return ResponseUtil.custom("操作失败");
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+           // RedisKeyUtil.unlock(userMoneyLock);
         }
         if (responseEntity.getCode() == CommonConst.NUMBER_0 && status == Constants.withdrawOrder_fail){
             Object data = responseEntity.getData();

@@ -143,12 +143,12 @@ public class WithdrawBusiness {
 
     @Transactional
     public ResponseEntity auditWithdraw(Long id, Long operator, Integer status, String remark) {
-        String value = id.toString();
-        String key = MessageFormat.format(RedisLockUtil.WITHDRAW_AUDIT_ORDER, value);
-        Boolean lock = false;
+   /*      String value = id.toString();
+       String key = MessageFormat.format(RedisLockUtil.WITHDRAW_AUDIT_ORDER, value);
+        Boolean lock = false;*/
         try {
-            lock = redisLockUtil.getLock(key, value);
-            if (lock) {
+        /*    lock = redisLockUtil.getLock(key, value);
+            if (lock) {*/
                 WithdrawOrder withdrawOrder = withdrawOrderService.findById(id);
                 if (withdrawOrder == null) {
                     return ResponseUtil.custom("订单已被处理");
@@ -193,17 +193,17 @@ public class WithdrawBusiness {
                 } else {
                     return ResponseUtil.custom("参数不合法");
                 }
-            } else {
+     /*       } else {
                 return ResponseUtil.custom("订单已被处理");
-            }
+            }*/
         } catch (Exception ex) {
             log.error("审核出款出现异常{}", ex);
             return ResponseUtil.custom("系统异常请联系管理员");
         } finally {
-            if (lock) {
+           /* if (lock) {
                 log.info("释放redis锁{}", key);
                 redisLockUtil.releaseLock(key, value);
-            }
+            }*/
         }
         return ResponseUtil.success();
     }
