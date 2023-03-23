@@ -1,21 +1,20 @@
 package com.qianyi.casinoadmin.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.qianyi.casinoadmin.vo.ThridBalanceSumVo;
-import com.qianyi.casinocore.co.user.UserCleanMudCo;
-import com.qianyi.casinocore.util.*;
 import com.qianyi.casinoadmin.util.LoginUtil;
+import com.qianyi.casinoadmin.vo.ThridBalanceSumVo;
+import com.qianyi.casinocore.business.ChargeOrderBusiness;
+import com.qianyi.casinocore.business.WithdrawBusiness;
+import com.qianyi.casinocore.co.user.UserCleanMudCo;
+import com.qianyi.casinocore.model.*;
+import com.qianyi.casinocore.service.*;
+import com.qianyi.casinocore.util.*;
 import com.qianyi.casinocore.vo.PageResultVO;
 import com.qianyi.casinocore.vo.UserTotalVo;
 import com.qianyi.casinocore.vo.UserVo;
-import com.qianyi.casinocore.business.ChargeOrderBusiness;
-import com.qianyi.casinocore.business.WithdrawBusiness;
-import com.qianyi.casinocore.model.*;
-import com.qianyi.casinocore.service.*;
 import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.RegexEnum;
 import com.qianyi.modulecommon.annotation.NoAuthorization;
-import com.qianyi.modulecommon.annotation.RequestLimit;
 import com.qianyi.modulecommon.reponse.ResponseEntity;
 import com.qianyi.modulecommon.reponse.ResponseUtil;
 import com.qianyi.modulecommon.util.CommonUtil;
@@ -38,11 +37,14 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -1628,6 +1630,8 @@ public class UserController {
     @PostMapping("/saveChargeOrder")
     public ResponseEntity saveChargeOrder(Long id, String remitter, String remark, String chargeAmount,
         BigDecimal betRate) {
+
+        log.info("/user/saveChargeOrder -> id :{},remitter:{},remark:{},chargeAmount:{},betRate:{}", id, remitter, remark, chargeAmount, betRate);
         if (LoginUtil.checkNull(id, chargeAmount, betRate)) {
             return ResponseUtil.custom("参数不合法");
         }
@@ -1651,6 +1655,8 @@ public class UserController {
         // if (user.getThirdProxy() != null && user.getThirdProxy() >= CommonConst.LONG_1){
         // return ResponseUtil.custom("代理会员不能操作");
         // }
+
+        log.info("/user/saveChargeOrder -> user :{}", user);
         Long userId = LoginUtil.getLoginUserId();
         SysUser sysUser = sysUserService.findById(userId);
         String lastModifier = (sysUser == null || sysUser.getUserName() == null) ? "" : sysUser.getUserName();
@@ -1674,20 +1680,22 @@ public class UserController {
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(user.getId().toString());
         try {
             userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
-            responseEntity =
-                chargeOrderBusiness.saveOrderSuccess(user, chargeOrder, Constants.chargeOrder_masterControl,
-                    Constants.remitType_general, Constants.CODENUMCHANGE_MASTERCONTROL);
+            responseEntity = chargeOrderBusiness.saveOrderSuccess(user, chargeOrder, Constants.chargeOrder_masterControl, Constants.remitType_general, Constants.CODENUMCHANGE_MASTERCONTROL);
         } catch (Exception e) {
             log.error("后台新增充值订单订单出现异常userId{} {}", user.getId(), e.getMessage());
             return ResponseUtil.custom("操作失败");
         } finally {
             // 释放锁
             RedisKeyUtil.unlock(userMoneyLock);
+            log.info("/user/saveChargeOrder -> 所释放成功: {}", userMoneyLock);
         }
         if (responseEntity.getCode() == CommonConst.NUMBER_0) {
             threadPool.execute(() -> this.asynDeleRedis(chargeOrder.getUserId().toString()));
+            log.info("/user/saveChargeOrder -> 扣除额度前");
             platformConfigService.backstage(CommonConst.NUMBER_0, new BigDecimal(chargeAmount));
+            log.info("/user/saveChargeOrder -> 扣除额度后");
         }
+        log.info("/user/saveChargeOrder -> responseEntity:{}", responseEntity);
         return responseEntity;
     }
 
