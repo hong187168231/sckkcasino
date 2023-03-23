@@ -85,13 +85,7 @@ public class GameRecordGoldenFJob {
                 if (timeVOS.size() == 1) {
                     excutePull(true, vendorCode, timeVOS.get(0).getStartTime(), timeVOS.get(0).getEndTime(), 1);
                 }
-                return;
             }
-            timeVOS.forEach(item -> {
-                log.info("{},开始拉取{}到{}的注单数据", vendorCode, item.getStartTime(), item.getEndTime());
-                excutePull(true, vendorCode, item.getStartTime(), item.getEndTime(), 1);
-                log.info("{},{}到{}数据拉取完成", vendorCode, item.getStartTime(), item.getEndTime());
-            });
         } catch (Exception e) {
             log.error("拉取注单时报错,vendorCode={},msg={}", vendorCode, e.getMessage());
         }
@@ -246,9 +240,12 @@ public class GameRecordGoldenFJob {
     private void processRecords(List<GameRecordGoldenF> recordGoldenFS) {
         PlatformConfig platformConfig = platformConfigService.findFirst();
         recordGoldenFS.forEach(item -> {
+            log.error("pg拉单用户名称{}",item.getPlayerName());
             UserThird userThird = userThirdService.findByGoldenfAccount(item.getPlayerName());
-            if (userThird == null)
+            if (userThird == null){
+                log.error("pg拉单用户存在");
                 return;
+            }
             User user = userService.findById(userThird.getUserId());
             item.setUserId(userThird.getUserId());
             item.setFirstProxy(user.getFirstProxy());
@@ -266,6 +263,7 @@ public class GameRecordGoldenFJob {
             GameRecordGoldenF gameRecordGoldenF =
                 gameRecordGoldenFService.findGameRecordGoldenFByTraceId(item.getTraceId());
             if (gameRecordGoldenF != null) {
+                log.error("pg拉单订单已经存在");
                 return;
             }
             gameRecordGoldenFService.save(item);
@@ -280,7 +278,7 @@ public class GameRecordGoldenFJob {
     }
 
 
-    @Async("asyncExecutor")
+//    @Async("asyncExecutor")
     public void processBusiness(GameRecordGoldenF gameRecordGoldenF, GameRecord gameRecord,
         PlatformConfig platformConfig, User user) {
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(gameRecord.getUserId().toString());
