@@ -1658,7 +1658,9 @@ public class UserController {
 
         log.info("/user/saveChargeOrder -> user :{}", user);
         Long userId = LoginUtil.getLoginUserId();
+        log.info("/user/saveChargeOrder -> userId :{}", userId);
         SysUser sysUser = sysUserService.findById(userId);
+        log.info("/user/saveChargeOrder -> sysUser :{}", sysUser);
         String lastModifier = (sysUser == null || sysUser.getUserName() == null) ? "" : sysUser.getUserName();
         ChargeOrder chargeOrder = new ChargeOrder();
         chargeOrder.setUserId(id);
@@ -1676,10 +1678,14 @@ public class UserController {
         if (!aBoolean) {
             return ResponseUtil.custom("上分失败,平台额度不足");
         }
+        log.info("/user/saveChargeOrder -> sysUser :{}", sysUser);
         ResponseEntity responseEntity = null;
+        log.info("/user/saveChargeOrder -> userMoneyLock-0");
         RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(user.getId().toString());
         try {
+            log.info("/user/saveChargeOrder -> userMoneyLock-1");
             userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            log.info("/user/saveChargeOrder -> userMoneyLock-2");
             responseEntity = chargeOrderBusiness.saveOrderSuccess(user, chargeOrder, Constants.chargeOrder_masterControl, Constants.remitType_general, Constants.CODENUMCHANGE_MASTERCONTROL);
         } catch (Exception e) {
             log.error("后台新增充值订单订单出现异常userId{} {}", user.getId(), e.getMessage());
