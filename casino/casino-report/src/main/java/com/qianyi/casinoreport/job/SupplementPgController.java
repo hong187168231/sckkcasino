@@ -36,7 +36,7 @@ public class SupplementPgController {
         if (StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)) {
             if (StringUtils.isNotBlank(secretkey) && secretkey.equals("puff520miyao")) {
                 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                goldenFSupplement(Constants.PLATFORM_CQ9,  df.parse(startTime).getTime(), df.parse(endTime).getTime());
+                goldenFSupplement(Constants.PLATFORM_PG,  df.parse(startTime).getTime(), df.parse(endTime).getTime());
             }
         }
     }
@@ -50,20 +50,14 @@ public class SupplementPgController {
         if (StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)) {
             if (StringUtils.isNotBlank(secretkey) && secretkey.equals("puff520miyao")) {
                 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                goldenFSupplement2(Constants.PLATFORM_CQ9,  df.parse(startTime).getTime(), df.parse(endTime).getTime());
+                goldenFSupplement2(Constants.PLATFORM_PG,  df.parse(startTime).getTime(), df.parse(endTime).getTime());
             }
         }
     }
 
     public void goldenFSupplement(String vendorCode, Long startTime, Long endTime) {
         redisUtil.set("PG:repair:secretkey", "1");
-        if (!Constants.PLATFORM_PG.equals(vendorCode) && !Constants.PLATFORM_CQ9.equals(
-            vendorCode) && !Constants.PLATFORM_SABASPORT.equals(vendorCode)) {
-            log.error("产品代码错误");
-            return;
-        }
         if (startTime.toString().length() != 13 || endTime.toString().length() != 13) {
-
             log.error("时间格式错误");
             return;
         }
@@ -102,13 +96,7 @@ public class SupplementPgController {
 
     public void goldenFSupplement2(String vendorCode, Long startTime, Long endTime) {
         redisUtil.set("PG2:repair:secretkey", "1");
-        if (!Constants.PLATFORM_PG.equals(vendorCode) && !Constants.PLATFORM_CQ9.equals(
-            vendorCode) && !Constants.PLATFORM_SABASPORT.equals(vendorCode)) {
-            log.error("产品代码错误");
-            return;
-        }
         if (startTime.toString().length() != 13 || endTime.toString().length() != 13) {
-
             log.error("时间格式错误");
             return;
         }
