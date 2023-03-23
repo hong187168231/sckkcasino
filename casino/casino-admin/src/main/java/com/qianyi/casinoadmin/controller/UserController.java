@@ -1680,11 +1680,11 @@ public class UserController {
         }
         log.info("/user/saveChargeOrder -> sysUser :{}", sysUser);
         ResponseEntity responseEntity = null;
-        log.info("/user/saveChargeOrder -> userMoneyLock-0");
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(user.getId().toString());
+        log.info("/user/saveChargeOrder -> userMoneyLock-0 user.getId()={}", user.getId().toString());
+//        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(user.getId().toString());
         try {
             log.info("/user/saveChargeOrder -> userMoneyLock-1");
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+//            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             log.info("/user/saveChargeOrder -> userMoneyLock-2");
             responseEntity = chargeOrderBusiness.saveOrderSuccess(user, chargeOrder, Constants.chargeOrder_masterControl, Constants.remitType_general, Constants.CODENUMCHANGE_MASTERCONTROL);
         } catch (Exception e) {
@@ -1692,8 +1692,8 @@ public class UserController {
             return ResponseUtil.custom("操作失败");
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
-            log.info("/user/saveChargeOrder -> 所释放成功: {}", userMoneyLock);
+//            RedisKeyUtil.unlock(userMoneyLock);
+//            log.info("/user/saveChargeOrder -> 所释放成功: {}", userMoneyLock);
         }
         if (responseEntity.getCode() == CommonConst.NUMBER_0) {
             threadPool.execute(() -> this.asynDeleRedis(chargeOrder.getUserId().toString()));
