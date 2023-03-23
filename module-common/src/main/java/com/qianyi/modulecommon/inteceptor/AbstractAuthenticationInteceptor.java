@@ -6,14 +6,12 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.Enumeration;
@@ -28,13 +26,16 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         printRequestlog(request);
         //不是映射到方法不用拦截
+        log.info("handler instanceof HandlerMethod : {}", handler instanceof HandlerMethod);
         if (!(handler instanceof HandlerMethod)) {
             return true;
         }
         String url = request.getServletPath();
+        log.info("url :{}", url);
         if (url.contains("authenticationPlatformMaintain")) {
             return true;
         }
+        log.info(" check come here.");
         //平台维护开关校验
         PlatformMaintenanceSwitch maintain = platformMaintainCheck();
         Boolean onOff = maintain.getOnOff();
@@ -42,30 +43,40 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
             response.sendRedirect(request.getContextPath() + "/authenticationPlatformMaintain?startTime="+maintain.getStartTime()+"&endTime="+maintain.getEndTime());
             return false;
         }
+        log.info(" check platform switch status : {}", onOff);
         HandlerMethod handlerMethod = (HandlerMethod) handler;
         Method method = handlerMethod.getMethod();
         NoAuthentication annotation = method.getAnnotation(NoAuthentication.class);
+        log.info("annotation : {}", annotation);
         if (annotation == null) {
-            if (hasPermission(request,response)) {
+            boolean hasPermission = hasPermission(request, response);
+            log.info("hasPermission(request,response) : {}", hasPermission);
+            if (hasPermission) {
                 //帐号封号拦截
-                if(hasBan()){
-                    if(url.contains("authenticationBan")){
+                boolean hasBan = hasBan();
+                log.info("hasBan : {}", hasBan);
+                if (hasBan) {
+                    if (url.contains("authenticationBan")) {
                         return true;
                     }
-                    response.sendRedirect(request.getContextPath()+"/authenticationBan");
+                    log.info("url.contains(\"authenticationBan\") : {}", url.contains("authenticationBan"));
+                    response.sendRedirect(request.getContextPath() + "/authenticationBan");
                     return false;
                 }
                 //多设备登录拦截
-                if(multiDeviceCheck()){
+                log.info("检查多设备登录拦截");
+                if (multiDeviceCheck()) {
                     return true;
                 }
-                response.sendRedirect(request.getContextPath()+"/authenticationMultiDevice");
+                log.info("检查多设备登录拦截 -end");
+                response.sendRedirect(request.getContextPath() + "/authenticationMultiDevice");
                 return false;
             }
-            response.sendRedirect(request.getContextPath()+"/authenticationNopass");
+            log.info("if end");
+            response.sendRedirect(request.getContextPath() + "/authenticationNopass");
             return false;
         }
-
+        log.info("end.");
         return true;
 
 
