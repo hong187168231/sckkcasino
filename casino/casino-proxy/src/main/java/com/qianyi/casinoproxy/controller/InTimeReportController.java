@@ -90,6 +90,8 @@ public class InTimeReportController {
         Integer currentRole = null;
         Boolean mark = true;
         Long firstProxy = 0l;
+        ProxyUser  proxyUserId = proxyUserService.findById(currentAgentId);
+        currentRole=proxyUserId.getProxyRole();
         if (!CasinoProxyUtil.checkNull(userName)){
             ProxyUser byUserName = proxyUserService.findByUserName(userName);
             if (CasinoProxyUtil.checkNull(byUserName)){
@@ -102,8 +104,6 @@ public class InTimeReportController {
                 mark=false;
             }
         }
-        ProxyUser  proxyUserId = proxyUserService.findById(currentAgentId);
-        currentRole=proxyUserId.getProxyRole();
 
         Page<GameRecordReportNew> gameRecordReportPage = gameRecordReportNewService.findGameRecordReportPageProxy(pageable, gameRecordReport, startTime, endTime,proxyId,proxyRole,agentMark,agentId , currentRole,currentAgentId);
         PageResultVO<GameRecordReportVo> pageResultVO = new PageResultVO(gameRecordReportPage);

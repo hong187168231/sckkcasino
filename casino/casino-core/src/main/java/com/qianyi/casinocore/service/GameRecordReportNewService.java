@@ -1150,29 +1150,39 @@ public class GameRecordReportNewService {
                     .add(criteriaBuilder.between(root.get("staticsTimes").as(String.class), startSetTime, endSetTime));
         }
         if (proxyRole == null) {
-            criteriaQuery.multiselect(root.get("firstProxy"), criteriaBuilder.sum(root.get("bettingNumber")),
-                    criteriaBuilder.sum(root.get("amount")), criteriaBuilder.sum(root.get("betAmount")),
-                    criteriaBuilder.sum(root.get("validAmount")), criteriaBuilder.sum(root.get("winLossAmount")),
-                    criteriaBuilder.sum(root.get("userAmount")), criteriaBuilder.sum(root.get("surplusAmount")),
-                    criteriaBuilder.sum(root.get("newAmount")), criteriaBuilder.sum(root.get("newUserAmount")),
-                    criteriaBuilder.sum(root.get("newSurplusAmount")),
-                    criteriaBuilder.sum(root.get("todayAward")),
-                    criteriaBuilder.sum(root.get("riseAward")));
             if (currentRole!=null){
                 //总代
                 if (currentRole.equals( CommonConst.NUMBER_1)){
+                    criteriaQuery.multiselect(root.get("firstProxy"), criteriaBuilder.sum(root.get("bettingNumber")),
+                            criteriaBuilder.sum(root.get("amount")), criteriaBuilder.sum(root.get("betAmount")),
+                            criteriaBuilder.sum(root.get("validAmount")), criteriaBuilder.sum(root.get("winLossAmount")),
+                            criteriaBuilder.sum(root.get("userAmount")), criteriaBuilder.sum(root.get("surplusAmount")),
+                            criteriaBuilder.sum(root.get("newAmount")), criteriaBuilder.sum(root.get("newUserAmount")),
+                            criteriaBuilder.sum(root.get("newSurplusAmount")),
+                            criteriaBuilder.sum(root.get("todayAward")),
+                            criteriaBuilder.sum(root.get("riseAward")));
+                    predicates.add(criteriaBuilder.notEqual(root.get("firstProxy").as(Long.class), 0L));
                     predicates.add(criteriaBuilder.equal(root.get("firstProxy").as(Long.class), currentId));
+                    // group by type
+                    criteriaQuery.groupBy(root.get("firstProxy"));
                 }
                 //区域代
                 else  if (currentRole.equals( CommonConst.NUMBER_2)){
+                    criteriaQuery.multiselect(root.get("secondProxy"), criteriaBuilder.sum(root.get("bettingNumber")),
+                            criteriaBuilder.sum(root.get("amount")), criteriaBuilder.sum(root.get("betAmount")),
+                            criteriaBuilder.sum(root.get("validAmount")), criteriaBuilder.sum(root.get("winLossAmount")),
+                            criteriaBuilder.sum(root.get("userAmount")), criteriaBuilder.sum(root.get("surplusAmount")),
+                            criteriaBuilder.sum(root.get("newAmount")), criteriaBuilder.sum(root.get("newUserAmount")),
+                            criteriaBuilder.sum(root.get("newSurplusAmount")),
+                            criteriaBuilder.sum(root.get("todayAward")),
+                            criteriaBuilder.sum(root.get("riseAward")));
                    predicates.add(criteriaBuilder.equal(root.get("secondProxy").as(Long.class), currentId));
+                    // group by type
+                    criteriaQuery.groupBy(root.get("secondProxy"));
 
                 }
-            }else {
-                predicates.add(criteriaBuilder.notEqual(root.get("firstProxy").as(Long.class), 0L));
             }
-            // group by type
-            criteriaQuery.groupBy(root.get("firstProxy"));
+
         } else if (proxyRole == CommonConst.NUMBER_1) {
             if (agentMark) {
                 criteriaQuery.multiselect(root.get("secondProxy"), criteriaBuilder.sum(root.get("bettingNumber")),
