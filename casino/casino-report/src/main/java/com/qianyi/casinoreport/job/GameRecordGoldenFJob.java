@@ -91,7 +91,7 @@ public class GameRecordGoldenFJob {
         }
     }
 
-    @Scheduled(initialDelay = 3000, fixedDelay = 1000 * 60 * 1)
+    @Scheduled(initialDelay = 3000, fixedDelay = 1000 * 60 * 3)
     public void pullGoldenF_PGBD() {
         PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
         if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
@@ -281,9 +281,9 @@ public class GameRecordGoldenFJob {
     @Async("asyncExecutor")
     public void processBusiness(GameRecordGoldenF gameRecordGoldenF, GameRecord gameRecord,
         PlatformConfig platformConfig, User user) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(gameRecordGoldenF.getTraceId());
+//        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(gameRecordGoldenF.getTraceId());
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+//            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             // 改变用户实时余额
             gameRecordAsyncOper.changeUserBalancePg(gameRecordGoldenF);
             if (gameRecordGoldenF.getBetAmount().compareTo(BigDecimal.ZERO) == 0)
@@ -309,7 +309,7 @@ public class GameRecordGoldenFJob {
         } catch (Exception e) {
             log.error("注单数据保存失败,msg={}", e.getMessage());
         } finally {
-            RedisKeyUtil.unlock(userMoneyLock);
+//            RedisKeyUtil.unlock(userMoneyLock);
         }
 
     }
