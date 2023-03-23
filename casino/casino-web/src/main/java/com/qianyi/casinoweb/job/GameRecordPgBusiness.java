@@ -176,9 +176,9 @@ public class GameRecordPgBusiness {
     @Async("asyncExecutor")
     public void processBusinessPg(GameRecordGoldenF gameRecordGoldenF, GameRecord gameRecord,
         PlatformConfig platformConfig, User user) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(gameRecord.getUserId().toString());
+//        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(gameRecord.getUserId().toString());
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+//            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             // 改变用户实时余额
             gameRecordPgAsyncOper.changeUserBalancePg(gameRecordGoldenF);
             if (gameRecordGoldenF.getBetAmount().compareTo(BigDecimal.ZERO) == 0)
@@ -204,7 +204,7 @@ public class GameRecordPgBusiness {
         } catch (Exception e) {
             log.error("注单数据保存失败,msg={}", e.getMessage());
         } finally {
-            RedisKeyUtil.unlock(userMoneyLock);
+//            RedisKeyUtil.unlock(userMoneyLock);
         }
 
     }
