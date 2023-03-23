@@ -110,9 +110,9 @@ public class ObzrGameController {
 
         //回收其他游戏的余额
         thirdGameBusiness.oneKeyRecoverOtherGame(authId, Constants.PLATFORM_OBZR);
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(authId.toString());
+//        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(authId.toString());
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+//            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             UserMoney userMoney = userMoneyService.findByUserId(authId);
             BigDecimal userCenterMoney = BigDecimal.ZERO;
             if (userMoney != null && userMoney.getMoney() != null) {
@@ -145,7 +145,7 @@ public class ObzrGameController {
             return ResponseUtil.custom("服务器异常,请重新操作");
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+//            RedisKeyUtil.unlock(userMoneyLock);
         }
 
         // 开游戏

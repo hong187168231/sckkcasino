@@ -135,9 +135,9 @@ public class GoldenFController {
 
         thirdGameBusiness.oneKeyRecoverOtherGame(authId, platform);
         String goldenfAccount = third.getGoldenfAccount();
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(authId.toString());
+//        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(authId.toString());
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+//            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             // TODO 扣款时考虑当前用户余额大于平台在三方的余额最大只能转入平台余额
             UserMoney userMoney = userMoneyService.findByUserId(authId);
             BigDecimal userCenterMoney = BigDecimal.ZERO;
@@ -161,7 +161,7 @@ public class GoldenFController {
             return ResponseUtil.custom("服务器异常,请重新操作");
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+//            RedisKeyUtil.unlock(userMoneyLock);
         }
 
         // 开游戏

@@ -214,16 +214,16 @@ public class WithdrawOrderController {
         SysUser sysUser = sysUserService.findById(userId);
         String lastModifier = (sysUser == null || sysUser.getUserName() == null) ? "" : sysUser.getUserName();
         ResponseEntity responseEntity = null;
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(withdrawOrder.getUserId().toString());
+//        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(withdrawOrder.getUserId().toString());
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+//            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             responseEntity = withdrawBusiness.updateWithdrawAndUser(id, status, lastModifier, remark);
         } catch (Exception e) {
             log.error("提现审核出现异常id{}userId{} {}", withdrawOrder.getId(), withdrawOrder.getUserId(), e.getMessage());
             return ResponseUtil.custom("操作失败");
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+//            RedisKeyUtil.unlock(userMoneyLock);
         }
         if (responseEntity.getCode() == CommonConst.NUMBER_0 && status == CommonConst.NUMBER_1) {
             Object data = responseEntity.getData();

@@ -100,9 +100,9 @@ public class DMCGameController {
         thirdGameBusiness.oneKeyRecoverOtherGame(authId, Constants.PLATFORM_DMC);
 
         String token = null;
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(authId.toString());
+//        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(authId.toString());
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+//            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             UserMoney userMoney = userMoneyService.findByUserId(authId);
             BigDecimal userCenterMoney = BigDecimal.ZERO;
             if (userMoney != null && userMoney.getMoney() != null) {
@@ -139,7 +139,7 @@ public class DMCGameController {
             return ResponseUtil.custom("服务器异常,请重新操作");
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+//            RedisKeyUtil.unlock(userMoneyLock);
         }
 
         log.info("大马彩登录请求参数 id，{} 用户名,{} 客户id{}", user.getAccount(), authId);
