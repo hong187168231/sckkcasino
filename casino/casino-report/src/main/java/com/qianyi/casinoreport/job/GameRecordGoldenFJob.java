@@ -67,7 +67,7 @@ public class GameRecordGoldenFJob {
 
 
 
-    @Scheduled(initialDelay = 10000, fixedDelay = 1000 * 60 * 2)
+    @Scheduled(initialDelay = 10000, fixedDelay = 1000 * 60 * 5)
     public void pullGoldenF_PG() {
         PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
         if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
@@ -91,7 +91,7 @@ public class GameRecordGoldenFJob {
         }
     }
 
-    @Scheduled(initialDelay = 3000, fixedDelay = 1000 * 60 * 3)
+    @Scheduled(initialDelay = 3000, fixedDelay = 1000 * 60 * 7)
     public void pullGoldenF_PGBD() {
         PlatformGame pgPlatformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_PG);
         if (pgPlatformGame != null && pgPlatformGame.getGameStatus() == 2) {
