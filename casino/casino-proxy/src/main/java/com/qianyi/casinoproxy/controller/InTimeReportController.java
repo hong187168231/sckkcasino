@@ -92,6 +92,7 @@ public class InTimeReportController {
         Long firstProxy = 0l;
         ProxyUser  proxyUserId = proxyUserService.findById(currentAgentId);
         currentRole=proxyUserId.getProxyRole();
+        firstProxy=proxyUserId.getFirstProxy();
         if (!CasinoProxyUtil.checkNull(userName)){
             ProxyUser byUserName = proxyUserService.findByUserName(userName);
             if (CasinoProxyUtil.checkNull(byUserName)){
@@ -99,7 +100,7 @@ public class InTimeReportController {
             }
             proxyId = byUserName.getId();
             proxyRole = byUserName.getProxyRole();
-            firstProxy=byUserName.getFirstProxy();
+
             if( (agentMark && proxyRole== CommonConst.NUMBER_2) || proxyRole== CommonConst.NUMBER_3){
                 mark=false;
             }
