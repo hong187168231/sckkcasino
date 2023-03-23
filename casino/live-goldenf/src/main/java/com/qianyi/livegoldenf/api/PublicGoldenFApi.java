@@ -1,6 +1,7 @@
 package com.qianyi.livegoldenf.api;
 
 import com.alibaba.fastjson.JSONObject;
+import com.qianyi.modulecommon.Constants;
 import com.qianyi.modulecommon.util.HttpClient4Util;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -239,6 +240,9 @@ public class PublicGoldenFApi {
     }
 
     public ResponseEntity getPlayerGameRecord(Long startTime,Long endTime,String vendorCode,int page,int pageSize){
+        if(vendorCode.equalsIgnoreCase(Constants.PLATFORM_PG)){
+            return  getPlayerGameRecordPg(startTime,endTime,vendorCode,page,pageSize);
+        }
         String url = recordUrl + "/v3/Bet/Record/Get";
         Map<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
@@ -255,6 +259,26 @@ public class PublicGoldenFApi {
         return entity;
 
     }
+
+    public ResponseEntity getPlayerGameRecordPg(Long startTime,Long endTime,String vendorCode,int page,int pageSize){
+        String url = recordUrl + "/v3/Bet/Record/Get";
+        Map<String, Object> params = new HashMap<>();
+        params.put("secret_key", secretKey);
+        params.put("operator_token", operatorToken);
+        params.put("vendor_code", vendorCode);
+        params.put("start_time", startTime);
+        params.put("end_time", endTime);
+        params.put("page", page);
+        params.put("page_size", pageSize);
+        log.info("pg获取所有投注记录参数{}：", JSONObject.toJSONString(params));
+        String result = HttpClient4Util.doPost(url, params);
+        log.info("pg获取所有投注记录结果{}：", result);
+        ResponseEntity entity = entity(result);
+        return entity;
+
+    }
+
+
 
     private static ResponseEntity entity(String result) {
         if (ObjectUtils.isEmpty(result)) {
