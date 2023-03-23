@@ -279,9 +279,9 @@ public class ThirdGameBusiness {
             return ResponseUtil.custom("回收失败,请联系客服");
         }
         balance = recoverMoney.abs();
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+//        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+//            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             // 把额度加回本地
             UserMoney userMoney = userMoneyService.findByUserId(userId);
             if (userMoney == null) {
@@ -299,7 +299,7 @@ public class ThirdGameBusiness {
             return ResponseUtil.custom("服务器异常,请重新操作");
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+//            RedisKeyUtil.unlock(userMoneyLock);
         }
     }
 
