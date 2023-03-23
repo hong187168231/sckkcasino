@@ -213,16 +213,16 @@ public class WithdrawPayController {
             return ResponseUtil.custom("订单已被处理");
         }
         ResponseEntity responseEntity = null;
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(order.getUserId().toString());
+       // RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(order.getUserId().toString());
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+           // userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             responseEntity = withdrawBusiness.payWithdraw(id, lastModifier, status, remark);
         } catch (Exception e) {
             log.error("提现审核出现异常id{}userId{} {}", order.getId(), order.getUserId(), e.getMessage());
             return ResponseUtil.custom("操作失败");
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+           // RedisKeyUtil.unlock(userMoneyLock);
         }
         if (responseEntity.getCode() == CommonConst.NUMBER_0){
             Object data = responseEntity.getData();
