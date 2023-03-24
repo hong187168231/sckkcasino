@@ -1813,9 +1813,9 @@ public class UserController {
         }
         Long userId = LoginUtil.getLoginUserId();
         ResponseEntity responseEntity = null;
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(user.getId().toString());
+      //  RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(user.getId().toString());
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+          //  userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             responseEntity = withdrawBusiness.updateWithdrawAndUser(user, id, money, bankId,
                 Constants.withdrawOrder_masterControl, userId, remark);
         } catch (Exception e) {
@@ -1823,7 +1823,7 @@ public class UserController {
             return ResponseUtil.custom("操作失败");
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+          //  RedisKeyUtil.unlock(userMoneyLock);
         }
         if (responseEntity.getCode() == CommonConst.NUMBER_0) {
             threadPool.execute(() -> this.asynDeleRedis(id.toString()));
