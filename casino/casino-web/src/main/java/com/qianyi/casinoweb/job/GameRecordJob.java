@@ -56,7 +56,7 @@ public class GameRecordJob {
     @Autowired
     PlatformConfigService platformConfigService;
     @Autowired
-    GameRecordAsyncOper gameRecordAsyncOper;
+    GameRecordNotLockOper gameRecordAsyncOper;
     @Autowired
     UserMoneyBusiness userMoneyBusiness;
     @Autowired
