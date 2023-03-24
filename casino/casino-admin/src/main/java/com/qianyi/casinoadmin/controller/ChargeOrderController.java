@@ -241,9 +241,9 @@ public class ChargeOrderController {
                 log.info("审核充值订单开始:id:{} userId:{} chargeAmount:{} status:{} sysUserId:{}", id, order.getUserId(),
                     order.getChargeAmount(), order.getStatus(), userId);
                 ResponseEntity responseEntity = null;
-                RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(order.getUserId().toString());
+                //RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(order.getUserId().toString());
                 try {
-                    userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+                    //userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
                     ChargeOrder chargeOrder = chargeOrderService.findById(id);
                     log.info("审核充值订单取到钱包锁:id:{} userId:{} chargeAmount:{} status:{} sysUserId:{}", id, order.getUserId(),
                         order.getChargeAmount(), order.getStatus(), userId);
@@ -258,7 +258,7 @@ public class ChargeOrderController {
                     // 释放锁
                     log.info("审核充值订单释放钱包锁:id:{} userId:{} chargeAmount:{} status:{} sysUserId:{}", id, order.getUserId(),
                         order.getChargeAmount(), order.getStatus(), userId);
-                    RedisKeyUtil.unlock(userMoneyLock);
+                    //RedisKeyUtil.unlock(userMoneyLock);
                 }
                 if (responseEntity.getCode() == CommonConst.NUMBER_0 && status == CommonConst.NUMBER_1) {
                     Object data = responseEntity.getData();
