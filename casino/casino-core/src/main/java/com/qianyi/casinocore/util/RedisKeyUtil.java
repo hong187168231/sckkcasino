@@ -64,7 +64,7 @@ public class RedisKeyUtil {
      * @return 全局会员钱包锁
      */
     public RLock getUserMoneyLock(String userId) {
-        return redissonClient.getFairLock(RedisKeyUtil.USER_MONEY_LOCK + userId);
+        return redissonClient.getLock(RedisKeyUtil.USER_MONEY_LOCK + userId);
     }
 
     public RLock getUserMoneyNotFairLock(String userId) {
