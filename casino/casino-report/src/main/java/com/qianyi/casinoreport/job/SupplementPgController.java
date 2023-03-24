@@ -27,12 +27,26 @@ public class SupplementPgController {
     @Autowired
     private RedisUtil redisUtil;
 
-    @Scheduled(initialDelay = 7000, fixedDelay = 1000 * 60 * 5)
-    public void pullGoldenF_PGBD11() throws ParseException {
+//    @Scheduled(initialDelay = 7000, fixedDelay = 1000 * 60 * 5)
+//    public void pullGoldenF_PGBD11() throws ParseException {
+//        log.info("定时器开始拉取PG真人注单记录");
+//        String startTime = "2023-03-22 14:40:00";
+//        String endTime = "2023-03-22 15:00:00";
+//        String secretkey = "puff520miyao";
+//        if (StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)) {
+//            if (StringUtils.isNotBlank(secretkey) && secretkey.equals("puff520miyao")) {
+//                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                goldenFSupplement(Constants.PLATFORM_PG, df.parse(startTime).getTime(), df.parse(endTime).getTime());
+//            }
+//        }
+//    }
+
+    @Scheduled(initialDelay = 7000, fixedDelay = 1000 * 60 * 2)
+    public void pullGoldenF_PGBD() throws ParseException {
         log.info("定时器开始拉取PG真人注单记录");
-        String startTime = "2023-03-22 14:40:00";
-        String endTime = "2023-03-22 15:00:00";
-        String secretkey = "puff520miyao";
+        String startTime = (String)redisUtil.get("PG:repair:startTime");
+        String endTime = (String)redisUtil.get("PG:repair:endTime");
+        String secretkey = (String)redisUtil.get("PG:repair:secretkey");
         if (StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)) {
             if (StringUtils.isNotBlank(secretkey) && secretkey.equals("puff520miyao")) {
                 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -41,33 +55,19 @@ public class SupplementPgController {
         }
     }
 
-//    @Scheduled(initialDelay = 7000, fixedDelay = 1000 * 60 * 2)
-//    public void pullGoldenF_PGBD() throws ParseException {
-//        log.info("定时器开始拉取PG真人注单记录");
-//        String startTime = (String)redisUtil.get("PG:repair:startTime");
-//        String endTime = (String)redisUtil.get("PG:repair:endTime");
-//        String secretkey = (String)redisUtil.get("PG:repair:secretkey");
-//        if (StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)) {
-//            if (StringUtils.isNotBlank(secretkey) && secretkey.equals("puff520miyao")) {
-//                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//                goldenFSupplement(Constants.PLATFORM_PG, df.parse(startTime).getTime(), df.parse(endTime).getTime());
-//            }
-//        }
-//    }
-//
-//    @Scheduled(initialDelay = 7000, fixedDelay = 1000 * 60 * 3)
-//    public void pullGoldenF_PGBD2() throws ParseException {
-//        log.info("定时器开始拉取PG2真人注单记录");
-//        String startTime = (String)redisUtil.get("PG2:repair:startTime");
-//        String endTime = (String)redisUtil.get("PG2:repair:endTime");
-//        String secretkey = (String)redisUtil.get("PG2:repair:secretkey");
-//        if (StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)) {
-//            if (StringUtils.isNotBlank(secretkey) && secretkey.equals("puff520miyao")) {
-//                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//                goldenFSupplement2(Constants.PLATFORM_PG, df.parse(startTime).getTime(), df.parse(endTime).getTime());
-//            }
-//        }
-//    }
+    @Scheduled(initialDelay = 7000, fixedDelay = 1000 * 60 * 3)
+    public void pullGoldenF_PGBD2() throws ParseException {
+        log.info("定时器开始拉取PG2真人注单记录");
+        String startTime = (String)redisUtil.get("PG2:repair:startTime");
+        String endTime = (String)redisUtil.get("PG2:repair:endTime");
+        String secretkey = (String)redisUtil.get("PG2:repair:secretkey");
+        if (StringUtils.isNotBlank(startTime) && StringUtils.isNotBlank(endTime)) {
+            if (StringUtils.isNotBlank(secretkey) && secretkey.equals("puff520miyao")) {
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                goldenFSupplement2(Constants.PLATFORM_PG, df.parse(startTime).getTime(), df.parse(endTime).getTime());
+            }
+        }
+    }
 
     public void goldenFSupplement(String vendorCode, Long startTime, Long endTime) {
         redisUtil.set("PG:repair:secretkey", "1");
