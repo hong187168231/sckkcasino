@@ -3,6 +3,7 @@ package com.qianyi.casinoweb.job;
 import com.alibaba.fastjson.JSON;
 import com.qianyi.casinocore.business.ThirdGameBusiness;
 import com.qianyi.casinocore.business.UserMoneyBusiness;
+import com.qianyi.casinocore.constant.GoldenFConstant;
 import com.qianyi.casinocore.model.*;
 import com.qianyi.casinocore.service.*;
 import com.qianyi.casinocore.util.CommonConst;
@@ -18,6 +19,7 @@ import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -71,7 +73,7 @@ public class GameRecordJob {
     public void pullGameRecord() {
         PlatformGame platformGame = platformGameService.findByGamePlatformName(Constants.PLATFORM_WM_BIG);
         if (platformGame != null && platformGame.getGameStatus() == 2) {
-            log.info("后台已关闭WM,无需拉单,platformGame={}",platformGame);
+            log.info("后台已关闭WM,无需拉单,platformGame={}", platformGame);
             return;
         }
         log.info("定时器开始拉取游戏记录");
@@ -91,18 +93,19 @@ public class GameRecordJob {
             String startTime = startTimeAndEndTime.getStartTime();
             String endTime = startTimeAndEndTime.getEndTime();
             timeMsg = startTime + "到" + endTime;
-            log.info("开始拉取{}的wm游戏记录",timeMsg);
+            log.info("开始拉取{}的wm游戏记录", timeMsg);
             //查询时间范围内的所有游戏记录，（以结算时间为条件）
-            String result = wmApi.getDateTimeReport(null, startTime, endTime, 0, 1, 2, null, null, CommonConst.NUMBER_3);
+            String result =
+                wmApi.getDateTimeReport(null, startTime, endTime, 0, 1, 2, null, null, CommonConst.NUMBER_3);
             //远程请求异常
             if (ObjectUtils.isEmpty(result)) {
-                log.error("{}游戏记录拉取异常",timeMsg);
+                log.error("{}游戏记录拉取异常", timeMsg);
                 gameRecordAsyncOper.sendMsgToTelegramBot(timeMsg + active + "环境,游戏记录拉取异常,原因:远程请求异常");
                 return;
             }
             //查询结果无记录
             if ("notData".equals(result)) {
-                log.info("{}时间范围无记录",timeMsg);
+                log.info("{}时间范围无记录", timeMsg);
                 updateEndTime(endTime, gameRecord);
                 return;
             }
@@ -111,10 +114,10 @@ public class GameRecordJob {
                 saveAll(gameRecords);
             }
             updateEndTime(endTime, gameRecord);
-            log.info("{}wm游戏记录拉取完成",timeMsg);
+            log.info("{}wm游戏记录拉取完成", timeMsg);
         } catch (Exception e) {
             gameRecordAsyncOper.sendMsgToTelegramBot(timeMsg + active + "环境,游戏记录拉取异常,原因:" + e.getMessage());
-            log.error("{}游戏记录拉取异常",timeMsg);
+            log.error("{}游戏记录拉取异常", timeMsg);
             e.printStackTrace();
         }
     }
@@ -133,7 +136,7 @@ public class GameRecordJob {
         String endTime = format.format(nowDate);
         //第一次拉取数据取当前时间前5分钟为开始时间，之后以上次拉取数据的结束时间为开始时间
         if (ObjectUtils.isEmpty(time)) {
-            startTime = getBeforeDateTime(format,endTime,-5);
+            startTime = getBeforeDateTime(format, endTime, -5);
         } else {
             startTime = time;
         }
@@ -150,10 +153,10 @@ public class GameRecordJob {
             Date afterFiveMin = now.getTime();
             endTime = format.format(afterFiveMin);
             //下面开始时间前移2分钟，结束时间也要前移2分钟
-            endTime = getBeforeDateTime(format,endTime,overlap);
+            endTime = getBeforeDateTime(format, endTime, overlap);
         }
         //开始时间往前2分钟，重叠两分钟的时间区间
-        startTime = getBeforeDateTime(format,startTime,overlap);
+        startTime = getBeforeDateTime(format, startTime, overlap);
 
         StartTimeAndEndTime startTimeAndEndTime = new StartTimeAndEndTime();
         startTimeAndEndTime.setStartTime(startTime);
@@ -161,7 +164,7 @@ public class GameRecordJob {
         return startTimeAndEndTime;
     }
 
-    private String getBeforeDateTime(SimpleDateFormat format,String currentTime,int before) throws ParseException {
+    private String getBeforeDateTime(SimpleDateFormat format, String currentTime, int before) throws ParseException {
         Date date = format.parse(currentTime);
         Calendar now = Calendar.getInstance();
         now.setTime(date);
@@ -196,7 +199,8 @@ public class GameRecordJob {
                     continue;
                 }
                 gameRecord.setUserId(account.getUserId());
-                BigDecimal validbet = ObjectUtils.isEmpty(gameRecord.getValidbet()) ? BigDecimal.ZERO : new BigDecimal(gameRecord.getValidbet());
+                BigDecimal validbet = ObjectUtils.isEmpty(gameRecord.getValidbet()) ? BigDecimal.ZERO
+                    : new BigDecimal(gameRecord.getValidbet());
                 //有效投注额为0不参与洗码,打码,分润,抽點
                 if (validbet.compareTo(BigDecimal.ZERO) == 0) {
                     gameRecord.setWashCodeStatus(Constants.yes);
@@ -207,46 +211,63 @@ public class GameRecordJob {
                 }
                 //有数据会重复注单id唯一约束会报错，所以一条一条保存，避免影响后面的
                 User user = userService.findById(gameRecord.getUserId());
-                GameRecord record = save(gameRecord,user);
-                //计算用户账号实时余额
-                changeUserBalance(account.getUserId(),gameRecord.getResult());
-                //发送注单消息到MQ后台要统计数据
-                gameRecordAsyncOper.proxyGameRecordReport(Constants.PLATFORM_WM,record);
-                if (validbet.compareTo(BigDecimal.ZERO) == 0) {
-                    continue;
-                }
-                //洗码
-                gameRecordAsyncOper.washCode(Constants.PLATFORM_WM, record);
-                // 抽点
-                gameRecordAsyncOper.extractPoints(Constants.PLATFORM_WM, record);
-                //扣减打码量
-                gameRecordAsyncOper.subCodeNum(Constants.PLATFORM_WM,platformConfig, record);
-                //代理分润
-                if (Objects.nonNull(user) && Objects.nonNull(user.getThirdPid()) && user.getThirdPid() != 0L){//没有上级不分润
-                    gameRecordAsyncOper.shareProfit(Constants.PLATFORM_WM,record);
-                }
-                //返利
-                gameRecordAsyncOper.rebate(Constants.PLATFORM_WM,record);
-                //等级流水
-                gameRecordAsyncOper.levelWater(Constants.PLATFORM_WM, record);
+                GameRecord record = save(gameRecord, user);
+                processBusiness(record, platformConfig, user, gameRecord, account, validbet);
             } catch (Exception e) {
                 e.printStackTrace();
-                if(!e.getMessage().contains("UKafl55kwlnpstnqstqk9t4x0w0")){
+                if (!e.getMessage().contains("UKafl55kwlnpstnqstqk9t4x0w0")) {
                     log.error("保存游戏记录时报错,message={}", e.getMessage());
                 }
             }
         }
     }
 
+
+    @Async("asyncExecutor")
+    public void processBusiness(GameRecord record, PlatformConfig platformConfig, User user, GameRecord gameRecord,
+        UserThird userThird, BigDecimal validbet) {
+        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userThird.getAccount() + user.getId().toString());
+        try {
+            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            //计算用户账号实时余额
+            changeUserBalance(userThird.getUserId(), gameRecord.getResult());
+            //发送注单消息到MQ后台要统计数据
+            gameRecordAsyncOper.proxyGameRecordReport(Constants.PLATFORM_WM, record);
+            if (validbet.compareTo(BigDecimal.ZERO) == 0) {
+                return;
+            }
+            //洗码
+            gameRecordAsyncOper.washCode(Constants.PLATFORM_WM, record);
+            // 抽点
+            gameRecordAsyncOper.extractPoints(Constants.PLATFORM_WM, record);
+            //扣减打码量
+            gameRecordAsyncOper.subCodeNum(Constants.PLATFORM_WM, platformConfig, record);
+            //代理分润
+            if (Objects.nonNull(user) && Objects.nonNull(user.getThirdPid()) && user.getThirdPid() != 0L) {//没有上级不分润
+                gameRecordAsyncOper.shareProfit(Constants.PLATFORM_WM, record);
+            }
+            //返利
+            gameRecordAsyncOper.rebate(Constants.PLATFORM_WM, record);
+            //等级流水
+            gameRecordAsyncOper.levelWater(Constants.PLATFORM_WM, record);
+        } catch (Exception e) {
+            log.error("改变用户实时余额时报错，msg={}", e.getMessage());
+        } finally {
+            // 释放锁
+            RedisKeyUtil.unlock(userMoneyLock);
+        }
+    }
+
     /**
      * 改变用户实时余额
+     *
      * @param userId
      * @param result
      */
     private void changeUserBalance(Long userId, String result) {
-//        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+        //        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
         try {
-//            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+            //            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             if (ObjectUtils.isEmpty(result)) {
                 return;
             }
@@ -260,15 +281,15 @@ public class GameRecordJob {
             } else {
                 userMoneyBusiness.subBalance(userId, amount.abs());
             }
-        }catch (Exception e) {
-            log.error("改变用户实时余额时报错，msg={}",e.getMessage());
+        } catch (Exception e) {
+            log.error("改变用户实时余额时报错，msg={}", e.getMessage());
         } finally {
             // 释放锁
-//            RedisKeyUtil.unlock(userMoneyLock);
+            //            RedisKeyUtil.unlock(userMoneyLock);
         }
     }
 
-    public GameRecord save(GameRecord gameRecord,User user) throws Exception{
+    public GameRecord save(GameRecord gameRecord, User user) throws Exception {
         if (user != null) {
             gameRecord.setFirstProxy(user.getFirstProxy());
             gameRecord.setSecondProxy(user.getSecondProxy());
