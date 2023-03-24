@@ -541,15 +541,11 @@ public class SupplementBusiness {
                         // 更新错误订单表状态
                         Integer count = updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:"
                             + errorOrder.getMoney().stripTrailingZeros().toPlainString() + ",转入DG时加点失败,加回本地额度");
-                        if (count > 0) {
-                            // 加回额度
-                            addMoney(errorOrder.getUserId(), errorOrder.getMoney());
-                            // 记录账变
-                            saveAccountChange(errorOrder, errorOrder.getMoney());
-                        }
                     } else if (errorOrder.getType() == AccountChangeEnum.DG_OUT.getType()) {
-                        // 转出DG时，是先扣减DG的钱再加回本地，DG查询无记录说明没有扣点成功，本地也不用把钱加回来,更新状态就行
-                        updateErrorOrderStatus(errorOrder, "自动补单成功，补单金额:0,转出DG时扣点失败,额度未丢失");
+                        // 加回额度
+                        addMoney(errorOrder.getUserId(), errorOrder.getMoney().abs());
+                        // 记录账变
+                        saveAccountChange(errorOrder, errorOrder.getMoney().abs());
                     }
                     break;
                 }
