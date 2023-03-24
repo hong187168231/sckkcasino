@@ -244,9 +244,9 @@ public class GameRecordJob {
      * @param result
      */
     private void changeUserBalance(Long userId, String result) {
-        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
+//        RLock userMoneyLock = redisKeyUtil.getUserMoneyLock(userId.toString());
         try {
-            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
+//            userMoneyLock.lock(RedisKeyUtil.LOCK_TIME, TimeUnit.SECONDS);
             if (ObjectUtils.isEmpty(result)) {
                 return;
             }
@@ -264,7 +264,7 @@ public class GameRecordJob {
             log.error("改变用户实时余额时报错，msg={}",e.getMessage());
         } finally {
             // 释放锁
-            RedisKeyUtil.unlock(userMoneyLock);
+//            RedisKeyUtil.unlock(userMoneyLock);
         }
     }
 
